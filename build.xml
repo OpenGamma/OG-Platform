@@ -1,0 +1,159 @@
+<project default="default" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+  <property environment="ENV"/>
+  <property file="${basedir}/${user.name}.build.properties"/>
+  <property file="${basedir}/build.properties"/>
+  
+  <target name="download-ivy" unless="skip.download">
+    <mkdir dir="${ivy.jar.dir}"/>
+    <!-- download Ivy from web site so that it can be used even without any special installation -->
+    <echo message="installing ivy..."/>
+	  <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+	       dest="${ivy.jar.file}" usetimestamp="true"/>
+	</target>
+	    
+	<!-- ================================= 
+	     target: install-ivy         
+	     this target is not necessary if you put ivy.jar in your ant lib directory
+	     if you already have ivy in your ant lib, you can simply remove this
+	     target and the dependency the 'go' target has on it
+	     ================================= -->
+	<target name="install-ivy" depends="download-ivy" description="--> install ivy">
+	  <!-- try to load ivy here from local ivy dir, in case the user has not already dropped
+	       it into ant's lib dir (note that the latter copy will always take precedence).
+	       We will not fail as long as local lib dir exists (it may be empty) and
+	       ivy is in at least one of ant's lib dir or the local lib dir. -->
+	  <path id="ivy.lib.path">
+	    <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+	  </path>
+	  <taskdef resource="org/apache/ivy/ant/antlib.xml"
+	           uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+	</target> 
+  
+  <target name="default" depends="all"/>
+  
+  <target name="all" depends="compile,test"
+   description="Build all of og-livedata without packaging for distribution"
+   />
+  
+  <target name="compile" depends="compile-src,compile-test"
+   description="Compile all source code"/>
+  
+  <target name="compile-src" depends="install-ivy">
+    <!-- here comes the magic line: asks ivy to resolve a dependency on 
+         commons-lang 2.1 and to build an ant path with it from its cache  -->
+    <ivy:cachepath pathid="src.build.classpath" conf="*"/>
+    <mkdir dir="${src.build.output}"/>
+    <javac
+     srcdir="${basedir}/src"
+     destdir="${src.build.output}"
+     debug="${build.debug}"
+     optimize="${build.optimize}"
+     verbose="${build.verbose}"
+     listfiles="${build.listfiles}"
+     classpathref="src.build.classpath"
+     />
+    <copy todir="${src.build.output}">
+      <fileset dir="${basedir}/src">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="compile-test" depends="install-ivy">
+  	<ivy:cachepath pathid="lib.path.id" conf="*"/>
+    <path id="tests.build.classpath">
+      <path refid="lib.path.id"/>
+    	<pathelement path="${src.build.output}"/>
+    </path>
+  	<echo message="classpath ${toString:tests.build.classpath}"/>
+    <mkdir dir="${tests.build.output}"/>
+    <javac
+     srcdir="${basedir}/tests/unit"
+     destdir="${tests.build.output}"
+     debug="${build.debug}"
+     optimize="${build.optimize}"
+     verbose="${build.verbose}"
+     listfiles="${build.listfiles}"
+     classpathref="tests.build.classpath"
+     />
+    <copy todir="${tests.build.output}">
+      <fileset dir="${basedir}/tests/unit">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean"
+   description="Remove all files created as part of any build process.">
+    <delete dir="${src.build.output}" failonerror="false" quiet="true"/>
+    <delete dir="${tests.build.output}" failonerror="false" quiet="true"/>
+    <delete dir="${tests.junit.output}" failonerror="false" quiet="true"/>
+    <delete dir="${dist.dir}" failonerror="false" quiet="true"/>
+  </target>
+  
+  <target name="test" depends="compile,junit-report"
+   description="Execute all automated tests and produce XML/HTML reports"/>
+   
+  <target name="junit-batch">
+    <mkdir dir="${tests.junit.output}/xml"/>
+    <junit
+     printSummary="true"
+     fork="true"
+     forkmode="once"
+     >
+      <classpath>
+        <path refid="tests.build.classpath"/>
+        <pathelement location="${tests.build.output}"/>
+      </classpath>
+      <assertions><enable/></assertions>
+      <formatter type="xml"/>
+      <batchtest todir="${tests.junit.output}/xml">
+        <fileset dir="${basedir}/tests/unit" includes="**/*Test.java"/>
+      </batchtest>
+    </junit>
+  </target>
+  
+  <target name="junit-report" depends="junit-batch">
+    <mkdir dir="${tests.junit.output}/html"/>
+    <junitreport todir="${tests.junit.output}/xml">
+      <fileset dir="${tests.junit.output}/xml" includes="TEST-*.xml"/>
+      <report todir="${tests.junit.output}/html"/>
+    </junitreport>
+  </target>
+  
+  <target name="package" depends="tarball,zipfile"
+    description="Generate the distribution packages.">
+  </target>
+  
+  <target name="bin-jar" depends="compile-src">
+    <mkdir dir="${dist.dir}/og-livedata-${og-livedata.version}"/>
+    <jar destfile="${dist.dir}/og-livedata-${og-livedata.version}/og-livedata-${og-livedata.version}.jar"
+      basedir="${src.build.output}"
+      compress="${jar.compress}">
+    </jar>
+  </target>
+  
+  <target name="src-jar">
+    <mkdir dir="${dist.dir}/og-livedata-${og-livedata.version}"/>
+    <jar destfile="${dist.dir}/og-livedata-${og-livedata.version}/og-livedata-${og-livedata.version}-src.jar"
+      basedir="${basedir}/src"
+      compress="${jar.compress}">
+    </jar>
+  </target>
+  
+  <target name="prep-dist-dir" depends="bin-jar,src-jar">
+    <mkdir dir="${dist.dir}/og-livedata-${og-livedata.version}/lib"/>
+  	<ivy:retrieve pattern="${dist.dir}/og-livedata-${og-livedata.version}/lib/[artifact]-[revision].[ext]" />
+  </target>
+  
+  <target name="tarball" depends="prep-dist-dir">
+    <tar destfile="${dist.dir}/og-livedata-${og-livedata.version}.tar" basedir="${dist.dir}/og-livedata-${og-livedata.version}"/>
+    <bzip2 src="${dist.dir}/og-livedata-${og-livedata.version}.tar" destfile="${dist.dir}/og-livedata-${og-livedata.version}.tar.bz2"/>
+  </target>
+  
+  <target name="zipfile" depends="prep-dist-dir">
+    <zip destfile="${dist.dir}/og-livedata-${og-livedata.version}.zip" basedir="${dist.dir}/og-livedata-${og-livedata.version}"/>
+  </target>
+  
+	
+</project>
