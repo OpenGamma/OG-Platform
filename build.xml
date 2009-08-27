@@ -32,7 +32,7 @@
   <target name="default" depends="all"/>
   
   <target name="all" depends="compile,test"
-   description="Build all of og-livedata without packaging for distribution"
+   description="Build all of og-engine without packaging for distribution"
    />
   
   <target name="compile" depends="compile-src,compile-test"
@@ -126,33 +126,33 @@
   </target>
   
   <target name="bin-jar" depends="compile-src">
-    <mkdir dir="${dist.dir}/og-livedata-${og-livedata.version}"/>
-    <jar destfile="${dist.dir}/og-livedata-${og-livedata.version}/og-livedata-${og-livedata.version}.jar"
+    <mkdir dir="${dist.dir}/og-engine-${og-engine.version}"/>
+    <jar destfile="${dist.dir}/og-engine-${og-engine.version}/og-engine-${og-engine.version}.jar"
       basedir="${src.build.output}"
       compress="${jar.compress}">
     </jar>
   </target>
   
   <target name="src-jar">
-    <mkdir dir="${dist.dir}/og-livedata-${og-livedata.version}"/>
-    <jar destfile="${dist.dir}/og-livedata-${og-livedata.version}/og-livedata-${og-livedata.version}-src.jar"
+    <mkdir dir="${dist.dir}/og-engine-${og-engine.version}"/>
+    <jar destfile="${dist.dir}/og-engine-${og-engine.version}/og-engine-${og-engine.version}-src.jar"
       basedir="${basedir}/src"
       compress="${jar.compress}">
     </jar>
   </target>
   
   <target name="prep-dist-dir" depends="bin-jar,src-jar">
-    <mkdir dir="${dist.dir}/og-livedata-${og-livedata.version}/lib"/>
-  	<ivy:retrieve pattern="${dist.dir}/og-livedata-${og-livedata.version}/lib/[artifact]-[revision].[ext]" />
+    <mkdir dir="${dist.dir}/og-engine-${og-engine.version}/lib"/>
+  	<ivy:retrieve pattern="${dist.dir}/og-engine-${og-engine.version}/lib/[artifact]-[revision].[ext]" />
   </target>
   
   <target name="tarball" depends="prep-dist-dir">
-    <tar destfile="${dist.dir}/og-livedata-${og-livedata.version}.tar" basedir="${dist.dir}/og-livedata-${og-livedata.version}"/>
-    <bzip2 src="${dist.dir}/og-livedata-${og-livedata.version}.tar" destfile="${dist.dir}/og-livedata-${og-livedata.version}.tar.bz2"/>
+    <tar destfile="${dist.dir}/og-engine-${og-engine.version}.tar" basedir="${dist.dir}/og-engine-${og-engine.version}"/>
+    <bzip2 src="${dist.dir}/og-engine-${og-engine.version}.tar" destfile="${dist.dir}/og-engine-${og-engine.version}.tar.bz2"/>
   </target>
   
   <target name="zipfile" depends="prep-dist-dir">
-    <zip destfile="${dist.dir}/og-livedata-${og-livedata.version}.zip" basedir="${dist.dir}/og-livedata-${og-livedata.version}"/>
+    <zip destfile="${dist.dir}/og-engine-${og-engine.version}.zip" basedir="${dist.dir}/og-engine-${og-engine.version}"/>
   </target>
   
 	
