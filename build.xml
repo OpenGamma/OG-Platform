@@ -1,4 +1,4 @@
-<project default="default" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="OpenGamma Live Data" default="default" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
   <property environment="ENV"/>
   <property file="${basedir}/${user.name}.build.properties"/>
   <property file="${basedir}/build.properties"/>
