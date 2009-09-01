@@ -7,15 +7,13 @@ package com.opengamma.engine.security;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 /**
- * A pure unit test for {@link SecurityIdentificationDomain}. In general,
- * I wouldn't bother doing a test at this level, but this serves as a dummy
- * test case so that I can delete the old dummy classes when this repository
- * was setup.
+ * A pure unit test for {@link SecurityIdentificationDomain}.
  *
  * @author kirk
  */
@@ -32,6 +30,9 @@ public class SecurityIdentificationDomainTest {
     d2 = new SecurityIdentificationDomain(d1.getDomainName());
     assertTrue(d1.equals(d2));
     assertEquals(d1.hashCode(), d2.hashCode());
+    
+    assertEquals(d1, d1.clone());
+    assertNotSame(d1, d1.clone());
   }
   
   @Test(expected=NullPointerException.class)
