@@ -3,13 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma;
+package com.opengamma.engine.security;
 
 /**
- * Just a dummy class for repository setup.
+ * 
  *
  * @author kirk
  */
-public class Dummy {
+public interface Security {
 
 }

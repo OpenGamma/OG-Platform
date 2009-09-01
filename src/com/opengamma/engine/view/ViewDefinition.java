@@ -1,0 +1,16 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.view;
+
+/**
+ * A definition for a particular {@link View} to be managed
+ * by a {@link ViewProcessor}.
+ *
+ * @author kirk
+ */
+public interface ViewDefinition {
+
+}
