@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.security;
 
+import java.util.Collection;
+
 /**
  * 
  *
@@ -12,4 +14,11 @@ package com.opengamma.engine.security;
  */
 public interface Security {
 
+  /**
+   * Obtain all the security identifiers which are part of this
+   * {@code Security}'s description.
+   * 
+   * @return All identifiers for this security.
+   */
+  Collection<SecurityIdentifier> getIdentifiers();
 }
