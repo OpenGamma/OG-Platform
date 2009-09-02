@@ -91,10 +91,24 @@
     <delete dir="${dist.dir}" failonerror="false" quiet="true"/>
   </target>
   
+  <target name="clean-ivy" description="--> clean the ivy installation">
+    <delete dir="${ivy.jar.dir}"/>
+  </target>
+
+  <target name="clean-cache" depends="install-ivy" 
+      description="--> clean the ivy cache">
+    <ivy:cleancache />
+  </target>
+	
   <target name="test" depends="compile,junit-report"
    description="Execute all automated tests and produce XML/HTML reports"/>
    
   <target name="junit-batch">
+  	<ivy:cachepath pathid="lib.path.id" conf="*"/>
+    <path id="tests.build.classpath">
+      <path refid="lib.path.id"/>
+      <pathelement path="${src.build.output}"/>
+    </path>
     <mkdir dir="${tests.junit.output}/xml"/>
     <junit
      printSummary="true"
