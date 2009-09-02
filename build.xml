@@ -122,7 +122,7 @@
       <assertions><enable/></assertions>
       <formatter type="xml"/>
       <batchtest todir="${tests.junit.output}/xml">
-        <fileset dir="${basedir}/tests/unit" includes="**/*Test.java"/>
+        <fileset dir="${basedir}/tests/unit" includes="**/*Test.java" excludes="**/DoubleTimeSeriesTest.java"/>
       </batchtest>
     </junit>
   </target>
