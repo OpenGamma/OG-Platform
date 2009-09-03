@@ -1,5 +1,7 @@
 package com.opengamma.util;
 
+import org.apache.commons.lang.ObjectUtils;
+
 
 /*
  * General static utility class for methods involved in making comparisons and equals operations more efficient.
@@ -10,16 +12,11 @@ public class CompareUtils {
    * @param first value
    * @param second value
    * @return true if values are equal, or if both are null, false otherwise.
+   * @deprecated Use {@link ObjectUtils#equals} instead.
    */
+  @Deprecated
   public static boolean equalsWithNull(Object a, Object b) {
-    if (a == null) {
-      return b==null;
-    } else if (b == null) {
-      // we know a is not null as well.
-      return false;
-    } else {
-      return a.equals(b);
-    }
+    return ObjectUtils.equals(a, b);
   }
   
   /**

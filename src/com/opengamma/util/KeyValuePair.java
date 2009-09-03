@@ -1,14 +1,17 @@
 package com.opengamma.util;
 
+import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.commons.lang.ObjectUtils;
 /**
+ * This is supposed to hold a key/value pair; it can be used as a concrete version of {@link Map.Entry}.
  * @author jim
- * This is supposed to hold a key/value pair - it can be used as a concrete version of Map.Entry<K, V>
  * @param <K> the key
  * @param <V> the value
  */
 public class KeyValuePair<K, V> implements Entry<K, V> {
-  private K _key;
+  private final K _key;
   private V _value;
   
   public KeyValuePair(K key, V value) {
@@ -32,13 +35,23 @@ public class KeyValuePair<K, V> implements Entry<K, V> {
   }
   
   public boolean equals(Object o) {
-    if (o instanceof KeyValuePair) {
-      KeyValuePair<?, ?> kvp = (KeyValuePair<?, ?>)o;
-      return CompareUtils.equalsWithNull(getKey(), kvp.getKey()) &&
-             CompareUtils.equalsWithNull(getValue(), kvp.getValue());
-    } else {
+    if(this == o) {
+      return true;
+    }
+    if(o == null) {
       return false;
     }
+    if(!(o instanceof KeyValuePair<?,?>)) {
+      return false;
+    }
+    KeyValuePair<?,?> other = (KeyValuePair<?,?>) o;
+    if(!ObjectUtils.equals(getKey(), other.getKey())) {
+      return false;
+    }
+    if(!ObjectUtils.equals(getValue(), other.getValue())) {
+      return false;
+    }
+    return true;
   }
   
   public int hashCode() {
