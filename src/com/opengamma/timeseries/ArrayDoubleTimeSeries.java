@@ -17,6 +17,7 @@ import com.opengamma.util.KeyValuePair;
 public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public static final DoubleTimeSeries EMPTY_SERIES = new ArrayDoubleTimeSeries();
   
+  // REVIEW kirk 2009-09-03 -- Any reason why these aren't final?
   private long[] _times;
   private double[] _values;
   
@@ -26,6 +27,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
   
   public ArrayDoubleTimeSeries(long[] times, double[] values) {
+    // REVIEW kirk 2009-09-03 -- Any reason you're not taking a copy of these?
     _times = times;
     _values = values;
     // check dates are ordered
@@ -39,26 +41,25 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
   
   public ArrayDoubleTimeSeries(List<InstantProvider> times, List<Double> values) {
-    if (times.size() == values.size()) {
-      _times = new long[times.size()];
-      _values = new double[values.size()];
-      Iterator<Double> iter = values.iterator();
-      int i=0;
-      long maxTime = 0L; // for checking the dates are sorted.
-      for (InstantProvider time : times) {
-        Double value = iter.next();
-        long epochMillis = time.toInstant().toEpochMillis();
-        if (maxTime < epochMillis) {
-          _times[i] = epochMillis; 
-          _values[i] = value;
-          maxTime = epochMillis;
-        } else {
-          throw new IllegalArgumentException("dates must be ordered");
-        }
-        i++;
-      }
-    } else {
+    if(times.size() != values.size()) {
       throw new IllegalArgumentException("lists are of different sizes");
+    }
+    _times = new long[times.size()];
+    _values = new double[values.size()];
+    Iterator<Double> iter = values.iterator();
+    int i=0;
+    long maxTime = 0L; // for checking the dates are sorted.
+    for (InstantProvider time : times) {
+      Double value = iter.next();
+      long epochMillis = time.toInstant().toEpochMillis();
+      if (maxTime < epochMillis) {
+        _times[i] = epochMillis; 
+        _values[i] = value;
+        maxTime = epochMillis;
+      } else {
+        throw new IllegalArgumentException("dates must be ordered");
+      }
+      i++;
     }
   }
   
@@ -310,6 +311,9 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
   
   public boolean equals(Object o) {
+    if(this == o) {
+      return true;
+    }
     // the aim here is to always minimize the number of comparisons.
     if (!(o instanceof DoubleTimeSeries)) { return false; }
     if (!(o instanceof ArrayDoubleTimeSeries)) {
@@ -338,6 +342,9 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   }
   public int hashCode() {
+    // REVIEW kirk 2009-09-03 -- Is it worth it to use all the data
+    // points here for the hash code? That seems like it could be
+    // expensive for a frequent operation.
     int value = 0;
     for (int i=0; i<_times.length; i++) {
       final long bits = Double.doubleToLongBits(_values[i]);

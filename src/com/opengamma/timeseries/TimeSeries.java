@@ -7,6 +7,7 @@ import javax.time.Duration;
 import javax.time.InstantProvider;
 
 public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
+  // REVIEW kirk 2009-09-03 -- Uhm, no it's not, it's an int. Doc not matching code.
   /**
    * Get the size of the time series, the number of data points.  This is long so that we don't have to recode if we need >2GB timeseries.
    * @return the size
