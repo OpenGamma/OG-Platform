@@ -5,6 +5,7 @@
         <dependency org="org.junit" name="junit" rev="4.5"/>
         <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8"/>
         <dependency org="org.springframework" name="spring" rev="2.5.6" conf="default->context-support"/>
+        <dependency org="javax.time" name="jsr-310-ri" rev="20090901"/>
     </dependencies>
 </ivy-module>
 

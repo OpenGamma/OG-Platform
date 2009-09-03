@@ -1,7 +1,13 @@
 <ivysettings>
   <settings defaultResolver="googlethenibiblio"/>
+  <credentials host="ivyrepo.opengamma.com" username="opengamma" passwd="opengamma" realm="secure"/>
   <resolvers>
     <chain name="googlethenibiblio" returnFirst="true">
+      <url name="opengamma-ivyrepo">
+        <ivy pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/ivy.xml" />
+        <artifact pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
+        <artifact pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/[artifact]-docs-[revision].[ext]" />
+      </url>
       <packager name="google" buildRoot="${user.home}/.ivy2/packager/build" resourceCache="${user.home}/.ivy2/packager/cache">
         <ivy pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
         <artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
