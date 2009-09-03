@@ -3,13 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.model;
+package com.opengamma.engine.position;
 
 /**
  * 
  *
  * @author kirk
  */
-public interface Trade extends Position {
+public interface Position {
 
 }

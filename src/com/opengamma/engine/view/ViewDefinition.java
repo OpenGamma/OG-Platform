@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
+
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
+
 /**
  * A definition for a particular {@link View} to be managed
  * by a {@link ViewProcessor}.
@@ -13,4 +17,9 @@ package com.opengamma.engine.view;
  */
 public interface ViewDefinition {
 
+  String getName();
+  
+  String getRootPortfolioName();
+  
+  Collection<AnalyticValueDefinition> getAllValueDefinitions();  
 }

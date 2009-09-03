@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.model;
+package com.opengamma.engine.position;
 
 import java.util.Collection;
+
 
 /**
  * 
