@@ -6,6 +6,7 @@
 package com.opengamma.engine.security;
 
 import java.util.Collection;
+import java.util.Set;
 
 
 /**
@@ -37,5 +38,15 @@ public interface SecurityMaster {
    * @return The single security matching those details.
    */
   Security getSecurity(SecurityKey secKey);
+  
+  /**
+   * Obtain all security types in this security master.
+   * It is up to the implementation to determine whether this returns
+   * all those security types currently available, or whether it includes
+   * all potential security types.
+   * 
+   * @return The names of all security types available in this master.
+   */
+  Set<String> getAllSecurityTypes();
 
 }

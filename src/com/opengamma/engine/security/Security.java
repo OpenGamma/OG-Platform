@@ -21,4 +21,10 @@ public interface Security {
    * @return All identifiers for this security.
    */
   Collection<SecurityIdentifier> getIdentifiers();
+  
+  /**
+   * Obtain the text-based type of this Security.
+   * @return The text-based type of this security.
+   */
+  String getSecurityType();
 }

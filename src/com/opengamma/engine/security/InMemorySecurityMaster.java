@@ -8,6 +8,11 @@ package com.opengamma.engine.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -33,6 +38,7 @@ import java.util.List;
  * @author kirk
  */
 public class InMemorySecurityMaster implements SecurityMaster {
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemorySecurityMaster.class);
   // REVIEW kirk 2009-09-01 -- This is grotesquely unoptimized. Areas that
   // it can be improved:
   // 1 - Tighten down the synchronization dramatically
@@ -52,6 +58,9 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
   
   public synchronized void add(Security security) {
+    if(security.getSecurityType() == null) {
+      s_logger.warn("Security {} lacks a security type.", security);
+    }
     _securities.add(security);
   }
 
@@ -86,4 +95,16 @@ public class InMemorySecurityMaster implements SecurityMaster {
     return null;
   }
 
+  @Override
+  public Set<String> getAllSecurityTypes() {
+    Set<String> result = new TreeSet<String>();
+    for(Security security : _securities) {
+      String secType = security.getSecurityType();
+      if(secType != null) {
+        result.add(secType);
+      }
+    }
+    return result;
+  }
+  
 }

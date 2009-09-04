@@ -27,6 +27,14 @@ public interface ViewComputationResultModel {
   
   long getResultTimestamp();
   
+  /**
+   * Obtain the positions that are part of this computation result.
+   * This includes both the aggregate and leaf positions.
+   * This may be different from the current state in the defining
+   * {@link View} because positions can change over the course of time.
+   * 
+   * @return All positions part of this computation pass.
+   */
   Collection<Position> getPositions();
   
   Map<AnalyticValueDefinition, AnalyticValue> getValues(Position position);

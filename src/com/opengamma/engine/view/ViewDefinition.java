@@ -21,5 +21,5 @@ public interface ViewDefinition {
   
   String getRootPortfolioName();
   
-  Collection<AnalyticValueDefinition> getAllValueDefinitions();  
+  Collection<AnalyticValueDefinition> getAllValueDefinitions();
 }

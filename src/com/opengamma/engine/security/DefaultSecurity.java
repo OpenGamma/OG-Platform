@@ -16,6 +16,7 @@ import java.util.Collection;
  */
 public class DefaultSecurity implements Security, Serializable {
   private Collection<SecurityIdentifier> _identifiers;
+  private String _securityType;
 
   @Override
   public Collection<SecurityIdentifier> getIdentifiers() {
@@ -28,6 +29,18 @@ public class DefaultSecurity implements Security, Serializable {
    */
   public void setIdentifiers(Collection<? extends SecurityIdentifier> identifiers) {
     _identifiers = new ArrayList<SecurityIdentifier>(identifiers);
+  }
+
+  @Override
+  public String getSecurityType() {
+    return _securityType;
+  }
+
+  /**
+   * @param securityType the securityType to set
+   */
+  public void setSecurityType(String securityType) {
+    _securityType = securityType;
   }
 
 }
