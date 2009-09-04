@@ -1,0 +1,166 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.depgraph;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.engine.LiveDataAvailabilityProvider;
+import com.opengamma.engine.analytics.AnalyticFunction;
+import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.LiveDataSourcingFunction;
+
+/**
+ * A logical dependency graph capable of satisfying computations
+ * for a particular security type.
+ *
+ * @author kirk
+ */
+public class SecurityTypeLogicalDependencyGraph {
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityTypeLogicalDependencyGraph.class);
+  private final String _securityType;
+  private final Set<AnalyticValueDefinition> _requiredOutputValues =
+    new HashSet<AnalyticValueDefinition>();
+  private final Set<AnalyticValueDefinition> _requiredLiveData =
+    new HashSet<AnalyticValueDefinition>();
+  
+  public SecurityTypeLogicalDependencyGraph(
+      String securityType,
+      Collection<AnalyticValueDefinition> requiredOutputValues) {
+    if(securityType == null) {
+      throw new NullPointerException("Must specify a valid security type.");
+    }
+    if((requiredOutputValues == null) || requiredOutputValues.isEmpty()) {
+      throw new IllegalArgumentException("Required output values must not be null or empty.");
+    }
+    _securityType = securityType;
+    _requiredOutputValues.addAll(requiredOutputValues);
+  }
+
+  /**
+   * @return the securityType
+   */
+  public String getSecurityType() {
+    return _securityType;
+  }
+  
+  /**
+   * @return the requiredOutputValues
+   */
+  public Set<AnalyticValueDefinition> getRequiredOutputValues() {
+    return _requiredOutputValues;
+  }
+
+  /**
+   * @return the requiredLiveData
+   */
+  public Set<AnalyticValueDefinition> getRequiredLiveData() {
+    return _requiredLiveData;
+  }
+
+  public void buildDependencyGraph(
+      AnalyticFunctionRepository functionRepository,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+    if(functionRepository == null) {
+      throw new NullPointerException("Function repository cannot be null.");
+    }
+    if(liveDataAvailabilityProvider == null) {
+      throw new NullPointerException("Live data availability provider cannot be null.");
+    }
+    buildDependencyGraphImpl(functionRepository, liveDataAvailabilityProvider);
+  }
+  
+  // TODO kirk 2009-09-04 -- Determine how to specify all the various failed dependencies.
+  protected void buildDependencyGraphImpl(
+      AnalyticFunctionRepository functionRepository,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+    assert functionRepository != null;
+    assert liveDataAvailabilityProvider != null;
+    
+    Set<DependencyNode> nodes = new HashSet<DependencyNode>();
+    Set<AnalyticValueDefinition> requiredLiveData = new HashSet<AnalyticValueDefinition>();
+    for(AnalyticValueDefinition outputValue : getRequiredOutputValues()) {
+      satisfyDependency(outputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
+    }
+    getRequiredLiveData().clear();
+    getRequiredLiveData().addAll(requiredLiveData);
+    
+  }
+  
+  protected DependencyNode satisfyDependency(
+      AnalyticValueDefinition outputValue,
+      Set<DependencyNode> nodes,
+      Set<AnalyticValueDefinition> requiredLiveData,
+      AnalyticFunctionRepository functionRepository,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+    DependencyNode node = null;
+    for(DependencyNode existingNode : nodes) {
+      node = existingNode.getMatchingNode(outputValue);
+      if(node != null) {
+        break;
+      }
+    }
+    if(node != null) {
+      s_logger.debug("Satisfied output value {} with existing dependency", outputValue);
+      return node;
+    }
+    
+    // Can we satisfy this item using live data?
+    if(liveDataAvailabilityProvider.isAvailable(outputValue)) {
+      assert !requiredLiveData.contains(outputValue) : "Should have found existing dependency graph node.";
+      requiredLiveData.add(outputValue);
+      node = new DependencyNode(new LiveDataSourcingFunction(outputValue));
+      nodes.add(node);
+      return node;
+    }
+    
+    AnalyticFunction function = resolveFunction(outputValue, functionRepository, getSecurityType());
+    assert function != null : "This is a bad assertion. Do something better.";
+    
+    node = new DependencyNode(function);
+    nodes.add(node);
+    for(AnalyticValueDefinition inputValue : node.getInputValues()) {
+      DependencyNode inputNode = satisfyDependency(inputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
+      assert inputNode != null : "This is a bad assertion. Do something better.";
+      node.addInputNode(inputValue, inputNode);
+    }
+    return node;
+  }
+
+  /**
+   * @param outputValue
+   * @param functionRepository
+   * @return
+   */
+  protected AnalyticFunction resolveFunction(
+      AnalyticValueDefinition outputValue,
+      AnalyticFunctionRepository functionRepository,
+      String securityType) {
+    assert outputValue != null;
+    assert functionRepository != null;
+    Collection<AnalyticFunction> possibleFunctions = functionRepository.getFunctionsProducing(Collections.singleton(outputValue), securityType);
+    assert possibleFunctions != null;
+    if(possibleFunctions.isEmpty()) {
+      return null;
+    }
+    // REVIEW kirk 2009-09-04 -- This is the extension point for better lookups.
+    if(possibleFunctions.size() > 1) {
+      s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), outputValue);
+    }
+    AnalyticFunction function = possibleFunctions.iterator().next();
+    s_logger.debug("Chose function {} for output value {}", function.getShortName(), outputValue);
+    
+    return function;
+  }
+
+  
+}

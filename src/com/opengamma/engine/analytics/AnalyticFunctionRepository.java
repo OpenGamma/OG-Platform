@@ -17,6 +17,13 @@ public interface AnalyticFunctionRepository {
   
   Collection<AnalyticFunction> getAllFunctions();
   
+  /**
+   * This method <em>must not</em> return {@code null}.
+   * @param outputs
+   * @return
+   */
   Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition> outputs);
+  
+  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition> outputs, String securityType);
 
 }

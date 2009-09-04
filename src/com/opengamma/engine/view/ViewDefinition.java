@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
@@ -22,4 +23,6 @@ public interface ViewDefinition {
   String getRootPortfolioName();
   
   Collection<AnalyticValueDefinition> getAllValueDefinitions();
+  
+  Map<String, Collection<AnalyticValueDefinition>> getValueDefinitionsBySecurityTypes();
 }
