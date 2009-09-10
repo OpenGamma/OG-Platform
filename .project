@@ -3,6 +3,8 @@
 	<name>OG Analytics</name>
 	<comment></comment>
 	<projects>
+		<project>OG Financial</project>
+		<project>OG Util</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
