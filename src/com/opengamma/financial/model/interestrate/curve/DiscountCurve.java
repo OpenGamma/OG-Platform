@@ -50,4 +50,41 @@ public class DiscountCurve implements InterestRateModel<Double> {
   public double getDiscountFactor(Double t) throws InterpolationException {
     return Math.exp(-getInterestRate(t) * t);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+    result = prime * result + ((_date == null) ? 0 : _date.hashCode());
+    result = prime * result + ((_interpolator == null) ? 0 : _interpolator.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    DiscountCurve other = (DiscountCurve) obj;
+    if (_data == null) {
+      if (other._data != null)
+        return false;
+    } else if (!_data.equals(other._data))
+      return false;
+    if (_date == null) {
+      if (other._date != null)
+        return false;
+    } else if (!_date.equals(other._date))
+      return false;
+    if (_interpolator == null) {
+      if (other._interpolator != null)
+        return false;
+    } else if (!_interpolator.equals(other._interpolator))
+      return false;
+    return true;
+  }
 }

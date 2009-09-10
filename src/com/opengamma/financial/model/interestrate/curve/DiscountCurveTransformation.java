@@ -27,9 +27,9 @@ public class DiscountCurveTransformation {
   public static DiscountCurve getSingleShiftedDataPointCurve(DiscountCurve original, int dataIndex, double shift) {
     if (dataIndex < 0)
       throw new IllegalArgumentException("Shift point must be positive");
+    if (dataIndex >= original.getData().size())
+      throw new IllegalArgumentException("Could not shift point " + dataIndex + "; number of data points in DiscountCurve is " + original.getData().size());
     SortedMap<Double, Double> data = new TreeMap<Double, Double>(original.getData());
-    if (dataIndex >= data.size())
-      throw new IllegalArgumentException("Could not shift point " + dataIndex + "; number of data points in DiscountCurve is " + data.size());
     int i = 0;
     for (Map.Entry<Double, Double> entry : data.entrySet()) {
       if (i++ == dataIndex) {
