@@ -3,7 +3,9 @@ package com.opengamma.math.interpolation;
 /**
  * 
  * @author emcleod
+ * 
  */
+
 public class InterpolationException extends Exception {
 
   public InterpolationException() {

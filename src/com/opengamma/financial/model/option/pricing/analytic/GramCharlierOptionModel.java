@@ -2,6 +2,7 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
@@ -16,11 +17,11 @@ public class GramCharlierOptionModel extends AnalyticOptionModel<EuropeanVanilla
   ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  protected Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
+  protected Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(SkewKurtosisOptionDataBundle data) {
+      public Double evaluate(SkewKurtosisOptionDataBundle data) throws OptionPricingException {
         try {
           double s = data.getSpot();
           double k = definition.getStrike();
@@ -35,14 +36,14 @@ public class GramCharlierOptionModel extends AnalyticOptionModel<EuropeanVanilla
           double sigmaT = sigma * sqrtT;
           double df1 = Math.exp(-r * t);
           double df2 = getDF(r, b, t);
-          double callPrice = s * df2 * _normalProbabilityDistribution.getCDF(d1) - k * df1 * _normalProbabilityDistribution.getCDF(d1 - sigmaT) + s * _normalProbabilityDistribution.getPDF(d1)
-              * sigmaT * (skew * (2 * sigmaT - d1) / 6. - kurtosis * (1 - d1 * d1 + 3 * d1 * sigmaT - 3 * sigmaT * sigmaT) / 24.);
+          double callPrice = s * df2 * _normalProbabilityDistribution.getCDF(d1) - k * df1 * _normalProbabilityDistribution.getCDF(d1 - sigmaT) + s
+              * _normalProbabilityDistribution.getPDF(d1) * sigmaT * (skew * (2 * sigmaT - d1) / 6. - kurtosis * (1 - d1 * d1 + 3 * d1 * sigmaT - 3 * sigmaT * sigmaT) / 24.);
           if (!definition.isCall()) {
             return callPrice + k * df1 - s * df2;
           }
           return callPrice;
         } catch (InterpolationException e) {
-          return null;
+          throw new OptionPricingException(e);
         }
       }
     };

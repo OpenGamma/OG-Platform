@@ -6,8 +6,8 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 
 public class CappedPowerOptionDefinition extends OptionDefinition {
-  private double _power;
-  private double _cap;
+  private final double _power;
+  private final double _cap;
 
   public CappedPowerOptionDefinition(double strike, Date expiry, double power, double cap, boolean isCall) {
     super(strike, expiry, isCall);
@@ -25,7 +25,7 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
 
   @Override
   protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<Double, Double>() {
+    _payoffFunction = new Function1D<Double, Double, Exception>() {
 
       @Override
       public Double evaluate(Double spot) {
@@ -33,7 +33,7 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
       }
 
     };
-    _exerciseFunction = new Function<Double, Boolean>() {
+    _exerciseFunction = new Function<Double, Boolean, Exception>() {
 
       @Override
       public Boolean evaluate(Double... x) {

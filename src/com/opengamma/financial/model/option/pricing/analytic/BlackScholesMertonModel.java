@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
@@ -27,11 +28,11 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
   ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  protected Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
+  protected Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<StandardOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) {
+      public Double evaluate(StandardOptionDataBundle data) throws OptionPricingException {
         try {
           Date date = data.getDate();
           double s = data.getSpot();
@@ -45,7 +46,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
           int sign = definition.isCall() ? 1 : -1;
           return sign * Math.exp(-r * t) * (s * Math.exp(b * t) * _normalProbabilityDistribution.getCDF(sign * d1) - k * _normalProbabilityDistribution.getCDF(sign * d2));
         } catch (InterpolationException e) {
-          return null;
+          throw new OptionPricingException(e);
         }
       }
     };

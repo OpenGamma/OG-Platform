@@ -31,7 +31,7 @@ public class StandardOptionDataBundle {
     return _b;
   }
 
-  public double getVolatility(Double t, Double strike) {
+  public Double getVolatility(Double t, Double strike) throws InterpolationException {
     return _volatilitySurface.getVolatility(t, strike);
   }
 

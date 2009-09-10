@@ -2,6 +2,7 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import com.opengamma.financial.model.option.definition.CappedPowerOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
@@ -16,11 +17,11 @@ public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptio
   private final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final CappedPowerOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
+  public Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final CappedPowerOptionDefinition definition) {
+    Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<StandardOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) {
+      public Double evaluate(StandardOptionDataBundle data) throws OptionPricingException {
         try {
           double s = data.getSpot();
           double k = definition.getStrike();
@@ -30,7 +31,7 @@ public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptio
           double b = data.getCostOfCarry();
           return getPrice(s, k, sigma, t, r, b, definition.getPower(), definition.getCap(), definition.isCall());
         } catch (InterpolationException e) {
-          return null;
+          throw new OptionPricingException(e);
         }
       }
 

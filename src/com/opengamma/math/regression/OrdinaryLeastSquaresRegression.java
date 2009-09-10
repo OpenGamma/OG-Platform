@@ -1,21 +1,24 @@
 package com.opengamma.math.regression;
 
-import cern.colt.matrix.DoubleFactory1D;
-import cern.colt.matrix.DoubleFactory2D;
-import cern.colt.matrix.DoubleMatrix1D;
-import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.linalg.Algebra;
-import cern.jet.stat.Probability;
 
 public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
+  // private static final ProbabilityDistribution<Double> _normal = new
+  // NormalProbabilityDistribution(0, 1);
+  // TODO student T wrapper
 
   public OrdinaryLeastSquaresRegression(double[][] x, double[] y, boolean useIntercept) {
-    if (x == null) throw new IllegalArgumentException("Independent variable array was null");
-    if (y == null) throw new IllegalArgumentException("Dependent variable array was null");
-    if (x.length == 0 || x[0].length == 0) throw new IllegalArgumentException("No data in independent variable array");
-    if (y.length == 0) throw new IllegalArgumentException("No data in dependent variable array");
-    if (x.length != y.length) throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
-    if (y.length <= x[0].length) throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
+    if (x == null)
+      throw new IllegalArgumentException("Independent variable array was null");
+    if (y == null)
+      throw new IllegalArgumentException("Dependent variable array was null");
+    if (x.length == 0 || x[0].length == 0)
+      throw new IllegalArgumentException("No data in independent variable array");
+    if (y.length == 0)
+      throw new IllegalArgumentException("No data in dependent variable array");
+    if (x.length != y.length)
+      throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
+    if (y.length <= x[0].length)
+      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
     int length = x[0].length;
     double yMean = y[0];
     for (int i = 1; i < x.length; i++) {

@@ -8,7 +8,7 @@ import com.opengamma.math.function.Function;
  * 
  */
 
-public interface Integrator<T, U extends Function<?, ?>, V> {
+public interface Integrator<T, U extends Function<?, ?, ? extends Exception>, V, W extends Exception> {
 
-  public T integrate(U f, V[] lower, V[] upper);
+  public T integrate(U f, V[] lower, V[] upper) throws W;
 }

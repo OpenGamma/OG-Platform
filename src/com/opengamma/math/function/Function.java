@@ -13,7 +13,7 @@ package com.opengamma.math.function;
  * @param <T>
  *          Return type of function
  */
-public interface Function<S, T> {
+public interface Function<S, T, U extends Exception> {
 
   /**
    * 
@@ -21,5 +21,5 @@ public interface Function<S, T> {
    *          The list of inputs into the function
    * @return The value of the function
    */
-  public T evaluate(S... x);
+  public T evaluate(S... x) throws U;
 }

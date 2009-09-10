@@ -5,6 +5,7 @@ import java.util.Date;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.HullWhiteStochasticVolatilityModelOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
@@ -25,11 +26,11 @@ public class HullWhiteStochasticVolatilityOptionModel extends AnalyticOptionMode
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  protected Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double> pricingFunction = new Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double>() {
+  protected Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(HullWhiteStochasticVolatilityModelOptionDataBundle data) {
+      public Double evaluate(HullWhiteStochasticVolatilityModelOptionDataBundle data) throws OptionPricingException {
         try {
           Date date = data.getDate();
           double s = data.getSpot();
@@ -63,8 +64,7 @@ public class HullWhiteStochasticVolatilityOptionModel extends AnalyticOptionMode
           }
           return callPrice;
         } catch (InterpolationException e) {
-          return null;
-          // TODO
+          throw new OptionPricingException(e);
         }
       }
 

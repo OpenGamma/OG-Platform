@@ -1,6 +1,7 @@
 package com.opengamma.math.minimization;
 
 import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -9,16 +10,16 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class BrentMinimizer1D implements Minimizer1D<Double> {
+public class BrentMinimizer1D implements Minimizer1D<Double, MathException> {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
-  private static final MinimumBracketer<Double> BRACKETER = new ParabolicMinimumBracketer();
+  private static final MinimumBracketer<Double, MathException> BRACKETER = new ParabolicMinimumBracketer();
   private static final int MAX_ITER = 10000;
   private static final double EPS = 1e-12;
   private static final double ZERO = 1e-20;
 
   @Override
-  public Double minimize(Function1D<Double, Double> f, Double[] initialPoints) throws ConvergenceException {
+  public Double minimize(Function1D<Double, Double, MathException> f, Double[] initialPoints) throws ConvergenceException, MathException {
     double a, b, etemp, fu, fv, fw, fx;
     double p, q, r, tol1, tol2, u, v, w, x, xm;
     double d = 0;
@@ -45,7 +46,8 @@ public class BrentMinimizer1D implements Minimizer1D<Double> {
         q = (x - v) * (fx - fw);
         p = (x - v) * q - (x - w) * r;
         q = 2 * (q - r);
-        if (q > 0) p = -p;
+        if (q > 0)
+          p = -p;
         q = Math.abs(q);
         etemp = e;
         e = d;

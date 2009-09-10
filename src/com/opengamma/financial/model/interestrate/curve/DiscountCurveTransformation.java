@@ -10,6 +10,7 @@ import com.opengamma.math.interpolation.InterpolationException;
 /**
  * 
  * @author emcleod
+ * 
  */
 
 // TODO shit name - change it

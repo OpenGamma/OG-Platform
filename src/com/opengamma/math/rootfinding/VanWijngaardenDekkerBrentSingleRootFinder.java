@@ -7,16 +7,20 @@ import com.opengamma.math.function.Function;
 public class VanWijngaardenDekkerBrentSingleRootFinder implements SingleRootFinder<Double> {
 
   @Override
-  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) throws ConvergenceException, MathException {
-    if (accuracy == null) throw new IllegalArgumentException("Accuracy was null");
+  public Double getRoot(Function<Double, Double, ? extends Exception> function, Double xLow, Double xHigh, Double accuracy) throws ConvergenceException, MathException, Exception {
+    if (accuracy == null)
+      throw new IllegalArgumentException("Accuracy was null");
     double a = xLow;
     double b = xHigh;
     double c = b;
     double yA = function.evaluate(a);
     double yB = function.evaluate(b);
-    if (Math.abs(yA) < accuracy) return xHigh;
-    if (Math.abs(yB) < accuracy) return xLow;
-    if (yA * yB >= 0) throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
+    if (Math.abs(yA) < accuracy)
+      return xHigh;
+    if (Math.abs(yB) < accuracy)
+      return xLow;
+    if (yA * yB >= 0)
+      throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
     double yC = yB;
     double d, e, p, q, r, s, tolerance, xMid, min1, min2;
     d = b - a;
@@ -38,7 +42,8 @@ public class VanWijngaardenDekkerBrentSingleRootFinder implements SingleRootFind
       }
       tolerance = 2 * accuracy * Math.abs(b) + 0.5 * accuracy;
       xMid = 0.5 * (c - b);
-      if (Math.abs(xMid) <= tolerance || Math.abs(yB) < ZERO) return b;
+      if (Math.abs(xMid) <= tolerance || Math.abs(yB) < ZERO)
+        return b;
       if (Math.abs(e) >= tolerance && Math.abs(yA) > Math.abs(yB)) {
         s = yB / yA;
         if (Math.abs(a - c) < ZERO) {
@@ -50,7 +55,8 @@ public class VanWijngaardenDekkerBrentSingleRootFinder implements SingleRootFind
           p = s * (2 * xMid * q * (r - q) - (b - a) * (r - 1));
           q = (q - 1) * (r - 1) * (s - 1);
         }
-        if (p > 0) q = -q;
+        if (p > 0)
+          q = -q;
         p = Math.abs(p);
         min1 = 3 * xMid * q - Math.abs(tolerance * q);
         min2 = Math.abs(e * q);

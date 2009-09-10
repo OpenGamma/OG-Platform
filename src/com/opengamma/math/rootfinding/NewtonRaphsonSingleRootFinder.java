@@ -12,13 +12,17 @@ public class NewtonRaphsonSingleRootFinder implements SingleRootFinder<Double> {
   private static final int MAX_ITER = 10000;
 
   @Override
-  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) throws MathException, ConvergenceException {
-    if (accuracy == null) throw new IllegalArgumentException("Accuracy was null");
+  public Double getRoot(Function<Double, Double, ? extends Exception> function, Double xLow, Double xHigh, Double accuracy) throws MathException, ConvergenceException, Exception {
+    if (accuracy == null)
+      throw new IllegalArgumentException("Accuracy was null");
     double yLow = function.evaluate(xLow);
     double y = function.evaluate(xHigh);
-    if (Math.abs(y) < accuracy) return xHigh;
-    if (Math.abs(yLow) < accuracy) return xLow;
-    if (yLow * y >= 0) throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
+    if (Math.abs(y) < accuracy)
+      return xHigh;
+    if (Math.abs(yLow) < accuracy)
+      return xLow;
+    if (yLow * y >= 0)
+      throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
     int i = 0;
     double y1, y2, dy, root = 0;
     do {

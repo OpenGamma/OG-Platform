@@ -1,5 +1,6 @@
 package com.opengamma.math.integration;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.NaturalLogGammaFunction;
 
@@ -9,18 +10,18 @@ import com.opengamma.math.function.special.NaturalLogGammaFunction;
  * 
  */
 
-public class GaussLaguerreOrthogonalPolynomialGenerationFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
+public class GaussLaguerreOrthogonalPolynomialGenerationFunction implements GeneratingFunction<Double, GaussianQuadratureFunction, MathException> {
   private static final double EPS = 1e-12;
   private static final int MAX_ITER = 10;
-  private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
-  private double _alpha;
+  private static final Function1D<Double, Double, MathException> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
+  private final double _alpha;
 
   public GaussLaguerreOrthogonalPolynomialGenerationFunction(double alpha) {
     _alpha = alpha;
   }
 
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) {
+  public GaussianQuadratureFunction generate(int n, Double... params) throws MathException {
     double z = 0, z1, p1, p2, p3, pp;
     int ai, j;
     Double[] x = new Double[n];

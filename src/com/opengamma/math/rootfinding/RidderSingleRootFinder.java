@@ -12,24 +12,30 @@ import com.opengamma.math.function.Function;
 public class RidderSingleRootFinder implements SingleRootFinder<Double> {
 
   @Override
-  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) throws ConvergenceException, MathException {
-    if (accuracy == null) throw new IllegalArgumentException("Accuracy was null");
+  public Double getRoot(Function<Double, Double, ? extends Exception> function, Double xLow, Double xHigh, Double accuracy) throws ConvergenceException, MathException, Exception {
+    if (accuracy == null)
+      throw new IllegalArgumentException("Accuracy was null");
     double x1 = xLow;
     double x2 = xHigh;
     double y1 = function.evaluate(x1);
     double y2 = function.evaluate(x2);
-    if (Math.abs(y1) < accuracy) return xHigh;
-    if (Math.abs(y2) < accuracy) return xLow;
-    if (y1 * y2 >= 0) throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
+    if (Math.abs(y1) < accuracy)
+      return xHigh;
+    if (Math.abs(y2) < accuracy)
+      return xLow;
+    if (y1 * y2 >= 0)
+      throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
     double xMid, yMid, denom, xNew, yNew;
     for (int i = 0; i < MAX_ATTEMPTS; i++) {
       xMid = (x1 + x2) / 2;
       yMid = function.evaluate(xMid);
       denom = Math.sqrt(yMid * yMid - y1 * y2);
-      if (Math.abs(denom) < ZERO) throw new MathException("Denominator of updating formula was zero");
+      if (Math.abs(denom) < ZERO)
+        throw new MathException("Denominator of updating formula was zero");
       xNew = xMid + (xMid - x1) * ((y1 >= y2 ? 1 : -1) * yMid / denom);
       yNew = function.evaluate(xNew);
-      if (Math.abs(yNew) < ZERO) return xNew;
+      if (Math.abs(yNew) < ZERO)
+        return xNew;
       if (Math.abs(adjustSign(yMid, yNew) - yMid) > ZERO) {
         x1 = xMid;
         y1 = yMid;
@@ -44,7 +50,8 @@ public class RidderSingleRootFinder implements SingleRootFinder<Double> {
       } else {
         throw new MathException("Should never reach here");
       }
-      if (Math.abs(x2 - x1) < accuracy) return xNew;
+      if (Math.abs(x2 - x1) < accuracy)
+        return xNew;
     }
     throw new ConvergenceException(CONVERGENCE_STRING);
   }

@@ -8,6 +8,6 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public interface Minimizer1D<T> extends Minimizer<T, T, Function1D<T, T>, T> {
+public interface Minimizer1D<T, U extends Exception> extends Minimizer<T, T, Function1D<T, T, U>, T, U> {
 
 }

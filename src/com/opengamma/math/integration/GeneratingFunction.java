@@ -6,7 +6,7 @@ package com.opengamma.math.integration;
  * 
  */
 
-public interface GeneratingFunction<S, T> {
+public interface GeneratingFunction<S, T, U extends Exception> {
 
-  public T generate(int n, S... params);
+  public T generate(int n, S... params) throws U;
 }

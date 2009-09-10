@@ -2,16 +2,16 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import java.util.Date;
 
-import cern.jet.stat.Probability;
-
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurveTransformation;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -20,15 +20,16 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
-  private final ProbabilityDistribution<Double[]> _bvnd = new BivariateNormalDistribution();
+  private final ProbabilityDistribution<Double[]> _bivariateNormal = new BivariateNormalDistribution();
+  private final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
+  public Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
+    Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<StandardOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) {
+      public Double evaluate(StandardOptionDataBundle data) throws OptionPricingException {
         try {
           Date date = data.getDate();
           double s = data.getSpot();
@@ -46,12 +47,12 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
           }
           if (b >= r) {
             EuropeanVanillaOptionDefinition european = new EuropeanVanillaOptionDefinition(definition.getStrike(), definition.getExpiry(), definition.isCall());
-            Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(european);
+            Function1D<StandardOptionDataBundle, Double, OptionPricingException> bsm = _bsm.getPricingFunction(european);
             return bsm.evaluate(newData);
           }
           return getCallPrice(s, k, sigma, t, r, b);
         } catch (InterpolationException e) {
-          return null;
+          throw new OptionPricingException(e);
         }
       }
     };
@@ -113,7 +114,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     double d2 = getD((i * i) / (s * h), d, t, denom);
     double lambda = getLambda(r, b, sigma, gamma);
     double kappa = getKappa(b, sigma, gamma);
-    return Math.exp(lambda) * Math.pow(s, gamma) * (Probability.normal(-d1) - Math.pow(i / s, kappa) * Probability.normal(-d2));
+    return Math.exp(lambda) * Math.pow(s, gamma) * (_normal.getCDF(-d1) - Math.pow(i / s, kappa) * _normal.getCDF(-d2));
   }
 
   private double getPsi(double s, double t, double gamma, double h, double i2, double i1, double t1, double b, double sigma, double r) {
@@ -135,8 +136,8 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     double kappa = getKappa(b, sigma, gamma);
     return Math.exp(lambda * t)
         * Math.pow(s, gamma)
-        * (_bvnd.getCDF(new Double[] { -e1, -f1, rho }) - Math.pow(i2 / s, kappa) * _bvnd.getCDF(new Double[] { -e2, -f2, rho }) - Math.pow(i1 / s, kappa)
-            * _bvnd.getCDF(new Double[] { -e3, -f3, -rho }) + Math.pow(i1 / i2, kappa) * _bvnd.getCDF(new Double[] { -e4, -f4, -rho }));
+        * (_bivariateNormal.getCDF(new Double[] { -e1, -f1, rho }) - Math.pow(i2 / s, kappa) * _bivariateNormal.getCDF(new Double[] { -e2, -f2, rho }) - Math.pow(i1 / s, kappa)
+            * _bivariateNormal.getCDF(new Double[] { -e3, -f3, -rho }) + Math.pow(i1 / i2, kappa) * _bivariateNormal.getCDF(new Double[] { -e4, -f4, -rho }));
   }
 
   private double getD(double x, double y, double t, double denom) {

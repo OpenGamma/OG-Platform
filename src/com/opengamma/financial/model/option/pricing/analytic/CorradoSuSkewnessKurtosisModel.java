@@ -3,6 +3,7 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
@@ -19,11 +20,11 @@ public class CorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<European
   protected ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  protected Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
+  protected Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(SkewKurtosisOptionDataBundle data) {
+      public Double evaluate(SkewKurtosisOptionDataBundle data) throws OptionPricingException {
         try {
           double s = data.getSpot();
           double k = definition.getStrike();
@@ -37,7 +38,7 @@ public class CorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<European
           if (!definition.isCall()) {
             callDefinition = new EuropeanVanillaOptionDefinition(callDefinition.getStrike(), callDefinition.getExpiry(), true);
           }
-          Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(callDefinition);
+          Function1D<StandardOptionDataBundle, Double, OptionPricingException> bsm = _bsm.getPricingFunction(callDefinition);
           double bsmCall = bsm.evaluate(data);
           double w = getW(sigma, t, skew, kurtosis);
           double d = getD(s, k, sigma, t, b, w);
@@ -47,7 +48,7 @@ public class CorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<European
           }
           return call;
         } catch (InterpolationException e) {
-          return null;
+          throw new OptionPricingException(e);
         }
       }
     };

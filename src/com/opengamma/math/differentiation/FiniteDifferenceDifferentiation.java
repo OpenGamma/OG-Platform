@@ -15,7 +15,7 @@ public class FiniteDifferenceDifferentiation {
     FORWARD, CENTRAL, BACKWARD
   }
 
-  public static double getFirstOrder(Function<Double, Double> f, Double[] vars, int index, double eps, DifferenceType type) {
+  public static double getFirstOrder(Function<Double, Double, ? extends Exception> f, Double[] vars, int index, double eps, DifferenceType type) throws Exception {
     Double[] newVars = Arrays.copyOf(vars, vars.length);
     if (type.equals(DifferenceType.FORWARD)) {
       double original = f.evaluate(newVars);
@@ -36,7 +36,7 @@ public class FiniteDifferenceDifferentiation {
     return (up - down) / twiceEps;
   }
 
-  public static double getMixedFirstOrder(Function<Double, Double> f, Double[] vars, int index1, int index2, double eps1, double eps2) {
+  public static double getMixedFirstOrder(Function<Double, Double, ? extends Exception> f, Double[] vars, int index1, int index2, double eps1, double eps2) throws Exception {
     Double[] newVars = Arrays.copyOf(vars, vars.length);
     newVars[index1] += eps1;
     newVars[index2] += eps2;
@@ -51,7 +51,7 @@ public class FiniteDifferenceDifferentiation {
     return (firstTerm - secondTerm - thirdTerm + fourthTerm) / (4 * eps1 * eps2);
   }
 
-  public static double getSecondOrder(Function<Double, Double> f, Double[] vars, int index, double eps) {
+  public static double getSecondOrder(Function<Double, Double, ? extends Exception> f, Double[] vars, int index, double eps) throws Exception {
     Double[] newVars = Arrays.copyOf(vars, vars.length);
     double original = f.evaluate(newVars);
     newVars[index] += eps;
@@ -61,12 +61,12 @@ public class FiniteDifferenceDifferentiation {
     return (up - 2 * original + down) / (eps * eps);
   }
 
-  public static double getMixedSecondOrder(Function<Double, Double> f, Double[] vars, int index1, int index2, double eps1, double eps2) {
+  public static double getMixedSecondOrder(Function<Double, Double, ? extends Exception> f, Double[] vars, int index1, int index2, double eps1, double eps2) throws Exception {
     // TODO
     return 0;
   }
 
-  public static double getThirdOrder(Function<Double, Double> f, Double[] vars, int index, double eps) {
+  public static double getThirdOrder(Function<Double, Double, ? extends Exception> f, Double[] vars, int index, double eps) throws Exception {
     // TODO
     return 0;
   }

@@ -15,5 +15,5 @@ public interface SingleRootFinder<T> {
   public static final double ZERO = 1e-12;
   public static final String CONVERGENCE_STRING = "Could not find root in " + MAX_ATTEMPTS + " attempts";
 
-  public T getRoot(Function<T, T> function, T xLow, T xHigh, T accuracy) throws MathException, ConvergenceException;
+  public T getRoot(Function<T, T, ? extends Exception> function, T xLow, T xHigh, T accuracy) throws MathException, ConvergenceException, Exception;
 }

@@ -12,13 +12,17 @@ import com.opengamma.math.function.Function;
 public class BisectionSingleRootFinder implements SingleRootFinder<Double> {
 
   @Override
-  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) throws MathException, ConvergenceException {
-    if (accuracy == null) throw new IllegalArgumentException("Accuracy was null");
+  public Double getRoot(Function<Double, Double, ? extends Exception> function, Double xLow, Double xHigh, Double accuracy) throws MathException, ConvergenceException, Exception {
+    if (accuracy == null)
+      throw new IllegalArgumentException("Accuracy was null");
     double yLow = function.evaluate(xLow);
     double y = function.evaluate(xHigh);
-    if (Math.abs(y) < accuracy) return xHigh;
-    if (Math.abs(yLow) < accuracy) return xLow;
-    if (yLow * y >= 0) throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
+    if (Math.abs(y) < accuracy)
+      return xHigh;
+    if (Math.abs(yLow) < accuracy)
+      return xLow;
+    if (yLow * y >= 0)
+      throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
     double dx, xRoot, xMid;
     if (yLow < 0) {
       dx = xHigh - xLow;
@@ -31,8 +35,10 @@ public class BisectionSingleRootFinder implements SingleRootFinder<Double> {
       dx *= 0.5;
       xMid = xRoot + dx;
       y = function.evaluate(xMid);
-      if (y <= 0) xRoot = xMid;
-      if (Math.abs(dx) < accuracy || Math.abs(y) < ZERO) return xRoot;
+      if (y <= 0)
+        xRoot = xMid;
+      if (Math.abs(dx) < accuracy || Math.abs(y) < ZERO)
+        return xRoot;
     }
     throw new ConvergenceException(CONVERGENCE_STRING);
   }

@@ -3,6 +3,7 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
 
@@ -16,11 +17,11 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<Europea
   protected BlackScholesMertonModel _bsm;
 
   @Override
-  protected Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
+  protected Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
-      public Double evaluate(SkewKurtosisOptionDataBundle data) {
+      public Double evaluate(SkewKurtosisOptionDataBundle data) throws OptionPricingException {
         try {
           double s = data.getSpot();
           double k = definition.getStrike();
@@ -34,7 +35,7 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<Europea
           if (!definition.isCall()) {
             callDefinition = new EuropeanVanillaOptionDefinition(callDefinition.getStrike(), callDefinition.getExpiry(), true);
           }
-          Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(callDefinition);
+          Function1D<StandardOptionDataBundle, Double, OptionPricingException> bsm = _bsm.getPricingFunction(callDefinition);
           double bsmCall = bsm.evaluate(data);
           double d2 = getD2(getD1(s, k, t, sigma, b), sigma, t);
           double a = getA(d2, k, sigma, t);
@@ -44,7 +45,7 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<Europea
           }
           return call;
         } catch (InterpolationException e) {
-          return null;
+          throw new OptionPricingException(e);
         }
       }
 

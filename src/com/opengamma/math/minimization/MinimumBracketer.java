@@ -9,8 +9,8 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public abstract class MinimumBracketer<T> {
+public abstract class MinimumBracketer<T, U extends Exception> {
   protected static final double GOLDEN = 0.61803399;
 
-  public abstract T[] getBracketedPoints(Function1D<T, T> f, T x1, T x2) throws ConvergenceException;
+  public abstract T[] getBracketedPoints(Function1D<T, T, U> f, T x1, T x2) throws ConvergenceException;
 }

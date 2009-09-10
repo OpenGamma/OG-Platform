@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
+import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.Pair;
 
@@ -24,8 +25,21 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
     _interpolator = interpolator;
   }
 
-  public double getVolatility(Double x, Double y) {
-    return 0;
+  public Map<Pair<Double, Double>, Double> getData() {
+    return _data;
+  }
+
+  public Date getDate() {
+    return _date;
+  }
+
+  public Interpolator2D getInterpolator() {
+    return _interpolator;
+  }
+
+  @Override
+  public double getVolatility(Double x, Double y) throws InterpolationException {
+    return _interpolator.interpolate(_data, new Pair<Double, Double>(x, y)).getResult();
   }
 
 }

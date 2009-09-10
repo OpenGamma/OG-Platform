@@ -1,5 +1,6 @@
 package com.opengamma.math.interpolation;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -12,6 +13,7 @@ import java.util.TreeMap;
 public abstract class Interpolator1D implements Interpolator<Map<Double, Double>, Double, Double> {
   protected static final double EPS = 1e-12;
 
+  @Override
   public abstract InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) throws InterpolationException;
 
   protected TreeMap<Double, Double> initData(Map<Double, Double> data) {
@@ -26,6 +28,17 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
     if (lower.equals(data.lastKey()))
       throw new InterpolationException("Value was greater than the largest data point for x");
     return lower;
+  }
+
+  protected int getLowerBoundIndex(TreeMap<Double, Double> data, Double value) throws InterpolationException {
+    Double lower = getLowerBoundKey(data, value);
+    int i = 0;
+    Iterator<Double> iter = data.keySet().iterator();
+    Double key = iter.next();
+    while (!key.equals(lower)) {
+      i++;
+    }
+    return i;
   }
 
   private void checkData(Map<Double, Double> data) {

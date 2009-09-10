@@ -17,11 +17,11 @@ public class LeisenReimerBinomialOptionAndSpotPricingTree {
   private RecombiningBinomialTree<Double> _spotPrices;
   private RecombiningBinomialTree<Double> _optionPrices;
 
-  public LeisenReimerBinomialOptionAndSpotPricingTree(OptionDefinition definition, StandardOptionDataBundle vars) {
+  public LeisenReimerBinomialOptionAndSpotPricingTree(OptionDefinition definition, StandardOptionDataBundle vars) throws Exception {
     createTrees(definition, vars, DEFAULT_N);
   }
 
-  public LeisenReimerBinomialOptionAndSpotPricingTree(int n, OptionDefinition definition, StandardOptionDataBundle vars) {
+  public LeisenReimerBinomialOptionAndSpotPricingTree(int n, OptionDefinition definition, StandardOptionDataBundle vars) throws Exception {
     createTrees(definition, vars, n);
   }
 
@@ -33,12 +33,12 @@ public class LeisenReimerBinomialOptionAndSpotPricingTree {
     return _optionPrices;
   }
 
-  private void createTrees(OptionDefinition definition, StandardOptionDataBundle vars, int n) {
+  private void createTrees(OptionDefinition definition, StandardOptionDataBundle vars, int n) throws Exception {
     try {
       double spot = vars.getSpot();
       int nodesAtMaturity = RecombiningBinomialTree.NODES.evaluate(n);
-      Function<Double, Double> payoff = definition.getPayoffFunction();
-      Function<Double, Boolean> shouldExercise = definition.getExerciseFunction();
+      Function<Double, Double, ? extends Exception> payoff = definition.getPayoffFunction();
+      Function<Double, Boolean, ? extends Exception> shouldExercise = definition.getExerciseFunction();
       Double[][] s = new Double[n][nodesAtMaturity];
       Double[][] o = new Double[n][nodesAtMaturity];
       double t = definition.getTimeToExpiry(vars.getDate());

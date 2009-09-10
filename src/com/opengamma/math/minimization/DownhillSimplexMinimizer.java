@@ -1,6 +1,7 @@
 package com.opengamma.math.minimization;
 
 import com.opengamma.math.ConvergenceException;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.util.CompareUtils;
 
@@ -10,12 +11,12 @@ import com.opengamma.util.CompareUtils;
  * 
  */
 
-public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Double> {
-  private double _eps = 1e-9;
-  private int _maxIter = 100;
+public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Double, MathException> {
+  private final double _eps = 1e-9;
+  private final int _maxIter = 100;
 
   @Override
-  public Double[] minimize(Function<Double, Double> f, Double[] initialPoints) throws ConvergenceException {
+  public Double[] minimize(Function<Double, Double, MathException> f, Double[] initialPoints) throws ConvergenceException, MathException {
     int n = initialPoints.length;
     Double[][] simplex = getSimplex(initialPoints);
     Double[] sumX = getSumX(simplex);
@@ -69,7 +70,7 @@ public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Doubl
     throw new ConvergenceException();
   }
 
-  private Double getExtrapolatedPoint(Double[][] simplex, Double[] y, Double[] sumX, int iHigh, double factor, Function<Double, Double> f) {
+  private Double getExtrapolatedPoint(Double[][] simplex, Double[] y, Double[] sumX, int iHigh, double factor, Function<Double, Double, MathException> f) throws MathException {
     int n = simplex.length - 1;
     Double[] newX = new Double[n];
     double factor1 = (1 - factor) / n;

@@ -1,12 +1,14 @@
 package com.opengamma.math.function;
 
+import com.opengamma.math.MathException;
+
 /**
  * 
  * @author emcleod
  * 
  */
-public class PolynomialFunction1D extends Function1D<Double, Double> {
-  private Double[] _coefficients;
+public class PolynomialFunction1D extends Function1D<Double, Double, MathException> {
+  private final Double[] _coefficients;
 
   /**
    * 
@@ -19,17 +21,21 @@ public class PolynomialFunction1D extends Function1D<Double, Double> {
    *          null value will throw an exception.
    */
   public PolynomialFunction1D(Double[] coefficients) throws IllegalArgumentException {
-    if (coefficients == null) throw new IllegalArgumentException("Coefficient array was null");
-    if (coefficients.length == 0) throw new IllegalArgumentException("Coefficient array was empty");
+    if (coefficients == null)
+      throw new IllegalArgumentException("Coefficient array was null");
+    if (coefficients.length == 0)
+      throw new IllegalArgumentException("Coefficient array was empty");
     for (int i = 0; i < coefficients.length; i++) {
-      if (coefficients[i] == null) throw new IllegalArgumentException("There was a null value in the coefficient array at element " + i);
+      if (coefficients[i] == null)
+        throw new IllegalArgumentException("There was a null value in the coefficient array at element " + i);
     }
     _coefficients = coefficients;
   }
 
   @Override
-  public Double evaluate(Double x) {
-    if (x == null) throw new IllegalArgumentException("Null argument");
+  public Double evaluate(Double x) throws MathException {
+    if (x == null)
+      throw new IllegalArgumentException("Null argument");
     int n = _coefficients.length;
     double y = _coefficients[n - 1].doubleValue();
     for (int i = n - 2; i >= 0; i--) {

@@ -13,7 +13,7 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
 
   @Override
   protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<Double, Double>() {
+    _payoffFunction = new Function1D<Double, Double, Exception>() {
 
       @Override
       public Double evaluate(Double spot) {
@@ -21,7 +21,7 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
       }
 
     };
-    _exerciseFunction = new Function<Double, Boolean>() {
+    _exerciseFunction = new Function<Double, Boolean, Exception>() {
 
       @Override
       public Boolean evaluate(Double... x) {

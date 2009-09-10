@@ -1,20 +1,18 @@
 package com.opengamma.math.interpolation;
 
+import java.util.Map;
+
+import com.opengamma.util.Pair;
+
 /**
  * 
  * @author emcleod
  * 
  */
 
-public abstract class Interpolator2D {
-  protected Double[][] _x;
-  protected Double[][] _y;
+public abstract class Interpolator2D implements Interpolator<Map<Pair<Double, Double>, Double>, Pair<Double, Double>, Double> {
 
-  public Interpolator2D(Double[][] x, Double[][] y) {
-    _x = x;
-    _y = y;
-  }
-
-  public abstract InterpolationResult interpolate(double x1, double x2) throws InterpolationException;
+  @Override
+  public abstract InterpolationResult<Double> interpolate(Map<Pair<Double, Double>, Double> data, Pair<Double, Double> value) throws InterpolationException;
 
 }
