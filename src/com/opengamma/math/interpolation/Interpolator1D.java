@@ -22,19 +22,21 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
   }
 
   protected Double getLowerBoundKey(TreeMap<Double, Double> data, Double value) throws InterpolationException {
-    Double lower = data.floorKey(value);
-    if (lower == null)
+    final Double lower = data.floorKey(value);
+    if (lower == null) {
       throw new InterpolationException("Value was less than the lowest data point for x");
-    if (lower.equals(data.lastKey()))
+    }
+    if (lower.equals(data.lastKey())) {
       throw new InterpolationException("Value was greater than the largest data point for x");
+    }
     return lower;
   }
 
   protected int getLowerBoundIndex(TreeMap<Double, Double> data, Double value) throws InterpolationException {
-    Double lower = getLowerBoundKey(data, value);
+    final Double lower = getLowerBoundKey(data, value);
     int i = 0;
-    Iterator<Double> iter = data.keySet().iterator();
-    Double key = iter.next();
+    final Iterator<Double> iter = data.keySet().iterator();
+    final Double key = iter.next();
     while (!key.equals(lower)) {
       i++;
     }
@@ -42,9 +44,11 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
   }
 
   private void checkData(Map<Double, Double> data) {
-    if (data == null)
+    if (data == null) {
       throw new IllegalArgumentException("Data map was null");
-    if (data.size() < 2)
+    }
+    if (data.size() < 2) {
       throw new IllegalArgumentException("Need at least two points to perform interpolation");
+    }
   }
 }

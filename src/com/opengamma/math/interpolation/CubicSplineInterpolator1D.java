@@ -8,24 +8,25 @@ public class CubicSplineInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) throws InterpolationException {
-    TreeMap<Double, Double> sorted = initData(data);
-    Double lowX = getLowerBoundKey(sorted, value);
-    Double nextX = sorted.higherKey(lowX);
-    Double lowY = sorted.get(lowX);
-    Double nextY = sorted.get(nextX);
-    double diff = nextY - lowY;
-    if (Math.abs(diff) < EPS)
+    final TreeMap<Double, Double> sorted = initData(data);
+    final Double lowX = getLowerBoundKey(sorted, value);
+    final Double nextX = sorted.higherKey(lowX);
+    final Double lowY = sorted.get(lowX);
+    final Double nextY = sorted.get(nextX);
+    final double diff = nextY - lowY;
+    if (Math.abs(diff) < EPS) {
       throw new InterpolationException("Points were not distinct: " + nextX + " and " + lowX);
-    double a = (nextX - value) / diff;
-    double b = (value - lowX) / diff;
-    Map<Double, Double> secondDeriv = getSecondDerivatives(sorted);
-    double y = a * lowY + b * nextY + (a * a * a - a) * secondDeriv.get(lowX) + (b * b * b - b) * secondDeriv.get(nextX) * (diff * diff) / 6.;
+    }
+    final double a = (nextX - value) / diff;
+    final double b = (value - lowX) / diff;
+    final Map<Double, Double> secondDeriv = getSecondDerivatives(sorted);
+    final double y = a * lowY + b * nextY + (a * a * a - a) * secondDeriv.get(lowX) + (b * b * b - b) * secondDeriv.get(nextX) * diff * diff / 6.;
     return new InterpolationResult<Double>(y);
   }
 
   private Map<Double, Double> getSecondDerivatives(TreeMap<Double, Double> data) {
-    TreeMap<Double, Double> result = new TreeMap<Double, Double>();
-    TreeMap<Double, Double> u = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> result = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> u = new TreeMap<Double, Double>();
     double previousX, x, nextX, previousY, y, nextY;
     Iterator<Map.Entry<Double, Double>> iter = data.entrySet().iterator();
     Iterator<Map.Entry<Double, Double>> uIter = u.entrySet().iterator();

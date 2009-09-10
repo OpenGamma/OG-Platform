@@ -27,8 +27,9 @@ public class InterpolationResult<T> {
   }
 
   public T getErrorEstimate() throws MathException {
-    if (_error == null)
+    if (_error == null) {
       throw new MathException("Error was not calculated for this interpolation result");
+    }
     return _error;
   }
 }
