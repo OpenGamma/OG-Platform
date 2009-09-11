@@ -44,11 +44,9 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
   }
 
   private void checkData(Map<Double, Double> data) {
-    if (data == null) {
+    if (data == null)
       throw new IllegalArgumentException("Data map was null");
-    }
-    if (data.size() < 2) {
+    if (data.size() < 2)
       throw new IllegalArgumentException("Need at least two points to perform interpolation");
-    }
   }
 }

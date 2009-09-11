@@ -6,3 +6,4 @@ dist/
 ivy/
 tests/classes/
 tests/output/
+.settings/org.eclipse.ltk.core.refactoring.prefs

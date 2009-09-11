@@ -17,10 +17,10 @@ public class CubicInterpolator1D extends Interpolator1D {
     TreeMap<Double, Double> sorted = initData(data);
     int index = getLowerBoundIndex(sorted, value);
     if (index < 2) {
-      throw new IllegalArgumentException("Data point was too close to the lowest value of the abscissa data");
+      throw new IllegalArgumentException("Data point was too close to the lowest value of the abscissa data");// TODO
     }
     if (index > sorted.size() - 2) {
-      throw new IllegalArgumentException("Data point was too close to the highest value of the abscissa data");
+      throw new IllegalArgumentException("Data point was too close to the highest value of the abscissa data");// TODO
     }
     Double[] xArray = Arrays.copyOfRange(sorted.keySet().toArray(new Double[0]), index - 1, index + 2);
     Double[] yArray = Arrays.copyOfRange(sorted.values().toArray(new Double[0]), index - 1, index + 2);
