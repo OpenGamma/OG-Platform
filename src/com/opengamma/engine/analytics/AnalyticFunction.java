@@ -24,6 +24,8 @@ public interface AnalyticFunction {
   
   String getShortName();
   
+  boolean isSecuritySpecific();
+  
   /**
    * Determine whether this function is applicable to the specified security type
    * in general.
@@ -33,6 +35,8 @@ public interface AnalyticFunction {
    *         in a security with the specified type.
    */
   boolean isApplicableTo(String securityType);
+  
+  boolean isPositionSpecific();
   
   /**
    * Determine whether this function is applicable to a position of the type provided.
@@ -51,5 +55,7 @@ public interface AnalyticFunction {
   Collection<AnalyticValueDefinition> getPossibleResults();
   
   Collection<AnalyticValueDefinition> getInputs();
+  
+  Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs, Position position);
 
 }

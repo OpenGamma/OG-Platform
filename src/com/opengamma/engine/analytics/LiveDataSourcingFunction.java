@@ -8,6 +8,8 @@ package com.opengamma.engine.analytics;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import com.opengamma.engine.position.Position;
 
 /**
@@ -58,6 +60,22 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   @Override
   public boolean isApplicableTo(Position position) {
     return true;
+  }
+
+  @Override
+  public boolean isPositionSpecific() {
+    return false;
+  }
+
+  @Override
+  public boolean isSecuritySpecific() {
+    return false;
+  }
+
+  @Override
+  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+      Position position) {
+    throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
 
 }

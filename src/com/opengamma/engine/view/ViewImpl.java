@@ -8,23 +8,33 @@ package com.opengamma.engine.view;
 import java.util.Collection;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
 import com.opengamma.engine.position.AggregatePosition;
+import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.util.ThreadUtil;
 
 /**
  * The base implementation of the {@link View} interface.
  *
  * @author kirk
  */
-public class ViewImpl implements View {
+public class ViewImpl implements View, Lifecycle {
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewImpl.class);
   private final ViewDefinition _definition;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private AnalyticFunctionRepository _analyticFunctionRepository;
+  private PositionMaster _positionMaster;
+  private Thread _recalculationThread;
+  private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
+  private ViewRecalculationJob _recalcJob; 
   
   public ViewImpl(ViewDefinition definition) {
     if(definition == null) {
@@ -66,20 +76,77 @@ public class ViewImpl implements View {
   }
 
   /**
+   * @return the positionMaster
+   */
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  /**
+   * @param positionMaster the positionMaster to set
+   */
+  @Required
+  public void setPositionMaster(PositionMaster positionMaster) {
+    _positionMaster = positionMaster;
+  }
+
+  /**
    * @return the definition
    */
   public ViewDefinition getDefinition() {
     return _definition;
   }
 
+  /**
+   * @return the recalculationThread
+   */
+  public Thread getRecalculationThread() {
+    return _recalculationThread;
+  }
+
+  /**
+   * @param recalculationThread the recalculationThread to set
+   */
+  protected void setRecalculationThread(Thread recalculationThread) {
+    _recalculationThread = recalculationThread;
+  }
+
+  /**
+   * @return the calculationState
+   */
+  public ViewCalculationState getCalculationState() {
+    return _calculationState;
+  }
+
+  /**
+   * @param calculationState the calculationState to set
+   */
+  protected void setCalculationState(ViewCalculationState calculationState) {
+    _calculationState = calculationState;
+  }
+
+  /**
+   * @return the recalcJob
+   */
+  public ViewRecalculationJob getRecalcJob() {
+    return _recalcJob;
+  }
+
+  /**
+   * @param recalcJob the recalcJob to set
+   */
+  protected void setRecalcJob(ViewRecalculationJob recalcJob) {
+    _recalcJob = recalcJob;
+  }
+
   // TODO kirk 2009-09-03 -- Flesh out a bootstrap system:
-  // - Walk through an AnalyticFunctionRepository to get all functions
   // - Load up the contents of the portfolio from a PortfolioMaster
   // - Load up the securities of the portfolio from a SecurityMaster
   // - Gather up all problems if anything isn't available
   
   public void init() {
     checkInjectedDependencies();
+    setCalculationState(ViewCalculationState.INITIALIZING);
     LogicalDependencyGraphModel logicalDepGraph = new LogicalDependencyGraphModel();
     logicalDepGraph.setAnalyticFunctionRepository(getAnalyticFunctionRepository());
     logicalDepGraph.setLiveDataAvailabilityProvider(getLiveDataAvailabilityProvider());
@@ -90,6 +157,7 @@ public class ViewImpl implements View {
       // operation. We could/should do them in parallel.
       logicalDepGraph.addSecurityType(entry.getKey(), entry.getValue());
     }
+    setCalculationState(ViewCalculationState.NOT_STARTED);
   }
   
   /**
@@ -101,6 +169,9 @@ public class ViewImpl implements View {
     }
     if(getLiveDataAvailabilityProvider() == null) {
       throw new IllegalStateException("Must have a Live Data Availability Provider");
+    }
+    if(getPositionMaster() == null) {
+      throw new IllegalStateException("Must have a Position Master");
     }
   }
 
@@ -117,6 +188,57 @@ public class ViewImpl implements View {
   }
   
   public void recalculationPerformed(ViewComputationResultModel result) {
+    s_logger.info("Recalculation Performed called.");
+  }
+  
+  // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle
+  // methods.
+
+  @Override
+  public synchronized boolean isRunning() {
+    return getCalculationState() == ViewCalculationState.RUNNING;
+  }
+
+  @Override
+  public synchronized void start() {
+    s_logger.info("Starting...");
+    // TODO kirk 2009-09-11 -- Check state.
+    setCalculationState(ViewCalculationState.STARTING);
+    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+    Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
+    
+    setRecalcJob(recalcJob);
+    setRecalculationThread(recalcThread);
+    setCalculationState(ViewCalculationState.RUNNING);
+    recalcThread.start();
+    s_logger.info("Started.");
+  }
+
+  @Override
+  public synchronized void stop() {
+    s_logger.info("Stopping.....");
+    // TODO kirk 2009-09-11 -- Check state.
+    
+    assert getRecalcJob() != null;
+    assert getRecalculationThread() != null;
+    
+    setCalculationState(ViewCalculationState.TERMINATING);
+    
+    getRecalcJob().terminate();
+    // TODO kirk 2009-09-11 -- Have a heuristic on when to set the timeout based on
+    // how long the job is currently taking to cycle.
+    long timeout = 100 * 1000l;
+    boolean successful = ThreadUtil.safeJoin(getRecalculationThread(), timeout);
+    if(!successful) {
+      s_logger.warn("Unable to shut down recalc thread in {}ms", timeout);
+    }
+    
+    setCalculationState(ViewCalculationState.TERMINATED);
+    
+    setRecalcJob(null);
+    setRecalculationThread(null);
+    
+    s_logger.info("Stopped.");
   }
 
 }
