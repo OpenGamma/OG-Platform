@@ -6,12 +6,12 @@
 package com.opengamma.engine.position;
 
 /**
- * A named {@link AggregatePosition} which has metadata and usually represents
+ * A named {@link PortfolioNode} which has metadata and usually represents
  * a business-level construct.
  *
  * @author kirk
  */
-public interface Portfolio extends AggregatePosition {
+public interface Portfolio extends PortfolioNode {
   
   String getName();
 

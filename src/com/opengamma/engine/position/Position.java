@@ -5,11 +5,19 @@
  */
 package com.opengamma.engine.position;
 
+import java.math.BigDecimal;
+
+import com.opengamma.engine.security.Security;
+
 /**
  * 
  *
  * @author kirk
  */
 public interface Position {
-
+  
+  BigDecimal getQuantity();
+  
+  Security getSecurity();
+  
 }

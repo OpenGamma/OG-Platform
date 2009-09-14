@@ -14,10 +14,11 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.LiveDataAvailabilityProvider;
+import com.opengamma.engine.LiveDataSnapshotProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
-import com.opengamma.engine.position.AggregatePosition;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.util.ThreadUtil;
 
@@ -28,10 +29,15 @@ import com.opengamma.util.ThreadUtil;
  */
 public class ViewImpl implements View, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImpl.class);
+  // Injected dependencies:
   private final ViewDefinition _definition;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private AnalyticFunctionRepository _analyticFunctionRepository;
   private PositionMaster _positionMaster;
+  private ViewComputationCacheFactory _computationCacheFactory;
+  // Internal State:
+  private LogicalDependencyGraphModel _logicalDependencyGraphModel;
   private Thread _recalculationThread;
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob; 
@@ -57,6 +63,22 @@ public class ViewImpl implements View, Lifecycle {
   public void setLiveDataAvailabilityProvider(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
+  }
+
+  /**
+   * @return the liveDataSnapshotProvider
+   */
+  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
+    return _liveDataSnapshotProvider;
+  }
+
+  /**
+   * @param liveDataSnapshotProvider the liveDataSnapshotProvider to set
+   */
+  @Required
+  public void setLiveDataSnapshotProvider(
+      LiveDataSnapshotProvider liveDataSnapshotProvider) {
+    _liveDataSnapshotProvider = liveDataSnapshotProvider;
   }
 
   /**
@@ -95,6 +117,37 @@ public class ViewImpl implements View, Lifecycle {
    */
   public ViewDefinition getDefinition() {
     return _definition;
+  }
+
+  /**
+   * @return the computationCacheFactory
+   */
+  public ViewComputationCacheFactory getComputationCacheFactory() {
+    return _computationCacheFactory;
+  }
+
+  /**
+   * @param computationCacheFactory the computationCacheFactory to set
+   */
+  @Required
+  public void setComputationCacheFactory(
+      ViewComputationCacheFactory computationCacheFactory) {
+    _computationCacheFactory = computationCacheFactory;
+  }
+
+  /**
+   * @return the logicalDependencyGraphModel
+   */
+  public LogicalDependencyGraphModel getLogicalDependencyGraphModel() {
+    return _logicalDependencyGraphModel;
+  }
+
+  /**
+   * @param logicalDependencyGraphModel the logicalDependencyGraphModel to set
+   */
+  public void setLogicalDependencyGraphModel(
+      LogicalDependencyGraphModel logicalDependencyGraphModel) {
+    _logicalDependencyGraphModel = logicalDependencyGraphModel;
   }
 
   /**
@@ -157,6 +210,9 @@ public class ViewImpl implements View, Lifecycle {
       // operation. We could/should do them in parallel.
       logicalDepGraph.addSecurityType(entry.getKey(), entry.getValue());
     }
+    
+    setLogicalDependencyGraphModel(logicalDepGraph);
+    
     setCalculationState(ViewCalculationState.NOT_STARTED);
   }
   
@@ -170,8 +226,14 @@ public class ViewImpl implements View, Lifecycle {
     if(getLiveDataAvailabilityProvider() == null) {
       throw new IllegalStateException("Must have a Live Data Availability Provider");
     }
+    if(getLiveDataSnapshotProvider() == null) {
+      throw new IllegalStateException("Must have a Live Data Snapshot Provider");
+    }
     if(getPositionMaster() == null) {
       throw new IllegalStateException("Must have a Position Master");
+    }
+    if(getComputationCacheFactory() == null) {
+      throw new IllegalStateException("Must have a View Computation Cache Factory");
     }
   }
 
@@ -182,7 +244,7 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   @Override
-  public AggregatePosition getPositionRoot() {
+  public PortfolioNode getPositionRoot() {
     // TODO Auto-generated method stub
     return null;
   }

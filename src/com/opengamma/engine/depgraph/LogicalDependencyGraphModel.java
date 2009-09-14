@@ -6,7 +6,9 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -73,6 +75,18 @@ public class LogicalDependencyGraphModel {
     }
     SecurityTypeLogicalDependencyGraph depGraph = new SecurityTypeLogicalDependencyGraph(securityType, requiredOutputValues);
     _graphForSecurityTypes.put(securityType, depGraph);
+  }
+  
+  public Set<AnalyticValueDefinition> getAllRequiredLiveData() {
+    Set<AnalyticValueDefinition> result = new HashSet<AnalyticValueDefinition>();
+    for(SecurityTypeLogicalDependencyGraph secTypeGraph : _graphForSecurityTypes.values()) {
+      result.addAll(secTypeGraph.getRequiredLiveData());
+    }
+    return result;
+  }
+  
+  public SecurityTypeLogicalDependencyGraph getLogicalGraph(String securityType) {
+    return _graphForSecurityTypes.get(securityType);
   }
 
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.position.AggregatePosition;
+import com.opengamma.engine.position.PortfolioNode;
 
 /**
  * 
@@ -14,7 +14,7 @@ import com.opengamma.engine.position.AggregatePosition;
  */
 public interface View {
 
-  AggregatePosition getPositionRoot();
+  PortfolioNode getPositionRoot();
   
   ViewComputationResultModel getMostRecentResult();
 }

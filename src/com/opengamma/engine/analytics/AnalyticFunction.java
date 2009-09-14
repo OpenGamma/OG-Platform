@@ -7,7 +7,7 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
-import com.opengamma.engine.position.AggregatePosition;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 
 // NOTE kirk 2009-09-03 -- This is the data that we need for the engine to work.
@@ -43,7 +43,7 @@ public interface AnalyticFunction {
    * While leaf-level positions will customarily be checked using a call
    * to {@link #isApplicableTo(String)} to check on the security type,
    * this method is more appropriate for checking whether a particular function
-   * is suitable to {@link AggregatePosition}s. For example, some operations
+   * is suitable to {@link PortfolioNode}s. For example, some operations
    * simply may not make sense in an aggregate position.
    * 
    * @param position The position to check.

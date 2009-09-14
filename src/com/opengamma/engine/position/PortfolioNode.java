@@ -13,7 +13,9 @@ import java.util.Collection;
  *
  * @author kirk
  */
-public interface AggregatePosition extends Position {
-  Collection<Position> getSubPositions();
+public interface PortfolioNode {
+  Collection<Position> getPositions();
+  
+  Collection<PortfolioNode> getSubNodes();
 
 }

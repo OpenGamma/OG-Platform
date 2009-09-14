@@ -5,9 +5,13 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -49,13 +53,30 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
 
   @Override
+  protected void preStart() {
+    super.preStart();
+    Set<AnalyticValueDefinition> requiredLiveData = getView().getLogicalDependencyGraphModel().getAllRequiredLiveData();
+    s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
+    for(AnalyticValueDefinition liveDataDefinition : requiredLiveData) {
+      getView().getLiveDataSnapshotProvider().addSubscription(liveDataDefinition);
+    }
+  }
+
+  @Override
   protected void runOneCycle() {
-    long startTime = System.currentTimeMillis();
+    ViewComputationCache cache = getView().getComputationCacheFactory().generateCache();
+    PortfolioNode positionRoot = getView().getPositionRoot();
+    assert cache != null;
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
+    
+    SingleComputationCycle cycle = new SingleComputationCycle(cache, positionRoot, getView().getLiveDataSnapshotProvider(), getView().getLogicalDependencyGraphModel(), result);
+    cycle.prepareInputs();
+    // Flatten, just because we're not going to handle trees yet.
+    cycle.loadPositions();
     
     long endTime = System.currentTimeMillis();
     result.setResultTimestamp(endTime);
-    long delta = endTime - startTime;
+    long delta = endTime - cycle.getStartTime();
     s_logger.info("Completed one recalculation pass in {}ms", delta);
     getView().recalculationPerformed(result);
   }

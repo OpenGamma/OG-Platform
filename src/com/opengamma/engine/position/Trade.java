@@ -7,10 +7,11 @@ package com.opengamma.engine.position;
 
 
 /**
- * 
+ * Represents a single trade against a particular {@link Counterparty}.
  *
  * @author kirk
  */
 public interface Trade extends Position {
 
+  Counterparty getCounterparty();
 }
