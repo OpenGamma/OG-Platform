@@ -1,4 +1,4 @@
-package com.opengamma.financial.definitions.daycount;
+package com.opengamma.financial.convention.daycount;
 
 import javax.time.Instant;
 

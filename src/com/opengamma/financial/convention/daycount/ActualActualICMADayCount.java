@@ -1,4 +1,4 @@
-package com.opengamma.financial.definitions.daycount;
+package com.opengamma.financial.convention.daycount;
 
 import javax.time.Instant;
 
@@ -8,7 +8,7 @@ import javax.time.Instant;
  *
  */
 
-public class ThirtyEThreeSixtyDayCount implements DayCount {
+public class ActualActualICMADayCount implements DayCount {
 
   @Override
   public double getDayCountFraction(Instant firstDate, Instant secondDate) {
