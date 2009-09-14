@@ -69,10 +69,15 @@ public class ViewRecalculationJob extends TerminatableJob {
     assert cache != null;
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     
-    SingleComputationCycle cycle = new SingleComputationCycle(cache, positionRoot, getView().getLiveDataSnapshotProvider(), getView().getLogicalDependencyGraphModel(), result);
+    SingleComputationCycle cycle = new SingleComputationCycle(cache, positionRoot, getView().getLiveDataSnapshotProvider(), getView().getLogicalDependencyGraphModel(), result, getView().getDefinition());
     cycle.prepareInputs();
     // Flatten, just because we're not going to handle trees yet.
     cycle.loadPositions();
+    // REVIEW kirk 2009-09-14 -- This is completely unnecessary to do in the cycle stage.
+    // Once we have incremental maintenance of position data we can move it to the beginning
+    // of the cycle when we process inbound portfolio changes.
+    cycle.buildExecutionPlans();
+    cycle.populateResultModel();
     
     long endTime = System.currentTimeMillis();
     result.setResultTimestamp(endTime);

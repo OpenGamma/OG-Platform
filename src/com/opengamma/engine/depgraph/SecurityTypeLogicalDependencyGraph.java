@@ -32,6 +32,8 @@ public class SecurityTypeLogicalDependencyGraph {
     new HashSet<AnalyticValueDefinition>();
   private final Set<AnalyticValueDefinition> _requiredLiveData =
     new HashSet<AnalyticValueDefinition>();
+  private final Set<DependencyNode> _topLevelNodes =
+    new HashSet<DependencyNode>();
   
   public SecurityTypeLogicalDependencyGraph(
       String securityType,
@@ -67,6 +69,13 @@ public class SecurityTypeLogicalDependencyGraph {
     return _requiredLiveData;
   }
 
+  /**
+   * @return the topLevelNodes
+   */
+  public Set<DependencyNode> getTopLevelNodes() {
+    return _topLevelNodes;
+  }
+
   public void buildDependencyGraph(
       AnalyticFunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
@@ -93,7 +102,8 @@ public class SecurityTypeLogicalDependencyGraph {
     }
     getRequiredLiveData().clear();
     getRequiredLiveData().addAll(requiredLiveData);
-    
+    s_logger.info("{} built graph with {} top-level nodes", getSecurityType(), nodes.size());
+    getTopLevelNodes().addAll(nodes);
   }
   
   protected DependencyNode satisfyDependency(

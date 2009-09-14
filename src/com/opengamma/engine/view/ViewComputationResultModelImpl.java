@@ -65,5 +65,9 @@ public class ViewComputationResultModelImpl implements
     // TODO Auto-generated method stub
     return null;
   }
+  
+  public void addValue(Position position, AnalyticValue value) {
+    
+  }
 
 }

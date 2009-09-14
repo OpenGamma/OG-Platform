@@ -11,6 +11,7 @@ import java.util.Collections;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 
 /**
  * A meta-function which can be put into any dependency graph to indicate
@@ -75,6 +76,12 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   @Override
   public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
       Position position) {
+    throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
+  }
+
+  @Override
+  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+      Security security) {
     throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
 

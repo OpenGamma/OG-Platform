@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 
 // NOTE kirk 2009-09-03 -- This is the data that we need for the engine to work.
 // In general, I would expect that we'll have a metadata source (possibly based
@@ -57,5 +58,7 @@ public interface AnalyticFunction {
   Collection<AnalyticValueDefinition> getInputs();
   
   Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs, Position position);
+
+  Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs, Security security);
 
 }
