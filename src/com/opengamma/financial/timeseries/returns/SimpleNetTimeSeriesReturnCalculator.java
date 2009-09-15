@@ -17,12 +17,12 @@ import com.opengamma.timeseries.TimeSeriesException;
  *         <p>
  *         This class contains a function that calculates the gross one-period
  *         simple return of a time series. This is defined at time <i>t</i> as:<br>
- *         <i>R<sub>t</sub> = P<sub>t</sub>/P<sub>t-1</sub></i><br>
+ *         <i>R<sub>t</sub> = P<sub>t</sub>/P<sub>t-1</sub></i>-1<br>
  *         where <i>P<sub>t</sub></i> is the price at time <i>t</i> and
  *         <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  */
 
-public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
+public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   /**
    * @param x
@@ -51,9 +51,10 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
     while (iter.hasNext()) {
       entry = iter.next();
       dates.add(entry.getKey());
-      data.add(entry.getValue() / previousEntry.getValue());
+      data.add(entry.getValue() / previousEntry.getValue() - 1);
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(dates, data);
   }
+
 }
