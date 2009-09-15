@@ -18,8 +18,8 @@ import com.opengamma.timeseries.TimeSeriesException;
  * 
  */
 
-public class SimpleNetWithDividendTimeSeriesReturnCalculatorTest {
-  private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new SimpleNetWithDividendTimeSeriesReturnCalculator();
+public class ContinuouslyCompoundedWithDividendTimeSeriesReturnCalculatorTest {
+  private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new ContinuouslyCompoundedWithDividendTimeSeriesReturnCalculator();
 
   @Test
   public void testWithBadInputs() {
@@ -56,7 +56,7 @@ public class SimpleNetWithDividendTimeSeriesReturnCalculatorTest {
       random = Math.random();
       data[i] = random;
       if (i > 0) {
-        returns[i - 1] = random / data[i - 1] - 1;
+        returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
     DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
@@ -76,7 +76,7 @@ public class SimpleNetWithDividendTimeSeriesReturnCalculatorTest {
       random = Math.random();
       data[i] = random;
       if (i > 0) {
-        returns[i - 1] = random / data[i - 1] - 1;
+        returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
     DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(new long[] { 300 }, new double[] { 3 });
@@ -91,27 +91,17 @@ public class SimpleNetWithDividendTimeSeriesReturnCalculatorTest {
     long[] times = new long[n];
     double[] data = new double[n];
     double[] returns = new double[n - 1];
-    long[] dividendTimes = new long[] { 1, 4 };
-    double[] dividendData = new double[] { 0.4, 0.6 };
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
       random = Math.random();
       data[i] = random;
       if (i > 0) {
-        if (i == 1) {
-          returns[i - 1] = (random + dividendData[0]) / data[i - 1] - 1;
-        } else if (i == 4) {
-          returns[i - 1] = (random + dividendData[1]) / data[i - 1] - 1;
-        } else {
-          returns[i - 1] = random / data[i - 1] - 1;
-        }
+        returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
-    DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(dividendTimes, dividendData);
     DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
     DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
-    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
+    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS }).equals(returnTS));
   }
-
 }

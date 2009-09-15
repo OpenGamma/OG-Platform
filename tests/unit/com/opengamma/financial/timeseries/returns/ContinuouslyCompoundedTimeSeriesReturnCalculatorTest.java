@@ -22,7 +22,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator();
 
   @Test
-  public void testWithBadInputs() throws Exception {
+  public void testWithBadInputs() {
     try {
       CALCULATOR.evaluate((DoubleTimeSeries[]) null);
       fail();
@@ -63,5 +63,4 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS }).equals(returnTS));
   }
-
 }

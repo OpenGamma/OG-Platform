@@ -22,7 +22,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
   private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator();
 
   @Test
-  public void testWithBadInputs() throws Exception {
+  public void testWithBadInputs() {
     try {
       CALCULATOR.evaluate((DoubleTimeSeries[]) null);
       fail();
