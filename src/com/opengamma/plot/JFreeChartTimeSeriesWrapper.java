@@ -8,7 +8,7 @@ import javax.time.InstantProvider;
 import org.jfree.data.time.FixedMillisecond;
 import org.jfree.data.time.TimeSeries;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class JFreeChartTimeSeriesWrapper {
   private static final JFreeChartTimeSeriesWrapper WRAPPER = new JFreeChartTimeSeriesWrapper();
@@ -23,7 +23,7 @@ public class JFreeChartTimeSeriesWrapper {
 
   private class ConvertedTimePeriod extends FixedMillisecond {
     private static final long serialVersionUID = 2685226417956465236L;
-    private Instant _instant;
+    private final Instant _instant;
 
     public ConvertedTimePeriod(Instant instant) {
       super(instant.toEpochMillis());

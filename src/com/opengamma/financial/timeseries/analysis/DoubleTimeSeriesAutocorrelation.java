@@ -6,9 +6,9 @@ import java.util.Map;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.financial.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
-import com.opengamma.financial.timeseries.DoubleTimeSeriesOperations;
+import com.opengamma.timeseries.ArrayDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeriesOperations;
 
 public class DoubleTimeSeriesAutocorrelation {
 
@@ -17,7 +17,7 @@ public class DoubleTimeSeriesAutocorrelation {
     DoubleTimeSeries lagged = DoubleTimeSeriesOperations.lag(ts, lag);
     List<InstantProvider> dates = new ArrayList<InstantProvider>();
     List<Double> data = new ArrayList<Double>();
-    for(Map.Entry<InstantProvider, Double> entry : lagged) {
+    for (Map.Entry<InstantProvider, Double> entry : lagged) {
       dates.add(entry.getKey());
       data.add(ts.getDataPoint(entry.getKey()));
     }
@@ -27,7 +27,7 @@ public class DoubleTimeSeriesAutocorrelation {
   public static List<Double> getAutocorrelationSeries(DoubleTimeSeries ts, int max) {
     // TODO check for max < size
     List<Double> result = new ArrayList<Double>();
-    for(int i = 0; i <= max; i++) {
+    for (int i = 0; i <= max; i++) {
       result.add(getAutocorrelation(ts, i));
     }
     return result;

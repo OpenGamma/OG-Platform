@@ -14,12 +14,12 @@ import javax.swing.SpringLayout;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
 import com.opengamma.plot.StandardAutocorrelogram;
 import com.opengamma.plot.StandardTimeSeriesDistributionAnalysisChart;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class TimeSeriesDemoAnalysisPanel extends JPanel {
-  private JComboBox _box;
+  private final JComboBox _box;
   private final int PLOT_WIDTH = 500;
   private final int PLOT_HEIGHT = 350;
   private final Dimension SIZE = new Dimension(800, 400);

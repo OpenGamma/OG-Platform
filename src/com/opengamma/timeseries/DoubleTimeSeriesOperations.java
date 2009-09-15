@@ -1,4 +1,4 @@
-package com.opengamma.financial.timeseries;
+package com.opengamma.timeseries;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -225,8 +225,10 @@ public class DoubleTimeSeriesOperations {
 
   public static DoubleTimeSeries lag(DoubleTimeSeries a, int lag) {
     // TODO deal with going forward in time
-    if (lag >= a.size()) throw new IllegalArgumentException("Lag must be less than series size");
-    if (lag == 0) return a;
+    if (lag >= a.size())
+      throw new IllegalArgumentException("Lag must be less than series size");
+    if (lag == 0)
+      return a;
     List<InstantProvider> dates = new ArrayList<InstantProvider>();
     List<Double> data = new ArrayList<Double>();
     Iterator<InstantProvider> timeIter = a.timeIterator();

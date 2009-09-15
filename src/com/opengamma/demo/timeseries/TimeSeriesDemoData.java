@@ -12,14 +12,9 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
-import cern.jet.random.Distributions;
-import cern.jet.random.Normal;
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
-
-import com.opengamma.financial.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
 import com.opengamma.financial.timeseries.model.AutoregressiveModel;
+import com.opengamma.timeseries.ArrayDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class TimeSeriesDemoData {
   final RandomEngine _engine1 = new MersenneTwister(new Date());
@@ -51,9 +46,9 @@ public class TimeSeriesDemoData {
 }
 
 class NormalDistributionTimeSeriesData extends TimeSeriesDemoData {
-  private Normal _generator;
-  private double _mu;
-  private double _sigma;
+  private final Normal _generator;
+  private final double _mu;
+  private final double _sigma;
 
   public NormalDistributionTimeSeriesData(double mu, double sigma) {
     _generator = new Normal(mu, sigma, _engine1);
@@ -91,8 +86,8 @@ class NormalDistributionTimeSeriesData extends TimeSeriesDemoData {
  */
 
 class WeibullDistributionTimeSeriesData extends TimeSeriesDemoData {
-  private double _alpha;
-  private double _beta;
+  private final double _alpha;
+  private final double _beta;
 
   public WeibullDistributionTimeSeriesData(double alpha, double beta) {
     _alpha = alpha;
@@ -111,7 +106,7 @@ class WeibullDistributionTimeSeriesData extends TimeSeriesDemoData {
 }
 
 class CauchyDistributionTimeSeriesData extends TimeSeriesDemoData {
-  private double _cutoff;
+  private final double _cutoff;
 
   public CauchyDistributionTimeSeriesData(double cutoff) {
     _cutoff = cutoff;
@@ -133,10 +128,10 @@ class CauchyDistributionTimeSeriesData extends TimeSeriesDemoData {
 }
 
 class AutoregressiveTimeSeriesData extends TimeSeriesDemoData {
-  private List<Double> _data;
+  private final List<Double> _data;
   private int _count = 0;
-  private int _order;
-  private List<Double> _phi;
+  private final int _order;
+  private final List<Double> _phi;
 
   public AutoregressiveTimeSeriesData(int order, int n, List<Double> phi) {
     AutoregressiveModel model = new AutoregressiveModel();

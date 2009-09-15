@@ -23,8 +23,8 @@ import javax.swing.border.EtchedBorder;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
 import com.opengamma.plot.StandardJFreeChartTimeSeriesChart;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 // TODO find some way of removing all references to JFreeChart
 public class TimeSeriesDemoSelectionPanel extends JPanel {
@@ -183,10 +183,10 @@ public class TimeSeriesDemoSelectionPanel extends JPanel {
   }
 
   private class ComboBoxListener implements ActionListener {
-    private JLabel _label;
-    private JSpinner _spinner;
-    private JButton _button;
-    private int PANEL_INDEX = 5;
+    private final JLabel _label;
+    private final JSpinner _spinner;
+    private final JButton _button;
+    private final int PANEL_INDEX = 5;
 
     public ComboBoxListener(JLabel label, JSpinner spinner, JButton button) {
       _label = label;
@@ -221,8 +221,8 @@ public class TimeSeriesDemoSelectionPanel extends JPanel {
   }
 
   private class TSSelectionPanelButtonActionListener implements ActionListener {
-    private JComboBox _box;
-    private JSpinner _spinner;
+    private final JComboBox _box;
+    private final JSpinner _spinner;
 
     public TSSelectionPanelButtonActionListener(JComboBox box, JSpinner spinner) {
       _box = box;

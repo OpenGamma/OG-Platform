@@ -2,7 +2,7 @@ package com.opengamma.plot;
 
 import org.jfree.chart.JFreeChart;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class StandardTimeSeriesDistributionAnalysisChart {
   private static StandardJFreeChartHistogramChart _chart = new StandardJFreeChartHistogramChart();

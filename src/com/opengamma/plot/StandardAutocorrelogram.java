@@ -8,8 +8,8 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesAutocorrelation;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class StandardAutocorrelogram {
 

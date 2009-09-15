@@ -6,7 +6,7 @@ import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.xy.XYDataset;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class StandardJFreeChartTimeSeriesChart {
   // TODO needs a lot of work: have to do something about customisation (various

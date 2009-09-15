@@ -4,15 +4,14 @@ import java.util.Map;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.financial.timeseries.DoubleTimeSeries;
-
+import com.opengamma.timeseries.DoubleTimeSeries;
 
 public class DoubleTimeSeriesSampleStatistics {
 
   public static double getSampleMean(DoubleTimeSeries ts) {
     double sum = 0;
     long n = 0L;
-    for(Map.Entry<InstantProvider, Double> entry : ts) {
+    for (Map.Entry<InstantProvider, Double> entry : ts) {
       sum += entry.getValue();
       n++;
     }
@@ -24,7 +23,7 @@ public class DoubleTimeSeriesSampleStatistics {
     long n = -1L;
     double sum = 0;
     double diff;
-    for(Map.Entry<InstantProvider, Double> entry : ts) {
+    for (Map.Entry<InstantProvider, Double> entry : ts) {
       diff = entry.getValue() - mean;
       sum += diff * diff;
       n++;
@@ -46,7 +45,7 @@ public class DoubleTimeSeriesSampleStatistics {
     double sumN = 0;
     double sumSq = 0;
     double diff;
-    for(Map.Entry<InstantProvider, Double> entry : ts) {
+    for (Map.Entry<InstantProvider, Double> entry : ts) {
       diff = entry.getValue() - mean;
       sumN += Math.pow(diff, n);
       sumSq += diff * diff;
