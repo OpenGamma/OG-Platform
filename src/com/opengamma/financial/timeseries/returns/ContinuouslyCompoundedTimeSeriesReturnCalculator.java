@@ -15,14 +15,15 @@ import com.opengamma.timeseries.TimeSeriesException;
  * 
  * @author emcleod
  *         <p>
- *         This class contains a function that calculates the net one-period
- *         simple return of a time series. This is defined at time <i>t</i> as:<br>
- *         <i>R<sub>t</sub> = P<sub>t</sub>/P<sub>t-1</sub>-1</i><br>
+ *         This class contains a function that calculates the continuously
+ *         compounded one-period simple return (also known as the log return) of
+ *         a time series. This is defined at time <i>t</i> as:<br>
+ *         <i>r<sub>t</sub> = ln(P<sub>t</sub>/P<sub>t-1</sub>)</i><br>
  *         where <i>P<sub>t</sub></i> is the price at time <i>t</i> and
  *         <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  */
 
-public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
+public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   /**
    * @param x
@@ -51,10 +52,9 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     while (iter.hasNext()) {
       entry = iter.next();
       dates.add(entry.getKey());
-      data.add(entry.getValue() / previousEntry.getValue() - 1);
+      data.add(Math.log(entry.getValue() / previousEntry.getValue()));
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(dates, data);
   }
-
 }
