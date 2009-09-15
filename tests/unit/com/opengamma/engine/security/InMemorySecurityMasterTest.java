@@ -26,7 +26,7 @@ public class InMemorySecurityMasterTest {
   @Test
   public void empty() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    SecurityKey secKey = new DefaultSecurityKey(new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1"));
+    SecurityKey secKey = new SecurityKeyImpl(new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1"));
     assertNull(secMaster.getSecurity(secKey));
     Collection<Security> securities = secMaster.getSecurities(secKey);
     assertNotNull(securities);
@@ -38,9 +38,9 @@ public class InMemorySecurityMasterTest {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     SecurityIdentifier secId1 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1");
     SecurityIdentifier secId2 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v2");
-    SecurityKey secKey1 = new DefaultSecurityKey(secId1);
-    SecurityKey secKey2 = new DefaultSecurityKey(secId2);
-    SecurityKey secKey3 = new DefaultSecurityKey(secId1, secId2);
+    SecurityKey secKey1 = new SecurityKeyImpl(secId1);
+    SecurityKey secKey2 = new SecurityKeyImpl(secId2);
+    SecurityKey secKey3 = new SecurityKeyImpl(secId1, secId2);
     
     DefaultSecurity sec = new DefaultSecurity();
     sec.setIdentifiers(Collections.singleton(secId1));
@@ -67,9 +67,9 @@ public class InMemorySecurityMasterTest {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     SecurityIdentifier secId1 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1");
     SecurityIdentifier secId2 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v2");
-    SecurityKey secKey1 = new DefaultSecurityKey(secId1);
-    SecurityKey secKey2 = new DefaultSecurityKey(secId2);
-    SecurityKey secKey3 = new DefaultSecurityKey(secId1, secId2);
+    SecurityKey secKey1 = new SecurityKeyImpl(secId1);
+    SecurityKey secKey2 = new SecurityKeyImpl(secId2);
+    SecurityKey secKey3 = new SecurityKeyImpl(secId1, secId2);
     
     DefaultSecurity sec1 = new DefaultSecurity();
     sec1.setIdentifiers(Collections.singleton(secId1));

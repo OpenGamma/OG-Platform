@@ -18,10 +18,10 @@ import java.util.List;
  *
  * @author kirk
  */
-public class DefaultSecurityKey implements SecurityKey, Serializable {
+public class SecurityKeyImpl implements SecurityKey, Serializable {
   private final List<SecurityIdentifier> _identifiers;
   
-  public DefaultSecurityKey(SecurityIdentifier... identifiers) {
+  public SecurityKeyImpl(SecurityIdentifier... identifiers) {
     if((identifiers == null) || (identifiers.length == 0)) {
       _identifiers = Collections.emptyList();
     } else {
@@ -32,7 +32,7 @@ public class DefaultSecurityKey implements SecurityKey, Serializable {
     }
   }
   
-  public DefaultSecurityKey(Collection<? extends SecurityIdentifier> identifiers) {
+  public SecurityKeyImpl(Collection<? extends SecurityIdentifier> identifiers) {
     if(identifiers == null) {
       _identifiers = Collections.emptyList();
     } else {
@@ -40,7 +40,7 @@ public class DefaultSecurityKey implements SecurityKey, Serializable {
     }
   }
   
-  public DefaultSecurityKey(SecurityIdentifier secIdentifier) {
+  public SecurityKeyImpl(SecurityIdentifier secIdentifier) {
     if(secIdentifier == null) {
       _identifiers = Collections.emptyList();
     } else {
