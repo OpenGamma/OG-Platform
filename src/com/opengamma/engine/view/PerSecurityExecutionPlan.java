@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.SecurityTypeLogicalDependencyGraph;
+import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -28,23 +28,23 @@ import com.opengamma.engine.security.Security;
 public class PerSecurityExecutionPlan {
   private static final Logger s_logger = LoggerFactory.getLogger(PerSecurityExecutionPlan.class);
   private final Security _security;
-  private final SecurityTypeLogicalDependencyGraph _logicalSecurityTypeGraph;
+  private final SecurityDependencyGraph _securityTypeGraph;
   private final List<DependencyNode> _orderedNodes = new ArrayList<DependencyNode>(); 
   
   public PerSecurityExecutionPlan(
       Security security,
-      SecurityTypeLogicalDependencyGraph logicalSecurityTypeGraph) {
+      SecurityDependencyGraph securityTypeGraph) {
     if(security == null) {
       throw new NullPointerException("Security must be specified.");
     }
-    if(logicalSecurityTypeGraph == null) {
+    if(securityTypeGraph == null) {
       throw new NullPointerException("Logical security type dependency graph must be specified.");
     }
-    if(!ObjectUtils.equals(security.getSecurityType(), logicalSecurityTypeGraph.getSecurityType())) {
-      throw new IllegalArgumentException("Security provided doesn't match type of logical security type graph.");
+    if(!ObjectUtils.equals(security, securityTypeGraph.getSecurity())) {
+      throw new IllegalArgumentException("Security provided doesn't match security type graph.");
     }
     _security = security;
-    _logicalSecurityTypeGraph = logicalSecurityTypeGraph;
+    _securityTypeGraph = securityTypeGraph;
   }
 
   /**
@@ -57,8 +57,8 @@ public class PerSecurityExecutionPlan {
   /**
    * @return the logicalSecurityTypeGraph
    */
-  public SecurityTypeLogicalDependencyGraph getLogicalSecurityTypeGraph() {
-    return _logicalSecurityTypeGraph;
+  public SecurityDependencyGraph getLogicalSecurityTypeGraph() {
+    return _securityTypeGraph;
   }
   
   /**

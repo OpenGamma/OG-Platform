@@ -5,12 +5,9 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -54,11 +51,7 @@ public class ViewRecalculationJob extends TerminatableJob {
   @Override
   protected void preStart() {
     super.preStart();
-    Set<AnalyticValueDefinition> requiredLiveData = getView().getLogicalDependencyGraphModel().getAllRequiredLiveData();
-    s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
-    for(AnalyticValueDefinition liveDataDefinition : requiredLiveData) {
-      getView().getLiveDataSnapshotProvider().addSubscription(liveDataDefinition);
-    }
+    // TODO kirk 2009-09-15 -- Deltas to portfolios will allow this to move to preStart.
   }
 
   @Override
@@ -68,14 +61,20 @@ public class ViewRecalculationJob extends TerminatableJob {
     assert cache != null;
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     
-    SingleComputationCycle cycle = new SingleComputationCycle(cache, positionRoot, getView().getLiveDataSnapshotProvider(), getView().getLogicalDependencyGraphModel(), result, getView().getDefinition());
+    SingleComputationCycle cycle = new SingleComputationCycle(
+        cache, positionRoot, getView().getLiveDataSnapshotProvider(),
+        result, getView().getDefinition(),
+        getView().getAnalyticFunctionRepository(),
+        getView().getLiveDataAvailabilityProvider());
     cycle.prepareInputs();
     // Flatten, just because we're not going to handle trees yet.
     cycle.loadPositions();
     // REVIEW kirk 2009-09-14 -- This is completely unnecessary to do in the cycle stage.
     // Once we have incremental maintenance of position data we can move it to the beginning
     // of the cycle when we process inbound portfolio changes.
+    cycle.buildDependencyGraphs();
     cycle.buildExecutionPlans();
+    cycle.addLiveDataSubscriptions();
     cycle.populateResultModel();
     
     long endTime = System.currentTimeMillis();

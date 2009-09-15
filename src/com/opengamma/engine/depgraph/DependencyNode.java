@@ -13,6 +13,7 @@ import java.util.Set;
 
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.security.Security;
 
 /**
  * An individual node in any dependency graph.
@@ -30,13 +31,13 @@ public class DependencyNode {
   private final Map<AnalyticValueDefinition, DependencyNode> _inputNodesByValue =
     new HashMap<AnalyticValueDefinition, DependencyNode>();
   
-  public DependencyNode(AnalyticFunction function) {
+  public DependencyNode(AnalyticFunction function, Security security) {
     if(function == null) {
       throw new NullPointerException("Must provide a function for this node.");
     }
     _function = function;
     _outputValues.addAll(function.getPossibleResults());
-    _inputValues.addAll(function.getInputs());
+    _inputValues.addAll(function.getInputs(security));
   }
   
   /**

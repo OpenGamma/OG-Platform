@@ -55,7 +55,7 @@ public interface AnalyticFunction {
   
   Collection<AnalyticValueDefinition> getPossibleResults();
   
-  Collection<AnalyticValueDefinition> getInputs();
+  Collection<AnalyticValueDefinition> getInputs(Security security);
   
   Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs, Position position);
 

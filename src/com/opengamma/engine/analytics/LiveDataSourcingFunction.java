@@ -39,7 +39,7 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   }
 
   @Override
-  public Collection<AnalyticValueDefinition> getInputs() {
+  public Collection<AnalyticValueDefinition> getInputs(Security security) {
     return Collections.emptySet();
   }
 

@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -17,8 +14,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.LiveDataSnapshotProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
@@ -44,7 +39,6 @@ public class ViewImpl implements View, Lifecycle {
   // Internal State:
   private PortfolioNode _positionRoot;
   private FullyPopulatedPortfolioNode _populatedPositionRoot;
-  private LogicalDependencyGraphModel _logicalDependencyGraphModel;
   private Thread _recalculationThread;
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob; 
@@ -143,21 +137,6 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   /**
-   * @return the logicalDependencyGraphModel
-   */
-  public LogicalDependencyGraphModel getLogicalDependencyGraphModel() {
-    return _logicalDependencyGraphModel;
-  }
-
-  /**
-   * @param logicalDependencyGraphModel the logicalDependencyGraphModel to set
-   */
-  public void setLogicalDependencyGraphModel(
-      LogicalDependencyGraphModel logicalDependencyGraphModel) {
-    _logicalDependencyGraphModel = logicalDependencyGraphModel;
-  }
-
-  /**
    * @return the securityMaster
    */
   public SecurityMaster getSecurityMaster() {
@@ -246,19 +225,6 @@ public class ViewImpl implements View, Lifecycle {
     FullyPopulatedPortfolioNode populatedPositionRoot = getPopulatedPortfolioNode(positionRoot);
     assert populatedPositionRoot != null;
     setPopulatedPositionRoot(populatedPositionRoot);
-    
-    LogicalDependencyGraphModel logicalDepGraph = new LogicalDependencyGraphModel();
-    logicalDepGraph.setAnalyticFunctionRepository(getAnalyticFunctionRepository());
-    logicalDepGraph.setLiveDataAvailabilityProvider(getLiveDataAvailabilityProvider());
-    
-    Map<String, Collection<AnalyticValueDefinition>> outputsBySecurityType = getDefinition().getValueDefinitionsBySecurityTypes();
-    for(Map.Entry<String, Collection<AnalyticValueDefinition>> entry : outputsBySecurityType.entrySet()) {
-      // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
-      // operation. We could/should do them in parallel.
-      logicalDepGraph.addSecurityType(entry.getKey(), entry.getValue());
-    }
-    
-    setLogicalDependencyGraphModel(logicalDepGraph);
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
   }

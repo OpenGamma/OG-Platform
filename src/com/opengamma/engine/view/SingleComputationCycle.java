@@ -14,11 +14,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.LiveDataSnapshotProvider;
+import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
 import com.opengamma.engine.security.Security;
 
 // TODO kirk 2009-09-14 -- Do we need some type of progress monitor?
@@ -44,11 +46,13 @@ public class SingleComputationCycle {
   private final ViewComputationCache _computationCache;
   private final FullyPopulatedPortfolioNode _rootNode;
   private final LiveDataSnapshotProvider _snapshotProvider;
-  private final LogicalDependencyGraphModel _logicalDependencyGraph;
   private final ViewDefinition _viewDefinition;
+  private final AnalyticFunctionRepository _analyticFunctionRepository;
+  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   
   // State:
   private final long _startTime;
+  private DependencyGraphModel _dependencyGraphModel;
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<FullyPopulatedPosition> _populatedPositions = new HashSet<FullyPopulatedPosition>();
   private final Map<Security, PerSecurityExecutionPlan> _plansBySecurity = new HashMap<Security, PerSecurityExecutionPlan>();
@@ -61,21 +65,24 @@ public class SingleComputationCycle {
       ViewComputationCache cache,
       FullyPopulatedPortfolioNode rootNode,
       LiveDataSnapshotProvider snapshotProvider,
-      LogicalDependencyGraphModel logicalDependencyGraph,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition) {
+      ViewDefinition viewDefinition,
+      AnalyticFunctionRepository analyticFunctionRepository,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     assert cache != null;
     assert rootNode != null;
     assert snapshotProvider != null;
-    assert logicalDependencyGraph != null;
     assert resultModel != null;
     assert viewDefinition != null;
+    assert analyticFunctionRepository != null;
+    assert liveDataAvailabilityProvider != null;
     _computationCache = cache;
     _rootNode = rootNode;
     _snapshotProvider = snapshotProvider;
-    _logicalDependencyGraph = logicalDependencyGraph;
     _resultModel = resultModel;
     _viewDefinition = viewDefinition;
+    _analyticFunctionRepository = analyticFunctionRepository;
+    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _startTime = System.currentTimeMillis();
   }
   
@@ -115,6 +122,20 @@ public class SingleComputationCycle {
   }
 
   /**
+   * @return the analyticFunctionRepository
+   */
+  public AnalyticFunctionRepository getAnalyticFunctionRepository() {
+    return _analyticFunctionRepository;
+  }
+
+  /**
+   * @return the liveDataAvailabilityProvider
+   */
+  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+    return _liveDataAvailabilityProvider;
+  }
+
+  /**
    * @return the startTime
    */
   public long getStartTime() {
@@ -124,8 +145,15 @@ public class SingleComputationCycle {
   /**
    * @return the logicalDependencyGraph
    */
-  public LogicalDependencyGraphModel getLogicalDependencyGraph() {
-    return _logicalDependencyGraph;
+  public DependencyGraphModel getDependencyGraphModel() {
+    return _dependencyGraphModel;
+  }
+
+  /**
+   * @param dependencyGraphModel the dependencyGraphModel to set
+   */
+  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
+    _dependencyGraphModel = dependencyGraphModel;
   }
 
   /**
@@ -153,7 +181,7 @@ public class SingleComputationCycle {
     setSnapshotTime(getSnapshotProvider().snapshot());
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     
-    Set<AnalyticValueDefinition> requiredLiveData = getLogicalDependencyGraph().getAllRequiredLiveData();
+    Set<AnalyticValueDefinition> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.debug("Populating {} market data items for snapshot {}", requiredLiveData.size(), getSnapshotTime());
     
     for(AnalyticValueDefinition requiredDataDefinition : requiredLiveData) {
@@ -169,6 +197,7 @@ public class SingleComputationCycle {
   public void loadPositions() {
     loadPositions(getRootNode());
     s_logger.debug("Operating on {} positions this cycle", getPopulatedPositions().size());
+    // TODO kirk 2009-09-15 -- cache securities
   }
   
   protected void loadPositions(FullyPopulatedPortfolioNode node) {
@@ -177,14 +206,36 @@ public class SingleComputationCycle {
     }
   }
   
+  public void buildDependencyGraphs() {
+    Set<Security> securities = new HashSet<Security>();
+    for(FullyPopulatedPosition position : getPopulatedPositions()) {
+      securities.add(position.getSecurity());
+    }
+    
+    DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
+    dependencyGraphModel.setAnalyticFunctionRepository(getAnalyticFunctionRepository());
+    dependencyGraphModel.setLiveDataAvailabilityProvider(getLiveDataAvailabilityProvider());
+
+    Map<String, Collection<AnalyticValueDefinition>> outputsBySecurityType = getViewDefinition().getValueDefinitionsBySecurityTypes();
+    for(Security security : securities) {
+      // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
+      // operation. We could/should do them in parallel.
+      Collection<AnalyticValueDefinition> requiredOutputValues = outputsBySecurityType.get(security.getSecurityType());
+      dependencyGraphModel.addSecurity(security, requiredOutputValues);
+    }
+    setDependencyGraphModel(dependencyGraphModel);
+  }
+  
   public void buildExecutionPlans() {
+    assert getDependencyGraphModel() != null;
+    
     Set<Security> securities = new HashSet<Security>();
     for(FullyPopulatedPosition position : getPopulatedPositions()) {
       securities.add(position.getSecurity());
     }
     s_logger.debug("Building execution plans for {} distinct securities", securities.size());
     for(Security security : securities) {
-      PerSecurityExecutionPlan executionPlan = new PerSecurityExecutionPlan(security, getLogicalDependencyGraph().getLogicalGraph(security.getSecurityType()));
+      PerSecurityExecutionPlan executionPlan = new PerSecurityExecutionPlan(security, getDependencyGraphModel().getDependencyGraph(security));
       _plansBySecurity.put(security, executionPlan);
     }
     for(PerSecurityExecutionPlan executionPlan : _plansBySecurity.values()) {
@@ -247,6 +298,17 @@ public class SingleComputationCycle {
           getResultModel().addValue(position.getPosition(), scaledValue);
         }
       }
+    }
+  }
+
+  /**
+   * 
+   */
+  public void addLiveDataSubscriptions() {
+    Set<AnalyticValueDefinition> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
+    s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
+    for(AnalyticValueDefinition liveDataDefinition : requiredLiveData) {
+      getSnapshotProvider().addSubscription(liveDataDefinition);
     }
   }
 

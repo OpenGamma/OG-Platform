@@ -18,6 +18,7 @@ import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
+import com.opengamma.engine.security.Security;
 
 /**
  * A logical dependency graph capable of satisfying computations
@@ -25,9 +26,9 @@ import com.opengamma.engine.analytics.LiveDataSourcingFunction;
  *
  * @author kirk
  */
-public class SecurityTypeLogicalDependencyGraph {
-  private static final Logger s_logger = LoggerFactory.getLogger(SecurityTypeLogicalDependencyGraph.class);
-  private final String _securityType;
+public class SecurityDependencyGraph {
+  private static final Logger s_logger = LoggerFactory.getLogger(SecurityDependencyGraph.class);
+  private final Security _security;
   private final Set<AnalyticValueDefinition> _requiredOutputValues =
     new HashSet<AnalyticValueDefinition>();
   private final Set<AnalyticValueDefinition> _requiredLiveData =
@@ -35,24 +36,24 @@ public class SecurityTypeLogicalDependencyGraph {
   private final Set<DependencyNode> _topLevelNodes =
     new HashSet<DependencyNode>();
   
-  public SecurityTypeLogicalDependencyGraph(
-      String securityType,
+  public SecurityDependencyGraph(
+      Security security,
       Collection<AnalyticValueDefinition> requiredOutputValues) {
-    if(securityType == null) {
-      throw new NullPointerException("Must specify a valid security type.");
+    if(security == null) {
+      throw new NullPointerException("Must specify a valid security.");
     }
     if((requiredOutputValues == null) || requiredOutputValues.isEmpty()) {
       throw new IllegalArgumentException("Required output values must not be null or empty.");
     }
-    _securityType = securityType;
+    _security = security;
     _requiredOutputValues.addAll(requiredOutputValues);
   }
 
   /**
    * @return the securityType
    */
-  public String getSecurityType() {
-    return _securityType;
+  public Security getSecurity() {
+    return _security;
   }
   
   /**
@@ -102,7 +103,7 @@ public class SecurityTypeLogicalDependencyGraph {
     }
     getRequiredLiveData().clear();
     getRequiredLiveData().addAll(requiredLiveData);
-    s_logger.info("{} built graph with {} top-level nodes", getSecurityType(), nodes.size());
+    s_logger.info("{} built graph with {} top-level nodes", getSecurity(), nodes.size());
     getTopLevelNodes().addAll(nodes);
   }
   
@@ -128,15 +129,15 @@ public class SecurityTypeLogicalDependencyGraph {
     if(liveDataAvailabilityProvider.isAvailable(outputValue)) {
       assert !requiredLiveData.contains(outputValue) : "Should have found existing dependency graph node.";
       requiredLiveData.add(outputValue);
-      node = new DependencyNode(new LiveDataSourcingFunction(outputValue));
+      node = new DependencyNode(new LiveDataSourcingFunction(outputValue), getSecurity());
       nodes.add(node);
       return node;
     }
     
-    AnalyticFunction function = resolveFunction(outputValue, functionRepository, getSecurityType());
+    AnalyticFunction function = resolveFunction(outputValue, functionRepository, getSecurity());
     assert function != null : "This is a bad assertion. Do something better.";
     
-    node = new DependencyNode(function);
+    node = new DependencyNode(function, getSecurity());
     nodes.add(node);
     for(AnalyticValueDefinition inputValue : node.getInputValues()) {
       DependencyNode inputNode = satisfyDependency(inputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
@@ -154,10 +155,10 @@ public class SecurityTypeLogicalDependencyGraph {
   protected AnalyticFunction resolveFunction(
       AnalyticValueDefinition outputValue,
       AnalyticFunctionRepository functionRepository,
-      String securityType) {
+      Security security) {
     assert outputValue != null;
     assert functionRepository != null;
-    Collection<AnalyticFunction> possibleFunctions = functionRepository.getFunctionsProducing(Collections.singleton(outputValue), securityType);
+    Collection<AnalyticFunction> possibleFunctions = functionRepository.getFunctionsProducing(Collections.singleton(outputValue), security.getSecurityType());
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;
@@ -171,6 +172,4 @@ public class SecurityTypeLogicalDependencyGraph {
     
     return function;
   }
-
-  
 }

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.security.Security;
 
 /**
  * A full model representing all operations that must be performed to
@@ -24,10 +25,10 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  *
  * @author kirk
  */
-public class LogicalDependencyGraphModel {
-  private static final Logger s_logger = LoggerFactory.getLogger(LogicalDependencyGraphModel.class);
-  private final Map<String, SecurityTypeLogicalDependencyGraph> _graphForSecurityTypes =
-    new TreeMap<String, SecurityTypeLogicalDependencyGraph>();
+public class DependencyGraphModel {
+  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
+  private final Map<Security, SecurityDependencyGraph> _graphForSecurity =
+    new TreeMap<Security, SecurityDependencyGraph>();
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private AnalyticFunctionRepository _analyticFunctionRepository;
   
@@ -61,32 +62,32 @@ public class LogicalDependencyGraphModel {
     _analyticFunctionRepository = analyticFunctionRepository;
   }
 
-  public void addSecurityType(String securityType, Collection<AnalyticValueDefinition> requiredOutputValues) {
-    if(securityType == null) {
-      throw new NullPointerException("Must provide a valid security type.");
+  public void addSecurity(Security security, Collection<AnalyticValueDefinition> requiredOutputValues) {
+    if(security == null) {
+      throw new NullPointerException("Must provide a valid security.");
     }
     if((getLiveDataAvailabilityProvider() == null)
         || (getAnalyticFunctionRepository() == null)) {
       throw new IllegalStateException("Must have provided a data availability provider and analytic function repository.");
     }
-    if(_graphForSecurityTypes.containsKey(securityType)) {
-      s_logger.debug("Already added security type {}", securityType);
+    if(_graphForSecurity.containsKey(security)) {
+      s_logger.debug("Already added security {}", security);
       return;
     }
-    SecurityTypeLogicalDependencyGraph depGraph = new SecurityTypeLogicalDependencyGraph(securityType, requiredOutputValues);
-    _graphForSecurityTypes.put(securityType, depGraph);
+    SecurityDependencyGraph depGraph = new SecurityDependencyGraph(security, requiredOutputValues);
+    _graphForSecurity.put(security, depGraph);
   }
   
   public Set<AnalyticValueDefinition> getAllRequiredLiveData() {
     Set<AnalyticValueDefinition> result = new HashSet<AnalyticValueDefinition>();
-    for(SecurityTypeLogicalDependencyGraph secTypeGraph : _graphForSecurityTypes.values()) {
+    for(SecurityDependencyGraph secTypeGraph : _graphForSecurity.values()) {
       result.addAll(secTypeGraph.getRequiredLiveData());
     }
     return result;
   }
   
-  public SecurityTypeLogicalDependencyGraph getLogicalGraph(String securityType) {
-    return _graphForSecurityTypes.get(securityType);
+  public SecurityDependencyGraph getDependencyGraph(Security security) {
+    return _graphForSecurity.get(security);
   }
 
 }
