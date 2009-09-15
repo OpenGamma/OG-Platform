@@ -7,6 +7,8 @@ package com.opengamma.engine.view;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.engine.analytics.AnalyticValue;
@@ -20,6 +22,7 @@ import com.opengamma.engine.position.Position;
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
+  private final Map<Position, PositionResultModel> _perPositionResults = new HashMap<Position, PositionResultModel>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
 
@@ -37,8 +40,7 @@ public class ViewComputationResultModelImpl implements
 
   @Override
   public Collection<Position> getPositions() {
-    // TODO Auto-generated method stub
-    return null;
+    return Collections.unmodifiableSet(_perPositionResults.keySet());
   }
 
   @Override
@@ -56,18 +58,29 @@ public class ViewComputationResultModelImpl implements
   @Override
   public AnalyticValue getValue(Position position,
       AnalyticValueDefinition valueDefinition) {
-    // TODO Auto-generated method stub
-    return null;
+    PositionResultModel perPositionModel = _perPositionResults.get(position);
+    if(perPositionModel == null) {
+      return null;
+    } else {
+      return perPositionModel.get(valueDefinition);
+    }
   }
 
   @Override
   public Map<AnalyticValueDefinition, AnalyticValue> getValues(Position position) {
-    // TODO Auto-generated method stub
-    return null;
+    PositionResultModel perPositionModel = _perPositionResults.get(position);
+    if(perPositionModel == null) {
+      return Collections.emptyMap();
+    } else {
+      return perPositionModel.getAllResults();
+    }
   }
   
   public void addValue(Position position, AnalyticValue value) {
-    
+    PositionResultModel perPositionModel = _perPositionResults.get(position);
+    if(perPositionModel == null) {
+      perPositionModel = new PositionResultModel(position);
+    }
+    perPositionModel.add(value);
   }
-
 }

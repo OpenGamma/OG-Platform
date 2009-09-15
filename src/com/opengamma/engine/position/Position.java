@@ -7,7 +7,7 @@ package com.opengamma.engine.position;
 
 import java.math.BigDecimal;
 
-import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityKey;
 
 /**
  * 
@@ -18,6 +18,6 @@ public interface Position {
   
   BigDecimal getQuantity();
   
-  Security getSecurity();
+  SecurityKey getSecurityKey();
   
 }

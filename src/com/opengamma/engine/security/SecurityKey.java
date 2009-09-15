@@ -17,7 +17,6 @@ import java.util.Collection;
  * @author kirk
  */
 public interface SecurityKey {
-
   /**
    * Obtain any security identifiers desired as part of resolving based on this key.
    * The order in which the results are identified in the collection

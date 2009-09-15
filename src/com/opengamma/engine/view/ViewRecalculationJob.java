@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -65,7 +64,7 @@ public class ViewRecalculationJob extends TerminatableJob {
   @Override
   protected void runOneCycle() {
     ViewComputationCache cache = getView().getComputationCacheFactory().generateCache();
-    PortfolioNode positionRoot = getView().getPositionRoot();
+    FullyPopulatedPortfolioNode positionRoot = getView().getPopulatedPositionRoot();
     assert cache != null;
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     

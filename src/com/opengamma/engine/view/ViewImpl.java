@@ -13,13 +13,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.LiveDataSnapshotProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.util.ThreadUtil;
 
 /**
@@ -35,8 +39,11 @@ public class ViewImpl implements View, Lifecycle {
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private AnalyticFunctionRepository _analyticFunctionRepository;
   private PositionMaster _positionMaster;
+  private SecurityMaster _securityMaster;
   private ViewComputationCacheFactory _computationCacheFactory;
   // Internal State:
+  private PortfolioNode _positionRoot;
+  private FullyPopulatedPortfolioNode _populatedPositionRoot;
   private LogicalDependencyGraphModel _logicalDependencyGraphModel;
   private Thread _recalculationThread;
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
@@ -151,6 +158,35 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   /**
+   * @return the securityMaster
+   */
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  /**
+   * @param securityMaster the securityMaster to set
+   */
+  public void setSecurityMaster(SecurityMaster securityMaster) {
+    _securityMaster = securityMaster;
+  }
+
+  /**
+   * @param positionRoot the positionRoot to set
+   */
+  public void setPositionRoot(PortfolioNode positionRoot) {
+    _positionRoot = positionRoot;
+  }
+
+  /**
+   * @param populatedPositionRoot the populatedPositionRoot to set
+   */
+  public void setPopulatedPositionRoot(
+      FullyPopulatedPortfolioNode populatedPositionRoot) {
+    _populatedPositionRoot = populatedPositionRoot;
+  }
+
+  /**
    * @return the recalculationThread
    */
   public Thread getRecalculationThread() {
@@ -200,6 +236,17 @@ public class ViewImpl implements View, Lifecycle {
   public void init() {
     checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
+
+    PortfolioNode positionRoot = getPositionMaster().getRootPortfolio(getDefinition().getName());
+    if(positionRoot == null) {
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getName());
+    }
+    setPositionRoot(positionRoot);
+    
+    FullyPopulatedPortfolioNode populatedPositionRoot = getPopulatedPortfolioNode(positionRoot);
+    assert populatedPositionRoot != null;
+    setPopulatedPositionRoot(populatedPositionRoot);
+    
     LogicalDependencyGraphModel logicalDepGraph = new LogicalDependencyGraphModel();
     logicalDepGraph.setAnalyticFunctionRepository(getAnalyticFunctionRepository());
     logicalDepGraph.setLiveDataAvailabilityProvider(getLiveDataAvailabilityProvider());
@@ -216,6 +263,29 @@ public class ViewImpl implements View, Lifecycle {
     setCalculationState(ViewCalculationState.NOT_STARTED);
   }
   
+  /**
+   * @param node
+   * @return
+   */
+  protected FullyPopulatedPortfolioNode getPopulatedPortfolioNode(
+      PortfolioNode node) {
+    if(node == null) {
+      return null;
+    }
+    FullyPopulatedPortfolioNode populatedNode = new FullyPopulatedPortfolioNode();
+    for(Position position : node.getPositions()) {
+      Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
+      if(security == null) {
+        throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
+      }
+      populatedNode.addPosition(position, security);
+    }
+    for(PortfolioNode subNode : node.getSubNodes()) {
+      populatedNode.addSubNode(getPopulatedPortfolioNode(subNode));
+    }
+    return populatedNode;
+  }
+
   /**
    * 
    */
@@ -235,6 +305,9 @@ public class ViewImpl implements View, Lifecycle {
     if(getComputationCacheFactory() == null) {
       throw new IllegalStateException("Must have a View Computation Cache Factory");
     }
+    if(getSecurityMaster() == null) {
+      throw new IllegalStateException("Must have a Security Master");
+    }
   }
 
   @Override
@@ -245,8 +318,11 @@ public class ViewImpl implements View, Lifecycle {
 
   @Override
   public PortfolioNode getPositionRoot() {
-    // TODO Auto-generated method stub
-    return null;
+    return _positionRoot;
+  }
+  
+  public FullyPopulatedPortfolioNode getPopulatedPositionRoot() {
+    return _populatedPositionRoot;
   }
   
   public void recalculationPerformed(ViewComputationResultModel result) {

@@ -20,8 +20,6 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueScaler;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 // TODO kirk 2009-09-14 -- Do we need some type of progress monitor?
@@ -45,7 +43,7 @@ public class SingleComputationCycle {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   // Injected Inputs:
   private final ViewComputationCache _computationCache;
-  private final PortfolioNode _rootNode;
+  private final FullyPopulatedPortfolioNode _rootNode;
   private final LiveDataSnapshotProvider _snapshotProvider;
   private final LogicalDependencyGraphModel _logicalDependencyGraph;
   private final ViewDefinition _viewDefinition;
@@ -53,7 +51,7 @@ public class SingleComputationCycle {
   // State:
   private final long _startTime;
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
-  private final Set<Position> _positions = new HashSet<Position>();
+  private final Set<FullyPopulatedPosition> _populatedPositions = new HashSet<FullyPopulatedPosition>();
   private final Map<Security, PerSecurityExecutionPlan> _plansBySecurity = new HashMap<Security, PerSecurityExecutionPlan>();
   
   // Outputs:
@@ -62,7 +60,7 @@ public class SingleComputationCycle {
   
   public SingleComputationCycle(
       ViewComputationCache cache,
-      PortfolioNode rootNode,
+      FullyPopulatedPortfolioNode rootNode,
       LiveDataSnapshotProvider snapshotProvider,
       LogicalDependencyGraphModel logicalDependencyGraph,
       ViewComputationResultModelImpl resultModel,
@@ -106,7 +104,7 @@ public class SingleComputationCycle {
   /**
    * @return the rootNode
    */
-  public PortfolioNode getRootNode() {
+  public FullyPopulatedPortfolioNode getRootNode() {
     return _rootNode;
   }
 
@@ -141,8 +139,8 @@ public class SingleComputationCycle {
   /**
    * @return the positions
    */
-  public Set<Position> getPositions() {
-    return _positions;
+  public Set<FullyPopulatedPosition> getPopulatedPositions() {
+    return _populatedPositions;
   }
 
   /**
@@ -171,19 +169,18 @@ public class SingleComputationCycle {
   
   public void loadPositions() {
     loadPositions(getRootNode());
-    s_logger.debug("Operating on {} positions this cycle", getPositions().size());
+    s_logger.debug("Operating on {} positions this cycle", getPopulatedPositions().size());
   }
   
-  protected void loadPositions(PortfolioNode node) {
-    getPositions().addAll(node.getPositions());
-    for(PortfolioNode child : node.getSubNodes()) {
+  protected void loadPositions(FullyPopulatedPortfolioNode node) {
+    for(FullyPopulatedPortfolioNode child : node.getPopulatedSubNodes()) {
       loadPositions(child);
     }
   }
   
   public void buildExecutionPlans() {
     Set<Security> securities = new HashSet<Security>();
-    for(Position position : getPositions()) {
+    for(FullyPopulatedPosition position : getPopulatedPositions()) {
       securities.add(position.getSecurity());
     }
     s_logger.debug("Building execution plans for {} distinct securities", securities.size());
@@ -238,7 +235,7 @@ public class SingleComputationCycle {
   
   public void populateResultModel() {
     Map<String, Collection<AnalyticValueDefinition>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
-    for(Position position : getPositions()) {
+    for(FullyPopulatedPosition position : getPopulatedPositions()) {
       // REVIEW kirk 2009-09-14 -- Could be parallelized if we need to.
       Security security = position.getSecurity();
       String securityType = security.getSecurityType();
@@ -247,8 +244,8 @@ public class SingleComputationCycle {
       for(AnalyticValueDefinition analyticValueDefinition : secTypeValueDefs) {
         AnalyticValue unscaledValue = getComputationCache().getValue(analyticValueDefinition);
         if(unscaledValue != null) {
-          AnalyticValue scaledValue = AnalyticValueScaler.scalePerUnitToPosition(unscaledValue, position);
-          getResultModel().addValue(position, scaledValue);
+          AnalyticValue scaledValue = AnalyticValueScaler.scalePerUnitToPosition(unscaledValue, position.getPosition());
+          getResultModel().addValue(position.getPosition(), scaledValue);
         }
       }
     }
