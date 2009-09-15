@@ -2,6 +2,12 @@ package com.opengamma.math.minimization;
 
 import java.util.Arrays;
 
+import cern.colt.matrix.DoubleFactory1D;
+import cern.colt.matrix.DoubleFactory2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.linalg.Algebra;
+
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
@@ -17,7 +23,7 @@ public class ParabolicMinimumBracketer extends MinimumBracketer<Double, MathExce
   private final Algebra ALGEBRA = new Algebra();
 
   @Override
-  public Double[] getBracketedPoints(Function1D<Double, Double, MathException> f, Double x1, Double x2) throws ConvergenceException {
+  public Double[] getBracketedPoints(Function1D<Double, Double, MathException> f, Double x1, Double x2) throws ConvergenceException, MathException {
     double f1 = f.evaluate(x1);
     double f2 = f.evaluate(x2);
     double xTemp, fTemp;
