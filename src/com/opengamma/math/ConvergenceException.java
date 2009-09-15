@@ -1,5 +1,11 @@
 package com.opengamma.math;
 
+/**
+ * 
+ * @author emcleod
+ * 
+ */
+
 public class ConvergenceException extends Exception {
 
   public ConvergenceException() {
