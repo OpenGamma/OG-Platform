@@ -1,0 +1,89 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.analytics;
+
+import java.io.Serializable;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+
+/**
+ * A base class for other implementations of {@link AnalyticValue} that
+ * stores the definition and value.
+ *
+ * @author kirk
+ */
+public abstract class AbstractAnalyticValue implements AnalyticValue, Serializable, Cloneable {
+  private final AnalyticValueDefinition _definition;
+  private final Object _value;
+  
+  protected AbstractAnalyticValue(AnalyticValueDefinition definition, Object value) {
+    if(definition == null) {
+      throw new NullPointerException("Must specify an Analytic Value Definition");
+    }
+    if(value == null) {
+      throw new NullPointerException("Must specify a value.");
+    }
+    _definition = definition;
+    _value = value;
+  }
+
+  @Override
+  public AnalyticValueDefinition getDefinition() {
+    return _definition;
+  }
+
+  @Override
+  public Object getValue() {
+    return _value;
+  }
+
+  @Override
+  public AbstractAnalyticValue clone() {
+    try {
+      return (AbstractAnalyticValue) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException("Yes, it is supported.");
+    }
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) {
+      return true;
+    }
+    if(obj == null) {
+      return false;
+    }
+    if(!getClass().equals(obj.getClass())) {
+      return false;
+    }
+    AbstractAnalyticValue other = (AbstractAnalyticValue) obj;
+    if(!ObjectUtils.equals(getValue(), other.getValue())) {
+      return false;
+    }
+    if(!ObjectUtils.equals(getDefinition(), other.getDefinition())) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + getDefinition().hashCode();
+    result = prime * result + getValue().hashCode();
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
+
+}
