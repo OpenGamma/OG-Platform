@@ -1,5 +1,12 @@
 package com.opengamma.math.regression;
 
+import cern.colt.matrix.DoubleFactory1D;
+import cern.colt.matrix.DoubleFactory2D;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.linalg.Algebra;
+import cern.jet.stat.Probability;
+
 
 public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
   // private static final ProbabilityDistribution<Double> _normal = new

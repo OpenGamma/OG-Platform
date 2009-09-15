@@ -12,6 +12,11 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
+import cern.jet.random.Distributions;
+import cern.jet.random.Normal;
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.financial.timeseries.model.AutoregressiveModel;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
