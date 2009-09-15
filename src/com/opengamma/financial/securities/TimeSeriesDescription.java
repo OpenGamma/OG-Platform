@@ -3,10 +3,9 @@ package com.opengamma.financial.securities;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.Clock;
 import javax.time.InstantProvider;
+import javax.time.calendar.Clock;
 
-import com.opengamma.financial.timeseries.DataSource;
 import com.opengamma.util.CompareUtils;
 
 public class TimeSeriesDescription {
@@ -69,7 +68,7 @@ public class TimeSeriesDescription {
   }
   
   public String getActiveCodeToday() {
-    return getActiveCodeOn(Clock.system().instant());
+    return getActiveCodeOn(Clock.systemDefaultZone().instant());
   }
   
   public boolean equals(Object o) {

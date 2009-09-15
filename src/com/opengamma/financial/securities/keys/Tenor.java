@@ -9,7 +9,6 @@ public class Tenor {
 	}
 	
 	public Period getPeriod() {
-		
+		return _period;
 	}
-	
 }

@@ -1,5 +1,6 @@
 package com.opengamma.financial.securities.keys;
 
+import com.opengamma.financial.securities.CashRateType;
 import com.opengamma.financial.securities.Currency;
 
 public class CashKey implements SecurityKey {
