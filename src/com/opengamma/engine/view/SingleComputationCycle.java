@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.LiveDataSnapshotProvider;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueScaler;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.LogicalDependencyGraphModel;
 import com.opengamma.engine.security.Security;
@@ -244,7 +243,7 @@ public class SingleComputationCycle {
       for(AnalyticValueDefinition analyticValueDefinition : secTypeValueDefs) {
         AnalyticValue unscaledValue = getComputationCache().getValue(analyticValueDefinition);
         if(unscaledValue != null) {
-          AnalyticValue scaledValue = AnalyticValueScaler.scalePerUnitToPosition(unscaledValue, position.getPosition());
+          AnalyticValue scaledValue = unscaledValue.scaleForPosition(position.getPosition().getQuantity());
           getResultModel().addValue(position.getPosition(), scaledValue);
         }
       }
