@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.opengamma.util.CompareUtils;
 
+// REVIEW kirk 2009-09-15 -- This REALLY needs to be renamed.
+
 public class Currency {
   private String _isoCode;
 
