@@ -37,7 +37,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
   @Override
   public DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException {
     if (x == null)
-      throw new TimeSeriesException("Time series was null");
+      throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)
       throw new TimeSeriesException("Time series array was empty");
     DoubleTimeSeries ts = x[0];
