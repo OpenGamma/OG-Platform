@@ -15,12 +15,36 @@ import com.opengamma.timeseries.TimeSeriesException;
 /**
  * 
  * @author emcleod
- * 
+ *         <p>
+ *         This class contains a function that calculates the net one-period
+ *         simple return of an asset that pays dividends periodically. This is
+ *         defined at time <i>t</i> as:<br>
+ *         <i>R<sub>t</sub> =
+ *         (P<sub>t</sub>-D<sub>t</sub>)/P<sub>t-1</sub>-1</i><br>
+ *         where <i>P<sub>t</sub></i> is the price at time <i>t</i>,
+ *         <i>D<sub>t</sub></i> is the dividend at time <i>t</i> and
+ *         <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  */
 
 public class SimpleNetWithDividendTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
   private final TimeSeriesReturnCalculator _noDividendCalculator = new SimpleNetTimeSeriesReturnCalculator();
 
+  /**
+   * @param x
+   *          An array of DoubleTimeSeries. If the array has only one element,
+   *          then this is assumed to be the price series and the result is the
+   *          simple return. The dividend series is assumed to be the second
+   *          element. It does not have to be the same length as the price
+   *          series (in which case, dates without dividends are treated like
+   *          the dividend was zero), and the dividend data points do not have
+   *          to correspond to any of the dates in the price series (in which
+   *          case, the result is the simple net return).
+   * @throws TimeSeriesException
+   *           Throws an exception if: the array is null; it has no elements;
+   *           the time series has less than two entries.
+   * @return A DoubleTimeSeries containing the return series. This will always
+   *         be one element shorter than the original price series.
+   */
   @Override
   public DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException {
     if (x == null)
