@@ -6,6 +6,7 @@
         <dependency org="org.slf4j" name="slf4j-api" rev="1.5.8"/>
         <dependency org="org.springframework" name="spring" rev="2.5.6" conf="default->context-support"/>
         <dependency org="ch.qos" name="logback" rev="0.9.17" conf="default->classic"/>
+        <dependency org="org.jdesktop" name="appframework" rev="1.0.3"/>
     </dependencies>
 </ivy-module>
 

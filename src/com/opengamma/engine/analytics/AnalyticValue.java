@@ -9,12 +9,13 @@ import java.math.BigDecimal;
 
 // REVIEW kirk 2009-09-15 -- Should this be a generic? I thought about it,
 // but it seemed an awful lot of work for very little gain.
+// REVIEW jim 2009-09-16 -- we think it should be (the royal we).
 
 /**
  * Represents a particular value which is produced as a result of invoking
  * an {@link AnalyticFunction} over a set of inputs.
  *
- * @author kirk
+ * @author jim
  */
 public interface AnalyticValue {
   AnalyticValueDefinition getDefinition();
