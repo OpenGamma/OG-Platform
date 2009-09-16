@@ -82,6 +82,15 @@ public class AnalyticValueDefinitionImpl implements AnalyticValueDefinition, Ser
   }
 
   @Override
+  public Object getValue(String key) {
+    Set<Object> values = _values.get(key);
+    if((values == null) || (values.isEmpty())) {
+      return null;
+    }
+    return values.iterator().next();
+  }
+
+  @Override
   public AnalyticValueDefinitionImpl clone() {
     try {
       return (AnalyticValueDefinitionImpl) super.clone();

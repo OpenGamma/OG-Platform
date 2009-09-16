@@ -27,4 +27,6 @@ public interface AnalyticValueDefinition extends Serializable {
   Set<String> getKeys();
   
   Set<Object> getValues(String key);
+  
+  Object getValue(String key);
 }

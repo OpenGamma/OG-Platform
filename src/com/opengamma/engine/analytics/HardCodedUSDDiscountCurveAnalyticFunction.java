@@ -5,31 +5,35 @@
  */
 package com.opengamma.engine.analytics;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Currency;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.DateUtil;
-import com.opengamma.util.KeyValuePair;
+import com.opengamma.util.Pair;
 
+// REVIEW kirk 2009-09-16 -- Changed name to USD as it's holding all the strips
+// that are specific to USD, and can only generate one type of result definition.
+// This would not be usual practice.
 /**
  * 
  *
  * @author jim
  */
-public class HardCodedDiscountCurveAnalyticFunction implements AnalyticFunction {
+public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFunction {
 
-    private static final String PRICE_FIELD_NAME = "PRICE";
+  private static final String PRICE_FIELD_NAME = "PRICE";
   private static Map<String, Double> _securities = new HashMap<String, Double>();
-  private static AnalyticValueDefinitionImpl s_definition;
+  private static final List<AnalyticValueDefinition> s_inputDefinitions;
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
   private static final double ONEYEAR = 365.25;
   static {
@@ -51,11 +55,17 @@ public class HardCodedDiscountCurveAnalyticFunction implements AnalyticFunction 
     _securities.put("USSW9", 9.0);
     _securities.put("USSW10", 10.0);
     
-    Map<String, String> definitionMap = new HashMap<String, String>(); 
+    List<AnalyticValueDefinition> inputDefinitions = new ArrayList<AnalyticValueDefinition>();
     for (String security : _securities.keySet()) {
-      definitionMap.put(security, PRICE_FIELD_NAME);
+      @SuppressWarnings("unchecked")
+      AnalyticValueDefinitionImpl definition = new AnalyticValueDefinitionImpl(
+          new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
+          new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
+          new Pair<String, Object>("BB_TICKER", security)
+          );
+      inputDefinitions.add(definition);
     }
-    s_definition = new AnalyticValueDefinitionImpl(definitionMap);
+    s_inputDefinitions = Collections.unmodifiableList(inputDefinitions);
   }
   @Override
   public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
@@ -69,9 +79,15 @@ public class HardCodedDiscountCurveAnalyticFunction implements AnalyticFunction 
       Security security) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
     for (AnalyticValue analyticValue : inputs) {
-      KeyValuePair<String, Map<String, Double>> value = (KeyValuePair<String, Map<String, Double>>) analyticValue.getValue();
-      double years = _securities.get(value.getKey());
-      timeInYearsToRates.put(years, value.getValue().get(PRICE_FIELD_NAME));
+      // Defnition is going to look just like what we required as input.
+      AnalyticValueDefinition inputDefinition = analyticValue.getDefinition();
+      String ticker = (String) inputDefinition.getValue("BB_TICKER");
+      
+      Map<String, Double> dataFields = (Map<String, Double>)analyticValue.getValue();
+      Double price = dataFields.get(PRICE_FIELD_NAME);
+      
+      double years = _securities.get(ticker);
+      timeInYearsToRates.put(years, price);
     }
     DiscountCurve discountCurve = new DiscountCurve(DateUtil.today(), timeInYearsToRates, s_interpolator);
 
@@ -80,14 +96,14 @@ public class HardCodedDiscountCurveAnalyticFunction implements AnalyticFunction 
   
   private AnalyticValueDefinition getDiscountCurveValueDefinition() {
     Map<String, Object> map = new HashMap<String, Object>();
-    map.putAll(_securities);
     map.put("Currency", Currency.getInstance("USD"));
+    map.put("TYPE", "DISCOUNT_CURVE");
     return new AnalyticValueDefinitionImpl(map);
   }
 
   @Override
   public Collection<AnalyticValueDefinition> getInputs(Security security) {
-    return Arrays.<AnalyticValueDefinition>asList(s_definition);
+    return s_inputDefinitions;
   }
 
   @Override
@@ -97,7 +113,7 @@ public class HardCodedDiscountCurveAnalyticFunction implements AnalyticFunction 
 
   @Override
   public String getShortName() {
-    return "HardCodedDiscountCurve";
+    return "HardCodedUSDDiscountCurve";
   }
 
   @Override
