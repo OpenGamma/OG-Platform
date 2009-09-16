@@ -4,10 +4,10 @@ import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 
-public class VanWijngaardenDekkerBrentSingleRootFinder implements SingleRootFinder<Double> {
+public class VanWijngaardenDekkerBrentSingleRootFinder implements DoubleSingleRootFinder<Exception> {
 
   @Override
-  public Double getRoot(Function<Double, Double, ? extends Exception> function, Double xLow, Double xHigh, Double accuracy) throws ConvergenceException, MathException, Exception {
+  public Double getRoot(Function<Double, Double, Exception> function, Double xLow, Double xHigh, Double accuracy) throws Exception {
     if (accuracy == null)
       throw new IllegalArgumentException("Accuracy was null");
     double a = xLow;

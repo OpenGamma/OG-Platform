@@ -9,10 +9,10 @@ import com.opengamma.math.function.Function;
  * @author emcleod
  * 
  */
-public class RidderSingleRootFinder implements SingleRootFinder<Double> {
+public class RidderSingleRootFinder implements DoubleSingleRootFinder<Exception> {
 
   @Override
-  public Double getRoot(Function<Double, Double, ? extends Exception> function, Double xLow, Double xHigh, Double accuracy) throws ConvergenceException, MathException, Exception {
+  public Double getRoot(Function<Double, Double, Exception> function, Double xLow, Double xHigh, Double accuracy) throws Exception {
     if (accuracy == null)
       throw new IllegalArgumentException("Accuracy was null");
     double x1 = xLow;

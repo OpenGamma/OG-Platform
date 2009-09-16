@@ -1,7 +1,5 @@
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 
 /**
@@ -10,10 +8,10 @@ import com.opengamma.math.function.Function;
  * 
  * @param <T>
  */
-public interface SingleRootFinder<T> {
+public interface SingleRootFinder<S, T, U, V extends Exception> {
   public static final int MAX_ATTEMPTS = 100;
   public static final double ZERO = 1e-12;
   public static final String CONVERGENCE_STRING = "Could not find root in " + MAX_ATTEMPTS + " attempts";
 
-  public T getRoot(Function<T, T, ? extends Exception> function, T xLow, T xHigh, T accuracy) throws MathException, ConvergenceException, Exception;
+  public U getRoot(Function<S, T, V> function, T xLow, T xHigh, Double accuracy) throws V;
 }
