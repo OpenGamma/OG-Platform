@@ -57,24 +57,15 @@ public class ViewRecalculationJob extends TerminatableJob {
   @Override
   protected void runOneCycle() {
     ViewComputationCache cache = getView().getComputationCacheFactory().generateCache();
-    FullyPopulatedPortfolioNode positionRoot = getView().getPopulatedPositionRoot();
+    PortfolioEvaluationModel portfolioEvaluationModel = getView().getPortfolioEvaluationModel();
     assert cache != null;
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     
     SingleComputationCycle cycle = new SingleComputationCycle(
-        cache, positionRoot, getView().getLiveDataSnapshotProvider(),
-        result, getView().getDefinition(),
-        getView().getAnalyticFunctionRepository(),
-        getView().getLiveDataAvailabilityProvider());
+        cache, portfolioEvaluationModel, getView().getLiveDataSnapshotProvider(),
+        result, getView().getDefinition());
     cycle.prepareInputs();
-    // Flatten, just because we're not going to handle trees yet.
-    cycle.loadPositions();
-    // REVIEW kirk 2009-09-14 -- This is completely unnecessary to do in the cycle stage.
-    // Once we have incremental maintenance of position data we can move it to the beginning
-    // of the cycle when we process inbound portfolio changes.
-    cycle.buildDependencyGraphs();
-    cycle.buildExecutionPlans();
-    cycle.addLiveDataSubscriptions();
+    cycle.executePlans();
     cycle.populateResultModel();
     cycle.releaseResources();
     

@@ -37,11 +37,11 @@ public class ViewImpl implements View, Lifecycle {
   private SecurityMaster _securityMaster;
   private ViewComputationCacheFactory _computationCacheFactory;
   // Internal State:
-  private PortfolioNode _positionRoot;
-  private FullyPopulatedPortfolioNode _populatedPositionRoot;
+  private PortfolioEvaluationModel _portfolioEvaluationModel;
   private Thread _recalculationThread;
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
-  private ViewRecalculationJob _recalcJob; 
+  private ViewRecalculationJob _recalcJob;
+  private ViewComputationResultModelImpl _mostRecentResult;
   
   public ViewImpl(ViewDefinition definition) {
     if(definition == null) {
@@ -151,21 +151,6 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   /**
-   * @param positionRoot the positionRoot to set
-   */
-  public void setPositionRoot(PortfolioNode positionRoot) {
-    _positionRoot = positionRoot;
-  }
-
-  /**
-   * @param populatedPositionRoot the populatedPositionRoot to set
-   */
-  public void setPopulatedPositionRoot(
-      FullyPopulatedPortfolioNode populatedPositionRoot) {
-    _populatedPositionRoot = populatedPositionRoot;
-  }
-
-  /**
    * @return the recalculationThread
    */
   public Thread getRecalculationThread() {
@@ -207,26 +192,44 @@ public class ViewImpl implements View, Lifecycle {
     _recalcJob = recalcJob;
   }
 
-  // TODO kirk 2009-09-03 -- Flesh out a bootstrap system:
-  // - Load up the contents of the portfolio from a PortfolioMaster
-  // - Load up the securities of the portfolio from a SecurityMaster
-  // - Gather up all problems if anything isn't available
-  
+  /**
+   * @return the portfolioEvaluationModel
+   */
+  public PortfolioEvaluationModel getPortfolioEvaluationModel() {
+    return _portfolioEvaluationModel;
+  }
+
+  /**
+   * @param portfolioEvaluationModel the portfolioEvaluationModel to set
+   */
+  public void setPortfolioEvaluationModel(
+      PortfolioEvaluationModel portfolioEvaluationModel) {
+    _portfolioEvaluationModel = portfolioEvaluationModel;
+  }
+
   public void init() {
     checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 
+    reloadPortfolio();
+    
+    setCalculationState(ViewCalculationState.NOT_STARTED);
+  }
+  
+  public void reloadPortfolio() {
+    s_logger.info("Reloading portfolio named {}", getDefinition().getName());
     PortfolioNode positionRoot = getPositionMaster().getRootPortfolio(getDefinition().getName());
     if(positionRoot == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getName());
     }
-    setPositionRoot(positionRoot);
-    
-    FullyPopulatedPortfolioNode populatedPositionRoot = getPopulatedPortfolioNode(positionRoot);
-    assert populatedPositionRoot != null;
-    setPopulatedPositionRoot(populatedPositionRoot);
-    
-    setCalculationState(ViewCalculationState.NOT_STARTED);
+    PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(positionRoot);
+    portfolioEvaluationModel.init(
+        getSecurityMaster(),
+        getAnalyticFunctionRepository(),
+        getLiveDataAvailabilityProvider(),
+        getLiveDataSnapshotProvider(),
+        getDefinition());
+    setPortfolioEvaluationModel(portfolioEvaluationModel);
   }
   
   /**
@@ -277,22 +280,21 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   @Override
-  public ViewComputationResultModel getMostRecentResult() {
-    // TODO Auto-generated method stub
-    return null;
+  public synchronized ViewComputationResultModel getMostRecentResult() {
+    return _mostRecentResult;
   }
 
   @Override
   public PortfolioNode getPositionRoot() {
-    return _positionRoot;
+    if(getPortfolioEvaluationModel() == null) {
+      return null;
+    }
+    return getPortfolioEvaluationModel().getRootNode();
   }
   
-  public FullyPopulatedPortfolioNode getPopulatedPositionRoot() {
-    return _populatedPositionRoot;
-  }
-  
-  public void recalculationPerformed(ViewComputationResultModel result) {
+  public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
     s_logger.info("Recalculation Performed called.");
+    _mostRecentResult = result;
   }
   
   // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle
