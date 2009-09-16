@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.LiveDataAvailabilityProvider;
-import com.opengamma.engine.LiveDataSnapshotProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;

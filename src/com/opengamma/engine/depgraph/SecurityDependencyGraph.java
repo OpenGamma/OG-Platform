@@ -13,11 +13,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.security.Security;
 
 /**

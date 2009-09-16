@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine;
+package com.opengamma.engine.livedata;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 

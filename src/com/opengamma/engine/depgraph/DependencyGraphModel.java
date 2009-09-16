@@ -14,9 +14,9 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.LiveDataAvailabilityProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.security.Security;
 
 /**

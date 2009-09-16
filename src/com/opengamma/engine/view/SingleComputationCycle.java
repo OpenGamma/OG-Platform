@@ -14,13 +14,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.LiveDataAvailabilityProvider;
-import com.opengamma.engine.LiveDataSnapshotProvider;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.security.Security;
 
 // TODO kirk 2009-09-14 -- Do we need some type of progress monitor?
