@@ -90,6 +90,15 @@
     <delete dir="${tests.junit.output}" failonerror="false" quiet="true"/>
     <delete dir="${dist.dir}" failonerror="false" quiet="true"/>
   </target>
+	
+  <target name="clean-ivy" description="--> clean the ivy installation">
+    <delete dir="${ivy.jar.dir}"/>
+  </target>
+
+  <target name="clean-cache" depends="install-ivy" 
+      description="--> clean the ivy cache">
+    <ivy:cleancache />
+  </target>
   
   <target name="test" depends="compile,junit-report"
    description="Execute all automated tests and produce XML/HTML reports"/>
