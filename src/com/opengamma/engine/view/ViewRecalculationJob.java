@@ -76,6 +76,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     cycle.buildExecutionPlans();
     cycle.addLiveDataSubscriptions();
     cycle.populateResultModel();
+    cycle.releaseResources();
     
     long endTime = System.currentTimeMillis();
     result.setResultTimestamp(endTime);

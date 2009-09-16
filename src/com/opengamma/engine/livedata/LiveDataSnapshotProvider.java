@@ -15,9 +15,11 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  */
 public interface LiveDataSnapshotProvider {
 
-  boolean addSubscription(AnalyticValueDefinition definition);
+  void addSubscription(AnalyticValueDefinition definition);
   
   long snapshot();
   
   AnalyticValue querySnapshot(long snapshot, AnalyticValueDefinition definition);
+  
+  void releaseSnapshot(long snapshot);
 }

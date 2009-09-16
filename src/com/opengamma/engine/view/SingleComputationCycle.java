@@ -300,6 +300,10 @@ public class SingleComputationCycle {
       }
     }
   }
+  
+  public void releaseResources() {
+    getSnapshotProvider().releaseSnapshot(getSnapshotTime());
+  }
 
   /**
    * 

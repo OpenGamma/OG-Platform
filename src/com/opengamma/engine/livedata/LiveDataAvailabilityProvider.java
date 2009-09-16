@@ -7,8 +7,6 @@ package com.opengamma.engine.livedata;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
-// REVIEW kirk 2009-09-04 -- Not sure whether this is the right location,
-// but as it depends on stuff in OG-Engine, I can't put it in OG-LiveData.
 /**
  * Allows code to determine whether particular pieces of data are
  * theoretically available from any sources of live data.
