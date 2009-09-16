@@ -6,6 +6,7 @@
 package com.opengamma.engine.analytics;
 
 import java.io.Serializable;
+import java.util.Set;
 
 
 /**
@@ -23,6 +24,7 @@ import java.io.Serializable;
  * @author kirk
  */
 public interface AnalyticValueDefinition extends Serializable {
-  // NOTE kirk 2009-09-03 -- Plan is for this to be a key/value pair set, and thus
-  // exactly match up with a FudgeMsg.
+  Set<String> getKeys();
+  
+  Set<Object> getValues(String key);
 }
