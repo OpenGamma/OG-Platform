@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.returns;
 
 import java.util.ArrayList;
@@ -8,9 +13,11 @@ import java.util.NoSuchElementException;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.math.function.Function;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -27,7 +34,12 @@ import com.opengamma.timeseries.TimeSeriesException;
  */
 
 public class SimpleNetWithDividendTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
-  private final TimeSeriesReturnCalculator _noDividendCalculator = new SimpleNetTimeSeriesReturnCalculator();
+  private final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> _noDividendCalculator;
+
+  public SimpleNetWithDividendTimeSeriesReturnCalculator(CalculationMode mode) {
+    super(mode);
+    _noDividendCalculator = new SimpleNetTimeSeriesReturnCalculator(mode);
+  }
 
   /**
    * @param x
@@ -41,7 +53,8 @@ public class SimpleNetWithDividendTimeSeriesReturnCalculator extends TimeSeriesR
    *          case, the result is the simple net return).
    * @throws TimeSeriesException
    *           Throws an exception if: the array is null; it has no elements;
-   *           the time series has less than two entries.
+   *           the time series has less than two entries; if the calculation
+   *           mode is strict and there are zeroes in the price series.
    * @return A DoubleTimeSeries containing the return series. This will always
    *         be one element shorter than the original price series.
    */
@@ -66,13 +79,15 @@ public class SimpleNetWithDividendTimeSeriesReturnCalculator extends TimeSeriesR
     while (iter.hasNext()) {
       entry = iter.next();
       times.add(entry.getKey());
-      try {
-        dividend = d.getDataPoint(entry.getKey());
-        data.add((entry.getValue() + dividend) / previousEntry.getValue() - 1);
-      } catch (ArrayIndexOutOfBoundsException e) {
-        data.add(entry.getValue() / previousEntry.getValue() - 1);
-      } catch (NoSuchElementException e) {
-        data.add(entry.getValue() / previousEntry.getValue() - 1);
+      if (isValueNonZero(previousEntry.getValue())) {
+        try {
+          dividend = d.getDataPoint(entry.getKey());
+          data.add((entry.getValue() + dividend) / previousEntry.getValue() - 1);
+        } catch (ArrayIndexOutOfBoundsException e) {
+          data.add(entry.getValue() / previousEntry.getValue() - 1);
+        } catch (NoSuchElementException e) {
+          data.add(entry.getValue() / previousEntry.getValue() - 1);
+        }
       }
       previousEntry = entry;
     }

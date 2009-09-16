@@ -53,7 +53,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
    * @return Pricing function for the model
    */
 
-  protected abstract Function1D<U, Double, OptionPricingException> getPricingFunction(T definition) throws OptionPricingException;
+  public abstract Function1D<U, Double, OptionPricingException> getPricingFunction(T definition) throws OptionPricingException;
 
   public Map<GreekType, Double> getGreeks(T definition, U vars) {
     double strike = definition.getStrike();

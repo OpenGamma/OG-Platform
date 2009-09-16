@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.returns;
 
 import java.util.ArrayList;
@@ -10,6 +15,7 @@ import javax.time.InstantProvider;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -25,15 +31,23 @@ import com.opengamma.timeseries.TimeSeriesException;
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
+  public ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode mode) {
+    super(mode);
+  }
+
   /**
    * @param x
    *          An array of DoubleTimeSeries. Only the first element is used - if
    *          the array is longer then the other elements are ignored.
    * @throws TimeSeriesException
    *           Throws an exception if: the array is null; it has no elements;
-   *           the time series has less than two entries.
-   * @return A DoubleTimeSeries containing the return series. This will always
-   *         be one element shorter than the original price series.
+   *           the time series has less than two entries; the calculation mode
+   *           is strict and there are zeroes in the price series.
+   * @return A DoubleTimeSeries containing the return series. In strict mode,
+   *         this will always be one element shorter than the original price
+   *         series. In lenient mode, any data points with zero in will be
+   *         ignored, so each zero in the price series will decrease the length
+   *         of the return series by two.
    */
   @Override
   public DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException {
@@ -51,8 +65,10 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
     List<Double> data = new ArrayList<Double>();
     while (iter.hasNext()) {
       entry = iter.next();
-      dates.add(entry.getKey());
-      data.add(Math.log(entry.getValue() / previousEntry.getValue()));
+      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
+        dates.add(entry.getKey());
+        data.add(Math.log(entry.getValue() / previousEntry.getValue()));
+      }
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(dates, data);

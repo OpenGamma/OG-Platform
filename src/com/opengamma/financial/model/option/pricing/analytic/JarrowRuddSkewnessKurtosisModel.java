@@ -17,7 +17,7 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<Europea
   protected BlackScholesMertonModel _bsm;
 
   @Override
-  protected Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+  public Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
     Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException>() {
 
       @Override

@@ -21,7 +21,7 @@ public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionMode
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  protected Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+  public Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
     Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException>() {
 
       @Override

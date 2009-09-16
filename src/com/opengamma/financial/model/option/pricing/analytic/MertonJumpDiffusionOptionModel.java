@@ -19,7 +19,7 @@ public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<European
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  protected Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+  public Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
     Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException>() {
 
       @Override

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.returns;
 
 import java.util.ArrayList;
@@ -10,6 +15,7 @@ import javax.time.InstantProvider;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -24,13 +30,18 @@ import com.opengamma.timeseries.TimeSeriesException;
 
 public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
+  public SimpleNetTimeSeriesReturnCalculator(CalculationMode mode) {
+    super(mode);
+  }
+
   /**
    * @param x
    *          An array of DoubleTimeSeries. Only the first element is used - if
    *          the array is longer then the other elements are ignored.
    * @throws TimeSeriesException
    *           Throws an exception if: the array is null; it has no elements;
-   *           the time series has less than two entries.
+   *           the time series has less than two entries; if the calculation
+   *           mode is strict and there are zeroes in the price series.
    * @return A DoubleTimeSeries containing the return series. This will always
    *         be one element shorter than the original price series.
    */
@@ -51,7 +62,9 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     while (iter.hasNext()) {
       entry = iter.next();
       dates.add(entry.getKey());
-      data.add(entry.getValue() / previousEntry.getValue() - 1);
+      if (isValueNonZero(previousEntry.getValue())) {
+        data.add(entry.getValue() / previousEntry.getValue() - 1);
+      }
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(dates, data);

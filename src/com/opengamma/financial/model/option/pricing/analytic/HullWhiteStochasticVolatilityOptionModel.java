@@ -26,7 +26,7 @@ public class HullWhiteStochasticVolatilityOptionModel extends AnalyticOptionMode
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  protected Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+  public Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
     Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<HullWhiteStochasticVolatilityModelOptionDataBundle, Double, OptionPricingException>() {
 
       @Override

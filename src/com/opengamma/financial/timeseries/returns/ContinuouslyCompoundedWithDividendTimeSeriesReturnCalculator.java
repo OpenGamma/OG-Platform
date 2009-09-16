@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.returns;
 
 import java.util.ArrayList;
@@ -8,9 +13,11 @@ import java.util.NoSuchElementException;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.math.function.Function;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -28,7 +35,12 @@ import com.opengamma.timeseries.TimeSeriesException;
  */
 
 public class ContinuouslyCompoundedWithDividendTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
-  private final TimeSeriesReturnCalculator _noDividendCalculator = new ContinuouslyCompoundedTimeSeriesReturnCalculator();
+  private final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> _noDividendCalculator;
+
+  public ContinuouslyCompoundedWithDividendTimeSeriesReturnCalculator(CalculationMode mode) {
+    super(mode);
+    _noDividendCalculator = new ContinuouslyCompoundedTimeSeriesReturnCalculator(mode);
+  }
 
   /**
    * @param x
@@ -42,7 +54,8 @@ public class ContinuouslyCompoundedWithDividendTimeSeriesReturnCalculator extend
    *          (in which case, the result is the continuously-compounded return).
    * @throws TimeSeriesException
    *           Throws an exception if: the array is null; it has no elements;
-   *           the time series has less than two entries.
+   *           the time series has less than two entries; if the calculation
+   *           mode is strict and there are zeroes in the price series.
    * @return A DoubleTimeSeries containing the return series. This will always
    *         be one element shorter than the original price series.
    */
@@ -67,13 +80,15 @@ public class ContinuouslyCompoundedWithDividendTimeSeriesReturnCalculator extend
     while (iter.hasNext()) {
       entry = iter.next();
       times.add(entry.getKey());
-      try {
-        dividend = d.getDataPoint(entry.getKey());
-        data.add(Math.log((entry.getValue() + dividend) / previousEntry.getValue()));
-      } catch (ArrayIndexOutOfBoundsException e) {
-        data.add(Math.log(entry.getValue() / previousEntry.getValue()));
-      } catch (NoSuchElementException e) {
-        data.add(Math.log(entry.getValue() / previousEntry.getValue()));
+      if (isValueNonZero(previousEntry.getValue())) {
+        try {
+          dividend = d.getDataPoint(entry.getKey());
+          data.add(Math.log((entry.getValue() + dividend) / previousEntry.getValue()));
+        } catch (ArrayIndexOutOfBoundsException e) {
+          data.add(Math.log(entry.getValue() / previousEntry.getValue()));
+        } catch (NoSuchElementException e) {
+          data.add(Math.log(entry.getValue() / previousEntry.getValue()));
+        }
       }
       previousEntry = entry;
     }

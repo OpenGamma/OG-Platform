@@ -17,7 +17,7 @@ public class AsymmetricPowerOptionModel extends AnalyticOptionModel<AsymmetricPo
   private final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  protected Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final AsymmetricPowerOptionDefinition definition) {
+  public Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final AsymmetricPowerOptionDefinition definition) {
     Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<StandardOptionDataBundle, Double, OptionPricingException>() {
 
       @Override
