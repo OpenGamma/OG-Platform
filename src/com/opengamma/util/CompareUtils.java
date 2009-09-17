@@ -41,14 +41,14 @@ public class CompareUtils {
   /**
    * Compare two doubles to see if they're 'closely' equal - this is because rounding errors can mean 
    * the results of double precision computations lead to small differences in results.  The definition
-   * in this case of 'close' is that the difference is less than 10^-6 (1E-6).  If a different maximum
+   * in this case of 'close' is that the difference is less than 10^-15 (1E-15).  If a different maximum
    * allowed difference is required, use the other version of this method.
    * @param a
    * @param b
    * @return true, if a and be are equal to within 10^-6, false otherwise
    */
   public static boolean closeEquals(double a, double b) {
-    return (Math.abs(a - b) < 1E-6);
+    return (Math.abs(a - b) < 1E-15);
   }
   
   /**
