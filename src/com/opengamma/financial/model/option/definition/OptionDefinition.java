@@ -3,7 +3,7 @@ package com.opengamma.financial.model.option.definition;
 import java.util.Date;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.util.DateUtil;
+import com.opengamma.util.time.DateUtil;
 
 public abstract class OptionDefinition {
   protected final double DAYS_IN_YEAR = 365.25;
