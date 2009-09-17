@@ -13,9 +13,10 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * 
+ * <p>
+ * A single-period time series return calculator.
+ * 
  * @author emcleod
- *         <p>
- *         A single-period time series return calculator.
  */
 
 public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> {
@@ -36,5 +37,9 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
       return false;
     }
     return true;
+  }
+
+  protected CalculationMode getMode() {
+    return _mode;
   }
 }

@@ -1,0 +1,58 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.timeseries.returns;
+
+import java.util.Arrays;
+
+import com.opengamma.math.function.Function;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeriesOperations;
+import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
+
+/**
+ * <p>
+ * The excess return of an asset at time <i>t</i> is the difference between the
+ * return of that asset and the return of a reference asset. This class
+ * calculates the excess continuously-compounded return.
+ * 
+ * @author emcleod
+ */
+
+public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
+  private final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> _returnCalculator;
+
+  public ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode mode) {
+    super(mode);
+    _returnCalculator = new ContinuouslyCompoundedTimeSeriesReturnCalculator(mode);
+  }
+
+  /**
+   * @param x
+   *          An array of DoubleTimeSeries. The series <b>must</b> contain at
+   *          least four elements; the asset price series, the dividend price
+   *          series (can be null but it must be the second element), the
+   *          reference price series and the reference dividend series. Any
+   *          further elements will be ignored.
+   * @throws TimeSeriesException
+   *           Throws an exception if: the array is null; the array has less
+   *           than two elements; the calculation mode is strict and the price
+   *           series are not the same length.
+   * @return A DoubleTimeSeries containing the excess return series.
+   */
+  @Override
+  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException {
+    if (x == null)
+      throw new TimeSeriesException("Time series array was null");
+    if (x.length < 4)
+      throw new TimeSeriesException("Time series array must contain at least four elements");
+    if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size())
+      throw new TimeSeriesException("Asset price series and reference price series were not the same size");
+    final DoubleTimeSeries assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 0, 2));
+    final DoubleTimeSeries referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 2, 4));
+    return DoubleTimeSeriesOperations.subtract(assetReturn, referenceReturn);
+  }
+}

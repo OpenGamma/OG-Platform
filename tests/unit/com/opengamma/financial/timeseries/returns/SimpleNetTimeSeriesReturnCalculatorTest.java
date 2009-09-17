@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.returns;
 
 import static org.junit.Assert.assertTrue;
@@ -11,45 +16,45 @@ import com.opengamma.math.function.Function;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
  * @author emcleod
- * 
  */
 
 public class SimpleNetTimeSeriesReturnCalculatorTest {
-  private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator();
+  private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
 
   @Test
   public void testWithBadInputs() {
     try {
       CALCULATOR.evaluate((DoubleTimeSeries[]) null);
       fail();
-    } catch (TimeSeriesException e) {
+    } catch (final TimeSeriesException e) {
       // Expected
     }
     try {
       CALCULATOR.evaluate(new DoubleTimeSeries[0]);
       fail();
-    } catch (TimeSeriesException e) {
+    } catch (final TimeSeriesException e) {
       // Expected
     }
-    DoubleTimeSeries ts = new ArrayDoubleTimeSeries(new long[] { 1 }, new double[] { 4 });
+    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(new long[] { 1 }, new double[] { 4 });
     try {
       CALCULATOR.evaluate(new DoubleTimeSeries[] { ts });
       fail();
-    } catch (TimeSeriesException e) {
+    } catch (final TimeSeriesException e) {
       // Expected
     }
   }
 
   @Test
-  public void testReturns() throws TimeSeriesException {
-    int n = 20;
-    long[] times = new long[n];
-    double[] data = new double[n];
-    double[] returns = new double[n - 1];
+  public void testReturnsWithoutDividends() throws TimeSeriesException {
+    final int n = 20;
+    final long[] times = new long[n];
+    final double[] data = new double[n];
+    final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
@@ -59,8 +64,91 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
         returns[i - 1] = random / data[i - 1] - 1;
       }
     }
-    DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
-    DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS }).equals(returnTS));
+  }
+
+  @Test
+  public void testReturnsWithZeroesInSeries() throws TimeSeriesException {
+    final int n = 20;
+    final long[] times = new long[n];
+    final double[] data = new double[n];
+    final double[] returns = new double[n - 2];
+    double random;
+    for (int i = 0; i < n - 2; i++) {
+      times[i] = i;
+      random = Math.random();
+      data[i] = random;
+      if (i > 0) {
+        returns[i - 1] = Math.log(random / data[i - 1]);
+      }
+    }
+    times[n - 2] = n - 2;
+    data[n - 2] = 0;
+    times[n - 1] = n - 1;
+    data[n - 1] = Math.random();
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns);
+    final TimeSeriesReturnCalculator strict = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.STRICT);
+    final DoubleTimeSeries[] tsArray = new DoubleTimeSeries[] { priceTS };
+    try {
+      strict.evaluate(tsArray);
+      fail();
+    } catch (final TimeSeriesException e) {
+      // Expected
+    }
+    final TimeSeriesReturnCalculator lenient = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+    assertTrue(lenient.evaluate(tsArray).equals(returnTS));
+  }
+
+  @Test
+  public void testReturnsWithDividendsAtDifferentTimes() throws TimeSeriesException {
+    final int n = 20;
+    final long[] times = new long[n];
+    final double[] data = new double[n];
+    final double[] returns = new double[n - 1];
+    double random;
+    for (int i = 0; i < n; i++) {
+      times[i] = i;
+      random = Math.random();
+      data[i] = random;
+      if (i > 0) {
+        returns[i - 1] = random / data[i - 1] - 1;
+      }
+    }
+    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(new long[] { 300 }, new double[] { 3 });
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
+  }
+
+  @Test
+  public void testReturnsWithDividend() throws TimeSeriesException {
+    final int n = 20;
+    final long[] times = new long[n];
+    final double[] data = new double[n];
+    final double[] returns = new double[n - 1];
+    final long[] dividendTimes = new long[] { 1, 4 };
+    final double[] dividendData = new double[] { 0.4, 0.6 };
+    double random;
+    for (int i = 0; i < n; i++) {
+      times[i] = i;
+      random = Math.random();
+      data[i] = random;
+      if (i > 0) {
+        if (i == 1) {
+          returns[i - 1] = (random + dividendData[0]) / data[i - 1] - 1;
+        } else if (i == 4) {
+          returns[i - 1] = (random + dividendData[1]) / data[i - 1] - 1;
+        } else {
+          returns[i - 1] = random / data[i - 1] - 1;
+        }
+      }
+    }
+    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(dividendTimes, dividendData);
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 }

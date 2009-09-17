@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import javax.time.InstantProvider;
 
@@ -18,14 +19,16 @@ import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.CalculationMode;
 
 /**
+ * <p>
+ * This class contains a function that calculates the net one-period simple
+ * return of an asset that pays dividends periodically. This is defined at time
+ * <i>t</i> as:<br>
+ * <i>R<sub>t</sub> = (P<sub>t</sub>-D<sub>t</sub>)/P<sub>t-1</sub>-1</i><br>
+ * where <i>P<sub>t</sub></i> is the price at time <i>t</i>,
+ * <i>D<sub>t</sub></i> is the dividend at time <i>t</i> and
+ * <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  * 
  * @author emcleod
- *         <p>
- *         This class contains a function that calculates the net one-period
- *         simple return of a time series. This is defined at time <i>t</i> as:<br>
- *         <i>R<sub>t</sub> = P<sub>t</sub>/P<sub>t-1</sub>-1</i><br>
- *         where <i>P<sub>t</sub></i> is the price at time <i>t</i> and
- *         <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  */
 
 public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
@@ -36,8 +39,14 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
 
   /**
    * @param x
-   *          An array of DoubleTimeSeries. Only the first element is used - if
-   *          the array is longer then the other elements are ignored.
+   *          An array of DoubleTimeSeries. If the array has only one element,
+   *          then this is assumed to be the price series and the result is the
+   *          simple return. The dividend series is assumed to be the second
+   *          element. It does not have to be the same length as the price
+   *          series (in which case, dates without dividends are treated like
+   *          the dividend was zero), and the dividend data points do not have
+   *          to correspond to any of the dates in the price series (in which
+   *          case, the result is the simple net return).
    * @throws TimeSeriesException
    *           Throws an exception if: the array is null; it has no elements;
    *           the time series has less than two entries; if the calculation
@@ -50,24 +59,32 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)
-      throw new TimeSeriesException("Time series array was empty");
-    DoubleTimeSeries ts = x[0];
-    if (ts.size() <= 1)
-      throw new TimeSeriesException("Must have at least two data points to calculate return");
-    Iterator<Map.Entry<InstantProvider, Double>> iter = ts.iterator();
+      throw new TimeSeriesException("Need at least one time series");
+    final DoubleTimeSeries ts = x[0];
+    if (ts.size() < 2)
+      throw new TimeSeriesException("Need at least two data points to calculate return series");
+    final DoubleTimeSeries d = x.length > 1 ? x[1] : null;
+    final List<InstantProvider> times = new ArrayList<InstantProvider>();
+    final List<Double> data = new ArrayList<Double>();
+    final Iterator<Map.Entry<InstantProvider, Double>> iter = ts.iterator();
     Map.Entry<InstantProvider, Double> previousEntry = iter.next();
     Map.Entry<InstantProvider, Double> entry;
-    List<InstantProvider> dates = new ArrayList<InstantProvider>();
-    List<Double> data = new ArrayList<Double>();
+    double dividend;
     while (iter.hasNext()) {
       entry = iter.next();
-      dates.add(entry.getKey());
+      times.add(entry.getKey());
       if (isValueNonZero(previousEntry.getValue())) {
-        data.add(entry.getValue() / previousEntry.getValue() - 1);
+        try {
+          dividend = d == null ? 0 : d.getDataPoint(entry.getKey());
+          data.add((entry.getValue() + dividend) / previousEntry.getValue() - 1);
+        } catch (final ArrayIndexOutOfBoundsException e) {
+          data.add(entry.getValue() / previousEntry.getValue() - 1);
+        } catch (final NoSuchElementException e) {
+          data.add(entry.getValue() / previousEntry.getValue() - 1);
+        }
       }
       previousEntry = entry;
     }
-    return new ArrayDoubleTimeSeries(dates, data);
+    return new ArrayDoubleTimeSeries(times, data);
   }
-
 }
