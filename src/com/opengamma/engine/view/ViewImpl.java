@@ -304,6 +304,11 @@ public class ViewImpl implements View, Lifecycle {
   public synchronized boolean isRunning() {
     return getCalculationState() == ViewCalculationState.RUNNING;
   }
+  
+  public synchronized void runOneCycle() {
+    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+    recalcJob.runOneCycle();
+  }
 
   @Override
   public synchronized void start() {

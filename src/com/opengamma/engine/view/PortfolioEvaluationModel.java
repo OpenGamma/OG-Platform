@@ -163,7 +163,7 @@ public class PortfolioEvaluationModel {
   }
 
   public void loadPositions() {
-    FullyPopulatedPortfolioNode populatedRootNode = new FullyPopulatedPortfolioNode();
+    FullyPopulatedPortfolioNode populatedRootNode = getPopulatedRootNode();
     loadPositions(populatedRootNode);
     setPopulatedRootNode(populatedRootNode);
     s_logger.debug("Operating on {} positions", getPopulatedPositions().size());

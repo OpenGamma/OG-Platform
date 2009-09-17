@@ -41,7 +41,7 @@ public class AnalyticValueDefinitionComparator {
     for(String key : key1) {
       Set<Object> values1 = d1.getValues(key);
       Set<Object> values2 = d2.getValues(key);
-      if(ObjectUtils.equals(values1, values2)) {
+      if(!ObjectUtils.equals(values1, values2)) {
         return false;
       }
     }
