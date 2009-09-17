@@ -14,18 +14,14 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
 
-public class BlackScholesMertonImpliedVolatilitySurfaceModel implements
-    VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
+public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
   private final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
   private SingleRootFinder<StandardOptionDataBundle, Double, Double, OptionPricingException> _rootFinder;
   private final double EPS = 1e-9;
 
   @Override
-  public VolatilitySurface getSurface(EuropeanVanillaOptionDefinition definition, Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data)
-      throws OptionPricingException {
+  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data) throws OptionPricingException {
     Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = prices.entrySet().iterator().next();
-    if (!definition.equals(entry.getKey()))
-      throw new OptionPricingException("Option definition did not match any in the definition -> price map");
     Double price = entry.getValue();
     Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(data, price);

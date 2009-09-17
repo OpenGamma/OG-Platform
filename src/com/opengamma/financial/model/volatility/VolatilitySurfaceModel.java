@@ -7,7 +7,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
-public interface VolatilitySurfaceModel<S extends OptionDefinition, T extends OptionDefinition, U extends StandardOptionDataBundle> {
+public interface VolatilitySurfaceModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 
-  public VolatilitySurface getSurface(S definition, Map<T, Double> prices, U data) throws OptionPricingException;
+  public VolatilitySurface getSurface(Map<T, Double> prices, U data) throws OptionPricingException;
 }

@@ -8,14 +8,13 @@ import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.regression.LeastSquaresRegression;
 
-public class PractitionerBlackScholesVolatilityModel implements VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
-  private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+public class PractitionerBlackScholesVolatilityModel implements VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
+  private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private LeastSquaresRegression _regression;
 
   // TODO
   @Override
-  public VolatilitySurface getSurface(EuropeanVanillaOptionDefinition definition, Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data)
-      throws OptionPricingException {
+  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data) throws OptionPricingException {
     return null;
   }
 }
