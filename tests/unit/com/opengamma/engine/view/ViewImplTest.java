@@ -73,7 +73,7 @@ public class ViewImplTest {
     InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(Collections.singleton(function));
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
-    for(AnalyticValueDefinition definition : function.getInputs(security)) {
+    for(AnalyticValueDefinition<?> definition : function.getInputs(security)) {
       ldap.addDefinition(definition);
     }
     
@@ -113,10 +113,10 @@ public class ViewImplTest {
     assertNotNull(resultPosition);
     assertEquals(new BigDecimal(9873), resultPosition.getQuantity());
     
-    Map<AnalyticValueDefinition, AnalyticValue> resultValues = result.getValues(resultPosition);
+    Map<AnalyticValueDefinition<?>, AnalyticValue<?>> resultValues = result.getValues(resultPosition);
     assertNotNull(resultValues);
     assertEquals(1, resultValues.size());
-    AnalyticValue discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+    AnalyticValue<?> discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
     assertNotNull(discountCurveValue);
     assertEquals(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition(), discountCurveValue.getDefinition());
     assertNotNull(discountCurveValue.getValue());
@@ -136,8 +136,8 @@ public class ViewImplTest {
           ViewComputationResultModel resultModel) {
         Collection<Position> positions = resultModel.getPositions();
         Position resultPosition = positions.iterator().next();
-        Map<AnalyticValueDefinition, AnalyticValue> resultValues = resultModel.getValues(resultPosition);
-        AnalyticValue discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+        Map<AnalyticValueDefinition<?>, AnalyticValue<?>> resultValues = resultModel.getValues(resultPosition);
+        AnalyticValue<?> discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
         DiscountCurve theCurveItself = (DiscountCurve) discountCurveValue.getValue();
         System.out.println("Discount Curve is " + theCurveItself.getData());
       }
@@ -179,6 +179,7 @@ public class ViewImplTest {
    * @param snapshotProvider 
    * 
    */
+  @SuppressWarnings("unchecked")
   private void populateSnapshot(
       InMemoryLKVSnapshotProvider snapshotProvider,boolean addRandom) {
     // Inflection point is 10.
@@ -190,10 +191,10 @@ public class ViewImplTest {
       String strip = HardCodedUSDDiscountCurveAnalyticFunction.STRIPS[i];
       final Map<String, Double> dataFields = new HashMap<String, Double>();
       dataFields.put(HardCodedUSDDiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
-      final AnalyticValueDefinition definition = HardCodedUSDDiscountCurveAnalyticFunction.constructDefinition(strip);
-      AnalyticValue value = new AbstractAnalyticValue(definition, dataFields) {
+      final AnalyticValueDefinition<Object> definition = (AnalyticValueDefinition<Object>) HardCodedUSDDiscountCurveAnalyticFunction.constructDefinition(strip);
+      AnalyticValue<Object> value = new AbstractAnalyticValue<Object>(definition, dataFields) {
         @Override
-        public AnalyticValue scaleForPosition(BigDecimal quantity) {
+        public AnalyticValue<Object> scaleForPosition(BigDecimal quantity) {
           return this;
         }
       };
