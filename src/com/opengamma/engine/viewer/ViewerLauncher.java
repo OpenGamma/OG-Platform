@@ -5,18 +5,20 @@
  */
 package com.opengamma.engine.viewer;
 
+import org.jdesktop.application.SingleFrameApplication;
+
 /**
  * 
  *
  * @author jim
  */
-public class ViewerLauncher {
-  public ViewerLauncher() {
-  }
-  public void run() {}
-  
+public class ViewerLauncher extends SingleFrameApplication {
+  @Override
+  protected void startup() {
+     JTreeTable treeTable = new JTreeTable();
+  }  
   public static void main(String[] args) {
-    ViewerLauncher launcher = new ViewerLauncher();
-    launcher.run();
+    launch(ViewerLauncher.class, args);
   }
+
 }

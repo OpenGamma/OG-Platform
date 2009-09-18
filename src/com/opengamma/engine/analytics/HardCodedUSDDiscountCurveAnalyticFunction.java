@@ -24,6 +24,7 @@ import com.opengamma.util.Pair;
 // REVIEW kirk 2009-09-16 -- Changed name to USD as it's holding all the strips
 // that are specific to USD, and can only generate one type of result definition.
 // This would not be usual practice.
+// REVIEW jim 2009-09-16 -- You don't say...
 /**
  * 
  *
