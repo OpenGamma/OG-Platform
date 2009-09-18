@@ -7,8 +7,10 @@ package com.opengamma.engine.position.csv;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -110,7 +112,7 @@ public class CSVPositionMaster implements PositionMaster {
     return Collections.unmodifiableSet(_portfolioFilesByName.keySet());
   }
   
-  private Portfolio loadPortfolio(String portfolioName, File portfolioFile) {
+  protected Portfolio loadPortfolio(String portfolioName, File portfolioFile) {
     if(portfolioName == null) {
       throw new NullPointerException("Portfolio name must be specified.");
     }
@@ -120,21 +122,25 @@ public class CSVPositionMaster implements PositionMaster {
     if((!portfolioFile.isFile()) || (!portfolioFile.canRead())) {
       throw new IllegalArgumentException("Portfolio file " + portfolioFile + " is not a readable file.");
     }
-    PortfolioImpl portfolio = new PortfolioImpl(portfolioName);
     try {
-      BufferedReader br = new BufferedReader(new FileReader(portfolioFile));
-      String line = null;
-      while((line = br.readLine()) != null) {
-        Position position = parseLine(line);
-        if(position != null) {
-          portfolio.addPosition(position);
-        }
-      }
+      FileInputStream fis = new FileInputStream(portfolioFile);
+      return loadPortfolio(portfolioName, fis);
     } catch (IOException ioe) {
       throw new OpenGammaRuntimeException("Unable to parse portfolio file " + portfolioFile, ioe);
     }
-    s_logger.info("{} parsed file {} with {} positions",
-        new Object[]{portfolioName, portfolioFile, portfolio.getPositions().size()});
+  }
+  
+  public static Portfolio loadPortfolio(String portfolioName, InputStream portfolioStream) throws IOException {
+    PortfolioImpl portfolio = new PortfolioImpl(portfolioName);
+    BufferedReader br = new BufferedReader(new InputStreamReader(portfolioStream));
+    String line = null;
+    while((line = br.readLine()) != null) {
+      Position position = parseLine(line);
+      if(position != null) {
+        portfolio.addPosition(position);
+      }
+    }
+    s_logger.info("{} parsed stream with {} positions", portfolioName, portfolio.getPositions().size());
     return portfolio;
   }
 

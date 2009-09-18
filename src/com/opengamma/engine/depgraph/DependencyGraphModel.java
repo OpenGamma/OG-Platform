@@ -6,10 +6,10 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import com.opengamma.engine.security.Security;
 public class DependencyGraphModel {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
   private final Map<Security, SecurityDependencyGraph> _graphForSecurity =
-    new TreeMap<Security, SecurityDependencyGraph>();
+    new HashMap<Security, SecurityDependencyGraph>();
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private AnalyticFunctionRepository _analyticFunctionRepository;
   
@@ -75,6 +75,7 @@ public class DependencyGraphModel {
       return;
     }
     SecurityDependencyGraph depGraph = new SecurityDependencyGraph(security, requiredOutputValues);
+    depGraph.buildDependencyGraph(getAnalyticFunctionRepository(), getLiveDataAvailabilityProvider());
     _graphForSecurity.put(security, depGraph);
   }
   

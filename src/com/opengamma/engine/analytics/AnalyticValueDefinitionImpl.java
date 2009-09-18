@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * A basic {@link AnalyticValueDefinition} implementation backed by simple
@@ -120,7 +121,7 @@ public class AnalyticValueDefinitionImpl implements AnalyticValueDefinition, Ser
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

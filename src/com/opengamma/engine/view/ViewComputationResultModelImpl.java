@@ -80,6 +80,7 @@ public class ViewComputationResultModelImpl implements
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       perPositionModel = new PositionResultModel(position);
+      _perPositionResults.put(position, perPositionModel);
     }
     perPositionModel.add(value);
   }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -42,6 +45,7 @@ public class ViewImpl implements View, Lifecycle {
   private ViewCalculationState _calculationState = ViewCalculationState.NOT_INITIALIZED;
   private ViewRecalculationJob _recalcJob;
   private ViewComputationResultModelImpl _mostRecentResult;
+  private final Set<ComputationResultListener> _resultListeners = new HashSet<ComputationResultListener>();
   
   public ViewImpl(ViewDefinition definition) {
     if(definition == null) {
@@ -206,6 +210,14 @@ public class ViewImpl implements View, Lifecycle {
       PortfolioEvaluationModel portfolioEvaluationModel) {
     _portfolioEvaluationModel = portfolioEvaluationModel;
   }
+  
+  public void addResultListener(ComputationResultListener resultListener) {
+    _resultListeners.add(resultListener);
+  }
+  
+  public void removeResultListener(ComputationResultListener resultListener) {
+    _resultListeners.remove(resultListener);
+  }
 
   public void init() {
     checkInjectedDependencies();
@@ -295,6 +307,9 @@ public class ViewImpl implements View, Lifecycle {
   public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
     s_logger.info("Recalculation Performed called.");
     _mostRecentResult = result;
+    for(ComputationResultListener resultListener : _resultListeners) {
+      resultListener.computationResultAvailable(result);
+    }
   }
   
   // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle
@@ -303,6 +318,11 @@ public class ViewImpl implements View, Lifecycle {
   @Override
   public synchronized boolean isRunning() {
     return getCalculationState() == ViewCalculationState.RUNNING;
+  }
+  
+  public synchronized void runOneCycle() {
+    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+    recalcJob.runOneCycle();
   }
 
   @Override
@@ -321,14 +341,21 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   @Override
-  public synchronized void stop() {
+  public void stop() {
     s_logger.info("Stopping.....");
     // TODO kirk 2009-09-11 -- Check state.
     
     assert getRecalcJob() != null;
     assert getRecalculationThread() != null;
     
-    setCalculationState(ViewCalculationState.TERMINATING);
+    synchronized(this) {
+      if((getCalculationState() == ViewCalculationState.TERMINATED)
+          || (getCalculationState() == ViewCalculationState.TERMINATING)) {
+        s_logger.info("Multiple requests to stop() made, this invocation will do nothing.");
+        return;
+      }
+      setCalculationState(ViewCalculationState.TERMINATING);
+    }
     
     getRecalcJob().terminate();
     // TODO kirk 2009-09-11 -- Have a heuristic on when to set the timeout based on
@@ -339,11 +366,12 @@ public class ViewImpl implements View, Lifecycle {
       s_logger.warn("Unable to shut down recalc thread in {}ms", timeout);
     }
     
-    setCalculationState(ViewCalculationState.TERMINATED);
-    
-    setRecalcJob(null);
-    setRecalculationThread(null);
-    
+    synchronized(this) {
+      setCalculationState(ViewCalculationState.TERMINATED);
+      
+      setRecalcJob(null);
+      setRecalculationThread(null);
+    }
     s_logger.info("Stopped.");
   }
 

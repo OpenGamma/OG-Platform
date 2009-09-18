@@ -8,6 +8,9 @@ package com.opengamma.engine.livedata;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
@@ -19,6 +22,7 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  * @author kirk
  */
 public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
   private final Map<AnalyticValueDefinition, AnalyticValue> _lastKnownValues =
     new HashMap<AnalyticValueDefinition, AnalyticValue>();
   private final Map<Long, Map<AnalyticValueDefinition, AnalyticValue>> _snapshots =
@@ -27,6 +31,7 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   @Override
   public void addSubscription(AnalyticValueDefinition definition) {
     // Do nothing. All values are externally provided.
+    s_logger.debug("Added subscription to {}", definition);
   }
 
   @Override
