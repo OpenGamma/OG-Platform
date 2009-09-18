@@ -22,6 +22,9 @@ public final class ThreadUtil {
    *         we went past the timeout.
    */
   public static boolean safeJoin(Thread t, long msTimeout) {
+    if(!t.isAlive()) {
+      return true;
+    }
     try {
       t.join(msTimeout);
     } catch (InterruptedException e) {
