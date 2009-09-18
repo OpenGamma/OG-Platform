@@ -18,14 +18,14 @@ import com.opengamma.engine.security.Security;
 public class EquityOptionGreeksAnalyticFunction implements AnalyticFunction {
 
   @Override
-  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
       Position position) {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
       Security security) {
     // TODO Auto-generated method stub
     return null;

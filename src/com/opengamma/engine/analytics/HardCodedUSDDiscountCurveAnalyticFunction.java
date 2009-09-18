@@ -79,22 +79,19 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
   }
   
   @Override
-  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
       Position position) {
     throw new UnsupportedOperationException();
   }
   
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
       Security security) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
-    for (AnalyticValue analyticValue : inputs) {
-      // Defnition is going to look just like what we required as input.
-      AnalyticValueDefinition inputDefinition = analyticValue.getDefinition();
-      String ticker = (String) inputDefinition.getValue("BB_TICKER");
-      
-      Map<String, Double> dataFields = (Map<String, Double>)analyticValue.getValue();
+    for(Map.Entry<String, Double> secEntry : _securities.entrySet()) {
+      String ticker = secEntry.getKey();
+      Map<String, Double> dataFields = (Map<String, Double>)inputs.getValue("BB_TICKER", ticker);
       Double price = dataFields.get(PRICE_FIELD_NAME);
       
       double years = _securities.get(ticker);

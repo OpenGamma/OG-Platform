@@ -13,6 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyNode;
@@ -174,7 +175,8 @@ public class SingleComputationCycle {
       for(AnalyticValueDefinition inputDefinition : node.getInputValues()) {
         inputs.add(getComputationCache().getValue(inputDefinition));
       }
-      Collection<AnalyticValue> outputs = node.getFunction().execute(inputs, executionPlan.getSecurity());
+      AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputs(inputs);
+      Collection<AnalyticValue> outputs = node.getFunction().execute(functionInputs, executionPlan.getSecurity());
       for(AnalyticValue outputValue : outputs) {
         getComputationCache().putValue(outputValue);
       }

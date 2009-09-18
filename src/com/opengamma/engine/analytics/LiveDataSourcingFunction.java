@@ -74,13 +74,13 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   }
 
   @Override
-  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
       Position position) {
     throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
 
   @Override
-  public Collection<AnalyticValue> execute(Collection<AnalyticValue> inputs,
+  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
       Security security) {
     throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
