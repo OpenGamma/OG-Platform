@@ -33,6 +33,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityIdentificationDomain;
 import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.util.TerminatableJob;
 
 /**
  * 
@@ -40,9 +41,7 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
  * @author kirk
  */
 public class ViewImplTest {
-  
-  @Test
-  public void trivialExampleSingleCycle() throws Exception {
+  protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     viewDefinition.addValueDefinition("KIRK", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
@@ -86,7 +85,7 @@ public class ViewImplTest {
     };
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
-    populateInitialSnapshot(snapshotProvider);
+    populateSnapshot(snapshotProvider, false);
     
     ViewImpl view = new ViewImpl(viewDefinition);
     view.setPositionMaster(positionMaster);
@@ -96,6 +95,12 @@ public class ViewImplTest {
     view.setComputationCacheFactory(cacheFactory);
     view.setLiveDataSnapshotProvider(snapshotProvider);
     
+    return view;
+  }
+  
+  @Test
+  public void trivialExampleSingleCycle() throws Exception {
+    ViewImpl view = constructTrivialExampleView();
     view.init();
     assertEquals(ViewCalculationState.NOT_STARTED, view.getCalculationState());
     view.runOneCycle();
@@ -118,7 +123,55 @@ public class ViewImplTest {
     assertTrue(discountCurveValue.getValue() instanceof DiscountCurve);
     DiscountCurve theCurveItself = (DiscountCurve) discountCurveValue.getValue();
     System.out.println("Discount Curve is " + theCurveItself.getData());
-    System.out.println("Discount Curve is " + theCurveItself.getInterestRate(3.5));
+  }
+
+  @Test
+  public void trivialExamplePerturbingCycles() throws Exception {
+    ViewImpl view = constructTrivialExampleView();
+    view.init();
+    
+    view.addResultListener(new ComputationResultListener() {
+      @Override
+      public void computationResultAvailable(
+          ViewComputationResultModel resultModel) {
+        Collection<Position> positions = resultModel.getPositions();
+        Position resultPosition = positions.iterator().next();
+        Map<AnalyticValueDefinition, AnalyticValue> resultValues = resultModel.getValues(resultPosition);
+        AnalyticValue discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+        DiscountCurve theCurveItself = (DiscountCurve) discountCurveValue.getValue();
+        System.out.println("Discount Curve is " + theCurveItself.getData());
+      }
+    });
+    
+    view.start();
+    InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) view.getLiveDataSnapshotProvider();
+    SnapshotPopulatorJob popJob = new SnapshotPopulatorJob(snapshotProvider);
+    Thread popThread = new Thread(popJob);
+    popThread.start();
+    
+    Thread.sleep(10000l);
+    view.stop();
+    popJob.terminate();
+    popThread.join();
+  }
+  
+  private class SnapshotPopulatorJob extends TerminatableJob {
+    private final InMemoryLKVSnapshotProvider _snapshotProvider;
+    
+    public SnapshotPopulatorJob(InMemoryLKVSnapshotProvider snapshotProvider) {
+      _snapshotProvider = snapshotProvider;
+    }
+    
+    @Override
+    protected void runOneCycle() {
+      populateSnapshot(_snapshotProvider, true);
+      try {
+        Thread.sleep(10l);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    
   }
 
   /**
@@ -126,11 +179,14 @@ public class ViewImplTest {
    * @param snapshotProvider 
    * 
    */
-  private void populateInitialSnapshot(
-      InMemoryLKVSnapshotProvider snapshotProvider) {
+  private void populateSnapshot(
+      InMemoryLKVSnapshotProvider snapshotProvider,boolean addRandom) {
     // Inflection point is 10.
     double currValue = 0.005;
     for(int i = 0; i < HardCodedUSDDiscountCurveAnalyticFunction.STRIPS.length; i++) {
+      if(addRandom) {
+        currValue += (Math.random() * 0.010);
+      }
       String strip = HardCodedUSDDiscountCurveAnalyticFunction.STRIPS[i];
       final Map<String, Double> dataFields = new HashMap<String, Double>();
       dataFields.put(HardCodedUSDDiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
@@ -150,5 +206,4 @@ public class ViewImplTest {
       }
     }
   }
-
 }

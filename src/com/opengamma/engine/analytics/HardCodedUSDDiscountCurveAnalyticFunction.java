@@ -18,8 +18,8 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.DateUtil;
 import com.opengamma.util.Pair;
+import com.opengamma.util.time.DateUtil;
 
 // REVIEW kirk 2009-09-16 -- Changed name to USD as it's holding all the strips
 // that are specific to USD, and can only generate one type of result definition.
