@@ -69,9 +69,9 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
     s_inputDefinitions = Collections.<AnalyticValueDefinition<?>>unmodifiableList(inputDefinitions);
   }
   
-  public static AnalyticValueDefinition<?> constructDefinition(String bbTicker) {
+  public static AnalyticValueDefinition<Map<String, Double>> constructDefinition(String bbTicker) {
     @SuppressWarnings("unchecked")
-    AnalyticValueDefinitionImpl definition = new AnalyticValueDefinitionImpl(
+    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
         new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
         new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
         new Pair<String, Object>("BB_TICKER", bbTicker)
