@@ -17,9 +17,9 @@ import java.math.BigDecimal;
  *
  * @author jim
  */
-public interface AnalyticValue {
-  AnalyticValueDefinition getDefinition();
-  Object getValue();
+public interface AnalyticValue<T> {
+  AnalyticValueDefinition<T> getDefinition();
+  T getValue();
   /**
    * Return a copy of this value scaled by the quantity provided.
    * This is used to convert per-unit results into a number appropriate
@@ -28,5 +28,5 @@ public interface AnalyticValue {
    * @param quantity The scaling of the underlying in question.
    * @return A copy of this value, scaled by the according precision.
    */
-  AnalyticValue scaleForPosition(BigDecimal quantity);
+  AnalyticValue<T> scaleForPosition(BigDecimal quantity);
 }

@@ -18,15 +18,15 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  * @author kirk
  */
 public class FixedLiveDataAvailabilityProvider implements LiveDataAvailabilityProvider {
-  private final Set<AnalyticValueDefinition> _availableDefinitions =
-    new HashSet<AnalyticValueDefinition>();
+  private final Set<AnalyticValueDefinition<?>> _availableDefinitions =
+    new HashSet<AnalyticValueDefinition<?>>();
 
   @Override
-  public synchronized boolean isAvailable(AnalyticValueDefinition value) {
+  public synchronized boolean isAvailable(AnalyticValueDefinition<?> value) {
     return _availableDefinitions.contains(value);
   }
   
-  public synchronized void addDefinition(AnalyticValueDefinition value) {
+  public synchronized void addDefinition(AnalyticValueDefinition<?> value) {
     _availableDefinitions.add(value);
   }
 

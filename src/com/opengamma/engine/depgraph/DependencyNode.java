@@ -22,14 +22,14 @@ import com.opengamma.engine.security.Security;
  */
 public class DependencyNode {
   private final AnalyticFunction _function;
-  private final Set<AnalyticValueDefinition> _outputValues =
-    new HashSet<AnalyticValueDefinition>();
-  private final Set<AnalyticValueDefinition> _inputValues =
-    new HashSet<AnalyticValueDefinition>();
+  private final Set<AnalyticValueDefinition<?>> _outputValues =
+    new HashSet<AnalyticValueDefinition<?>>();
+  private final Set<AnalyticValueDefinition<?>> _inputValues =
+    new HashSet<AnalyticValueDefinition<?>>();
   private final Set<DependencyNode> _inputNodes =
     new HashSet<DependencyNode>();
-  private final Map<AnalyticValueDefinition, DependencyNode> _inputNodesByValue =
-    new HashMap<AnalyticValueDefinition, DependencyNode>();
+  private final Map<AnalyticValueDefinition<?>, DependencyNode> _inputNodesByValue =
+    new HashMap<AnalyticValueDefinition<?>, DependencyNode>();
   
   public DependencyNode(AnalyticFunction function, Security security) {
     if(function == null) {
@@ -43,13 +43,13 @@ public class DependencyNode {
   /**
    * @return the outputValues
    */
-  public Set<AnalyticValueDefinition> getOutputValues() {
+  public Set<AnalyticValueDefinition<?>> getOutputValues() {
     return _outputValues;
   }
   /**
    * @return the inputValues
    */
-  public Set<AnalyticValueDefinition> getInputValues() {
+  public Set<AnalyticValueDefinition<?>> getInputValues() {
     return _inputValues;
   }
   /**
@@ -61,7 +61,7 @@ public class DependencyNode {
   /**
    * @return the inputNodesByValue
    */
-  public Map<AnalyticValueDefinition, DependencyNode> getInputNodesByValue() {
+  public Map<AnalyticValueDefinition<?>, DependencyNode> getInputNodesByValue() {
     return _inputNodesByValue;
   }
   
@@ -72,21 +72,21 @@ public class DependencyNode {
     return _function;
   }
 
-  public void addOutputValues(Collection<AnalyticValueDefinition> outputValues) {
+  public void addOutputValues(Collection<AnalyticValueDefinition<?>> outputValues) {
     if(outputValues == null) {
       return;
     }
     _outputValues.addAll(outputValues);
   }
 
-  public void addInputValues(Collection<AnalyticValueDefinition> inputValues) {
+  public void addInputValues(Collection<AnalyticValueDefinition<?>> inputValues) {
     if(inputValues == null) {
       return;
     }
     _inputValues.addAll(inputValues);
   }
   
-  public void addInputNode(AnalyticValueDefinition satisfyingInput, DependencyNode inputNode) {
+  public void addInputNode(AnalyticValueDefinition<?> satisfyingInput, DependencyNode inputNode) {
     if(satisfyingInput == null) {
       throw new NullPointerException("All input nodes must satisfy an input value required");
     }
@@ -108,7 +108,7 @@ public class DependencyNode {
    * @return
    */
   public DependencyNode getMatchingNode(
-      AnalyticValueDefinition requiredOutput) {
+      AnalyticValueDefinition<?> requiredOutput) {
     if(requiredOutput == null) {
       return null;
     }

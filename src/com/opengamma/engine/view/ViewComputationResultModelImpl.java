@@ -56,8 +56,8 @@ public class ViewComputationResultModelImpl implements
   }
 
   @Override
-  public AnalyticValue getValue(Position position,
-      AnalyticValueDefinition valueDefinition) {
+  public AnalyticValue<?> getValue(Position position,
+      AnalyticValueDefinition<?> valueDefinition) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       return null;
@@ -67,7 +67,7 @@ public class ViewComputationResultModelImpl implements
   }
 
   @Override
-  public Map<AnalyticValueDefinition, AnalyticValue> getValues(Position position) {
+  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(Position position) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       return Collections.emptyMap();
@@ -76,7 +76,7 @@ public class ViewComputationResultModelImpl implements
     }
   }
   
-  public void addValue(Position position, AnalyticValue value) {
+  public void addValue(Position position, AnalyticValue<?> value) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       perPositionModel = new PositionResultModel(position);

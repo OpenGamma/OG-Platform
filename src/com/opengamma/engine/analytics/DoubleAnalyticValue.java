@@ -12,13 +12,13 @@ import java.math.BigDecimal;
  *
  * @author kirk
  */
-public class DoubleAnalyticValue extends AbstractAnalyticValue {
-  public DoubleAnalyticValue(AnalyticValueDefinition definition, Double value) {
+public class DoubleAnalyticValue extends AbstractAnalyticValue<Double> {
+  public DoubleAnalyticValue(AnalyticValueDefinition<Double> definition, Double value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue scaleForPosition(BigDecimal quantity) {
+  public AnalyticValue<Double> scaleForPosition(BigDecimal quantity) {
     double qtyAsDouble = quantity.doubleValue();
     double valueAsDouble = (Double)getValue();
     double scaledValue = qtyAsDouble * valueAsDouble;

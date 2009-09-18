@@ -22,7 +22,7 @@ public interface ViewDefinition {
   
   String getRootPortfolioName();
   
-  Collection<AnalyticValueDefinition> getAllValueDefinitions();
+  Collection<AnalyticValueDefinition<?>> getAllValueDefinitions();
   
-  Map<String, Collection<AnalyticValueDefinition>> getValueDefinitionsBySecurityTypes();
+  Map<String, Collection<AnalyticValueDefinition<?>>> getValueDefinitionsBySecurityTypes();
 }

@@ -23,7 +23,7 @@ import java.util.Set;
  *
  * @author kirk
  */
-public interface AnalyticValueDefinition extends Serializable {
+public interface AnalyticValueDefinition<T> extends Serializable {
   Set<String> getKeys();
   
   Set<Object> getValues(String key);

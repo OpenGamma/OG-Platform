@@ -37,8 +37,8 @@ public interface ViewComputationResultModel {
    */
   Collection<Position> getPositions();
   
-  Map<AnalyticValueDefinition, AnalyticValue> getValues(Position position);
+  Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(Position position);
   
-  AnalyticValue getValue(Position position, AnalyticValueDefinition valueDefinition);
+  AnalyticValue<?> getValue(Position position, AnalyticValueDefinition<?> valueDefinition);
   
 }

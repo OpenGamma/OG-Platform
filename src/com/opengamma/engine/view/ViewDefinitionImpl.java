@@ -23,8 +23,8 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
 public class ViewDefinitionImpl implements ViewDefinition, Serializable {
   private final String _name;
   private final String _rootPortfolioName;
-  private final Map<String, Collection<AnalyticValueDefinition>> _definitionsBySecurityType =
-    new HashMap<String, Collection<AnalyticValueDefinition>>();
+  private final Map<String, Collection<AnalyticValueDefinition<?>>> _definitionsBySecurityType =
+    new HashMap<String, Collection<AnalyticValueDefinition<?>>>();
   
   public ViewDefinitionImpl(String name, String rootPortfolioName) {
     assert name != null;
@@ -35,9 +35,9 @@ public class ViewDefinitionImpl implements ViewDefinition, Serializable {
   }
 
   @Override
-  public Collection<AnalyticValueDefinition> getAllValueDefinitions() {
-    Set<AnalyticValueDefinition> definitions = new HashSet<AnalyticValueDefinition>();
-    for(Collection<AnalyticValueDefinition> secTypeDefinitions : _definitionsBySecurityType.values()) {
+  public Collection<AnalyticValueDefinition<?>> getAllValueDefinitions() {
+    Set<AnalyticValueDefinition<?>> definitions = new HashSet<AnalyticValueDefinition<?>>();
+    for(Collection<AnalyticValueDefinition<?>> secTypeDefinitions : _definitionsBySecurityType.values()) {
       definitions.addAll(secTypeDefinitions);
     }
     return definitions;
@@ -54,21 +54,21 @@ public class ViewDefinitionImpl implements ViewDefinition, Serializable {
   }
 
   @Override
-  public Map<String, Collection<AnalyticValueDefinition>> getValueDefinitionsBySecurityTypes() {
+  public Map<String, Collection<AnalyticValueDefinition<?>>> getValueDefinitionsBySecurityTypes() {
     return Collections.unmodifiableMap(_definitionsBySecurityType);
   }
   
-  public void addValueDefinitions(String securityType, Collection<? extends AnalyticValueDefinition> definitions) {
+  public void addValueDefinitions(String securityType, Collection<? extends AnalyticValueDefinition<?>> definitions) {
     assert securityType != null;
-    Collection<AnalyticValueDefinition> secTypeDefinitions = _definitionsBySecurityType.get(securityType);
+    Collection<AnalyticValueDefinition<?>> secTypeDefinitions = _definitionsBySecurityType.get(securityType);
     if(secTypeDefinitions == null) {
-      secTypeDefinitions = new HashSet<AnalyticValueDefinition>();
+      secTypeDefinitions = new HashSet<AnalyticValueDefinition<?>>();
       _definitionsBySecurityType.put(securityType, secTypeDefinitions);
     }
     secTypeDefinitions.addAll(definitions);
   }
   
-  public void addValueDefinition(String securityType, AnalyticValueDefinition definition) {
+  public void addValueDefinition(String securityType, AnalyticValueDefinition<?> definition) {
     addValueDefinitions(securityType, Collections.singleton(definition));
   }
 

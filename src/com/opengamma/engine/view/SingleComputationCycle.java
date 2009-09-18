@@ -131,11 +131,11 @@ public class SingleComputationCycle {
     setSnapshotTime(getSnapshotProvider().snapshot());
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     
-    Set<AnalyticValueDefinition> requiredLiveData = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
+    Set<AnalyticValueDefinition<?>> requiredLiveData = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.debug("Populating {} market data items for snapshot {}", requiredLiveData.size(), getSnapshotTime());
     
-    for(AnalyticValueDefinition requiredDataDefinition : requiredLiveData) {
-      AnalyticValue value = getSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
+    for(AnalyticValueDefinition<?> requiredDataDefinition : requiredLiveData) {
+      AnalyticValue<?> value = getSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
       if(value == null) {
         s_logger.warn("Unable to load live data value for {} at snapshot {}", requiredDataDefinition, getSnapshotTime());
       } else {
@@ -159,7 +159,7 @@ public class SingleComputationCycle {
     for(DependencyNode node : executionPlan.getOrderedNodes()) {
       // First of all, check that we don't have the outputs already ready.
       boolean allFound = true;
-      for(AnalyticValueDefinition outputDefinition : node.getOutputValues()) {
+      for(AnalyticValueDefinition<?> outputDefinition : node.getOutputValues()) {
         if(getComputationCache().getValue(outputDefinition) == null) {
           allFound = false;
           break;
@@ -171,30 +171,30 @@ public class SingleComputationCycle {
         continue;
       }
       
-      Collection<AnalyticValue> inputs = new HashSet<AnalyticValue>();
-      for(AnalyticValueDefinition inputDefinition : node.getInputValues()) {
+      Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
+      for(AnalyticValueDefinition<?> inputDefinition : node.getInputValues()) {
         inputs.add(getComputationCache().getValue(inputDefinition));
       }
       AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputs(inputs);
-      Collection<AnalyticValue> outputs = node.getFunction().execute(functionInputs, executionPlan.getSecurity());
-      for(AnalyticValue outputValue : outputs) {
+      Collection<AnalyticValue<?>> outputs = node.getFunction().execute(functionInputs, executionPlan.getSecurity());
+      for(AnalyticValue<?> outputValue : outputs) {
         getComputationCache().putValue(outputValue);
       }
     }
   }
   
   public void populateResultModel() {
-    Map<String, Collection<AnalyticValueDefinition>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
+    Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
     for(FullyPopulatedPosition position : getPortfolioEvaluationModel().getPopulatedPositions()) {
       // REVIEW kirk 2009-09-14 -- Could be parallelized if we need to.
       Security security = position.getSecurity();
       String securityType = security.getSecurityType();
-      Collection<AnalyticValueDefinition> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
+      Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
       
-      for(AnalyticValueDefinition analyticValueDefinition : secTypeValueDefs) {
-        AnalyticValue unscaledValue = getComputationCache().getValue(analyticValueDefinition);
+      for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {
+        AnalyticValue<?> unscaledValue = getComputationCache().getValue(analyticValueDefinition);
         if(unscaledValue != null) {
-          AnalyticValue scaledValue = unscaledValue.scaleForPosition(position.getPosition().getQuantity());
+          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(position.getPosition().getQuantity());
           getResultModel().addValue(position.getPosition(), scaledValue);
         }
       }

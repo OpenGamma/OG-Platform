@@ -22,8 +22,8 @@ public interface AnalyticFunctionRepository {
    * @param outputs
    * @return
    */
-  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition> outputs);
+  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
   
-  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition> outputs, String securityType);
+  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, String securityType);
 
 }

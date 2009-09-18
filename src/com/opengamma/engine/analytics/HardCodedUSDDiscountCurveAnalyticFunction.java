@@ -39,10 +39,10 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
   public static final String PRICE_FIELD_NAME = "PRICE";
 
   private static Map<String, Double> _securities = new HashMap<String, Double>();
-  private static final List<AnalyticValueDefinition> s_inputDefinitions;
+  private static final List<AnalyticValueDefinition<?>> s_inputDefinitions;
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
   private static final double ONEYEAR = 365.25;
-  private static final AnalyticValueDefinition s_discountCurveDefinition = constructDiscountCurveValueDefinition();
+  private static final AnalyticValueDefinition<DiscountCurve> s_discountCurveDefinition = constructDiscountCurveValueDefinition();
   static {
     _securities.put("US1D", 1/ONEYEAR);
     _securities.put("US2D", 2/ONEYEAR);
@@ -62,14 +62,14 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
     _securities.put("USSW9", 9.0);
     _securities.put("USSW10", 10.0);
     
-    List<AnalyticValueDefinition> inputDefinitions = new ArrayList<AnalyticValueDefinition>();
+    List<AnalyticValueDefinition<?>> inputDefinitions = new ArrayList<AnalyticValueDefinition<?>>();
     for (String security : _securities.keySet()) {
       inputDefinitions.add(constructDefinition(security));
     }
-    s_inputDefinitions = Collections.unmodifiableList(inputDefinitions);
+    s_inputDefinitions = Collections.<AnalyticValueDefinition<?>>unmodifiableList(inputDefinitions);
   }
   
-  public static AnalyticValueDefinition constructDefinition(String bbTicker) {
+  public static AnalyticValueDefinition<?> constructDefinition(String bbTicker) {
     @SuppressWarnings("unchecked")
     AnalyticValueDefinitionImpl definition = new AnalyticValueDefinitionImpl(
         new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
@@ -80,14 +80,14 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
   }
   
   @Override
-  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
+  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
       Position position) {
     throw new UnsupportedOperationException();
   }
   
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
+  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
       Security security) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
     for(Map.Entry<String, Double> secEntry : _securities.entrySet()) {
@@ -100,27 +100,27 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
     }
     DiscountCurve discountCurve = new DiscountCurve(DateUtil.today(), timeInYearsToRates, s_interpolator);
 
-    return Collections.<AnalyticValue>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
+    return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }
   
-  private static AnalyticValueDefinition constructDiscountCurveValueDefinition() {
+  private static AnalyticValueDefinition<DiscountCurve> constructDiscountCurveValueDefinition() {
     Map<String, Object> map = new HashMap<String, Object>();
     map.put("Currency", Currency.getInstance("USD"));
     map.put("TYPE", "DISCOUNT_CURVE");
-    return new AnalyticValueDefinitionImpl(map);
+    return new AnalyticValueDefinitionImpl<DiscountCurve>(map);
   }
 
   @Override
-  public Collection<AnalyticValueDefinition> getInputs(Security security) {
+  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
     return s_inputDefinitions;
   }
 
   @Override
-  public Collection<AnalyticValueDefinition> getPossibleResults() {
-    return Collections.<AnalyticValueDefinition>singleton(getDiscountCurveValueDefinition());
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
+    return Collections.<AnalyticValueDefinition<?>>singleton(getDiscountCurveValueDefinition());
   }
 
-  public static AnalyticValueDefinition getDiscountCurveValueDefinition() {
+  public static AnalyticValueDefinition<DiscountCurve> getDiscountCurveValueDefinition() {
     return s_discountCurveDefinition;
   }
 

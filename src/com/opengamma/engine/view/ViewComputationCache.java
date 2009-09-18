@@ -16,7 +16,7 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  */
 public interface ViewComputationCache {
 
-  AnalyticValue getValue(AnalyticValueDefinition definition);
+  <T> AnalyticValue<T> getValue(AnalyticValueDefinition<T> definition);
   
-  void putValue(AnalyticValue value);
+  <T> void putValue(AnalyticValue<T> value);
 }

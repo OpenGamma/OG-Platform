@@ -20,7 +20,7 @@ public class AnalyticValueDefinitionComparator {
   // TODO kirk 2009-09-16 -- If we decide to have ordering, make this actually
   // implement Comparator<AnalyticValueDefinition>.
 
-  public static int hashCode(AnalyticValueDefinition definition) {
+  public static <T> int hashCode(AnalyticValueDefinition<?> definition) {
     final int prime = 31;
     int result = 1;
     for(String key : definition.getKeys()) {
@@ -32,7 +32,7 @@ public class AnalyticValueDefinitionComparator {
     return result;
   }
   
-  public static boolean equals(AnalyticValueDefinition d1, AnalyticValueDefinition d2) {
+  public static boolean equals(AnalyticValueDefinition<?> d1, AnalyticValueDefinition<?> d2) {
     Set<String> key1 = d1.getKeys();
     Set<String> key2 = d2.getKeys();
     if(!ObjectUtils.equals(key1, key2)) {

@@ -188,11 +188,11 @@ public class PortfolioEvaluationModel {
     dependencyGraphModel.setAnalyticFunctionRepository(analyticFunctionRepository);
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
 
-    Map<String, Collection<AnalyticValueDefinition>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
+    Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
     for(Security security : getSecurities()) {
       // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
       // operation. We could/should do them in parallel.
-      Collection<AnalyticValueDefinition> requiredOutputValues = outputsBySecurityType.get(security.getSecurityType());
+      Collection<AnalyticValueDefinition<?>> requiredOutputValues = outputsBySecurityType.get(security.getSecurityType());
       dependencyGraphModel.addSecurity(security, requiredOutputValues);
     }
     setDependencyGraphModel(dependencyGraphModel);
@@ -215,9 +215,9 @@ public class PortfolioEvaluationModel {
   
   public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {
     assert liveDataSnapshotProvider != null;
-    Set<AnalyticValueDefinition> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
+    Set<AnalyticValueDefinition<?>> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
-    for(AnalyticValueDefinition liveDataDefinition : requiredLiveData) {
+    for(AnalyticValueDefinition<?> liveDataDefinition : requiredLiveData) {
       liveDataSnapshotProvider.addSubscription(liveDataDefinition);
     }
   }

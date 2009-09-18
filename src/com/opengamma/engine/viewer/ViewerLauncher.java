@@ -15,7 +15,7 @@ import org.jdesktop.application.SingleFrameApplication;
 public class ViewerLauncher extends SingleFrameApplication {
   @Override
   protected void startup() {
-     JTreeTable treeTable = new JTreeTable();
+     //JTreeTable treeTable = new JTreeTable();
   }  
   public static void main(String[] args) {
     launch(ViewerLauncher.class, args);

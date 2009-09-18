@@ -37,7 +37,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
 
   @Override
   public Collection<AnalyticFunction> getFunctionsProducing(
-      Collection<AnalyticValueDefinition> outputs) {
+      Collection<AnalyticValueDefinition<?>> outputs) {
     Set<AnalyticFunction> result = new HashSet<AnalyticFunction>();
     for(AnalyticFunction function : _functions) {
       if(function.getPossibleResults().containsAll(outputs)) {
@@ -49,7 +49,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
 
   @Override
   public Collection<AnalyticFunction> getFunctionsProducing(
-      Collection<AnalyticValueDefinition> outputs, String securityType) {
+      Collection<AnalyticValueDefinition<?>> outputs, String securityType) {
     Set<AnalyticFunction> result = new HashSet<AnalyticFunction>();
     for(AnalyticFunction function : _functions) {
       if(function.isApplicableTo(securityType)

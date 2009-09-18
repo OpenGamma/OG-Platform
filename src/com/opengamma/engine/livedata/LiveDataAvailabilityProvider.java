@@ -15,6 +15,6 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  */
 public interface LiveDataAvailabilityProvider {
   
-  boolean isAvailable(AnalyticValueDefinition value);
+  boolean isAvailable(AnalyticValueDefinition<?> value);
 
 }

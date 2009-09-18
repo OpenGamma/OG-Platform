@@ -53,12 +53,12 @@ public interface AnalyticFunction {
    */
   boolean isApplicableTo(Position position);
   
-  Collection<AnalyticValueDefinition> getPossibleResults();
+  Collection<AnalyticValueDefinition<?>> getPossibleResults();
   
-  Collection<AnalyticValueDefinition> getInputs(Security security);
+  Collection<AnalyticValueDefinition<?>> getInputs(Security security);
   
-  Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs, Position position);
+  Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Position position);
 
-  Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs, Security security);
+  Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Security security);
 
 }

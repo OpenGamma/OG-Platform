@@ -29,16 +29,16 @@ import com.opengamma.engine.security.Security;
 public class SecurityDependencyGraph {
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityDependencyGraph.class);
   private final Security _security;
-  private final Set<AnalyticValueDefinition> _requiredOutputValues =
-    new HashSet<AnalyticValueDefinition>();
-  private final Set<AnalyticValueDefinition> _requiredLiveData =
-    new HashSet<AnalyticValueDefinition>();
+  private final Set<AnalyticValueDefinition<?>> _requiredOutputValues =
+    new HashSet<AnalyticValueDefinition<?>>();
+  private final Set<AnalyticValueDefinition<?>> _requiredLiveData =
+    new HashSet<AnalyticValueDefinition<?>>();
   private final Set<DependencyNode> _topLevelNodes =
     new HashSet<DependencyNode>();
   
   public SecurityDependencyGraph(
       Security security,
-      Collection<AnalyticValueDefinition> requiredOutputValues) {
+      Collection<AnalyticValueDefinition<?>> requiredOutputValues) {
     if(security == null) {
       throw new NullPointerException("Must specify a valid security.");
     }
@@ -59,14 +59,14 @@ public class SecurityDependencyGraph {
   /**
    * @return the requiredOutputValues
    */
-  public Set<AnalyticValueDefinition> getRequiredOutputValues() {
+  public Set<AnalyticValueDefinition<?>> getRequiredOutputValues() {
     return _requiredOutputValues;
   }
 
   /**
    * @return the requiredLiveData
    */
-  public Set<AnalyticValueDefinition> getRequiredLiveData() {
+  public Set<AnalyticValueDefinition<?>> getRequiredLiveData() {
     return _requiredLiveData;
   }
 
@@ -97,8 +97,8 @@ public class SecurityDependencyGraph {
     assert liveDataAvailabilityProvider != null;
     
     Set<DependencyNode> nodes = new HashSet<DependencyNode>();
-    Set<AnalyticValueDefinition> requiredLiveData = new HashSet<AnalyticValueDefinition>();
-    for(AnalyticValueDefinition outputValue : getRequiredOutputValues()) {
+    Set<AnalyticValueDefinition<?>> requiredLiveData = new HashSet<AnalyticValueDefinition<?>>();
+    for(AnalyticValueDefinition<?> outputValue : getRequiredOutputValues()) {
       satisfyDependency(outputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
     }
     getRequiredLiveData().clear();
@@ -108,9 +108,9 @@ public class SecurityDependencyGraph {
   }
   
   protected DependencyNode satisfyDependency(
-      AnalyticValueDefinition outputValue,
+      AnalyticValueDefinition<?> outputValue,
       Set<DependencyNode> nodes,
-      Set<AnalyticValueDefinition> requiredLiveData,
+      Set<AnalyticValueDefinition<?>> requiredLiveData,
       AnalyticFunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     DependencyNode node = null;
@@ -139,7 +139,7 @@ public class SecurityDependencyGraph {
     
     node = new DependencyNode(function, getSecurity());
     nodes.add(node);
-    for(AnalyticValueDefinition inputValue : node.getInputValues()) {
+    for(AnalyticValueDefinition<?> inputValue : node.getInputValues()) {
       DependencyNode inputNode = satisfyDependency(inputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
       assert inputNode != null : "This is a bad assertion. Do something better.";
       node.addInputNode(inputValue, inputNode);
@@ -153,12 +153,12 @@ public class SecurityDependencyGraph {
    * @return
    */
   protected AnalyticFunction resolveFunction(
-      AnalyticValueDefinition outputValue,
+      AnalyticValueDefinition<?> outputValue,
       AnalyticFunctionRepository functionRepository,
       Security security) {
     assert outputValue != null;
     assert functionRepository != null;
-    Collection<AnalyticFunction> possibleFunctions = functionRepository.getFunctionsProducing(Collections.singleton(outputValue), security.getSecurityType());
+    Collection<AnalyticFunction> possibleFunctions = functionRepository.getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(outputValue), security.getSecurityType());
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;

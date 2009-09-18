@@ -22,7 +22,7 @@ import com.opengamma.engine.position.Position;
  */
 public class PositionResultModel implements Serializable {
   private final Position _position;
-  private final Map<AnalyticValueDefinition, AnalyticValue> _results = new HashMap<AnalyticValueDefinition, AnalyticValue>();
+  private final Map<AnalyticValueDefinition<?>, AnalyticValue<?>> _results = new HashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>();
   
   public PositionResultModel(Position position) {
     if(position == null) {
@@ -38,11 +38,11 @@ public class PositionResultModel implements Serializable {
     return _position;
   }
   
-  public Map<AnalyticValueDefinition, AnalyticValue> getAllResults() {
-    return Collections.unmodifiableMap(_results);
+  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getAllResults() {
+    return Collections.<AnalyticValueDefinition<?>, AnalyticValue<?>>unmodifiableMap(_results);
   }
   
-  public void add(AnalyticValue value) {
+  public void add(AnalyticValue<?> value) {
     if(value == null) {
       throw new NullPointerException("Cannot add a null value.");
     }
@@ -52,7 +52,7 @@ public class PositionResultModel implements Serializable {
     _results.put(value.getDefinition(), value);
   }
   
-  public AnalyticValue get(AnalyticValueDefinition definition) {
+  public AnalyticValue<?> get(AnalyticValueDefinition<?> definition) {
     if(definition == null) {
       return null;
     }

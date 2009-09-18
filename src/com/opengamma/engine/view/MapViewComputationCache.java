@@ -17,19 +17,20 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  * @author kirk
  */
 public class MapViewComputationCache implements ViewComputationCache {
-  private final ConcurrentMap<AnalyticValueDefinition, AnalyticValue> _values =
-    new ConcurrentHashMap<AnalyticValueDefinition, AnalyticValue>();
+  private final ConcurrentMap<AnalyticValueDefinition<?>, AnalyticValue<?>> _values =
+    new ConcurrentHashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>();
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AnalyticValue getValue(AnalyticValueDefinition definition) {
+  public <T> AnalyticValue<T> getValue(AnalyticValueDefinition<T> definition) {
     if(definition == null) {
       return null;
     }
-    return _values.get(definition);
+    return (AnalyticValue<T>) _values.get(definition);
   }
 
   @Override
-  public void putValue(AnalyticValue value) {
+  public <T> void putValue(AnalyticValue<T> value) {
     if(value == null) {
       throw new NullPointerException("Must provide a value to store.");
     }

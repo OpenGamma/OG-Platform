@@ -62,7 +62,7 @@ public class DependencyGraphModel {
     _analyticFunctionRepository = analyticFunctionRepository;
   }
 
-  public void addSecurity(Security security, Collection<AnalyticValueDefinition> requiredOutputValues) {
+  public void addSecurity(Security security, Collection<AnalyticValueDefinition<?>> requiredOutputValues) {
     if(security == null) {
       throw new NullPointerException("Must provide a valid security.");
     }
@@ -79,8 +79,8 @@ public class DependencyGraphModel {
     _graphForSecurity.put(security, depGraph);
   }
   
-  public Set<AnalyticValueDefinition> getAllRequiredLiveData() {
-    Set<AnalyticValueDefinition> result = new HashSet<AnalyticValueDefinition>();
+  public Set<AnalyticValueDefinition<?>> getAllRequiredLiveData() {
+    Set<AnalyticValueDefinition<?>> result = new HashSet<AnalyticValueDefinition<?>>();
     for(SecurityDependencyGraph secTypeGraph : _graphForSecurity.values()) {
       result.addAll(secTypeGraph.getRequiredLiveData());
     }

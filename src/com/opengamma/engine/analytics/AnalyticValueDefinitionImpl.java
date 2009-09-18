@@ -23,7 +23,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
  *
  * @author kirk
  */
-public class AnalyticValueDefinitionImpl implements AnalyticValueDefinition, Serializable, Cloneable {
+public class AnalyticValueDefinitionImpl<T> implements AnalyticValueDefinition<T>, Serializable, Cloneable {
   private final Map<String, Set<Object>> _values = new TreeMap<String, Set<Object>>();
 
   /**
@@ -91,10 +91,11 @@ public class AnalyticValueDefinitionImpl implements AnalyticValueDefinition, Ser
     return values.iterator().next();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AnalyticValueDefinitionImpl clone() {
+  public AnalyticValueDefinitionImpl<T> clone() {
     try {
-      return (AnalyticValueDefinitionImpl) super.clone();
+      return (AnalyticValueDefinitionImpl<T>) super.clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Yes, it is supported.");
     }
@@ -108,10 +109,10 @@ public class AnalyticValueDefinitionImpl implements AnalyticValueDefinition, Ser
     if(obj == null) {
       return false;
     }
-    if(!(obj instanceof AnalyticValueDefinition)) {
+    if(!(obj instanceof AnalyticValueDefinition<?>)) {
       return false;
     }
-    return AnalyticValueDefinitionComparator.equals(this, (AnalyticValueDefinition)obj);
+    return AnalyticValueDefinitionComparator.equals(this, (AnalyticValueDefinition<?>)obj);
   }
 
   @Override

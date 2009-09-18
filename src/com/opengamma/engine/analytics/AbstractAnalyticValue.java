@@ -17,11 +17,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *
  * @author kirk
  */
-public abstract class AbstractAnalyticValue implements AnalyticValue, Serializable, Cloneable {
-  private final AnalyticValueDefinition _definition;
-  private final Object _value;
+public abstract class AbstractAnalyticValue<T> implements AnalyticValue<T>, Serializable, Cloneable {
+  private final AnalyticValueDefinition<T> _definition;
+  private final T _value;
   
-  protected AbstractAnalyticValue(AnalyticValueDefinition definition, Object value) {
+  protected AbstractAnalyticValue(AnalyticValueDefinition<T> definition, T value) {
     if(definition == null) {
       throw new NullPointerException("Must specify an Analytic Value Definition");
     }
@@ -33,19 +33,20 @@ public abstract class AbstractAnalyticValue implements AnalyticValue, Serializab
   }
 
   @Override
-  public AnalyticValueDefinition getDefinition() {
+  public AnalyticValueDefinition<T> getDefinition() {
     return _definition;
   }
 
   @Override
-  public Object getValue() {
+  public T getValue() {
     return _value;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public AbstractAnalyticValue clone() {
+  public AbstractAnalyticValue<T> clone() {
     try {
-      return (AbstractAnalyticValue) super.clone();
+      return (AbstractAnalyticValue<T>) super.clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Yes, it is supported.");
     }
@@ -62,7 +63,7 @@ public abstract class AbstractAnalyticValue implements AnalyticValue, Serializab
     if(!getClass().equals(obj.getClass())) {
       return false;
     }
-    AbstractAnalyticValue other = (AbstractAnalyticValue) obj;
+    AbstractAnalyticValue<?> other = (AbstractAnalyticValue<?>) obj;
     if(!ObjectUtils.equals(getValue(), other.getValue())) {
       return false;
     }

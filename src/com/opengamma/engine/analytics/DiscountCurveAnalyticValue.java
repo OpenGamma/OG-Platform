@@ -14,13 +14,13 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticValue extends AbstractAnalyticValue {
-  public DiscountCurveAnalyticValue(AnalyticValueDefinition definition, DiscountCurve value) {
+public class DiscountCurveAnalyticValue extends AbstractAnalyticValue<DiscountCurve> {
+  public DiscountCurveAnalyticValue(AnalyticValueDefinition<DiscountCurve> definition, DiscountCurve value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue scaleForPosition(BigDecimal quantity) {
+  public AnalyticValue<DiscountCurve> scaleForPosition(BigDecimal quantity) {
     return new DiscountCurveAnalyticValue(getDefinition(), (DiscountCurve) getValue());
   }
 

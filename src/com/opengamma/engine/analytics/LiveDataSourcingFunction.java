@@ -20,10 +20,10 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public class LiveDataSourcingFunction implements AnalyticFunction {
-  private final AnalyticValueDefinition _specifiedResult;
+  private final AnalyticValueDefinition<?> _specifiedResult;
   private final String _shortName;
   
-  public LiveDataSourcingFunction(AnalyticValueDefinition specifiedResult) {
+  public LiveDataSourcingFunction(AnalyticValueDefinition<?> specifiedResult) {
     if(specifiedResult == null) {
       throw new NullPointerException("Must specify the desired live data.");
     }
@@ -34,18 +34,18 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   /**
    * @return the specifiedResult
    */
-  public AnalyticValueDefinition getSpecifiedResult() {
+  public AnalyticValueDefinition<?> getSpecifiedResult() {
     return _specifiedResult;
   }
 
   @Override
-  public Collection<AnalyticValueDefinition> getInputs(Security security) {
+  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
     return Collections.emptySet();
   }
 
   @Override
-  public Collection<AnalyticValueDefinition> getPossibleResults() {
-    return Collections.singleton(_specifiedResult);
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
+    return Collections.<AnalyticValueDefinition<?>>singleton(_specifiedResult);
   }
 
   @Override
@@ -74,13 +74,13 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   }
 
   @Override
-  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
+  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
       Position position) {
     throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
 
   @Override
-  public Collection<AnalyticValue> execute(AnalyticFunctionInputs inputs,
+  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
       Security security) {
     throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
