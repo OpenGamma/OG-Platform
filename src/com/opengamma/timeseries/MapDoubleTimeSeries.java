@@ -25,7 +25,7 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   public MapDoubleTimeSeries(List<InstantProvider> times, List<Double> values) {
     this();
     if (times.size() != values.size()) { throw new IllegalArgumentException("lists of different lengths"); }
-    Iterator<Double> valuesIter = values.iterator();;
+    Iterator<Double> valuesIter = values.iterator();
     for (InstantProvider time : times) {
       Double value = valuesIter.next();
       if (time != null && value != null) {
