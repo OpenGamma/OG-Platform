@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
@@ -7,11 +12,11 @@ import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
  * 
+ * 
+ * A DiscountCurve that has a constant interest rate for all times in the
+ * future.
+ * 
  * @author emcleod
- * 
- *         A DiscountCurve that has a constant interest rate for all times in
- *         the future.
- * 
  */
 public class ConstantInterestRateDiscountCurve extends DiscountCurve {
   private final double _rate;

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
@@ -11,9 +16,11 @@ import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
+ * A DiscountCurve contains discount factors <i>e<sup>-r(t)t</sup></i> (where
+ * <i>t</i> is the maturity in years and <i>r(t)</i> is the interest rate at
+ * maturity <i>t</i>).
  * 
  * @author emcleod
- * 
  */
 
 public class DiscountCurve implements InterestRateModel<Double> {
@@ -21,8 +28,26 @@ public class DiscountCurve implements InterestRateModel<Double> {
   private final Interpolator1D _interpolator;
   private final Date _date;
 
-  public DiscountCurve(Date date, Map<Double, Double> data, Interpolator1D interpolator) {
-    SortedMap<Double, Double> sorted = new TreeMap<Double, Double>(data);
+  /**
+   * 
+   * @param date
+   *          The date for which the curve is valid. Is allowed to be null.
+   * @param data
+   *          A map containing pairs of maturities in years and interest rates
+   *          as decimals (i.e. 3% = 0.03).
+   * @param interpolator
+   *          An interpolator to get interest rates / discount factors for
+   *          maturities that fall in between nodes. This can be null.
+   * @throws IllegalArgumentException
+   *           Throws this exception if the data map is null or empty, or if it
+   *           contains a negative time to maturity.
+   */
+  public DiscountCurve(final Date date, final Map<Double, Double> data, final Interpolator1D interpolator) {
+    if (data == null)
+      throw new IllegalArgumentException("Data map was null");
+    if (data.isEmpty())
+      throw new IllegalArgumentException("Data map was empty");
+    final SortedMap<Double, Double> sorted = new TreeMap<Double, Double>(data);
     if (sorted.firstKey() < 0)
       throw new IllegalArgumentException("Cannot have negative time in a discount curve");
     _date = date;
@@ -30,24 +55,53 @@ public class DiscountCurve implements InterestRateModel<Double> {
     _interpolator = interpolator;
   }
 
+  /**
+   * @return The data sorted by maturity.
+   */
   public SortedMap<Double, Double> getData() {
     return _data;
   }
 
+  /**
+   * @return The interpolator for this curve.
+   */
   public Interpolator1D getInterpolator() {
     return _interpolator;
   }
 
+  /**
+   * @return The date for the curve.
+   */
   public Date getDate() {
     return _date;
   }
 
+  /**
+   * @return The interest rate for time to maturity <i>t</i>.
+   * @throws IllegalArgumentException
+   *           If the time to maturity is negative.
+   * @throws InterpolationException
+   *           If there is a problem with the interpolation (e.g. the time to
+   *           maturity does not fall between two nodes.
+   */
   @Override
-  public double getInterestRate(Double t) throws InterpolationException {
+  public double getInterestRate(final Double t) throws InterpolationException {
+    if (t < 0)
+      throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     return _interpolator.interpolate(_data, t).getResult();
   }
 
-  public double getDiscountFactor(Double t) throws InterpolationException {
+  /**
+   * @return The discount factor for time to maturity <i>t</i>.
+   * @throws IllegalArgumentException
+   *           If the time to maturity is negative.
+   * @throws InterpolationException
+   *           If there is a problem with the interpolation (e.g. the time to
+   *           maturity does not fall between two nodes.
+   */
+  public double getDiscountFactor(final Double t) throws InterpolationException {
+    if (t < 0)
+      throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     return Math.exp(-getInterestRate(t) * t);
   }
 
@@ -55,21 +109,21 @@ public class DiscountCurve implements InterestRateModel<Double> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
-    result = prime * result + ((_date == null) ? 0 : _date.hashCode());
-    result = prime * result + ((_interpolator == null) ? 0 : _interpolator.hashCode());
+    result = prime * result + (_data == null ? 0 : _data.hashCode());
+    result = prime * result + (_date == null ? 0 : _date.hashCode());
+    result = prime * result + (_interpolator == null ? 0 : _interpolator.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
       return false;
     if (getClass() != obj.getClass())
       return false;
-    DiscountCurve other = (DiscountCurve) obj;
+    final DiscountCurve other = (DiscountCurve) obj;
     if (_data == null) {
       if (other._data != null)
         return false;
