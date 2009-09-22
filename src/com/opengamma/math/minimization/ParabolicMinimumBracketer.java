@@ -9,7 +9,6 @@ import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
 import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -18,12 +17,15 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class ParabolicMinimumBracketer extends MinimumBracketer<Double, MathException> {
+public class ParabolicMinimumBracketer extends MinimumBracketer<Double> {
   private static final int MAX_ITER = 100;
   private final Algebra ALGEBRA = new Algebra();
 
+  // TODO rename x1, x2
   @Override
-  public Double[] getBracketedPoints(Function1D<Double, Double, MathException> f, Double x1, Double x2) throws ConvergenceException, MathException {
+  public Double[] getBracketedPoints(Function1D<Double, Double> f, Double xLower, Double xUpper) {
+    double x1 = xLower;
+    double x2 = xUpper;
     double f1 = f.evaluate(x1);
     double f2 = f.evaluate(x2);
     double xTemp, fTemp;

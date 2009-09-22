@@ -7,7 +7,7 @@ import java.util.TreeMap;
 public class CubicSplineInterpolator1D extends Interpolator1D {
 
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) throws InterpolationException {
+  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
     final TreeMap<Double, Double> sorted = initData(data);
     final Double lowX = getLowerBoundKey(sorted, value);
     final Double nextX = sorted.higherKey(lowX);

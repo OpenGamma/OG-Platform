@@ -8,11 +8,11 @@ import com.opengamma.math.function.Function;
  * @author emcleod
  */
 
-public class NewtonRaphsonSingleRootFinder implements DoubleSingleRootFinder<Exception> {
+public class NewtonRaphsonSingleRootFinder implements DoubleSingleRootFinder {
   private static final int MAX_ITER = 10000;
 
   @Override
-  public Double getRoot(Function<Double, Double, Exception> function, Double xLow, Double xHigh, Double accuracy) throws Exception {
+  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) {
     if (accuracy == null)
       throw new IllegalArgumentException("Accuracy was null");
     double yLow = function.evaluate(xLow);

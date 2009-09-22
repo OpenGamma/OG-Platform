@@ -24,7 +24,7 @@ import com.opengamma.util.CalculationMode;
  */
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
-  private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  private static final Function<DoubleTimeSeries, DoubleTimeSeries> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
 
   @Test
   public void testWithBadInputs() {
@@ -50,7 +50,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithZeroesInSeries() throws TimeSeriesException {
+  public void testReturnsWithZeroesInSeries() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
@@ -83,7 +83,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithoutDividends() throws TimeSeriesException {
+  public void testReturnsWithoutDividends() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
@@ -103,7 +103,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithDividendsAtDifferentTimes() throws TimeSeriesException {
+  public void testReturnsWithDividendsAtDifferentTimes() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
@@ -124,7 +124,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithDividends() throws TimeSeriesException {
+  public void testReturnsWithDividends() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];

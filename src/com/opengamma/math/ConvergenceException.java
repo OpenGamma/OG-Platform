@@ -6,7 +6,7 @@ package com.opengamma.math;
  * 
  */
 
-public class ConvergenceException extends Exception {
+public class ConvergenceException extends RuntimeException {
 
   public ConvergenceException() {
     super();

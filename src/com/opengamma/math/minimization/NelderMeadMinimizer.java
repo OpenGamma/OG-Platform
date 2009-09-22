@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.util.CompareUtils;
 
@@ -15,7 +14,7 @@ import com.opengamma.util.CompareUtils;
  * 
  */
 
-public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double, MathException> {
+public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double> {
   private static final double PERCENT_SHIFT = 1.05;
   private int _maxIter;
   private double _eps;
@@ -39,7 +38,7 @@ public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double, Ma
   }
 
   @Override
-  public Double[] minimize(Function<Double, Double, MathException> f, Double[] x) throws ConvergenceException, MathException {
+  public Double[] minimize(Function<Double, Double> f, Double[] x) {
     TreeMap<Double, Double[]> yToX = new TreeMap<Double, Double[]>();
     yToX.put(f.evaluate(x), x);
     for (int i = 0; i < x.length; i++) {
@@ -63,7 +62,7 @@ public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double, Ma
     throw new ConvergenceException("Maximum of iterations exceeded - try increasing the number of iterations or decreasing accuracy");
   }
 
-  private void performReflection(TreeMap<Double, Double[]> yToX, Function<Double, Double, MathException> f) throws MathException {
+  private void performReflection(TreeMap<Double, Double[]> yToX, Function<Double, Double> f) {
     Iterator<Double[]> iter = yToX.values().iterator();
     int n = yToX.size() - 1;
     Double[] meanX = new Double[n];
@@ -82,8 +81,7 @@ public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double, Ma
     performExpansion(yToX, f, meanX, reflectionX, reflectionY);
   }
 
-  private void performExpansion(TreeMap<Double, Double[]> yToX, Function<Double, Double, MathException> f, Double[] meanX, Double[] reflectionX, Double reflectionY)
-      throws MathException {
+  private void performExpansion(TreeMap<Double, Double[]> yToX, Function<Double, Double> f, Double[] meanX, Double[] reflectionX, Double reflectionY) {
     if (reflectionY < yToX.firstKey()) {
       Double[] expansionX = arrayCombine(reflectionX, 2, meanX, -1);
       Double expansionY = f.evaluate(expansionX);
@@ -95,8 +93,7 @@ public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double, Ma
     performContraction(yToX, f, meanX, reflectionX, reflectionY);
   }
 
-  private void performContraction(TreeMap<Double, Double[]> yToX, Function<Double, Double, MathException> f, Double[] meanX, Double[] reflectionX, Double reflectionY)
-      throws MathException {
+  private void performContraction(TreeMap<Double, Double[]> yToX, Function<Double, Double> f, Double[] meanX, Double[] reflectionX, Double reflectionY) {
     Double lastY = yToX.lastKey();
     Double secondLastY = yToX.lowerKey(lastY);
     if (reflectionY >= secondLastY && reflectionY < lastY) {
@@ -118,7 +115,7 @@ public class NelderMeadMinimizer implements MultidimensionalMinimizer<Double, Ma
     performShrink(yToX, f);
   }
 
-  private void performShrink(TreeMap<Double, Double[]> yToX, Function<Double, Double, MathException> f) throws MathException {
+  private void performShrink(TreeMap<Double, Double[]> yToX, Function<Double, Double> f) {
     int n = yToX.size();
     Double[] firstX = yToX.firstEntry().getValue();
     Iterator<Map.Entry<Double, Double[]>> iter = yToX.entrySet().iterator();

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Collections;
@@ -7,15 +12,16 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.FirstThenSecondPairComparator;
 import com.opengamma.util.Pair;
 
 /**
  * 
- * @author emcleod
+ * A volatility surface contains volatilities for pairs of values (x, y) (e.g.
+ * time and strike).
  * 
+ * @author emcleod
  */
 
 public class VolatilitySurface implements VolatilityModel<Double, Double> {
@@ -23,7 +29,24 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
   private final SortedMap<Pair<Double, Double>, Double> _data;
   private final Interpolator2D _interpolator;
 
+  /**
+   * 
+   * @param date
+   *          The date for which the surface is valid. Is allowed to be null.
+   * @param data
+   *          A map containing pairs of (x, y) values and volatilities as
+   *          decimals (i.e. 20% = 0.2).
+   * @param interpolator
+   *          An interpolator to get volatilities for an (x, y) pair that falls
+   *          in between nodes. This can be null.
+   * @throws IllegalArgumentException
+   *           Thrown if the data map is null or empty.
+   */
   public VolatilitySurface(Date date, Map<Pair<Double, Double>, Double> data, Interpolator2D interpolator) {
+    if (data == null)
+      throw new IllegalArgumentException("Data map was null");
+    if (data.isEmpty())
+      throw new IllegalArgumentException("Data map was empty");
     SortedMap<Pair<Double, Double>, Double> sorted = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
     sorted.putAll(data);
     _date = date;
@@ -31,20 +54,38 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
     _interpolator = interpolator;
   }
 
+  /**
+   * 
+   * @return The data sorted by (x, y) pair. The ordering is first x, then y (
+   *         {@link #FirstThenSecondPairComparator
+   *         FirstThenSecondPairComparator}).
+   */
   public SortedMap<Pair<Double, Double>, Double> getData() {
     return _data;
   }
 
+  /**
+   * 
+   * @return The date for this surface.
+   */
   public Date getDate() {
     return _date;
   }
 
+  /**
+   * 
+   * @return The interpolator for this surface.
+   */
   public Interpolator2D getInterpolator() {
     return _interpolator;
   }
 
+  /**
+   * 
+   * @return The volatility for (x, y).
+   */
   @Override
-  public double getVolatility(Double x, Double y) throws InterpolationException {
+  public double getVolatility(Double x, Double y) {
     return _interpolator.interpolate(_data, new Pair<Double, Double>(x, y)).getResult();
   }
 

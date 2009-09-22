@@ -14,7 +14,7 @@ import com.opengamma.util.Pair;
 public abstract class Interpolator2D implements Interpolator<Map<Pair<Double, Double>, Double>, Pair<Double, Double>, Double> {
 
   @Override
-  public abstract InterpolationResult<Double> interpolate(Map<Pair<Double, Double>, Double> data, Pair<Double, Double> value) throws InterpolationException;
+  public abstract InterpolationResult<Double> interpolate(Map<Pair<Double, Double>, Double> data, Pair<Double, Double> value);
 
   protected TreeMap<Double, Double> initData(Map<Pair<Double, Double>, Double> data) {
     return null;

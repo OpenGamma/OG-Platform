@@ -1,6 +1,5 @@
 package com.opengamma.math.integration;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -9,17 +8,17 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class GaussianQuadratureIntegrator extends Integrator1D<Double, Function1D<Double, Double, MathException>, Double, MathException> {
+public class GaussianQuadratureIntegrator extends Integrator1D<Double, Function1D<Double, Double>, Double> {
   private final int _n;
-  private final GeneratingFunction<Double, GaussianQuadratureFunction, MathException> _generator;
+  private final GeneratingFunction<Double, GaussianQuadratureFunction> _generator;
 
-  public GaussianQuadratureIntegrator(int n, GeneratingFunction<Double, GaussianQuadratureFunction, MathException> generator) {
+  public GaussianQuadratureIntegrator(int n, GeneratingFunction<Double, GaussianQuadratureFunction> generator) {
     _n = n;
     _generator = generator;
   }
 
   @Override
-  public Double integrate(Function1D<Double, Double, MathException> function, Double lower, Double upper) throws MathException {
+  public Double integrate(Function1D<Double, Double> function, Double lower, Double upper) {
     GaussianQuadratureFunction quadrature = _generator.generate(_n, new Double[] { lower, upper });
     Double[] ordinals = quadrature.evaluate(function);
     Double[] weights = quadrature.getWeights();

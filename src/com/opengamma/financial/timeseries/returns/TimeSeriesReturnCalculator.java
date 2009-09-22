@@ -19,7 +19,7 @@ import com.opengamma.util.CompareUtils;
  * @author emcleod
  */
 
-public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> {
+public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries, DoubleTimeSeries> {
   private final CalculationMode _mode;
 
   public TimeSeriesReturnCalculator(CalculationMode mode) {
@@ -27,9 +27,9 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
   }
 
   @Override
-  public abstract DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException;
+  public abstract DoubleTimeSeries evaluate(DoubleTimeSeries... x);
 
-  protected boolean isValueNonZero(Double value) throws TimeSeriesException {
+  protected boolean isValueNonZero(Double value) {
     if (CompareUtils.closeEquals(value, 0)) {
       if (_mode == CalculationMode.STRICT) {
         throw new TimeSeriesException("Cannot have zero in time series in strict mode");

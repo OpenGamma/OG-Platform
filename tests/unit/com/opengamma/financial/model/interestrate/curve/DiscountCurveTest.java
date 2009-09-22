@@ -18,7 +18,6 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.time.DateUtil;
@@ -33,7 +32,7 @@ public class DiscountCurveTest {
   private static final Double EPS = 1e-15;
 
   @Test
-  public void test() throws InterpolationException {
+  public void test() {
     final Map<Double, Double> data = new HashMap<Double, Double>();
     data.put(1., 0.05);
     data.put(2., 0.06);

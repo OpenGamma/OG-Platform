@@ -10,8 +10,8 @@ public abstract class OptionDefinition {
   private final double _strike;
   private final Date _expiry;
   private final boolean _isCall;
-  protected Function<Double, Double, ? extends Exception> _payoffFunction;
-  protected Function<Double, Boolean, ? extends Exception> _exerciseFunction;
+  protected Function<Double, Double> _payoffFunction;
+  protected Function<Double, Boolean> _exerciseFunction;
 
   public OptionDefinition(Double strike, Date expiry, Boolean isCall) {
     _strike = strike;
@@ -38,13 +38,13 @@ public abstract class OptionDefinition {
     return _isCall;
   }
 
-  public Function<Double, Boolean, ? extends Exception> getExerciseFunction() {
+  public Function<Double, Boolean> getExerciseFunction() {
     if (_exerciseFunction == null)
       throw new IllegalArgumentException("Exercise function was not initialised");
     return _exerciseFunction;
   }
 
-  public Function<Double, Double, ? extends Exception> getPayoffFunction() {
+  public Function<Double, Double> getPayoffFunction() {
     if (_payoffFunction == null)
       throw new IllegalArgumentException("Payoff function was not initialised");
     return _payoffFunction;

@@ -1,6 +1,5 @@
 package com.opengamma.math.integration;
 
-import com.opengamma.math.MathException;
 
 /**
  * 
@@ -8,11 +7,11 @@ import com.opengamma.math.MathException;
  * 
  */
 
-public class GaussLegendreOrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction, MathException> {
+public class GaussLegendreOrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
   private static final double EPS = 1e-12;
 
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) throws MathException {
+  public GaussianQuadratureFunction generate(int n, Double... params) {
     double lower = params[0];
     double upper = params[1];
     int m = (n + 1) / 2;

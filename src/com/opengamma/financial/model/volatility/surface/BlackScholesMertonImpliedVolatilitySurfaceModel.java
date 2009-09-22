@@ -1,4 +1,9 @@
-package com.opengamma.financial.model.volatility;
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Date;
 import java.util.Map;
@@ -8,22 +13,20 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
 
 public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
   private final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
-  private SingleRootFinder<StandardOptionDataBundle, Double, Double, OptionPricingException> _rootFinder;
+  private SingleRootFinder<StandardOptionDataBundle, Double, Double> _rootFinder;
   private final double EPS = 1e-9;
 
   @Override
-  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data) throws OptionPricingException {
+  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data) {
     Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = prices.entrySet().iterator().next();
     Double price = entry.getValue();
-    Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = _bsm.getPricingFunction(entry.getKey());
+    Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(data, price);
     double sigma = _rootFinder.getRoot(pricingFunction, 0., 10., EPS);
     return new ConstantVolatilitySurface(data.getDate(), sigma);
@@ -49,7 +52,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
   }
 
-  private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double, Double, OptionPricingException> {
+  private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double, Double> {
     private final MyMutableStandardOptionDataBundle _data;
     private final double _price;
     private static final int MAX_ATTEMPTS = 1000;
@@ -60,8 +63,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
 
     @Override
-    public Double getRoot(Function<StandardOptionDataBundle, Double, OptionPricingException> function, Double lowVol, Double highVol, Double accuracy)
-        throws OptionPricingException {
+    public Double getRoot(Function<StandardOptionDataBundle, Double> function, Double lowVol, Double highVol, Double accuracy) {
       _data.setVolatility(lowVol);
       Double lowPrice = function.evaluate(_data) - _price;
       if (Math.abs(lowPrice) < accuracy)

@@ -14,7 +14,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
 public interface OptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 
-  public Map<GreekType, Double> getGreeks(T definition, U vars) throws OptionPricingException;
+  public Map<GreekType, Double> getGreeks(T definition, U vars);
 
-  public double getPrice(T definition, U vars) throws OptionPricingException;
+  public double getPrice(T definition, U vars);
 }

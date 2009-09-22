@@ -25,11 +25,11 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<StandardOptionDataBundle, Double, OptionPricingException>() {
+  public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
+    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) throws OptionPricingException {
+      public Double evaluate(StandardOptionDataBundle data) {
         try {
           Date date = data.getDate();
           double s = data.getSpot();
@@ -47,7 +47,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
           }
           if (b >= r) {
             EuropeanVanillaOptionDefinition european = new EuropeanVanillaOptionDefinition(definition.getStrike(), definition.getExpiry(), definition.isCall());
-            Function1D<StandardOptionDataBundle, Double, OptionPricingException> bsm = _bsm.getPricingFunction(european);
+            Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(european);
             return bsm.evaluate(newData);
           }
           return getCallPrice(s, k, sigma, t, r, b);

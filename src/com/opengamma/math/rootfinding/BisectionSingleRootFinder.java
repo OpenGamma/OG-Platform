@@ -9,10 +9,10 @@ import com.opengamma.math.function.Function;
  * @author emcleod
  * 
  */
-public class BisectionSingleRootFinder implements SingleRootFinder<Double, Double, Double, Exception> {
+public class BisectionSingleRootFinder implements SingleRootFinder<Double, Double, Double> {
 
   @Override
-  public Double getRoot(Function<Double, Double, Exception> function, Double xLow, Double xHigh, Double accuracy) throws Exception {
+  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) {
     if (accuracy == null)
       throw new IllegalArgumentException("Accuracy was null");
     double yLow = function.evaluate(xLow);

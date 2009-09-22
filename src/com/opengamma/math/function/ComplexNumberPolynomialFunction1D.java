@@ -1,6 +1,5 @@
 package com.opengamma.math.function;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
@@ -9,12 +8,12 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 
-public class ComplexNumberPolynomialFunction1D extends Function1D<ComplexNumber, ComplexNumber, MathException> {
+public class ComplexNumberPolynomialFunction1D extends Function1D<ComplexNumber, ComplexNumber> {
   // TODO Number -> ComplexNumber
   // TODO ComplexNumber -> Double
   private final ComplexNumber[] _coefficients;
 
-  public ComplexNumberPolynomialFunction1D(ComplexNumber[] coefficients) throws IllegalArgumentException {
+  public ComplexNumberPolynomialFunction1D(ComplexNumber[] coefficients) {
     if (coefficients == null)
       throw new IllegalArgumentException("Coefficient array was null");
     if (coefficients.length == 0)

@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -21,9 +20,9 @@ public class ConstantInterestRateDiscountCurveTest {
   private static final double EPS = 1e-15;
 
   @Test
-  public void test() throws InterpolationException {
+  public void test() {
     final double rate = 0.05;
-    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(DateUtil.date(20090901), 0.05);
+    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(DateUtil.date(20090901), rate);
     try {
       curve.getInterpolator();
       fail();

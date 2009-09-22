@@ -13,7 +13,7 @@ import java.util.TreeMap;
 public class CubicInterpolator1D extends Interpolator1D {
 
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) throws InterpolationException {
+  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
     TreeMap<Double, Double> sorted = initData(data);
     int index = getLowerBoundIndex(sorted, value);
     if (index < 2) {

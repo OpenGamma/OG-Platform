@@ -2,7 +2,6 @@ package com.opengamma.math.integration;
 
 import java.util.Arrays;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -11,7 +10,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class NewtonCoatesIntegrator extends Integrator1D<Double, Function1D<Double, Double, MathException>, Double, MathException> {
+public class NewtonCoatesIntegrator extends Integrator1D<Double, Function1D<Double, Double>, Double> {
   private final RuleType _ruleType;
   private final int _n;
 
@@ -25,7 +24,7 @@ public class NewtonCoatesIntegrator extends Integrator1D<Double, Function1D<Doub
   }
 
   @Override
-  public Double integrate(Function1D<Double, Double, MathException> f, Double lower, Double upper) throws MathException {
+  public Double integrate(Function1D<Double, Double> f, Double lower, Double upper) {
     double dx = (upper - lower) / _n;
     double[] x = getAbscissas(lower, dx);
     double[] y = new double[x.length];

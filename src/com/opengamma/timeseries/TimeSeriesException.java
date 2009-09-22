@@ -6,7 +6,7 @@ package com.opengamma.timeseries;
  * 
  */
 
-public class TimeSeriesException extends Exception {
+public class TimeSeriesException extends RuntimeException {
 
   public TimeSeriesException() {
     super();

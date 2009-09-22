@@ -1,6 +1,5 @@
 package com.opengamma.math.integration;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -9,7 +8,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class GaussianQuadratureFunction extends Function1D<Function1D<Double, Double, MathException>, Double[], MathException> {
+public class GaussianQuadratureFunction extends Function1D<Function1D<Double, Double>, Double[]> {
   private final Double[] _weights;
   private final Double[] _abscissas;
 
@@ -27,7 +26,7 @@ public class GaussianQuadratureFunction extends Function1D<Function1D<Double, Do
   }
 
   @Override
-  public Double[] evaluate(Function1D<Double, Double, MathException> x) throws MathException {
+  public Double[] evaluate(Function1D<Double, Double> x) {
     Double[] y = new Double[_abscissas.length];
     for (int i = 0; i < _abscissas.length; i++) {
       y[i] = x.evaluate(_abscissas[i]);

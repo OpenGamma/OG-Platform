@@ -10,7 +10,7 @@ import com.opengamma.math.function.PolynomialFunction1D;
 
 public class QuadraticRealRootFinder implements Polynomial1DRootFinder {
 
-  public Double[] getRoot(PolynomialFunction1D f) throws RootNotFoundException {
+  public Double[] getRoot(PolynomialFunction1D f) {
     Double[] coefficients = f.getCoefficients();
     if (coefficients.length != 3)
       throw new IllegalArgumentException("Function is not a quadratic");

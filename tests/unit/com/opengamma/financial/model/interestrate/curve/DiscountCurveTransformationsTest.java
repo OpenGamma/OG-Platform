@@ -15,7 +15,6 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.time.DateUtil;
@@ -41,68 +40,68 @@ public class DiscountCurveTransformationsTest {
 
   @Test
   public void testParallelShift() {
-    DiscountCurve noShift = DiscountCurveTransformation.getParallelShiftedCurve(CURVE, 0);
+    final DiscountCurve noShift = DiscountCurveTransformation.getParallelShiftedCurve(CURVE, 0);
     assertEquals(noShift, CURVE);
-    double shift = 0.005;
-    Map<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
-    for (Map.Entry<Double, Double> entry : shiftedData.entrySet()) {
+    final double shift = 0.005;
+    final Map<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
+    for (final Map.Entry<Double, Double> entry : shiftedData.entrySet()) {
       shiftedData.put(entry.getKey(), entry.getValue() + shift);
     }
-    DiscountCurve shifted = DiscountCurveTransformation.getParallelShiftedCurve(CURVE, shift);
+    final DiscountCurve shifted = DiscountCurveTransformation.getParallelShiftedCurve(CURVE, shift);
     assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
   }
 
   @Test
   public void testSingleShiftedDataPointCurve() {
-    double shift = 0.004;
-    int index = 2;
+    final double shift = 0.004;
+    final int index = 2;
     try {
       DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, -1, shift);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, 10, shift);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
-    DiscountCurve noShift = DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, index, 0);
+    final DiscountCurve noShift = DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, index, 0);
     assertEquals(noShift, CURVE);
-    TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
+    final TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     int i = 0;
-    for (Map.Entry<Double, Double> entry : shiftedData.entrySet()) {
+    for (final Map.Entry<Double, Double> entry : shiftedData.entrySet()) {
       if (i++ == index) {
         shiftedData.put(entry.getKey(), entry.getValue() + shift);
         break;
       }
     }
-    DiscountCurve shifted = DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, 2, shift);
+    final DiscountCurve shifted = DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, 2, shift);
     assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
   }
 
   @Test
-  public void testSingleShiftedPointCurve() throws InterpolationException {
-    double shift = 0.004;
+  public void testSingleShiftedPointCurve() {
+    final double shift = 0.004;
     try {
       DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, -1, shift);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, 10, shift);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
-    double time = 1.5;
-    DiscountCurve noShift = DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, time, 0);
+    final double time = 1.5;
+    final DiscountCurve noShift = DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, time, 0);
     assertEquals(noShift, CURVE);
-    TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
+    final TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     shiftedData.put(time, CURVE.getInterestRate(time) + shift);
-    DiscountCurve shifted = DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, time, shift);
+    final DiscountCurve shifted = DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, time, shift);
     assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
   }
 
@@ -110,12 +109,12 @@ public class DiscountCurveTransformationsTest {
   public void testMultipleShiftedDataPointCurve() {
     assertEquals(CURVE, DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, null));
     assertEquals(CURVE, DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, new HashMap<Integer, Double>()));
-    Map<Integer, Double> shifts = new HashMap<Integer, Double>();
-    double shift = 0.003;
+    final Map<Integer, Double> shifts = new HashMap<Integer, Double>();
+    final double shift = 0.003;
     shifts.put(1, shift);
-    TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
+    final TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     int i = 0;
-    for (Map.Entry<Double, Double> entry : shiftedData.entrySet()) {
+    for (final Map.Entry<Double, Double> entry : shiftedData.entrySet()) {
       if (i == 1) {
         shiftedData.put(entry.getKey(), entry.getValue() + shift);
       } else if (i == 2) {
@@ -125,23 +124,23 @@ public class DiscountCurveTransformationsTest {
     }
     assertEquals(DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, shifts), DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, 1, shift));
     shifts.put(2, -shift);
-    DiscountCurve shifted = DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, shifts);
+    final DiscountCurve shifted = DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, shifts);
     assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
   }
 
   @Test
-  public void testMultipleShiftedPointCurve() throws InterpolationException {
+  public void testMultipleShiftedPointCurve() {
     assertEquals(CURVE, DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, null));
     assertEquals(CURVE, DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, new HashMap<Double, Double>()));
-    Map<Double, Double> shifts = new HashMap<Double, Double>();
-    double shift = 0.003;
+    final Map<Double, Double> shifts = new HashMap<Double, Double>();
+    final double shift = 0.003;
     shifts.put(1.5, shift);
-    TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
+    final TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     shiftedData.put(1.5, CURVE.getInterestRate(1.5) + shift);
     shiftedData.put(2.5, CURVE.getInterestRate(2.5) - shift);
     assertEquals(DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, shifts), DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, 1.5, shift));
     shifts.put(2.5, -shift);
-    DiscountCurve shifted = DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, shifts);
+    final DiscountCurve shifted = DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, shifts);
     assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
   }
 }

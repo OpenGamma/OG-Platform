@@ -24,7 +24,7 @@ import com.opengamma.util.CalculationMode;
  */
 
 public class SimpleNetTimeSeriesReturnCalculatorTest {
-  private static final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  private static final Function<DoubleTimeSeries, DoubleTimeSeries> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
 
   @Test
   public void testWithBadInputs() {
@@ -50,7 +50,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithoutDividends() throws TimeSeriesException {
+  public void testReturnsWithoutDividends() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
@@ -70,7 +70,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithZeroesInSeries() throws TimeSeriesException {
+  public void testReturnsWithZeroesInSeries() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
@@ -103,7 +103,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithDividendsAtDifferentTimes() throws TimeSeriesException {
+  public void testReturnsWithDividendsAtDifferentTimes() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
@@ -124,7 +124,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
   }
 
   @Test
-  public void testReturnsWithDividend() throws TimeSeriesException {
+  public void testReturnsWithDividend() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];

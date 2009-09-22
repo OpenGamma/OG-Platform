@@ -7,7 +7,6 @@ import com.opengamma.financial.greeks.Greek.GreekType;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
-import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -53,7 +52,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
    * @return Pricing function for the model
    */
 
-  public abstract Function1D<U, Double, OptionPricingException> getPricingFunction(T definition) throws OptionPricingException;
+  public abstract Function1D<U, Double> getPricingFunction(T definition);
 
   public Map<GreekType, Double> getGreeks(T definition, U vars) {
     double strike = definition.getStrike();
@@ -67,7 +66,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
     return greekMap;
   }
 
-  public double getPrice(T definition, U vars) throws OptionPricingException {
+  public double getPrice(T definition, U vars) {
     return getPricingFunction(definition).evaluate(vars);
   }
 

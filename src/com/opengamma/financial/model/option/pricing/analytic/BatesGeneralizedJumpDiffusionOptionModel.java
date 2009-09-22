@@ -21,11 +21,11 @@ public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionMode
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  public Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double, OptionPricingException>() {
+  public Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(BatesGeneralizedJumpDiffusionModelOptionDataBundle data) throws OptionPricingException {
+      public Double evaluate(BatesGeneralizedJumpDiffusionModelOptionDataBundle data) {
         try {
           double s = data.getSpot();
           DiscountCurve discountCurve = data.getDiscountCurve();
@@ -45,7 +45,7 @@ public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionMode
           double mult = Math.exp(-lambdaT);
           b -= lambda * expectedJumpSize;
           StandardOptionDataBundle bsmData = new StandardOptionDataBundle(discountCurve, b, volSurface, s, date);
-          Function1D<StandardOptionDataBundle, Double, OptionPricingException> bsmFunction = _bsm.getPricingFunction(definition);
+          Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
           double price = mult * bsmFunction.evaluate(bsmData);
           for (int i = 1; i < 50; i++) {
             sigma = Math.sqrt(z * z + delta * i / t);

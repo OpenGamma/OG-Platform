@@ -11,13 +11,13 @@ package com.opengamma.math.function;
  * @param <T>
  *          Return type of function
  */
-public abstract class Function1D<S, T, U extends Exception> implements Function<S, T, U> {
+public abstract class Function1D<S, T> implements Function<S, T> {
 
-  public T evaluate(S... x) throws U {
+  public T evaluate(S... x) {
     if (x == null)
       throw new IllegalArgumentException("Null argument");
     return evaluate(x[0]);
   }
 
-  public abstract T evaluate(S x) throws U;
+  public abstract T evaluate(S x);
 }

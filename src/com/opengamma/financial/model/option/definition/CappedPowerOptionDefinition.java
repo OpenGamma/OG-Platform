@@ -25,7 +25,7 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
 
   @Override
   protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<Double, Double, Exception>() {
+    _payoffFunction = new Function1D<Double, Double>() {
 
       @Override
       public Double evaluate(Double spot) {
@@ -33,7 +33,7 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
       }
 
     };
-    _exerciseFunction = new Function<Double, Boolean, Exception>() {
+    _exerciseFunction = new Function<Double, Boolean>() {
 
       @Override
       public Boolean evaluate(Double... x) {

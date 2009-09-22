@@ -8,5 +8,5 @@ package com.opengamma.math.interpolation;
 
 public interface Interpolator<S, T, U> {
 
-  public InterpolationResult<U> interpolate(S data, T value) throws InterpolationException;
+  public InterpolationResult<U> interpolate(S data, T value);
 }

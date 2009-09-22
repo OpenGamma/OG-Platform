@@ -8,12 +8,13 @@ package com.opengamma.financial.model.tree;
 
 public interface Lattice<T> {
 
-  public void setNode(T value, int step, int node) throws Exception;// TODO
-                                                                    // rename
-                                                                    // node
-                                                                    // variable
+  public void setNode(T value, int step, int node);// TODO
 
-  public T[][] getTree() throws Exception;
+  // rename
+  // node
+  // variable
 
-  public T getNode(int step, int node) throws Exception;
+  public T[][] getTree();
+
+  public T getNode(int step, int node);
 }

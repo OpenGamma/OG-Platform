@@ -17,11 +17,11 @@ public class CoxRossRubinsteinBinomialOptionAndSpotPricingTree {
   private RecombiningBinomialTree<Double> _spotPrices;
   private RecombiningBinomialTree<Double> _optionPrices;
 
-  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(OptionDefinition definition, StandardOptionDataBundle vars) throws Exception {
+  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(OptionDefinition definition, StandardOptionDataBundle vars) {
     createTrees(definition, vars, DEFAULT_N);
   }
 
-  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(int n, OptionDefinition definition, StandardOptionDataBundle vars) throws Exception {
+  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(int n, OptionDefinition definition, StandardOptionDataBundle vars) {
     createTrees(definition, vars, n);
   }
 
@@ -29,12 +29,12 @@ public class CoxRossRubinsteinBinomialOptionAndSpotPricingTree {
     return _spotPrices;
   }
 
-  private void createTrees(OptionDefinition definition, StandardOptionDataBundle vars, int n) throws Exception {
+  private void createTrees(OptionDefinition definition, StandardOptionDataBundle vars, int n) {
     try {
       double spot = vars.getSpot();
       int nodesAtMaturity = RecombiningBinomialTree.NODES.evaluate(n);
-      Function<Double, Double, ? extends Exception> payoff = definition.getPayoffFunction();
-      Function<Double, Boolean, ? extends Exception> shouldExercise = definition.getExerciseFunction();
+      Function<Double, Double> payoff = definition.getPayoffFunction();
+      Function<Double, Boolean> shouldExercise = definition.getExerciseFunction();
       double t = definition.getTimeToExpiry(vars.getDate());
       double sigma = vars.getVolatility(t, definition.getStrike());
       double r = vars.getInterestRate(t);

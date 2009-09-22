@@ -1,12 +1,17 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.interpolation;
 
 /**
+ * Thrown if there is a problem with interpolation.
  * 
  * @author emcleod
- * 
  */
 
-public class InterpolationException extends Exception {
+public class InterpolationException extends RuntimeException {
 
   public InterpolationException() {
     super();

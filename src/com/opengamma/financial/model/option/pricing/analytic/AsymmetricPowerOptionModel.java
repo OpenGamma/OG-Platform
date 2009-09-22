@@ -17,11 +17,11 @@ public class AsymmetricPowerOptionModel extends AnalyticOptionModel<AsymmetricPo
   private final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double, OptionPricingException> getPricingFunction(final AsymmetricPowerOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<StandardOptionDataBundle, Double, OptionPricingException>() {
+  public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AsymmetricPowerOptionDefinition definition) {
+    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) throws OptionPricingException {
+      public Double evaluate(StandardOptionDataBundle data) {
         try {
           double s = data.getSpot();
           double k = definition.getStrike();

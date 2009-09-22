@@ -55,7 +55,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException {
+  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     final DoubleTimeSeries ts = x[0];

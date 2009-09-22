@@ -10,5 +10,5 @@ import com.opengamma.math.function.PolynomialFunction1D;
 
 public interface Polynomial1DRootFinder {
 
-  public Double[] getRoot(PolynomialFunction1D polynomial) throws RootNotFoundException;
+  public Double[] getRoot(PolynomialFunction1D polynomial);
 }

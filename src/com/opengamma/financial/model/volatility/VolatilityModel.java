@@ -1,6 +1,10 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.volatility;
 
-import com.opengamma.math.interpolation.InterpolationException;
 
 /**
  * 
@@ -10,5 +14,5 @@ import com.opengamma.math.interpolation.InterpolationException;
 
 public interface VolatilityModel<T, U> {
 
-  public double getVolatility(T x, U y) throws InterpolationException;
+  public double getVolatility(T x, U y);
 }

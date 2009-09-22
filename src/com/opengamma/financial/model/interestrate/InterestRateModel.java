@@ -21,6 +21,6 @@ public interface InterestRateModel<T> {
    * @return Interest rate as a decimal (i.e. 3% = 0.03)
    * @throws Exception
    */
-  public double getInterestRate(T x) throws Exception;
+  public double getInterestRate(T x);
 
 }

@@ -19,11 +19,11 @@ public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<European
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override
-  public Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<MertonJumpDiffusionModelOptionDataBundle, Double, OptionPricingException>() {
+  public Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<MertonJumpDiffusionModelOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(MertonJumpDiffusionModelOptionDataBundle data) throws OptionPricingException {
+      public Double evaluate(MertonJumpDiffusionModelOptionDataBundle data) {
         try {
           Date date = data.getDate();
           double k = definition.getStrike();
@@ -38,7 +38,7 @@ public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<European
           double mult = Math.exp(-lambdaT);
           // TODO this is not right
           StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getDiscountCurve(), data.getCostOfCarry(), data.getVolatilitySurface(), data.getSpot(), date);
-          Function1D<StandardOptionDataBundle, Double, OptionPricingException> bsmFunction = _bsm.getPricingFunction(definition);
+          Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
           double price = mult * bsmFunction.evaluate(bsmData);
           for (int i = 1; i < 50; i++) {
             sigmaAdjusted = Math.sqrt(sigmaAdjusted * sigmaAdjusted + delta * i / t);

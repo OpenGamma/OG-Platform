@@ -1,7 +1,6 @@
 package com.opengamma.math.minimization;
 
 import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -10,15 +9,15 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class GoldenSectionMinimizer1D implements Minimizer1D<Double, MathException> {
+public class GoldenSectionMinimizer1D implements Minimizer1D<Double> {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
-  private static final MinimumBracketer<Double, MathException> BRACKETER = new ParabolicMinimumBracketer();
+  private static final MinimumBracketer<Double> BRACKETER = new ParabolicMinimumBracketer();
   private static final int MAX_ITER = 10000;
   private static final double EPS = 1e-12;
 
   @Override
-  public Double minimize(Function1D<Double, Double, MathException> f, Double[] initialPoints) throws ConvergenceException, MathException {
+  public Double minimize(Function1D<Double, Double> f, Double[] initialPoints) {
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
     Double[] triplet = BRACKETER.getBracketedPoints(f, initialPoints[0], initialPoints[1]);

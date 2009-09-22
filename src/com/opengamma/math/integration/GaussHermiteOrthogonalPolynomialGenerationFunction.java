@@ -1,6 +1,5 @@
 package com.opengamma.math.integration;
 
-import com.opengamma.math.MathException;
 
 /**
  * 
@@ -8,13 +7,13 @@ import com.opengamma.math.MathException;
  * 
  */
 
-public class GaussHermiteOrthogonalPolynomialGenerationFunction implements GeneratingFunction<Double, GaussianQuadratureFunction, MathException> {
+public class GaussHermiteOrthogonalPolynomialGenerationFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
   private static final int MAX_ITER = 10;
   private static final double EPS = 1e-12;
   private static final double POWER_OF_PI = Math.pow(Math.PI, -0.25);
 
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) throws MathException {
+  public GaussianQuadratureFunction generate(int n, Double... params) {
     int j;
     double z = 0, z1, p1, p2, p3, pp;
     int m = (n + 1) / 2;

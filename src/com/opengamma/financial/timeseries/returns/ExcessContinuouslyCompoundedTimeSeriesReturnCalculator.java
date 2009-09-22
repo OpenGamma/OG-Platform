@@ -23,7 +23,7 @@ import com.opengamma.util.CalculationMode;
  */
 
 public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
-  private final Function<DoubleTimeSeries, DoubleTimeSeries, TimeSeriesException> _returnCalculator;
+  private final Function<DoubleTimeSeries, DoubleTimeSeries> _returnCalculator;
 
   public ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode mode) {
     super(mode);
@@ -44,7 +44,7 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends Time
    * @return A DoubleTimeSeries containing the excess return series.
    */
   @Override
-  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) throws TimeSeriesException {
+  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length < 4)

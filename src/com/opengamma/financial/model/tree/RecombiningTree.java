@@ -13,10 +13,10 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
     _tree = data;
   }
 
-  protected abstract int getMaxNodesForStep(int step) throws Exception;
+  protected abstract int getMaxNodesForStep(int step);
 
   @Override
-  public T getNode(int step, int node) throws Exception {
+  public T getNode(int step, int node) {
     if (step > _tree.length)
       throw new IllegalArgumentException("Step number " + step + " is greater than maximum in this tree (max =  " + _tree.length + ")");
     int max = getMaxNodesForStep(step);
@@ -31,7 +31,7 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
   }
 
   @Override
-  public void setNode(T value, int step, int node) throws Exception {
+  public void setNode(T value, int step, int node) {
     if (step > _tree.length)
       throw new IllegalArgumentException("Step number " + step + " is greater than maximum in this tree (max =  " + _tree.length + ")");
     int max = getMaxNodesForStep(step);

@@ -17,11 +17,11 @@ public class GramCharlierOptionModel extends AnalyticOptionModel<EuropeanVanilla
   ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  public Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double, OptionPricingException>() {
+  public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(SkewKurtosisOptionDataBundle data) throws OptionPricingException {
+      public Double evaluate(SkewKurtosisOptionDataBundle data) {
         try {
           double s = data.getSpot();
           double k = definition.getStrike();

@@ -6,6 +6,6 @@ package com.opengamma.math.rootfinding;
  * 
  */
 
-public interface DoubleSingleRootFinder<U extends Exception> extends SingleRootFinder<Double, Double, Double, U> {
+public interface DoubleSingleRootFinder extends SingleRootFinder<Double, Double, Double> {
 
 }

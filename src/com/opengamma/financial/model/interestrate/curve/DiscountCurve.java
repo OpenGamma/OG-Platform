@@ -12,7 +12,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
@@ -39,8 +38,8 @@ public class DiscountCurve implements InterestRateModel<Double> {
    *          An interpolator to get interest rates / discount factors for
    *          maturities that fall in between nodes. This can be null.
    * @throws IllegalArgumentException
-   *           Throws this exception if the data map is null or empty, or if it
-   *           contains a negative time to maturity.
+   *           Thrown if the data map is null or empty, or if it contains a
+   *           negative time to maturity.
    */
   public DiscountCurve(final Date date, final Map<Double, Double> data, final Interpolator1D interpolator) {
     if (data == null)
@@ -56,6 +55,7 @@ public class DiscountCurve implements InterestRateModel<Double> {
   }
 
   /**
+   * 
    * @return The data sorted by maturity.
    */
   public SortedMap<Double, Double> getData() {
@@ -63,6 +63,7 @@ public class DiscountCurve implements InterestRateModel<Double> {
   }
 
   /**
+   * 
    * @return The interpolator for this curve.
    */
   public Interpolator1D getInterpolator() {
@@ -70,6 +71,7 @@ public class DiscountCurve implements InterestRateModel<Double> {
   }
 
   /**
+   * 
    * @return The date for the curve.
    */
   public Date getDate() {
@@ -80,12 +82,9 @@ public class DiscountCurve implements InterestRateModel<Double> {
    * @return The interest rate for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
-   * @throws InterpolationException
-   *           If there is a problem with the interpolation (e.g. the time to
-   *           maturity does not fall between two nodes.
    */
   @Override
-  public double getInterestRate(final Double t) throws InterpolationException {
+  public double getInterestRate(final Double t) {
     if (t < 0)
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     return _interpolator.interpolate(_data, t).getResult();
@@ -95,11 +94,8 @@ public class DiscountCurve implements InterestRateModel<Double> {
    * @return The discount factor for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
-   * @throws InterpolationException
-   *           If there is a problem with the interpolation (e.g. the time to
-   *           maturity does not fall between two nodes.
    */
-  public double getDiscountFactor(final Double t) throws InterpolationException {
+  public double getDiscountFactor(final Double t) {
     if (t < 0)
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     return Math.exp(-getInterestRate(t) * t);

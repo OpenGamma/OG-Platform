@@ -4,7 +4,6 @@ import java.util.Date;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.math.interpolation.InterpolationException;
 
 public class StandardOptionDataBundle {
   private final DiscountCurve _discountCurve;
@@ -22,8 +21,7 @@ public class StandardOptionDataBundle {
     _date = date;
   }
 
-  // TODO handle the exception here
-  public double getInterestRate(Double t) throws InterpolationException {
+  public double getInterestRate(Double t) {
     return _discountCurve.getInterestRate(t);
   }
 
@@ -31,7 +29,7 @@ public class StandardOptionDataBundle {
     return _b;
   }
 
-  public Double getVolatility(Double t, Double strike) throws InterpolationException {
+  public Double getVolatility(Double t, Double strike) {
     return _volatilitySurface.getVolatility(t, strike);
   }
 

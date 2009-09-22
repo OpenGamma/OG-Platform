@@ -4,7 +4,7 @@ package com.opengamma.financial.model.option.pricing;
  * 
  * @author emcleod
  */
-public class OptionPricingException extends Exception {
+public class OptionPricingException extends RuntimeException {
 
   public OptionPricingException() {
     super();

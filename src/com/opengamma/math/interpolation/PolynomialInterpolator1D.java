@@ -11,7 +11,7 @@ public class PolynomialInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) throws InterpolationException {
+  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
     final TreeMap<Double, Double> sorted = initData(data);
     final int lower = getLowerBoundIndex(sorted, value);
     final Double[] xArray = sorted.keySet().toArray(new Double[0]);

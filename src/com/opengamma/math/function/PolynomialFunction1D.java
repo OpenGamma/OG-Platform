@@ -1,13 +1,11 @@
 package com.opengamma.math.function;
 
-import com.opengamma.math.MathException;
-
 /**
  * 
  * @author emcleod
  * 
  */
-public class PolynomialFunction1D extends Function1D<Double, Double, MathException> {
+public class PolynomialFunction1D extends Function1D<Double, Double> {
   private final Double[] _coefficients;
 
   /**
@@ -20,7 +18,7 @@ public class PolynomialFunction1D extends Function1D<Double, Double, MathExcepti
    *          If a coefficient is zero, the value in the array must be zero; a
    *          null value will throw an exception.
    */
-  public PolynomialFunction1D(Double[] coefficients) throws IllegalArgumentException {
+  public PolynomialFunction1D(Double[] coefficients) {
     if (coefficients == null)
       throw new IllegalArgumentException("Coefficient array was null");
     if (coefficients.length == 0)
@@ -33,7 +31,7 @@ public class PolynomialFunction1D extends Function1D<Double, Double, MathExcepti
   }
 
   @Override
-  public Double evaluate(Double x) throws MathException {
+  public Double evaluate(Double x) {
     if (x == null)
       throw new IllegalArgumentException("Null argument");
     int n = _coefficients.length;
