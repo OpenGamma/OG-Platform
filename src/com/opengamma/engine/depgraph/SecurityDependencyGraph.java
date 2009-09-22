@@ -98,31 +98,29 @@ public class SecurityDependencyGraph {
     assert liveDataAvailabilityProvider != null;
     
     DefaultAnalyticFunctionResolver functionResolver = new DefaultAnalyticFunctionResolver(functionRepository);
-    
-    Set<DependencyNode> nodes = new HashSet<DependencyNode>();
+
+    DefaultDependencyNodeResolver nodeResolver = new DefaultDependencyNodeResolver();
+    Set<DependencyNode> topLevelNodes = new HashSet<DependencyNode>();
     Set<AnalyticValueDefinition<?>> requiredLiveData = new HashSet<AnalyticValueDefinition<?>>();
     for(AnalyticValueDefinition<?> outputValue : getRequiredOutputValues()) {
-      satisfyDependency(outputValue, nodes, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
+      DependencyNode topLevelNode = satisfyDependency(outputValue, nodeResolver, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
+      assert topLevelNode != null;
+      topLevelNodes.add(topLevelNode);
     }
     getRequiredLiveData().clear();
     getRequiredLiveData().addAll(requiredLiveData);
-    s_logger.info("{} built graph with {} top-level nodes", getSecurity(), nodes.size());
-    getTopLevelNodes().addAll(nodes);
+    s_logger.info("{} built graph with {} nodes", getSecurity(), nodeResolver.size());
+    getTopLevelNodes().addAll(topLevelNodes);
   }
   
   protected DependencyNode satisfyDependency(
       AnalyticValueDefinition<?> outputValue,
-      Set<DependencyNode> nodes,
+      DefaultDependencyNodeResolver nodeResolver,
       Set<AnalyticValueDefinition<?>> requiredLiveData,
       AnalyticFunctionResolver functionResolver,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     DependencyNode node = null;
-    for(DependencyNode existingNode : nodes) {
-      node = existingNode.getMatchingNode(outputValue);
-      if(node != null) {
-        break;
-      }
-    }
+    node = nodeResolver.resolve(outputValue);
     if(node != null) {
       s_logger.debug("Satisfied output value {} with existing dependency", outputValue);
       return node;
@@ -133,7 +131,7 @@ public class SecurityDependencyGraph {
       assert !requiredLiveData.contains(outputValue) : "Should have found existing dependency graph node.";
       requiredLiveData.add(outputValue);
       node = new DependencyNode(new LiveDataSourcingFunction(outputValue), getSecurity());
-      nodes.add(node);
+      nodeResolver.addSubGraph(node);
       return node;
     }
     
@@ -141,9 +139,9 @@ public class SecurityDependencyGraph {
     assert function != null : "This is a bad assertion. Do something better.";
     
     node = new DependencyNode(function, getSecurity());
-    nodes.add(node);
+    nodeResolver.addSubGraph(node);
     for(AnalyticValueDefinition<?> inputValue : node.getInputValues()) {
-      DependencyNode inputNode = satisfyDependency(inputValue, nodes, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
+      DependencyNode inputNode = satisfyDependency(inputValue, nodeResolver, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
       assert inputNode != null : "This is a bad assertion. Do something better.";
       node.addInputNode(inputValue, inputNode);
     }
