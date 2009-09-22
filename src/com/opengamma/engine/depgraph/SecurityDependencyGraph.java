@@ -138,13 +138,20 @@ public class SecurityDependencyGraph {
     AnalyticFunction function = functionResolver.resolve(outputValue, getSecurity());
     assert function != null : "This is a bad assertion. Do something better.";
     
-    node = new DependencyNode(function, getSecurity());
-    nodeResolver.addSubGraph(node);
-    for(AnalyticValueDefinition<?> inputValue : node.getInputValues()) {
-      DependencyNode inputNode = satisfyDependency(inputValue, nodeResolver, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
-      assert inputNode != null : "This is a bad assertion. Do something better.";
-      node.addInputNode(inputValue, inputNode);
+    if(function.buildsOwnSubGraph()) {
+      node = function.buildSubGraph(getSecurity(), functionResolver, nodeResolver);
+      nodeResolver.addSubGraph(node);
+    } else {
+      node = new DependencyNode(function, getSecurity());
+      nodeResolver.addSubGraph(node);
+      for(AnalyticValueDefinition<?> inputValue : node.getInputValues()) {
+        DependencyNode inputNode = satisfyDependency(inputValue, nodeResolver, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
+        assert inputNode != null : "This is a bad assertion. Do something better.";
+        node.addInputNode(inputValue, inputNode);
+      }
     }
+    assert node != null;
+    
     return node;
   }
 }

@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
@@ -69,6 +71,18 @@ public class EquityOptionGreeksAnalyticFunction implements AnalyticFunction {
   @Override
   public boolean isSecuritySpecific() {
     // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    throw new UnsupportedOperationException("Doesn't build own sub-graph.");
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
     return false;
   }
 
