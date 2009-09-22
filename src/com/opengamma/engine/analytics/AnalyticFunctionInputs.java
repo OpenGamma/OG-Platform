@@ -135,4 +135,16 @@ public class AnalyticFunctionInputs implements Serializable {
     }
     return result;
   }
+  
+  public Object getValue(AnalyticValueDefinition<?> definition) {
+    if(definition == null) {
+      return null;
+    }
+    for(AnalyticValue<?> value : _values) {
+      if(ObjectUtils.equals(value.getDefinition(), definition)) {
+        return value.getValue();
+      }
+    }
+    return null;
+  }
 }

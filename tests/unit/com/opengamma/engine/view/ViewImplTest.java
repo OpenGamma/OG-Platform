@@ -20,8 +20,11 @@ import org.junit.Test;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.HardCodedUSDDiscountCurveAnalyticFunction;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
+import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
+import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
+import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
@@ -33,6 +36,8 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityIdentificationDomain;
 import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.securities.Currency;
+import com.opengamma.util.Pair;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -41,9 +46,11 @@ import com.opengamma.util.TerminatableJob;
  * @author kirk
  */
 public class ViewImplTest {
+  private static final double ONEYEAR = 365.25;
+  
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
-    viewDefinition.addValueDefinition("KIRK", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+    viewDefinition.addValueDefinition("KIRK", DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD")));
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
     PositionMaster positionMaster = new PositionMaster() {
       @Override
@@ -68,8 +75,9 @@ public class ViewImplTest {
     };
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     secMaster.add(security);
-    
-    HardCodedUSDDiscountCurveAnalyticFunction function = new HardCodedUSDDiscountCurveAnalyticFunction();
+
+    DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
+    DiscountCurveAnalyticFunction function = new DiscountCurveAnalyticFunction(curveDefinition);
     InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(Collections.singleton(function));
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
@@ -85,7 +93,7 @@ public class ViewImplTest {
     };
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
-    populateSnapshot(snapshotProvider, false);
+    populateSnapshot(snapshotProvider, curveDefinition, false);
     
     ViewImpl view = new ViewImpl(viewDefinition);
     view.setPositionMaster(positionMaster);
@@ -116,9 +124,10 @@ public class ViewImplTest {
     Map<AnalyticValueDefinition<?>, AnalyticValue<?>> resultValues = result.getValues(resultPosition);
     assertNotNull(resultValues);
     assertEquals(1, resultValues.size());
-    AnalyticValue<?> discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+    AnalyticValueDefinition<?> discountCurveValueDefinition = DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD"));
+    AnalyticValue<?> discountCurveValue = resultValues.get(discountCurveValueDefinition);
     assertNotNull(discountCurveValue);
-    assertEquals(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition(), discountCurveValue.getDefinition());
+    assertEquals(discountCurveValueDefinition, discountCurveValue.getDefinition());
     assertNotNull(discountCurveValue.getValue());
     assertTrue(discountCurveValue.getValue() instanceof DiscountCurve);
     DiscountCurve theCurveItself = (DiscountCurve) discountCurveValue.getValue();
@@ -128,6 +137,7 @@ public class ViewImplTest {
   @Test
   public void trivialExamplePerturbingCycles() throws Exception {
     ViewImpl view = constructTrivialExampleView();
+    DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
     view.init();
     
     view.addResultListener(new ComputationResultListener() {
@@ -137,7 +147,7 @@ public class ViewImplTest {
         Collection<Position> positions = resultModel.getPositions();
         Position resultPosition = positions.iterator().next();
         Map<AnalyticValueDefinition<?>, AnalyticValue<?>> resultValues = resultModel.getValues(resultPosition);
-        AnalyticValue<?> discountCurveValue = resultValues.get(HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+        AnalyticValue<?> discountCurveValue = resultValues.get(DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD")));
         DiscountCurve theCurveItself = (DiscountCurve) discountCurveValue.getValue();
         System.out.println("Discount Curve is " + theCurveItself.getData());
       }
@@ -145,7 +155,7 @@ public class ViewImplTest {
     
     view.start();
     InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) view.getLiveDataSnapshotProvider();
-    SnapshotPopulatorJob popJob = new SnapshotPopulatorJob(snapshotProvider);
+    SnapshotPopulatorJob popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
     Thread popThread = new Thread(popJob);
     popThread.start();
     
@@ -157,14 +167,17 @@ public class ViewImplTest {
   
   private class SnapshotPopulatorJob extends TerminatableJob {
     private final InMemoryLKVSnapshotProvider _snapshotProvider;
+    private final DiscountCurveDefinition _curveDefinition;
     
-    public SnapshotPopulatorJob(InMemoryLKVSnapshotProvider snapshotProvider) {
+    public SnapshotPopulatorJob(InMemoryLKVSnapshotProvider snapshotProvider,
+        DiscountCurveDefinition curveDefinition) {
       _snapshotProvider = snapshotProvider;
+      _curveDefinition = curveDefinition;
     }
     
     @Override
     protected void runOneCycle() {
-      populateSnapshot(_snapshotProvider, true);
+      populateSnapshot(_snapshotProvider, _curveDefinition, true);
       try {
         Thread.sleep(10l);
       } catch (InterruptedException e) {
@@ -173,6 +186,38 @@ public class ViewImplTest {
     }
     
   }
+  
+  public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
+    @SuppressWarnings("unchecked")
+    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
+        new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
+        new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
+        new Pair<String, Object>("BB_TICKER", bbTicker)
+        );
+    return definition;
+  }
+  
+  public static DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
+    DiscountCurveDefinition defn = new DiscountCurveDefinition(Currency.getInstance(isoCode), name);
+    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US1D")));
+    defn.addStrip(new FixedIncomeStrip(2/ONEYEAR, constructBloombergTickerDefinition("US2D")));
+    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US7D")));
+    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US1M")));
+    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US3M")));
+    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US6M")));
+
+    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1")));
+    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2")));
+    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3")));
+    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4")));
+    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5")));
+    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6")));
+    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7")));
+    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8")));
+    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9")));
+    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10")));
+    return defn;
+  }
 
   /**
    * @param function 
@@ -180,26 +225,26 @@ public class ViewImplTest {
    * 
    */
   private void populateSnapshot(
-      InMemoryLKVSnapshotProvider snapshotProvider,boolean addRandom) {
+      InMemoryLKVSnapshotProvider snapshotProvider,
+      DiscountCurveDefinition curveDefinition,
+      boolean addRandom) {
     // Inflection point is 10.
     double currValue = 0.005;
-    for(int i = 0; i < HardCodedUSDDiscountCurveAnalyticFunction.STRIPS.length; i++) {
+    for(FixedIncomeStrip strip : curveDefinition.getStrips()) {
       if(addRandom) {
         currValue += (Math.random() * 0.010);
       }
-      String strip = HardCodedUSDDiscountCurveAnalyticFunction.STRIPS[i];
       final Map<String, Double> dataFields = new HashMap<String, Double>();
-      dataFields.put(HardCodedUSDDiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
-      final AnalyticValueDefinition<Map<String, Double>> definition = HardCodedUSDDiscountCurveAnalyticFunction.constructDefinition(strip);
-      AnalyticValue<Map<String, Double>> value = new AbstractAnalyticValue<Map<String, Double>>(definition, dataFields) {
+      dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      @SuppressWarnings("unchecked")
+      AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {
           return this;
         }
       };
       snapshotProvider.addValue(value);
-      
-      if(i < 10) {
+      if(strip.getNumYears() <= 5.0) {
         currValue += 0.005;
       } else {
         currValue -= 0.001;
