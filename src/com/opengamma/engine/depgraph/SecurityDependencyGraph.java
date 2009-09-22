@@ -6,7 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,7 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.security.Security;
@@ -96,10 +97,12 @@ public class SecurityDependencyGraph {
     assert functionRepository != null;
     assert liveDataAvailabilityProvider != null;
     
+    DefaultAnalyticFunctionResolver functionResolver = new DefaultAnalyticFunctionResolver(functionRepository);
+    
     Set<DependencyNode> nodes = new HashSet<DependencyNode>();
     Set<AnalyticValueDefinition<?>> requiredLiveData = new HashSet<AnalyticValueDefinition<?>>();
     for(AnalyticValueDefinition<?> outputValue : getRequiredOutputValues()) {
-      satisfyDependency(outputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
+      satisfyDependency(outputValue, nodes, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
     }
     getRequiredLiveData().clear();
     getRequiredLiveData().addAll(requiredLiveData);
@@ -111,7 +114,7 @@ public class SecurityDependencyGraph {
       AnalyticValueDefinition<?> outputValue,
       Set<DependencyNode> nodes,
       Set<AnalyticValueDefinition<?>> requiredLiveData,
-      AnalyticFunctionRepository functionRepository,
+      AnalyticFunctionResolver functionResolver,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     DependencyNode node = null;
     for(DependencyNode existingNode : nodes) {
@@ -134,42 +137,16 @@ public class SecurityDependencyGraph {
       return node;
     }
     
-    AnalyticFunction function = resolveFunction(outputValue, functionRepository, getSecurity());
+    AnalyticFunction function = functionResolver.resolve(outputValue, getSecurity());
     assert function != null : "This is a bad assertion. Do something better.";
     
     node = new DependencyNode(function, getSecurity());
     nodes.add(node);
     for(AnalyticValueDefinition<?> inputValue : node.getInputValues()) {
-      DependencyNode inputNode = satisfyDependency(inputValue, nodes, requiredLiveData, functionRepository, liveDataAvailabilityProvider);
+      DependencyNode inputNode = satisfyDependency(inputValue, nodes, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
       assert inputNode != null : "This is a bad assertion. Do something better.";
       node.addInputNode(inputValue, inputNode);
     }
     return node;
-  }
-
-  /**
-   * @param outputValue
-   * @param functionRepository
-   * @return
-   */
-  protected AnalyticFunction resolveFunction(
-      AnalyticValueDefinition<?> outputValue,
-      AnalyticFunctionRepository functionRepository,
-      Security security) {
-    assert outputValue != null;
-    assert functionRepository != null;
-    Collection<AnalyticFunction> possibleFunctions = functionRepository.getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(outputValue), security.getSecurityType());
-    assert possibleFunctions != null;
-    if(possibleFunctions.isEmpty()) {
-      return null;
-    }
-    // REVIEW kirk 2009-09-04 -- This is the extension point for better lookups.
-    if(possibleFunctions.size() > 1) {
-      s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), outputValue);
-    }
-    AnalyticFunction function = possibleFunctions.iterator().next();
-    s_logger.debug("Chose function {} for output value {}", function.getShortName(), outputValue);
-    
-    return function;
   }
 }
