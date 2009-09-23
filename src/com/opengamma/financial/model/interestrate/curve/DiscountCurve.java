@@ -6,10 +6,11 @@
 package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import javax.time.InstantProvider;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -25,7 +26,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
 public class DiscountCurve implements InterestRateModel<Double> {
   private final SortedMap<Double, Double> _data;
   private final Interpolator1D _interpolator;
-  private final Date _date;
+  private final InstantProvider _date;
 
   /**
    * 
@@ -41,7 +42,7 @@ public class DiscountCurve implements InterestRateModel<Double> {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public DiscountCurve(final Date date, final Map<Double, Double> data, final Interpolator1D interpolator) {
+  public DiscountCurve(final InstantProvider date, final Map<Double, Double> data, final Interpolator1D interpolator) {
     if (data == null)
       throw new IllegalArgumentException("Data map was null");
     if (data.isEmpty())
@@ -74,7 +75,7 @@ public class DiscountCurve implements InterestRateModel<Double> {
    * 
    * @return The date for the curve.
    */
-  public Date getDate() {
+  public InstantProvider getDate() {
     return _date;
   }
 

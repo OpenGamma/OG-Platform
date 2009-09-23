@@ -10,24 +10,25 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.time.Instant;
+import javax.time.InstantProvider;
+
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  * @author emcleod
  */
 public class DiscountCurveTest {
-  private static final Date DATE = DateUtil.date(20090901);
+  private static final InstantProvider DATE = Instant.millisInstant(1000);
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Double EPS = 1e-15;
 

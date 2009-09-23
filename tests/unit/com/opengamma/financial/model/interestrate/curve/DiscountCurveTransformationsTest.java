@@ -8,16 +8,16 @@ package com.opengamma.financial.model.interestrate.curve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.time.Instant;
 
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -26,7 +26,7 @@ import com.opengamma.util.time.DateUtil;
 public class DiscountCurveTransformationsTest {
   private static final DiscountCurve CURVE;
   private static final Map<Double, Double> DATA;
-  private static final Date DATE = DateUtil.date(20090901);
+  private static final Instant DATE = Instant.millisInstant(1000);
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
 
   static {

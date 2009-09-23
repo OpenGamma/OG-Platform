@@ -8,9 +8,10 @@ package com.opengamma.financial.model.interestrate.curve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import org.junit.Test;
+import javax.time.Instant;
+import javax.time.InstantProvider;
 
-import com.opengamma.util.time.DateUtil;
+import org.junit.Test;
 
 /**
  * 
@@ -22,7 +23,8 @@ public class ConstantInterestRateDiscountCurveTest {
   @Test
   public void test() {
     final double rate = 0.05;
-    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(DateUtil.date(20090901), rate);
+    InstantProvider date = Instant.millisInstant(1000);
+    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(date, rate);
     try {
       curve.getInterpolator();
       fail();
