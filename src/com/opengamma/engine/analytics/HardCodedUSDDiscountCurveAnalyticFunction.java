@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.calendar.Clock;
+
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
@@ -21,7 +23,6 @@ import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.Pair;
-import com.opengamma.util.time.DateUtil;
 
 // REVIEW kirk 2009-09-16 -- Changed name to USD as it's holding all the strips
 // that are specific to USD, and can only generate one type of result definition.
@@ -100,7 +101,7 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
       double years = _securities.get(ticker);
       timeInYearsToRates.put(years, price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(DateUtil.today(), timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new DiscountCurve(Clock.systemDefaultZone().instant(), timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }

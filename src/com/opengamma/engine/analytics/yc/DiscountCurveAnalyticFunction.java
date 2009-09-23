@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.calendar.Clock;
+
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
@@ -26,7 +28,6 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
@@ -94,7 +95,7 @@ public class DiscountCurveAnalyticFunction implements AnalyticFunction {
       Double price = dataFields.get(PRICE_FIELD_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(DateUtil.today(), timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new DiscountCurve(Clock.systemDefaultZone().instant(), timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }
