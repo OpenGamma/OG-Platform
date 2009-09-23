@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +43,7 @@ public class SingleComputationCycle {
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   private final LiveDataSnapshotProvider _snapshotProvider;
   private final ViewDefinition _viewDefinition;
+  private final ExecutorService _computationExecutorService;
   
   // State:
   private final long _startTime;
@@ -57,17 +57,20 @@ public class SingleComputationCycle {
       PortfolioEvaluationModel portfolioEvaluationModel,
       LiveDataSnapshotProvider snapshotProvider,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition) {
+      ViewDefinition viewDefinition,
+      ExecutorService computationExecutorService) {
     assert cache != null;
     assert portfolioEvaluationModel != null;
     assert snapshotProvider != null;
     assert resultModel != null;
     assert viewDefinition != null;
+    assert computationExecutorService != null;
     _computationCache = cache;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _snapshotProvider = snapshotProvider;
     _resultModel = resultModel;
     _viewDefinition = viewDefinition;
+    _computationExecutorService = computationExecutorService;
     _startTime = System.currentTimeMillis();
   }
   
@@ -127,6 +130,13 @@ public class SingleComputationCycle {
     return _viewDefinition;
   }
 
+  /**
+   * @return the computationExecutorService
+   */
+  public ExecutorService getComputationExecutorService() {
+    return _computationExecutorService;
+  }
+
   public void prepareInputs() {
     setSnapshotTime(getSnapshotProvider().snapshot());
     getResultModel().setInputDataTimestamp(getSnapshotTime());
@@ -145,12 +155,10 @@ public class SingleComputationCycle {
   }
   
   public void executePlans() {
-    // TODO kirk 2009-09-23 -- This needs to be better.
-    ExecutorService executor = Executors.newSingleThreadExecutor();
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
       SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
       assert secDepGraph != null;
-      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(security, secDepGraph, getComputationCache(), executor);
+      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(security, secDepGraph, getComputationCache(), getComputationExecutorService());
       depGraphExecutor.executeGraph();
     }
   }

@@ -49,12 +49,6 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
 
   @Override
-  protected void preStart() {
-    super.preStart();
-    // TODO kirk 2009-09-15 -- Deltas to portfolios will allow this to move to preStart.
-  }
-
-  @Override
   protected void runOneCycle() {
     ViewComputationCache cache = getView().getComputationCacheFactory().generateCache();
     PortfolioEvaluationModel portfolioEvaluationModel = getView().getPortfolioEvaluationModel();
@@ -63,7 +57,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     
     SingleComputationCycle cycle = new SingleComputationCycle(
         cache, portfolioEvaluationModel, getView().getLiveDataSnapshotProvider(),
-        result, getView().getDefinition());
+        result, getView().getDefinition(), getView().getComputationExecutorService());
     cycle.prepareInputs();
     cycle.executePlans();
     cycle.populateResultModel();

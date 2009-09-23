@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class ViewImpl implements View, Lifecycle {
   private PositionMaster _positionMaster;
   private SecurityMaster _securityMaster;
   private ViewComputationCacheFactory _computationCacheFactory;
+  private ExecutorService _computationExecutorService;
   // Internal State:
   private PortfolioEvaluationModel _portfolioEvaluationModel;
   private Thread _recalculationThread;
@@ -152,6 +154,22 @@ public class ViewImpl implements View, Lifecycle {
    */
   public void setSecurityMaster(SecurityMaster securityMaster) {
     _securityMaster = securityMaster;
+  }
+
+  /**
+   * @return the computationExecutorService
+   */
+  public ExecutorService getComputationExecutorService() {
+    return _computationExecutorService;
+  }
+
+  /**
+   * @param computationExecutorService the computationExecutorService to set
+   */
+  @Required
+  public void setComputationExecutorService(
+      ExecutorService computationExecutorService) {
+    _computationExecutorService = computationExecutorService;
   }
 
   /**
@@ -288,6 +306,9 @@ public class ViewImpl implements View, Lifecycle {
     }
     if(getSecurityMaster() == null) {
       throw new IllegalStateException("Must have a Security Master");
+    }
+    if(getComputationExecutorService() == null) {
+      throw new IllegalStateException("Must have an executor service for computation.");
     }
   }
 
