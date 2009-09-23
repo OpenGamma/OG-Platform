@@ -8,6 +8,8 @@
         <dependency org="ch.qos" name="logback" rev="0.9.17" conf="default->classic"/>
         <dependency org="org.jdesktop" name="appframework" rev="1.0.3"/>
         <dependency org="javax.time" name="jsr-310-ri" rev="20090901"/>
+        <dependency org="org.jdesktop" name="swingx" rev="1.0"/>
+        <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
     </dependencies>
 </ivy-module>
 
