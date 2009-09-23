@@ -1,7 +1,5 @@
 package com.opengamma.math.statistics.distribution;
 
-import java.util.Date;
-
 import cern.jet.random.Normal;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
@@ -14,7 +12,7 @@ import cern.jet.random.engine.RandomEngine;
 
 public class NormalProbabilityDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private RandomEngine _randomEngine = new MersenneTwister(new Date());
+  private RandomEngine _randomEngine = new MersenneTwister(0);
   private double _mean;
   private double _standardDeviation;
   private Normal _normal;
