@@ -1,7 +1,15 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import java.util.Date;
+import java.util.Collections;
+import java.util.Map;
 
+import javax.time.InstantProvider;
+
+import com.opengamma.financial.greeks.Delta;
+import com.opengamma.financial.greeks.Gamma;
+import com.opengamma.financial.greeks.GreekVisitor;
+import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.Rho;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
@@ -28,13 +36,19 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
   ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
+  public GreekVisitor<Map<String, Double>> getGreekVisitor(Function1D<StandardOptionDataBundle, Double> pricingFunction, StandardOptionDataBundle vars,
+      EuropeanVanillaOptionDefinition definition) {
+    return new BlackScholesMertonGreekVisitor(vars, pricingFunction, definition);
+  }
+
+  @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
     Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
       public Double evaluate(StandardOptionDataBundle data) {
         try {
-          Date date = data.getDate();
+          InstantProvider date = data.getDate();
           double s = data.getSpot();
           double k = definition.getStrike();
           double t = definition.getTimeToExpiry(date);
@@ -53,19 +67,56 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     return pricingFunction;
   }
 
-  /*
-   * @Override protected double getDelta(EuropeanVanillaOptionDefinition
-   * definition, Function<Double, Double> pricingFunction, Double[]
-   * functionVariables) { double df = getDF(functionVariables); double d1 =
-   * getD1(functionVariables); return df * (definition.isCall() ?
-   * _normalProbabilityDistribution.getCDF(d1) :
-   * _normalProbabilityDistribution.getCDF(d1) - 1); }
-   * 
-   * @Override protected double getGamma(EuropeanVanillaOptionDefinition
-   * definition, Function<Double, Double> pricingFunction, Double[]
-   * functionVariables) { double df = getDF(functionVariables); double d1 =
-   * getD1(functionVariables); return _normalProbabilityDistribution.getPDF(d1)
-   * * df / (functionVariables[0] * functionVariables[2] *
-   * Math.sqrt(functionVariables[3])); }
-   */
+  protected class BlackScholesMertonGreekVisitor extends AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, EuropeanVanillaOptionDefinition> {
+    private final double _s;
+    private final double _k;
+    private final double _sigma;
+    private final double _t;
+    private final double _b;
+    private final double _r;
+    private final boolean _isCall;
+    private final double _df;
+    private final double _d1;
+    private final double _d2;
+    private final double _price;
+
+    public BlackScholesMertonGreekVisitor(StandardOptionDataBundle vars, Function1D<StandardOptionDataBundle, Double> pricingFunction, EuropeanVanillaOptionDefinition definition) {
+      super(pricingFunction, vars, definition);
+      _s = vars.getSpot();
+      _k = definition.getStrike();
+      _t = definition.getTimeToExpiry(vars.getDate());
+      _r = vars.getInterestRate(_t);
+      _sigma = vars.getVolatility(_t, _k);
+      _b = vars.getCostOfCarry();
+      _isCall = definition.isCall();
+      _df = getDF(_r, _b, _t);
+      _d1 = getD1(_s, _k, _t, _sigma, _b);
+      _d2 = getD2(_d1, _sigma, _t);
+      _price = pricingFunction.evaluate(vars);
+    }
+
+    @Override
+    public Map<String, Double> visitDelta(Delta delta) {
+      double value = _isCall ? _df * _normalProbabilityDistribution.getCDF(_d1) : _df * (_normalProbabilityDistribution.getCDF(_d1) - 1);
+      return Collections.<String, Double> singletonMap(delta.getName(), value);
+    }
+
+    @Override
+    public Map<String, Double> visitGamma(Gamma gamma) {
+      double value = _df * _normalProbabilityDistribution.getPDF(_d1) / (_s * _sigma * Math.sqrt(_t));
+      return Collections.<String, Double> singletonMap(gamma.getName(), value);
+    }
+
+    @Override
+    public Map<String, Double> visitPrice(Price price) {
+      return Collections.<String, Double> singletonMap(price.getName(), _price);
+    }
+
+    @Override
+    public Map<String, Double> visitRho(Rho rho) {
+      int sign = _isCall ? 1 : -1;
+      double value = sign * _t * _k * Math.exp(-_r * _t) * _normalProbabilityDistribution.getCDF(sign * _d2);
+      return Collections.<String, Double> singletonMap(rho.getName(), value);
+    }
+  }
 }

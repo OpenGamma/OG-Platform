@@ -1,9 +1,24 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-import com.opengamma.financial.greeks.Greek.GreekType;
+import javax.time.InstantProvider;
+
+import com.opengamma.financial.greeks.Delta;
+import com.opengamma.financial.greeks.Gamma;
+import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekVisitor;
+import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.Rho;
+import com.opengamma.financial.greeks.Theta;
+import com.opengamma.financial.greeks.TimeBucketedRho;
+import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.DiscountCurveTransformation;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
@@ -16,74 +31,23 @@ import com.opengamma.math.function.Function1D;
  * @param <T>
  */
 public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
-  private static final double EPS = 1e-3;
-  private static Map<PricingFunctionVariables, Integer> VARIABLES = new HashMap<PricingFunctionVariables, Integer>();
-
-  private enum PricingFunctionVariables {
-    SPOT, STRIKE, VOLATILITY, TIME, RATE, CARRY
-  }
-
-  static {
-    VARIABLES.put(PricingFunctionVariables.SPOT, 0);
-    VARIABLES.put(PricingFunctionVariables.STRIKE, 1);
-    VARIABLES.put(PricingFunctionVariables.VOLATILITY, 2);
-    VARIABLES.put(PricingFunctionVariables.TIME, 3);
-    VARIABLES.put(PricingFunctionVariables.RATE, 4);
-    VARIABLES.put(PricingFunctionVariables.CARRY, 5);
-  }
-
-  /**
-   * This gets the pricing function for the analytic model. The order that the
-   * function expects the variables to be in is: <br/>
-   * 1) spot<br/>
-   * 2) strike<br/>
-   * 3) volatility<br/>
-   * 4) time to expiry<br/>
-   * 5) interest rate<br/>
-   * 6) cost of carry
-   * 
-   * However, this order only matters if the default finite difference greeks
-   * calculation in this class are used: otherwise, any order can be used when
-   * writing new models. Any other parameters needed in the calculation can be
-   * appended to this array (e.g. the last two elements in the array in
-   * JarrowRuddSkewnessKurtosisModel are the skew and kurtosis of the asset
-   * price)
-   * 
-   * @return Pricing function for the model
-   */
-
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
-  public Map<GreekType, Double> getGreeks(T definition, U vars) {
-    double strike = definition.getStrike();
-    double t = definition.getTimeToExpiry(vars.getDate());
-    double spot = vars.getSpot();
-    Map<GreekType, Double> greekMap = new HashMap<GreekType, Double>();
-    // greekMap.put(GreekType.DELTA, getDelta(definition, pricingFunction,
-    // functionVariables));
-    // greekMap.put(GreekType.GAMMA, getGamma(definition, pricingFunction,
-    // functionVariables));
-    return greekMap;
+  public GreekVisitor<Map<String, Double>> getGreekVisitor(Function1D<U, Double> pricingFunction, U vars, T definition) {
+    return new AnalyticOptionModelFiniteDifferenceGreekVisitor<U, T>(pricingFunction, vars, definition);
   }
 
-  public double getPrice(T definition, U vars) {
-    return getPricingFunction(definition).evaluate(vars);
+  @Override
+  public Map<Greek, Map<String, Double>> getGreeks(T definition, U vars, List<Greek> requiredGreeks) {
+    Function1D<U, Double> pricingFunction = getPricingFunction(definition);
+    Map<Greek, Map<String, Double>> result = new HashMap<Greek, Map<String, Double>>();
+    GreekVisitor<Map<String, Double>> visitor = getGreekVisitor(pricingFunction, vars, definition);
+    for (Greek greek : requiredGreeks) {
+      result.put(greek, greek.accept(visitor));
+    }
+    return result;
   }
 
-  /*
-   * protected double getDelta(T definition, Function<U, Double>
-   * pricingFunction, Double[] functionVariables) { return
-   * FiniteDifferenceDifferentiation.getFirstOrder(pricingFunction,
-   * functionVariables, VARIABLES.get(PricingFunctionVariables.SPOT), EPS,
-   * FiniteDifferenceDifferentiation.DifferenceType.CENTRAL); }
-   * 
-   * protected double getGamma(T definition, Function<U, Double>
-   * pricingFunction, Double[] functionVariables) { return
-   * FiniteDifferenceDifferentiation.getSecondOrder(pricingFunction,
-   * functionVariables, VARIABLES.get(PricingFunctionVariables.SPOT), EPS); }
-   */
-  // TODO greeks with respect to volatility and interest rates should use the
-  // surface / curve methods to perturb and recompute
   protected double getD1(double s, double k, double t, double sigma, double b) {
     return (Math.log(s / k) + t * (b + sigma * sigma / 2)) / (sigma * Math.sqrt(t));
   }
@@ -94,5 +58,86 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
 
   protected double getDF(double r, double b, double t) {
     return Math.exp(t * (b - r));
+  }
+
+  @SuppressWarnings("unchecked")
+  protected class AnalyticOptionModelFiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, R extends OptionDefinition> implements GreekVisitor<Map<String, Double>> {
+    private static final double EPS = 1e-3;
+    private final Function1D<S, Double> _pricingFunction;
+    private final S _vars;
+    private final R _definition;
+
+    public AnalyticOptionModelFiniteDifferenceGreekVisitor(Function1D<S, Double> pricingFunction, S vars, R definition) {
+      _pricingFunction = pricingFunction;
+      _vars = vars;
+      _definition = definition;
+    }
+
+    @Override
+    public Map<String, Double> visitDelta(Delta delta) {
+      Double spot = _vars.getSpot();
+      S upVars = (S) new StandardOptionDataBundle(_vars.getDiscountCurve(), _vars.getCostOfCarry(), _vars.getVolatilitySurface(), spot + EPS, _vars.getDate());
+      S downVars = (S) new StandardOptionDataBundle(_vars.getDiscountCurve(), _vars.getCostOfCarry(), _vars.getVolatilitySurface(), spot - EPS, _vars.getDate());
+      double upPrice = _pricingFunction.evaluate(upVars);
+      double downPrice = _pricingFunction.evaluate(downVars);
+      return Collections.<String, Double> singletonMap(delta.getName(), (upPrice - downPrice) / (2 * EPS));
+    }
+
+    @Override
+    public Map<String, Double> visitGamma(Gamma gamma) {
+      Double spot = _vars.getSpot();
+      S upVars = (S) new StandardOptionDataBundle(_vars.getDiscountCurve(), _vars.getCostOfCarry(), _vars.getVolatilitySurface(), spot + EPS, _vars.getDate());
+      S downVars = (S) new StandardOptionDataBundle(_vars.getDiscountCurve(), _vars.getCostOfCarry(), _vars.getVolatilitySurface(), spot - EPS, _vars.getDate());
+      double price = _pricingFunction.evaluate(_vars);
+      double upPrice = _pricingFunction.evaluate(upVars);
+      double downPrice = _pricingFunction.evaluate(downVars);
+      return Collections.<String, Double> singletonMap(gamma.getName(), (upPrice + downPrice - 2 * price) / (EPS * EPS));
+    }
+
+    @Override
+    public Map<String, Double> visitPrice(Price price) {
+      return Collections.<String, Double> singletonMap(price.getName(), _pricingFunction.evaluate(_vars));
+    }
+
+    @Override
+    public Map<String, Double> visitRho(Rho rho) {
+      InstantProvider date = _vars.getDate();
+      double t = _definition.getTimeToExpiry(date);
+      double r = _vars.getInterestRate(t);
+      DiscountCurve upCurve = new ConstantInterestRateDiscountCurve(date, r + EPS);
+      DiscountCurve downCurve = new ConstantInterestRateDiscountCurve(date, r - EPS);
+      S upVars, downVars;
+      double upPrice, downPrice;
+      upVars = (S) new StandardOptionDataBundle(upCurve, _vars.getCostOfCarry(), _vars.getVolatilitySurface(), _vars.getSpot(), _vars.getDate());
+      downVars = (S) new StandardOptionDataBundle(downCurve, _vars.getCostOfCarry(), _vars.getVolatilitySurface(), _vars.getSpot(), _vars.getDate());
+      upPrice = _pricingFunction.evaluate(upVars);
+      downPrice = _pricingFunction.evaluate(downVars);
+      return Collections.<String, Double> singletonMap(rho.getName(), (upPrice - downPrice) / (2 * EPS));
+    }
+
+    @Override
+    public Map<String, Double> visitTheta(Theta theta) {
+      return Collections.<String, Double> singletonMap(theta.getName(), -34.);
+    }
+
+    @Override
+    public Map<String, Double> visitTimeBucketedRho(TimeBucketedRho rho) {
+      DiscountCurve curve = _vars.getDiscountCurve();
+      Map<String, Double> partialGreeks = new TreeMap<String, Double>();
+      DiscountCurve upCurve, downCurve;
+      S upVars, downVars;
+      double upPrice, downPrice;
+      for (int i = 0; i < curve.getData().size(); i++) {
+        upCurve = DiscountCurveTransformation.getSingleShiftedDataPointCurve(curve, i, EPS);
+        downCurve = DiscountCurveTransformation.getSingleShiftedDataPointCurve(curve, i, -EPS);
+        upVars = (S) new StandardOptionDataBundle(upCurve, _vars.getCostOfCarry(), _vars.getVolatilitySurface(), _vars.getSpot(), _vars.getDate());
+        downVars = (S) new StandardOptionDataBundle(downCurve, _vars.getCostOfCarry(), _vars.getVolatilitySurface(), _vars.getSpot(), _vars.getDate());
+        upPrice = _pricingFunction.evaluate(upVars);
+        downPrice = _pricingFunction.evaluate(downVars);
+        // TODO make a better string than this
+        partialGreeks.put(rho.getName() + "(" + i + ")", (upPrice - downPrice) / (2 * EPS));
+      }
+      return partialGreeks;
+    }
   }
 }

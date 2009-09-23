@@ -1,8 +1,9 @@
 package com.opengamma.financial.model.option.pricing.tree;
 
+import java.util.List;
 import java.util.Map;
 
-import com.opengamma.financial.greeks.Greek.GreekType;
+import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
@@ -15,24 +16,9 @@ public class BinomialOptionModel extends TreeOptionModel<OptionDefinition, Stand
   private static final int N = 1000;
 
   @Override
-  public Map<GreekType, Double> getGreeks(OptionDefinition definition, StandardOptionDataBundle vars) {
-    // TODO see below
-    // TrigeorgisBinomialOptionAndSpotPricingTree trees = new
-    // TrigeorgisBinomialOptionAndSpotPricingTree(N, definition, vars);
-    // Lattice<Double> spotTree = trees.getSpotTree();
-    // Lattice<Double> optionTree = trees.getOptionTree();
+  public Map<Greek, Map<String, Double>> getGreeks(OptionDefinition definition, StandardOptionDataBundle vars, List<Greek> requiredGreeks) {
+    // TODO Auto-generated method stub
     return null;
   }
 
-  @Override
-  public double getPrice(OptionDefinition definition, StandardOptionDataBundle vars) {
-    // TODO for some options, such as barrier options, it is best to let the
-    // definition decide what n should be
-    try {
-      TrigeorgisBinomialOptionAndSpotPricingTree trees = new TrigeorgisBinomialOptionAndSpotPricingTree(N, definition, vars);
-      return trees.getOptionTree().getNode(0, 0);
-    } catch (Exception e) {
-      return 0;
-    }
-  }
 }

@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import java.util.Date;
+import javax.time.InstantProvider;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurveTransformation;
@@ -31,7 +31,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
       @Override
       public Double evaluate(StandardOptionDataBundle data) {
         try {
-          Date date = data.getDate();
+          InstantProvider date = data.getDate();
           double s = data.getSpot();
           double k = definition.getStrike();
           double t = definition.getTimeToExpiry(date);

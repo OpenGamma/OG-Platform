@@ -2,7 +2,7 @@ package com.opengamma.financial.model.option.pricing.montecarlo;
 
 import java.util.Map;
 
-import com.opengamma.financial.greeks.Greek.GreekType;
+import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
@@ -16,7 +16,7 @@ public abstract class MonteCarloOptionModel<U extends MonteCarlo<StochasticProce
     _n = n;
   }
 
-  public Map<GreekType, Double> getGreeks(T definition, V vars) {
+  public Map<Greek, Map<String, Double>> getGreeks(T definition, V vars) {
     // TODO Auto-generated method stub
     return null;
   }
