@@ -10,6 +10,8 @@ import java.util.Collections;
 
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
@@ -83,6 +85,18 @@ public class LiveDataSourcingFunction implements AnalyticFunction {
   public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
       Security security) {
     throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
+  }
+
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    throw new UnsupportedOperationException("Does not build own sub graph");
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
+    return false;
   }
 
 }

@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
@@ -69,9 +71,9 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
     s_inputDefinitions = Collections.<AnalyticValueDefinition<?>>unmodifiableList(inputDefinitions);
   }
   
-  public static AnalyticValueDefinition<?> constructDefinition(String bbTicker) {
+  public static AnalyticValueDefinition<Map<String, Double>> constructDefinition(String bbTicker) {
     @SuppressWarnings("unchecked")
-    AnalyticValueDefinitionImpl definition = new AnalyticValueDefinitionImpl(
+    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
         new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
         new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
         new Pair<String, Object>("BB_TICKER", bbTicker)
@@ -147,6 +149,18 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
   @Override
   public boolean isSecuritySpecific() {
     return true;
+  }
+
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    throw new UnsupportedOperationException("Does not build own sub graph.");
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
+    return false;
   }
 
 }

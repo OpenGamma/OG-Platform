@@ -219,7 +219,7 @@ public class ViewImpl implements View, Lifecycle {
     _resultListeners.remove(resultListener);
   }
 
-  public void init() {
+  public synchronized void init() {
     checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 
@@ -328,7 +328,28 @@ public class ViewImpl implements View, Lifecycle {
   @Override
   public synchronized void start() {
     s_logger.info("Starting...");
-    // TODO kirk 2009-09-11 -- Check state.
+    switch(getCalculationState()) {
+    case NOT_STARTED:
+    case TERMINATED:
+      // Normal state of play. Continue as normal.
+      break;
+    case TERMINATING:
+      // In the middle of termination. This is really bad, as we're now holding the lock
+      // that will allow termination to complete successfully. Therefore, we have to throw
+      // an exception rather than just waiting or something.
+      throw new IllegalStateException("Instructed to start while still terminating.");
+    case INITIALIZING:
+      // Must have thrown an exception in initialization. Can't start.
+      throw new IllegalStateException("Initialization didn't completely successfully. Can't start.");
+    case NOT_INITIALIZED:
+      throw new IllegalStateException("Must call init() before starting.");
+    case STARTING:
+      // Must have thrown an exception when start() called previously.
+      throw new IllegalStateException("start() already called, but failed to start. Cannot start again.");
+    case RUNNING:
+      throw new IllegalStateException("Already running.");
+    }
+    
     setCalculationState(ViewCalculationState.STARTING);
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     Thread recalcThread = new Thread(recalcJob, "Recalc Thread for " + getDefinition().getName());
@@ -343,7 +364,19 @@ public class ViewImpl implements View, Lifecycle {
   @Override
   public void stop() {
     s_logger.info("Stopping.....");
-    // TODO kirk 2009-09-11 -- Check state.
+    synchronized(this) {
+      switch(getCalculationState()) {
+      case STARTING:
+        // Something went horribly wrong during start, and it must have thrown an exception.
+        s_logger.warn("Instructed to stop the ViewImpl, but still starting. Starting must have failed. Doing nothing.");
+        break;
+      case RUNNING:
+        // This is the normal state of play. Do nothing.
+        break;
+      default:
+        throw new IllegalStateException("Cannot stop a ViewImpl that isn't running. State: " + getCalculationState());
+      }
+    }
     
     assert getRecalcJob() != null;
     assert getRecalculationThread() != null;

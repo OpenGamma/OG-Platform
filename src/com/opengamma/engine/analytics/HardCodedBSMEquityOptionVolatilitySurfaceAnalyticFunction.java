@@ -13,6 +13,8 @@ import java.util.Map;
 import javax.time.InstantProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.AmericanVanillaOption;
 import com.opengamma.engine.security.EquityOptionSecurity;
@@ -28,7 +30,6 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
-import com.opengamma.financial.model.volatility.VolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.KeyValuePair;
 import com.opengamma.util.time.DateUtil;
@@ -44,6 +45,76 @@ import com.opengamma.util.time.DateUtil;
  */
 public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction<T extends OptionDefinition, U extends StandardOptionDataBundle> implements AnalyticFunction {
 
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
+      Position position) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
+      Security security) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String getShortName() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean isApplicableTo(String securityType) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean isApplicableTo(Position position) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean isPositionSpecific() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public boolean isSecuritySpecific() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+/*
   @SuppressWarnings("unused")
   private static final String PRICE_FIELD_NAME = "PRICE";
   
@@ -205,6 +276,20 @@ public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction<T extends
     return true;
   }
 
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
 
+*/
 }

@@ -8,6 +8,8 @@ package com.opengamma.engine.analytics;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -87,6 +89,20 @@ public class HardCodedCostOfCarryAnalyticFunction<T extends OptionDefinition> im
 
   @Override
   public boolean isSecuritySpecific() {
+    return false;
+  }
+
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
+    // TODO Auto-generated method stub
     return false;
   }
 

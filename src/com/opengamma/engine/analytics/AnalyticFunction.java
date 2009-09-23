@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
@@ -15,6 +17,9 @@ import com.opengamma.engine.security.Security;
 // In general, I would expect that we'll have a metadata source (possibly based
 // on configuration files, possibly based on source annotations) that will
 // provide all of this into a JavaBean-based implementation.
+
+// REVIEW kirk 2009-09-22 -- This is getting REALLY large and unwieldy. We need to
+// segregate this out into various facets for different types of functions I think.
 
 /**
  * A single unit of work capable of operating on inputs to produce results. 
@@ -56,6 +61,13 @@ public interface AnalyticFunction {
   Collection<AnalyticValueDefinition<?>> getPossibleResults();
   
   Collection<AnalyticValueDefinition<?>> getInputs(Security security);
+  
+  boolean buildsOwnSubGraph();
+  
+  DependencyNode buildSubGraph(
+      Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver);
   
   Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Position position);
 

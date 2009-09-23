@@ -6,6 +6,7 @@
 package com.opengamma.engine.viewer;
 
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,19 +37,36 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
+import org.jcsp.lang.CSProcess;
+import org.jcsp.lang.Channel;
+import org.jcsp.lang.ChannelInput;
+import org.jcsp.lang.One2OneChannel;
+import org.jcsp.lang.ProcessManager;
+import org.jcsp.util.OverWriteOldestBuffer;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXTable;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.HardCodedUSDDiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
+import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
+import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
+import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
@@ -67,8 +85,10 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.util.KeyValuePair;
+import com.opengamma.util.Pair;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -77,6 +97,8 @@ import com.opengamma.util.TerminatableJob;
  * @author jim
  */
 public class ViewerLauncher extends SingleFrameApplication {
+  
+  private static final double ONEYEAR = 365.25;
   private ViewImpl _view;
   private SnapshotPopulatorJob _popJob;
 
@@ -114,8 +136,8 @@ public class ViewerLauncher extends SingleFrameApplication {
       secMaster.add(security);
     }
     
-    
-    HardCodedUSDDiscountCurveAnalyticFunction function = new HardCodedUSDDiscountCurveAnalyticFunction();
+    DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
+    DiscountCurveAnalyticFunction function = new DiscountCurveAnalyticFunction(curveDefinition);
     InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(Collections.singleton(function));
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
@@ -133,7 +155,7 @@ public class ViewerLauncher extends SingleFrameApplication {
     };
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
-    populateSnapshot(snapshotProvider, false);
+    populateSnapshot(snapshotProvider, curveDefinition, false);
     
     ViewImpl view = new ViewImpl(viewDefinition);
     view.setPositionMaster(positionMaster);
@@ -146,6 +168,39 @@ public class ViewerLauncher extends SingleFrameApplication {
     return view;
   }
   
+  public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
+    @SuppressWarnings("unchecked")
+    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
+        new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
+        new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
+        new Pair<String, Object>("BB_TICKER", bbTicker)
+        );
+    return definition;
+  }
+  
+  public static DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
+    DiscountCurveDefinition defn = new DiscountCurveDefinition(Currency.getInstance(isoCode), name);
+    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US1D")));
+    defn.addStrip(new FixedIncomeStrip(2/ONEYEAR, constructBloombergTickerDefinition("US2D")));
+    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US7D")));
+    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US1M")));
+    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US3M")));
+    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US6M")));
+
+    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1")));
+    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2")));
+    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3")));
+    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4")));
+    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5")));
+    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6")));
+    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7")));
+    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8")));
+    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9")));
+    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10")));
+    return defn;
+  }
+
+  
   /**
    * @param function 
    * @param snapshotProvider 
@@ -153,26 +208,26 @@ public class ViewerLauncher extends SingleFrameApplication {
    */
   @SuppressWarnings("unchecked")
   private void populateSnapshot(
-      InMemoryLKVSnapshotProvider snapshotProvider,boolean addRandom) {
+      InMemoryLKVSnapshotProvider snapshotProvider,
+      DiscountCurveDefinition curveDefinition,
+      boolean addRandom) {
     // Inflection point is 10.
     double currValue = 0.005;
-    for(int i = 0; i < HardCodedUSDDiscountCurveAnalyticFunction.STRIPS.length; i++) {
+    for(FixedIncomeStrip strip : curveDefinition.getStrips()) {
       if(addRandom) {
         currValue += (Math.random() * 0.010);
       }
-      String strip = HardCodedUSDDiscountCurveAnalyticFunction.STRIPS[i];
       final Map<String, Double> dataFields = new HashMap<String, Double>();
-      dataFields.put(HardCodedUSDDiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
-      final AnalyticValueDefinition<Object> definition = (AnalyticValueDefinition<Object>) HardCodedUSDDiscountCurveAnalyticFunction.constructDefinition(strip);
-      AnalyticValue<Object> value = new AbstractAnalyticValue<Object>(definition, dataFields) {
+      dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      @SuppressWarnings("unchecked")
+      AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
-        public AnalyticValue<Object> scaleForPosition(BigDecimal quantity) {
+        public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {
           return this;
         }
       };
       snapshotProvider.addValue(value);
-      
-      if(i < 10) {
+      if(strip.getNumYears() <= 5.0) {
         currValue += 0.005;
       } else {
         currValue -= 0.001;
@@ -180,16 +235,20 @@ public class ViewerLauncher extends SingleFrameApplication {
     }
   }
   
+  
   private class SnapshotPopulatorJob extends TerminatableJob {
     private final InMemoryLKVSnapshotProvider _snapshotProvider;
+    private final DiscountCurveDefinition _curveDefinition;
     
-    public SnapshotPopulatorJob(InMemoryLKVSnapshotProvider snapshotProvider) {
+    public SnapshotPopulatorJob(InMemoryLKVSnapshotProvider snapshotProvider,
+        DiscountCurveDefinition curveDefinition) {
       _snapshotProvider = snapshotProvider;
+      _curveDefinition = curveDefinition;
     }
     
     @Override
     protected void runOneCycle() {
-      populateSnapshot(_snapshotProvider, true);
+      populateSnapshot(_snapshotProvider, _curveDefinition, true);
       try {
         Thread.sleep(10l);
       } catch (InterruptedException e) {
@@ -287,14 +346,23 @@ public class ViewerLauncher extends SingleFrameApplication {
     }
   }
   
-  private class ValueSelectionListener extends JPanel implements ListSelectionListener, TableModelListener {
-    private final int DATA_POINTS = 200;
+  private class ValueSelectionListenerPanel extends JPanel implements ListSelectionListener, TableModelListener {
+    private final Logger s_logger = LoggerFactory.getLogger(ValueSelectionListenerPanel.class);
+    private final int DATA_POINTS = 50;
     private JXTable _parentTable;
     private Position _position;
     private Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> _row;
+    private One2OneChannel _channel;
 
-    public ValueSelectionListener(JXTable parentTable) {
+    public ValueSelectionListenerPanel(JXTable parentTable) {
       _parentTable = parentTable;
+      _parentTable.getSelectionModel().addListSelectionListener(this);
+      TableModel model = _parentTable.getModel();
+      model.addTableModelListener(this);
+      setLayout(new BorderLayout());
+      _channel = Channel.one2one(new OverWriteOldestBuffer(1));
+      ProcessManager manager = new ProcessManager(new UpdateProcess(_channel.in()));
+      manager.start();
     }
     
     @Override
@@ -312,18 +380,64 @@ public class ViewerLauncher extends SingleFrameApplication {
       updateComponent();
     }
     
-    public void updateComponent() {
-      if (_row.getKey().getValue("TYPE").equals("DISCOUNT_CURVE")) {
-        DiscountCurve curve = (DiscountCurve) _row.getValue().getValue();
-        double numYears = curve.getData().lastKey();
-        double delta = numYears/DATA_POINTS;
-        XYSeries xySeries = new XYSeries("Discount Curve");
-        for (double t = 0.0d; t<=numYears; t+=delta) {
-            xySeries.add(t, curve.getInterestRate(t));
-        }
-      } else {
-        removeAll();
+    private class UpdateProcess implements CSProcess {
+      private ChannelInput _in;
+      public UpdateProcess(ChannelInput in) {
+        _in = in;
       }
+      @Override
+      public void run() {
+        while (true) {
+          DiscountCurve curve = (DiscountCurve) _in.read();
+          if (curve != null) {
+            double smallestValue = curve.getData().firstKey();
+            double numYears = curve.getData().lastKey();
+            double delta = numYears/DATA_POINTS;
+            XYSeries xySeries = new XYSeries("Discount Curve");
+            for (double t = smallestValue; t<=numYears; t+=delta) {
+                xySeries.add(t, curve.getInterestRate(t));
+            }
+            XYSeriesCollection dataSet = new XYSeriesCollection(xySeries);
+            final JFreeChart chart = ChartFactory.createXYLineChart("Discount Curve", "Time (Years)", "Rate", dataSet, PlotOrientation.VERTICAL, true, false, false);
+            try {
+              SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                  ValueSelectionListenerPanel.this.removeAll();
+                  ValueSelectionListenerPanel.this.add(new ChartPanel(chart), BorderLayout.CENTER);
+                  ValueSelectionListenerPanel.this.validate();              
+                }
+              });
+            } catch (Exception e) {
+              throw new RuntimeException(e); 
+            }
+          } else {
+            try {
+              SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                  ValueSelectionListenerPanel.this.removeAll();
+                  ValueSelectionListenerPanel.this.add(new JLabel("Nothing renderable selected"), BorderLayout.CENTER);
+                  ValueSelectionListenerPanel.this.validate();              
+                }
+              });
+            } catch (Exception e) {
+              throw new RuntimeException(e); 
+            }
+          }
+        }
+      }
+    }
+    
+    public void updateComponent() {
+      if (_row != null) {
+        Object type = _row.getKey().getValue("TYPE");
+        if (type != null && type.equals("DISCOUNT_CURVE")) {
+          s_logger.info("Updating discount curve component");
+          DiscountCurve curve = (DiscountCurve) _row.getValue().getValue();
+          _channel.out().write(curve);
+          return;
+        }
+      }
+      _channel.out().write(null);
     }
     
     private void readChanges(ListSelectionModel lsm) {
@@ -480,13 +594,21 @@ public class ViewerLauncher extends SingleFrameApplication {
     }
   }
   
-  private JPanel buildLeftTable(JXTable parentTable) {
+  private Pair<JPanel, JXTable> buildLeftTable(JXTable parentTable) {
     PortfolioSelectionListenerAndTableModel listenerAndTableModel = new PortfolioSelectionListenerAndTableModel(parentTable);
     JXTable table = new JXTable(listenerAndTableModel);
+    table.setName("positionTable");
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane scrollPane = new JScrollPane(table);
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(scrollPane, BorderLayout.CENTER);
+    return new Pair<JPanel, JXTable>(panel, table);
+  }
+  
+  private JPanel buildRightTable(JXTable parentTable) {
+    ValueSelectionListenerPanel valueSelectionListenerPanel = new ValueSelectionListenerPanel(parentTable);
+    JPanel panel = new JPanel(new BorderLayout());
+    panel.add(valueSelectionListenerPanel);
     return panel;
   }
   
@@ -504,7 +626,8 @@ public class ViewerLauncher extends SingleFrameApplication {
     }
     _view.init();
     InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getLiveDataSnapshotProvider();
-    _popJob = new SnapshotPopulatorJob(snapshotProvider);
+    DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
+    _popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
     Thread popThread = new Thread(_popJob);
     popThread.start();
   }
@@ -528,8 +651,11 @@ public class ViewerLauncher extends SingleFrameApplication {
     JSplitPane splitPane = new JSplitPane(SwingConstants.HORIZONTAL);
     splitPane.add(scrollPane);
     JSplitPane bottomPane = new JSplitPane(SwingConstants.VERTICAL);
-    bottomPane.add(buildLeftTable(table));
-    bottomPane.add(new JLabel("Right"));
+    Pair<JPanel, JXTable> buildLeftTable = buildLeftTable(table);
+    JPanel leftPanel = buildLeftTable.getFirst();
+    JXTable leftTable = buildLeftTable.getSecond();
+    bottomPane.add(leftPanel);
+    bottomPane.add(buildRightTable(leftTable));
     splitPane.add(bottomPane);
     panel.add(splitPane, BorderLayout.CENTER);
     show(panel);

@@ -96,32 +96,4 @@ public class DependencyNode {
     _inputNodes.add(inputNode);
     _inputNodesByValue.put(satisfyingInput, inputNode);
   }
-  
-  // TODO kirk 2009-09-04 -- Candidate for a pure unit test.
-  /**
-   * Recursively determine whether there is any node which matches the required
-   * definition provided.
-   * Performs a DFS search with pre-order evaluation.
-   * 
-   * @param requiredOutput
-   * @param requiredInputs
-   * @return
-   */
-  public DependencyNode getMatchingNode(
-      AnalyticValueDefinition<?> requiredOutput) {
-    if(requiredOutput == null) {
-      return null;
-    }
-    if(getOutputValues().contains(requiredOutput)) {
-      return this;
-    }
-    for(DependencyNode inputNode : getInputNodes()) {
-      DependencyNode matchingNode = inputNode.getMatchingNode(requiredOutput);
-      if(matchingNode != null) {
-        return matchingNode;
-      }
-    }
-    return null;
-  }
-
 }
