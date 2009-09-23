@@ -12,16 +12,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.time.calendar.Clock;
+
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityIdentificationDomain;
+import com.opengamma.engine.security.SecurityIdentifier;
+import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.Pair;
-import com.opengamma.util.time.DateUtil;
 
 // REVIEW kirk 2009-09-16 -- Changed name to USD as it's holding all the strips
 // that are specific to USD, and can only generate one type of result definition.
@@ -39,7 +42,7 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
     "USSW7", "USSW8", "USSW9", "USSW10"
   };
   public static final String PRICE_FIELD_NAME = "PRICE";
-
+  public static final String DATA_SOURCE = "BLOOMBERG";
   private static Map<String, Double> _securities = new HashMap<String, Double>();
   private static final List<AnalyticValueDefinition<?>> s_inputDefinitions;
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
@@ -72,13 +75,10 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
   }
   
   public static AnalyticValueDefinition<Map<String, Double>> constructDefinition(String bbTicker) {
-    @SuppressWarnings("unchecked")
-    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
-        new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
-        new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
-        new Pair<String, Object>("BB_TICKER", bbTicker)
-        );
-    return definition;
+    return new ResolveSecurityKeyToMarketDataHeaderDefinition(
+        new SecurityKeyImpl(
+            new SecurityIdentifier(
+                new SecurityIdentificationDomain(DATA_SOURCE), bbTicker)));
   }
   
   @Override
@@ -100,7 +100,7 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
       double years = _securities.get(ticker);
       timeInYearsToRates.put(years, price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(DateUtil.today(), timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new DiscountCurve(Clock.systemDefaultZone().instant(), timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }

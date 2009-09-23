@@ -22,8 +22,8 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
    * @param expiry
    */
   public PoweredEquityOptionSecurity(OptionType optionType, double strike,
-      Expiry expiry, double power) {
-    super(optionType, strike, expiry);
+      Expiry expiry, double power, SecurityKey underlying, Currency currency) {
+    super(optionType, strike, expiry, underlying, currency);
     _power = power;
   }
 

@@ -23,6 +23,11 @@ public interface Security {
   Collection<SecurityIdentifier> getIdentifiers();
   
   /**
+   * Obtain a SecurityKey that uniquely identifies the security in question
+   */
+  SecurityKey getIndentityKey();
+  
+  /**
    * Obtain the text-based type of this Security.
    * @return The text-based type of this security.
    */

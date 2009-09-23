@@ -20,8 +20,8 @@ public class AmericanVanillaEquityOptionSecurity extends EquityOptionSecurity im
    * @param expiry
    */
   public AmericanVanillaEquityOptionSecurity(OptionType optionType,
-      double strike, Expiry expiry) {
-    super(optionType, strike, expiry);
+      double strike, Expiry expiry, SecurityKey underlying, Currency currency) {
+    super(optionType, strike, expiry, underlying, currency);
   }
 
   @Override

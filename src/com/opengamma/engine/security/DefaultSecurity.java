@@ -30,6 +30,12 @@ public class DefaultSecurity implements Security, Serializable {
   public void setIdentifiers(Collection<? extends SecurityIdentifier> identifiers) {
     _identifiers = new ArrayList<SecurityIdentifier>(identifiers);
   }
+  
+  // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
+  @Override
+  public SecurityKey getIndentityKey() {
+    return new SecurityKeyImpl(_identifiers);
+  }
 
   @Override
   public String getSecurityType() {
@@ -42,5 +48,8 @@ public class DefaultSecurity implements Security, Serializable {
   public void setSecurityType(String securityType) {
     _securityType = securityType;
   }
+
+
+
 
 }

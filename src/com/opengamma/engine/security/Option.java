@@ -16,4 +16,5 @@ public interface Option {
   public OptionType getOptionType();
   public double getStrike();
   public Expiry getExpiry();
+  public SecurityKey getUnderlying();
 }

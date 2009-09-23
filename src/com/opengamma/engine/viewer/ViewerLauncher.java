@@ -6,7 +6,6 @@
 package com.opengamma.engine.viewer;
 
 import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,16 +15,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SwingConstants;
@@ -44,14 +39,11 @@ import org.jcsp.lang.One2OneChannel;
 import org.jcsp.lang.ProcessManager;
 import org.jcsp.util.OverWriteOldestBuffer;
 import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXTable;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.IntervalXYDataset;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.slf4j.Logger;
@@ -64,6 +56,7 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.HardCodedUSDDiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
+import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
@@ -77,6 +70,8 @@ import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityIdentificationDomain;
 import com.opengamma.engine.security.SecurityIdentifier;
+import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.MapViewComputationCache;
 import com.opengamma.engine.view.ViewComputationCache;
@@ -86,7 +81,6 @@ import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.util.KeyValuePair;
 import com.opengamma.util.Pair;
 import com.opengamma.util.TerminatableJob;
@@ -99,8 +93,10 @@ import com.opengamma.util.TerminatableJob;
 public class ViewerLauncher extends SingleFrameApplication {
   
   private static final double ONEYEAR = 365.25;
+  private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
   private ViewImpl _view;
   private SnapshotPopulatorJob _popJob;
+  
 
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
@@ -130,6 +126,10 @@ public class ViewerLauncher extends SingleFrameApplication {
         @Override
         public String getSecurityType() {
           return "KIRK";
+        }
+        @Override
+        public SecurityKey getIndentityKey() {
+          return new SecurityKeyImpl(getIdentifiers());
         }
       };
       securities.add(security);
@@ -170,11 +170,9 @@ public class ViewerLauncher extends SingleFrameApplication {
   
   public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
     @SuppressWarnings("unchecked")
-    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
-        new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
-        new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
-        new Pair<String, Object>("BB_TICKER", bbTicker)
-        );
+    ResolveSecurityKeyToMarketDataHeaderDefinition definition =
+      new ResolveSecurityKeyToMarketDataHeaderDefinition(
+          new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
     return definition;
   }
   
@@ -219,7 +217,6 @@ public class ViewerLauncher extends SingleFrameApplication {
       }
       final Map<String, Double> dataFields = new HashMap<String, Double>();
       dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
-      @SuppressWarnings("unchecked")
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {
@@ -350,6 +347,7 @@ public class ViewerLauncher extends SingleFrameApplication {
     private final Logger s_logger = LoggerFactory.getLogger(ValueSelectionListenerPanel.class);
     private final int DATA_POINTS = 50;
     private JXTable _parentTable;
+    @SuppressWarnings("unused")
     private Position _position;
     private Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> _row;
     private One2OneChannel _channel;

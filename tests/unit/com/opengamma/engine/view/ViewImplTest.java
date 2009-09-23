@@ -22,6 +22,7 @@ import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
+import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
@@ -35,6 +36,8 @@ import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityIdentificationDomain;
 import com.opengamma.engine.security.SecurityIdentifier;
+import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.Pair;
@@ -47,6 +50,7 @@ import com.opengamma.util.TerminatableJob;
  */
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
+  private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
   
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
@@ -71,6 +75,10 @@ public class ViewImplTest {
       @Override
       public String getSecurityType() {
         return "KIRK";
+      }
+      @Override
+      public SecurityKey getIndentityKey() {
+        return new SecurityKeyImpl(getIdentifiers());
       }
     };
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
@@ -189,11 +197,9 @@ public class ViewImplTest {
   
   public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
     @SuppressWarnings("unchecked")
-    AnalyticValueDefinitionImpl<Map<String, Double>> definition = new AnalyticValueDefinitionImpl<Map<String, Double>>(
-        new Pair<String, Object>("DATA_SOURCE", "BLOOMBERG"),
-        new Pair<String, Object>("TYPE", "MARKET_DATA_HEADER"),
-        new Pair<String, Object>("BB_TICKER", bbTicker)
-        );
+    ResolveSecurityKeyToMarketDataHeaderDefinition definition =
+      new ResolveSecurityKeyToMarketDataHeaderDefinition(
+          new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
     return definition;
   }
   
