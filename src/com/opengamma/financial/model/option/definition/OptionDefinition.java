@@ -24,8 +24,8 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
   private final double _strike;
   private final Expiry _expiry;
   private final boolean _isCall;
-  protected Function1D<OptionDataBundleWithPrice<T>, Boolean> _exerciseFunction;
-  protected Function1D<OptionDataBundleWithPrice<T>, Double> _payoffFunction;
+  protected Function1D<T, Boolean> _exerciseFunction;
+  protected Function1D<T, Double> _payoffFunction;
 
   /**
    * 
@@ -82,7 +82,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
    *           If the exercise function has not been initialised in the
    *           descendant class.
    */
-  public Function1D<OptionDataBundleWithPrice<T>, Boolean> getExerciseFunction() {
+  public Function1D<T, Boolean> getExerciseFunction() {
     if (_exerciseFunction == null)
       throw new IllegalArgumentException("Exercise function was not initialised");
     return _exerciseFunction;
@@ -95,7 +95,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
    *           If the payoff function has not been initialised in the descendant
    *           class.
    */
-  public Function1D<OptionDataBundleWithPrice<T>, Double> getPayoffFunction() {
+  public Function1D<T, Double> getPayoffFunction() {
     if (_payoffFunction == null)
       throw new IllegalArgumentException("Payoff function was not initialised");
     return _payoffFunction;
@@ -105,13 +105,13 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_exerciseFunction == null) ? 0 : _exerciseFunction.hashCode());
-    result = prime * result + ((_expiry == null) ? 0 : _expiry.hashCode());
+    result = prime * result + (_exerciseFunction == null ? 0 : _exerciseFunction.hashCode());
+    result = prime * result + (_expiry == null ? 0 : _expiry.hashCode());
     result = prime * result + (_isCall ? 1231 : 1237);
-    result = prime * result + ((_payoffFunction == null) ? 0 : _payoffFunction.hashCode());
+    result = prime * result + (_payoffFunction == null ? 0 : _payoffFunction.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_strike);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
@@ -124,7 +124,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    OptionDefinition other = (OptionDefinition) obj;
+    final OptionDefinition other = (OptionDefinition) obj;
     if (_exerciseFunction == null) {
       if (other._exerciseFunction != null)
         return false;

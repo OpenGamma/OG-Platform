@@ -20,7 +20,7 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class AmericanVanillaOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+public class AmericanVanillaOptionDefinition extends OptionDefinition<StandardOptionDataBundleWithOptionPrice> {
 
   /**
    * 
@@ -34,20 +34,20 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition<StandardOp
 
   @Override
   protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<OptionDataBundleWithPrice<StandardOptionDataBundle>, Double>() {
+    _payoffFunction = new Function1D<StandardOptionDataBundleWithOptionPrice, Double>() {
 
       @Override
-      public Double evaluate(OptionDataBundleWithPrice<StandardOptionDataBundle> data) {
-        double spot = data.getDataBundle().getSpot();
+      public Double evaluate(StandardOptionDataBundleWithOptionPrice data) {
+        final double spot = data.getSpot();
         return isCall() ? Math.max(0, spot - getStrike()) : Math.max(0, getStrike() - spot);
       }
     };
-    _exerciseFunction = new Function1D<OptionDataBundleWithPrice<StandardOptionDataBundle>, Boolean>() {
+    _exerciseFunction = new Function1D<StandardOptionDataBundleWithOptionPrice, Boolean>() {
 
       @Override
-      public Boolean evaluate(OptionDataBundleWithPrice<StandardOptionDataBundle> data) {
-        double spot = data.getDataBundle().getSpot();
-        double option = data.getOptionPrice();
+      public Boolean evaluate(StandardOptionDataBundleWithOptionPrice data) {
+        final double spot = data.getSpot();
+        final double option = data.getOptionPrice();
         return isCall() ? option > getStrike() - spot : option > spot - getStrike();
       }
     };

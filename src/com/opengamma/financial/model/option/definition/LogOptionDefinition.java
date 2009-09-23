@@ -25,20 +25,20 @@ public class LogOptionDefinition extends OptionDefinition<StandardOptionDataBund
 
   @Override
   protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<OptionDataBundleWithPrice<StandardOptionDataBundle>, Double>() {
+    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(OptionDataBundleWithPrice<StandardOptionDataBundle> data) {
-        double spot = data.getDataBundle().getSpot();
+      public Double evaluate(StandardOptionDataBundle data) {
+        final double spot = data.getSpot();
         return isCall() ? Math.max(0, Math.log(spot / getStrike())) : Math.max(0, Math.log(getStrike() / spot));
       }
 
     };
 
-    _exerciseFunction = new Function1D<OptionDataBundleWithPrice<StandardOptionDataBundle>, Boolean>() {
+    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
 
       @Override
-      public Boolean evaluate(OptionDataBundleWithPrice<StandardOptionDataBundle> x) {
+      public Boolean evaluate(StandardOptionDataBundle data) {
         return false;
       }
 

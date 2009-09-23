@@ -18,22 +18,25 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.Expiry;
 
 /**
- * A chooser option gives the holder the right to choose whether the option is
- * to be a standard call or put after a certain time. The exercise style of the
- * option, once the choice has been made, is European.
+ * A simple chooser option gives the holder the right to choose whether the
+ * option is to be a standard call or put (both with the same expiry) after a
+ * certain time. The exercise style of the option, once the choice has been
+ * made, is European.
  * <p>
- * The payoff from the option with time to maturity <i>T</i>, strike <i>K</i>,
- * spot <i>S</i> is <i>max(c<sub>BSM</i>(S, K, T), p<sub>BSM</sub>(S, K, T)</i>,
- * where <i>C<sub>BSM</sub></i> is the Black-Scholes-Merton call price and
- * <i>P<sub>BSM</sub></i> is the Black-Scholes-Merton put price.
+ * The payoff from the option with strike <i>K</i> and spot <i>S</i> is
+ * <i>max(c<sub>BSM</i>(S, K, T), p<sub>BSM</sub>(S, K, T)</i>, where
+ * <i>C<sub>BSM</sub></i> is the Black-Scholes-Merton call price,
+ * <i>P<sub>BSM</sub></i> is the Black-Scholes-Merton put price and <i>T</i> is
+ * the time to maturity of the put or call.
  * 
  * @author emcleod
  */
 
-public class ChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
-  private InstantProvider _chooseDate;
-  protected EuropeanVanillaOptionDefinition _callDefinition;
-  protected EuropeanVanillaOptionDefinition _putDefinition;
+public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+  private final InstantProvider _chooseDate;
+  private final Expiry _optionExpiry;
+  protected final EuropeanVanillaOptionDefinition _callDefinition;
+  protected final EuropeanVanillaOptionDefinition _putDefinition;
   protected final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   protected final Greek PRICE = new Price();
   protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { PRICE });
@@ -43,46 +46,48 @@ public class ChooserOptionDefinition extends OptionDefinition<StandardOptionData
    * @param strike
    * @param expiry
    * @param chooseDate
+   * @param optionExpiry
    * @param vars
    */
-  public ChooserOptionDefinition(double strike, Expiry expiry, InstantProvider chooseDate, StandardOptionDataBundle vars) {
+  public SimpleChooserOptionDefinition(double strike, Expiry expiry, InstantProvider chooseDate, Expiry optionExpiry) {
     super(strike, expiry, null);
     if (chooseDate.toInstant().isAfter(expiry.toInstant()))
       throw new IllegalArgumentException("Option expiry must be after the choice date");
     _chooseDate = chooseDate;
-    _callDefinition = new EuropeanVanillaOptionDefinition(strike, expiry, true);
-    _putDefinition = new EuropeanVanillaOptionDefinition(strike, expiry, false);
+    _optionExpiry = optionExpiry;
+    _callDefinition = new EuropeanVanillaOptionDefinition(strike, optionExpiry, true);
+    _putDefinition = new EuropeanVanillaOptionDefinition(strike, optionExpiry, false);
   }
 
   @Override
   protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<OptionDataBundleWithPrice<StandardOptionDataBundle>, Double>() {
+    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(OptionDataBundleWithPrice<StandardOptionDataBundle> data) {
-        double callPrice = BSM.getGreeks(_callDefinition, data.getDataBundle(), GREEKS).get(PRICE).values().iterator().next();
-        double putPrice = BSM.getGreeks(_putDefinition, data.getDataBundle(), GREEKS).get(PRICE).values().iterator().next();
+      public Double evaluate(StandardOptionDataBundle data) {
+        final double callPrice = BSM.getGreeks(_callDefinition, data, GREEKS).get(PRICE).values().iterator().next();
+        final double putPrice = BSM.getGreeks(_putDefinition, data, GREEKS).get(PRICE).values().iterator().next();
         return Math.max(callPrice, putPrice);
       }
 
     };
 
-    _exerciseFunction = new Function1D<OptionDataBundleWithPrice<StandardOptionDataBundle>, Boolean>() {
+    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
 
       @Override
-      public Boolean evaluate(OptionDataBundleWithPrice<StandardOptionDataBundle> x) {
+      public Boolean evaluate(StandardOptionDataBundle data) {
         return false;
       }
 
     };
   }
 
-  /**
-   * 
-   * @return The date upon which the choice is made.
-   */
   public InstantProvider getChooseDate() {
     return _chooseDate;
+  }
+
+  public Expiry getOptionExpiry() {
+    return _optionExpiry;
   }
 
   @Override
@@ -94,6 +99,7 @@ public class ChooserOptionDefinition extends OptionDefinition<StandardOptionData
     result = prime * result + ((PRICE == null) ? 0 : PRICE.hashCode());
     result = prime * result + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
     result = prime * result + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
+    result = prime * result + ((_optionExpiry == null) ? 0 : _optionExpiry.hashCode());
     result = prime * result + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
     return result;
   }
@@ -106,7 +112,7 @@ public class ChooserOptionDefinition extends OptionDefinition<StandardOptionData
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ChooserOptionDefinition other = (ChooserOptionDefinition) obj;
+    SimpleChooserOptionDefinition other = (SimpleChooserOptionDefinition) obj;
     if (BSM == null) {
       if (other.BSM != null)
         return false;
@@ -131,6 +137,11 @@ public class ChooserOptionDefinition extends OptionDefinition<StandardOptionData
       if (other._chooseDate != null)
         return false;
     } else if (!_chooseDate.equals(other._chooseDate))
+      return false;
+    if (_optionExpiry == null) {
+      if (other._optionExpiry != null)
+        return false;
+    } else if (!_optionExpiry.equals(other._optionExpiry))
       return false;
     if (_putDefinition == null) {
       if (other._putDefinition != null)

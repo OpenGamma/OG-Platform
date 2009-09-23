@@ -14,9 +14,9 @@ public class Barrier {
     DOWN, UP
   }
 
-  private KnockType _knock;
-  private BarrierType _barrier;
-  private double _value;
+  private final KnockType _knock;
+  private final BarrierType _barrier;
+  private final double _value;
 
   public Barrier(KnockType knock, BarrierType barrier, double value) {
     _knock = knock;

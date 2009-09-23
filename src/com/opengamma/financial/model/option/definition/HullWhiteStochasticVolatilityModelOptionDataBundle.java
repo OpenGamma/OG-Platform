@@ -39,4 +39,40 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
   public double getCorrelation() {
     return _rho;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_lambda);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_rho);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_sigmaLR);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_volOfSigma);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    HullWhiteStochasticVolatilityModelOptionDataBundle other = (HullWhiteStochasticVolatilityModelOptionDataBundle) obj;
+    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda))
+      return false;
+    if (Double.doubleToLongBits(_rho) != Double.doubleToLongBits(other._rho))
+      return false;
+    if (Double.doubleToLongBits(_sigmaLR) != Double.doubleToLongBits(other._sigmaLR))
+      return false;
+    if (Double.doubleToLongBits(_volOfSigma) != Double.doubleToLongBits(other._volOfSigma))
+      return false;
+    return true;
+  }
 }
