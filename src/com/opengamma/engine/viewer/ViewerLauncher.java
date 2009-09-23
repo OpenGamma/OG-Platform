@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.concurrent.Executors;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -164,6 +165,7 @@ public class ViewerLauncher extends SingleFrameApplication {
     view.setSecurityMaster(secMaster);
     view.setComputationCacheFactory(cacheFactory);
     view.setLiveDataSnapshotProvider(snapshotProvider);
+    view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     
     return view;
   }

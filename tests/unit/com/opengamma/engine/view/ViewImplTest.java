@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import org.junit.Test;
 
@@ -110,6 +111,7 @@ public class ViewImplTest {
     view.setSecurityMaster(secMaster);
     view.setComputationCacheFactory(cacheFactory);
     view.setLiveDataSnapshotProvider(snapshotProvider);
+    view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     
     return view;
   }

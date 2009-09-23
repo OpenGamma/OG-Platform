@@ -6,17 +6,16 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.security.Security;
 
@@ -44,6 +43,7 @@ public class SingleComputationCycle {
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   private final LiveDataSnapshotProvider _snapshotProvider;
   private final ViewDefinition _viewDefinition;
+  private final ExecutorService _computationExecutorService;
   
   // State:
   private final long _startTime;
@@ -57,17 +57,20 @@ public class SingleComputationCycle {
       PortfolioEvaluationModel portfolioEvaluationModel,
       LiveDataSnapshotProvider snapshotProvider,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition) {
+      ViewDefinition viewDefinition,
+      ExecutorService computationExecutorService) {
     assert cache != null;
     assert portfolioEvaluationModel != null;
     assert snapshotProvider != null;
     assert resultModel != null;
     assert viewDefinition != null;
+    assert computationExecutorService != null;
     _computationCache = cache;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _snapshotProvider = snapshotProvider;
     _resultModel = resultModel;
     _viewDefinition = viewDefinition;
+    _computationExecutorService = computationExecutorService;
     _startTime = System.currentTimeMillis();
   }
   
@@ -127,6 +130,13 @@ public class SingleComputationCycle {
     return _viewDefinition;
   }
 
+  /**
+   * @return the computationExecutorService
+   */
+  public ExecutorService getComputationExecutorService() {
+    return _computationExecutorService;
+  }
+
   public void prepareInputs() {
     setSnapshotTime(getSnapshotProvider().snapshot());
     getResultModel().setInputDataTimestamp(getSnapshotTime());
@@ -145,44 +155,14 @@ public class SingleComputationCycle {
   }
   
   public void executePlans() {
-    for(PerSecurityExecutionPlan executionPlan : getPortfolioEvaluationModel().getPlansBySecurity().values()) {
-      // TODO kirk 2009-09-14 -- Yep, need some concurrency here as well.
-      executePlan(executionPlan);
+    for(Security security : getPortfolioEvaluationModel().getSecurities()) {
+      SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
+      assert secDepGraph != null;
+      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(security, secDepGraph, getComputationCache(), getComputationExecutorService());
+      depGraphExecutor.executeGraph();
     }
   }
 
-  /**
-   * @param executionPlan
-   */
-  private void executePlan(PerSecurityExecutionPlan executionPlan) {
-    // TODO kirk 2009-09-14 -- Yep, this sucks. Totally first-gen code.
-    for(DependencyNode node : executionPlan.getOrderedNodes()) {
-      // First of all, check that we don't have the outputs already ready.
-      boolean allFound = true;
-      for(AnalyticValueDefinition<?> outputDefinition : node.getOutputValues()) {
-        if(getComputationCache().getValue(outputDefinition) == null) {
-          allFound = false;
-          break;
-        }
-      }
-      
-      if(allFound) {
-        s_logger.debug("Able to skip a node because it was already computed.");
-        continue;
-      }
-      
-      Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
-      for(AnalyticValueDefinition<?> inputDefinition : node.getInputValues()) {
-        inputs.add(getComputationCache().getValue(inputDefinition));
-      }
-      AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputs(inputs);
-      Collection<AnalyticValue<?>> outputs = node.getFunction().execute(functionInputs, executionPlan.getSecurity());
-      for(AnalyticValue<?> outputValue : outputs) {
-        getComputationCache().putValue(outputValue);
-      }
-    }
-  }
-  
   public void populateResultModel() {
     Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
     for(FullyPopulatedPosition position : getPortfolioEvaluationModel().getPopulatedPositions()) {
