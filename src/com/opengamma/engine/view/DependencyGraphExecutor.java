@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
@@ -98,9 +99,11 @@ public class DependencyGraphExecutor {
         Future<DependencyNode> completedNodeFuture = completionService.poll(10, TimeUnit.SECONDS);
         completedNode = completedNodeFuture.get();
       } catch (InterruptedException e) {
-        s_logger.warn("{} {} Was interrupted.", new Object[] {getSecurity(), completedNode}, e);
+        String warnMessage = MessageFormat.format("{1} {2} Was Interrupted", getSecurity(), completedNode);
+        s_logger.warn(warnMessage, e);
       } catch (ExecutionException e) {
-        s_logger.warn("{} {} Execution failed.", new Object[] {getSecurity(), completedNode}, e);
+        String warnMessage = MessageFormat.format("{1} {2} Execution Failed", getSecurity(), completedNode);
+        s_logger.warn(warnMessage, e);
       }
       _executingNodes.remove(completedNode);
       _executedNodes.add(completedNode);

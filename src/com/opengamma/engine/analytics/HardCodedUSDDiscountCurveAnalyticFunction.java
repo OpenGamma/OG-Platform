@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Clock;
+import javax.time.Instant;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
@@ -101,7 +101,7 @@ public class HardCodedUSDDiscountCurveAnalyticFunction implements AnalyticFuncti
       double years = _securities.get(ticker);
       timeInYearsToRates.put(years, price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(Clock.systemDefaultZone().instant(), timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new DiscountCurve(Instant.instant(System.currentTimeMillis()), timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }
