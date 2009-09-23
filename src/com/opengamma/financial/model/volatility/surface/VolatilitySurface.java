@@ -6,10 +6,11 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import javax.time.InstantProvider;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.math.interpolation.Interpolator2D;
@@ -25,7 +26,7 @@ import com.opengamma.util.Pair;
  */
 
 public class VolatilitySurface implements VolatilityModel<Double, Double> {
-  private final Date _date;
+  private final InstantProvider _date;
   private final SortedMap<Pair<Double, Double>, Double> _data;
   private final Interpolator2D _interpolator;
 
@@ -42,7 +43,7 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
    * @throws IllegalArgumentException
    *           Thrown if the data map is null or empty.
    */
-  public VolatilitySurface(Date date, Map<Pair<Double, Double>, Double> data, Interpolator2D interpolator) {
+  public VolatilitySurface(InstantProvider date, Map<Pair<Double, Double>, Double> data, Interpolator2D interpolator) {
     if (data == null)
       throw new IllegalArgumentException("Data map was null");
     if (data.isEmpty())
@@ -68,7 +69,7 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
    * 
    * @return The date for this surface.
    */
-  public Date getDate() {
+  public InstantProvider getDate() {
     return _date;
   }
 

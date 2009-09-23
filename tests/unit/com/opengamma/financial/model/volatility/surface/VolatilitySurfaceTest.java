@@ -7,20 +7,21 @@ package com.opengamma.financial.model.volatility.surface;
 
 import static org.junit.Assert.fail;
 
-import java.util.Date;
 import java.util.HashMap;
+
+import javax.time.Instant;
+import javax.time.InstantProvider;
 
 import org.junit.Test;
 
 import com.opengamma.util.Pair;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  * @author emcleod
  */
 public class VolatilitySurfaceTest {
-  private static final Date DATE = DateUtil.date(20090901);
+  private static final InstantProvider DATE = Instant.millisInstant(1000);
 
   // private static final Interpolator2D INTERPOLATOR = new
   // LinearInterpolator2D();

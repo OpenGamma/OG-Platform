@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import java.util.Date;
 import java.util.Map;
+
+import javax.time.InstantProvider;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -34,7 +35,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
 
   private class MyMutableStandardOptionDataBundle extends StandardOptionDataBundle {
     private VolatilitySurface _mutableSurface;
-    private final Date _date;
+    private final InstantProvider _date;
 
     public MyMutableStandardOptionDataBundle(StandardOptionDataBundle data) {
       super(data.getDiscountCurve(), data.getCostOfCarry(), data.getVolatilitySurface(), data.getSpot(), data.getDate());
