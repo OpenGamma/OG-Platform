@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.InstantProvider;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -20,12 +20,12 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public abstract class OptionDefinition {
+public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
   private final double _strike;
   private final Expiry _expiry;
   private final boolean _isCall;
-  protected Function<Double, Double> _payoffFunction;
-  protected Function<Double, Boolean> _exerciseFunction;
+  protected Function1D<OptionDataBundleWithPrice<T>, Boolean> _exerciseFunction;
+  protected Function1D<OptionDataBundleWithPrice<T>, Double> _payoffFunction;
 
   /**
    * 
@@ -82,7 +82,7 @@ public abstract class OptionDefinition {
    *           If the exercise function has not been initialised in the
    *           descendant class.
    */
-  public Function<Double, Boolean> getExerciseFunction() {
+  public Function1D<OptionDataBundleWithPrice<T>, Boolean> getExerciseFunction() {
     if (_exerciseFunction == null)
       throw new IllegalArgumentException("Exercise function was not initialised");
     return _exerciseFunction;
@@ -95,9 +95,55 @@ public abstract class OptionDefinition {
    *           If the payoff function has not been initialised in the descendant
    *           class.
    */
-  public Function<Double, Double> getPayoffFunction() {
+  public Function1D<OptionDataBundleWithPrice<T>, Double> getPayoffFunction() {
     if (_payoffFunction == null)
       throw new IllegalArgumentException("Payoff function was not initialised");
     return _payoffFunction;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_exerciseFunction == null) ? 0 : _exerciseFunction.hashCode());
+    result = prime * result + ((_expiry == null) ? 0 : _expiry.hashCode());
+    result = prime * result + (_isCall ? 1231 : 1237);
+    result = prime * result + ((_payoffFunction == null) ? 0 : _payoffFunction.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    OptionDefinition other = (OptionDefinition) obj;
+    if (_exerciseFunction == null) {
+      if (other._exerciseFunction != null)
+        return false;
+    } else if (!_exerciseFunction.equals(other._exerciseFunction))
+      return false;
+    if (_expiry == null) {
+      if (other._expiry != null)
+        return false;
+    } else if (!_expiry.equals(other._expiry))
+      return false;
+    if (_isCall != other._isCall)
+      return false;
+    if (_payoffFunction == null) {
+      if (other._payoffFunction != null)
+        return false;
+    } else if (!_payoffFunction.equals(other._payoffFunction))
+      return false;
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+      return false;
+    return true;
   }
 }

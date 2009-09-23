@@ -1,11 +1,20 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.definition;
 
 import com.opengamma.util.time.Expiry;
 
 /**
+ * 
+ * Definition for a fade-in option. The payoff of the option is the same as that
+ * for a standard option with the size of the payoff weighted by how many
+ * fixings the asset price were inside a pre-defined range <i>(L, U)</i>
+ * 
  * @author emcleod
  */
-
 public class FadeInOptionDefinition extends OptionDefinition {
   private double _lowerBound;
   private double _upperBound;
@@ -21,15 +30,4 @@ public class FadeInOptionDefinition extends OptionDefinition {
     // TODO Auto-generated method stub
 
   }
-
-  /*
-   * @Override public double getPayoff(double... inputs) { double weight = 0;
-   * int n = inputs.length; for (int i = 0; i < n - 1; i++) { if (inputs[i] >
-   * _lowerBound && inputs[i] < _upperBound) { weight++; } } return weight /
-   * (inputs.length - 1) * (isCall() ? Math.max(inputs[n - 1] - getStrike(), 0)
-   * : Math.max(getStrike() - inputs[n - 1], 0)); }
-   * 
-   * @Override public boolean shouldExercise(double... varArgs) { return false;
-   * }
-   */
 }
