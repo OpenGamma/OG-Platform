@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
+import com.opengamma.util.time.Expiry;
 
 /**
  * @author emcleod
@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
 
-  public FloatingStrikeLookbackOptionDefinition(Date expiry, boolean isCall) {
+  public FloatingStrikeLookbackOptionDefinition(Expiry expiry, boolean isCall) {
     super(null, expiry, isCall);
   }
 

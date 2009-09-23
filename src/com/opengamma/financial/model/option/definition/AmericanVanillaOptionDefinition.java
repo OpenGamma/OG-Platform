@@ -1,13 +1,12 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
-
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.time.Expiry;
 
 public class AmericanVanillaOptionDefinition extends OptionDefinition {
 
-  public AmericanVanillaOptionDefinition(double strike, Date expiry, boolean isCall) {
+  public AmericanVanillaOptionDefinition(double strike, Expiry expiry, boolean isCall) {
     super(strike, expiry, isCall);
   }
 

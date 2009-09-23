@@ -1,18 +1,20 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
+import javax.time.InstantProvider;
+
+import com.opengamma.util.time.Expiry;
 
 /**
  * @author emcleod
  */
 
 public class ChooserOptionDefinition extends OptionDefinition {
-  private Date _chooseDate;
+  private InstantProvider _chooseDate;
   private StandardOptionDataBundle _vars;
   private EuropeanVanillaOptionDefinition _callDefinition;
   private EuropeanVanillaOptionDefinition _putDefinition;
 
-  public ChooserOptionDefinition(double strike, Date expiry, Date chooseDate, StandardOptionDataBundle vars) {
+  public ChooserOptionDefinition(double strike, Expiry expiry, InstantProvider chooseDate, StandardOptionDataBundle vars) {
     // TODO check expiry is after other date
     super(strike, expiry, null);
     _chooseDate = chooseDate;

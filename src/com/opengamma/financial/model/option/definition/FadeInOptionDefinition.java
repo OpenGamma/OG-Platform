@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
+import com.opengamma.util.time.Expiry;
 
 /**
  * @author emcleod
@@ -10,7 +10,7 @@ public class FadeInOptionDefinition extends OptionDefinition {
   private double _lowerBound;
   private double _upperBound;
 
-  public FadeInOptionDefinition(double strike, Date expiry, boolean isCall, double lowerBound, double upperBound) {
+  public FadeInOptionDefinition(double strike, Expiry expiry, boolean isCall, double lowerBound, double upperBound) {
     super(strike, expiry, isCall);
     _lowerBound = lowerBound;
     _upperBound = upperBound;

@@ -1,14 +1,13 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
-
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.time.Expiry;
 
 public class AsymmetricPowerOptionDefinition extends OptionDefinition {
   private final double _power;
 
-  public AsymmetricPowerOptionDefinition(double strike, Date expiry, double power, boolean isCall) {
+  public AsymmetricPowerOptionDefinition(double strike, Expiry expiry, double power, boolean isCall) {
     super(strike, expiry, isCall);
     _power = power;
   }

@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
+import javax.time.InstantProvider;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -15,8 +15,8 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
   private final double _volOfSigma;
   private final double _rho;
 
-  public HullWhiteStochasticVolatilityModelOptionDataBundle(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, Date date, double lambda, double sigmaLR,
-      double volOfSigma, double rho) {
+  public HullWhiteStochasticVolatilityModelOptionDataBundle(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, InstantProvider date,
+      double lambda, double sigmaLR, double volOfSigma, double rho) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
     _sigmaLR = sigmaLR;

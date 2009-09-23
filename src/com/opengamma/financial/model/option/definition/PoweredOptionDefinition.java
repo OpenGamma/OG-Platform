@@ -1,11 +1,11 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
+import com.opengamma.util.time.Expiry;
 
 public class PoweredOptionDefinition extends OptionDefinition {
   private double _power;
 
-  public PoweredOptionDefinition(double strike, Date expiry, double power, boolean isCall) {
+  public PoweredOptionDefinition(double strike, Expiry expiry, double power, boolean isCall) {
     super(strike, expiry, isCall);
     _power = power;
   }

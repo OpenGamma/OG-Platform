@@ -1,15 +1,14 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
-
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.time.Expiry;
 
 public class CappedPowerOptionDefinition extends OptionDefinition {
   private final double _power;
   private final double _cap;
 
-  public CappedPowerOptionDefinition(double strike, Date expiry, double power, double cap, boolean isCall) {
+  public CappedPowerOptionDefinition(double strike, Expiry expiry, double power, double cap, boolean isCall) {
     super(strike, expiry, isCall);
     _power = power;
     _cap = cap;

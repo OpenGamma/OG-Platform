@@ -1,10 +1,10 @@
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Date;
+import com.opengamma.util.time.Expiry;
 
 public class LogOptionDefinition extends OptionDefinition {
 
-  public LogOptionDefinition(double strike, Date expiry, boolean isCall) {
+  public LogOptionDefinition(double strike, Expiry expiry, boolean isCall) {
     super(strike, expiry, isCall);
   }
 
