@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +48,6 @@ public class PortfolioEvaluationModel {
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<FullyPopulatedPosition> _populatedPositions = new HashSet<FullyPopulatedPosition>();
   private final Set<Security> _securities = new HashSet<Security>();
-  private final Map<Security, PerSecurityExecutionPlan> _plansBySecurity = new HashMap<Security, PerSecurityExecutionPlan>();
   
   public PortfolioEvaluationModel(PortfolioNode rootNode) {
     assert rootNode != null;
@@ -105,13 +103,6 @@ public class PortfolioEvaluationModel {
     _dependencyGraphModel = dependencyGraphModel;
   }
 
-  /**
-   * @return the plansBySecurity
-   */
-  public Map<Security, PerSecurityExecutionPlan> getPlansBySecurity() {
-    return _plansBySecurity;
-  }
-
   public void init(
       SecurityMaster secMaster,
       AnalyticFunctionRepository analyticFunctionRepository,
@@ -131,7 +122,6 @@ public class PortfolioEvaluationModel {
     loadPositions();
     loadSecurities();
     buildDependencyGraphs(analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
-    buildExecutionPlans();
     addLiveDataSubscriptions(liveDataSnapshotProvider);
   }
 
@@ -196,21 +186,6 @@ public class PortfolioEvaluationModel {
       dependencyGraphModel.addSecurity(security, requiredOutputValues);
     }
     setDependencyGraphModel(dependencyGraphModel);
-  }
-  
-  public void buildExecutionPlans() {
-    assert getDependencyGraphModel() != null;
-    
-    s_logger.debug("Building execution plans for {} distinct securities", getSecurities().size());
-    for(Security security : getSecurities()) {
-      PerSecurityExecutionPlan executionPlan = new PerSecurityExecutionPlan(security, getDependencyGraphModel().getDependencyGraph(security));
-      _plansBySecurity.put(security, executionPlan);
-    }
-    for(PerSecurityExecutionPlan executionPlan : _plansBySecurity.values()) {
-      // TODO kirk 2009-09-14 -- This might be expensive in the future, so should be done
-      // in a parallel form.
-      executionPlan.buildExecutionPlan();
-    }
   }
   
   public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {

@@ -36,6 +36,7 @@ public class SecurityDependencyGraph {
     new HashSet<AnalyticValueDefinition<?>>();
   private final Set<DependencyNode> _topLevelNodes =
     new HashSet<DependencyNode>();
+  private int _nodeCount = 0;
   
   public SecurityDependencyGraph(
       Security security,
@@ -78,6 +79,20 @@ public class SecurityDependencyGraph {
     return _topLevelNodes;
   }
 
+  /**
+   * @return the nodeCount
+   */
+  public int getNodeCount() {
+    return _nodeCount;
+  }
+
+  /**
+   * @param nodeCount the nodeCount to set
+   */
+  public void setNodeCount(int nodeCount) {
+    _nodeCount = nodeCount;
+  }
+
   public void buildDependencyGraph(
       AnalyticFunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
@@ -111,6 +126,7 @@ public class SecurityDependencyGraph {
     getRequiredLiveData().addAll(requiredLiveData);
     s_logger.info("{} built graph with {} nodes", getSecurity(), nodeResolver.size());
     getTopLevelNodes().addAll(topLevelNodes);
+    setNodeCount(nodeResolver.size());
   }
   
   protected DependencyNode satisfyDependency(
