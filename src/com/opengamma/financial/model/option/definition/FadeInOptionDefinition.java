@@ -20,6 +20,7 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class FadeInOptionDefinition extends OptionDefinition<StandardOptionDataBundleWithSpotTimeSeries> {
+  // TODO maybe use a barrier here?
   protected final double _lowerBound;
   protected final double _upperBound;
 

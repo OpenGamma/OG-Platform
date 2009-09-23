@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
@@ -9,12 +14,12 @@ import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
+ * Pricing model for asymmetric power options.
  * 
  * @author emcleod
- * 
  */
 public class AsymmetricPowerOptionModel extends AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> {
-  private final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
+  final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AsymmetricPowerOptionDefinition definition) {
@@ -29,23 +34,19 @@ public class AsymmetricPowerOptionModel extends AnalyticOptionModel<AsymmetricPo
           double sigma = data.getVolatility(t, k);
           double r = data.getInterestRate(t);
           double b = data.getCostOfCarry();
-          return getPrice(s, k, sigma, t, r, b, definition.getPower(), definition.isCall());
+          double power = definition.getPower();
+          double sigmaT = sigma * Math.sqrt(t);
+          double d1 = (Math.log(s / Math.pow(k, 1. / power)) + t * (b + sigma * sigma * (power - 0.5))) / sigmaT;
+          double d2 = d1 - power * sigmaT;
+          int sign = definition.isCall() ? 1 : -1;
+          double df1 = Math.exp(((power - 1) * (r + power * sigma * sigma * 0.5) - power * (r - b)) * t);
+          double df2 = Math.exp(-r * t);
+          return sign * (Math.pow(s, power) * df1 * _normalProbabilityDistribution.getCDF(sign * d1) - df2 * k * _normalProbabilityDistribution.getCDF(sign * d2));
         } catch (InterpolationException e) {
           throw new OptionPricingException(e);
         }
       }
-
     };
     return pricingFunction;
-  }
-
-  double getPrice(double s, double k, double sigma, double t, double r, double b, double power, boolean isCall) {
-    double denom = sigma * Math.sqrt(t);
-    double d1 = (Math.log(s * Math.pow(k, power)) + t * (b + sigma * sigma * (power - 0.5))) / denom;
-    double d2 = d1 - power * denom;
-    int sign = isCall ? 1 : -1;
-    double df1 = Math.exp(((power - 1) * (r + power * sigma * sigma * 0.5) - power * (r - b)) * t);
-    double df2 = Math.exp(-r * t);
-    return sign * (Math.pow(s, power) * df1 * _normalProbabilityDistribution.getCDF(sign * d1) - df2 * k * _normalProbabilityDistribution.getCDF(sign * d2));
   }
 }
