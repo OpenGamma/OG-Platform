@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -28,7 +25,6 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  * @author emcleod
  */
 public class DiscountCurveTest {
-  private static final InstantProvider DATE = Instant.millisInstant(1000);
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
   private static final Double EPS = 1e-15;
 
@@ -38,7 +34,7 @@ public class DiscountCurveTest {
     data.put(1., 0.05);
     data.put(2., 0.06);
     data.put(3., 0.07);
-    final DiscountCurve curve = new DiscountCurve(DATE, data, INTERPOLATOR);
+    final DiscountCurve curve = new DiscountCurve(data, INTERPOLATOR);
     try {
       curve.getInterestRate(-1.);
       fail();
@@ -59,20 +55,21 @@ public class DiscountCurveTest {
 
   @Test
   public void testConstructors() {
+	  // TODO kirk 2009-09-24 -- Should be using @Test(expected=) form for the throwing ones. 
     try {
-      new DiscountCurve(null, null, null);
+      new DiscountCurve(null, null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      new DiscountCurve(null, new HashMap<Double, Double>(), null);
+      new DiscountCurve(new HashMap<Double, Double>(), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      new DiscountCurve(DATE, Collections.<Double, Double> singletonMap(-4., 3.), null);
+      new DiscountCurve(Collections.<Double, Double> singletonMap(-4., 3.), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -82,7 +79,7 @@ public class DiscountCurveTest {
     data.put(2., 0.05);
     data.put(3., 0.045);
     data.put(4., 0.07);
-    final DiscountCurve curve1 = new DiscountCurve(DATE, data, INTERPOLATOR);
+    final DiscountCurve curve1 = new DiscountCurve(data, INTERPOLATOR);
     final SortedMap<Double, Double> sorted = curve1.getData();
     data.put(1., 0.05);
     assertFalse(data.equals(sorted));

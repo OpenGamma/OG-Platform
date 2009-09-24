@@ -35,12 +35,12 @@ public class DiscountCurveTransformation {
    */
   public static DiscountCurve getParallelShiftedCurve(DiscountCurve original, double shift) {
     if (shift == 0)
-      return new DiscountCurve(original.getDate(), original.getData(), original.getInterpolator());
+      return new DiscountCurve(original.getData(), original.getInterpolator());
     final Map<Double, Double> data = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : original.getData().entrySet()) {
       data.put(entry.getKey(), entry.getValue() + shift);
     }
-    return new DiscountCurve(original.getDate(), data, original.getInterpolator());
+    return new DiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -67,7 +67,7 @@ public class DiscountCurveTransformation {
     if (dataIndex >= original.getData().size())
       throw new IllegalArgumentException("Could not shift point " + dataIndex + "; number of data points in DiscountCurve is " + original.getData().size());
     if (shift == 0)
-      return new DiscountCurve(original.getDate(), original.getData(), original.getInterpolator());
+      return new DiscountCurve(original.getData(), original.getInterpolator());
     final SortedMap<Double, Double> data = new TreeMap<Double, Double>(original.getData());
     int i = 0;
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
@@ -76,7 +76,7 @@ public class DiscountCurveTransformation {
         break;
       }
     }
-    return new DiscountCurve(original.getDate(), data, original.getInterpolator());
+    return new DiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -100,7 +100,7 @@ public class DiscountCurveTransformation {
     if (shiftTime >= data.lastKey())
       throw new IllegalArgumentException("Could not shift at time " + shiftTime + "; last time in DiscountCurve is " + data.lastKey());
     if (shift == 0)
-      return new DiscountCurve(original.getDate(), original.getData(), original.getInterpolator());
+      return new DiscountCurve(original.getData(), original.getInterpolator());
     if (data.containsKey(shiftTime)) {
       data.put(shiftTime, data.get(shiftTime) + shift);
     } else {
@@ -112,7 +112,7 @@ public class DiscountCurveTransformation {
         return null;
       }
     }
-    return new DiscountCurve(original.getDate(), data, original.getInterpolator());
+    return new DiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -133,7 +133,7 @@ public class DiscountCurveTransformation {
    */
   public static DiscountCurve getMultipleShiftedDataPointCurve(DiscountCurve original, Map<Integer, Double> shifts) {
     if (shifts == null || shifts.isEmpty())
-      return new DiscountCurve(original.getDate(), original.getData(), original.getInterpolator());
+      return new DiscountCurve(original.getData(), original.getInterpolator());
     final SortedMap<Double, Double> data = new TreeMap<Double, Double>();
     data.putAll(original.getData());
     int i = 0;
@@ -143,7 +143,7 @@ public class DiscountCurveTransformation {
       }
       i++;
     }
-    return new DiscountCurve(original.getDate(), data, original.getInterpolator());
+    return new DiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -160,7 +160,7 @@ public class DiscountCurveTransformation {
 
   public static DiscountCurve getMultipleShiftedPointCurve(DiscountCurve original, Map<Double, Double> shifts) {
     if (shifts == null || shifts.isEmpty())
-      return new DiscountCurve(original.getDate(), original.getData(), original.getInterpolator());
+      return new DiscountCurve(original.getData(), original.getInterpolator());
     final Map<Double, Double> data = new HashMap<Double, Double>(original.getData());
     for (final Map.Entry<Double, Double> entry : shifts.entrySet()) {
       if (data.containsKey(entry.getKey())) {
@@ -175,6 +175,6 @@ public class DiscountCurveTransformation {
         }
       }
     }
-    return new DiscountCurve(original.getDate(), data, original.getInterpolator());
+    return new DiscountCurve(data, original.getInterpolator());
   }
 }

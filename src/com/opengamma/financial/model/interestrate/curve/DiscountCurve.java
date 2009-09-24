@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.math.interpolation.Interpolator1D;
 
@@ -26,12 +24,9 @@ import com.opengamma.math.interpolation.Interpolator1D;
 public class DiscountCurve implements InterestRateModel<Double> {
   private final SortedMap<Double, Double> _data;
   private final Interpolator1D _interpolator;
-  private final InstantProvider _date;
 
   /**
    * 
-   * @param date
-   *          The date for which the curve is valid. Is allowed to be null.
    * @param data
    *          A map containing pairs of maturities in years and interest rates
    *          as decimals (i.e. 3% = 0.03).
@@ -42,7 +37,7 @@ public class DiscountCurve implements InterestRateModel<Double> {
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public DiscountCurve(final InstantProvider date, final Map<Double, Double> data, final Interpolator1D interpolator) {
+  public DiscountCurve(final Map<Double, Double> data, final Interpolator1D interpolator) {
     if (data == null)
       throw new IllegalArgumentException("Data map was null");
     if (data.isEmpty())
@@ -50,7 +45,6 @@ public class DiscountCurve implements InterestRateModel<Double> {
     final SortedMap<Double, Double> sorted = new TreeMap<Double, Double>(data);
     if (sorted.firstKey() < 0)
       throw new IllegalArgumentException("Cannot have negative time in a discount curve");
-    _date = date;
     _data = Collections.<Double, Double> unmodifiableSortedMap(sorted);
     _interpolator = interpolator;
   }
@@ -69,14 +63,6 @@ public class DiscountCurve implements InterestRateModel<Double> {
    */
   public Interpolator1D getInterpolator() {
     return _interpolator;
-  }
-
-  /**
-   * 
-   * @return The date for the curve.
-   */
-  public InstantProvider getDate() {
-    return _date;
   }
 
   /**
@@ -107,7 +93,6 @@ public class DiscountCurve implements InterestRateModel<Double> {
     final int prime = 31;
     int result = 1;
     result = prime * result + (_data == null ? 0 : _data.hashCode());
-    result = prime * result + (_date == null ? 0 : _date.hashCode());
     result = prime * result + (_interpolator == null ? 0 : _interpolator.hashCode());
     return result;
   }
@@ -125,11 +110,6 @@ public class DiscountCurve implements InterestRateModel<Double> {
       if (other._data != null)
         return false;
     } else if (!_data.equals(other._data))
-      return false;
-    if (_date == null) {
-      if (other._date != null)
-        return false;
-    } else if (!_date.equals(other._date))
       return false;
     if (_interpolator == null) {
       if (other._interpolator != null)
