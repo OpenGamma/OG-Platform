@@ -40,7 +40,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       Collection<AnalyticValueDefinition<?>> outputs) {
     Set<AnalyticFunction> result = new HashSet<AnalyticFunction>();
     for(AnalyticFunction function : _functions) {
-      if(function.getPossibleResults().containsAll(outputs)) {
+      if(functionProducesAllValues(function, outputs)) {
         result.add(function);
       }
     }
@@ -53,11 +53,28 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
     Set<AnalyticFunction> result = new HashSet<AnalyticFunction>();
     for(AnalyticFunction function : _functions) {
       if(function.isApplicableTo(securityType)
-          && function.getPossibleResults().containsAll(outputs)) {
+          && functionProducesAllValues(function, outputs)) {
         result.add(function);
       }
     }
     return result;
+  }
+  
+  protected boolean functionProducesAllValues(AnalyticFunction function, Collection<AnalyticValueDefinition<?>> outputs) {
+    Collection<AnalyticValueDefinition<?>> possibleResults = function.getPossibleResults();
+    for(AnalyticValueDefinition<?> output : outputs) {
+      boolean foundForOutput = false;
+      for(AnalyticValueDefinition<?> possibleResult : possibleResults) {
+        if(AnalyticValueDefinitionComparator.matches(output, possibleResult)) {
+          foundForOutput = true;
+          break;
+        }
+      }
+      if(!foundForOutput) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }

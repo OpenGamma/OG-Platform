@@ -193,7 +193,7 @@ public class ViewImplTest {
     });
 
     view.start();
-    Thread.sleep(10000l);
+    Thread.sleep(5000l);
     view.stop();
     assertFalse("Failed somewhere in listener. Check logs.", failed.get());
   }
