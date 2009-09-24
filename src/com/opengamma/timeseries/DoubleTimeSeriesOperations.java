@@ -223,6 +223,14 @@ public class DoubleTimeSeriesOperations {
     return operate(a, s_absOperator);
   }
 
+  public static double maxValue(DoubleTimeSeries a) {
+    return 0;
+  }
+
+  public static double minValue(DoubleTimeSeries a) {
+    return 0;
+  }
+
   public static DoubleTimeSeries lag(DoubleTimeSeries a, int lag) {
     // TODO deal with going forward in time
     if (lag >= a.size())

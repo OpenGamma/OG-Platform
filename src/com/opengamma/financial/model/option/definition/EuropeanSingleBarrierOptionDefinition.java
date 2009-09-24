@@ -7,8 +7,8 @@ import com.opengamma.util.time.Expiry;
  */
 
 public class EuropeanSingleBarrierOptionDefinition extends OptionDefinition {
-  private Barrier _barrier;
-  private EuropeanVanillaOptionDefinition _underlyingOption;
+  private final Barrier _barrier;
+  private final EuropeanVanillaOptionDefinition _underlyingOption;
 
   public EuropeanSingleBarrierOptionDefinition(double strike, Expiry expiry, boolean isCall, Barrier barrier) {
     super(strike, expiry, isCall);
