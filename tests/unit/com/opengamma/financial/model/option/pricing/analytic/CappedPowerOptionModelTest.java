@@ -38,7 +38,7 @@ public class CappedPowerOptionModelTest {
   private static final InstantProvider DATE = Instant.millisInstant(1000);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(DATE, 0.1);
+  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();

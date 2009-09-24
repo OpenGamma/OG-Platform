@@ -9,9 +9,6 @@ import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.junit.Test;
 
 import com.opengamma.util.Pair;
@@ -21,7 +18,6 @@ import com.opengamma.util.Pair;
  * @author emcleod
  */
 public class VolatilitySurfaceTest {
-  private static final InstantProvider DATE = Instant.millisInstant(1000);
 
   // private static final Interpolator2D INTERPOLATOR = new
   // LinearInterpolator2D();
@@ -29,13 +25,13 @@ public class VolatilitySurfaceTest {
   @Test
   public void testConstructor() {
     try {
-      new VolatilitySurface(null, null, null);
+      new VolatilitySurface(null, null);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
     }
     try {
-      new VolatilitySurface(null, new HashMap<Pair<Double, Double>, Double>(), null);
+      new VolatilitySurface(new HashMap<Pair<Double, Double>, Double>(), null);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected

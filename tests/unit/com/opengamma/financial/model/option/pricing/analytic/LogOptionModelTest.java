@@ -64,7 +64,7 @@ public class LogOptionModelTest {
   }
 
   private StandardOptionDataBundle getBundle(double sigma) {
-    return new StandardOptionDataBundle(CURVE, B, new ConstantVolatilitySurface(DATE, sigma), SPOT, DATE);
+    return new StandardOptionDataBundle(CURVE, B, new ConstantVolatilitySurface(sigma), SPOT, DATE);
   }
 
   private LogOptionDefinition getDefinition(double strike) {

@@ -41,7 +41,7 @@ public class BlackScholesMertonModelTest {
   private static final DiscountCurve CONSTANT_CURVE = new ConstantInterestRateDiscountCurve(0.09);
   private static final DiscountCurve CURVE;
   private static final double B = 0.09;
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(DATE, 0.19);
+  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.19);
 
   static {
     Map<Double, Double> data = new HashMap<Double, Double>();

@@ -8,8 +8,6 @@ package com.opengamma.financial.model.volatility.surface;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import javax.time.Instant;
-
 import org.junit.Test;
 
 /**
@@ -22,7 +20,7 @@ public class ConstantVolatilitySurfaceTest {
   @Test
   public void test() {
     double sigma = 0.3;
-    VolatilitySurface surface = new ConstantVolatilitySurface(Instant.millisInstant(1000), sigma);
+    VolatilitySurface surface = new ConstantVolatilitySurface(sigma);
     try {
       surface.getInterpolator();
       fail();

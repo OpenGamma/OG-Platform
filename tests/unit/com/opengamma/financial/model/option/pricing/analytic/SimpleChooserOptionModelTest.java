@@ -36,7 +36,7 @@ public class SimpleChooserOptionModelTest {
     InstantProvider chooseDate = DateUtil.getDateOffsetWithYearFraction(date, 0.25);
     Expiry underlyingExpiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 0.5));
     SimpleChooserOptionDefinition definition = new SimpleChooserOptionDefinition(50, underlyingExpiry, chooseDate);
-    StandardOptionDataBundle bundle = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(date, 0.25), 50, date);
+    StandardOptionDataBundle bundle = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(0.25), 50, date);
     AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> model = new SimpleChooserOptionModel();
     assertEquals(model.getGreeks(definition, bundle, Arrays.asList(new Greek[] { new Price() })).values().iterator().next().values().iterator().next(), 6.1071, EPS);
   }
