@@ -5,10 +5,13 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Required;
@@ -16,6 +19,8 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PortfolioNode;
@@ -48,7 +53,8 @@ public class ViewImpl implements View, Lifecycle {
   private ViewRecalculationJob _recalcJob;
   private ViewComputationResultModelImpl _mostRecentResult;
   private final Set<ComputationResultListener> _resultListeners = new HashSet<ComputationResultListener>();
-  
+  private final Set<DeltaComputationResultListener> _deltaListeners = new HashSet<DeltaComputationResultListener>();
+
   public ViewImpl(ViewDefinition definition) {
     if(definition == null) {
       throw new NullPointerException("Must provide a definition.");
@@ -236,6 +242,14 @@ public class ViewImpl implements View, Lifecycle {
   public void removeResultListener(ComputationResultListener resultListener) {
     _resultListeners.remove(resultListener);
   }
+  
+  public void addDeltaResultListener(DeltaComputationResultListener deltaListener) {
+    _deltaListeners.add(deltaListener);
+  }
+  
+  public void removeDeltaResultLister(DeltaComputationResultListener deltaListener) {
+    _deltaListeners.remove(deltaListener);
+  }
 
   public synchronized void init() {
     checkInjectedDependencies();
@@ -326,13 +340,69 @@ public class ViewImpl implements View, Lifecycle {
   }
   
   public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
+    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
+    // of some kind. It's synchronized and blocks the recalc thread, so a slow
+    // callback implementation (or just the cost of computing the delta model) will
+    // be an unnecessary burden. Have to factor in some type of win there.
     s_logger.info("Recalculation Performed called.");
+    // We swap these first so that in the callback the view is consistent.
+    ViewComputationResultModelImpl previousResult = _mostRecentResult;
     _mostRecentResult = result;
     for(ComputationResultListener resultListener : _resultListeners) {
       resultListener.computationResultAvailable(result);
     }
+    if(!_deltaListeners.isEmpty() && (previousResult != null)) {
+      ViewDeltaResultModel deltaModel = computeDeltaModel(previousResult, result);
+      for(DeltaComputationResultListener deltaListener : _deltaListeners) {
+        deltaListener.deltaResultAvailable(deltaModel);
+      }
+    }
   }
   
+  /**
+   * @param previousResult
+   * @param result
+   * @return
+   */
+  private ViewDeltaResultModel computeDeltaModel(
+      ViewComputationResultModelImpl previousResult,
+      ViewComputationResultModelImpl result) {
+    ViewDeltaResultModelImpl deltaModel = new ViewDeltaResultModelImpl();
+    deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
+    deltaModel.setResultTimestamp(result.getResultTimestamp());
+    deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
+    
+    Collection<Position> previousPositions = previousResult.getPositions();
+    Collection<Position> currentPositions = result.getPositions();
+    for(Position previousPosition : previousPositions) {
+      if(!currentPositions.contains(previousPosition)) {
+        deltaModel.addRemovedPosition(previousPosition);
+      }
+    }
+    for(Position currentPosition : currentPositions) {
+      if(!previousPositions.contains(currentPosition)) {
+        deltaModel.addNewPosition(currentPosition);
+      }
+    }
+    for(Position currentPosition : currentPositions) {
+      deltaModel.addPosition(currentPosition);
+      Map<AnalyticValueDefinition<?>, AnalyticValue<?>> previousValueMap = previousResult.getValues(currentPosition);
+      for(Map.Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> currentValuesEntry : result.getValues(currentPosition).entrySet()) {
+        AnalyticValueDefinition<?> definition = currentValuesEntry.getKey();
+        AnalyticValue<?> currentValue = currentValuesEntry.getValue();
+        AnalyticValue<?> previousValue = previousValueMap.get(definition);
+        if(previousValue == null) {
+          // Not there before; new value. Add it.
+          deltaModel.addValue(currentPosition, currentValue);
+        } else if(!ObjectUtils.equals(currentValue.getValue(), previousValue.getValue())) {
+          // Changed. Add it.
+          deltaModel.addValue(currentPosition, currentValue);
+        }
+      }
+    }
+    return deltaModel;
+  }
+
   // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle
   // methods.
 

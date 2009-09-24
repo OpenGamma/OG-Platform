@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Test;
 
@@ -165,6 +167,35 @@ public class ViewImplTest {
     view.stop();
     popJob.terminate();
     popThread.join();
+  }
+  
+  @Test
+  public void trivialExampleNoPerturbingDeltasEmpty() throws Exception {
+    ViewImpl view = constructTrivialExampleView();
+    view.init();
+
+    final AtomicBoolean failed = new AtomicBoolean(false);
+    view.addDeltaResultListener(new DeltaComputationResultListener() {
+      @Override
+      public void deltaResultAvailable(ViewDeltaResultModel deltaModel) {
+        try {
+          assertTrue(deltaModel.getNewPositions().isEmpty());
+          assertTrue(deltaModel.getRemovedPositions().isEmpty());
+          assertFalse(deltaModel.getAllPositions().isEmpty());
+          assertTrue(deltaModel.getPositionsWithDeltas().isEmpty());
+          Position position = deltaModel.getAllPositions().iterator().next();
+          assertTrue(deltaModel.getDeltaValues(position).isEmpty());
+        } catch (RuntimeException e) {
+          e.printStackTrace();
+          failed.set(true);
+        }
+      }
+    });
+
+    view.start();
+    Thread.sleep(10000l);
+    view.stop();
+    assertFalse("Failed somewhere in listener. Check logs.", failed.get());
   }
   
   private class SnapshotPopulatorJob extends TerminatableJob {
