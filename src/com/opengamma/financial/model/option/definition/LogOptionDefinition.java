@@ -19,8 +19,8 @@ import com.opengamma.util.time.Expiry;
  */
 public class LogOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
 
-  public LogOptionDefinition(double strike, Expiry expiry, boolean isCall) {
-    super(strike, expiry, isCall);
+  public LogOptionDefinition(double strike, Expiry expiry) {
+    super(strike, expiry, null);
   }
 
   @Override
@@ -30,7 +30,7 @@ public class LogOptionDefinition extends OptionDefinition<StandardOptionDataBund
       @Override
       public Double evaluate(StandardOptionDataBundle data) {
         final double spot = data.getSpot();
-        return isCall() ? Math.max(0, Math.log(spot / getStrike())) : Math.max(0, Math.log(getStrike() / spot));
+        return Math.max(0, Math.log(spot / getStrike()));
       }
 
     };

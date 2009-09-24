@@ -31,6 +31,7 @@ import com.opengamma.math.function.Function1D;
  * @param <T>
  */
 public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
+
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
   public GreekVisitor<Map<String, Double>> getGreekVisitor(Function1D<U, Double> pricingFunction, U vars, T definition) {

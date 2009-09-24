@@ -21,9 +21,9 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
-  private final double _strike;
+  private final Double _strike;
   private final Expiry _expiry;
-  private final boolean _isCall;
+  private final Boolean _isCall;
   protected Function1D<T, Boolean> _exerciseFunction;
   protected Function1D<T, Double> _payoffFunction;
 
