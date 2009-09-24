@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.FirstThenSecondPairComparator;
@@ -26,14 +24,11 @@ import com.opengamma.util.Pair;
  */
 
 public class VolatilitySurface implements VolatilityModel<Double, Double> {
-  private final InstantProvider _date;
   private final SortedMap<Pair<Double, Double>, Double> _data;
   private final Interpolator2D _interpolator;
 
   /**
    * 
-   * @param date
-   *          The date for which the surface is valid. Is allowed to be null.
    * @param data
    *          A map containing pairs of (x, y) values and volatilities as
    *          decimals (i.e. 20% = 0.2).
@@ -43,14 +38,13 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
    * @throws IllegalArgumentException
    *           Thrown if the data map is null or empty.
    */
-  public VolatilitySurface(InstantProvider date, Map<Pair<Double, Double>, Double> data, Interpolator2D interpolator) {
+  public VolatilitySurface(Map<Pair<Double, Double>, Double> data, Interpolator2D interpolator) {
     if (data == null)
       throw new IllegalArgumentException("Data map was null");
     if (data.isEmpty())
       throw new IllegalArgumentException("Data map was empty");
     SortedMap<Pair<Double, Double>, Double> sorted = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
     sorted.putAll(data);
-    _date = date;
     _data = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sorted);
     _interpolator = interpolator;
   }
@@ -63,14 +57,6 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
    */
   public SortedMap<Pair<Double, Double>, Double> getData() {
     return _data;
-  }
-
-  /**
-   * 
-   * @return The date for this surface.
-   */
-  public InstantProvider getDate() {
-    return _date;
   }
 
   /**
@@ -95,7 +81,6 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_data == null) ? 0 : _data.hashCode());
-    result = prime * result + ((_date == null) ? 0 : _date.hashCode());
     result = prime * result + ((_interpolator == null) ? 0 : _interpolator.hashCode());
     return result;
   }
@@ -113,11 +98,6 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
       if (other._data != null)
         return false;
     } else if (!_data.equals(other._data))
-      return false;
-    if (_date == null) {
-      if (other._date != null)
-        return false;
-    } else if (!_date.equals(other._date))
       return false;
     if (_interpolator == null) {
       if (other._interpolator != null)

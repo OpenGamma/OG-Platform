@@ -7,8 +7,6 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Map;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
@@ -30,21 +28,19 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(data, price);
     double sigma = _rootFinder.getRoot(pricingFunction, 0., 10., EPS);
-    return new ConstantVolatilitySurface(data.getDate(), sigma);
+    return new ConstantVolatilitySurface(sigma);
   }
 
   private class MyMutableStandardOptionDataBundle extends StandardOptionDataBundle {
     private VolatilitySurface _mutableSurface;
-    private final InstantProvider _date;
 
     public MyMutableStandardOptionDataBundle(StandardOptionDataBundle data) {
       super(data.getDiscountCurve(), data.getCostOfCarry(), data.getVolatilitySurface(), data.getSpot(), data.getDate());
       _mutableSurface = data.getVolatilitySurface();
-      _date = data.getDate();
     }
 
     public void setVolatility(double sigma) {
-      _mutableSurface = new ConstantVolatilitySurface(_date, sigma);
+      _mutableSurface = new ConstantVolatilitySurface(sigma);
     }
 
     @Override

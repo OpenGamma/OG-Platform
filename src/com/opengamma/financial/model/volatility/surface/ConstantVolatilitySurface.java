@@ -7,8 +7,6 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Collections;
 
-import javax.time.InstantProvider;
-
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.Pair;
 
@@ -21,8 +19,8 @@ import com.opengamma.util.Pair;
 public class ConstantVolatilitySurface extends VolatilitySurface {
   private final double _sigma;
 
-  public ConstantVolatilitySurface(InstantProvider date, Double sigma) {
-    super(date, Collections.<Pair<Double, Double>, Double> singletonMap(new Pair<Double, Double>(0., 0.), sigma), null);
+  public ConstantVolatilitySurface(Double sigma) {
+    super(Collections.<Pair<Double, Double>, Double> singletonMap(new Pair<Double, Double>(0., 0.), sigma), null);
     _sigma = sigma;
   }
 

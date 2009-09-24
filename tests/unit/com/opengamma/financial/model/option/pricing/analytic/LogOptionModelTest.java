@@ -36,7 +36,7 @@ public class LogOptionModelTest {
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
   private static final InstantProvider DATE = Instant.instant(1000);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(DATE, 0.08);
+  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
   private static final double B = 0.04;
   private static final double SPOT = 100;
   private static final double EPS = 1e-4;

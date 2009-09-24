@@ -40,7 +40,7 @@ public class PoweredOptionModelTest {
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
   private static final InstantProvider DATE = Instant.instant(1000);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(DATE, 0.1);
+  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.1);
   private static final double B = 0.07;
   private static final double SPOT = 100;
   private static final double STRIKE = 100;

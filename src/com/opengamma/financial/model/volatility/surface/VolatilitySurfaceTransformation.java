@@ -29,7 +29,7 @@ public class VolatilitySurfaceTransformation {
     for (Map.Entry<Pair<Double, Double>, Double> entry : original.getData().entrySet()) {
       data.put(entry.getKey(), entry.getValue() + shift);
     }
-    return new VolatilitySurface(original.getDate(), data, original.getInterpolator());
+    return new VolatilitySurface(data, original.getInterpolator());
   }
 
   public static VolatilitySurface getSingleShiftedPointSurface(VolatilitySurface original, Pair<Double, Double> point, double shift) {
@@ -48,7 +48,7 @@ public class VolatilitySurfaceTransformation {
         return null;
       }
     }
-    return new VolatilitySurface(original.getDate(), data, original.getInterpolator());
+    return new VolatilitySurface(data, original.getInterpolator());
   }
 
   public static VolatilitySurface getMultipleShiftedPointSurface(VolatilitySurface original, Map<Pair<Double, Double>, Double> shifts) {
@@ -69,6 +69,6 @@ public class VolatilitySurfaceTransformation {
         }
       }
     }
-    return new VolatilitySurface(original.getDate(), data, original.getInterpolator());
+    return new VolatilitySurface(data, original.getInterpolator());
   }
 }
