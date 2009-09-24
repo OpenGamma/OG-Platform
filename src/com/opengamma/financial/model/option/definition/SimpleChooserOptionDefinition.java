@@ -34,7 +34,6 @@ import com.opengamma.util.time.Expiry;
 
 public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
   private final InstantProvider _chooseDate;
-  private final Expiry _optionExpiry;
   protected final EuropeanVanillaOptionDefinition _callDefinition;
   protected final EuropeanVanillaOptionDefinition _putDefinition;
   protected final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
@@ -44,19 +43,18 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
   /**
    * 
    * @param strike
-   * @param expiry
+   * @param underlyingExpiry
    * @param chooseDate
    * @param optionExpiry
    * @param vars
    */
-  public SimpleChooserOptionDefinition(double strike, Expiry expiry, InstantProvider chooseDate, Expiry optionExpiry) {
-    super(strike, expiry, null);
-    if (chooseDate.toInstant().isAfter(expiry.toInstant()))
-      throw new IllegalArgumentException("Option expiry must be after the choice date");
+  public SimpleChooserOptionDefinition(double strike, Expiry underlyingExpiry, InstantProvider chooseDate) {
+    super(strike, underlyingExpiry, null);
+    if (chooseDate.toInstant().isAfter(underlyingExpiry.toInstant()))
+      throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
     _chooseDate = chooseDate;
-    _optionExpiry = optionExpiry;
-    _callDefinition = new EuropeanVanillaOptionDefinition(strike, optionExpiry, true);
-    _putDefinition = new EuropeanVanillaOptionDefinition(strike, optionExpiry, false);
+    _callDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, true);
+    _putDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, false);
   }
 
   @Override
@@ -86,10 +84,6 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
     return _chooseDate;
   }
 
-  public Expiry getOptionExpiry() {
-    return _optionExpiry;
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -99,7 +93,6 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
     result = prime * result + ((PRICE == null) ? 0 : PRICE.hashCode());
     result = prime * result + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
     result = prime * result + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
-    result = prime * result + ((_optionExpiry == null) ? 0 : _optionExpiry.hashCode());
     result = prime * result + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
     return result;
   }
@@ -137,11 +130,6 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
       if (other._chooseDate != null)
         return false;
     } else if (!_chooseDate.equals(other._chooseDate))
-      return false;
-    if (_optionExpiry == null) {
-      if (other._optionExpiry != null)
-        return false;
-    } else if (!_optionExpiry.equals(other._optionExpiry))
       return false;
     if (_putDefinition == null) {
       if (other._putDefinition != null)
