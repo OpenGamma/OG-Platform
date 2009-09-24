@@ -105,8 +105,8 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
       InstantProvider date = _vars.getDate();
       double t = _definition.getTimeToExpiry(date);
       double r = _vars.getInterestRate(t);
-      DiscountCurve upCurve = new ConstantInterestRateDiscountCurve(date, r + EPS);
-      DiscountCurve downCurve = new ConstantInterestRateDiscountCurve(date, r - EPS);
+      DiscountCurve upCurve = new ConstantInterestRateDiscountCurve(r + EPS);
+      DiscountCurve downCurve = new ConstantInterestRateDiscountCurve(r - EPS);
       S upVars, downVars;
       double upPrice, downPrice;
       upVars = (S) new StandardOptionDataBundle(upCurve, _vars.getCostOfCarry(), _vars.getVolatilitySurface(), _vars.getSpot(), _vars.getDate());

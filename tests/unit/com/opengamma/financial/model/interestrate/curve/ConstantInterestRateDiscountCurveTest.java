@@ -8,9 +8,6 @@ package com.opengamma.financial.model.interestrate.curve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.junit.Test;
 
 /**
@@ -23,8 +20,7 @@ public class ConstantInterestRateDiscountCurveTest {
   @Test
   public void test() {
     final double rate = 0.05;
-    InstantProvider date = Instant.millisInstant(1000);
-    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(date, rate);
+    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(rate);
     try {
       curve.getInterpolator();
       fail();

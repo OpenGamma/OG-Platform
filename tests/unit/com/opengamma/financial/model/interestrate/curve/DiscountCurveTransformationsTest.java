@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.time.Instant;
-
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -26,7 +24,6 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
 public class DiscountCurveTransformationsTest {
   private static final DiscountCurve CURVE;
   private static final Map<Double, Double> DATA;
-  private static final Instant DATE = Instant.millisInstant(1000);
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
 
   static {
@@ -35,7 +32,7 @@ public class DiscountCurveTransformationsTest {
     DATA.put(2., 0.06);
     DATA.put(3., 0.05);
     DATA.put(4., 0.02);
-    CURVE = new DiscountCurve(DATE, DATA, INTERPOLATOR);
+    CURVE = new DiscountCurve(DATA, INTERPOLATOR);
   }
 
   @Test
@@ -48,7 +45,7 @@ public class DiscountCurveTransformationsTest {
       shiftedData.put(entry.getKey(), entry.getValue() + shift);
     }
     final DiscountCurve shifted = DiscountCurveTransformation.getParallelShiftedCurve(CURVE, shift);
-    assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
+    assertEquals(shifted, new DiscountCurve(shiftedData, INTERPOLATOR));
   }
 
   @Test
@@ -78,7 +75,7 @@ public class DiscountCurveTransformationsTest {
       }
     }
     final DiscountCurve shifted = DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, 2, shift);
-    assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
+    assertEquals(shifted, new DiscountCurve(shiftedData, INTERPOLATOR));
   }
 
   @Test
@@ -102,7 +99,7 @@ public class DiscountCurveTransformationsTest {
     final TreeMap<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     shiftedData.put(time, CURVE.getInterestRate(time) + shift);
     final DiscountCurve shifted = DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, time, shift);
-    assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
+    assertEquals(shifted, new DiscountCurve(shiftedData, INTERPOLATOR));
   }
 
   @Test
@@ -125,7 +122,7 @@ public class DiscountCurveTransformationsTest {
     assertEquals(DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, shifts), DiscountCurveTransformation.getSingleShiftedDataPointCurve(CURVE, 1, shift));
     shifts.put(2, -shift);
     final DiscountCurve shifted = DiscountCurveTransformation.getMultipleShiftedDataPointCurve(CURVE, shifts);
-    assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
+    assertEquals(shifted, new DiscountCurve(shiftedData, INTERPOLATOR));
   }
 
   @Test
@@ -141,6 +138,6 @@ public class DiscountCurveTransformationsTest {
     assertEquals(DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, shifts), DiscountCurveTransformation.getSingleShiftedPointCurve(CURVE, 1.5, shift));
     shifts.put(2.5, -shift);
     final DiscountCurve shifted = DiscountCurveTransformation.getMultipleShiftedPointCurve(CURVE, shifts);
-    assertEquals(shifted, new DiscountCurve(DATE, shiftedData, INTERPOLATOR));
+    assertEquals(shifted, new DiscountCurve(shiftedData, INTERPOLATOR));
   }
 }
