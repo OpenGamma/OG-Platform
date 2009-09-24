@@ -1,6 +1,6 @@
 package com.opengamma.financial.securities;
 
-import com.opengamma.util.CompareUtils;
+import org.apache.commons.lang.ObjectUtils;
 
 public class Exchange {
 
@@ -35,10 +35,10 @@ public class Exchange {
       return false;
     }
     Exchange other = (Exchange) o;
-    if (!CompareUtils.equalsWithNull(other.getShortCode(), getShortCode())) {
+    if (!ObjectUtils.equals(other.getShortCode(), getShortCode())) {
       return false;
     }
-    return CompareUtils.equalsWithNull(other.getFullName(), getFullName());
+    return ObjectUtils.equals(other.getFullName(), getFullName());
   }
   
   public int hashCode() {
