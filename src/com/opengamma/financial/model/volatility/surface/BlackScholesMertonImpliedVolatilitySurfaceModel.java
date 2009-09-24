@@ -26,7 +26,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = prices.entrySet().iterator().next();
     Double price = entry.getValue();
     Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
-    _rootFinder = new MyBisectionSingleRootFinder(data, price);
+    _rootFinder = new MyBisectionSingleRootFinder(new MyMutableStandardOptionDataBundle(data), price);
     double sigma = _rootFinder.getRoot(pricingFunction, 0., 10., EPS);
     return new ConstantVolatilitySurface(sigma);
   }

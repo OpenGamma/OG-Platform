@@ -22,7 +22,7 @@ public class StandardOptionDataBundle {
   }
 
   public double getInterestRate(Double t) {
-    return _discountCurve.getInterestRate(t);
+    return getDiscountCurve().getInterestRate(t);
   }
 
   public double getCostOfCarry() {
@@ -30,7 +30,7 @@ public class StandardOptionDataBundle {
   }
 
   public Double getVolatility(Double t, Double strike) {
-    return _volatilitySurface.getVolatility(t, strike);
+    return getVolatilitySurface().getVolatility(t, strike);
   }
 
   public double getSpot() {
@@ -80,17 +80,17 @@ public class StandardOptionDataBundle {
         return false;
     } else if (!_date.equals(other._date))
       return false;
-    if (_discountCurve == null) {
-      if (other._discountCurve != null)
+    if (getDiscountCurve() == null) {
+      if (other.getDiscountCurve() != null)
         return false;
-    } else if (!_discountCurve.equals(other._discountCurve))
+    } else if (!getDiscountCurve().equals(other.getDiscountCurve()))
       return false;
     if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot))
       return false;
-    if (_volatilitySurface == null) {
-      if (other._volatilitySurface != null)
+    if (getVolatilitySurface() == null) {
+      if (other.getVolatilitySurface() != null)
         return false;
-    } else if (!_volatilitySurface.equals(other._volatilitySurface))
+    } else if (!getVolatilitySurface().equals(other.getVolatilitySurface()))
       return false;
     return true;
   }
