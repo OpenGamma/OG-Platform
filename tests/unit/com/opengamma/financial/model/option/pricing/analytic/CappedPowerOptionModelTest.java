@@ -20,6 +20,7 @@ import com.opengamma.financial.greeks.Price;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
+import com.opengamma.financial.model.option.definition.CappedPowerOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -30,7 +31,7 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class AsymmetricPowerOptionModelTest {
+public class CappedPowerOptionModelTest {
   private static final double B = 0.02;
   private static final double SPOT = 10;
   private static final double STRIKE = 100;
@@ -39,27 +40,42 @@ public class AsymmetricPowerOptionModelTest {
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(DATE, 0.08);
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(DATE, 0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
-  private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
+  private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
+  private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();
   private static final Greek PRICE = new Price();
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
+  private static final double HIGH_CAP = 100;
   private static final double EPS = 1e-4;
 
   @Test
   public void test() {
-    assertEquals(getPrice(1.9, true), 0.3102, EPS);
-    assertEquals(getPrice(1.95, true), 1.9320, EPS);
-    assertEquals(getPrice(2., true), 6.7862, EPS);
-    assertEquals(getPrice(2.05, true), 15.8587, EPS);
-    assertEquals(getPrice(2.1, true), 28.4341, EPS);
-    assertEquals(getPrice(1.9, false), 18.2738, EPS);
-    assertEquals(getPrice(1.95, false), 10.2890, EPS);
-    assertEquals(getPrice(2., false), 4.3539, EPS);
-    assertEquals(getPrice(2.05, false), 1.3089, EPS);
-    assertEquals(getPrice(2.1, false), 0.2745, EPS);
+    // assertEquals(getCappedPrice(1.9, HIGH_CAP, true), getUncappedPrice(1.9,
+    // true), EPS);
+    // assertEquals(getCappedPrice(1.95, HIGH_CAP, true), getUncappedPrice(1.95,
+    // true), EPS);
+    // assertEquals(getCappedPrice(2., HIGH_CAP, true), getUncappedPrice(2.,
+    // true), EPS);
+    // assertEquals(getCappedPrice(2.05, HIGH_CAP, true), getUncappedPrice(2.05,
+    // true), EPS);
+    // assertEquals(getCappedPrice(2.1, HIGH_CAP, true), getUncappedPrice(2.1,
+    // true), EPS);
+    assertEquals(getCappedPrice(1.9, HIGH_CAP, false), getUncappedPrice(1.9, false), EPS);
+    assertEquals(getCappedPrice(1.95, HIGH_CAP, false), getUncappedPrice(1.95, false), EPS);
+    assertEquals(getCappedPrice(2., HIGH_CAP, false), getUncappedPrice(2., false), EPS);
+    assertEquals(getCappedPrice(2.05, HIGH_CAP, false), getUncappedPrice(2.05, false), EPS);
+    assertEquals(getCappedPrice(2.1, HIGH_CAP, false), getUncappedPrice(2.1, false), EPS);
   }
 
-  private double getPrice(double power, boolean isCall) {
-    return MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
+  private double getCappedPrice(double power, double cap, boolean isCall) {
+    return CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
+  }
+
+  private double getUncappedPrice(double power, boolean isCall) {
+    return UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
+  }
+
+  private CappedPowerOptionDefinition getDefinition(double power, double cap, boolean isCall) {
+    return new CappedPowerOptionDefinition(STRIKE, EXPIRY, power, cap, isCall);
   }
 
   private AsymmetricPowerOptionDefinition getDefinition(double power, boolean isCall) {

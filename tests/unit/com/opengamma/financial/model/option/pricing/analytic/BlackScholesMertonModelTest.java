@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
@@ -30,6 +29,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
+import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -54,7 +54,7 @@ public class BlackScholesMertonModelTest {
 
   @Test
   public void test() {
-    Expiry expiry = new Expiry(DATE.toInstant().plus(Duration.seconds(7889400 * 4)));
+    Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
     EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(75, expiry, true);
     StandardOptionDataBundle vars = new StandardOptionDataBundle(CONSTANT_CURVE, B, SURFACE, 72, DATE);
     List<Greek> requiredGreeks = Arrays.asList(new Greek[] { new Price(), new Delta(), new Gamma(), new Rho(), new Theta() });
