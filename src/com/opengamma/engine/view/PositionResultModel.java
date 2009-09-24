@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.position.Position;
 
 /**
@@ -56,7 +57,12 @@ public class PositionResultModel implements Serializable {
     if(definition == null) {
       return null;
     }
-    return _results.get(definition);
+    for(Map.Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> entry : _results.entrySet()) {
+      if(AnalyticValueDefinitionComparator.matches(definition, entry.getKey())) {
+        return entry.getValue();
+      }
+    }
+    return null;
   }
 
 }
