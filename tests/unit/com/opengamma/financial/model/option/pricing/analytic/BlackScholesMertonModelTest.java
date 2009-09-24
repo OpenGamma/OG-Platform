@@ -38,7 +38,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class BlackScholesMertonModelTest {
   private static final InstantProvider DATE = Instant.millisInstant(1000);
-  private static final DiscountCurve CONSTANT_CURVE = new ConstantInterestRateDiscountCurve(DATE, 0.09);
+  private static final DiscountCurve CONSTANT_CURVE = new ConstantInterestRateDiscountCurve(0.09);
   private static final DiscountCurve CURVE;
   private static final double B = 0.09;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(DATE, 0.19);
@@ -49,7 +49,7 @@ public class BlackScholesMertonModelTest {
     data.put(1.5, 0.09);
     data.put(2.5, 0.1);
     data.put(3.5, 0.05);
-    CURVE = new DiscountCurve(DATE, data, new LinearInterpolator1D());
+    CURVE = new DiscountCurve(data, new LinearInterpolator1D());
   }
 
   @Test
