@@ -6,6 +6,7 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -28,8 +30,8 @@ public class DependencyNode {
     new HashSet<AnalyticValueDefinition<?>>();
   private final Set<DependencyNode> _inputNodes =
     new HashSet<DependencyNode>();
-  private final Map<AnalyticValueDefinition<?>, DependencyNode> _inputNodesByValue =
-    new HashMap<AnalyticValueDefinition<?>, DependencyNode>();
+  private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedInputs =
+    new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
   public DependencyNode(AnalyticFunction function, Security security) {
     if(function == null) {
@@ -58,12 +60,6 @@ public class DependencyNode {
   public Set<DependencyNode> getInputNodes() {
     return _inputNodes;
   }
-  /**
-   * @return the inputNodesByValue
-   */
-  public Map<AnalyticValueDefinition<?>, DependencyNode> getInputNodesByValue() {
-    return _inputNodesByValue;
-  }
   
   /**
    * @return the function
@@ -86,6 +82,23 @@ public class DependencyNode {
     _inputValues.addAll(inputValues);
   }
   
+  public Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> getResolvedInputs() {
+    return Collections.unmodifiableMap(_resolvedInputs);
+  }
+  
+  public AnalyticValueDefinition<?> getResolvedInput(AnalyticValueDefinition<?> requiredInput) {
+    return _resolvedInputs.get(requiredInput);
+  }
+  
+  public AnalyticValueDefinition<?> getBestOutput(AnalyticValueDefinition<?> input) {
+    for(AnalyticValueDefinition<?> outputValue: getOutputValues()) {
+      if(AnalyticValueDefinitionComparator.matches(input, outputValue)) {
+        return outputValue;
+      }
+    }
+    return null;
+  }
+  
   public void addInputNode(AnalyticValueDefinition<?> satisfyingInput, DependencyNode inputNode) {
     if(satisfyingInput == null) {
       throw new NullPointerException("All input nodes must satisfy an input value required");
@@ -94,6 +107,6 @@ public class DependencyNode {
       throw new NullPointerException("Must specify a function to produce the input.");
     }
     _inputNodes.add(inputNode);
-    _inputNodesByValue.put(satisfyingInput, inputNode);
+    _resolvedInputs.put(satisfyingInput, inputNode.getBestOutput(satisfyingInput));
   }
 }

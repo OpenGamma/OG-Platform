@@ -84,9 +84,10 @@ public class AnalyticFunctionInvocationJob implements Runnable {
     
     Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
     for(AnalyticValueDefinition<?> inputDefinition : getNode().getInputValues()) {
-      inputs.add(getComputationCache().getValue(inputDefinition));
+      AnalyticValueDefinition<?> resolvedDefinition = getNode().getResolvedInput(inputDefinition);
+      inputs.add(getComputationCache().getValue(resolvedDefinition));
     }
-    AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputs(inputs);
+    AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
     Collection<AnalyticValue<?>> outputs = getNode().getFunction().execute(functionInputs, getSecurity());
     for(AnalyticValue<?> outputValue : outputs) {
       getComputationCache().putValue(outputValue);

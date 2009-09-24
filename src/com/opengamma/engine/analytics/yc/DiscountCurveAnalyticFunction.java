@@ -59,7 +59,9 @@ public class DiscountCurveAnalyticFunction implements AnalyticFunction {
 
   public static AnalyticValueDefinition<DiscountCurve> constructDiscountCurveValueDefinition(Currency currency) {
     Map<String, Object> map = new HashMap<String, Object>();
-    map.put("Currency", currency);
+    if(currency != null) {
+      map.put("Currency", currency);
+    }
     map.put("TYPE", "DISCOUNT_CURVE");
     return new AnalyticValueDefinitionImpl<DiscountCurve>(map);
   }

@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -53,7 +54,8 @@ public class ViewImplTest {
   
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
-    viewDefinition.addValueDefinition("KIRK", DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD")));
+    //viewDefinition.addValueDefinition("KIRK", DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD")));
+    viewDefinition.addValueDefinition("KIRK", DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(null));
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
     PositionMaster positionMaster = new PositionMaster() {
       @Override
@@ -125,7 +127,12 @@ public class ViewImplTest {
     assertNotNull(resultPosition);
     assertEquals(new BigDecimal(9873), resultPosition.getQuantity());
     
-    Map<AnalyticValueDefinition<?>, AnalyticValue<?>> resultValues = result.getValues(resultPosition);
+    assertNotNull(result.getValue(resultPosition, DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD"))));
+    assertNull(result.getValue(resultPosition, DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("GBP"))));
+    assertNotNull(result.getValue(resultPosition, DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(null)));
+    
+    Map<AnalyticValueDefinition<?>, AnalyticValue<?>> resultValues = null;
+    resultValues = result.getValues(resultPosition);
     assertNotNull(resultValues);
     assertEquals(1, resultValues.size());
     AnalyticValueDefinition<?> discountCurveValueDefinition = DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD"));
