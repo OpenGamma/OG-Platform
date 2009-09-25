@@ -15,6 +15,7 @@ import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.security.Security;
 
@@ -75,15 +76,18 @@ public class AnalyticFunctionInvocationJob implements Runnable {
     }
     
     if(allFound) {
-      s_logger.debug("Able to skip a node because it was already computed.");
+      if(!(getNode().getFunction() instanceof LiveDataSourcingFunction)) {
+        s_logger.debug("Able to skip a node because it was already computed.");
+      }
       return;
     }
     
     Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
     for(AnalyticValueDefinition<?> inputDefinition : getNode().getInputValues()) {
-      inputs.add(getComputationCache().getValue(inputDefinition));
+      AnalyticValueDefinition<?> resolvedDefinition = getNode().getResolvedInput(inputDefinition);
+      inputs.add(getComputationCache().getValue(resolvedDefinition));
     }
-    AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputs(inputs);
+    AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
     Collection<AnalyticValue<?>> outputs = getNode().getFunction().execute(functionInputs, getSecurity());
     for(AnalyticValue<?> outputValue : outputs) {
       getComputationCache().putValue(outputValue);

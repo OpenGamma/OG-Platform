@@ -11,7 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
+import javax.time.calendar.Clock;
+import javax.time.calendar.TimeZone;
 
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
@@ -93,7 +94,7 @@ public class DiscountCurveAnalyticFunction implements AnalyticFunction {
       Double price = dataFields.get(PRICE_FIELD_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(Instant.instant(System.currentTimeMillis()), timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new DiscountCurve(timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }

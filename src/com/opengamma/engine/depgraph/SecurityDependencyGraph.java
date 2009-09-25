@@ -6,7 +6,9 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -36,6 +38,9 @@ public class SecurityDependencyGraph {
     new HashSet<AnalyticValueDefinition<?>>();
   private final Set<DependencyNode> _topLevelNodes =
     new HashSet<DependencyNode>();
+  private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedOutputs =
+    new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
+  private DependencyNode _rootNode;
   private int _nodeCount = 0;
   
   public SecurityDependencyGraph(
@@ -92,6 +97,27 @@ public class SecurityDependencyGraph {
     _nodeCount = nodeCount;
   }
 
+  /**
+   * @return the rootNode
+   */
+  public DependencyNode getRootNode() {
+    return _rootNode;
+  }
+
+  /**
+   * @param rootNode the rootNode to set
+   */
+  public void setRootNode(DependencyNode rootNode) {
+    _rootNode = rootNode;
+  }
+
+  /**
+   * @return the resolvedOutputs
+   */
+  public Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> getResolvedOutputs() {
+    return _resolvedOutputs;
+  }
+
   public void buildDependencyGraph(
       AnalyticFunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
@@ -120,6 +146,7 @@ public class SecurityDependencyGraph {
       DependencyNode topLevelNode = satisfyDependency(outputValue, nodeResolver, requiredLiveData, functionResolver, liveDataAvailabilityProvider);
       assert topLevelNode != null;
       topLevelNodes.add(topLevelNode);
+      _resolvedOutputs.put(outputValue, topLevelNode.getBestOutput(outputValue));
     }
     getRequiredLiveData().clear();
     getRequiredLiveData().addAll(requiredLiveData);

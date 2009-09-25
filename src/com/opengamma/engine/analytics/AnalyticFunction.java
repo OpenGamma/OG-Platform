@@ -69,6 +69,11 @@ public interface AnalyticFunction {
       AnalyticFunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver);
   
+  // Execution needs to have an ExecutionContext, which should have at the very least:
+  // - The live data snapshot
+  // - The ExecutorService
+  // - Other stuff as we add them.
+  
   Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Position position);
 
   Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Security security);
