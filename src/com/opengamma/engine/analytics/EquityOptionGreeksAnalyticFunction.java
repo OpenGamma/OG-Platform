@@ -40,7 +40,7 @@ implements AnalyticFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
     // TODO Auto-generated method stub
     return null;
   }

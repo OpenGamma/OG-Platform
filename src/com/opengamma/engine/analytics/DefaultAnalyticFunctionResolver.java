@@ -41,7 +41,7 @@ public class DefaultAnalyticFunctionResolver implements
   public AnalyticFunctionDefinition resolve(AnalyticValueDefinition<?> requiredValue,
       Security security) {
     assert requiredValue != null;
-    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), security.getSecurityType());
+    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), security);
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;

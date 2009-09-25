@@ -154,7 +154,7 @@ implements AnalyticFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
     return Collections.<AnalyticValueDefinition<?>>singleton(new VolatilitySurfaceValueDefinition(null));
   }
 
