@@ -14,7 +14,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticFunction;
+import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -177,7 +177,7 @@ public class SecurityDependencyGraph {
       return node;
     }
     
-    AnalyticFunction function = functionResolver.resolve(outputValue, getSecurity());
+    AnalyticFunctionDefinition function = functionResolver.resolve(outputValue, getSecurity());
     assert function != null : "This is a bad assertion. Do something better.";
     
     if(function.buildsOwnSubGraph()) {

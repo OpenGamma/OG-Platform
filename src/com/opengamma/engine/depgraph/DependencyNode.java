@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.analytics.AnalyticFunction;
+import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.security.Security;
@@ -23,7 +23,7 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public class DependencyNode {
-  private final AnalyticFunction _function;
+  private final AnalyticFunctionDefinition _function;
   private final Set<AnalyticValueDefinition<?>> _outputValues =
     new HashSet<AnalyticValueDefinition<?>>();
   private final Set<AnalyticValueDefinition<?>> _inputValues =
@@ -33,7 +33,7 @@ public class DependencyNode {
   private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedInputs =
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
-  public DependencyNode(AnalyticFunction function, Security security) {
+  public DependencyNode(AnalyticFunctionDefinition function, Security security) {
     if(function == null) {
       throw new NullPointerException("Must provide a function for this node.");
     }
@@ -64,7 +64,7 @@ public class DependencyNode {
   /**
    * @return the function
    */
-  public AnalyticFunction getFunction() {
+  public AnalyticFunctionDefinition getFunction() {
     return _function;
   }
 

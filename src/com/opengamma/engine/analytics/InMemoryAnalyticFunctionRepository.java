@@ -22,7 +22,7 @@ import java.util.Set;
 public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepository {
   private final Map<String, AnalyticFunctionInvoker> _invokersByUniqueIdentifier =
     new HashMap<String, AnalyticFunctionInvoker>();
-  private final Set<AnalyticFunction> _functions = new HashSet<AnalyticFunction>();
+  private final Set<AnalyticFunctionDefinition> _functions = new HashSet<AnalyticFunctionDefinition>();
   
   public InMemoryAnalyticFunctionRepository() {
   }
@@ -50,15 +50,15 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
 
   @Override
-  public Collection<AnalyticFunction> getAllFunctions() {
+  public Collection<AnalyticFunctionDefinition> getAllFunctions() {
     return Collections.unmodifiableCollection(_functions);
   }
 
   @Override
-  public Collection<AnalyticFunction> getFunctionsProducing(
+  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs) {
-    Set<AnalyticFunction> result = new HashSet<AnalyticFunction>();
-    for(AnalyticFunction function : _functions) {
+    Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
+    for(AnalyticFunctionDefinition function : _functions) {
       if(functionProducesAllValues(function, outputs)) {
         result.add(function);
       }
@@ -67,10 +67,10 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
 
   @Override
-  public Collection<AnalyticFunction> getFunctionsProducing(
+  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs, String securityType) {
-    Set<AnalyticFunction> result = new HashSet<AnalyticFunction>();
-    for(AnalyticFunction function : _functions) {
+    Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
+    for(AnalyticFunctionDefinition function : _functions) {
       if(function.isApplicableTo(securityType)
           && functionProducesAllValues(function, outputs)) {
         result.add(function);
@@ -79,7 +79,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
     return result;
   }
   
-  protected boolean functionProducesAllValues(AnalyticFunction function, Collection<AnalyticValueDefinition<?>> outputs) {
+  protected boolean functionProducesAllValues(AnalyticFunctionDefinition function, Collection<AnalyticValueDefinition<?>> outputs) {
     Collection<AnalyticValueDefinition<?>> possibleResults = function.getPossibleResults();
     for(AnalyticValueDefinition<?> output : outputs) {
       boolean foundForOutput = false;

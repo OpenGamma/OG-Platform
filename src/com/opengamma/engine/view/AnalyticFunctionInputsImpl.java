@@ -13,14 +13,14 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.engine.analytics.AnalyticFunction;
+import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
 /**
  * A wrapper for the instances of {@link AnalyticValue}
- * that are passed to an {@link AnalyticFunction}'s {@code execute} methods.
+ * that are passed to an {@link AnalyticFunctionDefinition}'s {@code execute} methods.
  *
  * @author kirk
  */

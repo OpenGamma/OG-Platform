@@ -11,7 +11,7 @@ import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticFunction;
+import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticFunctionInvoker;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
@@ -22,7 +22,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.security.Security;
 
 /**
- * The job that will actually invoke a {@link AnalyticFunction} as part
+ * The job that will actually invoke a {@link AnalyticFunctionDefinition} as part
  * of dependency graph execution.
  *
  * @author kirk

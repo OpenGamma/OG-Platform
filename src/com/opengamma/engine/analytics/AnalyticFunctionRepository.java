@@ -8,23 +8,23 @@ package com.opengamma.engine.analytics;
 import java.util.Collection;
 
 /**
- * A container for the {@link AnalyticFunction} instances available
+ * A container for the {@link AnalyticFunctionDefinition} instances available
  * to a particular environment. 
  *
  * @author kirk
  */
 public interface AnalyticFunctionRepository {
   
-  Collection<AnalyticFunction> getAllFunctions();
+  Collection<AnalyticFunctionDefinition> getAllFunctions();
   
   /**
    * This method <em>must not</em> return {@code null}.
    * @param outputs
    * @return
    */
-  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
+  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
   
-  Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, String securityType);
+  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, String securityType);
   
   AnalyticFunctionInvoker getInvoker(String uniqueIdentifier);
 

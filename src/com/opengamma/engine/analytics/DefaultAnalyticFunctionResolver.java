@@ -38,10 +38,10 @@ public class DefaultAnalyticFunctionResolver implements
   }
 
   @Override
-  public AnalyticFunction resolve(AnalyticValueDefinition<?> requiredValue,
+  public AnalyticFunctionDefinition resolve(AnalyticValueDefinition<?> requiredValue,
       Security security) {
     assert requiredValue != null;
-    Collection<AnalyticFunction> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), security.getSecurityType());
+    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), security.getSecurityType());
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;
@@ -50,7 +50,7 @@ public class DefaultAnalyticFunctionResolver implements
     if(possibleFunctions.size() > 1) {
       s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
     }
-    AnalyticFunction function = possibleFunctions.iterator().next();
+    AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
     s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
     
     return function;
