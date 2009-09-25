@@ -9,7 +9,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import javax.time.Duration;
 import javax.time.InstantProvider;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalTime;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * 
@@ -18,9 +23,11 @@ import javax.time.InstantProvider;
  * @author emcleod
  */
 public class DateUtil {
-  public static final long MILLISECONDS_PER_YEAR = 31557600000L;
-  public static final long MILLISECONDS_PER_DAY = 86400000L;
+  public static final long SECONDS_PER_DAY = 86400L;
   public static final double DAYS_PER_YEAR = 365.25;
+  public static final long MILLISECONDS_PER_DAY = SECONDS_PER_DAY * 1000;
+  public static final long SECONDS_PER_YEAR = (long) (SECONDS_PER_DAY * DAYS_PER_YEAR);
+  public static final long MILLISECONDS_PER_YEAR = SECONDS_PER_YEAR * 1000;
 
   /**
    * Returns d1 - d2 in years, where a year is defined as 365.25 days.
@@ -34,6 +41,8 @@ public class DateUtil {
    *           If either date is null.
    */
   public static double getDifferenceInYears(final InstantProvider d1, final InstantProvider d2) {
+
+    // TODO InstantInterval.intervalBetween
     if (d1 == null) {
       throw new IllegalArgumentException("First date was null");
     }
@@ -56,6 +65,29 @@ public class DateUtil {
    */
   public static double getDifferenceInYears(final InstantProvider d1, final InstantProvider d2, final double daysInYear) {
     return daysInYear * d1.toInstant().toEpochMillis() - d2.toInstant().toEpochMillis() / MILLISECONDS_PER_DAY;
+  }
+
+  // REVIEW emcleod 24/9/09. This is a quick and dirty way of doing this - I
+  // don't like the
+  // rounding.
+  /**
+   * Method that allows a fraction of a year to be added to a date. If the
+   * yearFraction that is used does not give an integer number of seconds, it is
+   * rounded to the nearest long.
+   * 
+   * @param startDate
+   *          The date to offset.
+   * @param yearFraction
+   *          The fraction of a year to add to the original date.
+   * @return
+   */
+  public static InstantProvider getDateOffsetWithYearFraction(final InstantProvider startDate, final double yearFraction) {
+    final long seconds = Math.round(SECONDS_PER_YEAR * yearFraction);
+    return startDate.toInstant().plus(Duration.seconds(seconds));
+  }
+
+  public static ZonedDateTime getUTCDate(final int year, final int month, final int day, final int hour, final int minutes) {
+    return ZonedDateTime.dateTime(LocalDate.date(year, month, day), LocalTime.time(hour, minutes), TimeZone.UTC);
   }
 
   public static double subtract(final Date d1, final Date d2) {
