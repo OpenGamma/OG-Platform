@@ -45,7 +45,9 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction extends AbstractAnalyticFunction {
+public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction
+extends AbstractAnalyticFunction
+implements AnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   
   private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;

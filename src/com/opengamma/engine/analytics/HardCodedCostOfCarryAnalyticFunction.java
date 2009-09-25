@@ -22,7 +22,9 @@ import com.opengamma.util.KeyValuePair;
  */
 
 
-public class HardCodedCostOfCarryAnalyticFunction<T extends OptionDefinition> extends AbstractAnalyticFunction {
+public class HardCodedCostOfCarryAnalyticFunction<T extends OptionDefinition>
+extends AbstractAnalyticFunction
+implements AnalyticFunctionInvoker {
   
   private final double _costOfCarry;
   

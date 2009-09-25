@@ -6,7 +6,6 @@
 package com.opengamma.engine.analytics;
 
 
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.KeyValuePair;
@@ -22,5 +21,10 @@ public class DiscountCurveValueDefinition extends
   public DiscountCurveValueDefinition(Currency currency) {
      super(new KeyValuePair<String, Object>("TYPE", "DISCOUNT_CURVE"),
            new KeyValuePair<String, Object>("CURRENCY", currency.getISOCode()));
+  }
+
+  @SuppressWarnings("unchecked")
+  public DiscountCurveValueDefinition() {
+     super(new KeyValuePair<String, Object>("TYPE", "DISCOUNT_CURVE"));
   }
 }

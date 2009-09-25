@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
 import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
@@ -46,7 +45,6 @@ import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
-import com.opengamma.util.Pair;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -57,7 +55,9 @@ import com.opengamma.util.TerminatableJob;
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
   private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
+  
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     //viewDefinition.addValueDefinition("KIRK", DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD")));
@@ -93,7 +93,8 @@ public class ViewImplTest {
 
     DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
     DiscountCurveAnalyticFunction function = new DiscountCurveAnalyticFunction(curveDefinition);
-    InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(Collections.singleton(function));
+    InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository();
+    functionRepo.addFunction(function, function);
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
     for(AnalyticValueDefinition<?> definition : function.getInputs(security)) {
@@ -238,7 +239,6 @@ public class ViewImplTest {
   }
   
   public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
-    @SuppressWarnings("unchecked")
     ResolveSecurityKeyToMarketDataHeaderDefinition definition =
       new ResolveSecurityKeyToMarketDataHeaderDefinition(
           new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
@@ -285,7 +285,6 @@ public class ViewImplTest {
       }
       final Map<String, Double> dataFields = new HashMap<String, Double>();
       dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
-      @SuppressWarnings("unchecked")
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {

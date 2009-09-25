@@ -24,7 +24,7 @@ import com.opengamma.engine.security.Security;
  *
  * @author kirk
  */
-public interface AnalyticFunctionDefinition extends AnalyticFunctionInvoker {
+public interface AnalyticFunctionDefinition {
   
   /**
    * The unique identifier for an {@code AnalyticFunction} is the handle

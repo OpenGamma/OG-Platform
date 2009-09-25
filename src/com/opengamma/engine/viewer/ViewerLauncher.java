@@ -53,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -107,7 +106,6 @@ public class ViewerLauncher extends SingleFrameApplication {
   private SnapshotPopulatorJob _popJob;
   
 
-  @SuppressWarnings("unchecked")
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     //viewDefinition.addValueDefinition("EQUITY_OPTION", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
@@ -142,10 +140,9 @@ public class ViewerLauncher extends SingleFrameApplication {
     DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
     DiscountCurveAnalyticFunction function = new DiscountCurveAnalyticFunction(curveDefinition);
     HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction function2 = new HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction();
-    Collection<AbstractAnalyticFunction> functions = new HashSet<AbstractAnalyticFunction>();
-    functions.add(function);
-    functions.add(function2);
-    InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(functions);
+    InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository();
+    functionRepo.addFunction(function, function);
+    functionRepo.addFunction(function2, function2);
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
     ldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIndentityKey()));
@@ -183,7 +180,6 @@ public class ViewerLauncher extends SingleFrameApplication {
   }
   
   public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
-    @SuppressWarnings("unchecked")
     ResolveSecurityKeyToMarketDataHeaderDefinition definition =
       new ResolveSecurityKeyToMarketDataHeaderDefinition(
           new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));

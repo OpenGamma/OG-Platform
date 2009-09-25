@@ -21,7 +21,7 @@ import com.opengamma.engine.security.Security;
  *
  * @author kirk
  */
-public class LiveDataSourcingFunction extends AbstractAnalyticFunction implements AnalyticFunctionDefinition {
+public class LiveDataSourcingFunction extends AbstractAnalyticFunction implements AnalyticFunctionInvoker {
   private final AnalyticValueDefinition<?> _specifiedResult;
   private final String _shortName;
   

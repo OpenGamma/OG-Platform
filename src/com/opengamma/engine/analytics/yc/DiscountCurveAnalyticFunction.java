@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.analytics.AbstractAnalyticFunction;
-import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.AnalyticFunctionInvoker;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -33,7 +33,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction implements AnalyticFunctionDefinition {
+public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction implements AnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
   
@@ -59,6 +59,9 @@ public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction impl
   }
 
   public static AnalyticValueDefinition<DiscountCurve> constructDiscountCurveValueDefinition(Currency currency) {
+    if(currency == null) {
+      return new DiscountCurveValueDefinition();
+    }
     return new DiscountCurveValueDefinition(currency);
   }
 

@@ -27,26 +27,16 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   public InMemoryAnalyticFunctionRepository() {
   }
   
-  public InMemoryAnalyticFunctionRepository(Collection<? extends AbstractAnalyticFunction> functions) {
-    addFunctions(functions);
-  }
-  
-  public void addFunctions(Collection<? extends AbstractAnalyticFunction> functions) {
-    if(functions == null) {
-      return;
-    }
-    for(AbstractAnalyticFunction function : functions) {
-      addFunction(function);
-    }
-  }
-  
-  public synchronized void addFunction(AbstractAnalyticFunction function) {
+  public synchronized void addFunction(AbstractAnalyticFunction function, AnalyticFunctionInvoker invoker) {
     if(function == null) {
       throw new NullPointerException("Must provide a function.");
     }
+    if(invoker == null) {
+      throw new NullPointerException("Must provide an invoker.");
+    }
     _functions.add(function);
     function.setUniqueIdentifier(Integer.toString(_functions.size()));
-    _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), function);
+    _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), invoker);
   }
 
   @Override
