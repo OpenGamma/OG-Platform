@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionService;
@@ -19,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.security.Security;
@@ -106,6 +109,9 @@ public class DependencyGraphExecutor {
 
   public synchronized void executeGraph() {
     CompletionService<DependencyNode> completionService = new ExecutorCompletionService<DependencyNode>(getExecutor());
+    
+    markLiveDataSourcingFunctionsCompleted();
+    
     while(_executedNodes.size() < getDependencyGraph().getNodeCount()) {
       enqueueAllAvailableNodes(completionService);
       DependencyNode completedNode = null;
@@ -125,6 +131,24 @@ public class DependencyGraphExecutor {
   }
 
   /**
+   * 
+   */
+  protected void markLiveDataSourcingFunctionsCompleted() {
+    for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
+      markLiveDataSourcingFunctionsCompleted(node);
+    }
+  }
+  
+  protected void markLiveDataSourcingFunctionsCompleted(DependencyNode node) {
+    if(node.getFunction() instanceof LiveDataSourcingFunction) {
+      _executedNodes.add(node);
+    }
+    for(DependencyNode inputNode : node.getInputNodes()) {
+      markLiveDataSourcingFunctionsCompleted(inputNode);
+    }
+  }
+
+  /**
    * @param completionService
    */
   protected synchronized void enqueueAllAvailableNodes(
@@ -132,11 +156,30 @@ public class DependencyGraphExecutor {
     DependencyNode depNode = findExecutableNode();
     while(depNode != null) {
       _executingNodes.add(depNode);
-      completionService.submit(new AnalyticFunctionInvocationJob(depNode, getSecurity(), getComputationCache(), getFunctionRepository()), depNode);
+      submitNodeInvocationJob(completionService, depNode);
       depNode = findExecutableNode();
     }
   }
   
+  /**
+   * @param depNode
+   */
+  protected void submitNodeInvocationJob(CompletionService<DependencyNode> completionService, DependencyNode depNode) {
+    assert !(depNode.getFunction() instanceof LiveDataSourcingFunction);
+    Collection<AnalyticValueDefinition<?>> resolvedInputs = new HashSet<AnalyticValueDefinition<?>>();
+    for(AnalyticValueDefinition<?> input : depNode.getFunction().getInputs(getSecurity())) {
+      resolvedInputs.add(depNode.getResolvedInput(input));
+    }
+    AnalyticFunctionInvocationJob invocationJob = new AnalyticFunctionInvocationJob(
+        depNode.getFunction().getUniqueIdentifier(),
+        resolvedInputs,
+        getSecurity(),
+        getComputationCache(),
+        getFunctionRepository()
+      );
+    completionService.submit(invocationJob, depNode);
+  }
+
   /**
    * @return
    */
