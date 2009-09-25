@@ -20,8 +20,6 @@ import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.security.Security;
 
-// TODO kirk 2009-09-14 -- Do we need some type of progress monitor?
-
 /**
  * Holds all data and actions for a single pass through a computation cycle.
  * In general, each invocation of {@link ViewRecalculationJob#runOneCycle()}
@@ -40,7 +38,8 @@ import com.opengamma.engine.security.Security;
 public class SingleComputationCycle {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   // Injected Inputs:
-  private final ViewComputationCache _computationCache;
+  private final String _viewName;
+  private final ViewComputationCacheSource _computationCacheSource;
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   private final LiveDataSnapshotProvider _snapshotProvider;
   private final ViewDefinition _viewDefinition;
@@ -49,27 +48,31 @@ public class SingleComputationCycle {
   
   // State:
   private final long _startTime;
+  private ViewComputationCache _computationCache;
   
   // Outputs:
   private long _snapshotTime;
   private final ViewComputationResultModelImpl _resultModel;
   
   public SingleComputationCycle(
-      ViewComputationCache cache,
+      String viewName,
+      ViewComputationCacheSource cacheSource,
       PortfolioEvaluationModel portfolioEvaluationModel,
       LiveDataSnapshotProvider snapshotProvider,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition,
       ExecutorService computationExecutorService,
       AnalyticFunctionRepository functionRepository) {
-    assert cache != null;
+    assert viewName != null;
+    assert cacheSource != null;
     assert portfolioEvaluationModel != null;
     assert snapshotProvider != null;
     assert resultModel != null;
     assert viewDefinition != null;
     assert computationExecutorService != null;
     assert functionRepository != null;
-    _computationCache = cache;
+    _viewName = viewName;
+    _computationCacheSource = cacheSource;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _snapshotProvider = snapshotProvider;
     _resultModel = resultModel;
@@ -98,6 +101,24 @@ public class SingleComputationCycle {
    */
   public ViewComputationCache getComputationCache() {
     return _computationCache;
+  }
+
+  /**
+   * @param computationCache the computationCache to set
+   */
+  public void setComputationCache(ViewComputationCache computationCache) {
+    _computationCache = computationCache;
+  }
+
+  /**
+   * @return the viewName
+   */
+  public String getViewName() {
+    return _viewName;
+  }
+
+  public ViewComputationCacheSource getComputationCacheSource() {
+    return _computationCacheSource;
   }
 
   /**
@@ -151,6 +172,9 @@ public class SingleComputationCycle {
 
   public void prepareInputs() {
     setSnapshotTime(getSnapshotProvider().snapshot());
+    ViewComputationCache cache = getComputationCacheSource().getCache(getViewName(), getSnapshotTime());
+    assert cache != null;
+    setComputationCache(cache);
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     
     Set<AnalyticValueDefinition<?>> requiredLiveData = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
@@ -203,6 +227,7 @@ public class SingleComputationCycle {
   
   public void releaseResources() {
     getSnapshotProvider().releaseSnapshot(getSnapshotTime());
+    getComputationCacheSource().releaseCache(getViewName(), getSnapshotTime());
   }
 
 }

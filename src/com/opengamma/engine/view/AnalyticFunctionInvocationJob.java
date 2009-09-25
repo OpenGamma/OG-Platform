@@ -17,8 +17,6 @@ import com.opengamma.engine.analytics.AnalyticFunctionInvoker;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.LiveDataSourcingFunction;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -29,31 +27,42 @@ import com.opengamma.engine.security.Security;
  */
 public class AnalyticFunctionInvocationJob implements Runnable {
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticFunctionInvocationJob.class);
-  private final DependencyNode _node;
+  private final String _functionUniqueIdentifier;
+  private final Collection<AnalyticValueDefinition<?>> _resolvedInputs;
   private final Security _security;
   private final ViewComputationCache _computationCache;
   private final AnalyticFunctionRepository _functionRepository;
   
   public AnalyticFunctionInvocationJob(
-      DependencyNode node,
+      String functionUniqueIdentifier,
+      Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Security security,
       ViewComputationCache computationCache,
       AnalyticFunctionRepository functionRepository) {
-    assert node != null;
+    assert functionUniqueIdentifier != null;
+    assert resolvedInputs != null;
     assert security != null;
     assert computationCache != null;
     assert functionRepository != null;
-    _node = node;
+    _functionUniqueIdentifier = functionUniqueIdentifier;
+    _resolvedInputs = resolvedInputs;
     _security = security;
     _computationCache = computationCache;
     _functionRepository = functionRepository;
   }
 
   /**
-   * @return the node
+   * @return the functionUniqueReference
    */
-  public DependencyNode getNode() {
-    return _node;
+  public String getFunctionUniqueIdentifier() {
+    return _functionUniqueIdentifier;
+  }
+
+  /**
+   * @return the resolvedInputs
+   */
+  public Collection<AnalyticValueDefinition<?>> getResolvedInputs() {
+    return _resolvedInputs;
   }
 
   /**
@@ -79,30 +88,14 @@ public class AnalyticFunctionInvocationJob implements Runnable {
 
   @Override
   public void run() {
-    // First of all, check that we don't have the outputs already ready.
-    boolean allFound = true;
-    for(AnalyticValueDefinition<?> outputDefinition : getNode().getOutputValues()) {
-      if(getComputationCache().getValue(outputDefinition) == null) {
-        allFound = false;
-        break;
-      }
-    }
-    
-    if(allFound) {
-      if(!(getNode().getFunction() instanceof LiveDataSourcingFunction)) {
-        s_logger.debug("Able to skip a node because it was already computed.");
-      }
-      return;
-    }
-    
+    s_logger.debug("Invoking {} on security {}", getFunctionUniqueIdentifier(), getSecurity());
     Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
-    for(AnalyticValueDefinition<?> inputDefinition : getNode().getInputValues()) {
-      AnalyticValueDefinition<?> resolvedDefinition = getNode().getResolvedInput(inputDefinition);
-      inputs.add(getComputationCache().getValue(resolvedDefinition));
+    for(AnalyticValueDefinition<?> inputDefinition : getResolvedInputs()) {
+      inputs.add(getComputationCache().getValue(inputDefinition));
     }
     AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
     
-    AnalyticFunctionInvoker invoker = getFunctionRepository().getInvoker(getNode().getFunction().getUniqueIdentifier());
+    AnalyticFunctionInvoker invoker = getFunctionRepository().getInvoker(getFunctionUniqueIdentifier());
     
     Collection<AnalyticValue<?>> outputs = invoker.execute(functionInputs, getSecurity());
     for(AnalyticValue<?> outputValue : outputs) {

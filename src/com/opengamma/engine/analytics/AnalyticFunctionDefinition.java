@@ -16,9 +16,6 @@ import com.opengamma.engine.security.Security;
 // REVIEW kirk 2009-09-22 -- This is getting REALLY large and unwieldy. We need to
 // segregate this out into various facets for different types of functions I think.
 
-// REVIEW kirk 2009-09-25 -- Once we're done with the split of the metadata,
-// this needs to be renamed to AnalyticFunctionDescriptor.
-
 /**
  * A single unit of work capable of operating on inputs to produce results. 
  *
@@ -67,7 +64,7 @@ public interface AnalyticFunctionDefinition {
    */
   boolean isApplicableTo(Position position);
   
-  Collection<AnalyticValueDefinition<?>> getPossibleResults();
+  Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security);
   
   Collection<AnalyticValueDefinition<?>> getInputs(Security security);
   

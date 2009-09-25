@@ -38,7 +38,7 @@ public class DependencyNode {
       throw new NullPointerException("Must provide a function for this node.");
     }
     _function = function;
-    _outputValues.addAll(function.getPossibleResults());
+    _outputValues.addAll(function.getPossibleResults(security));
     _inputValues.addAll(function.getInputs(security));
   }
   

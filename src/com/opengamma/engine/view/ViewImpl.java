@@ -44,7 +44,7 @@ public class ViewImpl implements View, Lifecycle {
   private AnalyticFunctionRepository _analyticFunctionRepository;
   private PositionMaster _positionMaster;
   private SecurityMaster _securityMaster;
-  private ViewComputationCacheFactory _computationCacheFactory;
+  private ViewComputationCacheSource _computationCacheSource;
   private ExecutorService _computationExecutorService;
   // Internal State:
   private PortfolioEvaluationModel _portfolioEvaluationModel;
@@ -135,17 +135,17 @@ public class ViewImpl implements View, Lifecycle {
   /**
    * @return the computationCacheFactory
    */
-  public ViewComputationCacheFactory getComputationCacheFactory() {
-    return _computationCacheFactory;
+  public ViewComputationCacheSource getComputationCacheSource() {
+    return _computationCacheSource;
   }
 
   /**
-   * @param computationCacheFactory the computationCacheFactory to set
+   * @param computationCacheSource the computationCacheFactory to set
    */
   @Required
-  public void setComputationCacheFactory(
-      ViewComputationCacheFactory computationCacheFactory) {
-    _computationCacheFactory = computationCacheFactory;
+  public void setComputationCacheSource(
+      ViewComputationCacheSource computationCacheSource) {
+    _computationCacheSource = computationCacheSource;
   }
 
   /**
@@ -315,7 +315,7 @@ public class ViewImpl implements View, Lifecycle {
     if(getPositionMaster() == null) {
       throw new IllegalStateException("Must have a Position Master");
     }
-    if(getComputationCacheFactory() == null) {
+    if(getComputationCacheSource() == null) {
       throw new IllegalStateException("Must have a View Computation Cache Factory");
     }
     if(getSecurityMaster() == null) {

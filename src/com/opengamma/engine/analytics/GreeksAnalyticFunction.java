@@ -62,11 +62,9 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
       Security security) {
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
-      final DiscountCurveAnalyticValue discountCurveValue = (DiscountCurveAnalyticValue) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
-      final VolatilitySurfaceAnalyticValue volSurfaceValue = (VolatilitySurfaceAnalyticValue) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
+      final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
+      final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
       final Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOption.getUnderlying()));
-      final DiscountCurve discountCurve = discountCurveValue.getValue();
-      final VolatilitySurface volSurface = volSurfaceValue.getValue();
       final Instant today = Clock.system(TimeZone.UTC).instant();
       final Expiry expiry = equityOption.getExpiry();
       final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(expiry.getExpiry().toInstant(), today));
@@ -131,8 +129,8 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
-    return Collections.<AnalyticValueDefinition<?>>singleton(new GreeksResultValueDefinition());
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
+    return Collections.<AnalyticValueDefinition<?>>singleton(new GreeksResultValueDefinition(security.getIdentityKey()));
   }
 
   @Override

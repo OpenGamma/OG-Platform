@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.analytics;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.KeyValuePair;
