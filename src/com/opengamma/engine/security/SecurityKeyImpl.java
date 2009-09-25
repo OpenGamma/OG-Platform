@@ -19,6 +19,7 @@ import java.util.List;
  * @author kirk
  */
 public class SecurityKeyImpl implements SecurityKey, Serializable {
+  
   private final List<SecurityIdentifier> _identifiers;
   
   public SecurityKeyImpl(SecurityIdentifier... identifiers) {
@@ -53,5 +54,32 @@ public class SecurityKeyImpl implements SecurityKey, Serializable {
   public Collection<SecurityIdentifier> getIdentifiers() {
     return _identifiers;
   }
+  
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result
+        + ((_identifiers == null) ? 0 : _identifiers.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    SecurityKeyImpl other = (SecurityKeyImpl) obj;
+    if (_identifiers == null) {
+      if (other._identifiers != null)
+        return false;
+    } else if (!_identifiers.equals(other._identifiers))
+      return false;
+    return true;
+  }
+
 
 }

@@ -182,6 +182,12 @@ public class SingleComputationCycle {
       Security security = position.getSecurity();
       String securityType = security.getSecurityType();
       Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
+
+      if(secTypeValueDefs == null) {
+        // Nothing required for this sec type for outputs, so no values
+        // to populate.
+        continue;
+      }
       SecurityDependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
       
       for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {

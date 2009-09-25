@@ -40,7 +40,7 @@ public final class SecurityIdentifier implements Serializable, Cloneable {
     _domain = domain;
     _value = value;
   }
-
+  
   /**
    * @return the domain
    */

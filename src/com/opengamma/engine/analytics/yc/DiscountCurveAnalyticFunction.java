@@ -17,8 +17,8 @@ import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.DiscountCurveAnalyticValue;
+import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
@@ -59,12 +59,7 @@ public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction impl
   }
 
   public static AnalyticValueDefinition<DiscountCurve> constructDiscountCurveValueDefinition(Currency currency) {
-    Map<String, Object> map = new HashMap<String, Object>();
-    if(currency != null) {
-      map.put("Currency", currency);
-    }
-    map.put("TYPE", "DISCOUNT_CURVE");
-    return new AnalyticValueDefinitionImpl<DiscountCurve>(map);
+    return new DiscountCurveValueDefinition(currency);
   }
 
   @Override
