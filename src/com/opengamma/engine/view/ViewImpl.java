@@ -18,16 +18,11 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.util.ThreadUtil;
 
 /**

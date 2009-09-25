@@ -13,11 +13,9 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -39,12 +37,10 @@ public class SingleComputationCycle {
   private static final Logger s_logger = LoggerFactory.getLogger(SingleComputationCycle.class);
   // Injected Inputs:
   private final String _viewName;
-  private final ViewComputationCacheSource _computationCacheSource;
+  private final ViewProcessingContext _processingContext;
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
-  private final LiveDataSnapshotProvider _snapshotProvider;
   private final ViewDefinition _viewDefinition;
   private final ExecutorService _computationExecutorService;
-  private final AnalyticFunctionRepository _functionRepository;
   
   // State:
   private final long _startTime;
@@ -56,29 +52,23 @@ public class SingleComputationCycle {
   
   public SingleComputationCycle(
       String viewName,
-      ViewComputationCacheSource cacheSource,
+      ViewProcessingContext processingContext,
       PortfolioEvaluationModel portfolioEvaluationModel,
-      LiveDataSnapshotProvider snapshotProvider,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition,
-      ExecutorService computationExecutorService,
-      AnalyticFunctionRepository functionRepository) {
+      ExecutorService computationExecutorService) {
     assert viewName != null;
-    assert cacheSource != null;
+    assert processingContext != null;
     assert portfolioEvaluationModel != null;
-    assert snapshotProvider != null;
     assert resultModel != null;
     assert viewDefinition != null;
     assert computationExecutorService != null;
-    assert functionRepository != null;
     _viewName = viewName;
-    _computationCacheSource = cacheSource;
+    _processingContext = processingContext;
     _portfolioEvaluationModel = portfolioEvaluationModel;
-    _snapshotProvider = snapshotProvider;
     _resultModel = resultModel;
     _viewDefinition = viewDefinition;
     _computationExecutorService = computationExecutorService;
-    _functionRepository = functionRepository;
     _startTime = System.currentTimeMillis();
   }
   
@@ -117,8 +107,11 @@ public class SingleComputationCycle {
     return _viewName;
   }
 
-  public ViewComputationCacheSource getComputationCacheSource() {
-    return _computationCacheSource;
+  /**
+   * @return the processingContext
+   */
+  public ViewProcessingContext getProcessingContext() {
+    return _processingContext;
   }
 
   /**
@@ -126,13 +119,6 @@ public class SingleComputationCycle {
    */
   public PortfolioEvaluationModel getPortfolioEvaluationModel() {
     return _portfolioEvaluationModel;
-  }
-
-  /**
-   * @return the snapshotProvider
-   */
-  public LiveDataSnapshotProvider getSnapshotProvider() {
-    return _snapshotProvider;
   }
 
   /**
@@ -163,16 +149,9 @@ public class SingleComputationCycle {
     return _computationExecutorService;
   }
 
-  /**
-   * @return the functionRepository
-   */
-  public AnalyticFunctionRepository getFunctionRepository() {
-    return _functionRepository;
-  }
-
   public void prepareInputs() {
-    setSnapshotTime(getSnapshotProvider().snapshot());
-    ViewComputationCache cache = getComputationCacheSource().getCache(getViewName(), getSnapshotTime());
+    setSnapshotTime(getProcessingContext().getLiveDataSnapshotProvider().snapshot());
+    ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), getSnapshotTime());
     assert cache != null;
     setComputationCache(cache);
     getResultModel().setInputDataTimestamp(getSnapshotTime());
@@ -181,7 +160,7 @@ public class SingleComputationCycle {
     s_logger.debug("Populating {} market data items for snapshot {}", requiredLiveData.size(), getSnapshotTime());
     
     for(AnalyticValueDefinition<?> requiredDataDefinition : requiredLiveData) {
-      AnalyticValue<?> value = getSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
+      AnalyticValue<?> value = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
       if(value == null) {
         s_logger.warn("Unable to load live data value for {} at snapshot {}", requiredDataDefinition, getSnapshotTime());
       } else {
@@ -194,7 +173,10 @@ public class SingleComputationCycle {
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
       SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
       assert secDepGraph != null;
-      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(security, secDepGraph, getComputationCache(), getComputationExecutorService(), getFunctionRepository());
+      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
+          security, secDepGraph, getProcessingContext(), getComputationCache(),
+          getComputationExecutorService(),
+          getProcessingContext().getAnalyticFunctionRepository());
       depGraphExecutor.executeGraph();
     }
   }
@@ -226,8 +208,8 @@ public class SingleComputationCycle {
   }
   
   public void releaseResources() {
-    getSnapshotProvider().releaseSnapshot(getSnapshotTime());
-    getComputationCacheSource().releaseCache(getViewName(), getSnapshotTime());
+    getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getSnapshotTime());
+    getProcessingContext().getComputationCacheSource().releaseCache(getViewName(), getSnapshotTime());
   }
 
 }

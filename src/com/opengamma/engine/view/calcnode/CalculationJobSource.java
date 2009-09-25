@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author kirk
  */
-public interface CalculationNodeJobSource {
+public interface CalculationJobSource {
   
   CalculationJob getJob(long time, TimeUnit unit);
 

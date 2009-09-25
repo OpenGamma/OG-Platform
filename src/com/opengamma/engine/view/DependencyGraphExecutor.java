@@ -37,6 +37,7 @@ public class DependencyGraphExecutor {
   // Injected Inputs:
   private final Security _security;
   private final SecurityDependencyGraph _dependencyGraph;
+  private final ViewProcessingContext _processingContext;
   private final ViewComputationCache _computationCache;
   private final ExecutorService _executor;
   private final AnalyticFunctionRepository _functionRepository;
@@ -47,6 +48,7 @@ public class DependencyGraphExecutor {
   public DependencyGraphExecutor(
       Security security,
       SecurityDependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext,
       ViewComputationCache computationCache,
       ExecutorService executor,
       AnalyticFunctionRepository functionRepository) {
@@ -55,6 +57,9 @@ public class DependencyGraphExecutor {
     }
     if(dependencyGraph == null) {
       throw new NullPointerException("Must provide a dependency graph to execute.");
+    }
+    if(processingContext == null) {
+      throw new NullPointerException("Must provide a processing context.");
     }
     if(computationCache == null) {
       throw new NullPointerException("Must provide a View Computation Cache.");
@@ -67,6 +72,7 @@ public class DependencyGraphExecutor {
     }
     _security = security;
     _dependencyGraph = dependencyGraph;
+    _processingContext = processingContext;
     _computationCache = computationCache;
     _executor = executor;
     _functionRepository = functionRepository;
@@ -84,6 +90,13 @@ public class DependencyGraphExecutor {
    */
   public SecurityDependencyGraph getDependencyGraph() {
     return _dependencyGraph;
+  }
+
+  /**
+   * @return the processingContext
+   */
+  public ViewProcessingContext getProcessingContext() {
+    return _processingContext;
   }
 
   /**

@@ -10,6 +10,8 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.view.calcnode.CalculationJobSink;
+import com.opengamma.engine.view.calcnode.JobCompletionRetriever;
 
 /**
  * A collection for everything relating to processing a particular view.
@@ -23,6 +25,8 @@ public class ViewProcessingContext {
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
+  private final CalculationJobSink _jobSink;
+  private final JobCompletionRetriever _jobCompletionRetriever;
 
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -30,7 +34,9 @@ public class ViewProcessingContext {
       AnalyticFunctionRepository analyticFunctionRepository,
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
-      ViewComputationCacheSource computationCacheSource
+      ViewComputationCacheSource computationCacheSource,
+      CalculationJobSink jobSink,
+      JobCompletionRetriever jobCompletionRetriever
       ) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -39,6 +45,8 @@ public class ViewProcessingContext {
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
+    _jobSink = jobSink;
+    _jobCompletionRetriever = jobCompletionRetriever;
   }
 
   /**
@@ -81,6 +89,20 @@ public class ViewProcessingContext {
    */
   public ViewComputationCacheSource getComputationCacheSource() {
     return _computationCacheSource;
+  }
+
+  /**
+   * @return the jobSink
+   */
+  public CalculationJobSink getJobSink() {
+    return _jobSink;
+  }
+
+  /**
+   * @return the jobCompletionRetriever
+   */
+  public JobCompletionRetriever getJobCompletionRetriever() {
+    return _jobCompletionRetriever;
   }
 
 }

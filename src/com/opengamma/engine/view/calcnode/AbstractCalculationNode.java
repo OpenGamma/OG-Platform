@@ -18,14 +18,14 @@ public abstract class AbstractCalculationNode {
   private final ViewComputationCacheSource _cacheSource;
   private final AnalyticFunctionRepository _functionRepository;
   private final SecurityMaster _securityMaster;
-  private final CalculationNodeJobSource _jobSource;
+  private final CalculationJobSource _jobSource;
   private final JobCompletionNotifier _completionNotifier;
 
   protected AbstractCalculationNode(
       ViewComputationCacheSource cacheSource,
       AnalyticFunctionRepository functionRepository,
       SecurityMaster securityMaster,
-      CalculationNodeJobSource jobSource,
+      CalculationJobSource jobSource,
       JobCompletionNotifier completionNotifier) {
     // TODO kirk 2009-09-25 -- Check inputs
     _cacheSource = cacheSource;
@@ -59,7 +59,7 @@ public abstract class AbstractCalculationNode {
   /**
    * @return the jobSource
    */
-  public CalculationNodeJobSource getJobSource() {
+  public CalculationJobSource getJobSource() {
     return _jobSource;
   }
 

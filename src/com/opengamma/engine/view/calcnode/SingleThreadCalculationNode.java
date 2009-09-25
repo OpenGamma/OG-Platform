@@ -41,7 +41,7 @@ implements Lifecycle {
       ViewComputationCacheSource cacheSource,
       AnalyticFunctionRepository functionRepository,
       SecurityMaster securityMaster,
-      CalculationNodeJobSource jobSource,
+      CalculationJobSource jobSource,
       JobCompletionNotifier completionNotifier) {
     super(cacheSource, functionRepository, securityMaster, jobSource,
         completionNotifier);
