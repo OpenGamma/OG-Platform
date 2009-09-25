@@ -9,10 +9,10 @@ import javax.time.Instant;
  */
 
 public abstract class BusinessDayConvention {
-
+  // TODO use ZonedDateTime.with for all of this
   public abstract Instant getAdjustedDate(Instant date);
 
-  protected boolean isWeekendOrHoliday(Instant date) {
+  protected boolean isWeekendOrHoliday(final Instant date) {
     return false;
   }
 }
