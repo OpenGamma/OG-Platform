@@ -64,7 +64,7 @@ public interface AnalyticFunctionDefinition {
    */
   boolean isApplicableTo(Position position);
   
-  Collection<AnalyticValueDefinition<?>> getPossibleResults();
+  Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security);
   
   Collection<AnalyticValueDefinition<?>> getInputs(Security security);
   

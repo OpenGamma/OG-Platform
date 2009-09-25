@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.security.Security;
+
 /**
  * An in-memory implementation of {@link AnalyticFunctionRepository}.
  * This can either be used as-is through a factory which scans available functions,
@@ -49,7 +51,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       Collection<AnalyticValueDefinition<?>> outputs) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
-      if(functionProducesAllValues(function, outputs)) {
+      if(functionProducesAllValues(function, null, outputs)) {
         result.add(function);
       }
     }
@@ -58,19 +60,25 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
 
   @Override
   public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
-      Collection<AnalyticValueDefinition<?>> outputs, String securityType) {
+      Collection<AnalyticValueDefinition<?>> outputs, Security security) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
-      if(function.isApplicableTo(securityType)
-          && functionProducesAllValues(function, outputs)) {
+      boolean applicable = true;
+      if(security != null) {
+        applicable = function.isApplicableTo(security.getSecurityType());
+      } else {
+        applicable = function.isApplicableTo((String)null);
+      }
+      if(applicable
+          && functionProducesAllValues(function, security, outputs)) {
         result.add(function);
       }
     }
     return result;
   }
   
-  protected boolean functionProducesAllValues(AnalyticFunctionDefinition function, Collection<AnalyticValueDefinition<?>> outputs) {
-    Collection<AnalyticValueDefinition<?>> possibleResults = function.getPossibleResults();
+  protected boolean functionProducesAllValues(AnalyticFunctionDefinition function, Security security, Collection<AnalyticValueDefinition<?>> outputs) {
+    Collection<AnalyticValueDefinition<?>> possibleResults = function.getPossibleResults(security);
     for(AnalyticValueDefinition<?> output : outputs) {
       boolean foundForOutput = false;
       for(AnalyticValueDefinition<?> possibleResult : possibleResults) {

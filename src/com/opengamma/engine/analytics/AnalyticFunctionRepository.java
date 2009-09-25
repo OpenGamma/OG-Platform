@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.security.Security;
+
 /**
  * A container for the {@link AnalyticFunctionDefinition} instances available
  * to a particular environment. 
@@ -24,7 +26,7 @@ public interface AnalyticFunctionRepository {
    */
   Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
   
-  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, String securityType);
+  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Security security);
   
   AnalyticFunctionInvoker getInvoker(String uniqueIdentifier);
 
