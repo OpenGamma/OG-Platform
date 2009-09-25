@@ -85,6 +85,7 @@ import com.opengamma.engine.view.ViewComputationCacheSource;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.KeyValuePair;
@@ -161,13 +162,11 @@ public class ViewerLauncher extends SingleFrameApplication {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     populateSnapshot(snapshotProvider, curveDefinition, false);
     
-    ViewImpl view = new ViewImpl(viewDefinition);
-    view.setPositionMaster(positionMaster);
-    view.setAnalyticFunctionRepository(functionRepo);
-    view.setLiveDataAvailabilityProvider(ldap);
-    view.setSecurityMaster(secMaster);
-    view.setComputationCacheSource(cacheFactory);
-    view.setLiveDataSnapshotProvider(snapshotProvider);
+    ViewProcessingContext processingContext = new ViewProcessingContext(
+        ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory
+      );
+    
+    ViewImpl view = new ViewImpl(viewDefinition, processingContext);
     view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     
     return view;
@@ -662,7 +661,7 @@ public class ViewerLauncher extends SingleFrameApplication {
       throw new OpenGammaRuntimeException("Error constructing view", e);
     }
     _view.init();
-    InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getLiveDataSnapshotProvider();
+    InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getProcessingContext().getLiveDataSnapshotProvider();
     DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
     _popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
     Thread popThread = new Thread(_popJob);

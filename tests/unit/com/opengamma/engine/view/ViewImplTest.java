@@ -106,13 +106,11 @@ public class ViewImplTest {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     populateSnapshot(snapshotProvider, curveDefinition, false);
     
-    ViewImpl view = new ViewImpl(viewDefinition);
-    view.setPositionMaster(positionMaster);
-    view.setAnalyticFunctionRepository(functionRepo);
-    view.setLiveDataAvailabilityProvider(ldap);
-    view.setSecurityMaster(secMaster);
-    view.setComputationCacheSource(cacheFactory);
-    view.setLiveDataSnapshotProvider(snapshotProvider);
+    ViewProcessingContext processingContext = new ViewProcessingContext(
+        ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory
+      );
+    
+    ViewImpl view = new ViewImpl(viewDefinition, processingContext);
     view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     
     return view;
@@ -171,7 +169,7 @@ public class ViewImplTest {
     });
     
     view.start();
-    InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) view.getLiveDataSnapshotProvider();
+    InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) view.getProcessingContext().getLiveDataSnapshotProvider();
     SnapshotPopulatorJob popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
     Thread popThread = new Thread(popJob);
     popThread.start();
