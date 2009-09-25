@@ -101,12 +101,7 @@ public class ViewImplTest {
       ldap.addDefinition(definition);
     }
     
-    ViewComputationCacheFactory cacheFactory = new ViewComputationCacheFactory() {
-      @Override
-      public ViewComputationCache generateCache() {
-        return new MapViewComputationCache();
-      }
-    };
+    ViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     populateSnapshot(snapshotProvider, curveDefinition, false);
@@ -116,7 +111,7 @@ public class ViewImplTest {
     view.setAnalyticFunctionRepository(functionRepo);
     view.setLiveDataAvailabilityProvider(ldap);
     view.setSecurityMaster(secMaster);
-    view.setComputationCacheFactory(cacheFactory);
+    view.setComputationCacheSource(cacheFactory);
     view.setLiveDataSnapshotProvider(snapshotProvider);
     view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     

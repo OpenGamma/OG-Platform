@@ -50,13 +50,11 @@ public class ViewRecalculationJob extends TerminatableJob {
 
   @Override
   protected void runOneCycle() {
-    ViewComputationCache cache = getView().getComputationCacheFactory().generateCache();
     PortfolioEvaluationModel portfolioEvaluationModel = getView().getPortfolioEvaluationModel();
-    assert cache != null;
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     
     SingleComputationCycle cycle = new SingleComputationCycle(
-        cache, portfolioEvaluationModel, getView().getLiveDataSnapshotProvider(),
+        getView().getComputationCacheSource(), portfolioEvaluationModel, getView().getLiveDataSnapshotProvider(),
         result, getView().getDefinition(), getView().getComputationExecutorService(),
         getView().getAnalyticFunctionRepository());
     cycle.prepareInputs();

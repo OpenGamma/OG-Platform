@@ -80,9 +80,8 @@ import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.MapViewComputationCache;
-import com.opengamma.engine.view.ViewComputationCache;
-import com.opengamma.engine.view.ViewComputationCacheFactory;
+import com.opengamma.engine.view.MapViewComputationCacheSource;
+import com.opengamma.engine.view.ViewComputationCacheSource;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
@@ -157,12 +156,7 @@ public class ViewerLauncher extends SingleFrameApplication {
       }
     }
     
-    ViewComputationCacheFactory cacheFactory = new ViewComputationCacheFactory() {
-      @Override
-      public ViewComputationCache generateCache() {
-        return new MapViewComputationCache();
-      }
-    };
+    ViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
     
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     populateSnapshot(snapshotProvider, curveDefinition, false);
@@ -172,7 +166,7 @@ public class ViewerLauncher extends SingleFrameApplication {
     view.setAnalyticFunctionRepository(functionRepo);
     view.setLiveDataAvailabilityProvider(ldap);
     view.setSecurityMaster(secMaster);
-    view.setComputationCacheFactory(cacheFactory);
+    view.setComputationCacheSource(cacheFactory);
     view.setLiveDataSnapshotProvider(snapshotProvider);
     view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     
