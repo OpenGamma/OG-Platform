@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.security;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Collection;
  *
  * @author kirk
  */
-public interface SecurityKey {
+public interface SecurityKey extends Serializable {
   /**
    * Obtain any security identifiers desired as part of resolving based on this key.
    * The order in which the results are identified in the collection
