@@ -84,7 +84,7 @@ public class ViewImplTest {
         return "KIRK";
       }
       @Override
-      public SecurityKey getIndentityKey() {
+      public SecurityKey getIdentityKey() {
         return new SecurityKeyImpl(getIdentifiers());
       }
     };

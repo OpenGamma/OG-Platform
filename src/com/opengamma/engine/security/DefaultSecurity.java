@@ -33,7 +33,7 @@ public class DefaultSecurity implements Security, Serializable {
   
   // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
   @Override
-  public SecurityKey getIndentityKey() {
+  public SecurityKey getIdentityKey() {
     return new SecurityKeyImpl(_identifiers);
   }
 

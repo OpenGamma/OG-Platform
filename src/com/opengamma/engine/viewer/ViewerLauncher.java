@@ -56,6 +56,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.GreeksAnalyticFunction;
+import com.opengamma.engine.analytics.GreeksResultValueDefinition;
 import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
 import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
@@ -109,7 +111,7 @@ public class ViewerLauncher extends SingleFrameApplication {
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     //viewDefinition.addValueDefinition("EQUITY_OPTION", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
-    viewDefinition.addValueDefinition("EQUITY_OPTION", new VolatilitySurfaceValueDefinition(null));
+    viewDefinition.addValueDefinition("EQUITY_OPTION", new GreeksResultValueDefinition());
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
     PositionMaster positionMaster = new PositionMaster() {
       @Override
@@ -131,26 +133,28 @@ public class ViewerLauncher extends SingleFrameApplication {
     secMaster.add(aapl);
     
     for (int i=0; i<tickers.length; i++) {
-      DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiry, aapl.getIndentityKey(), Currency.getInstance("USD"));
+      DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiry, aapl.getIdentityKey(), Currency.getInstance("USD"));
       security.setIdentifiers(Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain("BLOOMBERG"), tickers[i])));
       securities.add(security);
       secMaster.add(security);
     }
     
     DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
-    DiscountCurveAnalyticFunction function = new DiscountCurveAnalyticFunction(curveDefinition);
-    HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction function2 = new HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction();
+    DiscountCurveAnalyticFunction discountCurveFunction = new DiscountCurveAnalyticFunction(curveDefinition);
+    HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction volSurfaceFunction = new HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction();
+    GreeksAnalyticFunction greeksFunction = new GreeksAnalyticFunction();
     InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository();
-    functionRepo.addFunction(function, function);
-    functionRepo.addFunction(function2, function2);
+    functionRepo.addFunction(discountCurveFunction, discountCurveFunction);
+    functionRepo.addFunction(volSurfaceFunction, volSurfaceFunction);
+    functionRepo.addFunction(greeksFunction, greeksFunction);
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
-    ldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIndentityKey()));
+    ldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIdentityKey()));
     for(Security security : securities) {
-      for(AnalyticValueDefinition<?> definition : function.getInputs(security)) {
+      for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs(security)) {
         ldap.addDefinition(definition);
       }
-      for(AnalyticValueDefinition<?> definition : function2.getInputs(security)) {
+      for(AnalyticValueDefinition<?> definition : volSurfaceFunction.getInputs(security)) {
         if (!definition.getValue("TYPE").equals("DISCOUNT_CURVE")) { // skip derived data.
           ldap.addDefinition(definition);
         }
