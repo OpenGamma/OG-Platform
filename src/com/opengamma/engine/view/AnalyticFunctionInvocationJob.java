@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.AnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
@@ -30,17 +32,21 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   private final DependencyNode _node;
   private final Security _security;
   private final ViewComputationCache _computationCache;
+  private final AnalyticFunctionRepository _functionRepository;
   
   public AnalyticFunctionInvocationJob(
       DependencyNode node,
       Security security,
-      ViewComputationCache computationCache) {
+      ViewComputationCache computationCache,
+      AnalyticFunctionRepository functionRepository) {
     assert node != null;
     assert security != null;
     assert computationCache != null;
+    assert functionRepository != null;
     _node = node;
     _security = security;
     _computationCache = computationCache;
+    _functionRepository = functionRepository;
   }
 
   /**
@@ -62,6 +68,13 @@ public class AnalyticFunctionInvocationJob implements Runnable {
    */
   public Security getSecurity() {
     return _security;
+  }
+
+  /**
+   * @return the functionRepository
+   */
+  public AnalyticFunctionRepository getFunctionRepository() {
+    return _functionRepository;
   }
 
   @Override
@@ -88,7 +101,10 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       inputs.add(getComputationCache().getValue(resolvedDefinition));
     }
     AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
-    Collection<AnalyticValue<?>> outputs = getNode().getFunction().execute(functionInputs, getSecurity());
+    
+    AnalyticFunctionInvoker invoker = getFunctionRepository().getInvoker(getNode().getFunction().getUniqueIdentifier());
+    
+    Collection<AnalyticValue<?>> outputs = invoker.execute(functionInputs, getSecurity());
     for(AnalyticValue<?> outputValue : outputs) {
       getComputationCache().putValue(outputValue);
     }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.analytics.AbstractAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
@@ -32,7 +33,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticFunction implements AnalyticFunction {
+public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction implements AnalyticFunction {
   public static final String PRICE_FIELD_NAME = "PRICE";
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
   

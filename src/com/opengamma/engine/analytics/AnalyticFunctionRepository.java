@@ -25,5 +25,7 @@ public interface AnalyticFunctionRepository {
   Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
   
   Collection<AnalyticFunction> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, String securityType);
+  
+  AnalyticFunctionInvoker getInvoker(String uniqueIdentifier);
 
 }

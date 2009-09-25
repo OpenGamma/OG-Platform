@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.security.Security;
@@ -35,6 +36,7 @@ public class DependencyGraphExecutor {
   private final SecurityDependencyGraph _dependencyGraph;
   private final ViewComputationCache _computationCache;
   private final ExecutorService _executor;
+  private final AnalyticFunctionRepository _functionRepository;
   // Running State:
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
@@ -43,7 +45,8 @@ public class DependencyGraphExecutor {
       Security security,
       SecurityDependencyGraph dependencyGraph,
       ViewComputationCache computationCache,
-      ExecutorService executor) {
+      ExecutorService executor,
+      AnalyticFunctionRepository functionRepository) {
     if(security == null) {
       throw new NullPointerException("Must provide a security over which to execute.");
     }
@@ -56,10 +59,14 @@ public class DependencyGraphExecutor {
     if(executor == null) {
       throw new NullPointerException("Must provide an executor.");
     }
+    if(functionRepository == null) {
+      throw new NullPointerException("Must provide an Analytic Function Repository");
+    }
     _security = security;
     _dependencyGraph = dependencyGraph;
     _computationCache = computationCache;
     _executor = executor;
+    _functionRepository = functionRepository;
   }
 
   /**
@@ -90,6 +97,13 @@ public class DependencyGraphExecutor {
     return _executor;
   }
   
+  /**
+   * @return the functionRepository
+   */
+  public AnalyticFunctionRepository getFunctionRepository() {
+    return _functionRepository;
+  }
+
   public synchronized void executeGraph() {
     CompletionService<DependencyNode> completionService = new ExecutorCompletionService<DependencyNode>(getExecutor());
     while(_executedNodes.size() < getDependencyGraph().getNodeCount()) {
@@ -118,7 +132,7 @@ public class DependencyGraphExecutor {
     DependencyNode depNode = findExecutableNode();
     while(depNode != null) {
       _executingNodes.add(depNode);
-      completionService.submit(new AnalyticFunctionInvocationJob(depNode, getSecurity(), getComputationCache()), depNode);
+      completionService.submit(new AnalyticFunctionInvocationJob(depNode, getSecurity(), getComputationCache(), getFunctionRepository()), depNode);
       depNode = findExecutableNode();
     }
   }

@@ -13,20 +13,29 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
-// NOTE kirk 2009-09-03 -- This is the data that we need for the engine to work.
-// In general, I would expect that we'll have a metadata source (possibly based
-// on configuration files, possibly based on source annotations) that will
-// provide all of this into a JavaBean-based implementation.
-
 // REVIEW kirk 2009-09-22 -- This is getting REALLY large and unwieldy. We need to
 // segregate this out into various facets for different types of functions I think.
+
+// REVIEW kirk 2009-09-25 -- Once we're done with the split of the metadata,
+// this needs to be renamed to AnalyticFunctionDescriptor.
 
 /**
  * A single unit of work capable of operating on inputs to produce results. 
  *
  * @author kirk
  */
-public interface AnalyticFunction {
+public interface AnalyticFunction extends AnalyticFunctionInvoker {
+  
+  /**
+   * The unique identifier for an {@code AnalyticFunction} is the handle
+   * through which its {@link AnalyticFunctionInvoker} can be identified
+   * from the {@link AnalyticFunctionRepository} which sourced the function.
+   * In general, functions will not specify this themselves, but the repository
+   * will provide a unique identifier for them.
+   * 
+   * @return The unique identifier for this function.
+   */
+  String getUniqueIdentifier();
   
   String getShortName();
   
@@ -69,13 +78,4 @@ public interface AnalyticFunction {
       AnalyticFunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver);
   
-  // Execution needs to have an ExecutionContext, which should have at the very least:
-  // - The live data snapshot
-  // - The ExecutorService
-  // - Other stuff as we add them.
-  
-  Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Position position);
-
-  Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Security security);
-
 }

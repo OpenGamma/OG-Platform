@@ -7,7 +7,9 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -18,21 +20,38 @@ import java.util.Set;
  * @author kirk
  */
 public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepository {
+  private final Map<String, AnalyticFunctionInvoker> _invokersByUniqueIdentifier =
+    new HashMap<String, AnalyticFunctionInvoker>();
   private final Set<AnalyticFunction> _functions = new HashSet<AnalyticFunction>();
   
   public InMemoryAnalyticFunctionRepository() {
   }
   
-  public InMemoryAnalyticFunctionRepository(Collection<? extends AnalyticFunction> functions) {
+  public InMemoryAnalyticFunctionRepository(Collection<? extends AbstractAnalyticFunction> functions) {
+    addFunctions(functions);
+  }
+  
+  public void addFunctions(Collection<? extends AbstractAnalyticFunction> functions) {
     if(functions == null) {
       return;
     }
-    _functions.addAll(functions);
+    for(AbstractAnalyticFunction function : functions) {
+      addFunction(function);
+    }
+  }
+  
+  public synchronized void addFunction(AbstractAnalyticFunction function) {
+    if(function == null) {
+      throw new NullPointerException("Must provide a function.");
+    }
+    _functions.add(function);
+    function.setUniqueIdentifier(Integer.toString(_functions.size()));
+    _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), function);
   }
 
   @Override
   public Collection<AnalyticFunction> getAllFunctions() {
-    return Collections.unmodifiableSet(_functions);
+    return Collections.unmodifiableCollection(_functions);
   }
 
   @Override
@@ -75,6 +94,11 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       }
     }
     return true;
+  }
+
+  @Override
+  public AnalyticFunctionInvoker getInvoker(String uniqueIdentifier) {
+    return _invokersByUniqueIdentifier.get(uniqueIdentifier);
   }
 
 }

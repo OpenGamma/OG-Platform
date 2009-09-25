@@ -17,7 +17,7 @@ import com.opengamma.engine.security.Security;
  *
  * @author jim
  */
-public class EquityOptionGreeksAnalyticFunction implements AnalyticFunction {
+public class EquityOptionGreeksAnalyticFunction extends AbstractAnalyticFunction {
 
   @Override
   public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,

@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
@@ -44,6 +45,7 @@ public class SingleComputationCycle {
   private final LiveDataSnapshotProvider _snapshotProvider;
   private final ViewDefinition _viewDefinition;
   private final ExecutorService _computationExecutorService;
+  private final AnalyticFunctionRepository _functionRepository;
   
   // State:
   private final long _startTime;
@@ -58,19 +60,22 @@ public class SingleComputationCycle {
       LiveDataSnapshotProvider snapshotProvider,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition,
-      ExecutorService computationExecutorService) {
+      ExecutorService computationExecutorService,
+      AnalyticFunctionRepository functionRepository) {
     assert cache != null;
     assert portfolioEvaluationModel != null;
     assert snapshotProvider != null;
     assert resultModel != null;
     assert viewDefinition != null;
     assert computationExecutorService != null;
+    assert functionRepository != null;
     _computationCache = cache;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _snapshotProvider = snapshotProvider;
     _resultModel = resultModel;
     _viewDefinition = viewDefinition;
     _computationExecutorService = computationExecutorService;
+    _functionRepository = functionRepository;
     _startTime = System.currentTimeMillis();
   }
   
@@ -137,6 +142,13 @@ public class SingleComputationCycle {
     return _computationExecutorService;
   }
 
+  /**
+   * @return the functionRepository
+   */
+  public AnalyticFunctionRepository getFunctionRepository() {
+    return _functionRepository;
+  }
+
   public void prepareInputs() {
     setSnapshotTime(getSnapshotProvider().snapshot());
     getResultModel().setInputDataTimestamp(getSnapshotTime());
@@ -158,7 +170,7 @@ public class SingleComputationCycle {
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
       SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
       assert secDepGraph != null;
-      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(security, secDepGraph, getComputationCache(), getComputationExecutorService());
+      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(security, secDepGraph, getComputationCache(), getComputationExecutorService(), getFunctionRepository());
       depGraphExecutor.executeGraph();
     }
   }
