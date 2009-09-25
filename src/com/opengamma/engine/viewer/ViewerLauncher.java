@@ -86,6 +86,8 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
+import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.KeyValuePair;
@@ -162,8 +164,12 @@ public class ViewerLauncher extends SingleFrameApplication {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     populateSnapshot(snapshotProvider, curveDefinition, false);
     
+    LinkedBlockingJobQueue jobQueue = new LinkedBlockingJobQueue();
+    LinkedBlockingCompletionQueue completionQueue = new LinkedBlockingCompletionQueue();
+    
     ViewProcessingContext processingContext = new ViewProcessingContext(
-        ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory
+        ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory,
+        jobQueue, completionQueue
       );
     
     ViewImpl view = new ViewImpl(viewDefinition, processingContext);
