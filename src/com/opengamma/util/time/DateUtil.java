@@ -12,9 +12,11 @@ import java.util.GregorianCalendar;
 import javax.time.Duration;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.field.MonthOfYear;
 
 /**
  * 
@@ -41,14 +43,10 @@ public class DateUtil {
    *           If either date is null.
    */
   public static double getDifferenceInYears(final InstantProvider d1, final InstantProvider d2) {
-
-    // TODO InstantInterval.intervalBetween
-    if (d1 == null) {
+    if (d1 == null)
       throw new IllegalArgumentException("First date was null");
-    }
-    if (d2 == null) {
+    if (d2 == null)
       throw new IllegalArgumentException("Second date was null");
-    }
     return (double) (d1.toInstant().toEpochMillis() - d2.toInstant().toEpochMillis()) / MILLISECONDS_PER_YEAR;
   }
 
@@ -62,8 +60,14 @@ public class DateUtil {
    * @param daysInYear
    *          Number of days in year.
    * @return The difference in years.
+   * @throws IllegalArgumentException
+   *           If either date is null.
    */
   public static double getDifferenceInYears(final InstantProvider d1, final InstantProvider d2, final double daysInYear) {
+    if (d1 == null)
+      throw new IllegalArgumentException("First date was null");
+    if (d2 == null)
+      throw new IllegalArgumentException("Second date was null");
     return daysInYear * d1.toInstant().toEpochMillis() - d2.toInstant().toEpochMillis() / MILLISECONDS_PER_DAY;
   }
 
@@ -79,26 +83,80 @@ public class DateUtil {
    *          The date to offset.
    * @param yearFraction
    *          The fraction of a year to add to the original date.
-   * @return
+   * @return The offset date.
    */
   public static InstantProvider getDateOffsetWithYearFraction(final InstantProvider startDate, final double yearFraction) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Date was null");
     final long seconds = Math.round(SECONDS_PER_YEAR * yearFraction);
     return startDate.toInstant().plus(Duration.seconds(seconds));
   }
 
+  /**
+   * Returns a UTC date given year, month, day with the time set to midnight
+   * (UTC).
+   * 
+   * @param year
+   * @param month
+   * @param day
+   * @return
+   */
+  public static ZonedDateTime getUTCDate(final int year, final int month, final int day) {
+    return ZonedDateTime.dateTime(LocalDateTime.dateMidnight(year, month, day), TimeZone.UTC);
+  }
+
+  /**
+   * Returns a UTC date given year, month, day, hour and minutes.
+   * 
+   * @param year
+   * @param month
+   * @param day
+   * @param hour
+   * @param minutes
+   * @return A UTC date.
+   */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day, final int hour, final int minutes) {
     return ZonedDateTime.dateTime(LocalDate.date(year, month, day), LocalTime.time(hour, minutes), TimeZone.UTC);
   }
 
+  /**
+   * Returns a date given year, month, day, hour, minutes and the name of the
+   * time zone.
+   * 
+   * @param year
+   * @param month
+   * @param day
+   * @param hour
+   * @param minutes
+   * @param timeZone
+   * @return A UTC date.
+   */
+  public static ZonedDateTime getDateInTimeZone(final int year, final int month, final int day, final int hour, final int minutes, final String timeZone) {
+    return ZonedDateTime.dateTime(LocalDate.date(year, month, day), LocalTime.time(hour, minutes), TimeZone.timeZone("London"));
+  }
+
+  /**
+   * Determines whether the date is in a leap year.
+   * 
+   * @param date
+   * @return True if the date is in a leap year.
+   */
+  public static boolean isLeapYear(final ZonedDateTime date) {
+    return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
+  }
+
+  @Deprecated
   public static double subtract(final Date d1, final Date d2) {
     return (d1.getTime() - d2.getTime()) / MILLISECONDS_PER_DAY;
   }
 
+  @Deprecated
   public static Date add(final Date d, final double offset) {
     final long x = d.getTime() + (long) (offset * MILLISECONDS_PER_DAY * 365.25);
     return new Date(x);
   }
 
+  @Deprecated
   public static Date today() {
     final Calendar today = Calendar.getInstance();
     final int year = today.get(Calendar.YEAR);
@@ -108,6 +166,7 @@ public class DateUtil {
     return c.getTime();
   }
 
+  @Deprecated
   public static Date date(final int yyyymmdd) {
     final int year = yyyymmdd / 10000;
     final int month = (yyyymmdd - 10000 * year) / 100;
