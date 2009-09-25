@@ -74,7 +74,7 @@ implements Lifecycle {
 
     @Override
     protected void runOneCycle() {
-      CalculationNodeJob job = getJobSource().getJob(5, TimeUnit.SECONDS);
+      CalculationJob job = getJobSource().getJob(5, TimeUnit.SECONDS);
       if(job != null) {
         Security security = getSecurityMaster().getSecurity(job.getSecurityKey());
         ViewComputationCache cache = getCacheSource().getCache(job.getViewName(), job.getIterationTimestamp());

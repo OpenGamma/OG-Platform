@@ -14,6 +14,6 @@ public interface JobCompletionNotifier {
   
   // TODO kirk 2009-09-25 -- Needs a way to send errors or diagnostics back.
   
-  void jobCompleted(CalculationNodeJob job);
+  void jobCompleted(CalculationJobSpecification jobSpecification);
 
 }

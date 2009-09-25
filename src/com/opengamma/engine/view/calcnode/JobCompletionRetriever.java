@@ -8,12 +8,12 @@ package com.opengamma.engine.view.calcnode;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Allows a calculation node to retrieve jobs for execution.
+ * 
  *
  * @author kirk
  */
-public interface CalculationNodeJobSource {
+public interface JobCompletionRetriever {
   
-  CalculationJob getJob(long time, TimeUnit unit);
+  CalculationJobSpecification getNextCompleted(long timeout, TimeUnit unit);
 
 }
