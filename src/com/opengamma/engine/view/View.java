@@ -13,7 +13,7 @@ import com.opengamma.engine.position.PortfolioNode;
  * @author kirk
  */
 public interface View {
-
+  
   PortfolioNode getPositionRoot();
   
   ViewComputationResultModel getMostRecentResult();

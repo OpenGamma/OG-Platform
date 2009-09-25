@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An implementation of {@link ViewComputationCacheSource} that generates
@@ -14,24 +14,32 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author kirk
  */
-public class MapViewComputationCacheSource implements
-    ViewComputationCacheSource {
-  private final ConcurrentMap<Long, MapViewComputationCache> _currentCaches =
-    new ConcurrentHashMap<Long, MapViewComputationCache>();
+public class MapViewComputationCacheSource
+implements ViewComputationCacheSource {
+  private final Map<String, Map<Long, MapViewComputationCache>> _currentCaches =
+    new HashMap<String, Map<Long, MapViewComputationCache>>();
 
   @Override
-  public ViewComputationCache getCache(long timestamp) {
-    MapViewComputationCache freshCache = new MapViewComputationCache();
-    MapViewComputationCache resultCache = _currentCaches.putIfAbsent(timestamp, freshCache);
-    if(resultCache == null) {
-      resultCache = freshCache;
+  public synchronized ViewComputationCache getCache(String viewName, long timestamp) {
+    Map<Long, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
+    if(viewCaches == null) {
+      viewCaches = new HashMap<Long, MapViewComputationCache>();
+      _currentCaches.put(viewName, viewCaches);
     }
-    return resultCache;
+    MapViewComputationCache cache = viewCaches.get(timestamp);
+    if(cache == null) {
+      cache = new MapViewComputationCache();
+      viewCaches.put(timestamp, cache);
+    }
+    return cache;
   }
 
   @Override
-  public void releaseCache(long timestamp) {
-    _currentCaches.remove(timestamp);
+  public synchronized void releaseCache(String viewName, long timestamp) {
+    Map<Long, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
+    if(viewCaches != null) {
+      viewCaches.remove(timestamp);
+    }
   }
 
 }

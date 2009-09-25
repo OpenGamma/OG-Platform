@@ -19,7 +19,7 @@ public interface ViewComputationCacheSource {
    * @param timestamp The timestamp for the computation cache.
    * @return The cache for that timestamp.
    */
-  ViewComputationCache getCache(long timestamp);
+  ViewComputationCache getCache(String viewName, long timestamp);
   
   /**
    * Release a cache that was previously generated using
@@ -27,6 +27,6 @@ public interface ViewComputationCacheSource {
    * 
    * @param timestamp The timestamp for the cache.
    */
-  void releaseCache(long timestamp);
+  void releaseCache(String viewName, long timestamp);
   
 }
