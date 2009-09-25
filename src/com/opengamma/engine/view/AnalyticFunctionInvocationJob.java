@@ -88,6 +88,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
 
   @Override
   public void run() {
+    s_logger.debug("Invoking {} on security {}", getFunctionUniqueIdentifier(), getSecurity());
     Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
     for(AnalyticValueDefinition<?> inputDefinition : getResolvedInputs()) {
       inputs.add(getComputationCache().getValue(inputDefinition));
