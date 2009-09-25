@@ -11,8 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
+import javax.time.Instant;
 
 import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
@@ -21,6 +20,7 @@ import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.DiscountCurveAnalyticValue;
+import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
@@ -61,10 +61,7 @@ public class DiscountCurveAnalyticFunction implements AnalyticFunction {
   }
 
   public static AnalyticValueDefinition<DiscountCurve> constructDiscountCurveValueDefinition(Currency currency) {
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put("Currency", currency);
-    map.put("TYPE", "DISCOUNT_CURVE");
-    return new AnalyticValueDefinitionImpl<DiscountCurve>(map);
+    return new DiscountCurveValueDefinition(currency);
   }
 
   @Override
@@ -96,7 +93,7 @@ public class DiscountCurveAnalyticFunction implements AnalyticFunction {
       Double price = dataFields.get(PRICE_FIELD_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(Clock.system(TimeZone.UTC).instant(), timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new DiscountCurve(Instant.instant(System.currentTimeMillis()), timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }

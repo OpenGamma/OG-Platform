@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
@@ -52,7 +54,7 @@ import com.opengamma.util.TerminatableJob;
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
   private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
-  
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     viewDefinition.addValueDefinition("KIRK", DiscountCurveAnalyticFunction.constructDiscountCurveValueDefinition(Currency.getInstance("USD")));

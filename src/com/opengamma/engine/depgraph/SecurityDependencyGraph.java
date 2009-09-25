@@ -44,11 +44,10 @@ public class SecurityDependencyGraph {
     if(security == null) {
       throw new NullPointerException("Must specify a valid security.");
     }
-    if((requiredOutputValues == null) || requiredOutputValues.isEmpty()) {
-      throw new IllegalArgumentException("Required output values must not be null or empty.");
-    }
     _security = security;
-    _requiredOutputValues.addAll(requiredOutputValues);
+    if(requiredOutputValues != null) {
+      _requiredOutputValues.addAll(requiredOutputValues);
+    }
   }
 
   /**

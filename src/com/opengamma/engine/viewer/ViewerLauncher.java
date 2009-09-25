@@ -32,6 +32,9 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
+import javax.time.calendar.Clock;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import org.jcsp.lang.CSProcess;
 import org.jcsp.lang.Channel;
@@ -52,12 +55,15 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
+import com.opengamma.engine.analytics.AnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.HardCodedUSDDiscountCurveAnalyticFunction;
+import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
 import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
+import com.opengamma.engine.analytics.VolatilitySurfaceValueDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
@@ -67,12 +73,7 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
-import com.opengamma.engine.security.InMemorySecurityMaster;
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityIdentificationDomain;
-import com.opengamma.engine.security.SecurityIdentifier;
-import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.engine.security.SecurityKeyImpl;
+import com.opengamma.engine.security.*;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.MapViewComputationCache;
 import com.opengamma.engine.view.ViewComputationCache;
@@ -81,10 +82,13 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.KeyValuePair;
 import com.opengamma.util.Pair;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.time.Expiry;
 
 /**
  * 
@@ -92,16 +96,18 @@ import com.opengamma.util.TerminatableJob;
  * @author jim
  */
 public class ViewerLauncher extends SingleFrameApplication {
-  
+  private final Clock _clock = Clock.system(TimeZone.UTC);
   private static final double ONEYEAR = 365.25;
   private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
   private ViewImpl _view;
   private SnapshotPopulatorJob _popJob;
   
 
+  @SuppressWarnings("unchecked")
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
-    viewDefinition.addValueDefinition("KIRK", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+    //viewDefinition.addValueDefinition("EQUITY_OPTION", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+    viewDefinition.addValueDefinition("EQUITY_OPTION", new VolatilitySurfaceValueDefinition(null));
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
     PositionMaster positionMaster = new PositionMaster() {
       @Override
@@ -115,36 +121,38 @@ public class ViewerLauncher extends SingleFrameApplication {
       }
     };
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    int id=1;
     List<Security> securities = new ArrayList<Security>();
-    for (final String name : new String[] {"KIRK", "JIM", "ELAINE", "YOMI", "NACHO", "ANDREW"}) {
-      final int internalId = id++;
-      Security security = new Security() {
-        @Override
-        public Collection<SecurityIdentifier> getIdentifiers() {
-          return Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain(name), "ID"+internalId));
-        }
-        @Override
-        public String getSecurityType() {
-          return "KIRK";
-        }
-        @Override
-        public SecurityKey getIndentityKey() {
-          return new SecurityKeyImpl(getIdentifiers());
-        }
-      };
+    String[] tickers = new String[] {"APVJS.X", "APVJN.X", "AJLJV.X"};
+    double[] strikes = new double[] {195.0, 170.0, 210.0 };
+    Expiry expiry = new Expiry(_clock.zonedDateTime().withDate(2009, 10, 16).withTime(17, 00));
+    Security aapl = new EquitySecurity("AAPL", "BLOOMBERG");
+    secMaster.add(aapl);
+    
+    for (int i=0; i<tickers.length; i++) {
+      DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiry, aapl.getIndentityKey(), Currency.getInstance("USD"));
+      security.setIdentifiers(Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain("BLOOMBERG"), tickers[i])));
       securities.add(security);
       secMaster.add(security);
     }
     
     DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
     DiscountCurveAnalyticFunction function = new DiscountCurveAnalyticFunction(curveDefinition);
-    InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(Collections.singleton(function));
+    HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction function2 = new HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction();
+    Collection<AnalyticFunction> functions = new HashSet<AnalyticFunction>();
+    functions.add(function);
+    functions.add(function2);
+    InMemoryAnalyticFunctionRepository functionRepo = new InMemoryAnalyticFunctionRepository(functions);
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
+    ldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIndentityKey()));
     for(Security security : securities) {
       for(AnalyticValueDefinition<?> definition : function.getInputs(security)) {
         ldap.addDefinition(definition);
+      }
+      for(AnalyticValueDefinition<?> definition : function2.getInputs(security)) {
+        if (!definition.getValue("TYPE").equals("DISCOUNT_CURVE")) { // skip derived data.
+          ldap.addDefinition(definition);
+        }
       }
     }
     
@@ -219,6 +227,7 @@ public class ViewerLauncher extends SingleFrameApplication {
       }
       final Map<String, Double> dataFields = new HashMap<String, Double>();
       dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {
@@ -232,8 +241,42 @@ public class ViewerLauncher extends SingleFrameApplication {
         currValue -= 0.001;
       }
     }
+    populateOptions(snapshotProvider, addRandom);
   }
   
+  private SecurityKey makeSecurityKey(String ticker) {
+    return new SecurityKeyImpl(new SecurityIdentifier(new SecurityIdentificationDomain("BLOOMBERG"), ticker));
+  }
+  
+  private AnalyticValue<Map<String, Double>> makeHeaderValue(AnalyticValueDefinition<Map<String, Double>> def, String field, Double value) {
+    Map<String, Double> map = new HashMap<String, Double>();
+    map.put(field, value);
+    return new AbstractAnalyticValue<Map<String, Double>>(def, map) {
+      @Override
+      public AnalyticValue<Map<String, Double>> scaleForPosition(
+          BigDecimal quantity) {
+        return this;
+      }
+    };
+  }
+  
+  private void populateOptions(InMemoryLKVSnapshotProvider snapshotProvider, boolean addRandom) {
+    final double OPTION_SCALE_FACTOR = 5.0;
+    final double UNDERLYING_SCALE_FACTOR = 5.0;
+    AnalyticValueDefinition<Map<String, Double>> apvjs_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("APVJS.X"));
+    AnalyticValueDefinition<Map<String, Double>> apvjn_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("APVJN.X"));
+    AnalyticValueDefinition<Map<String, Double>> ajljv_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("AJLJV.X"));
+    AnalyticValueDefinition<Map<String, Double>> aapl_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("AAPL"));
+    
+    AnalyticValue<Map<String, Double>> apvjs_x_val = makeHeaderValue(apvjs_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.69);
+    AnalyticValue<Map<String, Double>> apvjn_x_val = makeHeaderValue(apvjn_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 16.75);
+    AnalyticValue<Map<String, Double>> ajljv_x_val = makeHeaderValue(ajljv_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.66);
+    AnalyticValue<Map<String, Double>> aapl_val = makeHeaderValue(aapl_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 185.5);
+    snapshotProvider.addValue(apvjs_x_val);
+    snapshotProvider.addValue(apvjn_x_val);
+    snapshotProvider.addValue(ajljv_x_val);
+    snapshotProvider.addValue(aapl_val);
+  }
   
   private class SnapshotPopulatorJob extends TerminatableJob {
     private final InMemoryLKVSnapshotProvider _snapshotProvider;
@@ -622,7 +665,7 @@ public class ViewerLauncher extends SingleFrameApplication {
     try {
       _view = constructTrivialExampleView();
     } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Error constructing view");
+      throw new OpenGammaRuntimeException("Error constructing view", e);
     }
     _view.init();
     InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getLiveDataSnapshotProvider();

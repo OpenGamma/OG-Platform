@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.security;
 
+import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**

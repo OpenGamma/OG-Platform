@@ -21,7 +21,7 @@ public class VolatilitySurfaceAnalyticValue extends AbstractAnalyticValue<Volati
 
   @Override
   public AnalyticValue<VolatilitySurface> scaleForPosition(BigDecimal quantity) {
-    throw new UnsupportedOperationException();
+    return this;
   }
 
 }

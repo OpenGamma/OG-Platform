@@ -11,6 +11,7 @@
         <dependency org="org.jdesktop" name="swingx" rev="1.0"/>
         <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
         <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
+        <dependency org="cern" name="colt" rev="1.2.0"/>
     </dependencies>
 </ivy-module>
 

@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.time.Instant;
 import javax.time.calendar.Clock;
+import javax.time.calendar.TimeZone;
 
 import org.apache.commons.lang.NotImplementedException;
 
@@ -34,6 +35,7 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
+import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
 import com.opengamma.util.time.DateUtil;
@@ -44,15 +46,15 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction<T extends OptionDefinition, U extends StandardOptionDataBundle> implements AnalyticFunction {
+public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction implements AnalyticFunction {
 
   @SuppressWarnings("unused")
-  private static final String PRICE_FIELD_NAME = "PRICE";
+  public static final String PRICE_FIELD_NAME = "PRICE";
   
   private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
     
-  public HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction(VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> volatilitySurfaceModel) {
-    _volatilitySurfaceModel = volatilitySurfaceModel;
+  public HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction() {
+    _volatilitySurfaceModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   }
 
   @Override
@@ -64,7 +66,7 @@ public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction<T extends
   @Override
   public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Security security) {
 
-    final Instant today = Clock.systemDefaultZone().instant();
+    final Instant today = Clock.system(TimeZone.UTC).instant();
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
@@ -79,7 +81,7 @@ public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction<T extends
       final VolatilitySurface volSurface = equityOptionSec.accept(new OptionVisitor<VolatilitySurface>() {
         private VolatilitySurface visitOption(Option option) {
           Expiry expiry = option.getExpiry();
-          double years = DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant());
+          double years = DateUtil.getDifferenceInYears(expiry.getExpiry().toInstant(), today);
           final double b = discountCurve.getInterestRate(years);
           EuropeanVanillaOptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(option.getStrike(), expiry, (option.getOptionType() == OptionType.CALL));
           Map<EuropeanVanillaOptionDefinition, Double> prices = new HashMap<EuropeanVanillaOptionDefinition, Double>();
@@ -154,7 +156,7 @@ public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction<T extends
 
   @Override
   public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
-    return Collections.<AnalyticValueDefinition<?>>singleton(null);
+    return Collections.<AnalyticValueDefinition<?>>singleton(new VolatilitySurfaceValueDefinition(null));
   }
 
   @Override

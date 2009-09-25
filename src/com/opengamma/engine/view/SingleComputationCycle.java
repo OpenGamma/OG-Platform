@@ -170,6 +170,11 @@ public class SingleComputationCycle {
       Security security = position.getSecurity();
       String securityType = security.getSecurityType();
       Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
+      if(secTypeValueDefs == null) {
+        // Nothing required for this sec type for outputs, so no values
+        // to populate.
+        continue;
+      }
       
       for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {
         AnalyticValue<?> unscaledValue = getComputationCache().getValue(analyticValueDefinition);

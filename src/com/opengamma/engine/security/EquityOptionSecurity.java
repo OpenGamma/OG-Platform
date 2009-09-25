@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.security;
 
+import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -13,6 +14,7 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public abstract class EquityOptionSecurity extends DefaultSecurity implements Option {
+  public static final String EQUITY_OPTION_TYPE="EQUITY_OPTION";
   private OptionType _optionType;
   private double _strike;
   private Expiry _expiry;
@@ -25,6 +27,8 @@ public abstract class EquityOptionSecurity extends DefaultSecurity implements Op
     _strike = strike;
     _expiry = expiry;
     _underlying = underlying;
+    _currency = currency;
+    setSecurityType(EQUITY_OPTION_TYPE);
   }
 
   /**
