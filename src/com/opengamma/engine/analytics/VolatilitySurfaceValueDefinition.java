@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.analytics;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.KeyValuePair;
@@ -37,7 +35,6 @@ public class VolatilitySurfaceValueDefinition extends
     }
     VolatilitySurfaceValueDefinition other = (VolatilitySurfaceValueDefinition) obj;
     if (getValue("SECURITY") == null || other.getValue("SECURITY") == null) {
-      System.out.println("Returning true");
       return true;
     }
     return AnalyticValueDefinitionComparator.equals(this, (AnalyticValueDefinition<?>)obj);
@@ -45,6 +42,7 @@ public class VolatilitySurfaceValueDefinition extends
 
   @Override
   public int hashCode() {
+    // FIXME kirk 2009-09-25 -- This looks clearly wrong.
     return 8;
     //return AnalyticValueDefinitionComparator.hashCode(this);
   }

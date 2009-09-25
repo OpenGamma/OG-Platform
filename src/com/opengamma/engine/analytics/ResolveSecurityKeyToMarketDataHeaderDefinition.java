@@ -7,7 +7,6 @@ package com.opengamma.engine.analytics;
 
 import java.util.Map;
 
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.financial.securities.DataSource;
 import com.opengamma.util.KeyValuePair;
