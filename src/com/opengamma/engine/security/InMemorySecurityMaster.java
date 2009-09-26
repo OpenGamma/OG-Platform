@@ -7,7 +7,9 @@ package com.opengamma.engine.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -45,6 +47,8 @@ public class InMemorySecurityMaster implements SecurityMaster {
   // 2 - Cache (using putIfAbsent on a series of ConcurrentHashMaps) the
   //     mapping from SecurityIdentifier to Security.
   private final List<Security> _securities = new ArrayList<Security>();
+  private final Map<SecurityKey, Security> _securitiesByIdentityKey =
+    new HashMap<SecurityKey, Security>();
   
   public InMemorySecurityMaster() {
   }
@@ -62,6 +66,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
       s_logger.warn("Security {} lacks a security type.", security);
     }
     _securities.add(security);
+    _securitiesByIdentityKey.put(security.getIdentityKey(), security);
   }
 
   @Override
@@ -85,6 +90,12 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if(secKey == null) {
       return null;
     }
+    // First check to see whether we have it as the identity key for something.
+    Security identitySec = _securitiesByIdentityKey.get(secKey);
+    if(identitySec != null) {
+      return identitySec;
+    }
+    
     for(SecurityIdentifier secId : secKey.getIdentifiers()) {
       for(Security sec : _securities) {
         if(sec.getIdentifiers().contains(secId)) {
