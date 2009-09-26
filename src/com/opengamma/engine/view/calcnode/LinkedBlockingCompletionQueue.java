@@ -35,4 +35,9 @@ public class LinkedBlockingCompletionQueue implements JobCompletionNotifier,
     }
   }
 
+  @Override
+  public CalculationJobSpecification getNextCompletedNoWait() {
+    return _queue.poll();
+  }
+
 }
