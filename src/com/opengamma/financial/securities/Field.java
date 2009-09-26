@@ -1,5 +1,7 @@
 package com.opengamma.financial.securities;
 
-public enum Field {
-  OPEN, CLOSE, HIGH, LOW, VOLUME
+public class Field extends Dimension {
+  public Field(String name) {
+    super(name);
+  }
 }

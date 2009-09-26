@@ -1,6 +1,6 @@
 package com.opengamma.financial.securities.keys;
 
-import com.opengamma.financial.securities.Expiry;
+import com.opengamma.util.time.Expiry;
 
 public class FutureKey implements SecurityKey {
   private SecurityKey _underlying;
