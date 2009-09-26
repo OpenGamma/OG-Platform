@@ -7,6 +7,10 @@ package com.opengamma.engine.view.calcnode;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * 
  *
@@ -22,6 +26,10 @@ public class CalculationJobSpecification implements Serializable {
     _viewName = viewName;
     _iterationTimestamp = iterationTimestamp;
     _jobId = jobId;
+  }
+  
+  public CalculationJobSpecification(CalculationJobSpecification other) {
+    this(other._viewName, other._iterationTimestamp, other._jobId);
   }
 
   /**
@@ -45,5 +53,41 @@ public class CalculationJobSpecification implements Serializable {
     return _jobId;
   }
 
-  // TODO kirk 2009-09-29 -- HashCode, Equals, toString()
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result
+        + (int) (_iterationTimestamp ^ (_iterationTimestamp >>> 32));
+    result = prime * result + (int) (_jobId ^ (_jobId >>> 32));
+    result = prime * result + ((_viewName == null) ? 0 : _viewName.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    CalculationJobSpecification other = (CalculationJobSpecification) obj;
+    if (_iterationTimestamp != other._iterationTimestamp)
+      return false;
+    if (_jobId != other._jobId)
+      return false;
+    if(!ObjectUtils.equals(_viewName, other._viewName)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
 }

@@ -174,10 +174,11 @@ public class SingleComputationCycle {
       SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
       assert secDepGraph != null;
       DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
-          security, secDepGraph, getProcessingContext(), getComputationCache(),
-          getComputationExecutorService(),
-          getProcessingContext().getAnalyticFunctionRepository());
-      depGraphExecutor.executeGraph();
+          getViewName(),
+          security,
+          secDepGraph,
+          getProcessingContext()); 
+      depGraphExecutor.executeGraph(getSnapshotTime());
     }
   }
 

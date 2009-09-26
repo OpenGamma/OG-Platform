@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,7 @@ import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
 import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
+import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.TerminatableJob;
@@ -59,6 +61,16 @@ public class ViewImplTest {
   private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
+  
+  private SingleThreadCalculationNode _calcNode;
+  
+  @After
+  public void shutDownCalcNode() {
+    if(_calcNode != null) {
+      _calcNode.stop();
+      _calcNode = null;
+    }
+  }
   
   protected ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
@@ -110,6 +122,8 @@ public class ViewImplTest {
     
     LinkedBlockingJobQueue jobQueue = new LinkedBlockingJobQueue();
     LinkedBlockingCompletionQueue completionQueue = new LinkedBlockingCompletionQueue();
+    _calcNode = new SingleThreadCalculationNode(cacheFactory, functionRepo, secMaster, jobQueue, completionQueue);
+    _calcNode.start();
     
     ViewProcessingContext processingContext = new ViewProcessingContext(
         ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory,

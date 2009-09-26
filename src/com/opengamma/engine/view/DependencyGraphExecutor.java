@@ -5,26 +5,24 @@
  */
 package com.opengamma.engine.view;
 
-import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.view.calcnode.CalculationJob;
+import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
 /**
  * Will walk through a particular {@link SecurityDependencyGraph} and execute
@@ -33,25 +31,27 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public class DependencyGraphExecutor {
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
+  private final String _viewName;
   private final Security _security;
   private final SecurityDependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
-  private final ViewComputationCache _computationCache;
-  private final ExecutorService _executor;
-  private final AnalyticFunctionRepository _functionRepository;
   // Running State:
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
+  private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
+    new HashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   
   public DependencyGraphExecutor(
+      String viewName,
       Security security,
       SecurityDependencyGraph dependencyGraph,
-      ViewProcessingContext processingContext,
-      ViewComputationCache computationCache,
-      ExecutorService executor,
-      AnalyticFunctionRepository functionRepository) {
+      ViewProcessingContext processingContext) {
+    if(viewName == null) {
+      throw new NullPointerException("Must provide the name of the view being executed.");
+    }
     if(security == null) {
       throw new NullPointerException("Must provide a security over which to execute.");
     }
@@ -61,21 +61,17 @@ public class DependencyGraphExecutor {
     if(processingContext == null) {
       throw new NullPointerException("Must provide a processing context.");
     }
-    if(computationCache == null) {
-      throw new NullPointerException("Must provide a View Computation Cache.");
-    }
-    if(executor == null) {
-      throw new NullPointerException("Must provide an executor.");
-    }
-    if(functionRepository == null) {
-      throw new NullPointerException("Must provide an Analytic Function Repository");
-    }
+    _viewName = viewName;
     _security = security;
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
-    _computationCache = computationCache;
-    _executor = executor;
-    _functionRepository = functionRepository;
+  }
+
+  /**
+   * @return the viewName
+   */
+  public String getViewName() {
+    return _viewName;
   }
 
   /**
@@ -99,47 +95,24 @@ public class DependencyGraphExecutor {
     return _processingContext;
   }
 
-  /**
-   * @return the computationCache
-   */
-  public ViewComputationCache getComputationCache() {
-    return _computationCache;
-  }
-
-  /**
-   * @return the executor
-   */
-  public ExecutorService getExecutor() {
-    return _executor;
-  }
-  
-  /**
-   * @return the functionRepository
-   */
-  public AnalyticFunctionRepository getFunctionRepository() {
-    return _functionRepository;
-  }
-
-  public synchronized void executeGraph() {
-    CompletionService<DependencyNode> completionService = new ExecutorCompletionService<DependencyNode>(getExecutor());
-    
+  public synchronized void executeGraph(long iterationTimestamp) {
     markLiveDataSourcingFunctionsCompleted();
+    AtomicLong jobIdSource = new AtomicLong(0l);
     
     while(_executedNodes.size() < getDependencyGraph().getNodeCount()) {
-      enqueueAllAvailableNodes(completionService);
-      DependencyNode completedNode = null;
-      try {
-        Future<DependencyNode> completedNodeFuture = completionService.poll(10, TimeUnit.SECONDS);
-        completedNode = completedNodeFuture.get();
-      } catch (InterruptedException e) {
-        String warnMessage = MessageFormat.format("{1} {2} Was Interrupted", getSecurity(), completedNode);
-        s_logger.warn(warnMessage, e);
-      } catch (ExecutionException e) {
-        String warnMessage = MessageFormat.format("{1} {2} Execution Failed", getSecurity(), completedNode);
-        s_logger.warn(warnMessage, e);
+      enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
+      // Suck everything available off the retrieval source.
+      // First time we're willing to wait for some period, but after that we pull
+      // off as fast as we can.
+      CalculationJobSpecification completedJobSpec = null;
+      completedJobSpec = getProcessingContext().getJobCompletionRetriever().getNextCompleted(10, TimeUnit.SECONDS);
+      while(completedJobSpec != null) {
+        DependencyNode completedNode = _executingSpecifications.remove(completedJobSpec);
+        assert completedNode != null;
+        _executingNodes.remove(completedNode);
+        _executedNodes.add(completedNode);
+        completedJobSpec = getProcessingContext().getJobCompletionRetriever().getNextCompleted(10, TimeUnit.MILLISECONDS);
       }
-      _executingNodes.remove(completedNode);
-      _executedNodes.add(completedNode);
     }
   }
 
@@ -165,11 +138,13 @@ public class DependencyGraphExecutor {
    * @param completionService
    */
   protected synchronized void enqueueAllAvailableNodes(
-      CompletionService<DependencyNode> completionService) {
+      long iterationTimestamp,
+      AtomicLong jobIdSource) {
     DependencyNode depNode = findExecutableNode();
     while(depNode != null) {
       _executingNodes.add(depNode);
-      submitNodeInvocationJob(completionService, depNode);
+      CalculationJobSpecification jobSpec = submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
+      _executingSpecifications.put(jobSpec, depNode);
       depNode = findExecutableNode();
     }
   }
@@ -177,20 +152,27 @@ public class DependencyGraphExecutor {
   /**
    * @param depNode
    */
-  protected void submitNodeInvocationJob(CompletionService<DependencyNode> completionService, DependencyNode depNode) {
+  protected CalculationJobSpecification submitNodeInvocationJob(
+      long iterationTimestamp,
+      AtomicLong jobIdSource,
+      DependencyNode depNode) {
     assert !(depNode.getFunction() instanceof LiveDataSourcingFunction);
     Collection<AnalyticValueDefinition<?>> resolvedInputs = new HashSet<AnalyticValueDefinition<?>>();
     for(AnalyticValueDefinition<?> input : depNode.getFunction().getInputs(getSecurity())) {
       resolvedInputs.add(depNode.getResolvedInput(input));
     }
-    AnalyticFunctionInvocationJob invocationJob = new AnalyticFunctionInvocationJob(
+    // TODO kirk 2009-09-26 -- Change view name.
+    long jobId = jobIdSource.addAndGet(1l);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
+    CalculationJob job = new CalculationJob(
+        getViewName(),
+        iterationTimestamp,
+        jobId,
         depNode.getFunction().getUniqueIdentifier(),
-        resolvedInputs,
-        getSecurity(),
-        getComputationCache(),
-        getFunctionRepository()
-      );
-    completionService.submit(invocationJob, depNode);
+        getSecurity().getIndentityKey(),
+        resolvedInputs);
+    getProcessingContext().getJobSink().invoke(job);
+    return jobSpec;
   }
 
   /**

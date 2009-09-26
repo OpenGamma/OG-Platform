@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -18,6 +18,8 @@ import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.view.AnalyticFunctionInputsImpl;
+import com.opengamma.engine.view.ViewComputationCache;
 
 /**
  * The job that will actually invoke a {@link AnalyticFunctionDefinition} as part
