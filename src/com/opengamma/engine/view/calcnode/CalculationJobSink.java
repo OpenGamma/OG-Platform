@@ -10,7 +10,7 @@ package com.opengamma.engine.view.calcnode;
  *
  * @author kirk
  */
-public interface CalculationNodeJobSink {
+public interface CalculationJobSink {
   
   void invoke(CalculationJob job);
 

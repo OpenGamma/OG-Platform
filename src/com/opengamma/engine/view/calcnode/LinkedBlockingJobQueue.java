@@ -9,14 +9,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An implementation of {@link CalculationNodeJobSink} and
- * {@link CalculationNodeJobSource} backed by a
+ * An implementation of {@link CalculationJobSink} and
+ * {@link CalculationJobSource} backed by a
  * {@link LinkedBlockingQueue}.
  *
  * @author kirk
  */
-public class LinkedBlockingJobQueue implements CalculationNodeJobSink,
-    CalculationNodeJobSource {
+public class LinkedBlockingJobQueue implements CalculationJobSink,
+    CalculationJobSource {
   private final LinkedBlockingQueue<CalculationJob> _queue =
     new LinkedBlockingQueue<CalculationJob>();
 

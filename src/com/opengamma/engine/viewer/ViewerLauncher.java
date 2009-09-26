@@ -26,7 +26,6 @@ import com.opengamma.util.Pair;
  * @author jim
  */
 public class ViewerLauncher extends SingleFrameApplication {
- 
   private ViewManager _viewManager;
   
   private Pair<JPanel, JXTable> buildLeftTable(JXTable parentTable) {

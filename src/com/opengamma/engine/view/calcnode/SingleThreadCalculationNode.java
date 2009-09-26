@@ -14,7 +14,6 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.engine.view.AnalyticFunctionInvocationJob;
 import com.opengamma.engine.view.ViewComputationCache;
 import com.opengamma.engine.view.ViewComputationCacheSource;
 import com.opengamma.util.TerminatableJob;
@@ -41,7 +40,7 @@ implements Lifecycle {
       ViewComputationCacheSource cacheSource,
       AnalyticFunctionRepository functionRepository,
       SecurityMaster securityMaster,
-      CalculationNodeJobSource jobSource,
+      CalculationJobSource jobSource,
       JobCompletionNotifier completionNotifier) {
     super(cacheSource, functionRepository, securityMaster, jobSource,
         completionNotifier);
@@ -81,7 +80,7 @@ implements Lifecycle {
         AnalyticFunctionInvocationJob invocationJob = new AnalyticFunctionInvocationJob(
             job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
         invocationJob.run();
-        getCompletionNotifier().jobCompleted(job);
+        getCompletionNotifier().jobCompleted(new CalculationJobSpecification(job));
       }
     }
     
