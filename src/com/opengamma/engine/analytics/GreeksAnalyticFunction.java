@@ -134,7 +134,7 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
 
   @Override
   public String getShortName() {
-    return "GreeksResult";
+    return "Greeks Analytic Function";
   }
 
   @Override
