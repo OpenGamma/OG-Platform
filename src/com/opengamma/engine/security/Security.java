@@ -25,7 +25,7 @@ public interface Security {
   /**
    * Obtain a SecurityKey that uniquely identifies the security in question
    */
-  SecurityKey getIndentityKey();
+  SecurityKey getIdentityKey();
   
   /**
    * Obtain the text-based type of this Security.

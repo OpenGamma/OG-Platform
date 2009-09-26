@@ -16,34 +16,14 @@ import com.opengamma.util.KeyValuePair;
  */
 public class VolatilitySurfaceValueDefinition extends
     AnalyticValueDefinitionImpl<VolatilitySurface> {
+  
+  @SuppressWarnings("unchecked")
+  public VolatilitySurfaceValueDefinition() {
+     super(new KeyValuePair<String, Object>("TYPE", "VOLATILITY_SURFACE"));
+  }
   @SuppressWarnings("unchecked")
   public VolatilitySurfaceValueDefinition(SecurityKey securityKey) {
      super(new KeyValuePair<String, Object>("TYPE", "VOLATILITY_SURFACE"),
            new KeyValuePair<String, Object>("SECURITY", securityKey));
-  }
-  
-  @Override
-  public boolean equals(Object obj) {
-    if(this == obj) {
-      return true;
-    }
-    if(obj == null) {
-      return false;
-    }
-    if(!(obj instanceof VolatilitySurfaceValueDefinition)) {
-      return false;
-    }
-    VolatilitySurfaceValueDefinition other = (VolatilitySurfaceValueDefinition) obj;
-    if (getValue("SECURITY") == null || other.getValue("SECURITY") == null) {
-      return true;
-    }
-    return AnalyticValueDefinitionComparator.equals(this, (AnalyticValueDefinition<?>)obj);
-  }
-
-  @Override
-  public int hashCode() {
-    // FIXME kirk 2009-09-25 -- This looks clearly wrong.
-    return 8;
-    //return AnalyticValueDefinitionComparator.hashCode(this);
   }
 }

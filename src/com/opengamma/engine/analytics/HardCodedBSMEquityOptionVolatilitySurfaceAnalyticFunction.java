@@ -69,7 +69,7 @@ implements AnalyticFunctionInvoker {
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
-      AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIndentityKey());
+      AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
       AnalyticValueDefinition<?> underlyingHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getUnderlying());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
       Map<String, Double> optionDataFields = (Map<String, Double>) inputs.getValue(justThisOptionHeader);
@@ -108,7 +108,7 @@ implements AnalyticFunctionInvoker {
       });
       return Collections.<AnalyticValue<?>>singleton(
           new VolatilitySurfaceAnalyticValue(
-            new VolatilitySurfaceValueDefinition(security.getIndentityKey()), 
+            new VolatilitySurfaceValueDefinition(security.getIdentityKey()), 
             volSurface
           )
         );
@@ -121,7 +121,7 @@ implements AnalyticFunctionInvoker {
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
-      AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIndentityKey());
+      AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
       AnalyticValueDefinition<?> underlyingHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getUnderlying());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
       final List<AnalyticValueDefinition<?>> justThisOption = new ArrayList<AnalyticValueDefinition<?>>();
@@ -155,7 +155,7 @@ implements AnalyticFunctionInvoker {
 
   @Override
   public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
-    return Collections.<AnalyticValueDefinition<?>>singleton(new VolatilitySurfaceValueDefinition(null));
+    return Collections.<AnalyticValueDefinition<?>>singleton(new VolatilitySurfaceValueDefinition(security.getIdentityKey()));
   }
 
   @Override

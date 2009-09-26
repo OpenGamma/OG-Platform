@@ -179,7 +179,10 @@ public class SecurityDependencyGraph {
     
     AnalyticFunctionDefinition function = functionResolver.resolve(outputValue, getSecurity());
     assert function != null : "This is a bad assertion. Do something better.";
-    
+    if(function == null) {
+      s_logger.error("Cannot resolve function - trying to find match for "+outputValue+" for "+getSecurity());
+      throw new NullPointerException();
+    }
     if(function.buildsOwnSubGraph()) {
       node = function.buildSubGraph(getSecurity(), functionResolver, nodeResolver);
       nodeResolver.addSubGraph(node);
