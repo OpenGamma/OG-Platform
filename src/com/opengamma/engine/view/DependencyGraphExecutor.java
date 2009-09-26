@@ -111,7 +111,7 @@ public class DependencyGraphExecutor {
         assert completedNode != null;
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
-        completedJobSpec = getProcessingContext().getJobCompletionRetriever().getNextCompleted(10, TimeUnit.MILLISECONDS);
+        completedJobSpec = getProcessingContext().getJobCompletionRetriever().getNextCompletedNoWait();
       }
     }
   }

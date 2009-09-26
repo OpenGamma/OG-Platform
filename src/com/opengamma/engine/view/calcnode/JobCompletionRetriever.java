@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit;
  */
 public interface JobCompletionRetriever {
   
+  CalculationJobSpecification getNextCompletedNoWait();
+  
   CalculationJobSpecification getNextCompleted(long timeout, TimeUnit unit);
 
 }
