@@ -12,6 +12,8 @@ import java.util.TreeMap;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
 import com.opengamma.math.interpolation.Interpolator2D;
+import com.opengamma.plot.RenderVisitor;
+import com.opengamma.plot.Renderable;
 import com.opengamma.util.FirstThenSecondPairComparator;
 import com.opengamma.util.Pair;
 
@@ -23,7 +25,7 @@ import com.opengamma.util.Pair;
  * @author emcleod
  */
 
-public class VolatilitySurface implements VolatilityModel<Double, Double> {
+public class VolatilitySurface implements VolatilityModel<Double, Double>, Renderable {
   private final SortedMap<Pair<Double, Double>, Double> _data;
   private final Interpolator2D _interpolator;
 
@@ -105,5 +107,10 @@ public class VolatilitySurface implements VolatilityModel<Double, Double> {
     } else if (!_interpolator.equals(other._interpolator))
       return false;
     return true;
+  }
+
+  @Override
+  public <T> T accept(RenderVisitor<T> visitor) {
+    return visitor.visitVolatilitySurface(this);
   }
 }
