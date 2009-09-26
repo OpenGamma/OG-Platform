@@ -55,9 +55,10 @@ public class ViewRecalculationJob extends TerminatableJob {
     
     SingleComputationCycle cycle = new SingleComputationCycle(
         getView().getDefinition().getName(),
-        getView().getComputationCacheSource(), portfolioEvaluationModel, getView().getLiveDataSnapshotProvider(),
-        result, getView().getDefinition(), getView().getComputationExecutorService(),
-        getView().getAnalyticFunctionRepository());
+        getView().getProcessingContext(),
+        portfolioEvaluationModel,
+        result, getView().getDefinition(),
+        getView().getComputationExecutorService());
     cycle.prepareInputs();
     cycle.executePlans();
     cycle.populateResultModel();

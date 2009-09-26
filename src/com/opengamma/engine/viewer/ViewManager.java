@@ -48,6 +48,10 @@ import com.opengamma.engine.view.MapViewComputationCacheSource;
 import com.opengamma.engine.view.ViewComputationCacheSource;
 import com.opengamma.engine.view.ViewDefinitionImpl;
 import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
+import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
+import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.time.Expiry;
@@ -80,7 +84,7 @@ public class ViewManager {
     try {
       _view = constructTrivialExampleView();
       _view.init();
-      InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getLiveDataSnapshotProvider();
+      InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getProcessingContext().getLiveDataSnapshotProvider();
       DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
       _popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
       Thread popThread = new Thread(_popJob);
@@ -151,13 +155,17 @@ public class ViewManager {
     InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
     populateSnapshot(snapshotProvider, curveDefinition, false);
     
-    ViewImpl view = new ViewImpl(viewDefinition);
-    view.setPositionMaster(positionMaster);
-    view.setAnalyticFunctionRepository(functionRepo);
-    view.setLiveDataAvailabilityProvider(ldap);
-    view.setSecurityMaster(secMaster);
-    view.setComputationCacheSource(cacheFactory);
-    view.setLiveDataSnapshotProvider(snapshotProvider);
+    LinkedBlockingJobQueue jobQueue = new LinkedBlockingJobQueue();
+    LinkedBlockingCompletionQueue completionQueue = new LinkedBlockingCompletionQueue();
+    SingleThreadCalculationNode calcNode = new SingleThreadCalculationNode(cacheFactory, functionRepo, secMaster, jobQueue, completionQueue);
+    calcNode.start();
+    
+    ViewProcessingContext processingContext = new ViewProcessingContext(
+        ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory,
+        jobQueue, completionQueue
+      );
+    
+    ViewImpl view = new ViewImpl(viewDefinition, processingContext);
     view.setComputationExecutorService(Executors.newSingleThreadExecutor());
     
     return view;

@@ -18,16 +18,11 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.util.ThreadUtil;
 
 /**
@@ -39,12 +34,7 @@ public class ViewImpl implements View, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImpl.class);
   // Injected dependencies:
   private final ViewDefinition _definition;
-  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private LiveDataSnapshotProvider _liveDataSnapshotProvider;
-  private AnalyticFunctionRepository _analyticFunctionRepository;
-  private PositionMaster _positionMaster;
-  private SecurityMaster _securityMaster;
-  private ViewComputationCacheSource _computationCacheSource;
+  private final ViewProcessingContext _processingContext;
   private ExecutorService _computationExecutorService;
   // Internal State:
   private PortfolioEvaluationModel _portfolioEvaluationModel;
@@ -55,76 +45,17 @@ public class ViewImpl implements View, Lifecycle {
   private final Set<ComputationResultListener> _resultListeners = new HashSet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new HashSet<DeltaComputationResultListener>();
 
-  public ViewImpl(ViewDefinition definition) {
+  public ViewImpl(ViewDefinition definition, ViewProcessingContext processingContext) {
     if(definition == null) {
       throw new NullPointerException("Must provide a definition.");
     }
+    if(processingContext == null) {
+      throw new NullPointerException("Must provide a processing context.");
+    }
     _definition = definition;
+    _processingContext = processingContext;
   }
   
-  /**
-   * @return the liveDataAvailabilityProvider
-   */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
-    return _liveDataAvailabilityProvider;
-  }
-
-  /**
-   * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
-   */
-  @Required
-  public void setLiveDataAvailabilityProvider(
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-  }
-
-  /**
-   * @return the liveDataSnapshotProvider
-   */
-  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
-    return _liveDataSnapshotProvider;
-  }
-
-  /**
-   * @param liveDataSnapshotProvider the liveDataSnapshotProvider to set
-   */
-  @Required
-  public void setLiveDataSnapshotProvider(
-      LiveDataSnapshotProvider liveDataSnapshotProvider) {
-    _liveDataSnapshotProvider = liveDataSnapshotProvider;
-  }
-
-  /**
-   * @return the analyticFunctionRepository
-   */
-  public AnalyticFunctionRepository getAnalyticFunctionRepository() {
-    return _analyticFunctionRepository;
-  }
-
-  /**
-   * @param analyticFunctionRepository the analyticFunctionRepository to set
-   */
-  @Required
-  public void setAnalyticFunctionRepository(
-      AnalyticFunctionRepository analyticFunctionRepository) {
-    _analyticFunctionRepository = analyticFunctionRepository;
-  }
-
-  /**
-   * @return the positionMaster
-   */
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
-  }
-
-  /**
-   * @param positionMaster the positionMaster to set
-   */
-  @Required
-  public void setPositionMaster(PositionMaster positionMaster) {
-    _positionMaster = positionMaster;
-  }
-
   /**
    * @return the definition
    */
@@ -133,33 +64,10 @@ public class ViewImpl implements View, Lifecycle {
   }
 
   /**
-   * @return the computationCacheFactory
+   * @return the processingContext
    */
-  public ViewComputationCacheSource getComputationCacheSource() {
-    return _computationCacheSource;
-  }
-
-  /**
-   * @param computationCacheSource the computationCacheFactory to set
-   */
-  @Required
-  public void setComputationCacheSource(
-      ViewComputationCacheSource computationCacheSource) {
-    _computationCacheSource = computationCacheSource;
-  }
-
-  /**
-   * @return the securityMaster
-   */
-  public SecurityMaster getSecurityMaster() {
-    return _securityMaster;
-  }
-
-  /**
-   * @param securityMaster the securityMaster to set
-   */
-  public void setSecurityMaster(SecurityMaster securityMaster) {
-    _securityMaster = securityMaster;
+  public ViewProcessingContext getProcessingContext() {
+    return _processingContext;
   }
 
   /**
@@ -262,16 +170,16 @@ public class ViewImpl implements View, Lifecycle {
   
   public void reloadPortfolio() {
     s_logger.info("Reloading portfolio named {}", getDefinition().getName());
-    PortfolioNode positionRoot = getPositionMaster().getRootPortfolio(getDefinition().getName());
+    PortfolioNode positionRoot = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getName());
     if(positionRoot == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getName());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(positionRoot);
     portfolioEvaluationModel.init(
-        getSecurityMaster(),
-        getAnalyticFunctionRepository(),
-        getLiveDataAvailabilityProvider(),
-        getLiveDataSnapshotProvider(),
+        getProcessingContext().getSecurityMaster(),
+        getProcessingContext().getAnalyticFunctionRepository(),
+        getProcessingContext().getLiveDataAvailabilityProvider(),
+        getProcessingContext().getLiveDataSnapshotProvider(),
         getDefinition());
     setPortfolioEvaluationModel(portfolioEvaluationModel);
   }
@@ -287,7 +195,7 @@ public class ViewImpl implements View, Lifecycle {
     }
     FullyPopulatedPortfolioNode populatedNode = new FullyPopulatedPortfolioNode();
     for(Position position : node.getPositions()) {
-      Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
+      Security security = getProcessingContext().getSecurityMaster().getSecurity(position.getSecurityKey());
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
@@ -303,24 +211,6 @@ public class ViewImpl implements View, Lifecycle {
    * 
    */
   private void checkInjectedDependencies() {
-    if(getAnalyticFunctionRepository() == null) {
-      throw new IllegalStateException("Must have an Analytic Function Repository");
-    }
-    if(getLiveDataAvailabilityProvider() == null) {
-      throw new IllegalStateException("Must have a Live Data Availability Provider");
-    }
-    if(getLiveDataSnapshotProvider() == null) {
-      throw new IllegalStateException("Must have a Live Data Snapshot Provider");
-    }
-    if(getPositionMaster() == null) {
-      throw new IllegalStateException("Must have a Position Master");
-    }
-    if(getComputationCacheSource() == null) {
-      throw new IllegalStateException("Must have a View Computation Cache Factory");
-    }
-    if(getSecurityMaster() == null) {
-      throw new IllegalStateException("Must have a Security Master");
-    }
     if(getComputationExecutorService() == null) {
       throw new IllegalStateException("Must have an executor service for computation.");
     }
