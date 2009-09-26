@@ -1,5 +1,7 @@
 package com.opengamma.financial.securities.descriptions;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.financial.securities.Exchange;
 import com.opengamma.financial.securities.keys.FXKey;
@@ -50,13 +52,13 @@ public class FXDescription implements Description<FXKey> {
       return false;
     }
     FXDescription other = (FXDescription) o;
-    if (!CompareUtils.equalsWithNull(getSymbol(), other.getSymbol())) {
+    if (!ObjectUtils.equals(getSymbol(), other.getSymbol())) {
       return false;
     }
-    if (!CompareUtils.equalsWithNull(getName(), other.getName())) {
+    if (!ObjectUtils.equals(getName(), other.getName())) {
       return false;
     }
-    return CompareUtils.equalsWithNull(getExchange(), other.getExchange());
+    return ObjectUtils.equals(getExchange(), other.getExchange());
   }
   
   public int hashCode() {

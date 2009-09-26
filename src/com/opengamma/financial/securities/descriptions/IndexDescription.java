@@ -1,8 +1,9 @@
 package com.opengamma.financial.securities.descriptions;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.financial.securities.Exchange;
 import com.opengamma.financial.securities.keys.IndexKey;
-import com.opengamma.util.CompareUtils;
 
 public class IndexDescription extends EquityOrEquivalentDescription<IndexKey> {
   
@@ -23,12 +24,12 @@ public class IndexDescription extends EquityOrEquivalentDescription<IndexKey> {
       return false;
     }
     IndexDescription other = (IndexDescription) o;
-    if (!CompareUtils.equalsWithNull(getSymbol(), other.getSymbol())) {
+    if (!ObjectUtils.equals(getSymbol(), other.getSymbol())) {
       return false;
     }
-    if (!CompareUtils.equalsWithNull(getName(), other.getName())) {
+    if (!ObjectUtils.equals(getName(), other.getName())) {
       return false;
     }
-    return CompareUtils.equalsWithNull(getExchange(), other.getExchange());
+    return ObjectUtils.equals(getExchange(), other.getExchange());
   }
 }
