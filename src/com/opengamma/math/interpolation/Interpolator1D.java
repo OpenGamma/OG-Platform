@@ -20,10 +20,11 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
   protected static final double EPS = 1e-12;
 
   /**
-   * @param A
-   *          map containing the (x, y) data set.
-   * @param The
-   *          value of x for which an interpolated value for y is to be found.
+   * @param data
+   *          A map containing the (x, y) data set.
+   * @param value
+   *          The value of x for which an interpolated value for y is to be
+   *          found.
    * @returns An InterpolationResult containing the interpolated value of y and
    *          (if appropriate) the estimated error of this value.
    */
