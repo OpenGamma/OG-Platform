@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.convention.daycount;
 
+import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.field.MonthOfYear;
 
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.time.FirstDateOfYearAdjuster;
 
 /**
  * Definition for the Actual/Actual day count convention. The day count fraction
@@ -23,6 +25,7 @@ import com.opengamma.util.time.DateUtil;
  * @author emcleod
  */
 public class ActualActualISDADayCount implements DayCount {
+  private static final DateAdjuster FIRST_DAY_OF_YEAR = new FirstDateOfYearAdjuster();
 
   @Override
   public double getBasis(final ZonedDateTime date) {
@@ -31,19 +34,10 @@ public class ActualActualISDADayCount implements DayCount {
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    final int firstYear = firstDate.getYear();
-    final int secondYear = secondDate.getYear();
-    final MonthOfYear firstMonth = firstDate.toMonthOfYear();
-    final MonthOfYear secondMonth = secondDate.toMonthOfYear();
-    final int firstDay = firstDate.getDayOfMonth();
-    final int secondDay = secondDate.getDayOfMonth();
-    int days = 0;
-    for (int i = firstYear; i < secondYear; i++) {
-      days += 0;
-    }
-    for (int i = firstMonth.getValue() + 1; i < secondMonth.getValue(); i++) {
-      days += MonthOfYear.monthOfYear(i).getValue();
-    }
-    return 0;
+    final ZonedDateTime lastDayOfFirstYear = ZonedDateTime
+        .dateTime(DateAdjusters.lastDayOfYear().adjustDate(firstDate.toLocalDate()), firstDate.toLocalTime(), firstDate.getZone());
+    final ZonedDateTime firstDayOfSecondYear = ZonedDateTime.dateTime(FIRST_DAY_OF_YEAR.adjustDate(secondDate.toLocalDate()), secondDate.toLocalTime(), secondDate.getZone());
+    return DateUtil.getDaysBetween(firstDate, false, lastDayOfFirstYear, true) / getBasis(firstDate) + DateUtil.getDaysBetween(secondDate, false, firstDayOfSecondYear, true)
+        / getBasis(secondDate);
   }
 }

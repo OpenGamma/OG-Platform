@@ -7,6 +7,8 @@ package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
  * The definition for the Actual/Actual ICMA day count convention. The day count
  * fraction is the "number of days accrued" / "number of days" in a year, (where
@@ -24,14 +26,12 @@ public class ActualActualICMADayCount implements DayCount {
 
   @Override
   public double getBasis(final ZonedDateTime date) {
-    // TODO Auto-generated method stub
-    return 0;
+    throw new NotImplementedException();
   }
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    // TODO Auto-generated method stub
-    return 0;
+    throw new NotImplementedException();
   }
 
 }

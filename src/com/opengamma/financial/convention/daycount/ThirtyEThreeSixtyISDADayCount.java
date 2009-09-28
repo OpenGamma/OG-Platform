@@ -6,6 +6,9 @@
 package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.field.MonthOfYear;
+
+import com.opengamma.util.time.DateUtil;
 
 /**
  * Definition for the 30E/360 (ISDA) day count convention. The day count
@@ -37,8 +40,27 @@ public class ThirtyEThreeSixtyISDADayCount implements DayCount {
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    // TODO Auto-generated method stub
-    return 0;
+    final int firstYear = firstDate.getYear();
+    final int secondYear = secondDate.getYear();
+    final MonthOfYear firstMonth = firstDate.toMonthOfYear();
+    final MonthOfYear secondMonth = secondDate.toMonthOfYear();
+    final int firstDay = getAdjustedDayNumber(firstDate);
+    final int secondDay = getAdjustedDayNumber(secondDate);
+    return (360 * (secondYear - firstYear) + 30 * (secondMonth.getValue() - firstMonth.getValue()) + secondDay - firstDay) / 360.;
   }
 
+  private int getAdjustedDayNumber(final ZonedDateTime date) {
+    final MonthOfYear month = date.toMonthOfYear();
+    int day = date.getDayOfMonth();
+    if (day == 31) {
+      day = 30;
+    } else if (month == MonthOfYear.FEBRUARY) {
+      if (DateUtil.isLeapYear(date)) {
+        day = day == 29 ? 30 : day;
+      } else {
+        day = day == 28 ? 30 : day;
+      }
+    }
+    return day;
+  }
 }

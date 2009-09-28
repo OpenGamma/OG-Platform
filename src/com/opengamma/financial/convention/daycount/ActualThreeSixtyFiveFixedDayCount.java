@@ -7,6 +7,8 @@ package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.util.time.DateUtil;
+
 /**
  * Definition for the Actual/365 (Fixed) day count convention. The day count
  * fraction is defined as the actual number of days in the period divided by
@@ -28,8 +30,7 @@ public class ActualThreeSixtyFiveFixedDayCount implements DayCount {
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    // TODO Auto-generated method stub
-    return 0;
+    return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
   }
 
 }

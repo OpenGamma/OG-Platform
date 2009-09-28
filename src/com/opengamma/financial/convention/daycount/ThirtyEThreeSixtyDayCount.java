@@ -33,14 +33,20 @@ public class ThirtyEThreeSixtyDayCount implements DayCount {
 
   @Override
   public double getBasis(final ZonedDateTime date) {
-    // TODO Auto-generated method stub
-    return 0;
+    return 360;
   }
 
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    // TODO Auto-generated method stub
-    return 0;
+    final int firstYear = firstDate.getYear();
+    final int secondYear = secondDate.getYear();
+    final int firstMonth = firstDate.toMonthOfYear().getValue();
+    final int secondMonth = secondDate.toMonthOfYear().getValue();
+    int firstDay = firstDate.getDayOfMonth();
+    int secondDay = secondDate.getDayOfMonth();
+    firstDay = firstDay == 31 ? 30 : firstDay;
+    secondDay = secondDay == 31 ? 30 : secondDay;
+    return (360 * (secondYear - firstYear) + 30 * (secondMonth - firstMonth) + secondDay - firstDay) / 360.;
   }
 
 }
