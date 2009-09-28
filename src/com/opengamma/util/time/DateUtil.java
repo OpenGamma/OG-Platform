@@ -143,6 +143,8 @@ public class DateUtil {
    * @return True if the date is in a leap year.
    */
   public static boolean isLeapYear(final ZonedDateTime date) {
+    if (date == null)
+      throw new IllegalArgumentException("Date was null");
     return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
   }
 
@@ -153,6 +155,8 @@ public class DateUtil {
    * @return True if the date is in a leap year.
    */
   public static boolean isLeapYear(final LocalDate date) {
+    if (date == null)
+      throw new IllegalArgumentException("Date was null");
     return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
   }
 
@@ -165,6 +169,10 @@ public class DateUtil {
    * @return The exact fraction of days between two dates.
    */
   public static double getExactDaysBetween(final ZonedDateTime startDate, final ZonedDateTime endDate) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Start date was null");
+    if (endDate == null)
+      throw new IllegalArgumentException("End date was null");
     return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / SECONDS_PER_DAY;
   }
 
@@ -178,6 +186,10 @@ public class DateUtil {
    * @return The number of days between two dates.
    */
   public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Start date was null");
+    if (endDate == null)
+      throw new IllegalArgumentException("End date was null");
     LocalDate date = startDate.toLocalDate();
     LocalDate localEndDate = endDate.toLocalDate();
     int mult = 1;
@@ -206,6 +218,10 @@ public class DateUtil {
    * @return The number of days between two dates.
    */
   public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd, final DateAdjuster dateAdjuster) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Start date was null");
+    if (endDate == null)
+      throw new IllegalArgumentException("End date was null");
     LocalDate date = startDate.toLocalDate();
     LocalDate localEndDate = endDate.toLocalDate();
     int mult = 1;
