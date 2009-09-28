@@ -29,7 +29,7 @@ public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserO
       public Double evaluate(StandardOptionDataBundle data) {
         double s = data.getSpot();
         double k = definition.getStrike();
-        double t1 = DateUtil.getDifferenceInYears(definition.getChooseDate(), data.getDate());
+        double t1 = DateUtil.getDifferenceInYears(data.getDate(), definition.getChooseDate());
         double t2 = definition.getTimeToExpiry(data.getDate());
         double b = data.getCostOfCarry();
         double r = data.getInterestRate(t1);

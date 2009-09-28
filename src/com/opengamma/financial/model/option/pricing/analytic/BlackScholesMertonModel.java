@@ -3,7 +3,7 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.Delta;
 import com.opengamma.financial.greeks.Gamma;
@@ -48,7 +48,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       @Override
       public Double evaluate(StandardOptionDataBundle data) {
         try {
-          InstantProvider date = data.getDate();
+          ZonedDateTime date = data.getDate();
           double s = data.getSpot();
           double k = definition.getStrike();
           double t = definition.getTimeToExpiry(date);

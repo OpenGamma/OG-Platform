@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.HullWhiteStochasticVolatilityModelOptionDataBundle;
@@ -32,7 +32,7 @@ public class HullWhiteStochasticVolatilityOptionModel extends AnalyticOptionMode
       @Override
       public Double evaluate(HullWhiteStochasticVolatilityModelOptionDataBundle data) {
         try {
-          InstantProvider date = data.getDate();
+          ZonedDateTime date = data.getDate();
           double s = data.getSpot();
           double k = definition.getStrike();
           double t = definition.getTimeToExpiry(date);

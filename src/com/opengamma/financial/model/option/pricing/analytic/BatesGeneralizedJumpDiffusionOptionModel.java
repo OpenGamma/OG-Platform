@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelOptionDataBundle;
@@ -30,7 +30,7 @@ public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionMode
           double s = data.getSpot();
           DiscountCurve discountCurve = data.getDiscountCurve();
           VolatilitySurface volSurface = data.getVolatilitySurface();
-          InstantProvider date = data.getDate();
+          ZonedDateTime date = data.getDate();
           double t = definition.getTimeToExpiry(date);
           double k = definition.getStrike();
           double sigma = data.getVolatility(t, k);

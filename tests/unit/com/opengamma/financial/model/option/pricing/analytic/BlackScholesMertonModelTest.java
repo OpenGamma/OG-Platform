@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class BlackScholesMertonModelTest {
-  private static final InstantProvider DATE = Instant.millisInstant(1000);
+  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final DiscountCurve CONSTANT_CURVE = new ConstantInterestRateDiscountCurve(0.09);
   private static final DiscountCurve CURVE;
   private static final double B = 0.09;

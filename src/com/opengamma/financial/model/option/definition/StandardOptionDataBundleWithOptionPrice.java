@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -17,7 +17,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 public class StandardOptionDataBundleWithOptionPrice extends StandardOptionDataBundle {
   private final double _optionPrice;
 
-  public StandardOptionDataBundleWithOptionPrice(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, InstantProvider date, double optionPrice) {
+  public StandardOptionDataBundleWithOptionPrice(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, ZonedDateTime date, double optionPrice) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _optionPrice = optionPrice;
   }

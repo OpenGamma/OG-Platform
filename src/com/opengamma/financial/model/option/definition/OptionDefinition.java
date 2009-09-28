@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
@@ -63,8 +63,8 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
    * @param date
    * @return The time to expiry in years, where a year is defined as 365.25
    */
-  public double getTimeToExpiry(InstantProvider date) {
-    return DateUtil.getDifferenceInYears(getExpiry(), date);
+  public double getTimeToExpiry(ZonedDateTime date) {
+    return DateUtil.getDifferenceInYears(date, getExpiry().getExpiry());
   }
 
   /**

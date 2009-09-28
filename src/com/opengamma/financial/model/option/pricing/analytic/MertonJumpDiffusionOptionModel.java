@@ -1,6 +1,6 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.MertonJumpDiffusionModelOptionDataBundle;
@@ -25,7 +25,7 @@ public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<European
       @Override
       public Double evaluate(MertonJumpDiffusionModelOptionDataBundle data) {
         try {
-          InstantProvider date = data.getDate();
+          ZonedDateTime date = data.getDate();
           double k = definition.getStrike();
           double t = definition.getTimeToExpiry(date);
           double sigma = data.getVolatility(t, k);

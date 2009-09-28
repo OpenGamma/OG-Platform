@@ -12,8 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -38,7 +37,7 @@ public class PoweredOptionModelTest {
   private static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final Greek PRICE = new Price();
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
-  private static final InstantProvider DATE = Instant.instant(1000);
+  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.1);
   private static final double B = 0.07;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.Delta;
 import com.opengamma.financial.greeks.Gamma;
@@ -30,7 +30,7 @@ import com.opengamma.math.function.Function1D;
  * 
  * @param <T>
  */
-public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
+public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
@@ -102,7 +102,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
 
     @Override
     public Map<String, Double> visitRho(Rho rho) {
-      InstantProvider date = _vars.getDate();
+      ZonedDateTime date = _vars.getDate();
       double t = _definition.getTimeToExpiry(date);
       double r = _vars.getInterestRate(t);
       DiscountCurve upCurve = new ConstantInterestRateDiscountCurve(r + EPS);

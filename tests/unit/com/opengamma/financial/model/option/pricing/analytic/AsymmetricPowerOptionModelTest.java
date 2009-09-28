@@ -10,8 +10,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -34,7 +33,7 @@ public class AsymmetricPowerOptionModelTest {
   private static final double B = 0.02;
   private static final double SPOT = 10;
   private static final double STRIKE = 100;
-  private static final InstantProvider DATE = Instant.millisInstant(1000);
+  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);

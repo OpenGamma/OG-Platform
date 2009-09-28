@@ -9,8 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -32,8 +31,8 @@ public class SimpleChooserOptionModelTest {
 
   @Test
   public void test() {
-    InstantProvider date = Instant.instant(1000);
-    InstantProvider chooseDate = DateUtil.getDateOffsetWithYearFraction(date, 0.25);
+    ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
+    ZonedDateTime chooseDate = DateUtil.getDateOffsetWithYearFraction(date, 0.25);
     Expiry underlyingExpiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 0.5));
     SimpleChooserOptionDefinition definition = new SimpleChooserOptionDefinition(50, underlyingExpiry, chooseDate);
     StandardOptionDataBundle bundle = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(0.25), 50, date);
