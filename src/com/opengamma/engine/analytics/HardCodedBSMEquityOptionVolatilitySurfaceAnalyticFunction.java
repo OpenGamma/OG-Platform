@@ -12,9 +12,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.Instant;
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
 
@@ -65,7 +65,7 @@ implements AnalyticFunctionInvoker {
   @Override
   public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Security security) {
 
-    final Instant today = Clock.system(TimeZone.UTC).instant();
+    final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
@@ -80,7 +80,7 @@ implements AnalyticFunctionInvoker {
       final VolatilitySurface volSurface = equityOptionSec.accept(new OptionVisitor<VolatilitySurface>() {
         private VolatilitySurface visitOption(Option option) {
           Expiry expiry = option.getExpiry();
-          double years = DateUtil.getDifferenceInYears(expiry.getExpiry().toInstant(), today);
+          double years = DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant());
           final double b = discountCurve.getInterestRate(years);
           EuropeanVanillaOptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(option.getStrike(), expiry, (option.getOptionType() == OptionType.CALL));
           Map<EuropeanVanillaOptionDefinition, Double> prices = new HashMap<EuropeanVanillaOptionDefinition, Double>();
