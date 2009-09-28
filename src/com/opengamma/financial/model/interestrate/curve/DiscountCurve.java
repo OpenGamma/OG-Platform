@@ -12,6 +12,8 @@ import java.util.TreeMap;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.plot.RenderVisitor;
+import com.opengamma.plot.Renderable;
 
 /**
  * A DiscountCurve contains discount factors <i>e<sup>-r(t)t</sup></i> (where
@@ -21,7 +23,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
  * @author emcleod
  */
 
-public class DiscountCurve implements InterestRateModel<Double> {
+public class DiscountCurve implements InterestRateModel<Double>, Renderable {
   private final SortedMap<Double, Double> _data;
   private final Interpolator1D _interpolator;
 
@@ -117,5 +119,9 @@ public class DiscountCurve implements InterestRateModel<Double> {
     } else if (!_interpolator.equals(other._interpolator))
       return false;
     return true;
+  }
+  
+  public <T> T accept(RenderVisitor<T> visitor) {
+    return visitor.visitDiscountCurve(this);
   }
 }

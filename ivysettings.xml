@@ -14,7 +14,7 @@
         <ivy pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
         <artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
       </packager>
-      <ibiblio name="ibiblio" m2compatible="true" />
+      <ibiblio name="ibiblio" m2compatible="true"/>
     </chain>
   </resolvers>
 </ivysettings>
