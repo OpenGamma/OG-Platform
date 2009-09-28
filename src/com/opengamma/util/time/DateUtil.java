@@ -11,12 +11,16 @@ import java.util.GregorianCalendar;
 
 import javax.time.Duration;
 import javax.time.InstantProvider;
+import javax.time.calendar.DateAdjuster;
+import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.field.MonthOfYear;
+
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 
 /**
  * 
@@ -136,13 +140,93 @@ public class DateUtil {
   }
 
   /**
-   * Determines whether the date is in a leap year.
+   * Determines whether the ZonedDateTime is in a leap year.
    * 
    * @param date
    * @return True if the date is in a leap year.
    */
   public static boolean isLeapYear(final ZonedDateTime date) {
     return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
+  }
+
+  /**
+   * Determines whether the LocalDate is in a leap year.
+   * 
+   * @param date
+   * @return True if the date is in a leap year.
+   */
+  public static boolean isLeapYear(final LocalDate date) {
+    return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
+  }
+
+  /**
+   * Calculates the exact number of days in between two dates. Accounts for
+   * dates being in different time zones.
+   * 
+   * @param startDate
+   * @param endDate
+   * @return The exact fraction of days between two dates.
+   */
+  public static double getExactDaysBetween(final ZonedDateTime startDate, final ZonedDateTime endDate) {
+    return (endDate.toInstant().getEpochSeconds() - startDate.toInstant().getEpochSeconds()) / SECONDS_PER_DAY;
+  }
+
+  /**
+   * Calculates the number of days in between two dates.
+   * 
+   * @param startDate
+   * @param includeStart
+   * @param endDate
+   * @param includeEnd
+   * @param dateAdjuster
+   * @return The number of days between two dates.
+   */
+  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd) {
+    final DateAdjuster dateAdjuster = DateAdjusters.next(startDate.toDayOfWeek());
+    int result = includeStart ? 1 : 0;
+    while (!dateAdjuster.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
+      result++;
+    }
+    return includeEnd ? result + 1 : result;
+  }
+
+  /**
+   * Calculates the number of days in between two dates with the date count rule
+   * specified by the DateAdjuster.
+   * 
+   * @param startDate
+   * @param includeStart
+   * @param endDate
+   * @param includeEnd
+   * @param dateAdjuster
+   * @return The number of days between two dates.
+   */
+  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd, final DateAdjuster dateAdjuster) {
+    int result = includeStart ? 1 : 0;
+    while (!dateAdjuster.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
+      result++;
+    }
+    return includeEnd ? result + 1 : result;
+  }
+
+  /**
+   * Calculates the number of days in between two dates with the date count rule
+   * specified by the DateAdjuster.
+   * 
+   * @param startDate
+   * @param includeStart
+   * @param endDate
+   * @param includeEnd
+   * @param dateAdjuster
+   * @return The number of days between two dates.
+   */
+  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd,
+      final BusinessDayConvention convention) {
+    int result = includeStart ? 1 : 0;
+    while (!convention.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
+      result++;
+    }
+    return includeEnd ? result + 1 : result;
   }
 
   @Deprecated
