@@ -5,13 +5,9 @@
  */
 package com.opengamma.util.time;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-
 import javax.time.Duration;
+import javax.time.Instant;
 import javax.time.InstantProvider;
-import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
@@ -33,52 +29,51 @@ public class DateUtil {
   public static final long MILLISECONDS_PER_YEAR = SECONDS_PER_YEAR * 1000;
 
   /**
-   * Returns d1 - d2 in years, where a year is defined as 365.25 days.
+   * Returns endDate - startDate in years, where a year is defined as 365.25
+   * days.
    * 
-   * @param d1
-   *          The first date.
-   * @param d2
-   *          The second date.
+   * @param startDate
+   *          The start date.
+   * @param endDate
+   *          The end date.
    * @return The difference in years.
    * @throws IllegalArgumentException
    *           If either date is null.
    */
-  public static double getDifferenceInYears(final InstantProvider d1, final InstantProvider d2) {
-    if (d1 == null)
-      throw new IllegalArgumentException("First date was null");
-    if (d2 == null)
-      throw new IllegalArgumentException("Second date was null");
-    return (double) (d1.toInstant().toEpochMillis() - d2.toInstant().toEpochMillis()) / MILLISECONDS_PER_YEAR;
+  public static double getDifferenceInYears(final InstantProvider startDate, final InstantProvider endDate) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Start date was null");
+    if (endDate == null)
+      throw new IllegalArgumentException("End date was null");
+    return (double) (endDate.toInstant().toEpochMillis() - startDate.toInstant().toEpochMillis()) / MILLISECONDS_PER_YEAR;
   }
 
   /**
-   * Returns d1 - d2 in years.
+   * Returns endDate - startDate in years.
    * 
-   * @param d1
-   *          The first date.
-   * @param d2
-   *          The second date.
+   * @param startDate
+   *          The start date.
+   * @param endDate
+   *          The endDate date.
    * @param daysInYear
    *          Number of days in year.
    * @return The difference in years.
    * @throws IllegalArgumentException
    *           If either date is null.
    */
-  public static double getDifferenceInYears(final InstantProvider d1, final InstantProvider d2, final double daysInYear) {
-    if (d1 == null)
-      throw new IllegalArgumentException("First date was null");
-    if (d2 == null)
-      throw new IllegalArgumentException("Second date was null");
-    return daysInYear * d1.toInstant().toEpochMillis() - d2.toInstant().toEpochMillis() / MILLISECONDS_PER_DAY;
+  public static double getDifferenceInYears(final InstantProvider startDate, final InstantProvider endDate, final double daysInYear) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Start date was null");
+    if (endDate == null)
+      throw new IllegalArgumentException("End date was null");
+    return (endDate.toInstant().toEpochMillis() - startDate.toInstant().toEpochMillis()) / MILLISECONDS_PER_DAY / daysInYear;
   }
 
-  // REVIEW emcleod 24/9/09. This is a quick and dirty way of doing this - I
-  // don't like the
-  // rounding.
   /**
    * Method that allows a fraction of a year to be added to a date. If the
    * yearFraction that is used does not give an integer number of seconds, it is
-   * rounded to the nearest long.
+   * rounded to the nearest nanosecond. Note that the number of days in a year
+   * is defined to be 365.25.
    * 
    * @param startDate
    *          The date to offset.
@@ -89,8 +84,69 @@ public class DateUtil {
   public static InstantProvider getDateOffsetWithYearFraction(final InstantProvider startDate, final double yearFraction) {
     if (startDate == null)
       throw new IllegalArgumentException("Date was null");
-    final long seconds = Math.round(SECONDS_PER_YEAR * yearFraction);
-    return startDate.toInstant().plus(Duration.seconds(seconds));
+    final long nanos = Math.round(1e9 * SECONDS_PER_YEAR * yearFraction);
+    return startDate.toInstant().plus(Duration.nanos(nanos));
+  }
+
+  /**
+   * Method that allows a fraction of a year to be added to a date. If the
+   * yearFraction that is used does not give an integer number of seconds, it is
+   * rounded to the nearest nanosecond. Note that the number of days in a year
+   * is defined to be 365.25.
+   * 
+   * @param startDate
+   *          The date to offset.
+   * @param yearFraction
+   *          The fraction of a year to add to the original date.
+   * @return The offset date.
+   */
+  public static ZonedDateTime getDateOffsetWithYearFraction(final ZonedDateTime startDate, final double yearFraction) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Date was null");
+    final Instant instant = startDate.toInstant();
+    final InstantProvider offsetDate = getDateOffsetWithYearFraction(instant, yearFraction);
+    return ZonedDateTime.fromInstant(offsetDate, startDate.getZone());
+  }
+
+  /**
+   * /** Method that allows a fraction of a year to be added to a date. If the
+   * yearFraction that is used does not give an integer number of seconds, it is
+   * rounded to the nearest nanosecond.
+   * 
+   * @param startDate
+   *          The date to offset.
+   * @param yearFraction
+   *          The fraction of a year to add to the original date.
+   * @param daysPerYear
+   *          The number of days in a year.
+   * @return The offset date.
+   */
+  public static InstantProvider getDateOffsetWithYearFraction(final InstantProvider startDate, final double yearFraction, final double daysPerYear) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Date was null");
+    final long nanos = Math.round(1e9 * SECONDS_PER_DAY * daysPerYear * yearFraction);
+    return startDate.toInstant().plus(Duration.nanos(nanos));
+  }
+
+  /**
+   * Method that allows a fraction of a year to be added to a date. If the
+   * yearFraction that is used does not give an integer number of seconds, it is
+   * rounded to the nearest nanosecond.
+   * 
+   * @param startDate
+   *          The date to offset.
+   * @param yearFraction
+   *          The fraction of a year to add to the original date.
+   * @param daysPerYear
+   *          The number of days in a year.
+   * @return The offset date.
+   */
+  public static ZonedDateTime getDateOffsetWithYearFraction(final ZonedDateTime startDate, final double yearFraction, final double daysPerYear) {
+    if (startDate == null)
+      throw new IllegalArgumentException("Date was null");
+    final Instant instant = startDate.toInstant();
+    final InstantProvider offsetDate = getDateOffsetWithYearFraction(instant, yearFraction, daysPerYear);
+    return ZonedDateTime.fromInstant(offsetDate, startDate.getZone());
   }
 
   /**
@@ -206,67 +262,5 @@ public class DateUtil {
     return mult * (includeEnd ? result : result - 1);
   }
 
-  /**
-   * Calculates the number of days in between two dates with the date count rule
-   * specified by the DateAdjuster.
-   * 
-   * @param startDate
-   * @param includeStart
-   * @param endDate
-   * @param includeEnd
-   * @param dateAdjuster
-   * @return The number of days between two dates.
-   */
-  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd, final DateAdjuster dateAdjuster) {
-    if (startDate == null)
-      throw new IllegalArgumentException("Start date was null");
-    if (endDate == null)
-      throw new IllegalArgumentException("End date was null");
-    LocalDate date = startDate.toLocalDate();
-    LocalDate localEndDate = endDate.toLocalDate();
-    int mult = 1;
-    if (startDate.isAfter(endDate)) {
-      date = endDate.toLocalDate();
-      localEndDate = startDate.toLocalDate();
-      mult = -1;
-    }
-    int result = includeStart ? 1 : 0;
-    while (!dateAdjuster.adjustDate(date).equals(localEndDate)) {
-      date = dateAdjuster.adjustDate(date);
-      result++;
-    }
-    return mult * (includeEnd ? result : result - 1);
-  }
-
   // TODO useful to have methods such as # weeks between.
-
-  @Deprecated
-  public static double subtract(final Date d1, final Date d2) {
-    return (d1.getTime() - d2.getTime()) / MILLISECONDS_PER_DAY;
-  }
-
-  @Deprecated
-  public static Date add(final Date d, final double offset) {
-    final long x = d.getTime() + (long) (offset * MILLISECONDS_PER_DAY * 365.25);
-    return new Date(x);
-  }
-
-  @Deprecated
-  public static Date today() {
-    final Calendar today = Calendar.getInstance();
-    final int year = today.get(Calendar.YEAR);
-    final int month = today.get(Calendar.MONTH);
-    final int day = today.get(Calendar.DAY_OF_MONTH);
-    final Calendar c = new GregorianCalendar(year, month, day, 0, 0, 0);
-    return c.getTime();
-  }
-
-  @Deprecated
-  public static Date date(final int yyyymmdd) {
-    final int year = yyyymmdd / 10000;
-    final int month = (yyyymmdd - 10000 * year) / 100;
-    final int day = yyyymmdd - 10000 * year - 100 * month;
-    final Calendar c = new GregorianCalendar(year, month, day, 0, 0, 0);
-    return c.getTime();
-  }
 }
