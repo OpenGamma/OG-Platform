@@ -12,7 +12,6 @@ import java.util.GregorianCalendar;
 import javax.time.Duration;
 import javax.time.InstantProvider;
 import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
@@ -176,16 +175,23 @@ public class DateUtil {
    * @param includeStart
    * @param endDate
    * @param includeEnd
-   * @param dateAdjuster
    * @return The number of days between two dates.
    */
   public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd) {
-    final DateAdjuster dateAdjuster = DateAdjusters.next(startDate.toDayOfWeek());
+    LocalDate date = startDate.toLocalDate();
+    LocalDate localEndDate = endDate.toLocalDate();
+    int mult = 1;
+    if (startDate.isAfter(endDate)) {
+      date = endDate.toLocalDate();
+      localEndDate = startDate.toLocalDate();
+      mult = -1;
+    }
     int result = includeStart ? 1 : 0;
-    while (!dateAdjuster.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
+    while (!date.equals(localEndDate)) {
+      date = date.plusDays(1);
       result++;
     }
-    return includeEnd ? result + 1 : result;
+    return mult * (includeEnd ? result : result - 1);
   }
 
   /**
@@ -200,12 +206,23 @@ public class DateUtil {
    * @return The number of days between two dates.
    */
   public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd, final DateAdjuster dateAdjuster) {
+    LocalDate date = startDate.toLocalDate();
+    LocalDate localEndDate = endDate.toLocalDate();
+    int mult = 1;
+    if (startDate.isAfter(endDate)) {
+      date = endDate.toLocalDate();
+      localEndDate = startDate.toLocalDate();
+      mult = -1;
+    }
     int result = includeStart ? 1 : 0;
-    while (!dateAdjuster.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
+    while (!dateAdjuster.adjustDate(date).equals(localEndDate)) {
+      date = dateAdjuster.adjustDate(date);
       result++;
     }
-    return includeEnd ? result + 1 : result;
+    return mult * (includeEnd ? result : result - 1);
   }
+
+  // TODO useful to have methods such as # weeks between.
 
   @Deprecated
   public static double subtract(final Date d1, final Date d2) {
