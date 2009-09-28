@@ -20,8 +20,6 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.field.MonthOfYear;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-
 /**
  * 
  * Utility class for InstantProvider.
@@ -204,26 +202,6 @@ public class DateUtil {
   public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd, final DateAdjuster dateAdjuster) {
     int result = includeStart ? 1 : 0;
     while (!dateAdjuster.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
-      result++;
-    }
-    return includeEnd ? result + 1 : result;
-  }
-
-  /**
-   * Calculates the number of days in between two dates with the date count rule
-   * specified by the DateAdjuster.
-   * 
-   * @param startDate
-   * @param includeStart
-   * @param endDate
-   * @param includeEnd
-   * @param dateAdjuster
-   * @return The number of days between two dates.
-   */
-  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd,
-      final BusinessDayConvention convention) {
-    int result = includeStart ? 1 : 0;
-    while (!convention.adjustDate(startDate.toLocalDate()).equals(endDate.toLocalDate())) {
       result++;
     }
     return includeEnd ? result + 1 : result;
