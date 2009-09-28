@@ -1,24 +1,24 @@
 package com.opengamma.financial.securities.keys;
 
-public class EquityKey extends ExchangeTradedKey {
+public class IndexOptionKey extends ExchangeTradedKey {
   
-  public EquityKey(String ticker) {
+  public IndexOptionKey(String ticker) {
     super(ticker);
   }
     
   public String toString() {
-    return "EquityKey["+getTicker()+"]";
+    return "IndexOptionKey["+getTicker()+"]";
   }
   
   public boolean equals(Object o) {
-    if (!(o instanceof EquityKey)) {
+    if (!(o instanceof IndexOptionKey)) {
       return false;
     }
-    EquityKey other = (EquityKey)o;
+    IndexOptionKey other = (IndexOptionKey)o;
     return getTicker().equals(other.getTicker());
   }
   
   public <T> T accept(SecurityKeyVisitor<T> visitor) {
-    return visitor.visitEquityKey(this);
+    return visitor.visitIndexOptionKey(this);
   }
 }

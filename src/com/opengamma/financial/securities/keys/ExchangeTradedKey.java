@@ -1,9 +1,9 @@
 package com.opengamma.financial.securities.keys;
 
-public abstract class EquityOrEquivalentKey implements SecurityKey {
+public abstract class ExchangeTradedKey implements SecurityKey {
   private String _ticker;
 
-  public EquityOrEquivalentKey(String ticker) {
+  public ExchangeTradedKey(String ticker) {
     _ticker = ticker;
   }
   
@@ -18,10 +18,10 @@ public abstract class EquityOrEquivalentKey implements SecurityKey {
   }
   
   public boolean equals(Object o) {
-    if (!(o instanceof EquityOrEquivalentKey)) {
+    if (!(o instanceof ExchangeTradedKey)) {
       return false;
     }
-    EquityOrEquivalentKey other = (EquityOrEquivalentKey)o;
+    ExchangeTradedKey other = (ExchangeTradedKey)o;
     return _ticker.equals(other.getTicker());
   }
 }

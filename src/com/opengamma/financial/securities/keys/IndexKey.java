@@ -1,7 +1,7 @@
 package com.opengamma.financial.securities.keys;
 
 // TODO: Move some of this stuff to a common base class with EquityKey?
-public class IndexKey extends EquityOrEquivalentKey {
+public class IndexKey extends ExchangeTradedKey {
 
   public IndexKey(String ticker) {
     super(ticker);
