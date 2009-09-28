@@ -51,16 +51,15 @@ public class LinearInterpolator2D extends Interpolator2D {
     Pair<Double, Double> p3 = surroundingPoints.get(2);
     Pair<Double, Double> p4 = surroundingPoints.get(3);
     double x1 = p1.getFirst();
-    double x2 = p2.getFirst();
+    double x3 = p3.getFirst();
     double y1 = p1.getSecond();
-    double y2 = p2.getSecond();
+    double y4 = p4.getSecond();
     double z1 = data.get(p1);
     double z2 = data.get(p2);
     double z3 = data.get(p3);
     double z4 = data.get(p4);
     double x = value.getFirst();
     double y = value.getSecond();
-    System.out.println(p1 + " " + p2);
-    return new InterpolationResult<Double>((x2 - x) * ((y2 - y) * z1 + (y - y1) * z2) + (x - x1) * ((y2 - y) * z3 + (y - y1) * z4) / ((x2 - x1) * (y2 - y1)));
+    return new InterpolationResult<Double>((x3 - x) * ((y4 - y) * z1 + (y - y1) * z2) + (x - x1) * ((y4 - y) * z3 + (y - y1) * z4) / ((x3 - x1) * (y4 - y1)));
   }
 }
