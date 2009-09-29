@@ -22,6 +22,7 @@ import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.calcnode.CalculationJob;
+import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
 /**
@@ -104,14 +105,14 @@ public class DependencyGraphExecutor {
       // Suck everything available off the retrieval source.
       // First time we're willing to wait for some period, but after that we pull
       // off as fast as we can.
-      CalculationJobSpecification completedJobSpec = null;
-      completedJobSpec = getProcessingContext().getJobCompletionRetriever().getNextCompleted(10, TimeUnit.SECONDS);
-      while(completedJobSpec != null) {
-        DependencyNode completedNode = _executingSpecifications.remove(completedJobSpec);
+      CalculationJobResult jobResult = null;
+      jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompleted(10, TimeUnit.SECONDS);
+      while(jobResult != null) {
+        DependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
         assert completedNode != null;
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
-        completedJobSpec = getProcessingContext().getJobCompletionRetriever().getNextCompletedNoWait();
+        jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompletedNoWait();
       }
     }
   }

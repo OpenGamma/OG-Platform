@@ -81,8 +81,19 @@ implements Lifecycle {
         ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
         AnalyticFunctionInvocationJob invocationJob = new AnalyticFunctionInvocationJob(
             job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
-        invocationJob.run();
-        getCompletionNotifier().jobCompleted(spec);
+        long startTS = System.currentTimeMillis();
+        boolean wasException = false;
+        try {
+          invocationJob.run();
+        } catch (Exception e) {
+          s_logger.info("Invoking " + job.getFunctionUniqueIdentifier() + " on " + job.getSecurityKey() + " throw exception.",e);
+          wasException = true;
+        }
+        long endTS = System.currentTimeMillis();
+        long duration = endTS - startTS;
+        InvocationResult invocationResult = wasException ? InvocationResult.ERROR : InvocationResult.SUCCESS;
+        CalculationJobResult jobResult = new CalculationJobResult(spec, invocationResult, duration);
+        getCompletionNotifier().jobCompleted(jobResult);
       }
     }
     
