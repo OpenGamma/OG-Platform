@@ -11,9 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.Instant;
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
@@ -64,9 +64,9 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
       final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
       final Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOption.getUnderlying()));
-      final Instant today = Clock.system(TimeZone.UTC).instant();
+      final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
       final Expiry expiry = equityOption.getExpiry();
-      final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(expiry.getExpiry().toInstant(), today));
+      final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant()));
       final double spot = underlyingDataFields.get(PRICE_FIELD_NAME);       
       StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volSurface, spot, today);
       EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
