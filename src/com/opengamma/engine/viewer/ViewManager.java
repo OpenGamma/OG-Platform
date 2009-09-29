@@ -66,18 +66,26 @@ public class ViewManager {
   private static final double ONEYEAR = 365.25;
   private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
   private ViewImpl _view;
+  private List<SingleThreadCalculationNode> _calculationNodes;
   
   public ViewImpl getView() {
     return _view;
   }
   
   public void start() {
+    for(SingleThreadCalculationNode calcNode: _calculationNodes) {
+      calcNode.start();
+    }
     getView().start();
   }
   
   public void stop() {
     getView().stop();
     _popJob.terminate();
+    for(SingleThreadCalculationNode calcNode : _calculationNodes) {
+      calcNode.stop();
+    }
+    _calculationNodes = null;
   }
   
   public ViewManager() {
@@ -157,8 +165,12 @@ public class ViewManager {
     
     LinkedBlockingJobQueue jobQueue = new LinkedBlockingJobQueue();
     LinkedBlockingCompletionQueue completionQueue = new LinkedBlockingCompletionQueue();
-    SingleThreadCalculationNode calcNode = new SingleThreadCalculationNode(cacheFactory, functionRepo, secMaster, jobQueue, completionQueue);
-    calcNode.start();
+    _calculationNodes = new ArrayList<SingleThreadCalculationNode>();
+    int nNodes = 2;
+    for(int i = 0; i < nNodes; i++) {
+      SingleThreadCalculationNode calcNode = new SingleThreadCalculationNode(cacheFactory, functionRepo, secMaster, jobQueue, completionQueue);
+      _calculationNodes.add(calcNode);
+    }
     
     ViewProcessingContext processingContext = new ViewProcessingContext(
         ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory,

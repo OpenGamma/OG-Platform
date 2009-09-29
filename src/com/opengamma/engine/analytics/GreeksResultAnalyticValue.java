@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * An {@link AnalyticValue} for a single double-precision floating point value.
