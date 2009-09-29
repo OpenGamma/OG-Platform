@@ -8,6 +8,8 @@ package com.opengamma.engine.security;
 import java.io.Serializable;
 import java.util.Collection;
 
+import com.opengamma.DomainSpecificIdentifier;
+
 /**
  * A way of defining one or more {@link Security} instances from a set
  * of descriptive data about that security.
@@ -29,5 +31,5 @@ public interface SecurityKey extends Serializable {
    * 
    * @return All identifiers for this key.
    */
-  Collection<SecurityIdentifier> getIdentifiers();
+  Collection<DomainSpecificIdentifier> getIdentifiers();
 }

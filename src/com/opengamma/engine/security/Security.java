@@ -7,6 +7,8 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
+import com.opengamma.DomainSpecificIdentifier;
+
 /**
  * 
  *
@@ -20,7 +22,7 @@ public interface Security {
    * 
    * @return All identifiers for this security.
    */
-  Collection<SecurityIdentifier> getIdentifiers();
+  Collection<DomainSpecificIdentifier> getIdentifiers();
   
   /**
    * Obtain a SecurityKey that uniquely identifies the security in question

@@ -19,6 +19,7 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.IdentificationDomain;
+import com.opengamma.DomainSpecificIdentifier;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -41,7 +42,6 @@ import com.opengamma.engine.security.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.OptionType;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.MapViewComputationCacheSource;
@@ -131,7 +131,7 @@ public class ViewManager {
     
     for (int i=0; i<tickers.length; i++) {
       DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiry, aapl.getIdentityKey(), Currency.getInstance("USD"));
-      security.setIdentifiers(Collections.singleton(new SecurityIdentifier(new IdentificationDomain("BLOOMBERG"), tickers[i])));
+      security.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("BLOOMBERG"), tickers[i])));
       securities.add(security);
       secMaster.add(security);
     }
@@ -186,7 +186,7 @@ public class ViewManager {
   private static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
     ResolveSecurityKeyToMarketDataHeaderDefinition definition =
       new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
+          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
     return definition;
   }
   
@@ -249,7 +249,7 @@ public class ViewManager {
   }
   
   private SecurityKey makeSecurityKey(String ticker) {
-    return new SecurityKeyImpl(new SecurityIdentifier(new IdentificationDomain("BLOOMBERG"), ticker));
+    return new SecurityKeyImpl(new DomainSpecificIdentifier(new IdentificationDomain("BLOOMBERG"), ticker));
   }
   
   private AnalyticValue<Map<String, Double>> makeHeaderValue(AnalyticValueDefinition<Map<String, Double>> def, String field, Double value) {

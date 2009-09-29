@@ -25,12 +25,12 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.IdentificationDomain;
+import com.opengamma.DomainSpecificIdentifier;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKeyImpl;
 
 /**
@@ -160,11 +160,11 @@ public class CSVPositionMaster implements PositionMaster {
     BigDecimal quantity = new BigDecimal(tokens[0].trim());
     
     // Each set of 2 tokens is then security id domain and then id 
-    List<SecurityIdentifier> securityIdentifiers = new ArrayList<SecurityIdentifier>();
+    List<DomainSpecificIdentifier> securityIdentifiers = new ArrayList<DomainSpecificIdentifier>();
     for(int i = 1; i < (tokens.length - 1); i++) {
       String idDomain = tokens[i].trim();
       String idValue = tokens[++i].trim();
-      SecurityIdentifier id = new SecurityIdentifier(new IdentificationDomain(idDomain), idValue);
+      DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain(idDomain), idValue);
       securityIdentifiers.add(id);
     }
     SecurityKeyImpl securityKey = new SecurityKeyImpl(securityIdentifiers);

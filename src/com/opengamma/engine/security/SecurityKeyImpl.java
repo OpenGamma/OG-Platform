@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.opengamma.DomainSpecificIdentifier;
+
 // REVIEW kirk 2009-09-01 -- I'm not particularly happy with the name of this class.
 
 /**
@@ -20,38 +22,38 @@ import java.util.List;
  */
 public class SecurityKeyImpl implements SecurityKey, Serializable {
   
-  private final List<SecurityIdentifier> _identifiers;
+  private final List<DomainSpecificIdentifier> _identifiers;
   
-  public SecurityKeyImpl(SecurityIdentifier... identifiers) {
+  public SecurityKeyImpl(DomainSpecificIdentifier... identifiers) {
     if((identifiers == null) || (identifiers.length == 0)) {
       _identifiers = Collections.emptyList();
     } else {
-      _identifiers = new ArrayList<SecurityIdentifier>(identifiers.length);
-      for(SecurityIdentifier secId : identifiers) {
+      _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers.length);
+      for(DomainSpecificIdentifier secId : identifiers) {
         _identifiers.add(secId);
       }
     }
   }
   
-  public SecurityKeyImpl(Collection<? extends SecurityIdentifier> identifiers) {
+  public SecurityKeyImpl(Collection<? extends DomainSpecificIdentifier> identifiers) {
     if(identifiers == null) {
       _identifiers = Collections.emptyList();
     } else {
-      _identifiers = new ArrayList<SecurityIdentifier>(identifiers);
+      _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers);
     }
   }
   
-  public SecurityKeyImpl(SecurityIdentifier secIdentifier) {
+  public SecurityKeyImpl(DomainSpecificIdentifier secIdentifier) {
     if(secIdentifier == null) {
       _identifiers = Collections.emptyList();
     } else {
-      _identifiers = new ArrayList<SecurityIdentifier>();
+      _identifiers = new ArrayList<DomainSpecificIdentifier>();
       _identifiers.add(secIdentifier);
     }
   }
 
   @Override
-  public Collection<SecurityIdentifier> getIdentifiers() {
+  public Collection<DomainSpecificIdentifier> getIdentifiers() {
     return _identifiers;
   }
   

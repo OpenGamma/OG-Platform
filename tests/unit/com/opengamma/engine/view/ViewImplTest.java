@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.IdentificationDomain;
+import com.opengamma.DomainSpecificIdentifier;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -41,7 +42,6 @@ import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
@@ -90,8 +90,8 @@ public class ViewImplTest {
     };
     Security security = new Security() {
       @Override
-      public Collection<SecurityIdentifier> getIdentifiers() {
-        return Collections.singleton(new SecurityIdentifier(new IdentificationDomain("KIRK"), "ID1"));
+      public Collection<DomainSpecificIdentifier> getIdentifiers() {
+        return Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("KIRK"), "ID1"));
       }
       @Override
       public String getSecurityType() {
@@ -254,7 +254,7 @@ public class ViewImplTest {
   public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
     ResolveSecurityKeyToMarketDataHeaderDefinition definition =
       new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
+          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
     return definition;
   }
   

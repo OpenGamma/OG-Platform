@@ -16,6 +16,8 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DomainSpecificIdentifier;
+
 
 /**
  * A simple purely in-memory implementation of the {@link SecurityMaster}
@@ -27,11 +29,11 @@ import org.slf4j.LoggerFactory;
  * in the key (e.g. any of them can produce a match). The specific
  * lookup algorithm is:
  * <ol>
- *   <li>Look at each {@link SecurityIdentifier} obtained from the
+ *   <li>Look at each {@link DomainSpecificIdentifier} obtained from the
  *       {@link SecurityKey} in turn; for each:</li>
  *   <li>Look at the {@link Security} instances added to this instance,
  *       <em>in the order in which they were added</em>, to determine
- *       if there is a match for that {@link SecurityIdentifier}.</li>
+ *       if there is a match for that {@link DomainSpecificIdentifier}.</li>
  *   <li>If there is a match for that identifier, match found.</li>
  *   <li>For single {@link Security} lookup, if a match found, return it.</li>
  *   <li>For multiple {@link Security} lookup, identify all matches for all identifiers.</li> 
@@ -75,7 +77,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if(secKey == null) {
       return result;
     }
-    for(SecurityIdentifier secId : secKey.getIdentifiers()) {
+    for(DomainSpecificIdentifier secId : secKey.getIdentifiers()) {
       for(Security sec : _securities) {
         if(sec.getIdentifiers().contains(secId)) {
           result.add(sec);
@@ -96,7 +98,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
       return identitySec;
     }
     
-    for(SecurityIdentifier secId : secKey.getIdentifiers()) {
+    for(DomainSpecificIdentifier secId : secKey.getIdentifiers()) {
       for(Security sec : _securities) {
         if(sec.getIdentifiers().contains(secId)) {
           return sec;
