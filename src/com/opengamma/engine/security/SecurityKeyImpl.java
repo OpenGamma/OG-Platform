@@ -7,8 +7,8 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
-import com.opengamma.DomainSpecificIdentifier;
-import com.opengamma.DomainSpecificIdentifiersImpl;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiersImpl;
 
 // REVIEW kirk 2009-09-01 -- I'm not particularly happy with the name of this class.
 

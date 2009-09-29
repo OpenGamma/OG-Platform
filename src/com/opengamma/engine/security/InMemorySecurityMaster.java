@@ -16,7 +16,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
 
 
 /**

@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 

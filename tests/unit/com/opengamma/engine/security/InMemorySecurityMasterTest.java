@@ -16,8 +16,8 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import com.opengamma.IdentificationDomain;
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * 

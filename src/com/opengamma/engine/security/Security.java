@@ -7,7 +7,7 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
  * 

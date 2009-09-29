@@ -14,8 +14,8 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.opengamma.DomainSpecificIdentifier;
 import com.opengamma.engine.position.Position;
+import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
  * 

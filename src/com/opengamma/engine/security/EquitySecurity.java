@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.opengamma.IdentificationDomain;
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 

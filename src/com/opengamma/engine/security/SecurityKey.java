@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.security;
 
-import com.opengamma.DomainSpecificIdentifiers;
+import com.opengamma.id.DomainSpecificIdentifiers;
 
 /**
  * A way of defining one or more {@link Security} instances from a set

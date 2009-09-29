@@ -18,8 +18,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.IdentificationDomain;
-import com.opengamma.DomainSpecificIdentifier;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -53,6 +51,8 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
 import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.time.Expiry;
 

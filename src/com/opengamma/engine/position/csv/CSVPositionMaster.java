@@ -24,14 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.IdentificationDomain;
-import com.opengamma.DomainSpecificIdentifier;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityKeyImpl;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * An implementation of {@link PositionMaster} which backs onto
