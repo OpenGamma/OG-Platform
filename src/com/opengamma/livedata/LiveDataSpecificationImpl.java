@@ -22,8 +22,8 @@ import com.opengamma.DomainSpecificIdentifier;
  */
 public class LiveDataSpecificationImpl
 implements LiveDataSpecification, Serializable {
-  
   private final List<DomainSpecificIdentifier> _identifiers;
+  private final int _hashCode;
   
   public LiveDataSpecificationImpl(DomainSpecificIdentifier... identifiers) {
     if((identifiers == null) || (identifiers.length == 0)) {
@@ -34,6 +34,7 @@ implements LiveDataSpecification, Serializable {
         _identifiers.add(secId);
       }
     }
+    _hashCode = calcHashCode();
   }
   
   public LiveDataSpecificationImpl(Collection<? extends DomainSpecificIdentifier> identifiers) {
@@ -42,6 +43,7 @@ implements LiveDataSpecification, Serializable {
     } else {
       _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers);
     }
+    _hashCode = calcHashCode();
   }
   
   public LiveDataSpecificationImpl(DomainSpecificIdentifier secIdentifier) {
@@ -51,6 +53,7 @@ implements LiveDataSpecification, Serializable {
       _identifiers = new ArrayList<DomainSpecificIdentifier>();
       _identifiers.add(secIdentifier);
     }
+    _hashCode = calcHashCode();
   }
 
   @Override
@@ -58,13 +61,17 @@ implements LiveDataSpecification, Serializable {
     return _identifiers;
   }
   
-  @Override
-  public int hashCode() {
+  protected int calcHashCode() {
     final int prime = 31;
     int result = 1;
     result = prime * result
         + ((_identifiers == null) ? 0 : _identifiers.hashCode());
     return result;
+  }
+  
+  @Override
+  public int hashCode() {
+    return _hashCode;
   }
 
   @Override

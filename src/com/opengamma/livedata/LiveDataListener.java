@@ -14,5 +14,18 @@ package com.opengamma.livedata;
 public interface LiveDataListener {
   
   void subscriptionResultReceived(LiveDataSubscriptionResponse subscriptionResult);
+  
+  /**
+   * Used to indicate that a subscription will stop providing updates to this listener.
+   * <p/>
+   * For concurrency reasons, it is possible and plausible that calls to
+   * {@link #valueUpdate(LiveDataValueUpdate)} corresponding to this specification
+   * will come in after an invocation of this method.
+   * 
+   * @param fullyQualifiedSpecification
+   */
+  void subscriptionStopped(LiveDataSpecification fullyQualifiedSpecification);
+  
+  void valueUpdate(LiveDataValueUpdate valueUpdate);
 
 }
