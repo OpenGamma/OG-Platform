@@ -11,6 +11,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.IdentificationDomain;
+
 /**
  * A particular identifier, within a particular domain, which can be used
  * to identify a security.
@@ -27,10 +29,10 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author kirk
  */
 public final class SecurityIdentifier implements Serializable, Cloneable {
-  private final SecurityIdentificationDomain _domain;
+  private final IdentificationDomain _domain;
   private final String _value;
 
-  public SecurityIdentifier(SecurityIdentificationDomain domain, String value) {
+  public SecurityIdentifier(IdentificationDomain domain, String value) {
     if(domain == null) {
       throw new NullPointerException("Must provide a valid domain.");
     }
@@ -44,7 +46,7 @@ public final class SecurityIdentifier implements Serializable, Cloneable {
   /**
    * @return the domain
    */
-  public SecurityIdentificationDomain getDomain() {
+  public IdentificationDomain getDomain() {
     return _domain;
   }
 

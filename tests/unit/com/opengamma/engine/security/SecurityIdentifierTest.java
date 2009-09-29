@@ -12,6 +12,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.opengamma.IdentificationDomain;
+
 /**
  * A pure unit test for {@link SecurityIdentifier}. 
  *
@@ -26,13 +28,13 @@ public class SecurityIdentifierTest {
 
   @Test(expected=NullPointerException.class)
   public void noValueConstruction() {
-    new SecurityIdentifier(new SecurityIdentificationDomain("Bloomberg"), null);
+    new SecurityIdentifier(new IdentificationDomain("Bloomberg"), null);
   }
   
   @Test
   public void equality() {
-    SecurityIdentificationDomain d1 = new SecurityIdentificationDomain("d1");
-    SecurityIdentificationDomain d2 = new SecurityIdentificationDomain("d2");
+    IdentificationDomain d1 = new IdentificationDomain("d1");
+    IdentificationDomain d2 = new IdentificationDomain("d2");
     
     assertTrue(new SecurityIdentifier(d1, "v1").equals(new SecurityIdentifier(d1, "v1")));
     assertFalse(new SecurityIdentifier(d1, "v1").equals(new SecurityIdentifier(d1, "v2")));
@@ -41,8 +43,8 @@ public class SecurityIdentifierTest {
   
   @Test
   public void hashing() {
-    SecurityIdentificationDomain d1 = new SecurityIdentificationDomain("d1");
-    SecurityIdentificationDomain d2 = new SecurityIdentificationDomain("d2");
+    IdentificationDomain d1 = new IdentificationDomain("d1");
+    IdentificationDomain d2 = new IdentificationDomain("d2");
     
     assertTrue(new SecurityIdentifier(d1, "v1").hashCode() == new SecurityIdentifier(d1, "v1").hashCode());
     assertFalse(new SecurityIdentifier(d1, "v1").hashCode() == new SecurityIdentifier(d1, "v2").hashCode());
@@ -51,7 +53,7 @@ public class SecurityIdentifierTest {
   
   @Test
   public void cloning() {
-    SecurityIdentifier id = new SecurityIdentifier(new SecurityIdentificationDomain("domain"), "value");
+    SecurityIdentifier id = new SecurityIdentifier(new IdentificationDomain("domain"), "value");
     assertEquals(id, id.clone());
     assertNotSame(id, id.clone());
   }

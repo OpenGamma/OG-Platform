@@ -16,6 +16,8 @@ import java.util.Collections;
 
 import org.junit.Test;
 
+import com.opengamma.IdentificationDomain;
+
 /**
  * 
  *
@@ -26,7 +28,7 @@ public class InMemorySecurityMasterTest {
   @Test
   public void empty() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    SecurityKey secKey = new SecurityKeyImpl(new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1"));
+    SecurityKey secKey = new SecurityKeyImpl(new SecurityIdentifier(new IdentificationDomain("d1"), "v1"));
     assertNull(secMaster.getSecurity(secKey));
     Collection<Security> securities = secMaster.getSecurities(secKey);
     assertNotNull(securities);
@@ -36,8 +38,8 @@ public class InMemorySecurityMasterTest {
   @Test
   public void singleSecurity() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    SecurityIdentifier secId1 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1");
-    SecurityIdentifier secId2 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v2");
+    SecurityIdentifier secId1 = new SecurityIdentifier(new IdentificationDomain("d1"), "v1");
+    SecurityIdentifier secId2 = new SecurityIdentifier(new IdentificationDomain("d1"), "v2");
     SecurityKey secKey1 = new SecurityKeyImpl(secId1);
     SecurityKey secKey2 = new SecurityKeyImpl(secId2);
     SecurityKey secKey3 = new SecurityKeyImpl(secId1, secId2);
@@ -65,8 +67,8 @@ public class InMemorySecurityMasterTest {
   @Test
   public void multipleSecurities() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    SecurityIdentifier secId1 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v1");
-    SecurityIdentifier secId2 = new SecurityIdentifier(new SecurityIdentificationDomain("d1"), "v2");
+    SecurityIdentifier secId1 = new SecurityIdentifier(new IdentificationDomain("d1"), "v1");
+    SecurityIdentifier secId2 = new SecurityIdentifier(new IdentificationDomain("d1"), "v2");
     SecurityKey secKey1 = new SecurityKeyImpl(secId1);
     SecurityKey secKey2 = new SecurityKeyImpl(secId2);
     SecurityKey secKey3 = new SecurityKeyImpl(secId1, secId2);

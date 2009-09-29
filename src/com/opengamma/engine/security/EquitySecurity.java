@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.opengamma.IdentificationDomain;
+
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
  *
@@ -18,6 +20,6 @@ import java.util.Collections;
 public class EquitySecurity extends DefaultSecurity {
   public EquitySecurity(String ticker, String domain) {
     setSecurityType("EQUITY_OPTION");
-    setIdentifiers(Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain(domain), ticker)));
+    setIdentifiers(Collections.singleton(new SecurityIdentifier(new IdentificationDomain(domain), ticker)));
   }
 }

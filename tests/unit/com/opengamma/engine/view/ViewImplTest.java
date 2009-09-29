@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.IdentificationDomain;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -40,7 +41,6 @@ import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityIdentificationDomain;
 import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
@@ -58,7 +58,7 @@ import com.opengamma.util.TerminatableJob;
  */
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
-  private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
+  private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
   
@@ -91,7 +91,7 @@ public class ViewImplTest {
     Security security = new Security() {
       @Override
       public Collection<SecurityIdentifier> getIdentifiers() {
-        return Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain("KIRK"), "ID1"));
+        return Collections.singleton(new SecurityIdentifier(new IdentificationDomain("KIRK"), "ID1"));
       }
       @Override
       public String getSecurityType() {

@@ -24,12 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.IdentificationDomain;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityIdentificationDomain;
 import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKeyImpl;
 
@@ -164,7 +164,7 @@ public class CSVPositionMaster implements PositionMaster {
     for(int i = 1; i < (tokens.length - 1); i++) {
       String idDomain = tokens[i].trim();
       String idValue = tokens[++i].trim();
-      SecurityIdentifier id = new SecurityIdentifier(new SecurityIdentificationDomain(idDomain), idValue);
+      SecurityIdentifier id = new SecurityIdentifier(new IdentificationDomain(idDomain), idValue);
       securityIdentifiers.add(id);
     }
     SecurityKeyImpl securityKey = new SecurityKeyImpl(securityIdentifiers);
