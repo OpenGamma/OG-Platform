@@ -5,17 +5,13 @@
  */
 package com.opengamma.livedata;
 
-import java.util.Collection;
-
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.DomainSpecificIdentifiers;
 
 /**
  * 
  *
  * @author kirk
  */
-public interface LiveDataSpecification {
+public interface LiveDataSpecification extends DomainSpecificIdentifiers {
   
-  Collection<DomainSpecificIdentifier> getIdentifiers();
-
 }
