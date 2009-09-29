@@ -76,11 +76,13 @@ implements Lifecycle {
       CalculationJob job = getJobSource().getJob(5, TimeUnit.SECONDS);
       if(job != null) {
         Security security = getSecurityMaster().getSecurity(job.getSecurityKey());
-        ViewComputationCache cache = getCacheSource().getCache(job.getViewName(), job.getIterationTimestamp());
+        CalculationJobSpecification spec = job.getSpecification();
+        assert spec != null;
+        ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
         AnalyticFunctionInvocationJob invocationJob = new AnalyticFunctionInvocationJob(
             job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
         invocationJob.run();
-        getCompletionNotifier().jobCompleted(new CalculationJobSpecification(job));
+        getCompletionNotifier().jobCompleted(spec);
       }
     }
     
