@@ -7,8 +7,8 @@ package com.opengamma.livedata;
 
 import java.util.Collection;
 
-import com.opengamma.DomainSpecificIdentifier;
-import com.opengamma.DomainSpecificIdentifiersImpl;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiersImpl;
 
 /**
  * A simple implementation of {@link LiveDataSpecification}.

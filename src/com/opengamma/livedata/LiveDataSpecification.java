@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata;
 
-import com.opengamma.DomainSpecificIdentifiers;
+import com.opengamma.id.DomainSpecificIdentifiers;
 
 /**
  * 
