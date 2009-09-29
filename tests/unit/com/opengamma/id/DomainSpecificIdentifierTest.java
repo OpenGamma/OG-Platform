@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma;
+package com.opengamma.id;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -12,8 +12,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.IdentificationDomain;
-import com.opengamma.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * A pure unit test for {@link DomainSpecificIdentifier}. 

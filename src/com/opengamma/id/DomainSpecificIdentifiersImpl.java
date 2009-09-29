@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma;
+package com.opengamma.id;
 
 import java.io.Serializable;
 import java.util.ArrayList;
