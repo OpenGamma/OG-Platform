@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.security;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 import com.opengamma.id.DomainSpecificIdentifier;
