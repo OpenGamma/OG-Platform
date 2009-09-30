@@ -1,84 +1,96 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.math.regression;
 
 /**
  * 
  * @author emcleod
- * 
  */
 
-public abstract class LeastSquaresRegression implements Regression {
-  private double[] _residuals;
-  private double[] _betas;
-  private double _meanSquareError;
-  private double[] _standardErrorOfBeta;
-  private double _rSquared;
-  private double _rSquaredAdjusted;
-  private double[] _tStats;
-  private double[] _pValues;
+public abstract class LeastSquaresRegression {
 
-  @Override
-  public double[] getBetas() {
-    return _betas;
+  public abstract LeastSquaresRegressionResult regress(Double[][] x, Double[][] weights, Double[] y, boolean useIntercept);
+
+  protected void checkData(final Double[][] x, final Double[][] weights, final Double[] y) {
+    checkData(x, y);
+    if (weights != null) {
+      if (weights.length == 0)
+        throw new IllegalArgumentException("No data in weights array");
+      if (weights.length != x.length)
+        throw new IllegalArgumentException("Independent variable and weight arrays are not the same length");
+      final int n = weights[0].length;
+      for (final Double[] w : weights) {
+        if (w.length != n)
+          throw new IllegalArgumentException("Need a rectangular array of weight");
+      }
+    }
   }
 
-  @Override
-  public double[] getResiduals() {
-    return _residuals;
+  protected void checkData(final Double[][] x, final Double[] weights, final Double[] y) {
+    checkData(x, y);
+    if (weights != null) {
+      if (weights.length == 0)
+        throw new IllegalArgumentException("No data in weights array");
+      if (weights.length != x.length)
+        throw new IllegalArgumentException("Independent variable and weight arrays are not the same length");
+    }
   }
 
-  public double getMeanSquareError() {
-    return _meanSquareError;
+  protected void checkData(final Double[][] x, final Double[] y) {
+    if (x == null)
+      throw new IllegalArgumentException("Independent variable array was null");
+    if (y == null)
+      throw new IllegalArgumentException("Dependent variable array was null");
+    if (x.length == 0)
+      throw new IllegalArgumentException("No data in independent variable array");
+    if (y.length == 0)
+      throw new IllegalArgumentException("No data in dependent variable array");
+    if (x.length != y.length)
+      throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
+    final int n = x[0].length;
+    for (final Double[] x1 : x) {
+      if (x1.length != n)
+        throw new IllegalArgumentException("Need a rectangular array of independent variables");
+    }
+    if (y.length <= x[0].length)
+      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
   }
 
-  public double[] getStandardErrorOfBetas() {
-    return _standardErrorOfBeta;
+  protected double[][] addInterceptVariable(final Double[][] x, final boolean useIntercept) {
+    final double[][] result = useIntercept ? new double[x.length][x[0].length + 1] : new double[x.length][x[0].length];
+    for (int i = 0; i < x.length; i++) {
+      if (useIntercept) {
+        result[i][0] = 1.;
+        for (int j = 1; j < x[0].length + 1; j++) {
+          result[i][j] = x[i][j - 1];
+        }
+      } else {
+        for (int j = 0; j < x[0].length; j++) {
+          result[i][j] = x[i][j];
+        }
+      }
+    }
+    return result;
   }
 
-  public double getRSquared() {
-    return _rSquared;
+  protected Double[][] convertArray(final double[][] x) {
+    final Double[][] result = new Double[x.length][x[0].length];
+    for (int i = 0; i < result.length; i++) {
+      for (int j = 0; j < result[0].length; j++) {
+        result[i][j] = x[i][j];
+      }
+    }
+    return result;
   }
 
-  public double getAdjustedRSquared() {
-    return _rSquaredAdjusted;
-  }
-
-  public double[] getTStatistics() {
-    return _tStats;
-  }
-
-  public double[] getPValues() {
-    return _pValues;
-  }
-
-  void setBetas(double[] betas) {
-    _betas = betas;
-  }
-
-  void setResiduals(double[] residuals) {
-    _residuals = residuals;
-  }
-
-  void setMeanSquareError(double meanSquareError) {
-    _meanSquareError = meanSquareError;
-  }
-
-  void setStandardErrorOfBeta(double[] standardErrorOfBeta) {
-    _standardErrorOfBeta = standardErrorOfBeta;
-  }
-
-  void setRSquared(double rSquared) {
-    _rSquared = rSquared;
-  }
-
-  void setAdjustedRSquared(double rSquaredAdjusted) {
-    _rSquaredAdjusted = rSquaredAdjusted;
-  }
-
-  void setTStatistics(double[] tStats) {
-    _tStats = tStats;
-  }
-
-  void setPValues(double[] pValues) {
-    _pValues = pValues;
+  protected Double[] convertArray(final double[] x) {
+    final Double[] result = new Double[x.length];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = x[i];
+    }
+    return result;
   }
 }
