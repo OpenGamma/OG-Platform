@@ -101,49 +101,48 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     if (isEmpty()) {
       return EMPTY_SERIES;
       // throw new NoSuchElementException("Series is empty");
-    } else {
-      final long startMillis = startTime.toInstant().toEpochMillis();
-      final long endMillis = endTime.toInstant().toEpochMillis();
-      int startPos = Arrays.binarySearch(_times, startMillis);
-      int endPos = Arrays.binarySearch(_times, endMillis);
-      startPos = (startPos >= 0) ? startPos : (-startPos) - 1;
-      endPos = (endPos >= 0) ? endPos : (-endPos) - 1; // if either is -1, make
-      // it zero
-      /*
-       * Commented out because Maps turn out to let you use nearest element. if
-       * (_times[startPos] == startMillis && _times[endPos] == endMillis) {
-       */
-      // endPos is odd, because it may or may not be inclusive
-      if (startPos == endPos) { // the result series is empty
-        // TODO: change to Empty time series when we've defined it.
-        return new ArrayDoubleTimeSeries(new long[0], new double[0]);
-      }
-      // final long endEpochMillis = endTime.toInstant().toEpochMillis();
-      if (endPos >= _times.length) {
-        endPos--;
-      }
-      // if (_times[endPos] > endEpochMillis) { // should implicitly be >0
-      // beacuse of startPos != endPos
-      // endPos--;
-      // }
-      final int length = (endPos - startPos) + 1;
-      long[] resultTimes = new long[length];
-      double[] resultValues = new double[length];
-      System.arraycopy(_times, startPos, resultTimes, 0, length);
-      System.arraycopy(_values, startPos, resultValues, 0, length);
-      return new ArrayDoubleTimeSeries(resultTimes, resultValues);
-      /*
-       * Also commented out because Maps are more tolerant than I initially
-       * thought. } else { if (_times[startPos] != startMillis && _times[endPos]
-       * != endMillis) { throw new
-       * NoSuchElementException("Neither start time or end time are in the series"
-       * ); } else if (_times[startPos] != startMillis) { throw new
-       * NoSuchElementException("Start time is not in the series"); } else { //
-       * by process of elimination, it must be only the end time not in the
-       * series throw new
-       * NoSuchElementException("End time is not in the series"); } }
-       */
     }
+    final long startMillis = startTime.toInstant().toEpochMillis();
+    final long endMillis = endTime.toInstant().toEpochMillis();
+    int startPos = Arrays.binarySearch(_times, startMillis);
+    int endPos = Arrays.binarySearch(_times, endMillis);
+    startPos = (startPos >= 0) ? startPos : (-startPos) - 1;
+    endPos = (endPos >= 0) ? endPos : (-endPos) - 1; // if either is -1, make
+    // it zero
+    /*
+     * Commented out because Maps turn out to let you use nearest element. if
+     * (_times[startPos] == startMillis && _times[endPos] == endMillis) {
+     */
+    // endPos is odd, because it may or may not be inclusive
+    if (startPos == endPos) { // the result series is empty
+      // TODO: change to Empty time series when we've defined it.
+      return new ArrayDoubleTimeSeries(new long[0], new double[0]);
+    }
+    // final long endEpochMillis = endTime.toInstant().toEpochMillis();
+    if (endPos >= _times.length) {
+      endPos--;
+    }
+    // if (_times[endPos] > endEpochMillis) { // should implicitly be >0
+    // beacuse of startPos != endPos
+    // endPos--;
+    // }
+    final int length = (endPos - startPos) + 1;
+    long[] resultTimes = new long[length];
+    double[] resultValues = new double[length];
+    System.arraycopy(_times, startPos, resultTimes, 0, length);
+    System.arraycopy(_values, startPos, resultValues, 0, length);
+    return new ArrayDoubleTimeSeries(resultTimes, resultValues);
+    /*
+     * Also commented out because Maps are more tolerant than I initially
+     * thought. } else { if (_times[startPos] != startMillis && _times[endPos]
+     * != endMillis) { throw new
+     * NoSuchElementException("Neither start time or end time are in the series"
+     * ); } else if (_times[startPos] != startMillis) { throw new
+     * NoSuchElementException("Start time is not in the series"); } else { //
+     * by process of elimination, it must be only the end time not in the
+     * series throw new
+     * NoSuchElementException("End time is not in the series"); } }
+     */
   }
 
   @Override
