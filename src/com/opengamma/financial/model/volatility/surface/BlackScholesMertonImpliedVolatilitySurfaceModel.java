@@ -22,11 +22,11 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
   private final double EPS = 1e-9;
 
   @Override
-  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> prices, StandardOptionDataBundle data) {
-    Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = prices.entrySet().iterator().next();
+  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> optionPrices, StandardOptionDataBundle optionDataBundle) {
+    Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = optionPrices.entrySet().iterator().next();
     Double price = entry.getValue();
     Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
-    _rootFinder = new MyBisectionSingleRootFinder(new MyMutableStandardOptionDataBundle(data), price);
+    _rootFinder = new MyBisectionSingleRootFinder(new MyMutableStandardOptionDataBundle(optionDataBundle), price);
     double sigma = _rootFinder.getRoot(pricingFunction, 0., 10., EPS);
     return new ConstantVolatilitySurface(sigma);
   }

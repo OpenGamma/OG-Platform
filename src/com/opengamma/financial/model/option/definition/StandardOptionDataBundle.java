@@ -7,13 +7,13 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 public class StandardOptionDataBundle {
   private final DiscountCurve _discountCurve;
-  private final double _b;
+  private final Double _b;
   private final VolatilitySurface _volatilitySurface;
-  private final double _spot;
+  private final Double _spot;
   private final ZonedDateTime _date;
 
   // TODO probably need a cost of carry model
-  public StandardOptionDataBundle(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, ZonedDateTime date) {
+  public StandardOptionDataBundle(final DiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final Double spot, final ZonedDateTime date) {
     _discountCurve = discountCurve;
     _b = b;
     _volatilitySurface = volatilitySurface;
@@ -21,19 +21,19 @@ public class StandardOptionDataBundle {
     _date = date;
   }
 
-  public double getInterestRate(Double t) {
+  public Double getInterestRate(final Double t) {
     return getDiscountCurve().getInterestRate(t);
   }
 
-  public double getCostOfCarry() {
+  public Double getCostOfCarry() {
     return _b;
   }
 
-  public Double getVolatility(Double t, Double strike) {
-    return getVolatilitySurface().getVolatility(t, strike);
+  public Double getVolatility(final Double x, final Double y) {
+    return getVolatilitySurface().getVolatility(x, y);
   }
 
-  public double getSpot() {
+  public Double getSpot() {
     return _spot;
   }
 
@@ -53,45 +53,61 @@ public class StandardOptionDataBundle {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_b);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_b == null) ? 0 : _b.hashCode());
     result = prime * result + ((_date == null) ? 0 : _date.hashCode());
     result = prime * result + ((_discountCurve == null) ? 0 : _discountCurve.hashCode());
-    temp = Double.doubleToLongBits(_spot);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_spot == null) ? 0 : _spot.hashCode());
     result = prime * result + ((_volatilitySurface == null) ? 0 : _volatilitySurface.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
+  public boolean equals(final Object obj) {
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    StandardOptionDataBundle other = (StandardOptionDataBundle) obj;
-    if (Double.doubleToLongBits(_b) != Double.doubleToLongBits(other._b))
+    }
+    final StandardOptionDataBundle other = (StandardOptionDataBundle) obj;
+    if (_b == null) {
+      if (other._b != null) {
+        return false;
+      }
+    } else if (!_b.equals(other._b)) {
       return false;
+    }
     if (_date == null) {
-      if (other._date != null)
+      if (other._date != null) {
         return false;
-    } else if (!_date.equals(other._date))
+      }
+    } else if (!_date.equals(other._date)) {
       return false;
-    if (getDiscountCurve() == null) {
-      if (other.getDiscountCurve() != null)
+    }
+    if (_discountCurve == null) {
+      if (other._discountCurve != null) {
         return false;
-    } else if (!getDiscountCurve().equals(other.getDiscountCurve()))
+      }
+    } else if (!_discountCurve.equals(other._discountCurve)) {
       return false;
-    if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot))
-      return false;
-    if (getVolatilitySurface() == null) {
-      if (other.getVolatilitySurface() != null)
+    }
+    if (_spot == null) {
+      if (other._spot != null) {
         return false;
-    } else if (!getVolatilitySurface().equals(other.getVolatilitySurface()))
+      }
+    } else if (!_spot.equals(other._spot)) {
       return false;
+    }
+    if (_volatilitySurface == null) {
+      if (other._volatilitySurface != null) {
+        return false;
+      }
+    } else if (!_volatilitySurface.equals(other._volatilitySurface)) {
+      return false;
+    }
     return true;
   }
 }
