@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.math.regression;
 
 import cern.colt.matrix.DoubleFactory1D;
@@ -13,73 +18,44 @@ import cern.colt.matrix.linalg.Algebra;
  */
 
 public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
-  public GeneralizedLeastSquaresRegression(double[][] x, double[] y, double[][] weights, boolean useIntercept) {
-    if (x == null) throw new IllegalArgumentException("Independent variable array was null");
-    if (y == null) throw new IllegalArgumentException("Dependent variable array was null");
-    if (weights == null) throw new IllegalArgumentException("Weight array was null");
-    if (x.length == 0 || x[0].length == 0) throw new IllegalArgumentException("No data in independent variable array");
-    if (y.length == 0) throw new IllegalArgumentException("No data in dependent variable array");
-    if (x.length != y.length) throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
-    if (weights.length != x.length || weights[0].length != x.length) throw new IllegalArgumentException("Weight and independent variable arrays are not the same length");
-    if (x.length <= x[0].length) throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
-    int length = x[0].length;
-    double yMean = y[0];
-    for (int i = 1; i < x.length; i++) {
-      if (x[i].length != length) {
-        throw new IllegalArgumentException("Not all independent variable arrays are the same length");
+  private final Algebra _algebra = new Algebra();
+
+  @Override
+  public LeastSquaresRegressionResult regress(final Double[][] x, final Double[][] weights, final Double[] y, final boolean useIntercept) {
+    if (weights == null)
+      throw new IllegalArgumentException("Cannot perform GLS regression without an array of weights");
+    checkData(x, weights, y);
+    final double[][] dep = addInterceptVariable(x, useIntercept);
+    final double[] indep = new double[y.length];
+    final double[][] wArray = new double[y.length][y.length];
+    for (int i = 0; i < y.length; i++) {
+      indep[i] = y[i];
+      for (int j = 0; j < y.length; j++) {
+        wArray[i][j] = weights[i][j];
       }
-      yMean += y[i];
     }
-    yMean /= y.length;
-    double[][] temp;
-    if (useIntercept) {
-      length = x[0].length + 1;
-      temp = new double[x.length][length];
-      for (int i = 0; i < x.length; i++) {
-        temp[i][0] = 1;
-        System.arraycopy(x[i], 0, temp[i], 1, x[i].length);
-      }
-    } else {
-      temp = x;
-    }
-    performRegression(temp, y, weights, yMean);
+    final DoubleMatrix2D matrix = DoubleFactory2D.dense.make(dep);
+    final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
+    final DoubleMatrix2D w = DoubleFactory2D.dense.make(wArray);
+    final DoubleMatrix2D transpose = _algebra.transpose(matrix);
+    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(w, matrix))), transpose), w), vector);
+    final Double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
+    final Double[] betas = convertArray(betasVector.toArray());
+    return getResultWithStatistics(x, y, betas, yModel);
   }
 
-  // TODO sort out regression statistics
-  private void performRegression(double[][] x, double[] y, double[][] weights, double yMean) {
-    Algebra algebra = new Algebra();
-    DoubleMatrix2D matrix = DoubleFactory2D.dense.make(x);
-    DoubleMatrix1D vector = DoubleFactory1D.dense.make(y);
-    DoubleMatrix2D w = DoubleFactory2D.dense.make(weights);
-    DoubleMatrix2D transpose = algebra.transpose(matrix);
-    DoubleMatrix1D betas = algebra.mult(algebra.mult(algebra.mult(algebra.inverse(algebra.mult(transpose, algebra.mult(w, matrix))), transpose), w), vector);
-    double[] betaArray = betas.toArray();
-    setBetas(betaArray);
-    double[] yModel = algebra.mult(matrix, betas).toArray();
-    double totalSumOfSquares = 0;
-    double errorSumOfSquares = 0;
-    int n = x.length;
-    int k = x[0].length;
-    double[][] covarianceBetas = new double[k][k];
-    double[] residuals = new double[k];
-    double[] stdErrorBetas = new double[k];
-    double[] tStats = new double[k];
-    double[] pValues = new double[k];
-    for (int i = 0; i < k; i++) {
-      // totalSumOfSquares += weights[i] * (y[i] - yMean) * (y[i] - yMean);
-      residuals[i] = y[i] - yModel[i];
-      // errorSumOfSquares += weights[i] * residuals[i] * residuals[i];
+  private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[] y, final Double[] betas, final Double[] yModel) {
+    Double yMean = 0.;
+    for (final Double y1 : y) {
+      yMean += y1;
     }
-    setResiduals(residuals);
-    /*
-     * setMeanSquareError(errorSumOfSquares / (n - k));
-     * setRSquared((totalSumOfSquares - errorSumOfSquares) / totalSumOfSquares);
-     * setAdjustedRSquared(1 - ((n - 1) / (n - k)) * (1 - getRSquared()));
-     * covarianceBetas = algebra.inverse(algebra.mult(algebra.transpose(matrix),
-     * matrix)).toArray(); for (int i = 0; i < k; i++) { tStats[i] =
-     * Math.sqrt(getMeanSquareError() / covarianceBetas[i][i]) * betaArray[i];
-     * pValues[i] = Probability.studentT(n - k, tStats[i]); }
-     * setTStatistics(tStats); setPValues(pValues);
-     */
+    yMean /= y.length;
+    final int k = x[0].length;
+    final Double[] residuals = new Double[k];
+    for (int i = 0; i < k; i++) {
+      residuals[i] = y[i] - yModel[i];
+    }
+    // TODO need to add statistics calculations in here
+    return new LeastSquaresRegressionResult(betas, residuals, null, null, null, null, null, null);
   }
 }

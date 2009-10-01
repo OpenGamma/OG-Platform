@@ -7,10 +7,7 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Map;
 
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+public interface VolatilitySurfaceModel<T, U> {
 
-public interface VolatilitySurfaceModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
-
-  public VolatilitySurface getSurface(Map<T, Double> prices, U data);
+  public VolatilitySurface getSurface(Map<T, Double> optionData, U data);
 }

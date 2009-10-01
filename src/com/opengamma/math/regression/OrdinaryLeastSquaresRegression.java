@@ -1,4 +1,12 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.math.regression;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.colt.matrix.DoubleFactory1D;
 import cern.colt.matrix.DoubleFactory2D;
@@ -7,86 +15,70 @@ import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 import cern.jet.stat.Probability;
 
-
 public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
-  // private static final ProbabilityDistribution<Double> _normal = new
-  // NormalProbabilityDistribution(0, 1);
-  // TODO student T wrapper
+  private static final Logger s_Log = LoggerFactory.getLogger(OrdinaryLeastSquaresRegression.class);
+  private final Algebra _algebra = new Algebra();
 
-  public OrdinaryLeastSquaresRegression(double[][] x, double[] y, boolean useIntercept) {
-    if (x == null)
-      throw new IllegalArgumentException("Independent variable array was null");
-    if (y == null)
-      throw new IllegalArgumentException("Dependent variable array was null");
-    if (x.length == 0 || x[0].length == 0)
-      throw new IllegalArgumentException("No data in independent variable array");
-    if (y.length == 0)
-      throw new IllegalArgumentException("No data in dependent variable array");
-    if (x.length != y.length)
-      throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
-    if (y.length <= x[0].length)
-      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
-    int length = x[0].length;
-    double yMean = y[0];
-    for (int i = 1; i < x.length; i++) {
-      if (x[i].length != length) {
-        throw new IllegalArgumentException("Not all independent variable arrays are the same length");
-      }
-      yMean += y[i];
+  @Override
+  public LeastSquaresRegressionResult regress(final Double[][] x, final Double[][] weights, final Double[] y, final boolean useIntercept) {
+    if (weights != null) {
+      s_Log.info("Weights were provided for OLS regression: they will be ignored");
     }
-    yMean /= y.length;
-    double[][] temp;
-    if (useIntercept) {
-      length = x[0].length + 1;
-      temp = new double[x.length][length];
-      for (int i = 0; i < x.length; i++) {
-        temp[i][0] = 1;
-        System.arraycopy(x[i], 0, temp[i], 1, x[i].length);
-      }
-    } else {
-      temp = x;
-    }
-    performRegression(temp, y, yMean);
+    return regress(x, y, useIntercept);
   }
 
-  private void performRegression(double[][] x, double[] y, double yMean) {
-    Algebra algebra = new Algebra();
-    DoubleMatrix2D matrix = DoubleFactory2D.dense.make(x);
-    DoubleMatrix1D vector = DoubleFactory1D.dense.make(y);
-    DoubleMatrix2D transpose = algebra.transpose(matrix);
-    DoubleMatrix1D betas = algebra.mult(algebra.mult(algebra.inverse(algebra.mult(transpose, matrix)), transpose), vector);
-    double[] betaArray = betas.toArray();
-    setBetas(betaArray);
-    double[] yModel = algebra.mult(matrix, betas).toArray();
-    double totalSumOfSquares = 0;
-    double errorSumOfSquares = 0;
-    // double regressionSumOfSquares = 0;
-    int n = x.length;
-    int k = x[0].length;
-    double[][] covarianceBetas = new double[k][k];
-    double[] residuals = new double[k];
-    double[] stdErrorBetas = new double[k];
-    double[] tStats = new double[k];
-    double[] pValues = new double[k];
+  public LeastSquaresRegressionResult regress(final Double[][] x, final Double[] y, final boolean useIntercept) {
+    checkData(x, y);
+    final double[][] dep = addInterceptVariable(x, useIntercept);
+    final double[] indep = new double[y.length];
+    for (int i = 0; i < y.length; i++) {
+      indep[i] = y[i];
+    }
+    final DoubleMatrix2D matrix = DoubleFactory2D.dense.make(dep);
+    final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
+    final DoubleMatrix2D transpose = _algebra.transpose(matrix);
+    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, matrix)), transpose), vector);
+    final Double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
+    final Double[] betas = convertArray(betasVector.toArray());
+    return getResultWithStatistics(x, y, betas, yModel, transpose, matrix);
+  }
+
+  private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[] y, final Double[] betas, final Double[] yModel, final DoubleMatrix2D transpose,
+      final DoubleMatrix2D matrix) {
+    Double yMean = 0.;
+    for (final Double y1 : y) {
+      yMean += y1;
+    }
+    yMean /= y.length;
+    Double totalSumOfSquares = 0.;
+    Double errorSumOfSquares = 0.;
+    Double regressionSumOfSquares = 0.;
+    final int n = x.length;
+    final int k = x[0].length;
+    final Double[] residuals = new Double[k];
+    final Double[] stdErrorBetas = new Double[k];
+    final Double[] tStats = new Double[k];
+    final Double[] pValues = new Double[k];
     for (int i = 0; i < k; i++) {
       totalSumOfSquares += (y[i] - yMean) * (y[i] - yMean);
       residuals[i] = y[i] - yModel[i];
       errorSumOfSquares += residuals[i] * residuals[i];
-      // regressionSumOfSquares += (_yModel[i] - y[i]) * (_yModel[i] - y[i]);
+      regressionSumOfSquares += (yModel[i] - y[i]) * (yModel[i] - y[i]);
     }
-    covarianceBetas = algebra.inverse(algebra.mult(transpose, matrix)).toArray();
-    setResiduals(residuals);
-    setMeanSquareError(errorSumOfSquares / (n - k));
-    // _rSquared = regressionSumOfSquares / totalSumOfSquares;
-    setRSquared((totalSumOfSquares - errorSumOfSquares) / totalSumOfSquares);
-    setAdjustedRSquared(1 - ((n - 1) / (n - k)) * (1 - getRSquared()));
+    final Double[][] covarianceBetas = convertArray(_algebra.inverse(_algebra.mult(transpose, matrix)).toArray());
+    final Double rSquared = regressionSumOfSquares / totalSumOfSquares;
+    final Double adjustedRSquared = 1 - (n - 1) / (n - k) * (1 - rSquared);
+    final Double meanSquareError = 0.;
+    final Double[] standardErrorOfBeta = null;
     for (int i = 0; i < k; i++) {
       stdErrorBetas[i] = Math.sqrt(covarianceBetas[i][i]);
-      tStats[i] = Math.sqrt(getMeanSquareError()) * betaArray[i] / stdErrorBetas[i];
-      pValues[i] = Probability.studentT(n - k, tStats[i]);
+      tStats[i] = Math.sqrt(meanSquareError) * betas[i] / stdErrorBetas[i];
+      pValues[i] = Probability.studentT(n - k, tStats[i]);// new
+      // StudentTDistribution(n
+      // -
+      // k).getCDF(tStats[i]);
     }
-    setStandardErrorOfBeta(stdErrorBetas);
-    setTStatistics(tStats);
-    setPValues(pValues);
+    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorOfBeta, rSquared, adjustedRSquared, tStats, pValues);
   }
+
 }

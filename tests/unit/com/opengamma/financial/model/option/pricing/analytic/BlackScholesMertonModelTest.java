@@ -43,7 +43,7 @@ public class BlackScholesMertonModelTest {
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.19);
 
   static {
-    Map<Double, Double> data = new HashMap<Double, Double>();
+    final Map<Double, Double> data = new HashMap<Double, Double>();
     data.put(0.25, 0.09);
     data.put(1.5, 0.09);
     data.put(2.5, 0.1);
@@ -53,12 +53,12 @@ public class BlackScholesMertonModelTest {
 
   @Test
   public void test() {
-    Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
-    EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(75, expiry, true);
-    StandardOptionDataBundle vars = new StandardOptionDataBundle(CONSTANT_CURVE, B, SURFACE, 72, DATE);
+    final Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
+    final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(75, expiry, true);
+    StandardOptionDataBundle vars = new StandardOptionDataBundle(CONSTANT_CURVE, B, SURFACE, 72., DATE);
     List<Greek> requiredGreeks = Arrays.asList(new Greek[] { new Price(), new Delta(), new Gamma(), new Rho(), new Theta() });
     System.out.println(new BlackScholesMertonModel().getGreeks(definition, vars, requiredGreeks));
-    vars = new StandardOptionDataBundle(CURVE, B, SURFACE, 72, DATE);
+    vars = new StandardOptionDataBundle(CURVE, B, SURFACE, 72., DATE);
     requiredGreeks = Arrays.asList(new Greek[] { new Price(), new Delta(), new Gamma(), new Rho(), new Theta(), new TimeBucketedRho() });
     System.out.println(new BlackScholesMertonModel().getGreeks(definition, vars, requiredGreeks));
   }

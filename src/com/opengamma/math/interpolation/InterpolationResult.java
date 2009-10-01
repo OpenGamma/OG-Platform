@@ -21,11 +21,11 @@ public class InterpolationResult<T> {
   private final T _result;
   private T _error;
 
-  public InterpolationResult(T result) {
+  public InterpolationResult(final T result) {
     _result = result;
   }
 
-  public InterpolationResult(T result, T error) {
+  public InterpolationResult(final T result, final T error) {
     _result = result;
     _error = error;
   }
@@ -52,24 +52,36 @@ public class InterpolationResult<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
+  public boolean equals(final Object obj) {
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
-    InterpolationResult other = (InterpolationResult) obj;
+    }
+    final InterpolationResult other = (InterpolationResult) obj;
     if (_error == null) {
-      if (other._error != null)
+      if (other._error != null) {
         return false;
-    } else if (!_error.equals(other._error))
+      }
+    } else if (!_error.equals(other._error)) {
       return false;
+    }
     if (_result == null) {
-      if (other._result != null)
+      if (other._result != null) {
         return false;
-    } else if (!_result.equals(other._result))
+      }
+    } else if (!_result.equals(other._result)) {
       return false;
+    }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return "[Result = " + _result + ", error = " + _error + "]";
   }
 }
