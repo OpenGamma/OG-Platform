@@ -21,6 +21,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
 import com.opengamma.engine.analytics.GreeksAnalyticFunction;
 import com.opengamma.engine.analytics.GreeksResultValueDefinition;
 import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction;
@@ -108,6 +109,7 @@ public class ViewManager {
   private ViewImpl constructTrivialExampleView() throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     //viewDefinition.addValueDefinition("EQUITY_OPTION", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
+    viewDefinition.addValueDefinition("EQUITY_OPTION", new DiscountCurveValueDefinition());
     viewDefinition.addValueDefinition("EQUITY_OPTION", new GreeksResultValueDefinition());
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
     PositionMaster positionMaster = new PositionMaster() {
