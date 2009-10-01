@@ -41,8 +41,6 @@ import com.opengamma.engine.security.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.OptionType;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityIdentificationDomain;
-import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.MapViewComputationCacheSource;
@@ -54,6 +52,8 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
 import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.time.Expiry;
 
@@ -65,7 +65,7 @@ import com.opengamma.util.time.Expiry;
 public class ViewManager {
   private final Clock _clock = Clock.system(TimeZone.UTC);
   private static final double ONEYEAR = 365.25;
-  private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
+  private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
   private ViewImpl _view;
   private List<SingleThreadCalculationNode> _calculationNodes;
   
@@ -133,7 +133,7 @@ public class ViewManager {
     
     for (int i=0; i<tickers.length; i++) {
       DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiry, aapl.getIdentityKey(), Currency.getInstance("USD"));
-      security.setIdentifiers(Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain("BLOOMBERG"), tickers[i])));
+      security.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("BLOOMBERG"), tickers[i])));
       securities.add(security);
       secMaster.add(security);
     }
@@ -188,7 +188,7 @@ public class ViewManager {
   private static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
     ResolveSecurityKeyToMarketDataHeaderDefinition definition =
       new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
+          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
     return definition;
   }
   
@@ -251,7 +251,7 @@ public class ViewManager {
   }
   
   private SecurityKey makeSecurityKey(String ticker) {
-    return new SecurityKeyImpl(new SecurityIdentifier(new SecurityIdentificationDomain("BLOOMBERG"), ticker));
+    return new SecurityKeyImpl(new DomainSpecificIdentifier(new IdentificationDomain("BLOOMBERG"), ticker));
   }
   
   private AnalyticValue<Map<String, Double>> makeHeaderValue(AnalyticValueDefinition<Map<String, Double>> def, String field, Double value) {

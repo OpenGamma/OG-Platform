@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.security;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
@@ -18,6 +18,6 @@ import java.util.Collections;
 public class EquitySecurity extends DefaultSecurity {
   public EquitySecurity(String ticker, String domain) {
     setSecurityType("EQUITY_OPTION");
-    setIdentifiers(Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain(domain), ticker)));
+    setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain(domain), ticker)));
   }
 }

@@ -15,16 +15,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class LinkedBlockingCompletionQueue implements JobCompletionNotifier,
     JobCompletionRetriever {
-  private final LinkedBlockingQueue<CalculationJobSpecification> _queue =
-    new LinkedBlockingQueue<CalculationJobSpecification>();
+  private final LinkedBlockingQueue<CalculationJobResult> _queue =
+    new LinkedBlockingQueue<CalculationJobResult>();
 
   @Override
-  public void jobCompleted(CalculationJobSpecification jobSpecification) {
-    _queue.add(jobSpecification);
+  public void jobCompleted(CalculationJobResult jobResult) {
+    _queue.add(jobResult);
   }
 
   @Override
-  public CalculationJobSpecification getNextCompleted(long timeout,
+  public CalculationJobResult getNextCompleted(long timeout,
       TimeUnit unit) {
     try {
       return _queue.poll(timeout, unit);
@@ -36,7 +36,7 @@ public class LinkedBlockingCompletionQueue implements JobCompletionNotifier,
   }
 
   @Override
-  public CalculationJobSpecification getNextCompletedNoWait() {
+  public CalculationJobResult getNextCompletedNoWait() {
     return _queue.poll();
   }
 

@@ -15,7 +15,7 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.SecurityIdentifier;
+import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
  * 
@@ -49,7 +49,7 @@ public class CSVPositionMasterTest {
     
     assertNotNull(position.getSecurityKey());
     assertEquals(1, position.getSecurityKey().getIdentifiers().size());
-    SecurityIdentifier id = position.getSecurityKey().getIdentifiers().iterator().next();
+    DomainSpecificIdentifier id = position.getSecurityKey().getIdentifiers().iterator().next();
     assertNotNull(id);
     assertNotNull(id.getDomain());
     assertEquals("KIRK", id.getDomain().getDomainName());
@@ -68,9 +68,9 @@ public class CSVPositionMasterTest {
     assertNotNull(position.getSecurityKey());
     assertEquals(3, position.getSecurityKey().getIdentifiers().size());
     
-    Iterator<SecurityIdentifier> idIter = position.getSecurityKey().getIdentifiers().iterator();
+    Iterator<DomainSpecificIdentifier> idIter = position.getSecurityKey().getIdentifiers().iterator();
     while(idIter.hasNext()) {
-      SecurityIdentifier id = idIter.next();
+      DomainSpecificIdentifier id = idIter.next();
       assertNotNull(id);
       assertNotNull(id.getDomain());
       assertNotNull(id.getValue());

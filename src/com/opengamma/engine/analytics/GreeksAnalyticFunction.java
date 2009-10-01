@@ -21,10 +21,10 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.AmericanVanillaOption;
 import com.opengamma.engine.security.EquityOptionSecurity;
 import com.opengamma.engine.security.EuropeanVanillaOption;
+import com.opengamma.engine.security.OptionType;
 import com.opengamma.engine.security.OptionVisitor;
 import com.opengamma.engine.security.PoweredOption;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.OptionType;
 import com.opengamma.financial.greeks.Delta;
 import com.opengamma.financial.greeks.Gamma;
 import com.opengamma.financial.greeks.Greek;
@@ -134,7 +134,7 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
 
   @Override
   public String getShortName() {
-    return "GreeksResult";
+    return "Greeks Analytic Function";
   }
 
   @Override

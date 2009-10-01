@@ -12,7 +12,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * 
+ * A description of a job that will be executed by a Calculation Node.
+ * Providers of jobs pass over a full {@link CalculationJob}, and the
+ * specification of that job is returned by the Calculation Node.
  *
  * @author kirk
  */
