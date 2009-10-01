@@ -16,12 +16,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.AmericanVanillaOption;
 import com.opengamma.engine.security.EquityOptionSecurity;
 import com.opengamma.engine.security.EuropeanVanillaOption;
@@ -47,7 +42,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction
 extends AbstractAnalyticFunction
-implements AnalyticFunctionInvoker {
+implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   
   private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
@@ -57,14 +52,9 @@ implements AnalyticFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Position position) {
-    throw new UnsupportedOperationException();
-  }
-  
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs, Security security) {
-
+  public Collection<AnalyticValue<?>> execute(
+      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
+      Security security) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
@@ -72,8 +62,10 @@ implements AnalyticFunctionInvoker {
       AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
       AnalyticValueDefinition<?> underlyingHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getUnderlying());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
+      @SuppressWarnings("unchecked")
       Map<String, Double> optionDataFields = (Map<String, Double>) inputs.getValue(justThisOptionHeader);
       final double price = optionDataFields.get(PRICE_FIELD_NAME);
+      @SuppressWarnings("unchecked")
       Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(underlyingHeader);
       final double spot = underlyingDataFields.get(PRICE_FIELD_NAME);
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveForCurrency);
@@ -114,8 +106,8 @@ implements AnalyticFunctionInvoker {
         );
      }
      throw new OpenGammaRuntimeException("Only EQUITY_OPTIONs should be passed here");
-   }
-  
+  }
+
   @Override
   public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
@@ -167,32 +159,4 @@ implements AnalyticFunctionInvoker {
   public boolean isApplicableTo(String securityType) {
     return true;
   }
-
-  @Override
-  public boolean isApplicableTo(Position position) {
-    return false;
-  }
-
-  @Override
-  public boolean isPositionSpecific() {
-    return false;
-  }
-
-  @Override
-  public boolean isSecuritySpecific() {
-    return true;
-  }
-
-  @Override
-  public DependencyNode buildSubGraph(Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver) {
-    throw new NotImplementedException();
-  }
-
-  @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
-  }
-
 }

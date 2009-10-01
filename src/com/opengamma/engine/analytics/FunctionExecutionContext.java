@@ -5,12 +5,11 @@
  */
 package com.opengamma.engine.analytics;
 
-
 /**
- * The interface through which an Analytic Function can actually be invoked.
+ * Currently a placeholder.
  *
  * @author kirk
  */
-public interface AnalyticFunctionInvoker {
+public interface FunctionExecutionContext {
 
 }

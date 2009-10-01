@@ -13,16 +13,13 @@ import java.util.Set;
 
 import com.opengamma.engine.analytics.AbstractAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
-import com.opengamma.engine.analytics.AnalyticFunctionInvoker;
-import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DiscountCurveAnalyticValue;
 import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
+import com.opengamma.engine.analytics.FunctionExecutionContext;
+import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionInvoker;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -33,7 +30,8 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction implements AnalyticFunctionInvoker {
+public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction
+implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
   
@@ -66,27 +64,18 @@ public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction impl
   }
 
   @Override
-  public DependencyNode buildSubGraph(Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver) {
-    throw new UnsupportedOperationException("Does not build own sub graph");
+  public Collection<AnalyticValueDefinition<?>> getInputs() {
+    return _inputs;
   }
 
   @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
-  }
-
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Position position) {
-    throw new UnsupportedOperationException("Cannot be applied to a position.");
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
+    return Collections.<AnalyticValueDefinition<?>>singleton(getDiscountCurveValueDefinition());
   }
 
   @Override
   public Collection<AnalyticValue<?>> execute(
-      AnalyticFunctionInputs inputs,
-      Security security) {
+      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
     for(FixedIncomeStrip strip : getDefinition().getStrips()) {
       @SuppressWarnings("unchecked")
@@ -100,38 +89,7 @@ public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction impl
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
-    return _inputs;
-  }
-
-  @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
-    return Collections.<AnalyticValueDefinition<?>>singleton(getDiscountCurveValueDefinition());
-  }
-
-  @Override
   public String getShortName() {
     return "" + getDefinition().getCurrency().getISOCode() + "-" + getDefinition().getCurrency() + " Discount Curve Builder";
   }
-
-  @Override
-  public boolean isApplicableTo(String securityType) {
-    return true;
-  }
-
-  @Override
-  public boolean isApplicableTo(Position position) {
-    return false;
-  }
-
-  @Override
-  public boolean isPositionSpecific() {
-    return false;
-  }
-
-  @Override
-  public boolean isSecuritySpecific() {
-    return false;
-  }
-
 }
