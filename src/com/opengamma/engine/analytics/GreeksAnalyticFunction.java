@@ -15,9 +15,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.AmericanVanillaOption;
 import com.opengamma.engine.security.EquityOptionSecurity;
 import com.opengamma.engine.security.EuropeanVanillaOption;
@@ -44,25 +41,20 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
-    AnalyticFunctionInvoker {
+public class GreeksAnalyticFunction extends AbstractAnalyticFunction
+implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
 
   @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Position position) {
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
+  public Collection<AnalyticValue<?>> execute(
+      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
       Security security) {
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
       final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
+      @SuppressWarnings("unchecked")
       final Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOption.getUnderlying()));
       final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
       final Expiry expiry = equityOption.getExpiry();
@@ -76,18 +68,6 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
     } else {
       throw new IllegalStateException("Illegal security type "+security.getSecurityType());
     }
-  }
-
-  @Override
-  public DependencyNode buildSubGraph(Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver) {
-    return null;
-  }
-
-  @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
   }
 
   @Override
@@ -141,20 +121,4 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
   public boolean isApplicableTo(String securityType) {
     return securityType.equals("EQUITY_OPTION");
   }
-
-  @Override
-  public boolean isApplicableTo(Position position) {
-    return false;
-  }
-
-  @Override
-  public boolean isPositionSpecific() {
-    return false;
-  }
-
-  @Override
-  public boolean isSecuritySpecific() {
-    return true;
-  }
-
 }

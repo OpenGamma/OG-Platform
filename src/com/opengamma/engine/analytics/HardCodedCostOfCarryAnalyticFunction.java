@@ -8,10 +8,6 @@ package com.opengamma.engine.analytics;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.util.KeyValuePair;
 
@@ -24,7 +20,7 @@ import com.opengamma.util.KeyValuePair;
 
 public class HardCodedCostOfCarryAnalyticFunction<T extends OptionDefinition>
 extends AbstractAnalyticFunction
-implements AnalyticFunctionInvoker {
+implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   
   private final double _costOfCarry;
   
@@ -41,67 +37,26 @@ implements AnalyticFunctionInvoker {
   }
   
   @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Position position) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Security security) {
-    return Collections.<AnalyticValue<?>>singleton(
-        new DoubleAnalyticValue(
-            s_resultDefinition, _costOfCarry)
-    );
-  }
-  
-  @Override
-  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
+  public Collection<AnalyticValueDefinition<?>> getInputs() {
     return Collections.<AnalyticValueDefinition<?>>emptySet();
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
     return Collections.<AnalyticValueDefinition<?>>singleton(s_resultDefinition);
+  }
+
+  @Override
+  public Collection<AnalyticValue<?>> execute(
+      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
+    return Collections.<AnalyticValue<?>>singleton(
+        new DoubleAnalyticValue(
+            s_resultDefinition, _costOfCarry)
+    );
   }
 
   @Override
   public String getShortName() {
     return "HardCodedCostOfCarry";
   }
-
-  @Override
-  public boolean isApplicableTo(String securityType) {
-    return true;
-  }
-
-  @Override
-  public boolean isApplicableTo(Position position) {
-    return true;
-  }
-
-  @Override
-  public boolean isPositionSpecific() {
-    return false;
-  }
-
-  @Override
-  public boolean isSecuritySpecific() {
-    return false;
-  }
-
-  @Override
-  public DependencyNode buildSubGraph(Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public boolean buildsOwnSubGraph() {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
 }

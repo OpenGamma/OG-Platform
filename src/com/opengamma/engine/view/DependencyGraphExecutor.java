@@ -159,10 +159,9 @@ public class DependencyGraphExecutor {
       DependencyNode depNode) {
     assert !(depNode.getFunction() instanceof LiveDataSourcingFunction);
     Collection<AnalyticValueDefinition<?>> resolvedInputs = new HashSet<AnalyticValueDefinition<?>>();
-    for(AnalyticValueDefinition<?> input : depNode.getFunction().getInputs(getSecurity())) {
+    for(AnalyticValueDefinition<?> input : depNode.getInputValues()) {
       resolvedInputs.add(depNode.getResolvedInput(input));
     }
-    // TODO kirk 2009-09-26 -- Change view name.
     long jobId = jobIdSource.addAndGet(1l);
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
     CalculationJob job = new CalculationJob(
