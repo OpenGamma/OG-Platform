@@ -15,6 +15,8 @@ import java.util.Set;
 import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -33,7 +35,16 @@ public class DependencyNode {
   private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedInputs =
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
-  public DependencyNode(AnalyticFunctionDefinition function, Security security) {
+  public DependencyNode(PrimitiveAnalyticFunctionDefinition function) {
+    if(function == null) {
+      throw new NullPointerException("Must provide a function for this node.");
+    }
+    _function = function;
+    _outputValues.addAll(function.getPossibleResults());
+    _inputValues.addAll(function.getInputs());
+  }
+  
+  public DependencyNode(SecurityAnalyticFunctionDefinition function, Security security) {
     if(function == null) {
       throw new NullPointerException("Must provide a function for this node.");
     }
