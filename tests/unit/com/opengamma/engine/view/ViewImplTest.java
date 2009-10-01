@@ -111,7 +111,7 @@ public class ViewImplTest {
     functionRepo.addFunction(function, function);
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
-    for(AnalyticValueDefinition<?> definition : function.getInputs(security)) {
+    for(AnalyticValueDefinition<?> definition : function.getInputs()) {
       ldap.addDefinition(definition);
     }
     

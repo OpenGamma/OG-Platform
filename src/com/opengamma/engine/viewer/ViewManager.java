@@ -148,7 +148,7 @@ public class ViewManager {
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
     ldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIdentityKey()));
     for(Security security : securities) {
-      for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs(security)) {
+      for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs()) {
         ldap.addDefinition(definition);
       }
       for(AnalyticValueDefinition<?> definition : volSurfaceFunction.getInputs(security)) {
