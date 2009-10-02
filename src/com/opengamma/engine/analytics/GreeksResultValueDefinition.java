@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.analytics;
 
-import java.util.Map;
-
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.util.KeyValuePair;
 import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.util.KeyValuePair;
 
 /**
  * 
@@ -17,7 +15,7 @@ import com.opengamma.engine.security.SecurityKey;
  * @author jim
  */
 public class GreeksResultValueDefinition extends
-    AnalyticValueDefinitionImpl<Map<Greek, Map<String, Double>>> {
+    AnalyticValueDefinitionImpl<GreekResultCollection> {
   
   @SuppressWarnings("unchecked")
   public GreeksResultValueDefinition() {

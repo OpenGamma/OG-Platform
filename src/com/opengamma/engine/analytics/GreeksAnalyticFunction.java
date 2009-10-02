@@ -22,11 +22,8 @@ import com.opengamma.engine.security.OptionType;
 import com.opengamma.engine.security.OptionVisitor;
 import com.opengamma.engine.security.PoweredOption;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.greeks.Delta;
-import com.opengamma.financial.greeks.Gamma;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
-import com.opengamma.financial.greeks.Rho;
+import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -63,7 +60,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volSurface, spot, today);
       EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
       AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
-      Map<Greek, Map<String, Double>> greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {new Price(), new Delta(), new Gamma(), new Rho()}));
+      GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
       return Collections.<AnalyticValue<?>>singleton(new GreeksResultAnalyticValue(new GreeksResultValueDefinition(security.getIdentityKey()), greeks));
     } else {
       throw new IllegalStateException("Illegal security type "+security.getSecurityType());
