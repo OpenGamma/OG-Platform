@@ -8,7 +8,6 @@ package com.opengamma.engine.viewer;
 import java.awt.BorderLayout;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.swing.JLabel;
@@ -53,7 +52,7 @@ public class ValueSelectionListenerPanel extends JPanel implements ListSelection
   private JXTable _parentTable;
   @SuppressWarnings("unused")
   private Position _position;
-  private Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> _row;
+  private Entry<String, AnalyticValue<?>> _row;
   private One2OneChannel _channel;
   
   static private Set<AnalyticValueDefinition<?>> s_allowsUpdate = new HashSet<AnalyticValueDefinition<?>>();
@@ -136,7 +135,7 @@ public class ValueSelectionListenerPanel extends JPanel implements ListSelection
   
   public void updateComponent() {
     if (_row != null) {
-      Object type = _row.getKey().getValue("TYPE");
+      Object type = _row.getKey();
       if (type != null && type.equals("DISCOUNT_CURVE")) {
         s_logger.info("Updating discount curve component");
         DiscountCurve curve = (DiscountCurve) _row.getValue().getValue();

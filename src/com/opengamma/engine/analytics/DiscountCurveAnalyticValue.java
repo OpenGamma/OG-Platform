@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.math.BigDecimal;
 
+import com.opengamma.engine.viewer.RenderVisitor;
+import com.opengamma.engine.viewer.Renderable;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 
 /**
@@ -14,7 +16,7 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticValue extends AbstractAnalyticValue<DiscountCurve> {
+public class DiscountCurveAnalyticValue extends AbstractAnalyticValue<DiscountCurve> implements Renderable {
   public DiscountCurveAnalyticValue(AnalyticValueDefinition<DiscountCurve> definition, DiscountCurve value) {
     super(definition, value);
   }
@@ -22,6 +24,11 @@ public class DiscountCurveAnalyticValue extends AbstractAnalyticValue<DiscountCu
   @Override
   public AnalyticValue<DiscountCurve> scaleForPosition(BigDecimal quantity) {
     return new DiscountCurveAnalyticValue(getDefinition(), (DiscountCurve) getValue());
+  }
+
+  @Override
+  public <T> T accept(RenderVisitor<T> visitor) {
+    return visitor.visitDiscountCurve(getValue());
   }
 
 }

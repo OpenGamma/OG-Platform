@@ -7,10 +7,9 @@ package com.opengamma.engine.viewer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
@@ -20,27 +19,27 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.util.KeyValuePair;
 
 class PortfolioTableModel extends AbstractTableModel implements ComputationResultListener {
   private List<Position> _positions = new ArrayList<Position>();
-  private Map<Position, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>> _resultsMap = new HashMap<Position, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>>();
-  private Set<AnalyticValueDefinition<?>> _valueDefinitionsSet = new HashSet<AnalyticValueDefinition<?>>();
-  private AnalyticValueDefinition<?>[] _valueDefinitionsArray = new AnalyticValueDefinition<?>[] {};
+  private Map<Position, Map<String, AnalyticValue<?>>> _resultsMap = new HashMap<Position, Map<String, AnalyticValue<?>>>();
+  private Map<Position, Object[]> _table = new HashMap<Position, Object[]>();
   
+  private String[] _columnHeadings = new String[] {};
+  private RequiredColumnsRenderVisitor _requiredColumnsRenderVisitor = new RequiredColumnsRenderVisitor();
   @Override
   public synchronized String getColumnName(int column) {
     if (column == 0) {
       return "Trade";
     } else {
-      AnalyticValueDefinition<?> defn = _valueDefinitionsArray[column-1];
-      return defn.getValue("TYPE").toString();
+      String defn = _columnHeadings[column-1];
+      return defn;
     }
   }
   @Override
   public synchronized int getColumnCount() {
-    return _valueDefinitionsArray.length + 1;
+    return _columnHeadings.length + 1;
   }
 
   @Override
@@ -54,26 +53,27 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
     if (columnIndex == 0) {
       return position.getSecurityKey().getIdentifiers().iterator().next().getValue() + " @ "+position.getQuantity();
     } else {
-      AnalyticValueDefinition<?> defn = _valueDefinitionsArray[columnIndex-1];
-      
-      if (_resultsMap.containsKey(position) && _resultsMap.get(position) != null && _resultsMap.get(position).containsKey(defn)) {
-        Object o = _resultsMap.get(position).get(defn).getValue();
-        if (o instanceof DiscountCurve) {
-          DiscountCurve curve = (DiscountCurve)o;
-          return curve.getData().toString();
-        } else {
-          return o.toString();
+      String columnNameXpath = _columnHeadings[columnIndex-1];
+      String[] xpath = columnNameXpath.split("/");
+      String type = xpath[0];
+      String fieldName = xpath[1];
+      AnalyticValue<?> value = _resultsMap.get(position).get(type);
+      if (value != null) {
+        if (value instanceof Renderable) {
+          Renderable renderable = (Renderable)value;
+          Object renderedObject = renderable.accept(new FieldXPathRenderVisitor(fieldName));
+          return renderedObject;
         }
-      } else {
-        return "N/A";
       }
+      return "N/A";
     }
+    
   }
   
-  public synchronized Map.Entry<Position, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>> getRow(int rowIndex) {
+  public synchronized Map.Entry<Position, Map<String, AnalyticValue<?>>> getRow(int rowIndex) {
     Position position = _positions.get(rowIndex);
-    Map<AnalyticValueDefinition<?>, AnalyticValue<?>> map = _resultsMap.get(position);
-    return new KeyValuePair<Position, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>>(position, map);
+    Map<String, AnalyticValue<?>> map = _resultsMap.get(position);
+    return new KeyValuePair<Position, Map<String, AnalyticValue<?>>>(position, map);
   }
 
   @Override
@@ -85,15 +85,40 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
       _positions.clear();
       _positions.addAll(resultModel.getPositions());
       _resultsMap.clear();
-      
+      Map<String, List<String>> valueColumnsListMap = new HashMap<String, List<String>>();  
       for (Position position : _positions) {
         Map<AnalyticValueDefinition<?>, AnalyticValue<?>> values = resultModel.getValues(position);
-        _valueDefinitionsSet.addAll(values.keySet());
-        _resultsMap.put(position, values);
+        Map<String, AnalyticValue<?>> simpleValues = new HashMap<String, AnalyticValue<?>>();
+        for (Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> entry : values.entrySet()) {
+          AnalyticValueDefinition<?> defn = entry.getKey();
+          AnalyticValue<?> value = entry.getValue();
+          String type = (String) defn.getValue("TYPE");
+          if (value instanceof Renderable) {
+            Renderable renderable = (Renderable) value;
+            List<String> columnNames = renderable.accept(_requiredColumnsRenderVisitor);
+            if (columnNames != null) {
+              if (!valueColumnsListMap.containsKey(type)) {
+                valueColumnsListMap.put(type, columnNames);
+              } else {
+                if (columnNames.size() > valueColumnsListMap.get(type).size()) {
+                  valueColumnsListMap.put(type, columnNames);
+                }
+              }
+            }
+          }
+          simpleValues.put(type, entry.getValue());
+        }
+        _resultsMap.put(position, simpleValues);
       }
-      int lengthB4 = _valueDefinitionsArray.length;
-      _valueDefinitionsArray = _valueDefinitionsSet.toArray(new AnalyticValueDefinition<?>[] {});
-      if (_valueDefinitionsArray.length != lengthB4) {
+      int lengthB4 = _columnHeadings.length;
+      List<String> xpathColumns = new ArrayList<String>();
+      for (String type : valueColumnsListMap.keySet()) {
+        for (String field : valueColumnsListMap.get(type)) {
+          xpathColumns.add(type +"/"+field);
+        }
+      }
+      _columnHeadings = xpathColumns.toArray(new String[] {});
+      if (_columnHeadings.length != lengthB4) {
         allDataChanged = true;
       }
     }

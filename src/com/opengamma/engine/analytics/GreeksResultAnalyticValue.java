@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.math.BigDecimal;
 
+import com.opengamma.engine.viewer.RenderVisitor;
+import com.opengamma.engine.viewer.Renderable;
 import com.opengamma.financial.greeks.GreekResultCollection;
 
 /**
@@ -14,7 +16,7 @@ import com.opengamma.financial.greeks.GreekResultCollection;
  *
  * @author kirk
  */
-public class GreeksResultAnalyticValue extends AbstractAnalyticValue<GreekResultCollection> {
+public class GreeksResultAnalyticValue extends AbstractAnalyticValue<GreekResultCollection> implements Renderable {
   public GreeksResultAnalyticValue(GreeksResultValueDefinition definition, GreekResultCollection value) {
     super(definition, value);
   }
@@ -22,6 +24,11 @@ public class GreeksResultAnalyticValue extends AbstractAnalyticValue<GreekResult
   @Override
   public AnalyticValue<GreekResultCollection> scaleForPosition(BigDecimal quantity) {
     return this;
+  }
+
+  @Override
+  public <T> T accept(RenderVisitor<T> visitor) {
+    return visitor.visitGreekResultCollection(getValue());
   }
 
 }
