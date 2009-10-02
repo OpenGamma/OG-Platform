@@ -7,7 +7,7 @@ package com.opengamma.livedata;
 
 import java.io.Serializable;
 
-import com.opengamma.fudge.FudgeMsg;
+import com.opengamma.fudge.FudgeFieldContainer;
 
 /**
  * A simple JavaBean-based implementation of {@link LiveDataValueUpdate}.
@@ -18,18 +18,18 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     Serializable {
   private final long _relevantTimestamp;
   private final LiveDataSpecification _specification;
-  private final FudgeMsg _fields;
+  private final FudgeFieldContainer _fieldContainer;
   
-  public LiveDataValueUpdateBean(long relevantTimestamp, LiveDataSpecification specification, FudgeMsg fields) {
+  public LiveDataValueUpdateBean(long relevantTimestamp, LiveDataSpecification specification, FudgeFieldContainer fieldContainer) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _relevantTimestamp = relevantTimestamp;
     _specification = specification;
-    _fields = fields;
+    _fieldContainer = fieldContainer;
   }
 
   @Override
-  public FudgeMsg getFields() {
-    return _fields;
+  public FudgeFieldContainer getFields() {
+    return _fieldContainer;
   }
 
   @Override

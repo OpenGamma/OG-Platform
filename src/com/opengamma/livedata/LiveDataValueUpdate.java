@@ -5,7 +5,8 @@
  */
 package com.opengamma.livedata;
 
-import com.opengamma.fudge.FudgeMsg;
+import com.opengamma.fudge.FudgeFieldContainer;
+
 
 /**
  * 
@@ -17,6 +18,6 @@ public interface LiveDataValueUpdate {
   
   LiveDataSpecification getSpecification();
   
-  FudgeMsg getFields();
+  FudgeFieldContainer getFields();
 
 }
