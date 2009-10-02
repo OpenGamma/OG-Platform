@@ -9,9 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.function.Function1D;
@@ -34,14 +35,13 @@ import com.opengamma.util.time.Expiry;
 public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
   private final double _callStrike;
   private final double _putStrike;
-  private final InstantProvider _chooseDate;
+  private final ZonedDateTime _chooseDate;
   private final Expiry _callExpiry;
   private final Expiry _putExpiry;
   protected final EuropeanVanillaOptionDefinition _callDefinition;
   protected final EuropeanVanillaOptionDefinition _putDefinition;
   protected final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final Greek PRICE = new Price();
-  protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { PRICE });
+  protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
 
   /**
    * 
@@ -52,7 +52,7 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
    * @param callExpiry
    * @param putExpiry
    */
-  public ComplexChooserOptionDefinition(double callStrike, double putStrike, Expiry expiry, InstantProvider chooseDate, Expiry callExpiry, Expiry putExpiry) {
+  public ComplexChooserOptionDefinition(double callStrike, double putStrike, Expiry expiry, ZonedDateTime chooseDate, Expiry callExpiry, Expiry putExpiry) {
     super(null, expiry, null);
     if (chooseDate.toInstant().isAfter(expiry.toInstant()))
       throw new IllegalArgumentException("Option expiry must be after the choice date");
@@ -71,8 +71,8 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
 
       @Override
       public Double evaluate(StandardOptionDataBundle data) {
-        final double callPrice = BSM.getGreeks(_callDefinition, data, GREEKS).get(PRICE).values().iterator().next();
-        final double putPrice = BSM.getGreeks(_putDefinition, data, GREEKS).get(PRICE).values().iterator().next();
+        final double callPrice = ((SingleGreekResult)(BSM.getGreeks(_callDefinition, data, GREEKS).get(Greek.PRICE))).getResult();
+        final double putPrice = ((SingleGreekResult)(BSM.getGreeks(_putDefinition, data, GREEKS).get(Greek.PRICE))).getResult();
         return Math.max(callPrice, putPrice);
       }
 
@@ -108,26 +108,34 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
     return _putExpiry;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((BSM == null) ? 0 : BSM.hashCode());
-    result = prime * result + ((GREEKS == null) ? 0 : GREEKS.hashCode());
-    result = prime * result + ((PRICE == null) ? 0 : PRICE.hashCode());
-    result = prime * result + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
-    result = prime * result + ((_callExpiry == null) ? 0 : _callExpiry.hashCode());
+    result = prime * result
+        + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
+    result = prime * result
+        + ((_callExpiry == null) ? 0 : _callExpiry.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_callStrike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
-    result = prime * result + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
-    result = prime * result + ((_putExpiry == null) ? 0 : _putExpiry.hashCode());
+    result = prime * result
+        + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
+    result = prime * result
+        + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
+    result = prime * result
+        + ((_putExpiry == null) ? 0 : _putExpiry.hashCode());
     temp = Double.doubleToLongBits(_putStrike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -137,21 +145,6 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
     if (getClass() != obj.getClass())
       return false;
     ComplexChooserOptionDefinition other = (ComplexChooserOptionDefinition) obj;
-    if (BSM == null) {
-      if (other.BSM != null)
-        return false;
-    } else if (!BSM.equals(other.BSM))
-      return false;
-    if (GREEKS == null) {
-      if (other.GREEKS != null)
-        return false;
-    } else if (!GREEKS.equals(other.GREEKS))
-      return false;
-    if (PRICE == null) {
-      if (other.PRICE != null)
-        return false;
-    } else if (!PRICE.equals(other.PRICE))
-      return false;
     if (_callDefinition == null) {
       if (other._callDefinition != null)
         return false;
@@ -162,7 +155,8 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
         return false;
     } else if (!_callExpiry.equals(other._callExpiry))
       return false;
-    if (Double.doubleToLongBits(_callStrike) != Double.doubleToLongBits(other._callStrike))
+    if (Double.doubleToLongBits(_callStrike) != Double
+        .doubleToLongBits(other._callStrike))
       return false;
     if (_chooseDate == null) {
       if (other._chooseDate != null)
@@ -179,7 +173,8 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
         return false;
     } else if (!_putExpiry.equals(other._putExpiry))
       return false;
-    if (Double.doubleToLongBits(_putStrike) != Double.doubleToLongBits(other._putStrike))
+    if (Double.doubleToLongBits(_putStrike) != Double
+        .doubleToLongBits(other._putStrike))
       return false;
     return true;
   }

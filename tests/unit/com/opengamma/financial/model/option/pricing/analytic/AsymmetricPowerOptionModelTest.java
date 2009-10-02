@@ -15,7 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
@@ -39,8 +39,7 @@ public class AsymmetricPowerOptionModelTest {
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
-  private static final Greek PRICE = new Price();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
+  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
   private static final double EPS = 1e-4;
 
   @Test
@@ -58,7 +57,7 @@ public class AsymmetricPowerOptionModelTest {
   }
 
   private double getPrice(double power, boolean isCall) {
-    return MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
+    return ((SingleGreekResult)MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.PRICE)).getResult();
   }
 
   private AsymmetricPowerOptionDefinition getDefinition(double power, boolean isCall) {

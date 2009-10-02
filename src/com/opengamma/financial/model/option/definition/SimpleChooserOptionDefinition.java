@@ -9,9 +9,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.function.Function1D;
@@ -33,12 +34,11 @@ import com.opengamma.util.time.Expiry;
  */
 
 public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
-  private final InstantProvider _chooseDate;
+  private final ZonedDateTime _chooseDate;
   protected final EuropeanVanillaOptionDefinition _callDefinition;
   protected final EuropeanVanillaOptionDefinition _putDefinition;
   protected final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final Greek PRICE = new Price();
-  protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { PRICE });
+  protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
 
   /**
    * 
@@ -48,7 +48,7 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
    * @param optionExpiry
    * @param vars
    */
-  public SimpleChooserOptionDefinition(double strike, Expiry underlyingExpiry, InstantProvider chooseDate) {
+  public SimpleChooserOptionDefinition(double strike, Expiry underlyingExpiry, ZonedDateTime chooseDate) {
     super(strike, underlyingExpiry, null);
     if (chooseDate.toInstant().isAfter(underlyingExpiry.toInstant()))
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
@@ -63,8 +63,8 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
 
       @Override
       public Double evaluate(StandardOptionDataBundle data) {
-        final double callPrice = BSM.getGreeks(_callDefinition, data, GREEKS).get(PRICE).values().iterator().next();
-        final double putPrice = BSM.getGreeks(_putDefinition, data, GREEKS).get(PRICE).values().iterator().next();
+        final double callPrice = ((SingleGreekResult)BSM.getGreeks(_callDefinition, data, GREEKS).get(Greek.PRICE)).getResult();
+        final double putPrice = ((SingleGreekResult)BSM.getGreeks(_putDefinition, data, GREEKS).get(Greek.PRICE)).getResult();
         return Math.max(callPrice, putPrice);
       }
 
@@ -84,19 +84,25 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
     return _chooseDate;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((BSM == null) ? 0 : BSM.hashCode());
-    result = prime * result + ((GREEKS == null) ? 0 : GREEKS.hashCode());
-    result = prime * result + ((PRICE == null) ? 0 : PRICE.hashCode());
-    result = prime * result + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
-    result = prime * result + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
-    result = prime * result + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
+    result = prime * result
+        + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
+    result = prime * result
+        + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
+    result = prime * result
+        + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj)
@@ -106,21 +112,6 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
     if (getClass() != obj.getClass())
       return false;
     SimpleChooserOptionDefinition other = (SimpleChooserOptionDefinition) obj;
-    if (BSM == null) {
-      if (other.BSM != null)
-        return false;
-    } else if (!BSM.equals(other.BSM))
-      return false;
-    if (GREEKS == null) {
-      if (other.GREEKS != null)
-        return false;
-    } else if (!GREEKS.equals(other.GREEKS))
-      return false;
-    if (PRICE == null) {
-      if (other.PRICE != null)
-        return false;
-    } else if (!PRICE.equals(other.PRICE))
-      return false;
     if (_callDefinition == null) {
       if (other._callDefinition != null)
         return false;

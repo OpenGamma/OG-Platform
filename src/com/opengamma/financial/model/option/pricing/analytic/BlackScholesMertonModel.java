@@ -1,15 +1,10 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import java.util.Collections;
-import java.util.Map;
-
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.greeks.Delta;
-import com.opengamma.financial.greeks.Gamma;
+import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekVisitor;
-import com.opengamma.financial.greeks.Price;
-import com.opengamma.financial.greeks.Rho;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
@@ -36,7 +31,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
   ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  public GreekVisitor<Map<String, Double>> getGreekVisitor(Function1D<StandardOptionDataBundle, Double> pricingFunction, StandardOptionDataBundle vars,
+  public GreekVisitor<GreekResult<?>> getGreekVisitor(Function1D<StandardOptionDataBundle, Double> pricingFunction, StandardOptionDataBundle vars,
       EuropeanVanillaOptionDefinition definition) {
     return new BlackScholesMertonGreekVisitor(vars, pricingFunction, definition);
   }
@@ -96,27 +91,27 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     }
 
     @Override
-    public Map<String, Double> visitDelta(Delta delta) {
+    public GreekResult<Double> visitDelta() {
       double value = _isCall ? _df * _normalProbabilityDistribution.getCDF(_d1) : _df * (_normalProbabilityDistribution.getCDF(_d1) - 1);
-      return Collections.<String, Double> singletonMap(delta.getName(), value);
+      return new SingleGreekResult(value);
     }
 
     @Override
-    public Map<String, Double> visitGamma(Gamma gamma) {
+    public GreekResult<Double> visitGamma() {
       double value = _df * _normalProbabilityDistribution.getPDF(_d1) / (_s * _sigma * Math.sqrt(_t));
-      return Collections.<String, Double> singletonMap(gamma.getName(), value);
+      return new SingleGreekResult(value);
     }
 
     @Override
-    public Map<String, Double> visitPrice(Price price) {
-      return Collections.<String, Double> singletonMap(price.getName(), _price);
+    public GreekResult<Double> visitPrice() {
+      return new SingleGreekResult(_price);
     }
 
     @Override
-    public Map<String, Double> visitRho(Rho rho) {
+    public GreekResult<Double> visitRho() {
       int sign = _isCall ? 1 : -1;
       double value = sign * _t * _k * Math.exp(-_r * _t) * _normalProbabilityDistribution.getCDF(sign * _d2);
-      return Collections.<String, Double> singletonMap(rho.getName(), value);
+      return new SingleGreekResult(value);
     }
   }
 }
