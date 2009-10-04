@@ -7,6 +7,8 @@ package com.opengamma.id;
 
 import java.util.Collection;
 
+import com.opengamma.fudge.FudgeFieldContainer;
+
 /**
  * 
  *
@@ -26,5 +28,5 @@ public interface DomainSpecificIdentifiers {
    * @return All identifiers for this key.
    */
   Collection<DomainSpecificIdentifier> getIdentifiers();
-
+  FudgeFieldContainer toFudgeMsg();
 }
