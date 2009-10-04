@@ -7,6 +7,9 @@ package com.opengamma.livedata.client;
 
 import com.opengamma.livedata.LiveDataSpecification;
 
+// REVIEW kirk 2009-10-04 -- While this is fine initially, eventually this needs to be changed
+// so that it can be fully asynchronous so that we're not blocking threads at all in a synchronous
+// state waiting for distributed responses.
 /**
  * 
  *
