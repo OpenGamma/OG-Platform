@@ -11,6 +11,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.fudge.FudgeFieldContainer;
+import com.opengamma.fudge.FudgeMsg;
+
 
 /**
  * A particular identifier, within a particular domain, which can be used
@@ -28,6 +31,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author kirk
  */
 public final class DomainSpecificIdentifier implements Serializable, Cloneable {
+  public static final String DOMAIN_FUDGE_FIELD_NAME = "Domain";
+  public static final String VALUE_FUDGE_FIELD_NAME = "Value";
   private final IdentificationDomain _domain;
   private final String _value;
 
@@ -39,6 +44,19 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
       throw new NullPointerException("Must provide a valid value.");
     }
     _domain = domain;
+    _value = value;
+  }
+  
+  public DomainSpecificIdentifier(FudgeFieldContainer fudgeMsg) {
+    String domain = fudgeMsg.getString(DOMAIN_FUDGE_FIELD_NAME);
+    String value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
+    if(domain == null) {
+      throw new NullPointerException("Message does not contain field " + DOMAIN_FUDGE_FIELD_NAME);
+    }
+    if(value == null) {
+      throw new NullPointerException("Message does not contain field " + VALUE_FUDGE_FIELD_NAME);
+    }
+    _domain = new IdentificationDomain(domain);
     _value = value;
   }
   
@@ -78,6 +96,13 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
+  }
+  
+  public FudgeFieldContainer toFudgeMsg() {
+    FudgeMsg msg = new FudgeMsg();
+    msg.add(getDomain().getDomainName(), DOMAIN_FUDGE_FIELD_NAME);
+    msg.add(getValue(), VALUE_FUDGE_FIELD_NAME);
+    return msg;
   }
 
 }

@@ -5,12 +5,16 @@
  */
 package com.opengamma.id;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
 import org.junit.Test;
+
+import com.opengamma.fudge.FudgeFieldContainer;
 
 /**
  * 
@@ -56,5 +60,19 @@ public class DomainSpecificIdentifiersImplTest {
     assertTrue(new DomainSpecificIdentifiersImpl(_id11, _id12).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
     assertFalse(new DomainSpecificIdentifiersImpl(_id11, _id22).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
     assertFalse(new DomainSpecificIdentifiersImpl(_id21, _id22).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
+  }
+  
+  @Test
+  public void fudgeEncoding() {
+    DomainSpecificIdentifiersImpl input = new DomainSpecificIdentifiersImpl(
+        new DomainSpecificIdentifier(new IdentificationDomain("id1"), "value1"),
+        new DomainSpecificIdentifier(new IdentificationDomain("id2"), "value2")
+      );
+    FudgeFieldContainer msg = input.toFudgeMsg();
+    assertNotNull(msg);
+    assertEquals(2, msg.getNumFields());
+    
+    DomainSpecificIdentifiersImpl decoded = new DomainSpecificIdentifiersImpl(msg);
+    assertEquals(input, decoded);
   }
 }

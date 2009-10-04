@@ -13,12 +13,17 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.fudge.FudgeField;
+import com.opengamma.fudge.FudgeFieldContainer;
+import com.opengamma.fudge.FudgeMsg;
+
 /**
  * 
  *
  * @author kirk
  */
 public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecificIdentifiers {
+  public static final String ID_FUDGE_FIELD_NAME = "ID";
   private final List<DomainSpecificIdentifier> _identifiers;
   private final int _hashCode;
   
@@ -52,10 +57,23 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
     }
     _hashCode = calcHashCode();
   }
+  
+  public DomainSpecificIdentifiersImpl(FudgeFieldContainer fudgeMsg) {
+    List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
+    for(FudgeField field : fudgeMsg.getAllByName(ID_FUDGE_FIELD_NAME)) {
+      if(!(field.getValue() instanceof FudgeFieldContainer)) {
+        throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
+      }
+      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier((FudgeFieldContainer)field.getValue());
+      identifiers.add(identifier);
+    }
+    _identifiers = identifiers;
+    _hashCode = calcHashCode();
+  }
 
   @Override
   public Collection<DomainSpecificIdentifier> getIdentifiers() {
-    return _identifiers;
+    return Collections.unmodifiableCollection(_identifiers);
   }
   
   protected int calcHashCode() {
@@ -85,6 +103,12 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
     }
     return true;
   }
-
-
+  
+  public FudgeFieldContainer toFudgeMsg() {
+    FudgeMsg msg = new FudgeMsg();
+    for(DomainSpecificIdentifier identifier: getIdentifiers()) {
+      msg.add(identifier.toFudgeMsg(), ID_FUDGE_FIELD_NAME);
+    }
+    return msg;
+  }
 }
