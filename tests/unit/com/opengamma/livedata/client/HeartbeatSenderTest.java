@@ -1,0 +1,86 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.livedata.client;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Timer;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.opengamma.fudge.FudgeField;
+import com.opengamma.fudge.FudgeFieldContainer;
+import com.opengamma.fudge.FudgeMsg;
+import com.opengamma.fudge.FudgeMsgEnvelope;
+import com.opengamma.fudge.FudgeStreamDecoder;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
+import com.opengamma.livedata.CollectingLiveDataListener;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.transport.CollectingByteArrayMessageSender;
+
+/**
+ *
+ * @author kirk
+ */
+public class HeartbeatSenderTest {
+  private Timer _timer = null;
+
+  @Before
+  public void startTimer() {
+    _timer = new Timer("HeartbeatSenderTest Timer");
+  }
+  
+  @After
+  public void shutdownTimer() {
+    _timer.cancel();
+    _timer = null;
+  }
+  
+  @Test
+  public void basicOperation() throws InterruptedException, IOException {
+    CollectingByteArrayMessageSender messageSender = new CollectingByteArrayMessageSender();
+    ValueDistributor valueDistributor = new ValueDistributor();
+    CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
+    LiveDataSpecification spec1 = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
+    LiveDataSpecification spec2 = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "baz"));
+    valueDistributor.addListener(spec1, listener1);
+    valueDistributor.addListener(spec2, listener1);
+    
+    @SuppressWarnings("unused")
+    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, _timer, 100l);
+    // Wait 250ms to make sure we get two ticks.
+    Thread.sleep(250l);
+    
+    List<byte[]> messages = messageSender.getMessages();
+    assertTrue(messages.size() >= 2);
+    
+    for(byte[] message : messages) {
+      FudgeMsgEnvelope fudgeMsgEnvelope = FudgeStreamDecoder.readMsg(new DataInputStream(new ByteArrayInputStream(message)));
+      FudgeMsg fudgeMsg = fudgeMsgEnvelope.getMessage();
+      assertNotNull(fudgeMsg);
+      assertEquals(2, fudgeMsg.getNumFields());
+      for(FudgeField field : fudgeMsg.getAllFields()) {
+        assertNull(field.getName());
+        assertNull(field.getOrdinal());
+        assertTrue(field.getValue() instanceof FudgeFieldContainer);
+        LiveDataSpecificationImpl lsdi = new LiveDataSpecificationImpl((FudgeFieldContainer)field.getValue());
+        assertTrue(lsdi.equals(spec1) || lsdi.equals(spec2));
+      }
+    }
+  }
+
+}

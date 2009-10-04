@@ -7,6 +7,7 @@ package com.opengamma.livedata;
 
 import java.util.Collection;
 
+import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiersImpl;
 
@@ -28,6 +29,10 @@ implements LiveDataSpecification {
   
   public LiveDataSpecificationImpl(DomainSpecificIdentifier identifier) {
     super(identifier);
+  }
+  
+  public LiveDataSpecificationImpl(FudgeFieldContainer fudgeMsg) {
+    super(fudgeMsg);
   }
 
 }

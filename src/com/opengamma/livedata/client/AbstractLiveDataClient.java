@@ -7,6 +7,7 @@ package com.opengamma.livedata.client;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Timer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,6 +19,8 @@ import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResult;
+import com.opengamma.transport.ByteArrayMessageSender;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A base class that handles all the in-memory requirements
@@ -30,8 +33,11 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   // Injected Inputs:
   private LiveDataSpecificationResolver _specificationResolver = new IdentitySpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
+  private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
   // Running State:
   private final ValueDistributor _valueDistributor = new ValueDistributor();
+  private final Timer _timer = new Timer("LiveDataClient Timer");
+  private HeartbeatSender _heartbeatSender = null;
   private final Lock _subscriptionLock = new ReentrantLock();
   private final Set<SubscriptionHandle> _pendingSubscriptions =
     new HashSet<SubscriptionHandle>();
@@ -41,6 +47,39 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   // The data structures were getting too unwieldy for this pass.
   private final Set<SubscriptionHandle> _activeSubscriptions =
     new HashSet<SubscriptionHandle>();
+  
+  public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
+    ArgumentChecker.checkNotNull(messageSender, "Message Sender");
+    _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getTimer(), getHeartbeatPeriod());
+  }
+
+  /**
+   * @return the heartbeatSender
+   */
+  public HeartbeatSender getHeartbeatSender() {
+    return _heartbeatSender;
+  }
+
+  /**
+   * @return the timer
+   */
+  public Timer getTimer() {
+    return _timer;
+  }
+
+  /**
+   * @return the heartbeatPeriod
+   */
+  public long getHeartbeatPeriod() {
+    return _heartbeatPeriod;
+  }
+
+  /**
+   * @param heartbeatPeriod the heartbeatPeriod to set
+   */
+  public void setHeartbeatPeriod(long heartbeatPeriod) {
+    _heartbeatPeriod = heartbeatPeriod;
+  }
 
   /**
    * @return the specificationResolver
