@@ -12,6 +12,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -27,7 +28,9 @@ public class SubscriptionHandle {
       String userName,
       LiveDataSpecification fullyQualifiedSpecification,
       LiveDataListener listener) {
-    // TODO kirk 2009-09-29 -- Check Inputs.
+    ArgumentChecker.checkNotNull(userName, "User Name");
+    ArgumentChecker.checkNotNull(fullyQualifiedSpecification, "Fully Qualified Specification");
+    ArgumentChecker.checkNotNull(listener, "Live Data Listener");
     _userName = userName;
     _fullyQualifiedSpecification = fullyQualifiedSpecification;
     _listener = listener;
