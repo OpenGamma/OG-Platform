@@ -27,6 +27,10 @@ public class ValueDistributor {
   private final ConcurrentMap<LiveDataSpecification, Set<LiveDataListener>> _listenersBySpec =
     new ConcurrentHashMap<LiveDataSpecification, Set<LiveDataListener>>();
   
+  public Set<LiveDataSpecification> getActiveSpecifications() {
+    return new HashSet<LiveDataSpecification>(_listenersBySpec.keySet());
+  }
+  
   public void addListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     Set<LiveDataListener> freshListeners = new HashSet<LiveDataListener>();
     Set<LiveDataListener> actualListeners = _listenersBySpec.putIfAbsent(fullyQualifiedSpecification, freshListeners);
