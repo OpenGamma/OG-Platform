@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author emcleod
  */
-public abstract class Function2D<S, T, U> implements Function<Object, U> {
+public abstract class Function2D<S, T> implements Function<S, T> {
   private static final Logger s_Log = LoggerFactory.getLogger(Function2D.class);
 
-  public U evaluate(final Object... x) {
+  public T evaluate(final S... x) {
     if (x == null)
       throw new IllegalArgumentException("Null argument");
     if (x.length > 2) {
@@ -24,5 +24,5 @@ public abstract class Function2D<S, T, U> implements Function<Object, U> {
     return evaluate(x[0], x[1]);
   }
 
-  public abstract U evaluate(S x1, T x2);
+  public abstract T evaluate(S x1, S x2);
 }
