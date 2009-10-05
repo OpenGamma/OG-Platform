@@ -12,7 +12,6 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -21,7 +20,8 @@ import com.opengamma.engine.security.Security;
  *
  * @author kirk
  */
-public class LiveDataSourcingFunction extends AbstractAnalyticFunction implements AnalyticFunctionInvoker {
+public class LiveDataSourcingFunction extends AbstractAnalyticFunction
+implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   private final AnalyticValueDefinition<?> _specifiedResult;
   private final String _shortName;
   
@@ -41,50 +41,24 @@ public class LiveDataSourcingFunction extends AbstractAnalyticFunction implement
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
+  public Collection<AnalyticValue<?>> execute(
+      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
+    throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
+  }
+
+  @Override
+  public Collection<AnalyticValueDefinition<?>> getInputs() {
     return Collections.emptySet();
   }
 
   @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
+  public Collection<AnalyticValueDefinition<?>> getPossibleResults() {
     return Collections.<AnalyticValueDefinition<?>>singleton(_specifiedResult);
   }
 
   @Override
   public String getShortName() {
     return _shortName;
-  }
-
-  @Override
-  public boolean isApplicableTo(String securityType) {
-    return true;
-  }
-
-  @Override
-  public boolean isApplicableTo(Position position) {
-    return true;
-  }
-
-  @Override
-  public boolean isPositionSpecific() {
-    return false;
-  }
-
-  @Override
-  public boolean isSecuritySpecific() {
-    return false;
-  }
-
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Position position) {
-    throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
-  }
-
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Security security) {
-    throw new NotImplementedException("LiveDataSourcingFunction.execute() not yet implemented.");
   }
 
   @Override

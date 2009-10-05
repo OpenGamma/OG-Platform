@@ -20,6 +20,8 @@ import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
+import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.security.Security;
 
@@ -172,7 +174,7 @@ public class SecurityDependencyGraph {
     if(liveDataAvailabilityProvider.isAvailable(outputValue)) {
       assert !requiredLiveData.contains(outputValue) : "Should have found existing dependency graph node.";
       requiredLiveData.add(outputValue);
-      node = new DependencyNode(new LiveDataSourcingFunction(outputValue), getSecurity());
+      node = new DependencyNode(new LiveDataSourcingFunction(outputValue));
       nodeResolver.addSubGraph(node);
       return node;
     }
@@ -187,7 +189,13 @@ public class SecurityDependencyGraph {
       node = function.buildSubGraph(getSecurity(), functionResolver, nodeResolver);
       nodeResolver.addSubGraph(node);
     } else {
-      node = new DependencyNode(function, getSecurity());
+      if(function instanceof PrimitiveAnalyticFunctionDefinition) {
+        node = new DependencyNode((PrimitiveAnalyticFunctionDefinition)function);
+      } else if(function instanceof SecurityAnalyticFunctionDefinition) {
+        node = new DependencyNode((SecurityAnalyticFunctionDefinition)function, getSecurity());
+      } else {
+        throw new IllegalStateException("Cannot yet handle anything other than Primitive or Security functions.");
+      }
       nodeResolver.addSubGraph(node);
       for(AnalyticValueDefinition<?> inputValue : node.getInputValues()) {
         DependencyNode inputNode = satisfyDependency(inputValue, nodeResolver, requiredLiveData, functionResolver, liveDataAvailabilityProvider);

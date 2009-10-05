@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.math.BigDecimal;
 
+import com.opengamma.engine.viewer.RenderVisitor;
+import com.opengamma.engine.viewer.Renderable;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
@@ -14,7 +16,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
  *
  * @author kirk
  */
-public class VolatilitySurfaceAnalyticValue extends AbstractAnalyticValue<VolatilitySurface> {
+public class VolatilitySurfaceAnalyticValue extends AbstractAnalyticValue<VolatilitySurface> implements Renderable {
   public VolatilitySurfaceAnalyticValue(VolatilitySurfaceValueDefinition definition, VolatilitySurface value) {
     super(definition, value);
   }
@@ -22,6 +24,11 @@ public class VolatilitySurfaceAnalyticValue extends AbstractAnalyticValue<Volati
   @Override
   public AnalyticValue<VolatilitySurface> scaleForPosition(BigDecimal quantity) {
     return this;
+  }
+
+  @Override
+  public <T> T accept(RenderVisitor<T> visitor) {
+    return visitor.visitVolatilitySurface(getValue());
   }
 
 }

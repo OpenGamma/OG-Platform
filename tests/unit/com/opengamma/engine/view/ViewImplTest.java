@@ -40,8 +40,6 @@ import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityIdentificationDomain;
-import com.opengamma.engine.security.SecurityIdentifier;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
@@ -49,6 +47,8 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
 
 /**
@@ -58,7 +58,7 @@ import com.opengamma.util.TerminatableJob;
  */
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
-  private static final SecurityIdentificationDomain BLOOMBERG = new SecurityIdentificationDomain("BLOOMBERG");
+  private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
   
@@ -90,8 +90,8 @@ public class ViewImplTest {
     };
     Security security = new Security() {
       @Override
-      public Collection<SecurityIdentifier> getIdentifiers() {
-        return Collections.singleton(new SecurityIdentifier(new SecurityIdentificationDomain("KIRK"), "ID1"));
+      public Collection<DomainSpecificIdentifier> getIdentifiers() {
+        return Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("KIRK"), "ID1"));
       }
       @Override
       public String getSecurityType() {
@@ -111,7 +111,7 @@ public class ViewImplTest {
     functionRepo.addFunction(function, function);
     
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
-    for(AnalyticValueDefinition<?> definition : function.getInputs(security)) {
+    for(AnalyticValueDefinition<?> definition : function.getInputs()) {
       ldap.addDefinition(definition);
     }
     
@@ -254,7 +254,7 @@ public class ViewImplTest {
   public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
     ResolveSecurityKeyToMarketDataHeaderDefinition definition =
       new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new SecurityIdentifier(BLOOMBERG, bbTicker)));
+          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
     return definition;
   }
   

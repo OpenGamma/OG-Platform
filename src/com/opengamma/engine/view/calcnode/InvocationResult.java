@@ -6,12 +6,14 @@
 package com.opengamma.engine.view.calcnode;
 
 /**
- * 
+ * Specifies the outcome of attempting to invoke an analytic function
+ * by a Calculation Node.
  *
  * @author kirk
  */
-public interface JobCompletionNotifier {
-  
-  void jobCompleted(CalculationJobResult jobResult);
+public enum InvocationResult {
+  SUCCESS,
+  TIMED_OUT,
+  ERROR;
 
 }

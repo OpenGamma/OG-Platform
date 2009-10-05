@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.analytics;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
+import com.opengamma.engine.security.Security;
+
 /**
  * The base class from which most {@link AnalyticFunctionDefinition} implementations
  * should inherit.
@@ -28,4 +32,18 @@ public abstract class AbstractAnalyticFunction implements AnalyticFunctionDefini
     _uniqueIdentifier = uniqueIdentifier;
   }
   
+  @Override
+  public DependencyNode buildSubGraph(Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public boolean buildsOwnSubGraph() {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
 }

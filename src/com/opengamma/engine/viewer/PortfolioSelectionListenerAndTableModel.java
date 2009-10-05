@@ -21,15 +21,14 @@ import javax.swing.table.TableModel;
 import org.jdesktop.swingx.JXTable;
 
 import com.opengamma.engine.analytics.AnalyticValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Position;
 
 @SuppressWarnings("unchecked") 
 public class PortfolioSelectionListenerAndTableModel extends AbstractTableModel implements ListSelectionListener, TableModelListener {
-  private final String[] _columnNames = new String[] { "Definition", "Value" };
+  private final String[] _columnNames = new String[] { "Type", "Value" };
   private JXTable _parentTable;
   private Position _position = null;
-  private Map.Entry<AnalyticValueDefinition<?>, AnalyticValue<?>>[] _rows = new Map.Entry[0];
+  private Map.Entry<String, AnalyticValue<?>>[] _rows = new Map.Entry[0];
   public PortfolioSelectionListenerAndTableModel(JXTable parentTable) {
     _parentTable = parentTable;
     _parentTable.getSelectionModel().addListSelectionListener(this);
@@ -54,7 +53,7 @@ public class PortfolioSelectionListenerAndTableModel extends AbstractTableModel 
         modelRow = selectedRow;
       }
       PortfolioTableModel model = (PortfolioTableModel) _parentTable.getModel();
-      Entry<Position, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>> row = model.getRow(modelRow);
+      Entry<Position, Map<String, AnalyticValue<?>>> row = model.getRow(modelRow);
       synchronized (this) {
         int previousRows = _rows.length;
         _rows = row.getValue().entrySet().toArray(_rows);
@@ -88,7 +87,7 @@ public class PortfolioSelectionListenerAndTableModel extends AbstractTableModel 
     readChanges(lsm);
   }
   
-  public synchronized Map.Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> getRow(final int row) {
+  public synchronized Map.Entry<String, AnalyticValue<?>> getRow(final int row) {
     if (row > 0) {
       return _rows[row-1];
     } else {

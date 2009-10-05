@@ -6,23 +6,29 @@
 package com.opengamma.engine.analytics;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
-import com.opengamma.financial.greeks.Greek;
+import com.opengamma.engine.viewer.RenderVisitor;
+import com.opengamma.engine.viewer.Renderable;
+import com.opengamma.financial.greeks.GreekResultCollection;
 
 /**
  * An {@link AnalyticValue} for a single double-precision floating point value.
  *
  * @author kirk
  */
-public class GreeksResultAnalyticValue extends AbstractAnalyticValue<Map<Greek, Map<String, Double>>> {
-  public GreeksResultAnalyticValue(GreeksResultValueDefinition definition, Map<Greek, Map<String, Double>> value) {
+public class GreeksResultAnalyticValue extends AbstractAnalyticValue<GreekResultCollection> implements Renderable {
+  public GreeksResultAnalyticValue(GreeksResultValueDefinition definition, GreekResultCollection value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue<Map<Greek, Map<String, Double>>> scaleForPosition(BigDecimal quantity) {
+  public AnalyticValue<GreekResultCollection> scaleForPosition(BigDecimal quantity) {
     return this;
+  }
+
+  @Override
+  public <T> T accept(RenderVisitor<T> visitor) {
+    return visitor.visitGreekResultCollection(getValue());
   }
 
 }

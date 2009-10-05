@@ -14,11 +14,13 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.security.SecurityKey;
 
 /**
- * The definition of 
+ * The definition of a particular job that must be performed by
+ * a Calculation Node.
  *
  * @author kirk
  */
-public class CalculationJob extends CalculationJobSpecification implements Serializable {
+public class CalculationJob implements Serializable {
+  private final CalculationJobSpecification _specification;
   private final String _functionUniqueIdentifier;
   private final SecurityKey _securityKey;
   private final Set<AnalyticValueDefinition<?>> _inputs = new HashSet<AnalyticValueDefinition<?>>();
@@ -31,8 +33,15 @@ public class CalculationJob extends CalculationJobSpecification implements Seria
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
       String functionUniqueIdentifier, SecurityKey securityKey,
       Collection<AnalyticValueDefinition<?>> inputs) {
-    super(viewName, iterationTimestamp, jobId);
-    // TODO kirk 2009-09-25 -- Check Inputs
+    this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
+        functionUniqueIdentifier, securityKey, inputs);
+  }
+  
+  public CalculationJob(CalculationJobSpecification specification,
+      String functionUniqueIdentifier, SecurityKey securityKey,
+      Collection<AnalyticValueDefinition<?>> inputs) {
+    // TODO kirk 2009-09-29 -- Check Inputs.
+    _specification = specification;
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _securityKey = securityKey;
     _inputs.addAll(inputs);
@@ -57,6 +66,13 @@ public class CalculationJob extends CalculationJobSpecification implements Seria
    */
   public Set<AnalyticValueDefinition<?>> getInputs() {
     return _inputs;
+  }
+
+  /**
+   * @return the specification
+   */
+  public CalculationJobSpecification getSpecification() {
+    return _specification;
   }
 
 }

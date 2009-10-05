@@ -9,17 +9,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
  *
  * @author kirk
  */
 public class DefaultSecurity implements Security, Serializable {
-  private Collection<SecurityIdentifier> _identifiers;
+  private Collection<DomainSpecificIdentifier> _identifiers;
   private String _securityType;
 
   @Override
-  public Collection<SecurityIdentifier> getIdentifiers() {
+  public Collection<DomainSpecificIdentifier> getIdentifiers() {
     return _identifiers;
   }
 
@@ -27,8 +29,8 @@ public class DefaultSecurity implements Security, Serializable {
    * This will create a <em>copy</em> of the provided collection.
    * @param identifiers the identifiers to set
    */
-  public void setIdentifiers(Collection<? extends SecurityIdentifier> identifiers) {
-    _identifiers = new ArrayList<SecurityIdentifier>(identifiers);
+  public void setIdentifiers(Collection<? extends DomainSpecificIdentifier> identifiers) {
+    _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers);
   }
   
   // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
