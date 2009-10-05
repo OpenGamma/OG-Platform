@@ -9,7 +9,7 @@ import com.opengamma.financial.model.option.pricing.OptionModel;
  * @author emcleod
  * 
  */
-public abstract class TreeOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
+public abstract class TreeOptionModel<T extends OptionDefinition<U>, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
   // TODO get trees
 }

@@ -15,7 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
@@ -41,8 +41,7 @@ public class CappedPowerOptionModelTest {
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();
-  private static final Greek PRICE = new Price();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
+  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
   private static final double HIGH_CAP = 100;
   private static final double EPS = 1e-4;
 
@@ -66,11 +65,11 @@ public class CappedPowerOptionModelTest {
   }
 
   private double getCappedPrice(final double power, final double cap, final boolean isCall) {
-    return CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
+    return ((SingleGreekResult) CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.PRICE)).getResult();
   }
 
   private double getUncappedPrice(final double power, final boolean isCall) {
-    return UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
+    return ((SingleGreekResult) UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.PRICE)).getResult();
   }
 
   private CappedPowerOptionDefinition getDefinition(final double power, final double cap, final boolean isCall) {

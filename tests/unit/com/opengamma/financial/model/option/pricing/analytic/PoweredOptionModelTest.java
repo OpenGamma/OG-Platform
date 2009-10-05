@@ -17,7 +17,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -35,8 +36,7 @@ import com.opengamma.util.time.Expiry;
 public class PoweredOptionModelTest {
   private static final AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> POWERED_MODEL = new PoweredOptionModel();
   private static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final Greek PRICE = new Price();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
+  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.1);
@@ -92,15 +92,15 @@ public class PoweredOptionModelTest {
 
   private void assertPriceEquals(PoweredOptionDefinition poweredDefinition, EuropeanVanillaOptionDefinition vanillaDefinition, double sigma) {
     StandardOptionDataBundle bundle = getBundle(sigma);
-    Map<Greek, Map<String, Double>> actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
-    Map<Greek, Map<String, Double>> expected = BSM.getGreeks(vanillaDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(actual.get(PRICE).values().iterator().next(), expected.get(PRICE).values().iterator().next(), SMALL_EPS);
+    GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
+    GreekResultCollection expected = BSM.getGreeks(vanillaDefinition, bundle, REQUIRED_GREEKS);
+    assertEquals(((SingleGreekResult)actual.get(Greek.PRICE)).getResult(), ((SingleGreekResult)expected.get(Greek.PRICE)).getResult(), SMALL_EPS);
   }
 
   private void assertPriceEquals(PoweredOptionDefinition poweredDefinition, double sigma, double price) {
     StandardOptionDataBundle bundle = getBundle(sigma);
-    Map<Greek, Map<String, Double>> actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(actual.get(PRICE).values().iterator().next(), price, BIG_EPS * price);
+    GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
+    assertEquals(((SingleGreekResult)actual.get(Greek.PRICE)).getResult(), price, BIG_EPS * price);
   }
 
   private StandardOptionDataBundle getBundle(double sigma) {

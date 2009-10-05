@@ -9,14 +9,14 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
+import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.LogOptionDefinition;
@@ -31,8 +31,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class LogOptionModelTest {
   private static final AnalyticOptionModel<LogOptionDefinition, StandardOptionDataBundle> MODEL = new LogOptionModel();
-  private static final Greek PRICE = new Price();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { PRICE });
+  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
@@ -58,8 +57,8 @@ public class LogOptionModelTest {
 
   private void assertPriceEquals(LogOptionDefinition definition, double sigma, double price) {
     StandardOptionDataBundle bundle = getBundle(sigma);
-    Map<Greek, Map<String, Double>> actual = MODEL.getGreeks(definition, bundle, REQUIRED_GREEKS);
-    assertEquals(actual.get(PRICE).values().iterator().next(), price, EPS);
+    GreekResultCollection actual = MODEL.getGreeks(definition, bundle, REQUIRED_GREEKS);
+    assertEquals(((SingleGreekResult)actual.get(Greek.PRICE)).getResult(), price, EPS);
   }
 
   private StandardOptionDataBundle getBundle(double sigma) {

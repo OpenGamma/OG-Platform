@@ -14,13 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.greeks.Delta;
-import com.opengamma.financial.greeks.Gamma;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
-import com.opengamma.financial.greeks.Rho;
-import com.opengamma.financial.greeks.Theta;
-import com.opengamma.financial.greeks.TimeBucketedRho;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -56,10 +50,10 @@ public class BlackScholesMertonModelTest {
     final Expiry expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(75, expiry, true);
     StandardOptionDataBundle vars = new StandardOptionDataBundle(CONSTANT_CURVE, B, SURFACE, 72., DATE);
-    List<Greek> requiredGreeks = Arrays.asList(new Greek[] { new Price(), new Delta(), new Gamma(), new Rho(), new Theta() });
+    List<Greek> requiredGreeks = Arrays.asList(new Greek[] { Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO, Greek.THETA });
     System.out.println(new BlackScholesMertonModel().getGreeks(definition, vars, requiredGreeks));
     vars = new StandardOptionDataBundle(CURVE, B, SURFACE, 72., DATE);
-    requiredGreeks = Arrays.asList(new Greek[] { new Price(), new Delta(), new Gamma(), new Rho(), new Theta(), new TimeBucketedRho() });
+    requiredGreeks = Arrays.asList(new Greek[] { Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO, Greek.THETA, Greek.TIME_BUCKETED_RHO });
     System.out.println(new BlackScholesMertonModel().getGreeks(definition, vars, requiredGreeks));
   }
 }

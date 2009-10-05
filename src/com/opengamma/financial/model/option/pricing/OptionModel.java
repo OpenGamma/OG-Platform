@@ -1,9 +1,9 @@
 package com.opengamma.financial.model.option.pricing;
 
 import java.util.List;
-import java.util.Map;
 
 import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
@@ -13,8 +13,8 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
  * 
  */
 
-public interface OptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
+public interface OptionModel<T extends OptionDefinition<?>, U extends StandardOptionDataBundle> {
 
-  public Map<Greek, Map<String, Double>> getGreeks(T definition, U vars, List<Greek> requiredGreeks);
+  public GreekResultCollection getGreeks(T definition, U vars, List<Greek> requiredGreeks);
 
 }

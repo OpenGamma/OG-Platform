@@ -11,15 +11,15 @@ package com.opengamma.financial.greeks;
  */
 public interface GreekVisitor<T> {
 
-  public T visitPrice(Price price);
+  public T visitPrice();
 
-  public T visitDelta(Delta delta);
+  public T visitDelta();
 
-  public T visitGamma(Gamma gamma);
+  public T visitGamma();
 
-  public T visitRho(Rho rho);
+  public T visitRho();
 
-  public T visitTheta(Theta theta);
+  public T visitTheta();
 
-  public T visitTimeBucketedRho(TimeBucketedRho rho);
+  public T visitTimeBucketedRho();
 }

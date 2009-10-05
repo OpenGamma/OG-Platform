@@ -1,22 +1,20 @@
 package com.opengamma.financial.model.option.pricing.montecarlo;
 
-import java.util.Map;
-
-import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.stochastic.StochasticProcess;
 import com.opengamma.financial.montecarlo.MonteCarlo;
 
-public abstract class MonteCarloOptionModel<U extends MonteCarlo<StochasticProcess>, T extends OptionDefinition, V extends StandardOptionDataBundle> implements OptionModel<T, V> {
+public abstract class MonteCarloOptionModel<U extends MonteCarlo<StochasticProcess>, T extends OptionDefinition<V>, V extends StandardOptionDataBundle> implements OptionModel<T, V> {
   private final int _n;
 
   public MonteCarloOptionModel(int n) {
     _n = n;
   }
 
-  public Map<Greek, Map<String, Double>> getGreeks(T definition, V vars) {
+  public GreekResultCollection getGreeks(T definition, V vars) {
     // TODO Auto-generated method stub
     return null;
   }
