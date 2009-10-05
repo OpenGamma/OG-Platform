@@ -22,24 +22,24 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
   private final double EPS = 1e-9;
 
   @Override
-  public VolatilitySurface getSurface(Map<EuropeanVanillaOptionDefinition, Double> optionPrices, StandardOptionDataBundle optionDataBundle) {
-    Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = optionPrices.entrySet().iterator().next();
-    Double price = entry.getValue();
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
+  public VolatilitySurface getSurface(final Map<EuropeanVanillaOptionDefinition, Double> optionPrices, final StandardOptionDataBundle optionDataBundle) {
+    final Map.Entry<EuropeanVanillaOptionDefinition, Double> entry = optionPrices.entrySet().iterator().next();
+    final Double price = entry.getValue();
+    final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(new MyMutableStandardOptionDataBundle(optionDataBundle), price);
-    double sigma = _rootFinder.getRoot(pricingFunction, 0., 10., EPS);
+    final double sigma = _rootFinder.getRoot(pricingFunction, 0., 10., EPS);
     return new ConstantVolatilitySurface(sigma);
   }
 
   private class MyMutableStandardOptionDataBundle extends StandardOptionDataBundle {
     private VolatilitySurface _mutableSurface;
 
-    public MyMutableStandardOptionDataBundle(StandardOptionDataBundle data) {
+    public MyMutableStandardOptionDataBundle(final StandardOptionDataBundle data) {
       super(data.getDiscountCurve(), data.getCostOfCarry(), data.getVolatilitySurface(), data.getSpot(), data.getDate());
       _mutableSurface = data.getVolatilitySurface();
     }
 
-    public void setVolatility(double sigma) {
+    public void setVolatility(final double sigma) {
       _mutableSurface = new ConstantVolatilitySurface(sigma);
     }
 
@@ -54,15 +54,15 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     private final double _price;
     private static final int MAX_ATTEMPTS = 1000;
 
-    public MyBisectionSingleRootFinder(StandardOptionDataBundle data, double price) {
+    public MyBisectionSingleRootFinder(final StandardOptionDataBundle data, final double price) {
       _data = new MyMutableStandardOptionDataBundle(data);
       _price = price;
     }
 
     @Override
-    public Double getRoot(Function<StandardOptionDataBundle, Double> function, Double lowVol, Double highVol, Double accuracy) {
+    public Double getRoot(final Function<StandardOptionDataBundle, Double> function, final Double lowVol, final Double highVol, final Double accuracy) {
       _data.setVolatility(lowVol);
-      Double lowPrice = function.evaluate(_data) - _price;
+      final Double lowPrice = function.evaluate(_data) - _price;
       if (Math.abs(lowPrice) < accuracy)
         return lowVol;
       _data.setVolatility(highVol);
@@ -82,8 +82,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
         midVol = rootVol + dVol;
         _data.setVolatility(midVol);
         highPrice = function.evaluate(_data);
-        if (highPrice <= 0)
+        if (highPrice <= 0) {
           rootVol = midVol;
+        }
         if (Math.abs(dVol) < accuracy || Math.abs(highVol) < ZERO)
           return rootVol;
       }

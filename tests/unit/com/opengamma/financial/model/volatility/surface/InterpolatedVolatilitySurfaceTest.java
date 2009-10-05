@@ -17,7 +17,7 @@ import com.opengamma.util.Pair;
  * 
  * @author emcleod
  */
-public class VolatilitySurfaceTest {
+public class InterpolatedVolatilitySurfaceTest {
 
   // private static final Interpolator2D INTERPOLATOR = new
   // LinearInterpolator2D();
@@ -25,13 +25,13 @@ public class VolatilitySurfaceTest {
   @Test
   public void testConstructor() {
     try {
-      new VolatilitySurface(null, null);
+      new InterpolatedVolatilitySurface(null, null);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected
     }
     try {
-      new VolatilitySurface(new HashMap<Pair<Double, Double>, Double>(), null);
+      new InterpolatedVolatilitySurface(new HashMap<Pair<Double, Double>, Double>(), null);
       fail();
     } catch (IllegalArgumentException e) {
       // Expected

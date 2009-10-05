@@ -6,7 +6,6 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -19,16 +18,10 @@ public class ConstantVolatilitySurfaceTest {
 
   @Test
   public void test() {
-    double sigma = 0.3;
-    VolatilitySurface surface = new ConstantVolatilitySurface(sigma);
-    try {
-      surface.getInterpolator();
-      fail();
-    } catch (UnsupportedOperationException e) {
-      // Expected
-    }
-    double t = 2;
-    double k = 50;
+    final double sigma = 0.3;
+    final VolatilitySurface surface = new ConstantVolatilitySurface(sigma);
+    final double t = 2;
+    final double k = 50;
     assertEquals(sigma, surface.getVolatility(t, k), EPS);
   }
 }

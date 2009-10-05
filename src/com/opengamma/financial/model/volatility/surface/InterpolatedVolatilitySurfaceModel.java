@@ -23,13 +23,13 @@ public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements Volati
   }
 
   @Override
-  public VolatilitySurface getSurface(final Map<T, Double> volatilityData, final U dataBundle) {
+  public InterpolatedVolatilitySurface getSurface(final Map<T, Double> volatilityData, final U dataBundle) {
     final Map<Pair<Double, Double>, Double> xyData = new HashMap<Pair<Double, Double>, Double>();
     for (final Map.Entry<T, Double> entry : volatilityData.entrySet()) {
       final T key = entry.getKey();
       xyData.put(new Pair<Double, Double>(getXAxisFunctionValue(key, dataBundle), getYAxisFunctionValue(key, dataBundle)), entry.getValue());
     }
-    return new VolatilitySurface(xyData, _interpolator);
+    return new InterpolatedVolatilitySurface(xyData, _interpolator);
   }
 
   protected Interpolator2D getInterpolator(final Interpolator2D interpolator) {

@@ -17,7 +17,8 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 public class StandardOptionDataBundleWithOptionPrice extends StandardOptionDataBundle {
   private final double _optionPrice;
 
-  public StandardOptionDataBundleWithOptionPrice(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, ZonedDateTime date, double optionPrice) {
+  public StandardOptionDataBundleWithOptionPrice(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot,
+      final ZonedDateTime date, final double optionPrice) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _optionPrice = optionPrice;
   }
@@ -32,19 +33,19 @@ public class StandardOptionDataBundleWithOptionPrice extends StandardOptionDataB
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_optionPrice);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    StandardOptionDataBundleWithOptionPrice other = (StandardOptionDataBundleWithOptionPrice) obj;
+    final StandardOptionDataBundleWithOptionPrice other = (StandardOptionDataBundleWithOptionPrice) obj;
     if (Double.doubleToLongBits(_optionPrice) != Double.doubleToLongBits(other._optionPrice))
       return false;
     return true;

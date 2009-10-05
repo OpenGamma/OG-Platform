@@ -22,30 +22,30 @@ public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionMode
 
   @Override
   public Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double>() {
+    final Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(BatesGeneralizedJumpDiffusionModelOptionDataBundle data) {
+      public Double evaluate(final BatesGeneralizedJumpDiffusionModelOptionDataBundle data) {
         try {
-          double s = data.getSpot();
-          DiscountCurve discountCurve = data.getDiscountCurve();
-          VolatilitySurface volSurface = data.getVolatilitySurface();
-          ZonedDateTime date = data.getDate();
-          double t = definition.getTimeToExpiry(date);
-          double k = definition.getStrike();
+          final double s = data.getSpot();
+          final DiscountCurve discountCurve = data.getDiscountCurve();
+          final VolatilitySurface volSurface = data.getVolatilitySurface();
+          final ZonedDateTime date = data.getDate();
+          final double t = definition.getTimeToExpiry(date);
+          final double k = definition.getStrike();
           double sigma = data.getVolatility(t, k);
           double b = data.getCostOfCarry();
-          double lambda = data.getLambda();
-          double expectedJumpSize = data.getExpectedJumpSize();
-          double delta = data.getDelta();
-          double gamma = Math.log(1 + expectedJumpSize);
-          double sigmaSq = sigma * sigma;
-          double z = Math.sqrt(sigmaSq - lambda * delta);
-          double lambdaT = lambda * t;
+          final double lambda = data.getLambda();
+          final double expectedJumpSize = data.getExpectedJumpSize();
+          final double delta = data.getDelta();
+          final double gamma = Math.log(1 + expectedJumpSize);
+          final double sigmaSq = sigma * sigma;
+          final double z = Math.sqrt(sigmaSq - lambda * delta);
+          final double lambdaT = lambda * t;
           double mult = Math.exp(-lambdaT);
           b -= lambda * expectedJumpSize;
           StandardOptionDataBundle bsmData = new StandardOptionDataBundle(discountCurve, b, volSurface, s, date);
-          Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
+          final Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
           double price = mult * bsmFunction.evaluate(bsmData);
           for (int i = 1; i < 50; i++) {
             sigma = Math.sqrt(z * z + delta * i / t);
@@ -56,7 +56,7 @@ public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionMode
             price += mult * bsmFunction.evaluate(bsmData);
           }
           return price;
-        } catch (InterpolationException e) {
+        } catch (final InterpolationException e) {
           throw new OptionPricingException(e);
         }
       }

@@ -57,11 +57,11 @@ public class AsymmetricPowerOptionModelTest {
     assertEquals(getPrice(2.1, false), 0.2745, EPS);
   }
 
-  private double getPrice(double power, boolean isCall) {
+  private double getPrice(final double power, final boolean isCall) {
     return MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
   }
 
-  private AsymmetricPowerOptionDefinition getDefinition(double power, boolean isCall) {
+  private AsymmetricPowerOptionDefinition getDefinition(final double power, final boolean isCall) {
     return new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, power, isCall);
   }
 }

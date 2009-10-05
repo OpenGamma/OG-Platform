@@ -65,19 +65,19 @@ public class CappedPowerOptionModelTest {
     assertEquals(getCappedPrice(2.1, HIGH_CAP, false), getUncappedPrice(2.1, false), EPS);
   }
 
-  private double getCappedPrice(double power, double cap, boolean isCall) {
+  private double getCappedPrice(final double power, final double cap, final boolean isCall) {
     return CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
   }
 
-  private double getUncappedPrice(double power, boolean isCall) {
+  private double getUncappedPrice(final double power, final boolean isCall) {
     return UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(PRICE).values().iterator().next();
   }
 
-  private CappedPowerOptionDefinition getDefinition(double power, double cap, boolean isCall) {
+  private CappedPowerOptionDefinition getDefinition(final double power, final double cap, final boolean isCall) {
     return new CappedPowerOptionDefinition(STRIKE, EXPIRY, power, cap, isCall);
   }
 
-  private AsymmetricPowerOptionDefinition getDefinition(double power, boolean isCall) {
+  private AsymmetricPowerOptionDefinition getDefinition(final double power, final boolean isCall) {
     return new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, power, isCall);
   }
 }

@@ -18,8 +18,8 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class StandardOptionDataBundleWithSpotTimeSeries extends StandardOptionDataBundle {
   private final DoubleTimeSeries _spotTS;
 
-  public StandardOptionDataBundleWithSpotTimeSeries(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, ZonedDateTime date,
-      DoubleTimeSeries spotTS) {
+  public StandardOptionDataBundleWithSpotTimeSeries(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot,
+      final ZonedDateTime date, final DoubleTimeSeries spotTS) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _spotTS = spotTS;
   }
@@ -32,19 +32,19 @@ public class StandardOptionDataBundleWithSpotTimeSeries extends StandardOptionDa
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_spotTS == null) ? 0 : _spotTS.hashCode());
+    result = prime * result + (_spotTS == null ? 0 : _spotTS.hashCode());
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    StandardOptionDataBundleWithSpotTimeSeries other = (StandardOptionDataBundleWithSpotTimeSeries) obj;
+    final StandardOptionDataBundleWithSpotTimeSeries other = (StandardOptionDataBundleWithSpotTimeSeries) obj;
     if (_spotTS == null) {
       if (other._spotTS != null)
         return false;

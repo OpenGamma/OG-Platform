@@ -41,29 +41,24 @@ public class StandardFixedIncomeUnderlyingOptionDataBundle extends StandardOptio
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_underlyingInstrument == null) ? 0 : _underlyingInstrument.hashCode());
+    result = prime * result + (_underlyingInstrument == null ? 0 : _underlyingInstrument.hashCode());
     return result;
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (!super.equals(obj)) {
+    if (!super.equals(obj))
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     final StandardFixedIncomeUnderlyingOptionDataBundle other = (StandardFixedIncomeUnderlyingOptionDataBundle) obj;
     if (_underlyingInstrument == null) {
-      if (other._underlyingInstrument != null) {
+      if (other._underlyingInstrument != null)
         return false;
-      }
-    } else if (!_underlyingInstrument.equals(other._underlyingInstrument)) {
+    } else if (!_underlyingInstrument.equals(other._underlyingInstrument))
       return false;
-    }
     return true;
   }
 }

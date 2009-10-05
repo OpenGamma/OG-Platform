@@ -13,7 +13,8 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   private final double _skew;
   private final double _kurtosis;
 
-  public SkewKurtosisOptionDataBundle(DiscountCurve discountCurve, double b, VolatilitySurface volatilitySurface, double spot, ZonedDateTime date, double skew, double kurtosis) {
+  public SkewKurtosisOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+      final double skew, final double kurtosis) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _skew = skew;
     _kurtosis = kurtosis;
@@ -33,21 +34,21 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_kurtosis);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_skew);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    SkewKurtosisOptionDataBundle other = (SkewKurtosisOptionDataBundle) obj;
+    final SkewKurtosisOptionDataBundle other = (SkewKurtosisOptionDataBundle) obj;
     if (Double.doubleToLongBits(_kurtosis) != Double.doubleToLongBits(other._kurtosis))
       return false;
     if (Double.doubleToLongBits(_skew) != Double.doubleToLongBits(other._skew))
