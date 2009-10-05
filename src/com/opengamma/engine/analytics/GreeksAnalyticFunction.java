@@ -15,9 +15,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.AmericanVanillaOption;
 import com.opengamma.engine.security.EquityOptionSecurity;
 import com.opengamma.engine.security.EuropeanVanillaOption;
@@ -25,11 +22,8 @@ import com.opengamma.engine.security.OptionType;
 import com.opengamma.engine.security.OptionVisitor;
 import com.opengamma.engine.security.PoweredOption;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.greeks.Delta;
-import com.opengamma.financial.greeks.Gamma;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.Price;
-import com.opengamma.financial.greeks.Rho;
+import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -44,25 +38,20 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
-    AnalyticFunctionInvoker {
+public class GreeksAnalyticFunction extends AbstractAnalyticFunction
+implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
 
   @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
-      Position position) {
-    return null;
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public Collection<AnalyticValue<?>> execute(AnalyticFunctionInputs inputs,
+  public Collection<AnalyticValue<?>> execute(
+      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
       Security security) {
     if (security.getSecurityType().equals("EQUITY_OPTION")) {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
       final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
+      @SuppressWarnings("unchecked")
       final Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOption.getUnderlying()));
       final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
       final Expiry expiry = equityOption.getExpiry();
@@ -71,23 +60,11 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
       StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volSurface, spot, today);
       EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
       AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
-      Map<Greek, Map<String, Double>> greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {new Price(), new Delta(), new Gamma(), new Rho()}));
+      GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
       return Collections.<AnalyticValue<?>>singleton(new GreeksResultAnalyticValue(new GreeksResultValueDefinition(security.getIdentityKey()), greeks));
     } else {
       throw new IllegalStateException("Illegal security type "+security.getSecurityType());
     }
-  }
-
-  @Override
-  public DependencyNode buildSubGraph(Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver) {
-    return null;
-  }
-
-  @Override
-  public boolean buildsOwnSubGraph() {
-    return false;
   }
 
   @Override
@@ -134,27 +111,11 @@ public class GreeksAnalyticFunction extends AbstractAnalyticFunction implements
 
   @Override
   public String getShortName() {
-    return "GreeksResult";
+    return "Greeks Analytic Function";
   }
 
   @Override
   public boolean isApplicableTo(String securityType) {
     return securityType.equals("EQUITY_OPTION");
   }
-
-  @Override
-  public boolean isApplicableTo(Position position) {
-    return false;
-  }
-
-  @Override
-  public boolean isPositionSpecific() {
-    return false;
-  }
-
-  @Override
-  public boolean isSecuritySpecific() {
-    return true;
-  }
-
 }
