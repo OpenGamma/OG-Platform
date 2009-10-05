@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.var;
 
-import org.jcsp.plugNplay.Delta;
-
+import com.opengamma.financial.greeks.Greek;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -15,7 +14,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class CovarianceVaRCalculator {
 
-  private Double getDeltaVaR(final Delta delta, final DoubleTimeSeries ts) {
+  private Double getDeltaVaR(final Greek delta, final DoubleTimeSeries ts) {
     return null;
   }
 }
