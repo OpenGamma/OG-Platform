@@ -81,6 +81,33 @@ public abstract class DoubleTimeSeriesTest {
   }
   
   @Test
+  public void testHead() {
+    DoubleTimeSeries dts = createStandardTimeSeries();
+    DoubleTimeSeries head5 = (DoubleTimeSeries) dts.head(5);
+    Iterator<Entry<InstantProvider, Double>> iterator = head5.iterator();
+    for (long i=1; i<=5; i++) {
+      Entry<InstantProvider, Double> entry = iterator.next();
+      assertEquals(i, entry.getKey().toInstant().toEpochMillis());
+      assertEquals(Double.valueOf(i), entry.getValue());
+    }
+    assertEquals(dts.head(0), createEmptyTimeSeries());
+    assertEquals(createEmptyTimeSeries().head(0), createEmptyTimeSeries());
+  }
+  @Test
+  public void testTail() {
+    DoubleTimeSeries dts = createStandardTimeSeries();
+    DoubleTimeSeries head5 = (DoubleTimeSeries) dts.tail(5);
+    Iterator<Entry<InstantProvider, Double>> iterator = head5.iterator();
+    for (long i=2; i<=6; i++) {
+      Entry<InstantProvider, Double> entry = iterator.next();
+      assertEquals(i, entry.getKey().toInstant().toEpochMillis());
+      assertEquals(Double.valueOf(i), entry.getValue());
+    }
+    assertEquals(dts.tail(0), createEmptyTimeSeries());
+    assertEquals(createEmptyTimeSeries().tail(0), createEmptyTimeSeries());
+  }
+  
+  @Test
   public void testSize() {
     DoubleTimeSeries dts = createStandardTimeSeries();
     assertEquals(6, dts.size());

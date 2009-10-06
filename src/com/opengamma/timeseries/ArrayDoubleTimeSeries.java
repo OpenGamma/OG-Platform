@@ -292,12 +292,12 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public TimeSeries<Double> head(int numItems) {
+  public TimeSeries<Double> tail(int numItems) {
     if (numItems <= _times.length) {
       long[] times = new long[numItems];
       double[] values = new double[numItems];
-      System.arraycopy(_times, _times.length - 1 - numItems, times, 0, numItems);
-      System.arraycopy(_values, _values.length - 1 - numItems, values, 0, numItems);
+      System.arraycopy(_times, _times.length - numItems, times, 0, numItems);
+      System.arraycopy(_values, _values.length - numItems, values, 0, numItems);
       return new ArrayDoubleTimeSeries(times, values);
     } else {
       throw new NoSuchElementException("Not enough elements");
@@ -305,7 +305,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public TimeSeries<Double> tail(int numItems) {
+  public TimeSeries<Double> head(int numItems) {
     if (numItems <= _times.length) {
       long[] times = new long[numItems];
       double[] values = new double[numItems];
