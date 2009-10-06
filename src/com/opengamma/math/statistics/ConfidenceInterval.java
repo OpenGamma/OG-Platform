@@ -13,11 +13,17 @@ public class ConfidenceInterval {
   private final double _lower;
   private final double _upper;
   private final double _confidenceLevel;
+  private final double _value;
 
-  public ConfidenceInterval(final double lower, final double upper, final double confidenceLevel) {
+  public ConfidenceInterval(final double value, final double lower, final double upper, final double confidenceLevel) {
+    _value = value;
     _lower = lower;
     _upper = upper;
     _confidenceLevel = confidenceLevel;
+  }
+
+  public double getValue() {
+    return _value;
   }
 
   public double getLowerInterval() {
@@ -47,6 +53,8 @@ public class ConfidenceInterval {
     result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_upper);
     result = prime * result + (int) (temp ^ temp >>> 32);
+    temp = Double.doubleToLongBits(_value);
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
@@ -64,6 +72,8 @@ public class ConfidenceInterval {
     if (Double.doubleToLongBits(_lower) != Double.doubleToLongBits(other._lower))
       return false;
     if (Double.doubleToLongBits(_upper) != Double.doubleToLongBits(other._upper))
+      return false;
+    if (Double.doubleToLongBits(_value) != Double.doubleToLongBits(other._value))
       return false;
     return true;
   }

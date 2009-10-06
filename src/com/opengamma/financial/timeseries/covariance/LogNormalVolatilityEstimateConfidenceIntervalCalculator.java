@@ -21,6 +21,6 @@ public class LogNormalVolatilityEstimateConfidenceIntervalCalculator {
     final double alpha = 1 - confidenceLevel;
     final double lower = volatility * Math.sqrt((n - 1) / _chiSquare.getInverseCDF(1 - alpha / 2));
     final double upper = volatility * Math.sqrt((n - 1) / _chiSquare.getInverseCDF(alpha / 2));
-    return new ConfidenceInterval(lower, upper, confidenceLevel);
+    return new ConfidenceInterval(volatility, lower, upper, confidenceLevel);
   }
 }
