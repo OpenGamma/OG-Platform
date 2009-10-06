@@ -1,6 +1,5 @@
 package com.opengamma.math.function.special;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -15,9 +14,9 @@ public class NaturalLogGammaFunction extends Function1D<Double, Double> {
       0.844182239838527433e-4, -0.261908384015814087e-4, 0.368991826595316234e-5 };
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(final Double x) {
     if (x < 0)
-      throw new MathException("x must be greater than zero");
+      throw new IllegalArgumentException("x must be greater than zero");
     double y = x;
     double ser = 0.999999999999997092;
     double temp;

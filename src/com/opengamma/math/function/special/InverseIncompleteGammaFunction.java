@@ -1,0 +1,73 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.math.function.special;
+
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function2D;
+
+/**
+ * 
+ * @author emcleod
+ */
+public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
+  private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
+  private final Function2D<Double, Double> _gammaIncomplete = new IncompleteGammaFunction();
+  private final double EPS = 1e-8;
+
+  @Override
+  public Double evaluate(final Double a, final Double p) {
+    if (a <= 0)
+      throw new IllegalArgumentException("a must be positive");
+    if (p >= 1 || p <= 0)
+      throw new IllegalArgumentException("p must lie between 0 and 1: have " + p);
+    double x;
+    double err;
+    double t;
+    double u;
+    double pp, lna1 = 0, afac = 0;
+    final double a1 = a - 1;
+    final double gln = _lnGamma.evaluate(a);
+    if (a > 1) {
+      lna1 = Math.log(a1);// TODO Math.logp
+      afac = Math.exp(a1 * (lna1 - 1) - gln);
+      pp = p < 0.5 ? p : 1 - p;
+      t = Math.sqrt(-2 * Math.log(pp));
+      x = (2.30753 + t * 0.27061) / (1 + t * (0.99229 + t * 0.04481)) - t;
+      if (p < 0.5) {
+        x = -x;
+      }
+      x = Math.max(0.001, a * Math.pow(1 - 1. / (9 * a) - x / (3 * Math.sqrt(a)), 3));
+    } else {
+      t = 1 - a * (0.253 + a * 0.12);
+      if (p < t) {
+        x = Math.pow(p / t, 1. / a);
+      } else {
+        x = 1. - Math.log(1 - (p - t) / (1. - t));
+      }
+    }
+    for (int i = 0; i < 12; i++) {
+      if (x <= 0)
+        return 0.;
+      err = _gammaIncomplete.evaluate(a, x) - p;
+      if (a > 1) {
+        t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));
+      } else {
+        t = Math.exp(-x + a1 * Math.log(x) - gln);
+      }
+      u = err / t;
+      t = u / (1 - 0.5 * Math.min(1, u * ((a - 1) / x - 1)));
+      x -= t;
+      if (x <= 0) {
+        x = 0.05 * (x + t);
+      }
+      if (Math.abs(t) < EPS * x) {
+        break;
+      }
+    }
+    return x;
+  }
+
+}

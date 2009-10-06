@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import cern.jet.random.StudentT;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
@@ -37,6 +39,11 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   @Override
   public double nextRandom() {
     return _dist.nextDouble();
+  }
+
+  @Override
+  public double getInverseCDF(final Double p) {
+    throw new NotImplementedException();
   }
 
   public double getDegreesOfFreedom() {
