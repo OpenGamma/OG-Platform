@@ -33,7 +33,7 @@ import com.opengamma.util.CalculationMode;
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
-  public ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode mode) {
+  public ContinuouslyCompoundedTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
   }
 
@@ -55,13 +55,18 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) {
+  public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
+    if (x.length == 0)
+      throw new TimeSeriesException("Time series array was empty");
     final DoubleTimeSeries ts = x[0];
     if (ts.size() < 2)
       throw new TimeSeriesException("Need at least two data points to calculate return series");
-    final DoubleTimeSeries d = x[1];
+    DoubleTimeSeries d = null;
+    if (x.length > 1) {
+      d = x[1];
+    }
     final List<InstantProvider> times = new ArrayList<InstantProvider>();
     final List<Double> data = new ArrayList<Double>();
     final Iterator<Map.Entry<InstantProvider, Double>> iter = ts.iterator();

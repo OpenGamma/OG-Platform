@@ -25,7 +25,7 @@ import com.opengamma.util.CalculationMode;
 public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
   private final Function<DoubleTimeSeries, DoubleTimeSeries> _returnCalculator;
 
-  public ExcessSimpleNetTimeSeriesReturnCalculator(CalculationMode mode) {
+  public ExcessSimpleNetTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
     _returnCalculator = new SimpleNetTimeSeriesReturnCalculator(mode);
   }
@@ -44,7 +44,7 @@ public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnC
    * @return A DoubleTimeSeries containing the excess return series.
    */
   @Override
-  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) {
+  public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length < 4)
