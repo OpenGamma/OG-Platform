@@ -44,6 +44,22 @@ public class HistoricalVolatilityCalculatorTest {
     }
 
   };
+  private static final HistoricalVolatilityCalculator LENIENT_CALCULATOR = new HistoricalVolatilityCalculator(CalculationMode.LENIENT) {
+
+    @Override
+    public Double evaluate(final DoubleTimeSeries... x) {
+      return 0.;
+    }
+
+  };
+  private static final HistoricalVolatilityCalculator FOOLISH_CALCULATOR = new HistoricalVolatilityCalculator(CalculationMode.LENIENT, 1.1) {
+
+    @Override
+    public Double evaluate(final DoubleTimeSeries... x) {
+      return 0.;
+    }
+
+  };
 
   @Test
   public void testInputs() {
@@ -79,5 +95,47 @@ public class HistoricalVolatilityCalculatorTest {
     } catch (final TimeSeriesException e) {
       // Expected
     }
+  }
+
+  @Test
+  public void testTimeSeries() {
+    testHighLowTimeSeries(LOW_TS, HIGH_TS);
+    testHighLowCloseTimeSeries(LOW_TS, HIGH_TS, CLOSE_TS);
+    testHighLowCloseTimeSeries(LOW_TS, CLOSE_TS, HIGH_TS);
+    testHighLowCloseTimeSeries(HIGH_TS, CLOSE_TS, LOW_TS);
+    testHighLowCloseTimeSeries(CLOSE_TS, HIGH_TS, LOW_TS);
+    testHighLowCloseTimeSeries(CLOSE_TS, LOW_TS, HIGH_TS);
+  }
+
+  private void testHighLowTimeSeries(final DoubleTimeSeries x, final DoubleTimeSeries y) {
+    try {
+      CALCULATOR.testHighLow(x, y);
+      fail();
+    } catch (final TimeSeriesException e) {
+      // Expected
+    }
+    try {
+      LENIENT_CALCULATOR.testHighLow(x, y);
+      fail();
+    } catch (final TimeSeriesException e) {
+      // Expected
+    }
+    FOOLISH_CALCULATOR.testHighLow(x, y);
+  }
+
+  private void testHighLowCloseTimeSeries(final DoubleTimeSeries x, final DoubleTimeSeries y, final DoubleTimeSeries z) {
+    try {
+      CALCULATOR.testHighLowClose(x, y, z);
+      fail();
+    } catch (final TimeSeriesException e) {
+      // Expected
+    }
+    try {
+      LENIENT_CALCULATOR.testHighLowClose(x, y, z);
+      fail();
+    } catch (final TimeSeriesException e) {
+      // Expected
+    }
+    FOOLISH_CALCULATOR.testHighLowClose(x, y, z);
   }
 }

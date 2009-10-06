@@ -9,15 +9,40 @@ import java.util.Iterator;
 
 import javax.time.InstantProvider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
  * @author emcleod
  */
 public abstract class HistoricalVolatilityCalculator implements Function<DoubleTimeSeries, Double> {
+  private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
+  private final CalculationMode _mode;
+  private final double _percentBadDataPoints;
+
+  public HistoricalVolatilityCalculator() {
+    _mode = CalculationMode.STRICT;
+    _percentBadDataPoints = 0.001;
+  }
+
+  public HistoricalVolatilityCalculator(final CalculationMode mode) {
+    _mode = mode;
+    _percentBadDataPoints = 0.001;
+  }
+
+  public HistoricalVolatilityCalculator(final CalculationMode mode, final double percentBadDataPoints) {
+    _mode = mode;
+    if (percentBadDataPoints > 1) {
+      s_Log.warn("Fraction of bad high / low / close data points that will be accepted is greater than one; this is probably not what was intended");
+    }
+    _percentBadDataPoints = percentBadDataPoints;
+  }
 
   @Override
   public abstract Double evaluate(final DoubleTimeSeries... x);
@@ -53,5 +78,48 @@ public abstract class HistoricalVolatilityCalculator implements Function<DoubleT
         }
       }
     }
+  }
+
+  protected void testHighLow(final DoubleTimeSeries high, final DoubleTimeSeries low) {
+    final double size = high.size();
+    int count = 0;
+    final Iterator<Double> highIter = high.valuesIterator();
+    final Iterator<Double> lowIter = low.valuesIterator();
+    boolean compare;
+    while (highIter.hasNext()) {
+      compare = highIter.next() < lowIter.next();
+      if (compare) {
+        if (_mode == CalculationMode.STRICT)
+          throw new TimeSeriesException("Not all values in the high series were greater than the values in the low series");
+        count++;
+      }
+    }
+    final double percent = count / size;
+    if (percent > _percentBadDataPoints)
+      throw new TimeSeriesException("Percent " + percent + " of bad data points is greater than " + _percentBadDataPoints);
+  }
+
+  protected void testHighLowClose(final DoubleTimeSeries high, final DoubleTimeSeries low, final DoubleTimeSeries close) {
+    final double size = high.size();
+    int count = 0;
+    final Iterator<Double> highIter = high.valuesIterator();
+    final Iterator<Double> lowIter = low.valuesIterator();
+    final Iterator<Double> closeIter = close.valuesIterator();
+    boolean compare;
+    double highValue, lowValue, closeValue;
+    while (highIter.hasNext()) {
+      highValue = highIter.next();
+      lowValue = lowIter.next();
+      closeValue = closeIter.next();
+      compare = highValue < lowValue || closeValue > highValue || closeValue < lowValue;
+      if (compare) {
+        if (_mode == CalculationMode.STRICT)
+          throw new TimeSeriesException("Not all values in the high series were greater than the values in the low series");
+        count++;
+      }
+    }
+    final double percent = count / size;
+    if (percent > _percentBadDataPoints)
+      throw new TimeSeriesException("Percent " + percent + " of bad data points is greater than " + _percentBadDataPoints);
   }
 }

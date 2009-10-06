@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -23,6 +24,17 @@ public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityC
   private final RelativeTimeSeriesReturnCalculator _returnCalculator;
 
   public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator) {
+    super();
+    _returnCalculator = returnCalculator;
+  }
+
+  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
+    super(mode);
+    _returnCalculator = returnCalculator;
+  }
+
+  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
+    super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
   }
 
@@ -38,6 +50,7 @@ public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityC
     testDatesCoincide(x);
     final DoubleTimeSeries high = x[0];
     final DoubleTimeSeries low = x[1];
+    testHighLow(high, low);
     final DoubleTimeSeries returnTS = _returnCalculator.evaluate(new DoubleTimeSeries[] { high, low });
     final int n = high.size();
     final Iterator<Double> iter = returnTS.valuesIterator();

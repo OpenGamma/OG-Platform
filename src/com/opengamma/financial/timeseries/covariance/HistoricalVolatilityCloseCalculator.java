@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -22,6 +23,17 @@ public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCal
   private final TimeSeriesReturnCalculator _returnCalculator;
 
   public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator) {
+    super();
+    _returnCalculator = returnCalculator;
+  }
+
+  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
+    super(mode);
+    _returnCalculator = returnCalculator;
+  }
+
+  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
+    super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
   }
 

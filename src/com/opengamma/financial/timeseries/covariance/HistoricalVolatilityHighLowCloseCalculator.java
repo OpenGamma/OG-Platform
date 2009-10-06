@@ -14,6 +14,7 @@ import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalcul
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
@@ -25,6 +26,21 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
   private final RelativeTimeSeriesReturnCalculator _relativeReturnCalculator;
 
   public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator) {
+    super();
+    _returnCalculator = returnCalculator;
+    _relativeReturnCalculator = relativeReturnCalculator;
+  }
+
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator,
+      final CalculationMode mode) {
+    super(mode);
+    _returnCalculator = returnCalculator;
+    _relativeReturnCalculator = relativeReturnCalculator;
+  }
+
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator,
+      final CalculationMode mode, final double percentBadDataPoints) {
+    super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
     _relativeReturnCalculator = relativeReturnCalculator;
   }
@@ -42,6 +58,7 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
     final DoubleTimeSeries high = x[0];
     final DoubleTimeSeries low = x[1];
     final DoubleTimeSeries close = x[2];
+    testHighLowClose(high, low, close);
     final DoubleTimeSeries closeReturns = _returnCalculator.evaluate(close);
     final DoubleTimeSeries highLowReturns = _relativeReturnCalculator.evaluate(new DoubleTimeSeries[] { high, low });
     final Iterator<Double> highLowIterator = highLowReturns.valuesIterator();
