@@ -17,9 +17,8 @@ import com.opengamma.util.KeyValuePair;
 public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public static final DoubleTimeSeries EMPTY_SERIES = new ArrayDoubleTimeSeries();
 
-  // REVIEW kirk 2009-09-03 -- Any reason why these aren't final?
-  private final long[] _times;
-  private final double[] _values;
+  protected final long[] _times;
+  protected final double[] _values;
 
   private ArrayDoubleTimeSeries() {
     _times = new long[0];
@@ -27,9 +26,10 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   public ArrayDoubleTimeSeries(long[] times, double[] values) {
-    // REVIEW kirk 2009-09-03 -- Any reason you're not taking a copy of these?
-    _times = times;
-    _values = values;
+    _times = new long[times.length];
+    System.arraycopy(times, 0, _times, 0, times.length);
+    _values = new double[values.length];
+    System.arraycopy(values, 0, _values, 0, values.length);
     // check dates are ordered
     long maxTime = 0L;
     for (long time : _times) {
@@ -151,7 +151,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public InstantProvider getEarliestInstant() {
+  public InstantProvider getEarliestTime() {
     if (_times.length > 0) {
       return Instant.millisInstant(_times[0]);
     } else {
@@ -169,7 +169,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public InstantProvider getLatestInstant() {
+  public InstantProvider getLatestTime() {
     if (_times.length > 0) {
       return Instant.millisInstant(_times[_times.length - 1]);
     } else {
@@ -186,7 +186,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     }
   }
 
-  private class ArrayDoubleTimeSeriesIterator implements Iterator<Entry<InstantProvider, Double>> {
+  /*package*/ class ArrayDoubleTimeSeriesIterator implements Iterator<Entry<InstantProvider, Double>> {
     private int _current = 0;
 
     @Override
@@ -226,7 +226,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return _times.length == 0;
   }
 
-  private class ArrayDoubleTimeSeriesTimeIterator implements Iterator<InstantProvider> {
+  /*package*/ class ArrayDoubleTimeSeriesTimeIterator implements Iterator<InstantProvider> {
     private int _current = 0;
 
     @Override
@@ -256,7 +256,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return new ArrayDoubleTimeSeriesTimeIterator();
   }
 
-  private class ArrayDoubleTimeSeriesValuesIterator implements Iterator<Double> {
+  /*package*/ class ArrayDoubleTimeSeriesValuesIterator implements Iterator<Double> {
     private int _current = 0;
 
     @Override
@@ -287,12 +287,17 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public Double getDataPoint(int index) {
+  public Double getValue(int index) {
     return _values[index];
+  }
+  
+  @Override
+  public InstantProvider getTime(int index) {
+    return Instant.instant(_times[index]);
   }
 
   @Override
-  public TimeSeries<Double> tail(int numItems) {
+  public DoubleTimeSeries tail(int numItems) {
     if (numItems <= _times.length) {
       long[] times = new long[numItems];
       double[] values = new double[numItems];
@@ -305,7 +310,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public TimeSeries<Double> head(int numItems) {
+  public DoubleTimeSeries head(int numItems) {
     if (numItems <= _times.length) {
       long[] times = new long[numItems];
       double[] values = new double[numItems];
@@ -362,18 +367,41 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     }
 
   }
+  
+  public List<InstantProvider> times() {
+    InstantProvider[] times = new InstantProvider[_times.length];
+    for (int i=0; i<_times.length; i++) {
+      times[i] = Instant.instant(_times[i]);
+    }
+    return Arrays.asList(times);
+  }
+  
+  public List<Double> values() {
+    Double[] copy = new Double[_values.length];
+    System.arraycopy(_values, 0, copy, 0, _values.length);
+    return Arrays.asList(copy);
+  }
 
   @Override
   public int hashCode() {
-    // REVIEW kirk 2009-09-03 -- Is it worth it to use all the data
-    // points here for the hash code? That seems like it could be
-    // expensive for a frequent operation.
     int value = 0;
-    for (int i = 0; i < _times.length; i++) {
+    for (int i = 0; i < ((_times.length > 0) ? 1 : 0); i++) {
       final long bits = Double.doubleToLongBits(_values[i]);
       value += _times[i] ^ (bits ^ (bits >>> 32));
     }
     return value;
+  }
+
+  @Override
+  public Double getValue(InstantProvider instant) {
+    Instant time = instant.toInstant();
+    long epochMillis = time.toEpochMillis();
+    int binarySearch = Arrays.binarySearch(_times, epochMillis);
+    if (_times[binarySearch] == epochMillis) {
+      return _values[binarySearch];
+    } else {
+      throw new NoSuchElementException();
+    }
   }
 
 }

@@ -7,6 +7,9 @@ import java.util.Map.Entry;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.OpenGammaRuntimeException;
+
+@SuppressWarnings("synthetic-access")
 public class DoubleTimeSeriesOperations {
   private interface BinaryOperator {
     public double operate(double a, double b);
@@ -224,11 +227,25 @@ public class DoubleTimeSeriesOperations {
   }
 
   public static double maxValue(DoubleTimeSeries a) {
-    return 0;
+    if (a == null || a.isEmpty()) {
+      throw new OpenGammaRuntimeException("cannot determine maximum value of null or empty DoubleTimeSeries");
+    }
+    double max = 0.0; // the compiler can't work out that there's at least one element so this is unnecessary... 
+    for (Double value : a.values()) {
+      max = Math.max(value, max);
+    }
+    return max;
   }
 
   public static double minValue(DoubleTimeSeries a) {
-    return 0;
+    if (a == null || a.isEmpty()) {
+      throw new OpenGammaRuntimeException("cannot determine minimum value of null or empty DoubleTimeSeries");
+    }
+    double min = 0.0; // the compiler can't work out that there's at least one element so this is unnecessary... 
+    for (Double value : a.values()) {
+      min = Math.min(value, min);
+    }
+    return min;
   }
 
   public static DoubleTimeSeries lag(DoubleTimeSeries a, int lag) {

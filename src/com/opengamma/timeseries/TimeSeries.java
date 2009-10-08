@@ -21,14 +21,14 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
   public boolean isEmpty();
 
   /**
-   * Gets the data point on the moment in time provided. If no entry in present
+   * Gets the data point on the (exact) moment in time provided. If no entry in present
    * in the time series, a NoSuchElementException will be thrown.
    * 
    * @param the
    *          instant of the requested sample
    * @return the requested sample
    */
-  public T getDataPoint(InstantProvider instant);
+  public T getValue(InstantProvider instant);
 
   /**
    * Gets the data point at the (zero-based) index provided. If no entry is
@@ -40,14 +40,22 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    *          of data point required
    * @return the requested sample
    */
-  public T getDataPoint(int index);
+  public T getValue(int index);
 
+  /**
+   * Get the time at the (zero-based) index provided.  If no entry is present
+   * an IndexOutOfBoundsException is thrown.  It should be noted that in some
+   * implementations, this call will not be O(1), so it's use should be
+   * avoided inside loops.
+   */
+  public InstantProvider getTime(int index);
+  
   /**
    * Gets the latest time for which there is a data point (most positive).
    * 
    * @return the requested time
    */
-  public InstantProvider getLatestInstant();
+  public InstantProvider getLatestTime();
 
   /**
    * Gets the value associated with the latest data point in the series.
@@ -65,7 +73,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    *           if the series is empty.
    * @return the requested time
    */
-  public InstantProvider getEarliestInstant();
+  public InstantProvider getEarliestTime();
 
   /**
    * Gets the value associated with the earliest data point in the series.
