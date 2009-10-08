@@ -108,7 +108,7 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
   public FudgeFieldContainer toFudgeMsg() {
     FudgeMsg msg = new FudgeMsg();
     for(DomainSpecificIdentifier identifier: getIdentifiers()) {
-      msg.add(identifier.toFudgeMsg(), ID_FUDGE_FIELD_NAME);
+      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg());
     }
     return msg;
   }

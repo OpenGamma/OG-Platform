@@ -100,8 +100,8 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
   
   public FudgeFieldContainer toFudgeMsg() {
     FudgeMsg msg = new FudgeMsg();
-    msg.add(getDomain().getDomainName(), DOMAIN_FUDGE_FIELD_NAME);
-    msg.add(getValue(), VALUE_FUDGE_FIELD_NAME);
+    msg.add(DOMAIN_FUDGE_FIELD_NAME, getDomain().getDomainName());
+    msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
   }
 
