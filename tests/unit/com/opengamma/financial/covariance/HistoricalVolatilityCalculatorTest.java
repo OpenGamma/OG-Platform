@@ -3,12 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.covariance;
+package com.opengamma.financial.covariance;
 
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import com.opengamma.financial.covariance.HistoricalVolatilityCalculator;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;

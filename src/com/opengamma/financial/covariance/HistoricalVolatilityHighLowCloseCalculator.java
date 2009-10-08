@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.covariance;
+package com.opengamma.financial.covariance;
 
 import java.util.Iterator;
 
@@ -48,8 +48,9 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
   @Override
   public Double evaluate(final DoubleTimeSeries... x) {
     testInput(x);
-    if (x.length < 3)
+    if (x.length < 3) {
       throw new TimeSeriesException("Need high, low and close time series to calculate high-low-close volatility");
+    }
     if (x.length > 3) {
       s_Log.info("Time series array contained more than three series; only using the first three");
     }
@@ -73,7 +74,7 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
       sum += value * value;
       sumHL += highLowValue * highLowValue;
     }
-    final int n = close.size() - 1;
+    final int n = closeReturns.size();
     return Math.sqrt((0.5 * sumHL - (2 * Math.log(2) - 1) * sum) / n);
   }
 }

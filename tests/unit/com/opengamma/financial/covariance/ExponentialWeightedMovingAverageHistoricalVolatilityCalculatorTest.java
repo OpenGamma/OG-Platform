@@ -3,11 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.covariance;
+package com.opengamma.financial.covariance;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
+import com.opengamma.financial.covariance.ExponentialWeightedMovingAverageHistoricalVolatilityCalculator;
+import com.opengamma.financial.covariance.HistoricalVolatilityCalculator;
 
 /**
  * 

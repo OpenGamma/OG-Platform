@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.covariance;
+package com.opengamma.financial.covariance;
 
 import java.util.Iterator;
 
@@ -12,7 +12,6 @@ import javax.time.InstantProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.math.function.Function;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.CalculationMode;
@@ -21,7 +20,7 @@ import com.opengamma.util.CalculationMode;
  * 
  * @author emcleod
  */
-public abstract class HistoricalVolatilityCalculator implements Function<DoubleTimeSeries, Double> {
+public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
   private final CalculationMode _mode;
   private final double _percentBadDataPoints;
@@ -43,9 +42,6 @@ public abstract class HistoricalVolatilityCalculator implements Function<DoubleT
     }
     _percentBadDataPoints = percentBadDataPoints;
   }
-
-  @Override
-  public abstract Double evaluate(final DoubleTimeSeries... x);
 
   protected void testInput(final DoubleTimeSeries[] x) {
     if (x == null)

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.covariance;
+package com.opengamma.financial.covariance;
 
 import com.opengamma.math.statistics.ConfidenceInterval;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;

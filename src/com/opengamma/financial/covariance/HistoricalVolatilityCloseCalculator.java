@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.timeseries.covariance;
+package com.opengamma.financial.covariance;
 
 import java.util.Iterator;
 
@@ -44,13 +44,12 @@ public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCal
       s_Log.info("Time series array contained more than one series; only using the first one");
     }
     testTimeSeries(x, 2);
-    final DoubleTimeSeries ts = x[0];
     final DoubleTimeSeries returnTS = _returnCalculator.evaluate(x);
     final Iterator<Double> iter = returnTS.valuesIterator();
     Double value;
     double sum = 0;
     double sumSq = 0;
-    final int n = ts.size() - 2;
+    final int n = returnTS.size() - 1;
     while (iter.hasNext()) {
       value = iter.next();
       sum += value;
