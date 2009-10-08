@@ -1,5 +1,6 @@
 package com.opengamma.timeseries;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +76,18 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   }
   
   @Override
+  public List<InstantProvider> times() {
+    return new ArrayList<InstantProvider>(_data.keySet());
+  }
+  
+  @Override
   public Iterator<Double> valuesIterator() {
     return _data.values().iterator();
+  }
+  
+  @Override 
+  public List<Double> values() {
+    return new ArrayList<Double>(_data.values());
   }
   
   @Override

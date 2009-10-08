@@ -17,9 +17,8 @@ import com.opengamma.util.KeyValuePair;
 public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public static final DoubleTimeSeries EMPTY_SERIES = new ArrayDoubleTimeSeries();
 
-  // REVIEW kirk 2009-09-03 -- Any reason why these aren't final?
-  private final long[] _times;
-  private final double[] _values;
+  protected final long[] _times;
+  protected final double[] _values;
 
   private ArrayDoubleTimeSeries() {
     _times = new long[0];
@@ -27,9 +26,10 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   public ArrayDoubleTimeSeries(long[] times, double[] values) {
-    // REVIEW kirk 2009-09-03 -- Any reason you're not taking a copy of these?
-    _times = times;
-    _values = values;
+    _times = new long[times.length];
+    System.arraycopy(times, 0, _times, 0, times.length);
+    _values = new double[values.length];
+    System.arraycopy(values, 0, _values, 0, values.length);
     // check dates are ordered
     long maxTime = 0L;
     for (long time : _times) {
@@ -186,7 +186,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     }
   }
 
-  private class ArrayDoubleTimeSeriesIterator implements Iterator<Entry<InstantProvider, Double>> {
+  /*package*/ class ArrayDoubleTimeSeriesIterator implements Iterator<Entry<InstantProvider, Double>> {
     private int _current = 0;
 
     @Override
@@ -226,7 +226,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return _times.length == 0;
   }
 
-  private class ArrayDoubleTimeSeriesTimeIterator implements Iterator<InstantProvider> {
+  /*package*/ class ArrayDoubleTimeSeriesTimeIterator implements Iterator<InstantProvider> {
     private int _current = 0;
 
     @Override
@@ -256,7 +256,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return new ArrayDoubleTimeSeriesTimeIterator();
   }
 
-  private class ArrayDoubleTimeSeriesValuesIterator implements Iterator<Double> {
+  /*package*/ class ArrayDoubleTimeSeriesValuesIterator implements Iterator<Double> {
     private int _current = 0;
 
     @Override
@@ -292,7 +292,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public TimeSeries<Double> tail(int numItems) {
+  public DoubleTimeSeries tail(int numItems) {
     if (numItems <= _times.length) {
       long[] times = new long[numItems];
       double[] values = new double[numItems];
@@ -305,7 +305,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public TimeSeries<Double> head(int numItems) {
+  public DoubleTimeSeries head(int numItems) {
     if (numItems <= _times.length) {
       long[] times = new long[numItems];
       double[] values = new double[numItems];
@@ -361,6 +361,20 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
       return true;
     }
 
+  }
+  
+  public List<InstantProvider> times() {
+    InstantProvider[] times = new InstantProvider[_times.length];
+    for (int i=0; i<_times.length; i++) {
+      times[i] = Instant.instant(_times[i]);
+    }
+    return Arrays.asList(times);
+  }
+  
+  public List<Double> values() {
+    Double[] copy = new Double[_values.length];
+    System.arraycopy(_values, 0, copy, 0, _values.length);
+    return Arrays.asList(copy);
   }
 
   @Override
