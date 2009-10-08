@@ -9,6 +9,7 @@ import javax.time.InstantProvider;
 
 import com.opengamma.OpenGammaRuntimeException;
 
+@SuppressWarnings("synthetic-access")
 public class DoubleTimeSeriesOperations {
   private interface BinaryOperator {
     public double operate(double a, double b);

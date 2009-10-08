@@ -151,7 +151,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public InstantProvider getEarliestInstant() {
+  public InstantProvider getEarliestTime() {
     if (_times.length > 0) {
       return Instant.millisInstant(_times[0]);
     } else {
@@ -169,7 +169,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public InstantProvider getLatestInstant() {
+  public InstantProvider getLatestTime() {
     if (_times.length > 0) {
       return Instant.millisInstant(_times[_times.length - 1]);
     } else {
@@ -287,8 +287,13 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public Double getDataPoint(int index) {
+  public Double getValue(int index) {
     return _values[index];
+  }
+  
+  @Override
+  public InstantProvider getTime(int index) {
+    return Instant.instant(_times[index]);
   }
 
   @Override
@@ -379,15 +384,24 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   @Override
   public int hashCode() {
-    // REVIEW kirk 2009-09-03 -- Is it worth it to use all the data
-    // points here for the hash code? That seems like it could be
-    // expensive for a frequent operation.
     int value = 0;
-    for (int i = 0; i < _times.length; i++) {
+    for (int i = 0; i < ((_times.length > 0) ? 1 : 0); i++) {
       final long bits = Double.doubleToLongBits(_values[i]);
       value += _times[i] ^ (bits ^ (bits >>> 32));
     }
     return value;
+  }
+
+  @Override
+  public Double getValue(InstantProvider instant) {
+    Instant time = instant.toInstant();
+    long epochMillis = time.toEpochMillis();
+    int binarySearch = Arrays.binarySearch(_times, epochMillis);
+    if (_times[binarySearch] == epochMillis) {
+      return _values[binarySearch];
+    } else {
+      throw new NoSuchElementException();
+    }
   }
 
 }

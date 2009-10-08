@@ -127,9 +127,9 @@ public abstract class DoubleTimeSeriesTest {
   public void testGetLatestInstant() {
     DoubleTimeSeries empty = createEmptyTimeSeries();
     DoubleTimeSeries dts = createStandardTimeSeries();
-    assertEquals(6L, dts.getLatestInstant().toInstant().toEpochMillis());
+    assertEquals(6L, dts.getLatestTime().toInstant().toEpochMillis());
     try {
-      empty.getLatestInstant();
+      empty.getLatestTime();
     } catch (NoSuchElementException nsee) {
       return;
     }
@@ -153,9 +153,9 @@ public abstract class DoubleTimeSeriesTest {
   public void testGetEarliestInstant() {
     DoubleTimeSeries empty = createEmptyTimeSeries();
     DoubleTimeSeries dts = createStandardTimeSeries();
-    assertEquals(1L, dts.getEarliestInstant().toInstant().toEpochMillis());
+    assertEquals(1L, dts.getEarliestTime().toInstant().toEpochMillis());
     try {
-      empty.getEarliestInstant();
+      empty.getEarliestTime();
     } catch (NoSuchElementException nsee) {
       return;
     }
@@ -247,14 +247,15 @@ public abstract class DoubleTimeSeriesTest {
     DoubleTimeSeries emptyTS = createEmptyTimeSeries();
     DoubleTimeSeries dts = createStandardTimeSeries();
     for (int i=0; i<6; i++) {
-      Double val = dts.getDataPoint(Instant.millisInstant((long)i+1));
+      Double val = dts.getValue(Instant.millisInstant((long)i+1));
       CompareUtils.closeEquals(val, i+1);
-      val = dts.getDataPoint(i);
+      val = dts.getValue(i);
       CompareUtils.closeEquals(val, i+1);
     }
-    emptyTS.getDataPoint(0);
+    emptyTS.getValue(0);
   }
 
+  @SuppressWarnings("cast")
   @Test
   public void testSubSeriesInstantProviderInstantProvider() {
     DoubleTimeSeries emptyTS = createEmptyTimeSeries();

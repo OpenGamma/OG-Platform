@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -96,7 +97,7 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   }
   
   @Override
-  public InstantProvider getEarliestInstant() {
+  public InstantProvider getEarliestTime() {
     return _data.firstKey();
   }
   
@@ -106,7 +107,7 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   }
     
   @Override
-  public InstantProvider getLatestInstant() {
+  public InstantProvider getLatestTime() {
     return _data.lastKey();
   }
   
@@ -161,7 +162,7 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   }
 
   @Override
-  public Double getDataPoint(int index) {
+  public Double getValue(int index) {
     // TODO: make this efficient
     if (index < _data.size()) { // this assumption has threading implications in Mutable subclass
       Iterator<Double> iter = _data.values().iterator();
@@ -173,6 +174,7 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
       throw new IndexOutOfBoundsException("Cannot reference data point outside size of time series");
     }
   }
+  
 
   @Override
   public TimeSeries<Double> tail(int numItems) {
@@ -185,6 +187,31 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
       return new MapDoubleTimeSeries(_data.tailMap(iter.next()));
     } else {
       throw new IndexOutOfBoundsException("Cannot reference data point outside size of time series");
+    }
+  }
+
+  @Override
+  public InstantProvider getTime(int index) {
+    // TODO: make this efficient
+    if (index < _data.size()) { // this assumption has threading implications in Mutable subclass
+      Iterator<InstantProvider> iter = _data.keySet().iterator();
+      for (int i=0; i<index; i++) {
+        iter.next();
+      }
+      return iter.next();
+    } else {
+      throw new IndexOutOfBoundsException("Cannot reference data point outside size of time series");
+    }
+
+  }
+
+  @Override
+  public Double getValue(InstantProvider instant) {
+    Double value = _data.get(instant);
+    if (value != null) {
+      return value;
+    } else {
+      throw new NoSuchElementException();
     }
   }
 }
