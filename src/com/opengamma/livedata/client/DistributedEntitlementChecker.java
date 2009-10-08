@@ -98,8 +98,8 @@ public class DistributedEntitlementChecker implements
   protected FudgeMsg composeRequestMessage(String userName,
       LiveDataSpecification fullyQualifiedSpecification) {
     FudgeMsg msg = new FudgeMsg();
-    msg.add(userName, USER_NAME_FUDGE_FIELD_NAME);
-    msg.add(fullyQualifiedSpecification.toFudgeMsg(), DATA_SPEC_FUDGE_FIELD_NAME);
+    msg.add(USER_NAME_FUDGE_FIELD_NAME, userName);
+    msg.add(DATA_SPEC_FUDGE_FIELD_NAME, fullyQualifiedSpecification.toFudgeMsg());
     return msg;
   }
 
