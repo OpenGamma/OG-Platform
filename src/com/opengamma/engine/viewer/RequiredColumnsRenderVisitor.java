@@ -38,11 +38,6 @@ public class RequiredColumnsRenderVisitor implements RenderVisitor<List<String>>
 
   @Override
   public List<String> visitDoubleTimeSeries(DoubleTimeSeries doubleTimeSeries) {
-    Iterator<InstantProvider> iterator =  doubleTimeSeries.timeIterator();
-    List<String> results = new ArrayList<String>();
-    while (iterator.hasNext()) {
-      results.add(iterator.next().toInstant().toString());
-    }
     return null;
   }
 
@@ -58,10 +53,6 @@ public class RequiredColumnsRenderVisitor implements RenderVisitor<List<String>>
 
   @Override
   public List<String> visitVolatilitySurface(VolatilitySurface volatilitySurface) {
-    List<String> results = new ArrayList<String>();
-    for (Pair<Double, Double> entry : volatilitySurface.getData().keySet()) {
-      results.add(entry.getFirst()+", "+entry.getSecond());
-    }
     return null;
   }
 
