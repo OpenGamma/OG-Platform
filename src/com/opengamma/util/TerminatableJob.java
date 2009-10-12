@@ -18,6 +18,7 @@ public abstract class TerminatableJob implements Runnable {
 
   @Override
   public void run() {
+    preStart();
     _terminated.set(false);
     while(!_terminated.get()) {
       runOneCycle();
