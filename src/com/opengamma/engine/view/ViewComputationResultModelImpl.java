@@ -13,6 +13,7 @@ import java.util.Map;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Position;
 
 /**
@@ -25,7 +26,8 @@ public class ViewComputationResultModelImpl implements
   private final Map<Position, PositionResultModel> _perPositionResults = new HashMap<Position, PositionResultModel>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
-
+  private ViewComputationCache _cache;
+  private DependencyGraphModel _dependencyGraphModel;
   @Override
   public long getInputDataTimestamp() {
     return _inputDataTimestamp;
@@ -83,5 +85,24 @@ public class ViewComputationResultModelImpl implements
       _perPositionResults.put(position, perPositionModel);
     }
     perPositionModel.add(value);
+  }
+  
+  public void setComputationCache(ViewComputationCache cache) {
+    _cache = cache;
+  }  
+  
+  public ViewComputationCache getComputationCache() {
+    return _cache;  
+  }
+
+  /**
+   * @param dependencyGraphModel
+   */
+  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
+    _dependencyGraphModel = dependencyGraphModel;
+  }
+  
+  public DependencyGraphModel getDependencyGraphModel() {
+    return _dependencyGraphModel;
   }
 }

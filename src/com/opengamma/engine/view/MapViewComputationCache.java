@@ -39,5 +39,12 @@ public class MapViewComputationCache implements ViewComputationCache {
     }
     _values.put(value.getDefinition(), value);
   }
+  
+  public MapViewComputationCache clone() {
+    MapViewComputationCache mapViewComputationCache = new MapViewComputationCache();
+    mapViewComputationCache._values.putAll(_values);
+    // I'm assuming here that we don't need to deep copy all of the AnalyticValues and AnalyticValueDefinitions.
+    return mapViewComputationCache;
+  }
 
 }

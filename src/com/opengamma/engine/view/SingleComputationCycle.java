@@ -206,6 +206,10 @@ public class SingleComputationCycle {
         }
       }
     }
+    // so viewer can access dependency graph values.
+    getResultModel().setDependencyGraphModel(getPortfolioEvaluationModel().getDependencyGraphModel());
+    getResultModel().setComputationCache(getProcessingContext().getComputationCacheSource().cloneCache( getViewName(), getSnapshotTime()));
+    
   }
   
   public void releaseResources() {

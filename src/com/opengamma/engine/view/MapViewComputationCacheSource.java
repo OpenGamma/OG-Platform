@@ -33,6 +33,11 @@ implements ViewComputationCacheSource {
     }
     return cache;
   }
+  
+  public synchronized ViewComputationCache cloneCache(String viewName, long timestamp) {
+    MapViewComputationCache cache = (MapViewComputationCache) getCache(viewName, timestamp);
+    return cache.clone();
+  }
 
   @Override
   public synchronized void releaseCache(String viewName, long timestamp) {
