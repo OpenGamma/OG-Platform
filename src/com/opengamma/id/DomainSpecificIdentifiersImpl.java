@@ -76,6 +76,25 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
     return Collections.unmodifiableCollection(_identifiers);
   }
   
+  @Override
+  public String getIdentifier(IdentificationDomain domain) {
+    for(DomainSpecificIdentifier identifier : getIdentifiers()) {
+      if(ObjectUtils.equals(domain, identifier.getDomain())) {
+        return identifier.getValue();
+      }
+    }
+    return null;
+  }
+  
+  @Override
+  public FudgeFieldContainer toFudgeMsg() {
+    FudgeMsg msg = new FudgeMsg();
+    for(DomainSpecificIdentifier identifier: getIdentifiers()) {
+      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg());
+    }
+    return msg;
+  }
+
   protected int calcHashCode() {
     final int prime = 31;
     int result = 1;
@@ -104,12 +123,4 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
     return true;
   }
 
-  @Override
-  public FudgeFieldContainer toFudgeMsg() {
-    FudgeMsg msg = new FudgeMsg();
-    for(DomainSpecificIdentifier identifier: getIdentifiers()) {
-      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg());
-    }
-    return msg;
-  }
 }

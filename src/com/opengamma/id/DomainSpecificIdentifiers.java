@@ -28,5 +28,6 @@ public interface DomainSpecificIdentifiers {
    * @return All identifiers for this key.
    */
   Collection<DomainSpecificIdentifier> getIdentifiers();
+  String getIdentifier(IdentificationDomain domain);
   FudgeFieldContainer toFudgeMsg();
 }
