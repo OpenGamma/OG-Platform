@@ -18,10 +18,12 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DiscountCurveAnalyticValue;
 import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
+import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionInvoker;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
@@ -78,9 +80,8 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
       FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
     for(FixedIncomeStrip strip : getDefinition().getStrips()) {
-      @SuppressWarnings("unchecked")
-      Map<String,Double> dataFields = (Map<String,Double>)inputs.getValue(strip.getStripValueDefinition());
-      Double price = dataFields.get(PRICE_FIELD_NAME);
+      FudgeFieldContainer fieldContainer = (FudgeFieldContainer)inputs.getValue(strip.getStripValueDefinition());
+      Double price = fieldContainer.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
     DiscountCurve discountCurve = new DiscountCurve(timeInYearsToRates, s_interpolator);

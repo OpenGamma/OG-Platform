@@ -14,7 +14,6 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,8 +26,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
-import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
+import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
@@ -47,6 +47,7 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
@@ -58,7 +59,6 @@ import com.opengamma.util.TerminatableJob;
  */
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
-  private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
   
@@ -251,11 +251,9 @@ public class ViewImplTest {
     
   }
   
+  @SuppressWarnings("unchecked")
   public AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
-    ResolveSecurityKeyToMarketDataHeaderDefinition definition =
-      new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
-    return definition;
+    return new AnalyticValueDefinitionImpl("BbgId", bbTicker);
   }
   
   public DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
@@ -296,8 +294,8 @@ public class ViewImplTest {
       if(addRandom) {
         currValue += (Math.random() * 0.010);
       }
-      final Map<String, Double> dataFields = new HashMap<String, Double>();
-      dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      final FudgeMsg dataFields = new FudgeMsg();
+      dataFields.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, currValue);
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {

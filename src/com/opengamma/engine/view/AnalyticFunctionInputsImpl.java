@@ -34,8 +34,10 @@ public class AnalyticFunctionInputsImpl implements Serializable, AnalyticFunctio
   // build up a list already, so I'm not sure why we're copying here except
   // as generic style.
   public AnalyticFunctionInputsImpl(Collection<AnalyticValue<?>> values) {
-    if(values != null) {
-      _values.addAll(values);
+    for(AnalyticValue<?> analyticValue : values) {
+      if(analyticValue != null) {
+        _values.add(analyticValue);
+      }
     }
   }
   

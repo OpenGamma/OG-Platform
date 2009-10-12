@@ -26,6 +26,7 @@ import com.opengamma.engine.analytics.GreeksAnalyticFunction;
 import com.opengamma.engine.analytics.GreeksResultValueDefinition;
 import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
+import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
@@ -52,6 +53,7 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
 import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
@@ -231,8 +233,8 @@ public class ViewManager {
       if(addRandom) {
         currValue += (Math.random() * 0.010);
       }
-      final Map<String, Double> dataFields = new HashMap<String, Double>();
-      dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      FudgeMsg dataFields = new FudgeMsg();
+      dataFields.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, currValue);
       
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override

@@ -169,10 +169,10 @@ public class ViewImpl implements View, Lifecycle {
   }
   
   public void reloadPortfolio() {
-    s_logger.info("Reloading portfolio named {}", getDefinition().getName());
-    PortfolioNode positionRoot = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getName());
+    s_logger.info("Reloading portfolio named {}", getDefinition().getRootPortfolioName());
+    PortfolioNode positionRoot = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getRootPortfolioName());
     if(positionRoot == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getName());
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getRootPortfolioName());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(positionRoot);
     portfolioEvaluationModel.init(

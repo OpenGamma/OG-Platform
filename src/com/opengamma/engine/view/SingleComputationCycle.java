@@ -149,7 +149,7 @@ public class SingleComputationCycle {
     return _computationExecutorService;
   }
 
-  public void prepareInputs() {
+  public boolean prepareInputs() {
     setSnapshotTime(getProcessingContext().getLiveDataSnapshotProvider().snapshot());
     ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), getSnapshotTime());
     assert cache != null;
@@ -159,14 +159,17 @@ public class SingleComputationCycle {
     Set<AnalyticValueDefinition<?>> requiredLiveData = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.debug("Populating {} market data items for snapshot {}", requiredLiveData.size(), getSnapshotTime());
     
+    boolean missingData = false;
     for(AnalyticValueDefinition<?> requiredDataDefinition : requiredLiveData) {
       AnalyticValue<?> value = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
       if(value == null) {
-        s_logger.warn("Unable to load live data value for {} at snapshot {}", requiredDataDefinition, getSnapshotTime());
+        s_logger.warn("Unable to load live data value for {} at snapshot {}. Not executing.", requiredDataDefinition, getSnapshotTime());
+        missingData = true;
       } else {
         getComputationCache().putValue(value);
       }
     }
+    return !missingData;
   }
   
   public void executePlans() {
