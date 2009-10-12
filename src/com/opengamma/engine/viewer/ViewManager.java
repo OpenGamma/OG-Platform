@@ -194,23 +194,23 @@ public class ViewManager {
   
   private static DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
     DiscountCurveDefinition defn = new DiscountCurveDefinition(Currency.getInstance(isoCode), name);
-    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US1D")));
-    defn.addStrip(new FixedIncomeStrip(2/ONEYEAR, constructBloombergTickerDefinition("US2D")));
-    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US7D")));
-    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US1M")));
-    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US3M")));
-    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US6M")));
+    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US00O/N Index")));
+    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US0001W Index")));
+    defn.addStrip(new FixedIncomeStrip(14/ONEYEAR, constructBloombergTickerDefinition("US0002W Index")));
+    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US0001M Index")));
+    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US0003M Index")));
+    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US0006M Index")));
 
-    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1")));
-    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2")));
-    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3")));
-    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4")));
-    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5")));
-    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6")));
-    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7")));
-    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8")));
-    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9")));
-    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10")));
+    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10 Curncy")));
     return defn;
   }
 
