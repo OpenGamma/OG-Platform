@@ -42,7 +42,6 @@ public class SecurityDependencyGraph {
     new HashSet<DependencyNode>();
   private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedOutputs =
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
-  private DependencyNode _rootNode;
   private int _nodeCount = 0;
   
   public SecurityDependencyGraph(
@@ -97,20 +96,6 @@ public class SecurityDependencyGraph {
    */
   public void setNodeCount(int nodeCount) {
     _nodeCount = nodeCount;
-  }
-
-  /**
-   * @return the rootNode
-   */
-  public DependencyNode getRootNode() {
-    return _rootNode;
-  }
-
-  /**
-   * @param rootNode the rootNode to set
-   */
-  public void setRootNode(DependencyNode rootNode) {
-    _rootNode = rootNode;
   }
 
   /**

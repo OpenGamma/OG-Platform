@@ -16,8 +16,11 @@ import javax.swing.table.AbstractTableModel;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.ComputationResultListener;
+import com.opengamma.engine.view.ViewComputationCache;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.util.KeyValuePair;
 
@@ -28,6 +31,10 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
   
   private String[] _columnHeadings = new String[] {};
   private RequiredColumnsRenderVisitor _requiredColumnsRenderVisitor = new RequiredColumnsRenderVisitor();
+  // REVIEW: jim 12-Oct-2009 -- we need to review all these, but esp secMaster.
+  private ViewComputationCache _viewComputationCache;
+  private DependencyGraphModel _dependencyGraphModel;
+  private SecurityMaster _secMaster;
   @Override
   public synchronized String getColumnName(int column) {
     if (column == 0) {
@@ -85,6 +92,9 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
       _positions.clear();
       _positions.addAll(resultModel.getPositions());
       _resultsMap.clear();
+      _viewComputationCache = resultModel.getComputationCache();
+      _dependencyGraphModel = resultModel.getDependencyGraphModel();
+      _secMaster = resultModel.getSecurityMaster();
       Map<String, List<String>> valueColumnsListMap = new HashMap<String, List<String>>();  
       for (Position position : _positions) {
         Map<AnalyticValueDefinition<?>, AnalyticValue<?>> values = resultModel.getValues(position);
@@ -137,5 +147,17 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
         }
       });
     }
+  }
+  
+  public synchronized ViewComputationCache getViewComputationCache() {
+    return _viewComputationCache;
+  }
+  
+  public synchronized DependencyGraphModel getDependencyGraphModel() {
+    return _dependencyGraphModel;
+  }
+  
+  public synchronized SecurityMaster getSecurityMaster() {
+    return _secMaster;
   }
 }

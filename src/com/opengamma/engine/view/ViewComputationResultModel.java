@@ -10,7 +10,9 @@ import java.util.Map;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.SecurityMaster;
 
 /**
  * The data model represents the sum total of analytic functions applied to positions
@@ -41,4 +43,9 @@ public interface ViewComputationResultModel {
   
   AnalyticValue<?> getValue(Position position, AnalyticValueDefinition<?> valueDefinition);
   
+  DependencyGraphModel getDependencyGraphModel();
+  
+  ViewComputationCache getComputationCache();
+  // review this.
+  SecurityMaster getSecurityMaster();
 }

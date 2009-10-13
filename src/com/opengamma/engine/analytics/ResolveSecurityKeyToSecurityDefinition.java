@@ -21,4 +21,8 @@ public class ResolveSecurityKeyToSecurityDefinition extends
      super(new KeyValuePair<String, Object>("TYPE", "RESOLVE_KEY_TO_SECURITY"),
            new KeyValuePair<String, Object>("SECURITY_KEY", key));
   }
+  
+  public String getName() {
+    return "Resolve "+getValue("SECURITY_KEY")+" to security definition";
+  }
 }

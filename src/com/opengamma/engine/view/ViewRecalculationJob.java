@@ -69,6 +69,12 @@ public class ViewRecalculationJob extends TerminatableJob {
     long delta = endTime - cycle.getStartTime();
     s_logger.info("Completed one recalculation pass in {}ms", delta);
     getView().recalculationPerformed(result);
+//    try {
+//      Thread.sleep(2001);
+//    } catch (InterruptedException e) {
+//      // TODO Auto-generated catch block
+//      e.printStackTrace();
+//    }
   }
 
 }

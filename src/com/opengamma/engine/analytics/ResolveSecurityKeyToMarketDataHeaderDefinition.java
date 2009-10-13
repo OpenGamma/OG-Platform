@@ -30,4 +30,9 @@ public class ResolveSecurityKeyToMarketDataHeaderDefinition extends
            new KeyValuePair<String, Object>("SECURITY_KEY", key),
            new KeyValuePair<String, Object>("DATA_SOURCE", dataSource.getName()));
   }
+  
+  public String getName() {
+    return "Resolve "+getValue("SECURITY_KEY")+" to live data from "+getValue("DATA_SOURCE");
+    
+  }
 }

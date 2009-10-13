@@ -209,7 +209,7 @@ public class SingleComputationCycle {
     // so viewer can access dependency graph values.
     getResultModel().setDependencyGraphModel(getPortfolioEvaluationModel().getDependencyGraphModel());
     getResultModel().setComputationCache(getProcessingContext().getComputationCacheSource().cloneCache( getViewName(), getSnapshotTime()));
-    
+    getResultModel().setSecurityMaster(getProcessingContext().getSecurityMaster()); // this is teh nasty.  We need some better way for the viewer to convert positions to securities.
   }
   
   public void releaseResources() {

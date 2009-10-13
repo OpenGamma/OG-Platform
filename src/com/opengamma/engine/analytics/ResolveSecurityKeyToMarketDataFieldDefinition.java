@@ -23,4 +23,8 @@ public class ResolveSecurityKeyToMarketDataFieldDefinition extends
            new KeyValuePair<String, Object>("SECURITY_KEY", key),
            new KeyValuePair<String, Object>("FIELD_NAME", field.getName()));
   }
+  
+  public String getName() {
+    return "Resolve field "+getValue("FIELD_NAME")+" from "+getValue("SECURITY_KEY");
+  }
 }
