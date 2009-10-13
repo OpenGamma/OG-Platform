@@ -17,6 +17,10 @@ import javax.swing.table.TableModel;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.swingx.JXTable;
 
+import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.view.ViewImpl;
 import com.opengamma.util.Pair;
 
@@ -27,6 +31,16 @@ import com.opengamma.util.Pair;
  */
 public class ViewerLauncher extends SingleFrameApplication {
   private ViewManager _viewManager;
+  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider = new FixedLiveDataAvailabilityProvider();
+  private LiveDataSnapshotProvider _liveDataSnapshotProvider = new InMemoryLKVSnapshotProvider();
+  
+  protected LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+    return _liveDataAvailabilityProvider;
+  }
+  
+  protected LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
+    return _liveDataSnapshotProvider;
+  }
   
   private Pair<JPanel, JXTable> buildLeftTable(JXTable parentTable) {
     PortfolioSelectionListenerAndTableModel listenerAndTableModel = new PortfolioSelectionListenerAndTableModel(parentTable);
@@ -54,7 +68,7 @@ public class ViewerLauncher extends SingleFrameApplication {
   
   @Override
   protected void startup() {
-    _viewManager = new ViewManager();
+    _viewManager = new ViewManager(getLiveDataAvailabilityProvider(), getLiveDataSnapshotProvider());
     TableModel tableModel = buildTableModel(_viewManager.getView());
     _viewManager.start();
     JXTable table = new JXTable(tableModel);
