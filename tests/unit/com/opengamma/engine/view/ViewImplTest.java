@@ -14,7 +14,6 @@ import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,8 +26,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
-import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
+import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
@@ -47,6 +47,7 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
@@ -58,7 +59,6 @@ import com.opengamma.util.TerminatableJob;
  */
 public class ViewImplTest {
   private static final double ONEYEAR = 365.25;
-  private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImplTest.class);
   
@@ -251,32 +251,30 @@ public class ViewImplTest {
     
   }
   
-  public static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
-    ResolveSecurityKeyToMarketDataHeaderDefinition definition =
-      new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
-    return definition;
+  @SuppressWarnings("unchecked")
+  public AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
+    return new AnalyticValueDefinitionImpl("BbgId", bbTicker);
   }
   
-  public static DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
+  public DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
     DiscountCurveDefinition defn = new DiscountCurveDefinition(Currency.getInstance(isoCode), name);
-    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US1D")));
-    defn.addStrip(new FixedIncomeStrip(2/ONEYEAR, constructBloombergTickerDefinition("US2D")));
-    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US7D")));
-    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US1M")));
-    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US3M")));
-    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US6M")));
+    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US00O/N Index")));
+    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US0001W Index")));
+    defn.addStrip(new FixedIncomeStrip(14/ONEYEAR, constructBloombergTickerDefinition("US0002W Index")));
+    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US0001M Index")));
+    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US0003M Index")));
+    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US0006M Index")));
 
-    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1")));
-    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2")));
-    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3")));
-    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4")));
-    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5")));
-    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6")));
-    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7")));
-    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8")));
-    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9")));
-    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10")));
+    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10 Curncy")));
     return defn;
   }
 
@@ -286,7 +284,7 @@ public class ViewImplTest {
    * 
    */
   @SuppressWarnings("unchecked")
-  private void populateSnapshot(
+  protected void populateSnapshot(
       InMemoryLKVSnapshotProvider snapshotProvider,
       DiscountCurveDefinition curveDefinition,
       boolean addRandom) {
@@ -296,8 +294,8 @@ public class ViewImplTest {
       if(addRandom) {
         currValue += (Math.random() * 0.010);
       }
-      final Map<String, Double> dataFields = new HashMap<String, Double>();
-      dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      final FudgeMsg dataFields = new FudgeMsg();
+      dataFields.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, currValue);
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {

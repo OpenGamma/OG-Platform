@@ -40,8 +40,19 @@ public class DiscountCurveDefinition implements Serializable {
   });
   
   public DiscountCurveDefinition(Currency currency, String name) {
+    this(currency, name, Collections.<FixedIncomeStrip>emptySet());
+  }
+
+  public DiscountCurveDefinition(String isoCode, String name, Collection<FixedIncomeStrip> strips) {
+    this(Currency.getInstance(isoCode), name, strips);
+  }
+
+  public DiscountCurveDefinition(Currency currency, String name, Collection<FixedIncomeStrip> strips) {
     _currency = currency;
     _name = name;
+    for(FixedIncomeStrip strip : strips) {
+      addStrip(strip);
+    }
   }
 
   /**

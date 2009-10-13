@@ -17,6 +17,8 @@ import java.util.concurrent.Executors;
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 
+import org.springframework.context.Lifecycle;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractAnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValue;
@@ -26,12 +28,15 @@ import com.opengamma.engine.analytics.GreeksAnalyticFunction;
 import com.opengamma.engine.analytics.GreeksResultValueDefinition;
 import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
+import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
@@ -52,6 +57,7 @@ import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
 import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
 import com.opengamma.financial.securities.Currency;
+import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.TerminatableJob;
@@ -62,17 +68,26 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class ViewManager {
+public class ViewManager implements Lifecycle {
   private final Clock _clock = Clock.system(TimeZone.UTC);
   private static final double ONEYEAR = 365.25;
   private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
-  private ViewImpl _view;
+  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private final ViewImpl _view;
   private List<SingleThreadCalculationNode> _calculationNodes;
+  private SnapshotPopulatorJob _popJob;
   
   public ViewImpl getView() {
     return _view;
   }
   
+  @Override
+  public boolean isRunning() {
+    return getView().isRunning();
+  }
+  
+  @Override
   public void start() {
     for(SingleThreadCalculationNode calcNode: _calculationNodes) {
       calcNode.start();
@@ -80,6 +95,7 @@ public class ViewManager {
     getView().start();
   }
   
+  @Override
   public void stop() {
     getView().stop();
     _popJob.terminate();
@@ -89,24 +105,41 @@ public class ViewManager {
     _calculationNodes = null;
   }
   
-  public ViewManager() {
+  public ViewManager(LiveDataAvailabilityProvider ldap, LiveDataSnapshotProvider ldsp) {
+    assert ldap != null;
+    assert ldsp != null;
+    _liveDataAvailabilityProvider = ldap;
+    _liveDataSnapshotProvider = ldsp;
     try {
-      _view = constructTrivialExampleView();
+      _view = constructTrivialExampleView(ldap, ldsp);
       _view.init();
-      InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getProcessingContext().getLiveDataSnapshotProvider();
-      DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
-      _popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
-      Thread popThread = new Thread(_popJob);
-      popThread.start();
+      if(ldsp instanceof InMemoryLKVSnapshotProvider) {
+        InMemoryLKVSnapshotProvider snapshotProvider = (InMemoryLKVSnapshotProvider) _view.getProcessingContext().getLiveDataSnapshotProvider();
+        DiscountCurveDefinition curveDefinition = constructDiscountCurveDefinition("USD", "Stupidly Lame");
+        _popJob = new SnapshotPopulatorJob(snapshotProvider, curveDefinition);
+        Thread popThread = new Thread(_popJob);
+        popThread.start();
+      }
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Error constructing view", e);
     }
   }
   
-  private SnapshotPopulatorJob _popJob;
-  
+  /**
+   * @return the liveDataAvailabilityProvider
+   */
+  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+    return _liveDataAvailabilityProvider;
+  }
 
-  private ViewImpl constructTrivialExampleView() throws Exception {
+  /**
+   * @return the liveDataSnapshotProvider
+   */
+  public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
+    return _liveDataSnapshotProvider;
+  }
+
+  private ViewImpl constructTrivialExampleView(LiveDataAvailabilityProvider ldap, LiveDataSnapshotProvider ldsp) throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
     //viewDefinition.addValueDefinition("EQUITY_OPTION", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
     viewDefinition.addValueDefinition("EQUITY_OPTION", new DiscountCurveValueDefinition());
@@ -129,11 +162,12 @@ public class ViewManager {
     double[] strikes = new double[] {195.0, 170.0, 210.0 };
     Expiry expiry = new Expiry(_clock.zonedDateTime().withDate(2009, 10, 16).withTime(17, 00));
     Security aapl = new EquitySecurity("AAPL", "BLOOMBERG");
+    //Security aapl = new EquitySecurity("AAPL US Equity", "BbgId");
     secMaster.add(aapl);
     
     for (int i=0; i<tickers.length; i++) {
       DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiry, aapl.getIdentityKey(), Currency.getInstance("USD"));
-      security.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("BLOOMBERG"), tickers[i])));
+      security.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(BLOOMBERG, tickers[i])));
       securities.add(security);
       secMaster.add(security);
     }
@@ -146,24 +180,23 @@ public class ViewManager {
     functionRepo.addFunction(discountCurveFunction, discountCurveFunction);
     functionRepo.addFunction(volSurfaceFunction, volSurfaceFunction);
     functionRepo.addFunction(greeksFunction, greeksFunction);
-    
-    FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
-    ldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIdentityKey()));
-    for(Security security : securities) {
-      for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs()) {
-        ldap.addDefinition(definition);
-      }
-      for(AnalyticValueDefinition<?> definition : volSurfaceFunction.getInputs(security)) {
-        if (!definition.getValue("TYPE").equals("DISCOUNT_CURVE")) { // skip derived data.
-          ldap.addDefinition(definition);
+
+    if(ldap instanceof FixedLiveDataAvailabilityProvider) {
+      FixedLiveDataAvailabilityProvider fldap = (FixedLiveDataAvailabilityProvider) ldap;
+      fldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIdentityKey()));
+      for(Security security : securities) {
+        for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs()) {
+          fldap.addDefinition(definition);
+        }
+        for(AnalyticValueDefinition<?> definition : volSurfaceFunction.getInputs(security)) {
+          if (!definition.getValue("TYPE").equals("DISCOUNT_CURVE")) { // skip derived data.
+            fldap.addDefinition(definition);
+          }
         }
       }
     }
     
     ViewComputationCacheSource cacheFactory = new MapViewComputationCacheSource();
-    
-    InMemoryLKVSnapshotProvider snapshotProvider = new InMemoryLKVSnapshotProvider();
-    populateSnapshot(snapshotProvider, curveDefinition, false);
     
     LinkedBlockingJobQueue jobQueue = new LinkedBlockingJobQueue();
     LinkedBlockingCompletionQueue completionQueue = new LinkedBlockingCompletionQueue();
@@ -175,7 +208,7 @@ public class ViewManager {
     }
     
     ViewProcessingContext processingContext = new ViewProcessingContext(
-        ldap, snapshotProvider, functionRepo, positionMaster, secMaster, cacheFactory,
+        ldap, ldsp, functionRepo, positionMaster, secMaster, cacheFactory,
         jobQueue, completionQueue
       );
     
@@ -194,23 +227,23 @@ public class ViewManager {
   
   private static DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {
     DiscountCurveDefinition defn = new DiscountCurveDefinition(Currency.getInstance(isoCode), name);
-    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US1D")));
-    defn.addStrip(new FixedIncomeStrip(2/ONEYEAR, constructBloombergTickerDefinition("US2D")));
-    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US7D")));
-    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US1M")));
-    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US3M")));
-    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US6M")));
+    defn.addStrip(new FixedIncomeStrip(1/ONEYEAR, constructBloombergTickerDefinition("US00O/N Index")));
+    defn.addStrip(new FixedIncomeStrip(7/ONEYEAR, constructBloombergTickerDefinition("US0001W Index")));
+    defn.addStrip(new FixedIncomeStrip(14/ONEYEAR, constructBloombergTickerDefinition("US0002W Index")));
+    defn.addStrip(new FixedIncomeStrip(1/12.0, constructBloombergTickerDefinition("US0001M Index")));
+    defn.addStrip(new FixedIncomeStrip(0.25, constructBloombergTickerDefinition("US0003M Index")));
+    defn.addStrip(new FixedIncomeStrip(0.5, constructBloombergTickerDefinition("US0006M Index")));
 
-    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1")));
-    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2")));
-    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3")));
-    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4")));
-    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5")));
-    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6")));
-    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7")));
-    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8")));
-    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9")));
-    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10")));
+    defn.addStrip(new FixedIncomeStrip(1.0, constructBloombergTickerDefinition("USSW1 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(2.0, constructBloombergTickerDefinition("USSW2 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(3.0, constructBloombergTickerDefinition("USSW3 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(4.0, constructBloombergTickerDefinition("USSW4 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(5.0, constructBloombergTickerDefinition("USSW5 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(6.0, constructBloombergTickerDefinition("USSW6 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(7.0, constructBloombergTickerDefinition("USSW7 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(8.0, constructBloombergTickerDefinition("USSW8 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(9.0, constructBloombergTickerDefinition("USSW9 Curncy")));
+    defn.addStrip(new FixedIncomeStrip(10.0, constructBloombergTickerDefinition("USSW10 Curncy")));
     return defn;
   }
 
@@ -231,8 +264,8 @@ public class ViewManager {
       if(addRandom) {
         currValue += (Math.random() * 0.010);
       }
-      final Map<String, Double> dataFields = new HashMap<String, Double>();
-      dataFields.put(DiscountCurveAnalyticFunction.PRICE_FIELD_NAME, currValue);
+      FudgeMsg dataFields = new FudgeMsg();
+      dataFields.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, currValue);
       
       AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
         @Override
@@ -305,4 +338,5 @@ public class ViewManager {
     }
     
   }
+
 }
