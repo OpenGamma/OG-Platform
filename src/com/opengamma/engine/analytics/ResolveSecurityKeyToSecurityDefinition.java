@@ -7,6 +7,7 @@ package com.opengamma.engine.analytics;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.viewer.ValueDefinitionVisitor;
 import com.opengamma.util.KeyValuePair;
 
 /**
@@ -21,8 +22,8 @@ public class ResolveSecurityKeyToSecurityDefinition extends
      super(new KeyValuePair<String, Object>("TYPE", "RESOLVE_KEY_TO_SECURITY"),
            new KeyValuePair<String, Object>("SECURITY_KEY", key));
   }
-  
-  public String getName() {
-    return "Resolve "+getValue("SECURITY_KEY")+" to security definition";
+    
+  public <T> T accept(ValueDefinitionVisitor<T> visitor) {
+    return visitor.visitResolveSecurityKeyToSecurityDescriptionDefinition(this);
   }
 }

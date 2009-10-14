@@ -17,6 +17,7 @@ import com.opengamma.util.TerminatableJob;
  */
 public class ViewRecalculationJob extends TerminatableJob {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRecalculationJob.class);
+  private static long s_delay = 0L;
   private final ViewImpl _view;
   private ViewComputationResultModelImpl _previousResult;
   
@@ -77,12 +78,12 @@ public class ViewRecalculationJob extends TerminatableJob {
     long delta = endTime - cycle.getStartTime();
     s_logger.info("Completed one recalculation pass in {}ms", delta);
     getView().recalculationPerformed(result);
-//    try {
-//      Thread.sleep(2001);
-//    } catch (InterruptedException e) {
-//      // TODO Auto-generated catch block
-//      e.printStackTrace();
-//    }
+    if (s_delay != 0L) {
+      try { Thread.sleep(s_delay); } catch (InterruptedException e) { }
+    }
   }
 
+  public static void setDelay(long delay) {
+    s_delay = delay;
+  }
 }

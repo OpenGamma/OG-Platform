@@ -6,14 +6,21 @@
 package com.opengamma.engine.viewer;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.TableModel;
 
 import org.jdesktop.application.SingleFrameApplication;
@@ -26,6 +33,7 @@ import com.opengamma.engine.livedata.InMemoryLKVSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.ViewRecalculationJob;
 import com.opengamma.util.Pair;
 
 /**
@@ -46,16 +54,25 @@ public class ViewerLauncher extends SingleFrameApplication {
     return _liveDataSnapshotProvider;
   }
   
-  private Pair<JTabbedPane, JXTable> buildLeftPane(JXTable parentTable) {
+  private Pair<JPanel, JXTable> buildLeftPane(JXTable parentTable) {
     // build the 'results' table.
     PortfolioSelectionListenerAndTableModel listenerAndTableModel = new PortfolioSelectionListenerAndTableModel(parentTable);
     JXTable table = new JXTable(listenerAndTableModel);
-    table.setName("positionTable");
+    //table.setName("positionTable");
+    table.getColumnExt(0).setMinWidth(150);
+    table.getColumnExt(1).setMinWidth(300);
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     JScrollPane scrollPane = new JScrollPane(table);
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(scrollPane, BorderLayout.CENTER);
     // build the 'dep graph' tree table.
+
+    // build the tabbed pane
+
+    return new Pair<JPanel, JXTable>(panel, table);
+  }
+  
+  private JPanel buildDepGraphPanel(JXTable parentTable) {
     PortfolioSelectionListenerAndDepGraphTreeTableModel listenerAndDepGraphTreeTableModel = new PortfolioSelectionListenerAndDepGraphTreeTableModel(parentTable);
     JXTreeTable treeTable = new JXTreeTable(listenerAndDepGraphTreeTableModel);
     //JXTree treeTable = new JXTree(listenerAndDepGraphTreeTableModel);
@@ -64,11 +81,8 @@ public class ViewerLauncher extends SingleFrameApplication {
     JScrollPane scrollPane2 = new JScrollPane(treeTable);
     JPanel panel2 = new JPanel(new BorderLayout());
     panel2.add(scrollPane2, BorderLayout.CENTER);
-    // build the tabbed pane
-    JTabbedPane tabbedPane = new JTabbedPane();
-    tabbedPane.add("Results", panel);
-    tabbedPane.add("Dependency Graph", panel2);
-    return new Pair<JTabbedPane, JXTable>(tabbedPane, table);
+    
+    return panel2;
   }
   
   private JPanel buildRightPane(JXTable parentTable) {
@@ -82,6 +96,24 @@ public class ViewerLauncher extends SingleFrameApplication {
     PortfolioTableModel tableModel = new PortfolioTableModel();
     view.addResultListener(tableModel);
     return tableModel; 
+  }
+  
+  public JComponent createSlider() {
+    JPanel panel = new JPanel(new FlowLayout());
+    JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 4000, 1000);
+    slider.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (!source.getValueIsAdjusting()) {
+          ViewRecalculationJob.setDelay(source.getValue());
+        }
+      }
+    });
+    panel.add(new JLabel("Delay"));
+    panel.add(slider);
+    //panel.setPreferredSize(new Dimension(Short.MAX_VALUE, 20));
+    return panel;
   }
   
   @Override
@@ -104,17 +136,26 @@ public class ViewerLauncher extends SingleFrameApplication {
     splitPane.add(scrollPane);
     
     JSplitPane bottomPane = new JSplitPane(SwingConstants.VERTICAL);
-    Pair<JTabbedPane, JXTable> buildLeftTable = buildLeftPane(table);
-    JTabbedPane leftPanel = buildLeftTable.getFirst();
+    bottomPane.setDividerLocation(0.9d);
+    Pair<JPanel, JXTable> buildLeftTable = buildLeftPane(table);
+    JPanel leftPanel = buildLeftTable.getFirst();
     JXTable leftTable = buildLeftTable.getSecond();
-    
     bottomPane.add(leftPanel);
     bottomPane.add(buildRightPane(leftTable));
     
-    splitPane.add(bottomPane);
+    JPanel depGraphPanel = buildDepGraphPanel(table);
+    JTabbedPane tabbedPane = new JTabbedPane();
+    tabbedPane.add("Results", bottomPane);
+    tabbedPane.add("Dependency Graph", depGraphPanel);
+    
+    splitPane.add(tabbedPane);
     
     panel.add(splitPane, BorderLayout.CENTER);
-    show(panel);
+    
+    JPanel topLevelPanel = new JPanel(new BorderLayout());
+    topLevelPanel.add(createSlider(), BorderLayout.NORTH);
+    topLevelPanel.add(panel, BorderLayout.CENTER);
+    show(topLevelPanel);
   }
   
   protected void shutdown() {

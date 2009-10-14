@@ -6,6 +6,7 @@
 package com.opengamma.engine.analytics;
 
 import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.viewer.ValueDefinitionVisitor;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.util.KeyValuePair;
 
@@ -25,5 +26,10 @@ public class GreeksResultValueDefinition extends
   public GreeksResultValueDefinition(SecurityKey securityKey) {
      super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"),
            new KeyValuePair<String, Object>("SECURITY", securityKey));
+  }
+  
+  @Override
+  public <E> E accept(ValueDefinitionVisitor<E> visitor) {
+    return visitor.visitGreeksResultValueDefinition(this);
   }
 }

@@ -32,4 +32,21 @@ implements SecurityKey {
     super(secIdentifier);
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("SecurityKey[");
+    for (DomainSpecificIdentifier dsi : getIdentifiers()) {
+      sb.append("(");
+      sb.append(dsi.getDomain().getDomainName());
+      sb.append("=>");
+      sb.append(dsi.getValue());
+      sb.append(")");
+      sb.append(", ");
+    }
+    if (sb.length() > 12) {
+      sb.delete(sb.length()-2, sb.length());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
 }

@@ -17,13 +17,16 @@ import java.util.TreeMap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.engine.viewer.ValueDefinitionVisitor;
+import com.opengamma.engine.viewer.VisitableValueDefinition;
+
 /**
  * A basic {@link AnalyticValueDefinition} implementation backed by simple
  * collection classes.
  *
  * @author kirk
  */
-public class AnalyticValueDefinitionImpl<T> implements AnalyticValueDefinition<T>, Serializable, Cloneable {
+public class AnalyticValueDefinitionImpl<T> implements AnalyticValueDefinition<T>, VisitableValueDefinition, Serializable, Cloneable {
   private final Map<String, Set<Object>> _values = new TreeMap<String, Set<Object>>();
 
   /**
@@ -123,6 +126,11 @@ public class AnalyticValueDefinitionImpl<T> implements AnalyticValueDefinition<T
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  @Override
+  public <E> E accept(ValueDefinitionVisitor<E> visitor) {
+    return visitor.visitAnalyticValueDefinitionImpl(this);
   }
 
 }

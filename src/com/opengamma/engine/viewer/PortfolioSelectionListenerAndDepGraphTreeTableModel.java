@@ -53,6 +53,7 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
   private Position _position;
   private Set<DependencyNode> _roots = new HashSet<DependencyNode>();
   private ViewComputationCache _viewComputationCache;
+  private String[] _columns = new String[] {"Dependency Graph", "Inputs", "Outputs"};
   
   public PortfolioSelectionListenerAndDepGraphTreeTableModel(JXTable parent) {
     super("Root");
@@ -62,6 +63,10 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
     // add listener for new data.
     _parentModel = (PortfolioTableModel) _parent.getModel();
     _parentModel.addTableModelListener(this);
+  }
+  
+  public String getColumnName(int column) {
+    return _columns[column];
   }
   
   private void setPosition(Position p) {
@@ -199,6 +204,7 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
   @Override
   public Object getValueAt(Object node, int column) {
     //System.err.println("getValueAt("+node+", "+column+")");
+    ValueDefinitionRenderingVisitor visitor = new ValueDefinitionRenderingVisitor();
     if (node instanceof DependencyNode) {
       DependencyNode depNode = (DependencyNode) node;
       switch (column) {
@@ -206,17 +212,33 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
         return depNode.getFunction().getShortName();
       case 1:
         StringBuilder sb = new StringBuilder();
-        Collection<AnalyticValueDefinition<?>> values = depNode.getResolvedInputs().values();
+        Collection<AnalyticValueDefinition<?>> values = depNode.getInputValues();
         for (AnalyticValueDefinition<?> valueDefinition : values) {
-          sb.append(valueDefinition.toString());
-          sb.append("=");
-          sb.append(_viewComputationCache.getValue(valueDefinition));
+          if (valueDefinition instanceof VisitableValueDefinition) {
+            sb.append(((VisitableValueDefinition) valueDefinition).accept(visitor));
+          }
           sb.append(", ");
         }
         if (sb.length() >= 2) {
           sb.delete(sb.length()-2, sb.length());
         }
         return sb.toString();
+      case 2:
+        StringBuilder sb2 = new StringBuilder();
+        Collection<AnalyticValueDefinition<?>> values2 = depNode.getOutputValues();
+        for (AnalyticValueDefinition<?> valueDefinition : values2) {
+          AnalyticValue<?> value = _viewComputationCache.getValue(valueDefinition);
+          if (value instanceof Renderable) {
+            sb2.append(value.getValue());
+          } else {
+            sb2.append(value.getValue());
+          }
+          sb2.append(", ");
+        }
+        if (sb2.length() >= 2) {
+          sb2.delete(sb2.length()-2, sb2.length());
+        }        
+        return sb2.toString();
       default:
         return "Default";
       }
@@ -227,6 +249,6 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
 
   @Override
   public int getColumnCount() {
-    return 2;
+    return 3;
   }
 }

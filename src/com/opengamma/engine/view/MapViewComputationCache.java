@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -45,6 +46,13 @@ public class MapViewComputationCache implements ViewComputationCache {
     mapViewComputationCache._values.putAll(_values);
     // I'm assuming here that we don't need to deep copy all of the AnalyticValues and AnalyticValueDefinitions.
     return mapViewComputationCache;
+  }
+  
+  // for debugging.
+  public void dump() {
+    for (Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> entry : _values.entrySet()) {
+      System.err.println(entry.getKey()+" => "+entry.getValue());
+    }
   }
 
 }

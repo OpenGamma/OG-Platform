@@ -7,6 +7,7 @@ package com.opengamma.engine.analytics;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.viewer.ValueDefinitionVisitor;
 import com.opengamma.financial.securities.Field;
 import com.opengamma.util.KeyValuePair;
 
@@ -24,7 +25,8 @@ public class ResolveSecurityKeyToMarketDataFieldDefinition extends
            new KeyValuePair<String, Object>("FIELD_NAME", field.getName()));
   }
   
-  public String getName() {
-    return "Resolve field "+getValue("FIELD_NAME")+" from "+getValue("SECURITY_KEY");
+  @Override
+  public <E> E accept(ValueDefinitionVisitor<E> visitor) {
+    return visitor.visitResolveSecurityKeyToMarketDataFieldDefinition(this);
   }
 }

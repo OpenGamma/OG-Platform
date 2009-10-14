@@ -20,6 +20,7 @@ import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.ComputationResultListener;
+import com.opengamma.engine.view.MapViewComputationCache;
 import com.opengamma.engine.view.ViewComputationCache;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.util.KeyValuePair;
@@ -93,6 +94,10 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
       _positions.addAll(resultModel.getPositions());
       _resultsMap.clear();
       _viewComputationCache = resultModel.getComputationCache();
+      MapViewComputationCache cache = (MapViewComputationCache)_viewComputationCache;
+//      if (cache != null) {
+//        cache.dump();
+//      }
       _dependencyGraphModel = resultModel.getDependencyGraphModel();
       _secMaster = resultModel.getSecurityMaster();
       Map<String, List<String>> valueColumnsListMap = new HashMap<String, List<String>>();  
@@ -130,23 +135,42 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
       _columnHeadings = xpathColumns.toArray(new String[] {});
       if (_columnHeadings.length != lengthB4) {
         allDataChanged = true;
+        
       }
     }
     if (allDataChanged) {
-      SwingUtilities.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          fireTableDataChanged();
-        }
-      });
+      deferredFireTableStructureChanged();
     } else {
-      SwingUtilities.invokeLater(new Runnable() {
-        @Override
-        public void run() {
-          fireTableRowsUpdated(0, getRowCount());
-        }
-      });
+      deferredFireTableRowsUpdated();
     }
+  }
+  
+  @SuppressWarnings("unused")
+  private void deferredFireTableDataChanged() {
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        fireTableDataChanged();
+      }
+    });    
+  }
+
+  private void deferredFireTableRowsUpdated() {
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        fireTableRowsUpdated(0, getRowCount());
+      }
+    });    
+  }
+
+  private void deferredFireTableStructureChanged() {
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        fireTableStructureChanged();
+      }
+    });    
   }
   
   public synchronized ViewComputationCache getViewComputationCache() {

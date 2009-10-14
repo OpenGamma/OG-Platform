@@ -13,6 +13,8 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.viewer.ValueDefinitionRenderingVisitor;
+import com.opengamma.engine.viewer.VisitableValueDefinition;
 
 /**
  * A meta-function which can be put into any dependency graph to indicate
@@ -24,13 +26,17 @@ public class LiveDataSourcingFunction extends AbstractAnalyticFunction
 implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   private final AnalyticValueDefinition<?> _specifiedResult;
   private final String _shortName;
-  
+  private final ValueDefinitionRenderingVisitor _renderingVisitor = new ValueDefinitionRenderingVisitor();
   public LiveDataSourcingFunction(AnalyticValueDefinition<?> specifiedResult) {
     if(specifiedResult == null) {
       throw new NullPointerException("Must specify the desired live data.");
     }
     _specifiedResult = specifiedResult;
-    _shortName = "Live Data Source For " + specifiedResult;
+    if (_specifiedResult instanceof VisitableValueDefinition) {
+      _shortName = "Live Data for " + ((VisitableValueDefinition)specifiedResult).accept(_renderingVisitor);
+    } else {
+      _shortName = "Live Data For " + specifiedResult;
+    }
   }
 
   /**
