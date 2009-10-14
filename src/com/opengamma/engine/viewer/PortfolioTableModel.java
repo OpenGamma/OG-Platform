@@ -87,7 +87,6 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
   @Override
   public void computationResultAvailable(
       ViewComputationResultModel resultModel) {
-    System.err.println("Tick!");
     boolean allDataChanged = false;
     synchronized (this) {
       _positions.clear();

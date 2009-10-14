@@ -5,6 +5,12 @@
  */
 package com.opengamma.engine.view;
 
+import org.jcsp.lang.Alternative;
+import org.jcsp.lang.CSTimer;
+import org.jcsp.lang.Channel;
+import org.jcsp.lang.Guard;
+import org.jcsp.lang.One2OneChannel;
+import org.jcsp.util.OverWriteOldestBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +26,8 @@ public class ViewRecalculationJob extends TerminatableJob {
   private static long s_delay = 0L;
   private final ViewImpl _view;
   private ViewComputationResultModelImpl _previousResult;
+  private static boolean _paused;
+  private static One2OneChannel _channel = Channel.one2one(new OverWriteOldestBuffer(1));
   
   public ViewRecalculationJob(ViewImpl view) {
     if(view == null) {
@@ -78,12 +86,28 @@ public class ViewRecalculationJob extends TerminatableJob {
     long delta = endTime - cycle.getStartTime();
     s_logger.info("Completed one recalculation pass in {}ms", delta);
     getView().recalculationPerformed(result);
-    if (s_delay != 0L) {
-      try { Thread.sleep(s_delay); } catch (InterruptedException e) { }
+    CSTimer csTimer = new CSTimer();
+    csTimer.setAlarm(System.currentTimeMillis() + s_delay);
+    Guard[] guards = new Guard[] {  csTimer, _channel.in() };
+    int selected = new Alternative(guards).fairSelect(new boolean[] { !_paused, true });
+    if (selected == 1) {
+      _channel.in().read();
     }
+    s_logger.info("selected:"+selected);
+//    if (s_delay != 0L) {
+//      try { Thread.sleep(s_delay); } catch (InterruptedException e) { }
+//    }
   }
 
   public static void setDelay(long delay) {
+    s_logger.info("setting delay to "+delay);
     s_delay = delay;
+    _channel.out().write(null);
+  }
+  
+  public static void pause(boolean paused) {
+    s_logger.info("setting paused to "+paused);
+    _paused = paused;
+    _channel.out().write(null);
   }
 }

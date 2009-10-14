@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.jdesktop.swingx.treetable.TreeTableModel;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
@@ -99,46 +101,34 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
         if (_roots.size() == 0) {
           allDataChanged = true;
         }
-        _roots = dependencyGraphModel.getDependencyGraph(security).getTopLevelNodes();
-        
-        System.err.println("set roots to "+_roots.size());
+        _roots = new HashSet<DependencyNode>(dependencyGraphModel.getDependencyGraph(security).getTopLevelNodes());
+        Iterator<DependencyNode> iter = _roots.iterator();
+        while (iter.hasNext()) {
+          DependencyNode next = iter.next();
+          if (next.getFunction().getClass().equals(DiscountCurveAnalyticFunction.class)) {
+            iter.remove();
+          }
+        }
       }
       if (allDataChanged) {
         fireTreeStructureChanged();
       } else {
         fireTreeNodesChanged();
       }
-//      if (allDataChanged) {
-//        SwingUtilities.invokeLater(new Runnable() {
-//          @Override
-//          public void run() {
-//            fireTreeStructureChanged();
-//          }
-//        });
-//      } else {
-//        SwingUtilities.invokeLater(new Runnable() {
-//          @Override
-//          public void run() {
-//            fireTreeNodesChanged();
-//          }
-//        });
-//      }
     }
   }
   
   private void fireTreeNodesChanged() {
-    //System.err.println("fireNodesChanged");
     TreeModelEvent treeModelEvent = new TreeModelEvent(this, new TreePath(getRoot()), null, null);
     for (TreeModelListener listener : getTreeModelListeners()) {
-      listener.treeNodesChanged(treeModelEvent);//(Object[]) null));//new Object[] {"Root"}));
+      listener.treeNodesChanged(treeModelEvent);
     }    
   }
   
   private void fireTreeStructureChanged() {
-    //System.err.println("fireNodesChanged");
     TreeModelEvent treeModelEvent = new TreeModelEvent(this, new TreePath(getRoot()), null, null);
     for (TreeModelListener listener : getTreeModelListeners()) {
-      listener.treeStructureChanged(treeModelEvent);//(Object[]) null));//new Object[] {"Root"}));
+      listener.treeStructureChanged(treeModelEvent);
     }
   }
   
@@ -151,7 +141,6 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
 
   @Override
   public void tableChanged(TableModelEvent e) {
-    //System.err.println("tableChanged");
     ListSelectionModel lsm = _parent.getSelectionModel();
     RowSorter<? extends TableModel> rowSorter = _parent.getRowSorter();
     int row;
@@ -168,20 +157,16 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
   }
   @Override
   public int getChildCount(Object parent) {
-    //System.err.println("parent "+parent);
     if (parent instanceof DependencyNode) {
       DependencyNode parentNode = (DependencyNode)parent;
-      System.err.println("getChildCount() returning "+parentNode.getInputNodes().size());
       return parentNode.getInputNodes().size();
     } else {
-      System.err.println("getChildCount() returning "+_roots.size());
       return _roots.size();
     }
   }
 
   @Override
   public int getIndexOfChild(Object parent, Object child) {
-    //System.err.println("getIndexOfChild("+parent+", "+child+")");
     if (parent instanceof DependencyNode) {
       DependencyNode node = (DependencyNode) parent;
       return new ArrayList<DependencyNode>(node.getInputNodes()).indexOf(child);
@@ -192,7 +177,6 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
   
   @Override
   public Object getChild(Object parent, int index) {
-    //System.err.println("getChild("+parent+", "+index+")");
     if (parent instanceof DependencyNode) {
       DependencyNode node = (DependencyNode) parent;
       return new ArrayList<DependencyNode>(node.getInputNodes()).get(index);
@@ -203,7 +187,6 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
 
   @Override
   public Object getValueAt(Object node, int column) {
-    //System.err.println("getValueAt("+node+", "+column+")");
     ValueDefinitionRenderingVisitor visitor = new ValueDefinitionRenderingVisitor();
     if (node instanceof DependencyNode) {
       DependencyNode depNode = (DependencyNode) node;

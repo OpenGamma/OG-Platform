@@ -6,9 +6,19 @@
 package com.opengamma.engine.viewer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Polygon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -100,7 +110,7 @@ public class ViewerLauncher extends SingleFrameApplication {
   
   public JComponent createSlider() {
     JPanel panel = new JPanel(new FlowLayout());
-    JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 4000, 1000);
+    final JSlider slider = new JSlider(JSlider.HORIZONTAL, 0, 4000, 1000);
     slider.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -110,10 +120,49 @@ public class ViewerLauncher extends SingleFrameApplication {
         }
       }
     });
+    ViewRecalculationJob.setDelay(1000);
+    ViewRecalculationJob.pause(false);
+    final Icon play = createPlayIcon();
+    final Icon pause = createPauseIcon();
+    final JButton pauseButton = new JButton(pause);
+    pauseButton.addActionListener(new ActionListener() {
+      public boolean _paused = true;
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        JButton button = (JButton) e.getSource();
+        if (_paused) {
+          button.setIcon(play);
+        } else {
+          button.setIcon(pause);
+        }
+        slider.setEnabled(!_paused);
+        ViewRecalculationJob.pause(_paused);
+        _paused = !_paused;
+      }
+    });
     panel.add(new JLabel("Delay"));
     panel.add(slider);
-    //panel.setPreferredSize(new Dimension(Short.MAX_VALUE, 20));
+    panel.add(pauseButton);
     return panel;
+  }
+  
+  private Icon createPauseIcon() {
+    Image image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB );
+    Graphics graphics = image.getGraphics();
+    graphics.setColor(Color.BLACK);
+    graphics.fillRect(8-2, 4, 4, 16);
+    graphics.fillRect(16-2, 4, 4, 16);
+    Icon icon = new ImageIcon(image);
+    return icon;
+  }
+
+  private Icon createPlayIcon() {
+    Image image = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB );
+    Graphics graphics = image.getGraphics();
+    graphics.setColor(Color.BLACK);
+    graphics.fillPolygon(new Polygon(new int[] {7,7,20}, new int[] {4,20,12}, 3));
+    Icon icon = new ImageIcon(image);
+    return icon;
   }
   
   @Override
