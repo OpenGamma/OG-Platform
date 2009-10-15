@@ -51,7 +51,7 @@ public class NormalProbabilityDistribution implements ProbabilityDistribution<Do
 
   @Override
   public double getInverseCDF(final Double p) {
-    return Probability.normal(_mean, _standardDeviation, p);
+    return Probability.normalInverse(p);
   }
 
   public double getMean() {

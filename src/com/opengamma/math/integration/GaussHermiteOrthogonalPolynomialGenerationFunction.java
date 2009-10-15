@@ -1,6 +1,5 @@
 package com.opengamma.math.integration;
 
-
 /**
  * 
  * @author emcleod
@@ -13,12 +12,12 @@ public class GaussHermiteOrthogonalPolynomialGenerationFunction implements Gener
   private static final double POWER_OF_PI = Math.pow(Math.PI, -0.25);
 
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) {
+  public GaussianQuadratureFunction generate(final int n, final Double... params) {
     int j;
     double z = 0, z1, p1, p2, p3, pp;
-    int m = (n + 1) / 2;
-    Double[] x = new Double[n];
-    Double[] w = new Double[n];
+    final int m = (n + 1) / 2;
+    final Double[] x = new Double[n];
+    final Double[] w = new Double[n];
     for (int i = 0; i < m; i++) {
       if (i == 0) {
         z = Math.sqrt(2 * n + 1.) - 1.85575 * Math.pow(2 * n + 1., -0.1666667);
@@ -39,7 +38,7 @@ public class GaussHermiteOrthogonalPolynomialGenerationFunction implements Gener
         for (int k = 0; k < n; k++) {
           p3 = p2;
           p2 = p1;
-          p1 = z * Math.sqrt(2. / (j + 1)) * p2 - Math.sqrt(((double) j) / (j + 1)) * p3;
+          p1 = z * Math.sqrt(2. / (j + 1)) * p2 - Math.sqrt((double) j / (j + 1)) * p3;
         }
         pp = Math.sqrt(2. * n) * p2;
         z1 = z;

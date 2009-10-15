@@ -15,16 +15,16 @@ public class GaussLaguerreOrthogonalPolynomialGenerationFunction implements Gene
   private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
 
-  public GaussLaguerreOrthogonalPolynomialGenerationFunction(double alpha) {
+  public GaussLaguerreOrthogonalPolynomialGenerationFunction(final double alpha) {
     _alpha = alpha;
   }
 
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) {
+  public GaussianQuadratureFunction generate(final int n, final Double... params) {
     double z = 0, z1, p1, p2, p3, pp;
     int ai, j;
-    Double[] x = new Double[n];
-    Double[] w = new Double[n];
+    final Double[] x = new Double[n];
+    final Double[] w = new Double[n];
     for (int i = 0; i < n; i++) {
       if (i == 0) {
         z = (1 + _alpha) * (3 + 0.92 * _alpha) / (1 + 2.4 * n + 1.8 * _alpha);
@@ -48,7 +48,7 @@ public class GaussLaguerreOrthogonalPolynomialGenerationFunction implements Gene
         z1 = z;
         z = z1 - p1 / pp;
         // TODO error message for lack of convergence
-      } while ((Math.abs(z - z1) > EPS) && j < MAX_ITER);
+      } while (Math.abs(z - z1) > EPS && j < MAX_ITER);
       x[i] = z;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);
     }

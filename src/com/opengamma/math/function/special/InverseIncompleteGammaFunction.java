@@ -31,7 +31,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     final double a1 = a - 1;
     final double gln = _lnGamma.evaluate(a);
     if (a > 1) {
-      lna1 = Math.log(a1);// TODO Math.logp
+      lna1 = Math.log(a1);
       afac = Math.exp(a1 * (lna1 - 1) - gln);
       pp = p < 0.5 ? p : 1 - p;
       t = Math.sqrt(-2 * Math.log(pp));

@@ -16,19 +16,19 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements Genera
   private final double _alpha;
   private final double _beta;
 
-  public GaussJacobiOrthogonalPolynomialGeneratingFunction(double alpha, double beta) {
+  public GaussJacobiOrthogonalPolynomialGeneratingFunction(final double alpha, final double beta) {
     _alpha = alpha;
     _beta = beta;
   }
 
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) {
-    double alphaBeta = _alpha + _beta;
+  public GaussianQuadratureFunction generate(final int n, final Double... params) {
+    final double alphaBeta = _alpha + _beta;
     double an, bn, r1, r2, r3;
     double a, b, c, p1, p2, p3, pp, temp, z = 0, z1;
     int j = 0;
-    Double[] x = new Double[n];
-    Double[] w = new Double[n];
+    final Double[] x = new Double[n];
+    final Double[] w = new Double[n];
     for (int i = 0; i < n; i++) {
       if (i == 0) {
         an = _alpha / n;
@@ -44,7 +44,7 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements Genera
       } else if (i == 2) {
         r1 = (1.67 + 0.28 * _alpha) / (1 + 0.37 * _alpha);
         r2 = 1 + 0.22 * (n - 0.8) / n;
-        r3 = 1 + 0.8 * _beta / ((6.28 + _beta * n * n));
+        r3 = 1 + 0.8 * _beta / (6.28 + _beta * n * n);
         z -= (x[0] - z) * r1 * r2 * r3;
       } else if (i == n - 2) {
         r1 = (1 + 0.235 * _beta) / (0.766 + 0.119 * _beta);
