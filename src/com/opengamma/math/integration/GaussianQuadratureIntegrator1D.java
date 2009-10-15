@@ -14,9 +14,9 @@ import com.opengamma.math.function.Function1D;
 
 public class GaussianQuadratureIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
   private final int _n;
-  private final GeneratingFunction<Double, GaussianQuadratureFunction> _generator;
+  private final OrthogonalPolynomialGeneratingFunction _generator;
 
-  public GaussianQuadratureIntegrator1D(final int n, final GeneratingFunction<Double, GaussianQuadratureFunction> generator) {
+  public GaussianQuadratureIntegrator1D(final int n, final OrthogonalPolynomialGeneratingFunction generator) {
     if (n <= 0)
       throw new IllegalArgumentException("Number of divisions was less than one");
     if (generator == null)

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.integration;
 
 import com.opengamma.math.function.Function1D;
@@ -6,7 +11,6 @@ import com.opengamma.math.function.special.NaturalLogGammaFunction;
 /**
  * 
  * @author emcleod
- * 
  */
 
 public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
@@ -23,6 +27,12 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction implements Genera
 
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
+    if (n <= 0)
+      throw new IllegalArgumentException("Must have n > 0");
+    if (params == null)
+      throw new IllegalArgumentException("Parameter array cannot be null");
+    if (params.length == 0)
+      throw new IllegalArgumentException("Parameter array is empty");
     final double alphaBeta = _alpha + _beta;
     double an, bn, r1, r2, r3;
     double a, b, c, p1, p2, p3, pp, temp, z = 0, z1;

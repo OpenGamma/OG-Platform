@@ -1,18 +1,28 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.integration;
 
 /**
  * 
  * @author emcleod
- * 
  */
 
-public class GaussHermiteOrthogonalPolynomialGenerationFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
+public class GaussHermiteOrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
   private static final int MAX_ITER = 10;
   private static final double EPS = 1e-12;
   private static final double POWER_OF_PI = Math.pow(Math.PI, -0.25);
 
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
+    if (n <= 0)
+      throw new IllegalArgumentException("Must have n > 0");
+    if (params == null)
+      throw new IllegalArgumentException("Parameter array cannot be null");
+    if (params.length == 0)
+      throw new IllegalArgumentException("Parameter array is empty");
     int j;
     double z = 0, z1, p1, p2, p3, pp;
     final int m = (n + 1) / 2;

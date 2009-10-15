@@ -5,22 +5,59 @@
  */
 package com.opengamma.math.integration;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+
+import com.opengamma.math.function.Function1D;
 
 /**
  * 
  * @author emcleod
  */
 public class GaussianQuadratureIntegrator1DTest {
+  private static final Function1D<Double, Double> DF1 = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      return x * x * x * x - 10;
+    }
+
+  };
+  private static final Function1D<Double, Double> F1 = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      return x * x * x * x * x / 5. - 10 * x;
+    }
+
+  };
+  private static final Function1D<Double, Double> DF2 = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      return Math.exp(-2 * x);
+    }
+
+  };
+  private static final double EPS = 1e-9;
 
   @Test
-  public void test() {
-    final GeneratingFunction<Double, GaussianQuadratureFunction> generator = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
-    final GaussianQuadratureFunction f = generator.generate(5, new Double[] { -1., 1. });
-    final Double[] weights = f.getWeights();
-    final Double[] abscissas = f.getAbscissas();
-    for (int i = 0; i < weights.length; i++) {
-      System.out.println(weights[i] + " " + abscissas[i]);
-    }
+  public void testGaussLegendre() {
+    double upper = 1;
+    double lower = -1;
+    final OrthogonalPolynomialGeneratingFunction generator = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
+    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
+    assertEquals(F1.evaluate(upper) - F1.evaluate(lower), integrator.integrate(DF1, lower, upper), EPS);
+    lower = -0.56;
+    upper = 1.4;
+    assertEquals(F1.evaluate(upper) - F1.evaluate(lower), integrator.integrate(DF1, lower, upper), EPS);
+  }
+
+  @Test
+  public void testGaussLaguerre() {
+    final OrthogonalPolynomialGeneratingFunction generator = new GaussLaguerreOrthogonalPolynomialGeneratingFunction(0);
+    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
+    System.out.println(integrator.integrate(DF2, 0., 1.));
   }
 }
