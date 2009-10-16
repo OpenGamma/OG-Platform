@@ -5,8 +5,6 @@
  */
 package com.opengamma.math.integration;
 
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
 /**
@@ -27,21 +25,10 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunctionTest extends Ort
 
   @Test
   public void test() {
-    testInputs(F, PARAMS);
+    testInputsFixedLimits(F, PARAMS);
     testResults(F.generate(2, PARAMS), X2, W2);
     testResults(F.generate(3, PARAMS), X3, W3);
     testResults(F.generate(4, PARAMS), X4, W4);
     testResults(F.generate(5, PARAMS), X5, W5);
   }
-
-  @Override
-  protected void testInputs(final GeneratingFunction<Double, GaussianQuadratureFunction> f, final Double[] params) {
-    try {
-      f.generate(-1, params);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-  }
-
 }

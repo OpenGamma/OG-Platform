@@ -20,7 +20,6 @@ import com.opengamma.math.function.special.NaturalLogGammaFunction;
 public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
   private static final Logger s_Log = LoggerFactory.getLogger(GaussLaguerreOrthogonalPolynomialGeneratingFunction.class);
   private static final double EPS = 1e-6;
-  private static final int MAX_ITER = 100000;
   private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
 
@@ -29,13 +28,19 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
   }
 
   public GaussLaguerreOrthogonalPolynomialGeneratingFunction(final double alpha) {
+    super();
+    _alpha = alpha;
+  }
+
+  public GaussLaguerreOrthogonalPolynomialGeneratingFunction(final double alpha, final int maxIter) {
+    super(maxIter);
     _alpha = alpha;
   }
 
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
     if (params != null) {
-      s_Log.info("Limits for this integration formula are 0 and +infinity; ignoring bounds");
+      s_Log.info("Limits for this integration method are 0 and +infinity; ignoring bounds");
     }
     return generate(n);
   }
@@ -45,6 +50,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
       throw new IllegalArgumentException("Number of divisions cannot be less than one");
     double z = 0, z1 = 0, p1 = 0, p2 = 0, p3 = 0, pp = 0;
     int ai, j;
+    final int max = getMaxIterations();
     final Double[] x = new Double[n];
     final Double[] w = new Double[n];
     for (int i = 0; i < n; i++) {
@@ -56,7 +62,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
         ai = i - 1;
         z += ((1 + 2.55 * ai) / (1.9 * ai) + 1.26 * ai * _alpha / (1 + 3.5 * ai)) * (z - x[i - 2]) / (1 + 0.3 * _alpha);
       }
-      for (j = 0; j < MAX_ITER; j++) {
+      for (j = 0; j < max; j++) {
         p1 = 1.;
         p2 = 0.;
         for (int k = 0; k < n; k++) {
@@ -71,8 +77,8 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
           break;
         }
       }
-      if (j == MAX_ITER)
-        throw new ConvergenceException("Could not converge in " + MAX_ITER + " iterations");
+      if (j == max)
+        throw new ConvergenceException("Could not converge in " + max + " iterations");
       x[i] = z;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);
       w[i] *= Math.exp(z);

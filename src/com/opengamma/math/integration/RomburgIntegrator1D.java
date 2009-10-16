@@ -17,7 +17,7 @@ public class RomburgIntegrator1D extends Integrator1D<Double, Function1D<Double,
 
   @Override
   public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
-    // TODO Auto-generated method stub
+    // TODO finish when interpolators can extrapolate as well as interpolate
     return null;
   }
 

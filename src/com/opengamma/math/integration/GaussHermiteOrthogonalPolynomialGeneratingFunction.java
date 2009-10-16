@@ -5,59 +5,79 @@
  */
 package com.opengamma.math.integration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.math.ConvergenceException;
+
 /**
  * 
  * @author emcleod
  */
 
-public class GaussHermiteOrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
-  private static final int MAX_ITER = 10;
+public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
+  private static final Logger s_Log = LoggerFactory.getLogger(GaussHermiteOrthogonalPolynomialGeneratingFunction.class);
   private static final double EPS = 1e-12;
   private static final double POWER_OF_PI = Math.pow(Math.PI, -0.25);
 
+  public GaussHermiteOrthogonalPolynomialGeneratingFunction() {
+    super();
+  }
+
+  public GaussHermiteOrthogonalPolynomialGeneratingFunction(final int maxIter) {
+    super(maxIter);
+  }
+
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
+    if (params != null) {
+      s_Log.info("Limits for this integration method are +/-infinity; ignoring bounds");
+    }
+    return generate(n);
+  }
+
+  public GaussianQuadratureFunction generate(final int n) {
     if (n <= 0)
       throw new IllegalArgumentException("Must have n > 0");
-    if (params == null)
-      throw new IllegalArgumentException("Parameter array cannot be null");
-    if (params.length == 0)
-      throw new IllegalArgumentException("Parameter array is empty");
-    int j;
-    double z = 0, z1, p1, p2, p3, pp;
-    final int m = (n + 1) / 2;
     final Double[] x = new Double[n];
     final Double[] w = new Double[n];
+    int m, j = 0;
+    final int max = getMaxIterations();
+    double p1, p2, p3, pp = 0, z = 0, z1;
+    m = (n + 1) / 2;
     for (int i = 0; i < m; i++) {
       if (i == 0) {
-        z = Math.sqrt(2 * n + 1.) - 1.85575 * Math.pow(2 * n + 1., -0.1666667);
+        z = Math.sqrt(2 * n + 1.) - 1.85575 * Math.pow(2 * n + 1., -0.16667);
       } else if (i == 1) {
         z -= 1.14 * Math.pow(n, 0.426) / z;
       } else if (i == 2) {
-        z = 1.86 * z - 0.86 * x[0];
+        z = 1.86 * z + 0.86 * x[0];
       } else if (i == 3) {
-        z = 1.91 * z - 0.91 * x[1];
+        z = 1.91 * z + 0.91 * x[1];
       } else {
-        z = 2 * z - x[i - 2];
+        z = 2 * z + x[i - 2];
       }
-      j = 0;
-      do {
-        j++;
+      for (j = 0; j < max; j++) {
         p1 = POWER_OF_PI;
-        p2 = 0.;
+        p2 = 0;
         for (int k = 0; k < n; k++) {
           p3 = p2;
           p2 = p1;
-          p1 = z * Math.sqrt(2. / (j + 1)) * p2 - Math.sqrt((double) j / (j + 1)) * p3;
+          p1 = z * Math.sqrt(2. / (k + 1)) * p2 - Math.sqrt(Double.valueOf(k) / (k + 1)) * p3;
         }
         pp = Math.sqrt(2. * n) * p2;
         z1 = z;
         z = z1 - p1 / pp;
-      } while (Math.abs(z - z1) > EPS && j < MAX_ITER);
-      x[i] = z;
-      x[n - i - 1] = -z;
+        if (Math.abs(z - z1) < EPS) {
+          break;
+        }
+      }
+      if (j == max)
+        throw new ConvergenceException("Could not converge in " + max + " iterations");
+      x[i] = -z;
+      x[n - 1 - i] = z;
       w[i] = 2. / (pp * pp);
-      w[n - i - 1] = w[i];
+      w[n - 1 - i] = w[i];
     }
     return new GaussianQuadratureFunction(x, w);
   }

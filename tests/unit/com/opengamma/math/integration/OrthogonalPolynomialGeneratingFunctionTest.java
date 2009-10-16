@@ -36,6 +36,15 @@ public class OrthogonalPolynomialGeneratingFunctionTest {
     }
   }
 
+  protected void testInputsFixedLimits(final GeneratingFunction<Double, GaussianQuadratureFunction> f, final Double[] params) {
+    try {
+      f.generate(-1, params);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
+  }
+
   protected void testResults(final GaussianQuadratureFunction f, final double[] x, final double[] w) {
     final Double[] x1 = f.getAbscissas();
     final Double[] w1 = f.getWeights();

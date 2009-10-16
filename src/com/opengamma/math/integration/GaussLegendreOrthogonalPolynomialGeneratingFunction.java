@@ -10,9 +10,16 @@ package com.opengamma.math.integration;
  * @author emcleod
  * 
  */
-
 public class GaussLegendreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
   private static final double EPS = 1e-12;
+
+  public GaussLegendreOrthogonalPolynomialGeneratingFunction() {
+    super();
+  }
+
+  public GaussLegendreOrthogonalPolynomialGeneratingFunction(final int maxIter) {
+    super(maxIter);
+  }
 
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
