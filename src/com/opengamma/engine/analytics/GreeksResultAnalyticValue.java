@@ -16,7 +16,7 @@ import com.opengamma.financial.greeks.GreekResultCollection;
  *
  * @author kirk
  */
-public class GreeksResultAnalyticValue extends AbstractAnalyticValue<GreekResultCollection> implements Renderable {
+public class GreeksResultAnalyticValue extends AnalyticValueImpl<GreekResultCollection> implements Renderable {
   public GreeksResultAnalyticValue(GreeksResultValueDefinition definition, GreekResultCollection value) {
     super(definition, value);
   }

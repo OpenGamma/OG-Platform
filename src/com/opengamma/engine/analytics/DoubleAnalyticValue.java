@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  *
  * @author kirk
  */
-public class DoubleAnalyticValue extends AbstractAnalyticValue<Double> {
+public class DoubleAnalyticValue extends AnalyticValueImpl<Double> {
   public DoubleAnalyticValue(AnalyticValueDefinition<Double> definition, Double value) {
     super(definition, value);
   }

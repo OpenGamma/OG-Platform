@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.livedata;
 
-import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
 /**
@@ -18,8 +17,8 @@ public interface LiveDataSnapshotProvider {
   void addSubscription(AnalyticValueDefinition<?> definition);
   
   long snapshot();
-  // REVIEW jim 18-Sep-09 -- be nice if the ?'s were == but messes other things up.
-  AnalyticValue<?> querySnapshot(long snapshot, AnalyticValueDefinition<?> definition); 
+
+  Object querySnapshot(long snapshot, AnalyticValueDefinition<?> definition); 
   
   void releaseSnapshot(long snapshot);
 }

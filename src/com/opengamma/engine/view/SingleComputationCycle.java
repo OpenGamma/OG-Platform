@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.security.Security;
 
@@ -161,12 +162,14 @@ public class SingleComputationCycle {
     
     boolean missingData = false;
     for(AnalyticValueDefinition<?> requiredDataDefinition : requiredLiveData) {
-      AnalyticValue<?> value = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
-      if(value == null) {
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
+      if(data == null) {
         s_logger.warn("Unable to load live data value for {} at snapshot {}. Not executing.", requiredDataDefinition, getSnapshotTime());
         missingData = true;
       } else {
-        getComputationCache().putValue(value);
+        @SuppressWarnings("unchecked")
+        AnalyticValue<Object> dataAsValue = new AnalyticValueImpl(requiredDataDefinition, data);
+        getComputationCache().putValue(dataAsValue);
       }
     }
     return !missingData;

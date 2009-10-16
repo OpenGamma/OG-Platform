@@ -20,7 +20,7 @@ import javax.time.calendar.TimeZone;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AbstractAnalyticValue;
+import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
@@ -294,7 +294,7 @@ public class ViewManager implements Lifecycle {
       FudgeMsg dataFields = new FudgeMsg();
       dataFields.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, currValue);
       
-      AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
+      AnalyticValue value = new AnalyticValueImpl(strip.getStripValueDefinition(), dataFields) {
         @Override
         public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {
           return this;
@@ -317,7 +317,7 @@ public class ViewManager implements Lifecycle {
   private AnalyticValue<Map<String, Double>> makeHeaderValue(AnalyticValueDefinition<Map<String, Double>> def, String field, Double value) {
     Map<String, Double> map = new HashMap<String, Double>();
     map.put(field, value);
-    return new AbstractAnalyticValue<Map<String, Double>>(def, map) {
+    return new AnalyticValueImpl<Map<String, Double>>(def, map) {
       @Override
       public AnalyticValue<Map<String, Double>> scaleForPosition(
           BigDecimal quantity) {

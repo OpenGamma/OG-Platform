@@ -16,7 +16,7 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticValue extends AbstractAnalyticValue<DiscountCurve> implements Renderable {
+public class DiscountCurveAnalyticValue extends AnalyticValueImpl<DiscountCurve> implements Renderable {
   public DiscountCurveAnalyticValue(AnalyticValueDefinition<DiscountCurve> definition, DiscountCurve value) {
     super(definition, value);
   }

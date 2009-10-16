@@ -35,13 +35,17 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   }
 
   @Override
-  public synchronized AnalyticValue<?> querySnapshot(long snapshot, AnalyticValueDefinition<?> definition) {
+  public synchronized Object querySnapshot(long snapshot, AnalyticValueDefinition<?> definition) {
     Map<AnalyticValueDefinition<?>, AnalyticValue<?>> snapshotValues =
       _snapshots.get(snapshot);
     if(snapshotValues == null) {
       return null;
     }
-    return snapshotValues.get(definition);
+    AnalyticValue<?> value = snapshotValues.get(definition);
+    if(value == null) {
+      return null;
+    }
+    return value.getValue();
   }
 
   @Override

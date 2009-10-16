@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AbstractAnalyticValue;
+import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
@@ -269,7 +269,6 @@ public class ViewImplTest {
    * @param snapshotProvider 
    * 
    */
-  @SuppressWarnings("unchecked")
   protected void populateSnapshot(
       InMemoryLKVSnapshotProvider snapshotProvider,
       DiscountCurveDefinition curveDefinition,
@@ -282,12 +281,8 @@ public class ViewImplTest {
       }
       final FudgeMsg dataFields = new FudgeMsg();
       dataFields.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, currValue);
-      AnalyticValue value = new AbstractAnalyticValue(strip.getStripValueDefinition(), dataFields) {
-        @Override
-        public AnalyticValue<Map<String, Double>> scaleForPosition(BigDecimal quantity) {
-          return this;
-        }
-      };
+      @SuppressWarnings("unchecked")
+      AnalyticValue value = new AnalyticValueImpl(strip.getStripValueDefinition(), dataFields);
       snapshotProvider.addValue(value);
       if(strip.getNumYears() <= 5.0) {
         currValue += 0.005;

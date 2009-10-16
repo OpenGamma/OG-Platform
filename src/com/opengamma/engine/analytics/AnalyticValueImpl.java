@@ -6,6 +6,7 @@
 package com.opengamma.engine.analytics;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -18,11 +19,11 @@ import org.apache.commons.lang.builder.ToStringStyle;
  *
  * @author kirk
  */
-public abstract class AbstractAnalyticValue<T> implements AnalyticValue<T>, Serializable, Cloneable {
+public class AnalyticValueImpl<T> implements AnalyticValue<T>, Serializable, Cloneable {
   private final AnalyticValueDefinition<T> _definition;
   private final T _value;
   
-  protected AbstractAnalyticValue(AnalyticValueDefinition<T> definition, T value) {
+  public AnalyticValueImpl(AnalyticValueDefinition<T> definition, T value) {
     if(definition == null) {
       throw new NullPointerException("Must specify an Analytic Value Definition");
     }
@@ -45,9 +46,9 @@ public abstract class AbstractAnalyticValue<T> implements AnalyticValue<T>, Seri
 
   @SuppressWarnings("unchecked")
   @Override
-  public AbstractAnalyticValue<T> clone() {
+  public AnalyticValueImpl<T> clone() {
     try {
-      return (AbstractAnalyticValue<T>) super.clone();
+      return (AnalyticValueImpl<T>) super.clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Yes, it is supported.");
     }
@@ -64,7 +65,7 @@ public abstract class AbstractAnalyticValue<T> implements AnalyticValue<T>, Seri
     if(!getClass().equals(obj.getClass())) {
       return false;
     }
-    AbstractAnalyticValue<?> other = (AbstractAnalyticValue<?>) obj;
+    AnalyticValueImpl<?> other = (AnalyticValueImpl<?>) obj;
     if(!ObjectUtils.equals(getValue(), other.getValue())) {
       return false;
     }
@@ -86,6 +87,11 @@ public abstract class AbstractAnalyticValue<T> implements AnalyticValue<T>, Seri
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  @Override
+  public AnalyticValue<T> scaleForPosition(BigDecimal quantity) {
+    return this;
   }
 
 }

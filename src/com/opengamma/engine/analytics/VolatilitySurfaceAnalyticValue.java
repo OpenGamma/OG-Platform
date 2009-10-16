@@ -16,7 +16,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
  *
  * @author kirk
  */
-public class VolatilitySurfaceAnalyticValue extends AbstractAnalyticValue<VolatilitySurface> implements Renderable {
+public class VolatilitySurfaceAnalyticValue extends AnalyticValueImpl<VolatilitySurface> implements Renderable {
   public VolatilitySurfaceAnalyticValue(VolatilitySurfaceValueDefinition definition, VolatilitySurface value) {
     super(definition, value);
   }

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  *
  * @author jim
  */
-public class UnscalableAnalyticValue<T> extends AbstractAnalyticValue<T> {
+public class UnscalableAnalyticValue<T> extends AnalyticValueImpl<T> {
 
   /**
    * @param definition

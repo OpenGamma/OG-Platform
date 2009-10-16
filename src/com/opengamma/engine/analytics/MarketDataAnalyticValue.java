@@ -15,7 +15,7 @@ import com.opengamma.fudge.FudgeMsg;
  * @author kirk
  */
 public class MarketDataAnalyticValue extends
-    AbstractAnalyticValue<FudgeMsg> {
+    AnalyticValueImpl<FudgeMsg> {
   public static final String INDICATIVE_VALUE_NAME = "IndicativeValue";
 
   /**
