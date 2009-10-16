@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
@@ -19,6 +20,15 @@ import com.opengamma.id.DomainSpecificIdentifier;
 public class DefaultSecurity implements Security, Serializable {
   private Collection<DomainSpecificIdentifier> _identifiers;
   private String _securityType;
+  private AnalyticValueDefinition<?> _marketDataDefinition;
+  
+  public DefaultSecurity() {
+  }
+  
+  public DefaultSecurity(String securityType, Collection<? extends DomainSpecificIdentifier> identifiers) {
+    setSecurityType(securityType);
+    setIdentifiers(identifiers);
+  }
 
   @Override
   public Collection<DomainSpecificIdentifier> getIdentifiers() {
@@ -34,6 +44,7 @@ public class DefaultSecurity implements Security, Serializable {
   }
   
   // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
+  // REVIEW kirk 2009-10-16 -- Almost certainly.
   @Override
   public SecurityKey getIdentityKey() {
     return new SecurityKeyImpl(_identifiers);
@@ -51,7 +62,16 @@ public class DefaultSecurity implements Security, Serializable {
     _securityType = securityType;
   }
 
+  @Override
+  public AnalyticValueDefinition<?> getMarketDataDefinition() {
+    return _marketDataDefinition;
+  }
 
-
-
+  /**
+   * @param marketDataDefinition the marketDataDefinition to set
+   */
+  public void setMarketDataDefinition(
+      AnalyticValueDefinition<?> marketDataDefinition) {
+    _marketDataDefinition = marketDataDefinition;
+  }
 }

@@ -38,10 +38,9 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.calcnode.LinkedBlockingCompletionQueue;
 import com.opengamma.engine.view.calcnode.LinkedBlockingJobQueue;
 import com.opengamma.engine.view.calcnode.SingleThreadCalculationNode;
@@ -88,20 +87,7 @@ public class ViewImplTest {
         return Collections.singleton(portfolio.getName());
       }
     };
-    Security security = new Security() {
-      @Override
-      public Collection<DomainSpecificIdentifier> getIdentifiers() {
-        return Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("KIRK"), "ID1"));
-      }
-      @Override
-      public String getSecurityType() {
-        return "KIRK";
-      }
-      @Override
-      public SecurityKey getIdentityKey() {
-        return new SecurityKeyImpl(getIdentifiers());
-      }
-    };
+    Security security = new DefaultSecurity("KIRK", Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain("KIRK"), "ID1")));
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     secMaster.add(security);
 

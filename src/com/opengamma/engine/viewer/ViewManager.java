@@ -29,6 +29,7 @@ import com.opengamma.engine.analytics.GreeksResultValueDefinition;
 import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction;
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
 import com.opengamma.engine.analytics.MarketDataAnalyticValue;
+import com.opengamma.engine.analytics.MarketDataAnalyticValueDefinitionFactory;
 import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
@@ -71,7 +72,7 @@ import com.opengamma.util.time.Expiry;
 public class ViewManager implements Lifecycle {
   private final Clock _clock = Clock.system(TimeZone.UTC);
   private static final double ONEYEAR = 365.25;
-  private static final IdentificationDomain BLOOMBERG = new IdentificationDomain("BLOOMBERG");
+  private static final IdentificationDomain BBG_ID_DOMAIN = new IdentificationDomain("BbgId");
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final ViewImpl _view;
@@ -160,27 +161,43 @@ public class ViewManager implements Lifecycle {
     
     
     
-    Security aapl = new EquitySecurity("AAPL", "BLOOMBERG");
-    Security mtlqq_pk = new EquitySecurity("MTLQQ.PK", "BLOOMBERG");
-    Security ibm = new EquitySecurity("IBM", "BLOOMBERG");
-    Security gs = new EquitySecurity("GS", "BLOOMBERG");
+    Security aapl = new EquitySecurity("AAPL US Equity", "BbgId");
+    //Security mtlqq_pk = new EquitySecurity("MTLQQ.PK", "BLOOMBERG");
+    Security ibm = new EquitySecurity("IBM US Equity", "BbgId");
+    Security gs = new EquitySecurity("GS US Equity", "BbgId");
     //Security aapl = new EquitySecurity("AAPL US Equity", "BbgId");
     secMaster.add(aapl);
-    secMaster.add(mtlqq_pk);
+    //secMaster.add(mtlqq_pk);
     secMaster.add(ibm);
     secMaster.add(gs);
-    String[] tickers = new String[] {"APVJS.X", "APVJN.X", "AJLJV.X",   "GMLV.X", "GMLW.X", "GMLA.X", "IBMJE.X", "IBMJF.X", "IBMJG.X", "IBMJH.X", "IBMJI.X", "GPYVP.X", "GPYVS.X", "GPYVB.X", "GPYJR.X", "GPYJM.X"};
-    double[] strikes = new double[] {195.0, 170.0, 210.0,               1.0, 2.0, 5.0,                 125.0, 130.0, 135.0, 140.0, 145.0,                    180.0, 195.0, 210.0, 190.0, 165.0};
+    String[] tickers = new String[] {
+        "APVJS.X", "APVJN.X", "AJLJV.X",
+        //"GMLV.X", "GMLW.X", "GMLA.X",
+        "IBMJE.X", "IBMJF.X", "IBMJG.X", "IBMJH.X", "IBMJI.X",
+        "GPYVP.X", "GPYVS.X", "GPYVB.X", "GPYJR.X", "GPYJM.X"};
+    double[] strikes = new double[] {
+        195.0, 170.0, 210.0,
+        //1.0, 2.0, 5.0,
+        125.0, 130.0, 135.0, 140.0, 145.0,
+        180.0, 195.0, 210.0, 190.0, 165.0};
     Expiry aapl_ibm_gs_Expiry = new Expiry(_clock.zonedDateTime().withDate(2009, 11, 16).withTime(17, 00));
-    Expiry mtlqq_pkExpiry = new Expiry(_clock.zonedDateTime().withDate(2009, 12, 18).withTime(17, 00));
-    Expiry[] expiries = new Expiry[] { aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, mtlqq_pkExpiry, mtlqq_pkExpiry, mtlqq_pkExpiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry,  aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry};
-    Security[] underlyings = new Security[] {aapl, aapl, aapl, mtlqq_pk, mtlqq_pk, mtlqq_pk, ibm, ibm, ibm, ibm, ibm, gs, gs, gs, gs, gs };
+    //Expiry mtlqq_pkExpiry = new Expiry(_clock.zonedDateTime().withDate(2009, 12, 18).withTime(17, 00));
+    Expiry[] expiries = new Expiry[] {
+        aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry,
+        //mtlqq_pkExpiry, mtlqq_pkExpiry, mtlqq_pkExpiry,
+        aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, 
+        aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry};
+    Security[] underlyings = new Security[] {
+        aapl, aapl, aapl,
+        //mtlqq_pk, mtlqq_pk, mtlqq_pk,
+        ibm, ibm, ibm, ibm, ibm,
+        gs, gs, gs, gs, gs };
     //OptionType[] types = new OptionType[] { OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.PUT, OptionType.PUT, OptionType.PUT, OptionType.CALL, OptionType.CALL };
     List<Security> securities = new ArrayList<Security>();
     
     for (int i=0; i<tickers.length; i++) {
       DefaultSecurity security = new EuropeanVanillaEquityOptionSecurity(OptionType.CALL, strikes[i], expiries[i], underlyings[i].getIdentityKey(), Currency.getInstance("USD"));
-      security.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(BLOOMBERG, tickers[i])));
+      security.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(BBG_ID_DOMAIN, tickers[i])));
       securities.add(security);
       secMaster.add(security);
     }
@@ -232,10 +249,7 @@ public class ViewManager implements Lifecycle {
   }
   
   private static AnalyticValueDefinition<?> constructBloombergTickerDefinition(String bbTicker) {
-    ResolveSecurityKeyToMarketDataHeaderDefinition definition =
-      new ResolveSecurityKeyToMarketDataHeaderDefinition(
-          new SecurityKeyImpl(new DomainSpecificIdentifier(BLOOMBERG, bbTicker)));
-    return definition;
+    return MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", bbTicker);
   }
   
   private static DiscountCurveDefinition constructDiscountCurveDefinition(String isoCode, String name) {

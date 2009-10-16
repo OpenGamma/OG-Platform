@@ -7,6 +7,7 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
+import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
@@ -28,6 +29,18 @@ public interface Security {
    * Obtain a SecurityKey that uniquely identifies the security in question
    */
   SecurityKey getIdentityKey();
+  
+  /**
+   * Obtain the dedicated market data definition for this security.
+   * This may combine a set of keys (for example, a Bloomberg Ticker and a
+   * Reuters RIC) in one analytic value definition.
+   * In the case where there is no specific market data definition for this security
+   * (for example, in the case of an instrument which isn't quoted or traded), this
+   * method should return {@code null}.
+   * 
+   * @return The market data definition for this {@code Security}, or {@code null}.
+   */
+  AnalyticValueDefinition<?> getMarketDataDefinition();
   
   /**
    * Obtain the text-based type of this Security.

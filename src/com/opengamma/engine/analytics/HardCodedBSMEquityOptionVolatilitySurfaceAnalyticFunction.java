@@ -56,7 +56,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
       Security security) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
-    if (security.getSecurityType().equals("EQUITY_OPTION")) {
+    if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
       AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
@@ -110,7 +110,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
 
   @Override
   public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
-    if (security.getSecurityType().equals("EQUITY_OPTION")) {
+    if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
       AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
