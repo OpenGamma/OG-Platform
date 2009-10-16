@@ -6,14 +6,10 @@
 package com.opengamma.engine.analytics;
 
 import java.math.BigDecimal;
-import java.util.Map.Entry;
 
 import com.opengamma.engine.viewer.RenderVisitor;
 import com.opengamma.engine.viewer.Renderable;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.GreekVisitor;
 
 /**
  * An {@link AnalyticValue} for a single double-precision floating point value.
