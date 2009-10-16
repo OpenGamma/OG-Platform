@@ -36,11 +36,11 @@ public class GaussianQuadratureIntegrator1DTest {
 
     @Override
     public Double evaluate(final Double x) {
-      return Math.exp(-2 * x);
+      return Math.exp(-3 * x);
     }
 
   };
-  private static final double EPS = 1e-9;
+  private static final double EPS = 1e-6;
 
   @Test
   public void testGaussLegendre() {
@@ -56,8 +56,9 @@ public class GaussianQuadratureIntegrator1DTest {
 
   @Test
   public void testGaussLaguerre() {
-    final OrthogonalPolynomialGeneratingFunction generator = new GaussLaguerreOrthogonalPolynomialGeneratingFunction(0);
-    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(100, generator);
-    System.out.println(integrator.integrate(DF2, 0., 1.));
+    final OrthogonalPolynomialGeneratingFunction generator = new GaussLaguerreOrthogonalPolynomialGeneratingFunction();
+    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new GaussianQuadratureIntegrator1D(1000, generator);
+    assertEquals(1. / 3, integrator.integrate(DF2, 0., 1.), EPS);
+    assertEquals(1. / 3, integrator.integrate(DF2, -1000., 1000.), EPS);
   }
 }

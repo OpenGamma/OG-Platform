@@ -24,6 +24,10 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
   private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
 
+  public GaussLaguerreOrthogonalPolynomialGeneratingFunction() {
+    this(0);
+  }
+
   public GaussLaguerreOrthogonalPolynomialGeneratingFunction(final double alpha) {
     _alpha = alpha;
   }
@@ -31,7 +35,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
     if (params != null) {
-      s_Log.info("Limits for this integration formula are 0 and + infinity; ignoring bounds");
+      s_Log.info("Limits for this integration formula are 0 and +infinity; ignoring bounds");
     }
     return generate(n);
   }
@@ -47,10 +51,10 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
       if (i == 0) {
         z = (1 + _alpha) * (3 + 0.92 * _alpha) / (1 + 2.4 * n + 1.8 * _alpha);
       } else if (i == 1) {
-        z += (15.0 + 6.25 * _alpha) / (1 + 0.9 * _alpha + 2.5 * n);
+        z += (15 + 6.25 * _alpha) / (1 + 0.9 * _alpha + 2.5 * n);
       } else {
         ai = i - 1;
-        z += ((1 + 2.55 * ai) / (1.9 * ai) + 1.26 * ai * _alpha / (1 + 3.5 * ai)) * (z - x[i - 2]) / (1.0 + 0.3 * _alpha);
+        z += ((1 + 2.55 * ai) / (1.9 * ai) + 1.26 * ai * _alpha / (1 + 3.5 * ai)) * (z - x[i - 2]) / (1 + 0.3 * _alpha);
       }
       for (j = 0; j < MAX_ITER; j++) {
         p1 = 1.;
@@ -71,7 +75,7 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
         throw new ConvergenceException("Could not converge in " + MAX_ITER + " iterations");
       x[i] = z;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);
-      w[i] *= Math.exp(x[i]);
+      w[i] *= Math.exp(z);
     }
     return new GaussianQuadratureFunction(x, w);
   }
