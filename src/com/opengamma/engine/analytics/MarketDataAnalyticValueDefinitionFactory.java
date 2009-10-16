@@ -8,7 +8,11 @@ package com.opengamma.engine.analytics;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.fudge.FudgeMsg;
+import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
  * A factory for analytic value definitions when live data is required
@@ -31,6 +35,25 @@ public final class MarketDataAnalyticValueDefinitionFactory {
     Map<String, Object> predicates = new TreeMap<String, Object>();
     predicates.put(MARKET_DATA_TYPE_NAME, HEADER_TYPE_VALUE);
     predicates.put(key, value);
+    return new AnalyticValueDefinitionImpl<FudgeMsg>(predicates);
+  }
+  
+  public static AnalyticValueDefinition<FudgeMsg> constructHeaderDefinition(
+      Security security) {
+    AnalyticValueDefinition<FudgeMsg> securityMarketDataDefinition = security.getMarketDataDefinition();
+    if(securityMarketDataDefinition != null) {
+      return securityMarketDataDefinition;
+    }
+    return constructHeaderDefinition(new SecurityKeyImpl(security.getIdentifiers()));
+  }
+  
+  public static AnalyticValueDefinition<FudgeMsg> constructHeaderDefinition(
+      SecurityKey secKey) {
+    Map<String, Object> predicates = new TreeMap<String, Object>();
+    predicates.put(MARKET_DATA_TYPE_NAME, HEADER_TYPE_VALUE);
+    for(DomainSpecificIdentifier identifier : secKey.getIdentifiers()) {
+      predicates.put(identifier.getDomain().getDomainName(), identifier.getValue());
+    }
     return new AnalyticValueDefinitionImpl<FudgeMsg>(predicates);
   }
   

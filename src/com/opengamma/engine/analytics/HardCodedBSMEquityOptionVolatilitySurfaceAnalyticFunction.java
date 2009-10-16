@@ -32,6 +32,7 @@ import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
+import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -58,16 +59,13 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
-      //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
-      AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
-      AnalyticValueDefinition<?> underlyingHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getUnderlying());
+      AnalyticValueDefinition<?> justThisOptionHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec);
+      AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlying());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
-      @SuppressWarnings("unchecked")
-      Map<String, Double> optionDataFields = (Map<String, Double>) inputs.getValue(justThisOptionHeader);
-      final double price = optionDataFields.get(PRICE_FIELD_NAME);
-      @SuppressWarnings("unchecked")
-      Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(underlyingHeader);
-      final double spot = underlyingDataFields.get(PRICE_FIELD_NAME);
+      FudgeFieldContainer optionDataFields = (FudgeFieldContainer)inputs.getValue(justThisOptionHeader);
+      final double price = optionDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
+      FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(underlyingHeader);
+      final double spot = underlyingDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveForCurrency);
       final VolatilitySurface volSurface = equityOptionSec.accept(new OptionVisitor<VolatilitySurface>() {
         private VolatilitySurface visitOption(Option option) {
@@ -112,9 +110,8 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
     if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
-      //AnalyticValueDefinition<?> justThisOptionDefinition = new ResolveSecurityKeyToSecurityDefinition(equityOptionSec.getIndentityKey());
-      AnalyticValueDefinition<?> justThisOptionHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getIdentityKey());
-      AnalyticValueDefinition<?> underlyingHeader = new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOptionSec.getUnderlying());
+      AnalyticValueDefinition<?> justThisOptionHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec);
+      AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlying());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
       final List<AnalyticValueDefinition<?>> justThisOption = new ArrayList<AnalyticValueDefinition<?>>();
       //justThisOption.add(justThisOptionDefinition);

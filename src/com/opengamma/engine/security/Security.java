@@ -8,6 +8,7 @@ package com.opengamma.engine.security;
 import java.util.Collection;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
@@ -40,7 +41,7 @@ public interface Security {
    * 
    * @return The market data definition for this {@code Security}, or {@code null}.
    */
-  AnalyticValueDefinition<?> getMarketDataDefinition();
+  AnalyticValueDefinition<FudgeMsg> getMarketDataDefinition();
   
   /**
    * Obtain the text-based type of this Security.

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
@@ -30,6 +29,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -47,16 +47,15 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   public Collection<AnalyticValue<?>> execute(
       FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
       Security security) {
-    if (security.getSecurityType().equals("EQUITY_OPTION")) {
+    if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
       final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
-      @SuppressWarnings("unchecked")
-      final Map<String, Double> underlyingDataFields = (Map<String, Double>) inputs.getValue(new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOption.getUnderlying()));
+      FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlying()));
       final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
       final Expiry expiry = equityOption.getExpiry();
       final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant()));
-      final double spot = underlyingDataFields.get(PRICE_FIELD_NAME);       
+      final double spot = underlyingDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);       
       StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volSurface, spot, today);
       EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
       AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
@@ -69,14 +68,14 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
 
   @Override
   public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
-    if (security.getSecurityType().equals("EQUITY_OPTION")) {
+    if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
       final Collection<AnalyticValueDefinition<?>> inputs = new ArrayList<AnalyticValueDefinition<?>>();
       inputs.add(new DiscountCurveValueDefinition(equityOption.getCurrency()));
       inputs.add(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
       // we do this in two lists so we can separate out what MIGHT be specific to the option type in some cases.
       final Collection<AnalyticValueDefinition<?>> justThisOption = new ArrayList<AnalyticValueDefinition<?>>();
-      justThisOption.add(new ResolveSecurityKeyToMarketDataHeaderDefinition(equityOption.getUnderlying()));
+      justThisOption.add(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlying()));
       
       Collection<AnalyticValueDefinition<?>> result = equityOption.accept(new OptionVisitor<Collection<AnalyticValueDefinition<?>>>() {
         @Override
