@@ -20,7 +20,6 @@ import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.ComputationResultListener;
-import com.opengamma.engine.view.MapViewComputationCache;
 import com.opengamma.engine.view.ViewComputationCache;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.util.KeyValuePair;
@@ -28,7 +27,6 @@ import com.opengamma.util.KeyValuePair;
 class PortfolioTableModel extends AbstractTableModel implements ComputationResultListener {
   private List<Position> _positions = new ArrayList<Position>();
   private Map<Position, Map<String, AnalyticValue<?>>> _resultsMap = new HashMap<Position, Map<String, AnalyticValue<?>>>();
-  private Map<Position, Object[]> _table = new HashMap<Position, Object[]>();
   
   private String[] _columnHeadings = new String[] {};
   private RequiredColumnsRenderVisitor _requiredColumnsRenderVisitor = new RequiredColumnsRenderVisitor();
@@ -93,10 +91,6 @@ class PortfolioTableModel extends AbstractTableModel implements ComputationResul
       _positions.addAll(resultModel.getPositions());
       _resultsMap.clear();
       _viewComputationCache = resultModel.getComputationCache();
-      MapViewComputationCache cache = (MapViewComputationCache)_viewComputationCache;
-//      if (cache != null) {
-//        cache.dump();
-//      }
       _dependencyGraphModel = resultModel.getDependencyGraphModel();
       _secMaster = resultModel.getSecurityMaster();
       Map<String, List<String>> valueColumnsListMap = new HashMap<String, List<String>>();  

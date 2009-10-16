@@ -7,7 +7,6 @@ package com.opengamma.engine.viewer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -26,7 +25,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -35,7 +33,6 @@ import javax.swing.table.TableModel;
 
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
 
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;

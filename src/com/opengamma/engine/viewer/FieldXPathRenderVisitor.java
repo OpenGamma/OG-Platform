@@ -10,7 +10,6 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.sun.org.apache.xml.internal.utils.UnImplNode;
 
 /**
  * 

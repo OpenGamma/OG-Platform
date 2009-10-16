@@ -7,18 +7,14 @@ package com.opengamma.engine.viewer;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -30,14 +26,12 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
-import org.jdesktop.swingx.treetable.TreeTableModel;
 
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.SecurityDependencyGraph;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
@@ -49,10 +43,8 @@ import com.opengamma.engine.view.ViewComputationCache;
  * @author jim
  */
 public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends AbstractTreeTableModel implements ListSelectionListener, TableModelListener  {
-  private Map<Class<?>, TreeModelListener> _listeners = new HashMap<Class<?>, TreeModelListener>();
   private JXTable _parent;
   private PortfolioTableModel _parentModel;
-  private Position _position;
   private Set<DependencyNode> _roots = new HashSet<DependencyNode>();
   private ViewComputationCache _viewComputationCache;
   private String[] _columns = new String[] {"Dependency Graph", "Inputs", "Outputs"};
@@ -71,16 +63,9 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
     return _columns[column];
   }
   
-  private void setPosition(Position p) {
-    _position = p;;
-  }
-
   private void readChanges(ListSelectionModel lsm) {
     boolean allDataChanged = false; // flag to refresh whole table or just all rows
     if (lsm.isSelectionEmpty()) {
-      synchronized (this) {
-        setPosition(null);
-      }
     } else {
       int selectedRow = lsm.getMinSelectionIndex();
       RowSorter<? extends TableModel> rowSorter = _parent.getRowSorter();
@@ -97,7 +82,6 @@ public class PortfolioSelectionListenerAndDepGraphTreeTableModel extends Abstrac
       Position position = row.getKey();
       Security security = secMaster.getSecurity(position.getSecurityKey());
       synchronized (this) {
-        setPosition(row.getKey());
         if (_roots.size() == 0) {
           allDataChanged = true;
         }

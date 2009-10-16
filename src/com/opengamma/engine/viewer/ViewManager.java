@@ -175,7 +175,7 @@ public class ViewManager implements Lifecycle {
     Expiry mtlqq_pkExpiry = new Expiry(_clock.zonedDateTime().withDate(2009, 12, 18).withTime(17, 00));
     Expiry[] expiries = new Expiry[] { aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, mtlqq_pkExpiry, mtlqq_pkExpiry, mtlqq_pkExpiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry,  aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry, aapl_ibm_gs_Expiry};
     Security[] underlyings = new Security[] {aapl, aapl, aapl, mtlqq_pk, mtlqq_pk, mtlqq_pk, ibm, ibm, ibm, ibm, ibm, gs, gs, gs, gs, gs };
-    OptionType[] types = new OptionType[] { OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.PUT, OptionType.PUT, OptionType.PUT, OptionType.CALL, OptionType.CALL };
+    //OptionType[] types = new OptionType[] { OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.CALL, OptionType.PUT, OptionType.PUT, OptionType.PUT, OptionType.CALL, OptionType.CALL };
     List<Security> securities = new ArrayList<Security>();
     
     for (int i=0; i<tickers.length; i++) {

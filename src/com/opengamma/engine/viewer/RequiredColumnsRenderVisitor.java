@@ -6,18 +6,14 @@
 package com.opengamma.engine.viewer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import javax.time.InstantProvider;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.Pair;
 
 /**
  * 
