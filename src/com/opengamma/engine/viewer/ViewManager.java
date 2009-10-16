@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -17,12 +16,13 @@ import java.util.concurrent.Executors;
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
 import com.opengamma.engine.analytics.GreeksAnalyticFunction;
 import com.opengamma.engine.analytics.GreeksResultValueDefinition;
@@ -30,7 +30,6 @@ import com.opengamma.engine.analytics.HardCodedBSMEquityOptionVolatilitySurfaceA
 import com.opengamma.engine.analytics.InMemoryAnalyticFunctionRepository;
 import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.MarketDataAnalyticValueDefinitionFactory;
-import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
 import com.opengamma.engine.analytics.yc.DiscountCurveAnalyticFunction;
 import com.opengamma.engine.analytics.yc.DiscountCurveDefinition;
 import com.opengamma.engine.analytics.yc.FixedIncomeStrip;
@@ -42,13 +41,12 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.position.csv.CSVPositionMaster;
 import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.engine.security.EquityOptionSecurity;
 import com.opengamma.engine.security.EquitySecurity;
 import com.opengamma.engine.security.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.security.OptionType;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.engine.view.MapViewComputationCacheSource;
 import com.opengamma.engine.view.ViewComputationCacheSource;
 import com.opengamma.engine.view.ViewDefinitionImpl;
@@ -142,9 +140,8 @@ public class ViewManager implements Lifecycle {
 
   private ViewImpl constructTrivialExampleView(LiveDataAvailabilityProvider ldap, LiveDataSnapshotProvider ldsp) throws Exception {
     ViewDefinitionImpl viewDefinition = new ViewDefinitionImpl("Kirk", "KirkPortfolio");
-    //viewDefinition.addValueDefinition("EQUITY_OPTION", HardCodedUSDDiscountCurveAnalyticFunction.getDiscountCurveValueDefinition());
-    viewDefinition.addValueDefinition("EQUITY_OPTION", new DiscountCurveValueDefinition());
-    viewDefinition.addValueDefinition("EQUITY_OPTION", new GreeksResultValueDefinition());
+    viewDefinition.addValueDefinition(EquityOptionSecurity.EQUITY_OPTION_TYPE, new DiscountCurveValueDefinition());
+    viewDefinition.addValueDefinition(EquityOptionSecurity.EQUITY_OPTION_TYPE, new GreeksResultValueDefinition());
     final Portfolio portfolio = CSVPositionMaster.loadPortfolio("KirkPortfolio", getClass().getResourceAsStream("KirkPortfolio.txt"));
     PositionMaster positionMaster = new PositionMaster() {
       @Override
@@ -159,22 +156,20 @@ public class ViewManager implements Lifecycle {
     };
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     
-    
-    
-    Security aapl = new EquitySecurity("AAPL US Equity", "BbgId");
+    EquitySecurity aapl = new EquitySecurity("AAPL US Equity", "BbgId");
     //Security mtlqq_pk = new EquitySecurity("MTLQQ.PK", "BLOOMBERG");
-    Security ibm = new EquitySecurity("IBM US Equity", "BbgId");
-    Security gs = new EquitySecurity("GS US Equity", "BbgId");
+    EquitySecurity ibm = new EquitySecurity("IBM US Equity", "BbgId");
+    EquitySecurity gs = new EquitySecurity("GS US Equity", "BbgId");
     //Security aapl = new EquitySecurity("AAPL US Equity", "BbgId");
     secMaster.add(aapl);
     //secMaster.add(mtlqq_pk);
     secMaster.add(ibm);
     secMaster.add(gs);
     String[] tickers = new String[] {
-        "APVJS.X", "APVJN.X", "AJLJV.X",
+        "APVJS.X Equity", "APVJN.X Equity", "AJLJV.X Equity",
         //"GMLV.X", "GMLW.X", "GMLA.X",
-        "IBMJE.X", "IBMJF.X", "IBMJG.X", "IBMJH.X", "IBMJI.X",
-        "GPYVP.X", "GPYVS.X", "GPYVB.X", "GPYJR.X", "GPYJM.X"};
+        "IBMJE.X Equity", "IBMJF.X Equity", "IBMJG.X Equity", "IBMJH.X Equity", "IBMJI.X Equity",
+        "GPYVP.X Equity", "GPYVS.X Equity", "GPYVB.X Equity", "GPYJR.X Equity", "GPYJM.X Equity"};
     double[] strikes = new double[] {
         195.0, 170.0, 210.0,
         //1.0, 2.0, 5.0,
@@ -213,13 +208,15 @@ public class ViewManager implements Lifecycle {
 
     if(ldap instanceof FixedLiveDataAvailabilityProvider) {
       FixedLiveDataAvailabilityProvider fldap = (FixedLiveDataAvailabilityProvider) ldap;
-      fldap.addDefinition(new ResolveSecurityKeyToMarketDataHeaderDefinition(aapl.getIdentityKey()));
+      for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs()) {
+        fldap.addDefinition(definition);
+      }
+      fldap.addDefinition(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "AAPL US Equity"));
+      fldap.addDefinition(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBM US Equity"));
+      fldap.addDefinition(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GS US Equity"));
       for(Security security : securities) {
-        for(AnalyticValueDefinition<?> definition : discountCurveFunction.getInputs()) {
-          fldap.addDefinition(definition);
-        }
         for(AnalyticValueDefinition<?> definition : volSurfaceFunction.getInputs(security)) {
-          if (!definition.getValue("TYPE").equals("DISCOUNT_CURVE")) { // skip derived data.
+          if (!ObjectUtils.equals(definition.getValue("TYPE"), "DISCOUNT_CURVE")) { // skip derived data.
             fldap.addDefinition(definition);
           }
         }
@@ -310,81 +307,71 @@ public class ViewManager implements Lifecycle {
     populateOptions(snapshotProvider, addRandom);
   }
   
-  private SecurityKey makeSecurityKey(String ticker) {
-    return new SecurityKeyImpl(new DomainSpecificIdentifier(new IdentificationDomain("BLOOMBERG"), ticker));
-  }
-  
-  private AnalyticValue<Map<String, Double>> makeHeaderValue(AnalyticValueDefinition<Map<String, Double>> def, String field, Double value) {
-    Map<String, Double> map = new HashMap<String, Double>();
-    map.put(field, value);
-    return new AnalyticValueImpl<Map<String, Double>>(def, map) {
-      @Override
-      public AnalyticValue<Map<String, Double>> scaleForPosition(
-          BigDecimal quantity) {
-        return this;
-      }
-    };
+  private AnalyticValue<FudgeMsg> makeMarketDataValue(AnalyticValueDefinition<FudgeMsg> def, String field, Double value) {
+    FudgeMsg msg = new FudgeMsg();
+    msg.add(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME, value);
+    return new MarketDataAnalyticValue(def, msg);
   }
   
   private void populateOptions(InMemoryLKVSnapshotProvider snapshotProvider, boolean addRandom) {
     final double OPTION_SCALE_FACTOR = 5.0;
     final double UNDERLYING_SCALE_FACTOR = 5.0;
-    AnalyticValueDefinition<Map<String, Double>> apvjs_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("APVJS.X"));
-    AnalyticValueDefinition<Map<String, Double>> apvjn_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("APVJN.X"));
-    AnalyticValueDefinition<Map<String, Double>> ajljv_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("AJLJV.X"));
+    AnalyticValueDefinition<FudgeMsg> apvjs_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "APVJS.X Equity");
+    AnalyticValueDefinition<FudgeMsg> apvjn_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "APVJN.X Equity");
+    AnalyticValueDefinition<FudgeMsg> ajljv_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "AJLJV.X Equity");
     
-    AnalyticValueDefinition<Map<String, Double>> gmlv_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GMLV.X"));
-    AnalyticValueDefinition<Map<String, Double>> gmlw_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GMLW.X"));
-    AnalyticValueDefinition<Map<String, Double>> gmla_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GMLA.X"));
+    //AnalyticValueDefinition<FudgeMsg> gmlv_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GMLV.X Equity");
+    //AnalyticValueDefinition<FudgeMsg> gmlw_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GMLW.X Equity");
+    //AnalyticValueDefinition<FudgeMsg> gmla_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GMLA.X Equity");
     
-    AnalyticValueDefinition<Map<String, Double>> ibmje_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("IBMJE.X"));
-    AnalyticValueDefinition<Map<String, Double>> ibmjf_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("IBMJF.X"));
-    AnalyticValueDefinition<Map<String, Double>> ibmjg_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("IBMJG.X"));
-    AnalyticValueDefinition<Map<String, Double>> ibmjh_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("IBMJH.X"));
-    AnalyticValueDefinition<Map<String, Double>> ibmji_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("IBMJI.X"));
+    AnalyticValueDefinition<FudgeMsg> ibmje_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBMJE.X Equity");
+    AnalyticValueDefinition<FudgeMsg> ibmjf_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBMJF.X Equity");
+    AnalyticValueDefinition<FudgeMsg> ibmjg_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBMJG.X Equity");
+    AnalyticValueDefinition<FudgeMsg> ibmjh_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBMJH.X Equity");
+    AnalyticValueDefinition<FudgeMsg> ibmji_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBMJI.X Equity");
     
-    AnalyticValueDefinition<Map<String, Double>> gpyvp_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GPYVP.X"));
-    AnalyticValueDefinition<Map<String, Double>> gpyvs_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GPYVS.X"));
-    AnalyticValueDefinition<Map<String, Double>> gpyvb_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GPYVB.X"));
-    AnalyticValueDefinition<Map<String, Double>> gpyjr_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GPYJR.X"));
-    AnalyticValueDefinition<Map<String, Double>> gpyjm_x_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GPYJM.X"));
+    AnalyticValueDefinition<FudgeMsg> gpyvp_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GPYVP.X Equity");
+    AnalyticValueDefinition<FudgeMsg> gpyvs_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GPYVS.X Equity");
+    AnalyticValueDefinition<FudgeMsg> gpyvb_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GPYVB.X Equity");
+    AnalyticValueDefinition<FudgeMsg> gpyjr_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GPYJR.X Equity");
+    AnalyticValueDefinition<FudgeMsg> gpyjm_x_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GPYJM.X Equity");
     
     
-    AnalyticValueDefinition<Map<String, Double>> aapl_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("AAPL"));
-    AnalyticValueDefinition<Map<String, Double>> mtlqq_pk_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("MTLQQ.PK"));
-    AnalyticValueDefinition<Map<String, Double>> ibm_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("IBM"));
-    AnalyticValueDefinition<Map<String, Double>> gs_def = new ResolveSecurityKeyToMarketDataHeaderDefinition(makeSecurityKey("GS"));
+    AnalyticValueDefinition<FudgeMsg> aapl_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "AAPL US Equity");
+    //AnalyticValueDefinition<FudgeMsg> mtlqq_pk_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "MTLQQ.PK");
+    AnalyticValueDefinition<FudgeMsg> ibm_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "IBM US Equity");
+    AnalyticValueDefinition<FudgeMsg> gs_def = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition("BbgId", "GS US Equity");
     
-    AnalyticValue<Map<String, Double>> apvjs_x_val = makeHeaderValue(apvjs_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.69);
-    AnalyticValue<Map<String, Double>> apvjn_x_val = makeHeaderValue(apvjn_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 16.75);
-    AnalyticValue<Map<String, Double>> ajljv_x_val = makeHeaderValue(ajljv_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.66);
-    AnalyticValue<Map<String, Double>> gmlv_x_val = makeHeaderValue(gmlv_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.05);
-    AnalyticValue<Map<String, Double>> gmlw_x_val = makeHeaderValue(gmlw_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.03);
-    AnalyticValue<Map<String, Double>> gmla_x_val = makeHeaderValue(gmla_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.01);
-    AnalyticValue<Map<String, Double>> ibmje_x_val = makeHeaderValue(ibmje_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 3.3);
-    AnalyticValue<Map<String, Double>> ibmjf_x_val = makeHeaderValue(ibmjf_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 1.0);
-    AnalyticValue<Map<String, Double>> ibmjg_x_val = makeHeaderValue(ibmjg_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.24);
-    AnalyticValue<Map<String, Double>> ibmjh_x_val = makeHeaderValue(ibmjh_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.05);
-    AnalyticValue<Map<String, Double>> ibmji_x_val = makeHeaderValue(ibmji_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.05);
+    AnalyticValue<FudgeMsg> apvjs_x_val = makeMarketDataValue(apvjs_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.69);
+    AnalyticValue<FudgeMsg> apvjn_x_val = makeMarketDataValue(apvjn_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 16.75);
+    AnalyticValue<FudgeMsg> ajljv_x_val = makeMarketDataValue(ajljv_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.66);
+    //AnalyticValue<FudgeMsg> gmlv_x_val = makeMarketDataValue(gmlv_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.05);
+    //AnalyticValue<FudgeMsg> gmlw_x_val = makeMarketDataValue(gmlw_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.03);
+    //AnalyticValue<FudgeMsg> gmla_x_val = makeMarketDataValue(gmla_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.01);
+    AnalyticValue<FudgeMsg> ibmje_x_val = makeMarketDataValue(ibmje_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 3.3);
+    AnalyticValue<FudgeMsg> ibmjf_x_val = makeMarketDataValue(ibmjf_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 1.0);
+    AnalyticValue<FudgeMsg> ibmjg_x_val = makeMarketDataValue(ibmjg_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.24);
+    AnalyticValue<FudgeMsg> ibmjh_x_val = makeMarketDataValue(ibmjh_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.05);
+    AnalyticValue<FudgeMsg> ibmji_x_val = makeMarketDataValue(ibmji_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 0.05);
         
-    AnalyticValue<Map<String, Double>> gpyvp_x_val = makeHeaderValue(gpyvp_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.03);
-    AnalyticValue<Map<String, Double>> gpyvs_x_val = makeHeaderValue(gpyvs_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 10.09);
-    AnalyticValue<Map<String, Double>> gpyvb_x_val = makeHeaderValue(gpyvb_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 24.15);
-    AnalyticValue<Map<String, Double>> gpyjr_x_val = makeHeaderValue(gpyjr_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.55);
-    AnalyticValue<Map<String, Double>> gpyjm_x_val = makeHeaderValue(gpyjm_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 20.85);
+    AnalyticValue<FudgeMsg> gpyvp_x_val = makeMarketDataValue(gpyvp_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.03);
+    AnalyticValue<FudgeMsg> gpyvs_x_val = makeMarketDataValue(gpyvs_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 10.09);
+    AnalyticValue<FudgeMsg> gpyvb_x_val = makeMarketDataValue(gpyvb_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 24.15);
+    AnalyticValue<FudgeMsg> gpyjr_x_val = makeMarketDataValue(gpyjr_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 2.55);
+    AnalyticValue<FudgeMsg> gpyjm_x_val = makeMarketDataValue(gpyjm_x_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * OPTION_SCALE_FACTOR * 0.01)) * 20.85);
     
-    AnalyticValue<Map<String, Double>> aapl_val = makeHeaderValue(aapl_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 185.5);
-    AnalyticValue<Map<String, Double>> mtlqq_pk_val = makeHeaderValue(mtlqq_pk_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 0.7110);
-    AnalyticValue<Map<String, Double>> ibm_val = makeHeaderValue(ibm_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 126.56);
-    AnalyticValue<Map<String, Double>> gs_val = makeHeaderValue(gs_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 185.44);
+    AnalyticValue<FudgeMsg> aapl_val = makeMarketDataValue(aapl_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 185.5);
+    //AnalyticValue<FudgeMsg> mtlqq_pk_val = makeMarketDataValue(mtlqq_pk_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 0.7110);
+    AnalyticValue<FudgeMsg> ibm_val = makeMarketDataValue(ibm_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 126.56);
+    AnalyticValue<FudgeMsg> gs_val = makeMarketDataValue(gs_def, HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.PRICE_FIELD_NAME, (1 + (Math.random() * UNDERLYING_SCALE_FACTOR * 0.01)) * 185.44);
     
     snapshotProvider.addValue(apvjs_x_val);
     snapshotProvider.addValue(apvjn_x_val);
     snapshotProvider.addValue(ajljv_x_val);
     
-    snapshotProvider.addValue(gmlv_x_val);
-    snapshotProvider.addValue(gmlw_x_val);
-    snapshotProvider.addValue(gmla_x_val);
+    //snapshotProvider.addValue(gmlv_x_val);
+    //snapshotProvider.addValue(gmlw_x_val);
+    //snapshotProvider.addValue(gmla_x_val);
     
     snapshotProvider.addValue(ibmje_x_val);
     snapshotProvider.addValue(ibmjf_x_val);
@@ -399,7 +386,7 @@ public class ViewManager implements Lifecycle {
     snapshotProvider.addValue(gpyjm_x_val);
   
     snapshotProvider.addValue(aapl_val);
-    snapshotProvider.addValue(mtlqq_pk_val);
+    //snapshotProvider.addValue(mtlqq_pk_val);
     snapshotProvider.addValue(ibm_val);
     snapshotProvider.addValue(gs_val);
   }

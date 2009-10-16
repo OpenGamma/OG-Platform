@@ -8,9 +8,6 @@ package com.opengamma.engine.viewer;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
 import com.opengamma.engine.analytics.GreeksResultValueDefinition;
-import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataFieldDefinition;
-import com.opengamma.engine.analytics.ResolveSecurityKeyToMarketDataHeaderDefinition;
-import com.opengamma.engine.analytics.ResolveSecurityKeyToSecurityDefinition;
 import com.opengamma.engine.analytics.VolatilitySurfaceValueDefinition;
 
 /**
@@ -47,22 +44,6 @@ public class ValueDefinitionRenderingVisitor implements
   public String visitGreeksResultValueDefinition(
       GreeksResultValueDefinition definition) {
     return "Calculate Greeks for "+definition.getValue("SECURITY");
-  }
-
-  @Override
-  public String visitResolveSecurityKeyToMarketDataFieldDefinition(
-      ResolveSecurityKeyToMarketDataFieldDefinition definition) {
-    return "Resolve "+definition.getValue("SECURITY_KEY")+" to field "+definition.getValue("FIELD_NAME");
-  }
-
-  @Override
-  public String visitResolveSecurityKeyToMarketDataHeaderDefinition(ResolveSecurityKeyToMarketDataHeaderDefinition definition) {
-    return "Resolve "+definition.getValue("SECURITY_KEY")+" to live data from "+definition.getValue("DATA_SOURCE");
-  }
-
-  @Override
-  public String visitResolveSecurityKeyToSecurityDescriptionDefinition(ResolveSecurityKeyToSecurityDefinition definition) {
-    return "Resolve "+definition.getValue("SECURITY_KEY")+" to security definition";
   }
 
   @Override

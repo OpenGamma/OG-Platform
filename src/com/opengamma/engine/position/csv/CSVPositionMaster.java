@@ -168,6 +168,7 @@ public class CSVPositionMaster implements PositionMaster {
       securityIdentifiers.add(id);
     }
     SecurityKeyImpl securityKey = new SecurityKeyImpl(securityIdentifiers);
+    s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
     PositionBean position = new PositionBean(quantity, securityKey);
     return position;
