@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.analytics.yc;
+package com.opengamma.financial.analytics.yc;
 
 import java.io.Serializable;
 import java.util.Collection;

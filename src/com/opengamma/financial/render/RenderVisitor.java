@@ -1,4 +1,4 @@
-package com.opengamma.engine.viewer;
+package com.opengamma.financial.render;
 
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
