@@ -29,7 +29,7 @@ public class LogLinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
-  private static final double EPS = 1e-8;
+  private static final double EPS = 1e-9;
 
   @Test
   public void test() {

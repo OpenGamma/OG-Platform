@@ -19,6 +19,8 @@ public class ExponentialInterpolator1D extends Interpolator1D {
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     final TreeMap<Double, Double> sorted = initData(data);
+    if (value == null)
+      throw new IllegalArgumentException("Value was null");
     final Double x1 = getLowerBoundKey(sorted, value);
     final Double x2 = sorted.higherKey(x1);
     final Double y1 = sorted.get(x1);
