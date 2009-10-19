@@ -6,10 +6,10 @@
 package com.opengamma.engine.security;
 
 import java.util.Collections;
+import java.util.Currency;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.financial.securities.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 

@@ -7,7 +7,5 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG LiveData"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Util"/>
 	<classpathentry exported="true" kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=project%3A%2F%2F%2Fivysettings.xml&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Analytics"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Financial"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
