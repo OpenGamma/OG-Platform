@@ -6,7 +6,10 @@
 package com.opengamma.engine.security;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.opengamma.financial.securities.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 
@@ -16,8 +19,92 @@ import com.opengamma.id.IdentificationDomain;
  * @author kirk
  */
 public class EquitySecurity extends DefaultSecurity {
-  public EquitySecurity(String ticker, String domain) {
-    setSecurityType("EQUITY_OPTION");
-    setIdentifiers(Collections.singleton(new DomainSpecificIdentifier(new IdentificationDomain(domain), ticker)));
+  public static final String EQUITY_TYPE = "EQUITY";
+  private String _ticker;
+  private String _exchange;
+  private String _companyName;
+  private Currency _currency; 
+  
+  // Identifiers that might be valid for equities:
+  // - Bloomberg ticker (in BbgId)
+  // - CUSIP (in CUSIP)
+  // - ISIN (in ISIN)
+  // - Bloomberg Unique ID (in BbgUniqueId)
+    
+  /**
+   * 
+   */
+  public EquitySecurity() {
+    super();
+    setSecurityType(EQUITY_TYPE);
+    setIdentifiers(Collections.<DomainSpecificIdentifier>emptyList());
   }
+  
+  public void addDomainSpecificIdentifier(DomainSpecificIdentifier identifier) {
+    // REVIEW kirk 2009-10-19 -- Is this the right approach?
+    Set<DomainSpecificIdentifier> identifiers = new HashSet<DomainSpecificIdentifier>(getIdentifiers());
+    identifiers.add(identifier);
+    setIdentifiers(identifiers);
+  }
+  
+  public void addDomainSpecificIdentifier(String domainValue, String domain) {
+    addDomainSpecificIdentifier(new DomainSpecificIdentifier(new IdentificationDomain(domain), domainValue));
+  }
+
+  /**
+   * @return the ticker
+   */
+  public String getTicker() {
+    return _ticker;
+  }
+
+  /**
+   * @param ticker the ticker to set
+   */
+  public void setTicker(String ticker) {
+    _ticker = ticker;
+  }
+
+  /**
+   * @return the exchange
+   */
+  public String getExchange() {
+    return _exchange;
+  }
+
+  /**
+   * @param exchange the exchange to set
+   */
+  public void setExchange(String exchange) {
+    _exchange = exchange;
+  }
+
+  /**
+   * @return the companyName
+   */
+  public String getCompanyName() {
+    return _companyName;
+  }
+
+  /**
+   * @param companyName the companyName to set
+   */
+  public void setCompanyName(String companyName) {
+    _companyName = companyName;
+  }
+
+  /**
+   * @return the currency
+   */
+  public Currency getCurrency() {
+    return _currency;
+  }
+
+  /**
+   * @param currency the currency to set
+   */
+  public void setCurrency(Currency currency) {
+    _currency = currency;
+  }
+  
 }
