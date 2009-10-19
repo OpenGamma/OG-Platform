@@ -6,9 +6,6 @@
 package com.opengamma.engine.viewer;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
-import com.opengamma.engine.analytics.DiscountCurveValueDefinition;
-import com.opengamma.engine.analytics.GreeksResultValueDefinition;
-import com.opengamma.engine.analytics.VolatilitySurfaceValueDefinition;
 
 /**
  * 
@@ -16,8 +13,5 @@ import com.opengamma.engine.analytics.VolatilitySurfaceValueDefinition;
  * @author jim
  */
 public interface ValueDefinitionVisitor<T> {
-  public T visitDiscountCurveValueDefinition(DiscountCurveValueDefinition definition);
-  public T visitGreeksResultValueDefinition(GreeksResultValueDefinition definition);
-  public T visitVolatilitySurfaceValueDefinition(VolatilitySurfaceValueDefinition definition);
   public T visitAnalyticValueDefinitionImpl(AnalyticValueDefinitionImpl<?> definition);
 }
