@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
@@ -12,7 +17,7 @@ import java.util.TreeMap;
 public class ExponentialInterpolator1D extends Interpolator1D {
 
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
+  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     final TreeMap<Double, Double> sorted = initData(data);
     final Double x1 = getLowerBoundKey(sorted, value);
     final Double x2 = sorted.higherKey(x1);
