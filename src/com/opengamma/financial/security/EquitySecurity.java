@@ -42,6 +42,17 @@ public class EquitySecurity extends DefaultSecurity {
     setIdentifiers(Collections.<DomainSpecificIdentifier>emptyList());
   }
   
+  /**
+   * This should be removed after the demo is fully Bloomberg modified.
+   * 
+   * @param ticker
+   * @param domain
+   */
+  public EquitySecurity(String ticker, String domain) {
+    this();
+    addDomainSpecificIdentifier(ticker, domain);
+  }
+  
   public void addDomainSpecificIdentifier(DomainSpecificIdentifier identifier) {
     // REVIEW kirk 2009-10-19 -- Is this the right approach?
     Set<DomainSpecificIdentifier> identifiers = new HashSet<DomainSpecificIdentifier>(getIdentifiers());
