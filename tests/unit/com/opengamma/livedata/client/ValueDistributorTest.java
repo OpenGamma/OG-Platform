@@ -12,9 +12,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
+import org.fudgemsg.FudgeMsg;
 import org.junit.Test;
 
-import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.CollectingLiveDataListener;

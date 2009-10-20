@@ -9,11 +9,11 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.fudge.FudgeFieldContainer;
-import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;

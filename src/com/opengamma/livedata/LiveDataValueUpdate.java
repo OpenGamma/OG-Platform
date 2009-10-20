@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata;
 
-import com.opengamma.fudge.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
 
 
 /**

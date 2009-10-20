@@ -7,7 +7,8 @@ package com.opengamma.livedata;
 
 import java.io.Serializable;
 
-import com.opengamma.fudge.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
+
 
 /**
  * A simple JavaBean-based implementation of {@link LiveDataValueUpdate}.

@@ -16,15 +16,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.FudgeStreamDecoder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.fudge.FudgeField;
-import com.opengamma.fudge.FudgeFieldContainer;
-import com.opengamma.fudge.FudgeMsg;
-import com.opengamma.fudge.FudgeMsgEnvelope;
-import com.opengamma.fudge.FudgeStreamDecoder;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.CollectingLiveDataListener;

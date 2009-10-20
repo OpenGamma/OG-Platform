@@ -7,13 +7,13 @@ package com.opengamma.livedata.client;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.fudge.FudgeContext;
-import com.opengamma.fudge.FudgeMsg;
-import com.opengamma.fudge.FudgeMsgEnvelope;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;

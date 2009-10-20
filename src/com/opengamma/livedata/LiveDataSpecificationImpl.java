@@ -7,7 +7,8 @@ package com.opengamma.livedata;
 
 import java.util.Collection;
 
-import com.opengamma.fudge.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
+
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiersImpl;
 
