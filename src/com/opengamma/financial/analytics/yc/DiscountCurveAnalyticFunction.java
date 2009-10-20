@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.fudgemsg.FudgeFieldContainer;
+
 import com.opengamma.engine.analytics.AbstractAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
@@ -23,7 +25,6 @@ import com.opengamma.financial.analytics.DiscountCurveAnalyticValue;
 import com.opengamma.financial.analytics.DiscountCurveValueDefinition;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.securities.Currency;
-import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 

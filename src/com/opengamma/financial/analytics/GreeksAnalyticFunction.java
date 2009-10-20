@@ -14,6 +14,8 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.fudgemsg.FudgeFieldContainer;
+
 import com.opengamma.engine.analytics.AbstractAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
@@ -38,7 +40,6 @@ import com.opengamma.financial.security.EuropeanVanillaOption;
 import com.opengamma.financial.security.OptionType;
 import com.opengamma.financial.security.OptionVisitor;
 import com.opengamma.financial.security.PoweredOption;
-import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
