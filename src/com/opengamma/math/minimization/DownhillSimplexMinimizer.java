@@ -15,11 +15,11 @@ public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Doubl
   private final int _maxIter = 100;
 
   @Override
-  public Double[] minimize(Function<Double, Double> f, Double[] initialPoints) {
-    int n = initialPoints.length;
-    Double[][] simplex = getSimplex(initialPoints);
+  public Double[] minimize(final Function<Double, Double> f, final Double[] initialPoints) {
+    final int n = initialPoints.length;
+    final Double[][] simplex = getSimplex(initialPoints);
     Double[] sumX = getSumX(simplex);
-    Double[] y = new Double[n + 1];
+    final Double[] y = new Double[n + 1];
     for (int i = 0; i <= n; i++) {
       y[i] = f.evaluate(simplex[i]);
     }
@@ -42,9 +42,8 @@ public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Doubl
       }
       System.out.println(ii + " " + y[iLow]);
       diff = 2 * Math.abs(y[iHigh] - y[iLow]) / (Math.abs(y[iHigh]) + Math.abs(y[iLow]) + _eps);
-      if (diff < _eps) {
+      if (diff < _eps)
         return simplex[iLow];
-      }
       newY = getExtrapolatedPoint(simplex, y, sumX, iHigh, -1.0, f);
       if (newY < y[iLow]) {
         newY = getExtrapolatedPoint(simplex, y, sumX, iHigh, 2.0, f);
@@ -69,15 +68,15 @@ public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Doubl
     throw new ConvergenceException();
   }
 
-  private Double getExtrapolatedPoint(Double[][] simplex, Double[] y, Double[] sumX, int iHigh, double factor, Function<Double, Double> f) {
-    int n = simplex.length - 1;
-    Double[] newX = new Double[n];
-    double factor1 = (1 - factor) / n;
-    double factor2 = factor1 - factor;
+  private Double getExtrapolatedPoint(final Double[][] simplex, final Double[] y, final Double[] sumX, final int iHigh, final double factor, final Function<Double, Double> f) {
+    final int n = simplex.length - 1;
+    final Double[] newX = new Double[n];
+    final double factor1 = (1 - factor) / n;
+    final double factor2 = factor1 - factor;
     for (int i = 0; i < n; i++) {
       newX[i] = sumX[i] * factor1 - simplex[iHigh][i] * factor2;
     }
-    double newY = f.evaluate(newX);
+    final double newY = f.evaluate(newX);
     if (newY < y[iHigh]) {
       y[iHigh] = newY;
       for (int i = 0; i < n; i++) {
@@ -88,9 +87,9 @@ public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Doubl
     return newY;
   }
 
-  private Double[][] getSimplex(Double[] initialPoints) {
-    int n = initialPoints.length + 1;
-    Double[][] result = new Double[n][n - 1];
+  private Double[][] getSimplex(final Double[] initialPoints) {
+    final int n = initialPoints.length + 1;
+    final Double[][] result = new Double[n][n - 1];
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n - 1; j++) {
         result[i][j] = initialPoints[j];
@@ -105,8 +104,8 @@ public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Doubl
     return result;
   }
 
-  private Double[] getSumX(Double[][] simplex) {
-    Double[] result = new Double[simplex.length];
+  private Double[] getSumX(final Double[][] simplex) {
+    final Double[] result = new Double[simplex.length];
     double sum;
     for (int i = 0; i < simplex.length; i++) {
       sum = 0;

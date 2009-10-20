@@ -21,7 +21,6 @@ public class GridInterpolator2D extends Interpolator2D {
   private final Interpolator1D _xInterpolator;
   private final Interpolator1D _yInterpolator;
   private final FirstThenSecondPairComparator<Double, Double> _comparator;
-  private static final double EPS = 1e-12;
 
   public GridInterpolator2D(final Interpolator1D xInterpolator, final Interpolator1D yInterpolator) {
     if (xInterpolator == null)

@@ -23,7 +23,7 @@ public class ParabolicMinimumBracketer extends MinimumBracketer<Double> {
 
   // TODO rename x1, x2
   @Override
-  public Double[] getBracketedPoints(Function1D<Double, Double> f, Double xLower, Double xUpper) {
+  public Double[] getBracketedPoints(final Function1D<Double, Double> f, final Double xLower, final Double xUpper) {
     double x1 = xLower;
     double x2 = xUpper;
     double f1 = f.evaluate(x1);
@@ -37,10 +37,10 @@ public class ParabolicMinimumBracketer extends MinimumBracketer<Double> {
       x2 = xTemp;
       f2 = fTemp;
     }
-    double x3 = x1 + GOLDEN * (x2 - x1);
+    final double x3 = x1 + GOLDEN * (x2 - x1);
     double f3 = f.evaluate(x3);
     if (f3 < f1 && f3 < f2) {
-      Double[] result = new Double[] { x1, x2, x3 };
+      final Double[] result = new Double[] { x1, x2, x3 };
       Arrays.sort(result);
       return result;
     }
@@ -57,8 +57,8 @@ public class ParabolicMinimumBracketer extends MinimumBracketer<Double> {
         f2 = f.evaluate(x2);
         f3 = f.evaluate(x3);
         if (f3 < f1 && f3 < f2) {
-          double parabolaMinimumX = -coefficients.get(1) / (2 * coefficients.get(0));
-          Double[] result = new Double[] { x1, parabolaMinimumX, (parabolaMinimumX - x1) * (1 + GOLDEN) };
+          final double parabolaMinimumX = -coefficients.get(1) / (2 * coefficients.get(0));
+          final Double[] result = new Double[] { x1, parabolaMinimumX, (parabolaMinimumX - x1) * (1 + GOLDEN) };
           Arrays.sort(result);
           return result;
         }

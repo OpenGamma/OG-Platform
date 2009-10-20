@@ -18,13 +18,13 @@ public class BrentMinimizer1D implements Minimizer1D<Double> {
   private static final double ZERO = 1e-20;
 
   @Override
-  public Double minimize(Function1D<Double, Double> f, Double[] initialPoints) {
+  public Double minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
     double a, b, etemp, fu, fv, fw, fx;
     double p, q, r, tol1, tol2, u, v, w, x, xm;
     double d = 0;
     double e = 0;
     double ax, bx, cx;
-    Double[] bracketted = BRACKETER.getBracketedPoints(f, initialPoints[0], initialPoints[1]);
+    final Double[] bracketted = BRACKETER.getBracketedPoints(f, initialPoints[0], initialPoints[1]);
     ax = bracketted[0];
     bx = bracketted[1];
     cx = bracketted[2];
@@ -37,16 +37,16 @@ public class BrentMinimizer1D implements Minimizer1D<Double> {
       xm = 0.5 * (a + b);
       tol1 = EPS * Math.abs(x) + ZERO;
       tol2 = 2 * tol1;
-      if (Math.abs(x - xm) <= tol2 - 0.5 * (b - a)) {
+      if (Math.abs(x - xm) <= tol2 - 0.5 * (b - a))
         return x;
-      }
       if (Math.abs(e) > tol1) {
         r = (x - w) * (fx - fv);
         q = (x - v) * (fx - fw);
         p = (x - v) * q - (x - w) * r;
         q = 2 * (q - r);
-        if (q > 0)
+        if (q > 0) {
           p = -p;
+        }
         q = Math.abs(q);
         etemp = e;
         e = d;

@@ -17,10 +17,10 @@ public class GoldenSectionMinimizer1D implements Minimizer1D<Double> {
   private static final double EPS = 1e-12;
 
   @Override
-  public Double minimize(Function1D<Double, Double> f, Double[] initialPoints) {
+  public Double minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
     double x0, x1, x2, x3, f1, f2, temp;
     int i = 0;
-    Double[] triplet = BRACKETER.getBracketedPoints(f, initialPoints[0], initialPoints[1]);
+    final Double[] triplet = BRACKETER.getBracketedPoints(f, initialPoints[0], initialPoints[1]);
     x0 = triplet[0];
     x3 = triplet[2];
     if (Math.abs(triplet[2] - triplet[1]) > Math.abs(triplet[1] - triplet[0])) {
@@ -52,9 +52,8 @@ public class GoldenSectionMinimizer1D implements Minimizer1D<Double> {
       if (i > MAX_ITER)
         throw new ConvergenceException("Could not find minimum: this should not happen because minimum should have been successfully bracketted");
     }
-    if (f1 < f2) {
+    if (f1 < f2)
       return x1;
-    }
     return x2;
   }
 }
