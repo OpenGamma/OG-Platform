@@ -103,6 +103,11 @@ public class AnalyticFunctionInvocationJob implements Runnable {
     
     Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
     for(AnalyticValueDefinition<?> inputDefinition : getResolvedInputs()) {
+      AnalyticValue<?> input = getComputationCache().getValue(inputDefinition);
+      if(input == null) {
+        s_logger.info("Not able to execute as missing input {}", inputDefinition);
+        throw new MissingInputException(inputDefinition, getFunctionUniqueIdentifier());
+      }
       inputs.add(getComputationCache().getValue(inputDefinition));
     }
     AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);

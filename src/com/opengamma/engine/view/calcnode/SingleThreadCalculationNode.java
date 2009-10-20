@@ -85,6 +85,11 @@ implements Lifecycle {
         boolean wasException = false;
         try {
           invocationJob.run();
+        } catch (MissingInputException e) {
+          // NOTE kirk 2009-10-20 -- We intentionally only do the message here so that we don't
+          // litter the logs with stack traces.
+          s_logger.info("Unable to invoke due to missing inputs invoking on {}: {}", job.getSecurityKey(), e.getMessage());
+          wasException = true;
         } catch (Exception e) {
           s_logger.info("Invoking " + job.getFunctionUniqueIdentifier() + " on " + job.getSecurityKey() + " throw exception.",e);
           wasException = true;

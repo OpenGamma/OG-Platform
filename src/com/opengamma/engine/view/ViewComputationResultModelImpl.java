@@ -82,11 +82,16 @@ public class ViewComputationResultModelImpl implements
   
   public void addValue(Position position, AnalyticValue<?> value) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
+    assert perPositionModel != null;
+    perPositionModel.add(value);
+  }
+  
+  public void addPosition(Position position) {
+    PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       perPositionModel = new PositionResultModel(position);
       _perPositionResults.put(position, perPositionModel);
     }
-    perPositionModel.add(value);
   }
   
   public void setComputationCache(ViewComputationCache cache) {

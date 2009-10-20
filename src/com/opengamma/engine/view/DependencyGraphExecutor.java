@@ -24,6 +24,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+import com.opengamma.engine.view.calcnode.InvocationResult;
 
 /**
  * Will walk through a particular {@link SecurityDependencyGraph} and execute
@@ -32,7 +33,6 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
  * @author kirk
  */
 public class DependencyGraphExecutor {
-  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
   private final String _viewName;
@@ -44,6 +44,7 @@ public class DependencyGraphExecutor {
   private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
     new HashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   
   public DependencyGraphExecutor(
       String viewName,
@@ -102,19 +103,63 @@ public class DependencyGraphExecutor {
     
     while(_executedNodes.size() < getDependencyGraph().getNodeCount()) {
       enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
+      // REVIEW kirk 2009-10-20 -- I'm not happy with this check here.
+      // The rationale is that if we get a failed node, the next time we attempt to enqueue we may
+      // mark everything above it as done, and then we'll be done, but we'll wait for the timeout
+      // before determining that. There's almost certainly a better way to do this, but I needed
+      // to resolve this one quickly.
+      /*if(_executedNodes.size() >= getDependencyGraph().getNodeCount()) {
+        break;
+      }*/
+      assert !_executingSpecifications.isEmpty();
       // Suck everything available off the retrieval source.
       // First time we're willing to wait for some period, but after that we pull
       // off as fast as we can.
       CalculationJobResult jobResult = null;
-      jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompleted(10, TimeUnit.SECONDS);
+      jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompleted(1, TimeUnit.SECONDS);
       while(jobResult != null) {
         DependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
         assert completedNode != null;
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
+        if(jobResult.getResult() != InvocationResult.SUCCESS) {
+          _failedNodes.add(completedNode);
+          failNodesAbove(completedNode);
+        }
         jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompletedNoWait();
       }
     }
+  }
+
+  /**
+   * @param completedNode
+   */
+  protected void failNodesAbove(DependencyNode failedNode) {
+    for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
+      failNodesAbove(failedNode, node);
+    }
+  }
+
+  /**
+   * @param failedNode
+   * @param node
+   */
+  protected boolean failNodesAbove(DependencyNode failedNode, DependencyNode node) {
+    if(node == failedNode) {
+      return true;
+    }
+    boolean wasFailing = false;
+    for(DependencyNode inputNode : node.getInputNodes()) {
+      if(failNodesAbove(failedNode, inputNode)) {
+        _executedNodes.add(node);
+        _failedNodes.add(node);
+        // NOTE kirk 2009-10-20 -- Because of the diamond nature of the DAG,
+        // DO NOT just break or return early here. You have to evaluate all the siblings under
+        // this node because multiple might reach the failed node independently.
+        wasFailing = true;
+      }
+    }
+    return wasFailing;
   }
 
   /**
@@ -163,6 +208,8 @@ public class DependencyGraphExecutor {
       resolvedInputs.add(depNode.getResolvedInput(input));
     }
     long jobId = jobIdSource.addAndGet(1l);
+    s_logger.debug("Enqueuing job {} to invoke {} on security {}",
+        new Object[] {jobId, depNode.getFunction().getShortName(), getSecurity().getIdentityKey()});
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
     CalculationJob job = new CalculationJob(
         getViewName(),

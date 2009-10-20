@@ -164,7 +164,7 @@ public class SingleComputationCycle {
     for(AnalyticValueDefinition<?> requiredDataDefinition : requiredLiveData) {
       Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
       if(data == null) {
-        s_logger.warn("Unable to load live data value for {} at snapshot {}. Not executing.", requiredDataDefinition, getSnapshotTime());
+        s_logger.debug("Unable to load live data value for {} at snapshot {}.", requiredDataDefinition, getSnapshotTime());
         missingData = true;
       } else {
         @SuppressWarnings("unchecked")
@@ -172,7 +172,10 @@ public class SingleComputationCycle {
         getComputationCache().putValue(dataAsValue);
       }
     }
-    return !missingData;
+    if(missingData) {
+      s_logger.warn("Unable to load some input market data. Expect that nodes will fail to compute.");
+    }
+    return true;
   }
   
   public void executePlans() {
@@ -190,9 +193,10 @@ public class SingleComputationCycle {
 
   public void populateResultModel() {
     Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
-    for(FullyPopulatedPosition position : getPortfolioEvaluationModel().getPopulatedPositions()) {
+    for(FullyPopulatedPosition populatedPosition : getPortfolioEvaluationModel().getPopulatedPositions()) {
       // REVIEW kirk 2009-09-14 -- Could be parallelized if we need to.
-      Security security = position.getSecurity();
+      getResultModel().addPosition(populatedPosition.getPosition());
+      Security security = populatedPosition.getSecurity();
       String securityType = security.getSecurityType();
       Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
 
@@ -207,8 +211,8 @@ public class SingleComputationCycle {
         AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedOutputs().get(analyticValueDefinition);
         AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
         if(unscaledValue != null) {
-          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(position.getPosition().getQuantity());
-          getResultModel().addValue(position.getPosition(), scaledValue);
+          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(populatedPosition.getPosition().getQuantity());
+          getResultModel().addValue(populatedPosition.getPosition(), scaledValue);
         }
       }
     }

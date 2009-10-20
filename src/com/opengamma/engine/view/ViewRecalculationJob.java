@@ -86,6 +86,11 @@ public class ViewRecalculationJob extends TerminatableJob {
     long delta = endTime - cycle.getStartTime();
     s_logger.info("Completed one recalculation pass in {}ms", delta);
     getView().recalculationPerformed(result);
+    // REVIEW kirk 2009-10-20 -- This appears to be the single most convoluted way I've ever
+    // seen to do:
+    // AtomicLong _delayTimer;
+    // Thread.sleep(_delayTimer.get());
+    // You're not selling me on JCSP, yo.
     CSTimer csTimer = new CSTimer();
     csTimer.setAlarm(System.currentTimeMillis() + s_delay);
     Guard[] guards = new Guard[] {  csTimer, _channel.in() };
