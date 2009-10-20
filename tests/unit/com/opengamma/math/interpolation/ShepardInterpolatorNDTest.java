@@ -5,11 +5,9 @@
  */
 package com.opengamma.math.interpolation;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -19,10 +17,10 @@ import org.junit.Test;
  */
 public class ShepardInterpolatorNDTest extends InterpolatorNDTest {
   private static final InterpolatorND INTERPOLATOR = new ShepardInterpolatorND(1.3);
-  private static final double EPS = 1e-1;
 
   @Test
   public void testInputs() {
+    super.testData(INTERPOLATOR);
     try {
       INTERPOLATOR.interpolate(FLAT_DATA, null);
       fail();
@@ -35,9 +33,5 @@ public class ShepardInterpolatorNDTest extends InterpolatorNDTest {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    final List<Double> l = Arrays.asList(0.34, 0.21);
-    assertEquals(INTERPOLATOR.interpolate(FLAT_DATA, l).getResult(), VALUE, EPS);
-    final Double[] a = new Double[] { 0.89, 0.54, 0.34 };
-    assertEquals(INTERPOLATOR.interpolate(DATA2, Arrays.asList(a)).getResult(), F2.evaluate(a), EPS);
   }
 }
