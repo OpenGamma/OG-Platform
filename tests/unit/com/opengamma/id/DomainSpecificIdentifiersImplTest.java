@@ -12,9 +12,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
+import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
-import com.opengamma.fudge.FudgeFieldContainer;
 
 /**
  * 

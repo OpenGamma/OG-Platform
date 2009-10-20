@@ -10,9 +10,9 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.fudge.FudgeFieldContainer;
-import com.opengamma.fudge.FudgeMsg;
 
 
 /**

@@ -7,7 +7,8 @@ package com.opengamma.id;
 
 import java.util.Collection;
 
-import com.opengamma.fudge.FudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
+
 
 /**
  * 
