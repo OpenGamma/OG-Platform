@@ -98,7 +98,6 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     } catch (final TimeSeriesException e) {
       // Expected
     }
-    System.out.println(CALCULATOR.evaluate(tsArray).size() + " " + returnTS.size());
     assertTrue(CALCULATOR.evaluate(tsArray).equals(returnTS));
   }
 
