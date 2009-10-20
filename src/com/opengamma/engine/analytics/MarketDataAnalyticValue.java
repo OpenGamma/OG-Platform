@@ -7,7 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.math.BigDecimal;
 
-import com.opengamma.fudge.FudgeMsg;
+import org.fudgemsg.FudgeMsg;
+
 
 /**
  * 

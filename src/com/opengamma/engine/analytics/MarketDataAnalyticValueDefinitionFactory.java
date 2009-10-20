@@ -8,10 +8,11 @@ package com.opengamma.engine.analytics;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.fudgemsg.FudgeMsg;
+
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
-import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**

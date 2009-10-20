@@ -7,8 +7,9 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
+import org.fudgemsg.FudgeMsg;
+
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.fudge.FudgeMsg;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
