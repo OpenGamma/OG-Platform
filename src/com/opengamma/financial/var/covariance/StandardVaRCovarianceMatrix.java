@@ -12,8 +12,8 @@ import java.util.Set;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
+import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
-import com.opengamma.financial.securities.keys.SecurityKey;
 import com.opengamma.financial.var.StandardVaRDataBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
 

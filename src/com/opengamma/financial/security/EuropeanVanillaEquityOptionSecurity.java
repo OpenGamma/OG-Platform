@@ -6,7 +6,7 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.financial.securities.Currency;
+import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,6 +30,11 @@ public class EuropeanVanillaEquityOptionSecurity extends EquityOptionSecurity
   @Override
   public <T> T accept(OptionVisitor<T> visitor) {
     return visitor.visitEuropeanVanillaOption(this);
+  }
+
+  @Override
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitEuropeanVanillaEquityOptionSecurity(this);
   }
 
 }

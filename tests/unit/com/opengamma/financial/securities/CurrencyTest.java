@@ -11,6 +11,8 @@ import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
+import com.opengamma.financial.Currency;
+
 /**
  * 
  *

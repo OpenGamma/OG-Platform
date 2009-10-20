@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
+import com.opengamma.financial.Currency;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.financial.securities.Currency;
 import com.opengamma.util.KeyValuePair;
 
 /**

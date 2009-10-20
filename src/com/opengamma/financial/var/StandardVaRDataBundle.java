@@ -12,7 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.securities.keys.SecurityKey;
+import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
