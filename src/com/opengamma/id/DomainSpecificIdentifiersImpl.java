@@ -12,10 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.fudge.FudgeField;
-import com.opengamma.fudge.FudgeFieldContainer;
-import com.opengamma.fudge.FudgeMsg;
 
 /**
  * 
