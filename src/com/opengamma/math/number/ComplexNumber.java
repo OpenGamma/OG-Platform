@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.number;
 
 import com.opengamma.util.CompareUtils;
@@ -12,7 +17,7 @@ public class ComplexNumber extends Number {
   private final double _real;
   private final double _imaginary;
 
-  public ComplexNumber(double real, double imaginary) {
+  public ComplexNumber(final double real, final double imaginary) {
     _real = real;
     _imaginary = imaginary;
   }
@@ -28,14 +33,12 @@ public class ComplexNumber extends Number {
   @Override
   public String toString() {
     if (CompareUtils.closeEquals(0, _real)) {
-      if (CompareUtils.closeEquals(0, _imaginary)) {
+      if (CompareUtils.closeEquals(0, _imaginary))
         return Double.toString(0);
-      }
       return Double.toString(_imaginary) + "i";
     }
-    if (CompareUtils.closeEquals(0, _imaginary)) {
+    if (CompareUtils.closeEquals(0, _imaginary))
       return Double.toString(_real);
-    }
     return Double.toString(_real) + " + " + Double.toString(_imaginary) + "i";
   }
 
@@ -52,23 +55,18 @@ public class ComplexNumber extends Number {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
+  public boolean equals(final Object obj) {
+    if (this == obj)
       return true;
-    }
-    if (obj == null) {
+    if (obj == null)
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     final ComplexNumber other = (ComplexNumber) obj;
-    if (Double.doubleToLongBits(_imaginary) != Double.doubleToLongBits(other._imaginary)) {
+    if (Double.doubleToLongBits(_imaginary) != Double.doubleToLongBits(other._imaginary))
       return false;
-    }
-    if (Double.doubleToLongBits(_real) != Double.doubleToLongBits(other._real)) {
+    if (Double.doubleToLongBits(_real) != Double.doubleToLongBits(other._real))
       return false;
-    }
     return true;
   }
 
