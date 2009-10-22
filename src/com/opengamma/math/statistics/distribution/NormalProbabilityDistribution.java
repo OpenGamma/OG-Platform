@@ -23,12 +23,16 @@ public class NormalProbabilityDistribution implements ProbabilityDistribution<Do
   private final Normal _normal;
 
   public NormalProbabilityDistribution(final double mean, final double standardDeviation) {
+    if (standardDeviation < 0)
+      throw new IllegalArgumentException("Standard deviation cannot be less than zero");
     _mean = mean;
     _standardDeviation = standardDeviation;
     _normal = new Normal(mean, standardDeviation, _randomEngine);
   }
 
   public NormalProbabilityDistribution(final double mean, final double standardDeviation, final RandomEngine randomEngine) {
+    if (standardDeviation < 0)
+      throw new IllegalArgumentException("Standard deviation cannot be less than zero");
     _mean = mean;
     _standardDeviation = standardDeviation;
     _normal = new Normal(mean, standardDeviation, randomEngine);
@@ -51,6 +55,8 @@ public class NormalProbabilityDistribution implements ProbabilityDistribution<Do
 
   @Override
   public double getInverseCDF(final Double p) {
+    if (p > 1 || p < 0)
+      throw new IllegalArgumentException("Probability must be >= 0 and <= 1");
     return Probability.normalInverse(p);
   }
 
