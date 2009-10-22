@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.minimization;
 
 import com.opengamma.math.ConvergenceException;
@@ -9,16 +14,17 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class BrentMinimizer1D implements Minimizer1D<Double> {
+public class BrentMinimizer1D extends Minimizer1D {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
-  private static final MinimumBracketer<Double> BRACKETER = new ParabolicMinimumBracketer();
+  private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();
   private static final int MAX_ITER = 10000;
-  private static final double EPS = 1e-12;
+  private static final double EPS = 1e-15;
   private static final double ZERO = 1e-20;
 
   @Override
-  public Double minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
+  public Double[] minimize(final Function1D<Double, Double> f, final Double[] initialPoints) {
+    checkInputs(f, initialPoints);
     double a, b, etemp, fu, fv, fw, fx;
     double p, q, r, tol1, tol2, u, v, w, x, xm;
     double d = 0;
@@ -38,7 +44,7 @@ public class BrentMinimizer1D implements Minimizer1D<Double> {
       tol1 = EPS * Math.abs(x) + ZERO;
       tol2 = 2 * tol1;
       if (Math.abs(x - xm) <= tol2 - 0.5 * (b - a))
-        return x;
+        return new Double[] { x };
       if (Math.abs(e) > tol1) {
         r = (x - w) * (fx - fv);
         q = (x - v) * (fx - fw);
@@ -95,6 +101,6 @@ public class BrentMinimizer1D implements Minimizer1D<Double> {
         }
       }
     }
-    throw new ConvergenceException();
+    throw new ConvergenceException("Could not find minimum in " + MAX_ITER + " attempts");
   }
 }
