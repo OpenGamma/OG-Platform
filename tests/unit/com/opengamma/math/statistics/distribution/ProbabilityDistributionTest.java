@@ -6,6 +6,7 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
@@ -18,36 +19,21 @@ public class ProbabilityDistributionTest {
   protected static final RandomEngine ENGINE = new MersenneTwister(0);
 
   public void testCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
-    try {
-      dist.getCDF(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    testCDFWithNull(null);
     for (int i = 0; i < p.length; i++) {
       assertEquals(dist.getCDF(x[i]), p[i], EPS);
     }
   }
 
   public void testPDF(final double[] z, final double[] x, final ProbabilityDistribution<Double> dist) {
-    try {
-      dist.getPDF(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    testPDFWithNull(null);
     for (int i = 0; i < z.length; i++) {
       assertEquals(dist.getPDF(x[i]), z[i], EPS);
     }
   }
 
   public void testInverseCDF(final double[] x, final ProbabilityDistribution<Double> dist) {
-    try {
-      dist.getInverseCDF(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    testInverseCDFWithNull(dist);
     for (final double d : x) {
       assertEquals(dist.getInverseCDF(dist.getCDF(d)), d, EPS);
     }
@@ -65,8 +51,30 @@ public class ProbabilityDistributionTest {
     }
   }
 
-  private void fail() {
-    // TODO Auto-generated method stub
+  public void testInverseCDFWithNull(final ProbabilityDistribution<Double> dist) {
+    try {
+      dist.getInverseCDF(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
+  }
 
+  public void testPDFWithNull(final ProbabilityDistribution<Double> dist) {
+    try {
+      dist.getPDF(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
+  }
+
+  public void testCDFWithNull(final ProbabilityDistribution<Double> dist) {
+    try {
+      dist.getCDF(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
   }
 }

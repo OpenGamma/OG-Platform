@@ -40,24 +40,9 @@ public class ChiSquareDistributionTest extends ProbabilityDistributionTest {
       // Expected
     }
     ProbabilityDistribution<Double> dist = new ChiSquareDistribution(1, ENGINE);
-    try {
-      dist.getCDF(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      dist.getPDF(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      dist.getInverseCDF(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    testCDFWithNull(dist);
+    testPDFWithNull(dist);
+    testInverseCDFWithNull(dist);
     for (int i = 0; i < 5; i++) {
       dist = new ChiSquareDistribution(DOF[i], ENGINE);
       assertEquals(1 - dist.getCDF(X[i]), Q[i], EPS);
