@@ -6,10 +6,10 @@
 package com.opengamma.id;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeField;
@@ -24,14 +24,14 @@ import org.fudgemsg.FudgeMsg;
  */
 public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecificIdentifiers {
   public static final String ID_FUDGE_FIELD_NAME = "ID";
-  private final List<DomainSpecificIdentifier> _identifiers;
+  private final Set<DomainSpecificIdentifier> _identifiers;
   private final int _hashCode;
   
   public DomainSpecificIdentifiersImpl(DomainSpecificIdentifier... identifiers) {
     if((identifiers == null) || (identifiers.length == 0)) {
-      _identifiers = Collections.emptyList();
+      _identifiers = Collections.<DomainSpecificIdentifier>emptySet();
     } else {
-      _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers.length);
+      _identifiers = new HashSet<DomainSpecificIdentifier>(identifiers.length);
       for(DomainSpecificIdentifier secId : identifiers) {
         _identifiers.add(secId);
       }
@@ -41,25 +41,25 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
   
   public DomainSpecificIdentifiersImpl(Collection<? extends DomainSpecificIdentifier> identifiers) {
     if(identifiers == null) {
-      _identifiers = Collections.emptyList();
+      _identifiers = Collections.<DomainSpecificIdentifier>emptySet();
     } else {
-      _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers);
+      _identifiers = new HashSet<DomainSpecificIdentifier>(identifiers);
     }
     _hashCode = calcHashCode();
   }
   
   public DomainSpecificIdentifiersImpl(DomainSpecificIdentifier identifier) {
     if(identifier == null) {
-      _identifiers = Collections.emptyList();
+      _identifiers = Collections.<DomainSpecificIdentifier>emptySet();
     } else {
-      _identifiers = new ArrayList<DomainSpecificIdentifier>();
+      _identifiers = new HashSet<DomainSpecificIdentifier>();
       _identifiers.add(identifier);
     }
     _hashCode = calcHashCode();
   }
   
   public DomainSpecificIdentifiersImpl(FudgeFieldContainer fudgeMsg) {
-    List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
+    Set<DomainSpecificIdentifier> identifiers = new HashSet<DomainSpecificIdentifier>();
     for(FudgeField field : fudgeMsg.getAllByName(ID_FUDGE_FIELD_NAME)) {
       if(!(field.getValue() instanceof FudgeFieldContainer)) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
@@ -73,7 +73,7 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
 
   @Override
   public Collection<DomainSpecificIdentifier> getIdentifiers() {
-    return Collections.unmodifiableCollection(_identifiers);
+    return Collections.unmodifiableSet(_identifiers);
   }
   
   @Override
@@ -122,5 +122,5 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
     }
     return true;
   }
-
+  
 }
