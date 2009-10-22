@@ -29,6 +29,18 @@ public class NormalProbabilityDistributionTest extends ProbabilityDistributionTe
     } catch (final IllegalArgumentException e) {
       // Expected
     }
+    try {
+      new NormalProbabilityDistribution(1, 0.4, null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
+    try {
+      new NormalProbabilityDistribution(1, -0.4, ENGINE);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
     testCDF(P, X, NORMAL);
     testPDF(Z, X, NORMAL);
     testInverseCDF(X, NORMAL);

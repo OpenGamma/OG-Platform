@@ -19,4 +19,5 @@ public interface ProbabilityDistribution<T> {
   public double getCDF(T x);
 
   public double getInverseCDF(Double p);
+
 }

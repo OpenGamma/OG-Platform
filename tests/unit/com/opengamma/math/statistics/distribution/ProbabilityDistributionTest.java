@@ -6,27 +6,48 @@
 package com.opengamma.math.statistics.distribution;
 
 import static org.junit.Assert.assertEquals;
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
  * @author emcleod
  */
 public class ProbabilityDistributionTest {
-  private static final double EPS = 1e-5;
+  protected static final double EPS = 1e-5;
+  protected static final RandomEngine ENGINE = new MersenneTwister(0);
 
   public void testCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
+    try {
+      dist.getCDF(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
     for (int i = 0; i < p.length; i++) {
       assertEquals(dist.getCDF(x[i]), p[i], EPS);
     }
   }
 
   public void testPDF(final double[] z, final double[] x, final ProbabilityDistribution<Double> dist) {
+    try {
+      dist.getPDF(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
     for (int i = 0; i < z.length; i++) {
       assertEquals(dist.getPDF(x[i]), z[i], EPS);
     }
   }
 
   public void testInverseCDF(final double[] x, final ProbabilityDistribution<Double> dist) {
+    try {
+      dist.getInverseCDF(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      // Expected
+    }
     for (final double d : x) {
       assertEquals(dist.getInverseCDF(dist.getCDF(d)), d, EPS);
     }
