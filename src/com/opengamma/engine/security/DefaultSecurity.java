@@ -6,13 +6,13 @@
 package com.opengamma.engine.security;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiersImpl;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
@@ -20,7 +20,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
  * @author kirk
  */
 public class DefaultSecurity implements Security, Serializable {
-  private Collection<DomainSpecificIdentifier> _identifiers;
+  private DomainSpecificIdentifiersImpl _identifiers;
   private String _securityType;
   private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
   
@@ -34,7 +34,7 @@ public class DefaultSecurity implements Security, Serializable {
 
   @Override
   public Collection<DomainSpecificIdentifier> getIdentifiers() {
-    return _identifiers;
+    return _identifiers.getIdentifiers();
   }
 
   /**
@@ -42,14 +42,14 @@ public class DefaultSecurity implements Security, Serializable {
    * @param identifiers the identifiers to set
    */
   public void setIdentifiers(Collection<? extends DomainSpecificIdentifier> identifiers) {
-    _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers);
+    _identifiers = new DomainSpecificIdentifiersImpl(identifiers);
   }
   
   // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
   // REVIEW kirk 2009-10-16 -- Almost certainly.
   @Override
   public SecurityKey getIdentityKey() {
-    return new SecurityKeyImpl(_identifiers);
+    return new SecurityKeyImpl(_identifiers.getIdentifiers());
   }
 
   @Override
