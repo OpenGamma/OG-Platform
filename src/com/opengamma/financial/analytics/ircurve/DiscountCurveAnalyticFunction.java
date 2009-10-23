@@ -25,7 +25,6 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.DiscountCurveAnalyticValue;
 import com.opengamma.financial.analytics.DiscountCurveValueDefinition;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.fudge.FudgeFieldContainer;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
