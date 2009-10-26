@@ -10,8 +10,11 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
+
+import com.opengamma.util.ArgumentChecker;
 
 
 
@@ -98,8 +101,9 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
     return ToStringBuilder.reflectionToString(this);
   }
   
-  public FudgeFieldContainer toFudgeMsg() {
-    FudgeMsg msg = new FudgeMsg();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
+    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    FudgeMsg msg = fudgeContext.newMessage();
     msg.add(DOMAIN_FUDGE_FIELD_NAME, getDomain().getDomainName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;

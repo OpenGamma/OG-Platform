@@ -12,9 +12,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
+
+import com.opengamma.util.ArgumentChecker;
 
 
 /**
@@ -87,10 +90,11 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
   }
   
   @Override
-  public FudgeFieldContainer toFudgeMsg() {
-    FudgeMsg msg = new FudgeMsg();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
+    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    FudgeMsg msg = fudgeContext.newMessage();
     for(DomainSpecificIdentifier identifier: getIdentifiers()) {
-      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg());
+      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeContext));
     }
     return msg;
   }
