@@ -15,7 +15,7 @@ import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.statistics.distribution.TwoSidedStudentTDistribution;
+import com.opengamma.math.statistics.distribution.TwoTailedStudentTDistribution;
 
 /**
  * 
@@ -75,7 +75,7 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
     final Double rSquared = regressionSumOfSquares / totalSumOfSquares;
     final Double adjustedRSquared = 1. - (1 - rSquared) * (n - 1.) / (n - k);
     final Double meanSquareError = errorSumOfSquares / (n - k);
-    final ProbabilityDistribution<Double> studentT = new TwoSidedStudentTDistribution(n - k);
+    final ProbabilityDistribution<Double> studentT = new TwoTailedStudentTDistribution(n - k);
     for (int i = 0; i < k; i++) {
       stdErrorBetas[i] = Math.sqrt(meanSquareError * covarianceBetas[i][i]);
       tStats[i] = betas[i] / stdErrorBetas[i];

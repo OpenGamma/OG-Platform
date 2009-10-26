@@ -15,11 +15,13 @@ import com.opengamma.math.function.special.InverseIncompleteBetaFunction;
  * 
  * @author emcleod
  */
-public class TwoSidedStudentTDistribution implements ProbabilityDistribution<Double> {
+public class TwoTailedStudentTDistribution implements ProbabilityDistribution<Double> {
   private final double _degreesOfFreedom;
   private final Function1D<Double, Double> _beta;
 
-  public TwoSidedStudentTDistribution(final double degreesOfFreedom) {
+  public TwoTailedStudentTDistribution(final double degreesOfFreedom) {
+    if (degreesOfFreedom < 0)
+      throw new IllegalArgumentException("Degrees of freedom must be positive");
     _degreesOfFreedom = degreesOfFreedom;
     _beta = new IncompleteBetaFunction(degreesOfFreedom * 0.5, 0.5);
   }
