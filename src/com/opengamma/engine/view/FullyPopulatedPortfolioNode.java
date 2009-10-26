@@ -23,6 +23,14 @@ import com.opengamma.engine.security.Security;
 public class FullyPopulatedPortfolioNode extends PortfolioNodeImpl {
   private final List<FullyPopulatedPosition> _fullyPopulatedPositions =
     new ArrayList<FullyPopulatedPosition>();
+  
+  public FullyPopulatedPortfolioNode(String name) {
+    super(name);
+  }
+  
+  public FullyPopulatedPortfolioNode() {
+    super();
+  }
 
   public void addPosition(Position position, Security security) {
     addPosition(position);
