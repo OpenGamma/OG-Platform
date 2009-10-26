@@ -73,7 +73,14 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlying());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
       FudgeFieldContainer optionDataFields = (FudgeFieldContainer)inputs.getValue(justThisOptionHeader);
-      final double price = optionDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
+      if(optionDataFields == null) {
+        throw new NullPointerException("No market data available for " + justThisOptionHeader);
+      }
+      Double priceObj = optionDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
+      if(priceObj == null) {
+        throw new NullPointerException("Got a market data container, but no indicative value.");
+      }
+      final double price = priceObj;
       FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(underlyingHeader);
       final double spot = underlyingDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveForCurrency);
