@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.aggregation;
 
-import com.opengamma.engine.view.FullyPopulatedPosition;
+import com.opengamma.engine.position.Position;
 
 /**
  * 
@@ -13,6 +13,6 @@ import com.opengamma.engine.view.FullyPopulatedPosition;
  * @author jim
  */
 public interface AggregationFunction<T> {
-  public T classifyPosition(FullyPopulatedPosition position);
+  public T classifyPosition(Position position);
   public String getName();
 }

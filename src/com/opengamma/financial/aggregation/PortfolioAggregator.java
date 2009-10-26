@@ -16,9 +16,11 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.FullyPopulatedPortfolio;
-import com.opengamma.engine.view.FullyPopulatedPortfolioNode;
-import com.opengamma.engine.view.FullyPopulatedPosition;
+import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.engine.position.Position;
 
 /**
  * 
@@ -34,17 +36,17 @@ public class PortfolioAggregator {
     _aggregationFunctions = Arrays.asList(aggregationFunctions);
   }
   
-  public FullyPopulatedPortfolioNode aggregate(FullyPopulatedPortfolio inputPortfolio) {
+  public PortfolioNode aggregate(Portfolio inputPortfolio) {
     String aggregatedPortfolioName = buildPortfolioName(inputPortfolio.getPortfolioName());
-    List<FullyPopulatedPosition> flattenedPortfolio = new ArrayList<FullyPopulatedPosition>();
-    flatten((FullyPopulatedPortfolioNode) inputPortfolio, flattenedPortfolio);
-    FullyPopulatedPortfolioNode root = aggregate(new FullyPopulatedPortfolio(aggregatedPortfolioName), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
+    List<Position> flattenedPortfolio = new ArrayList<Position>();
+    flatten((PortfolioNode) inputPortfolio, flattenedPortfolio);
+    PortfolioNode root = aggregate(new PortfolioImpl(aggregatedPortfolioName), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return root;
   }
   
-  protected void flatten(FullyPopulatedPortfolioNode portfolioNode, List<FullyPopulatedPosition> flattenedPortfolio) {
-    flattenedPortfolio.addAll(portfolioNode.getPopulatedPositions());    
-    for (FullyPopulatedPortfolioNode subNode : portfolioNode.getPopulatedSubNodes()) {
+  protected void flatten(PortfolioNode portfolioNode, List<Position> flattenedPortfolio) {
+    flattenedPortfolio.addAll(portfolioNode.getPositions());    
+    for (PortfolioNode subNode : portfolioNode.getSubNodes()) {
       flatten(subNode, flattenedPortfolio);
     }
   }
@@ -54,27 +56,27 @@ public class PortfolioAggregator {
    * @param flattenedPortfolio
    * @return
    */
-  protected FullyPopulatedPortfolioNode aggregate(FullyPopulatedPortfolioNode inputNode, List<FullyPopulatedPosition> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
+  protected PortfolioNode aggregate(PortfolioNodeImpl inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
-    Map<String, List<FullyPopulatedPosition>> buckets = new TreeMap<String, List<FullyPopulatedPosition>>();
+    Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
     // drop into buckets - could drop straight into tree but this is easier because we can use faster lookups as we're going.
-    for (FullyPopulatedPosition position : flattenedPortfolio) {
+    for (Position position : flattenedPortfolio) {
       Object obj = nextFunction.classifyPosition(position);
       String name = obj.toString();
       if (buckets.containsKey(name)) {
         buckets.get(name).add(position);
       } else {
-        ArrayList<FullyPopulatedPosition> list = new ArrayList<FullyPopulatedPosition>();
+        ArrayList<Position> list = new ArrayList<Position>();
         list.add(position);
         buckets.put(name, list);
       }
     }
     for (String bucketName : buckets.keySet()) {
-      FullyPopulatedPortfolioNode newNode = new FullyPopulatedPortfolioNode(bucketName);
+      PortfolioNodeImpl newNode = new PortfolioNodeImpl(bucketName);
       inputNode.addSubNode(newNode);
       if (functionList.isEmpty()) {
-        for (FullyPopulatedPosition position : buckets.get(bucketName)) {
-          newNode.addPosition(position.getPosition(), position.getSecurity());
+        for (Position position : buckets.get(bucketName)) {
+          newNode.addPosition(position);
         }
       } else {
         aggregate(newNode, buckets.get(bucketName), new ArrayDeque<AggregationFunction<?>>(functionList)); // make a copy for each bucket.

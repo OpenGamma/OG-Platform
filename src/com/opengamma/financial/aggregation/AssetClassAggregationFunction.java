@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.aggregation;
 
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.view.FullyPopulatedPosition;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
@@ -28,7 +28,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /*package*/ static final String NAME = "Asset Class";
   
   @Override
-  public String classifyPosition(FullyPopulatedPosition position) {
+  public String classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
       FinancialSecurity finSec = (FinancialSecurity)security;

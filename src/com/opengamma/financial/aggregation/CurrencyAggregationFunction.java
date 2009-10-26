@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.aggregation;
 
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.view.FullyPopulatedPosition;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
@@ -23,7 +23,7 @@ import com.opengamma.financial.security.PoweredEquityOptionSecurity;
 public class CurrencyAggregationFunction implements AggregationFunction<Currency> {
   public static final String NAME="Currency";
   @Override
-  public Currency classifyPosition(FullyPopulatedPosition position) {
+  public Currency classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
       FinancialSecurity finSec = (FinancialSecurity)security;

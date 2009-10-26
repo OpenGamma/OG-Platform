@@ -20,11 +20,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.position.FullyPopulatedPortfolio;
+import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
-import com.opengamma.engine.view.FullyPopulatedPortfolioNode;
-import com.opengamma.engine.view.FullyPopulatedPosition;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
@@ -40,16 +41,16 @@ import com.opengamma.util.time.Expiry;
  */
 public class AggregationTest {
   private static final Logger s_logger = LoggerFactory.getLogger(AggregationTest.class);
-  private List<FullyPopulatedPosition> _equities;
-  private List<FullyPopulatedPosition> _americanOptions;
-  private List<FullyPopulatedPosition> _europeanOptions;
-  private List<FullyPopulatedPosition> _allOptions;
-  private ArrayList<FullyPopulatedPosition> _usd;
-  private ArrayList<FullyPopulatedPosition> _gbp;
-  private List<FullyPopulatedPosition> _gbpEquities;
-  private ArrayList<FullyPopulatedPosition> _usdEquities;
+  private List<Position> _equities;
+  private List<Position> _americanOptions;
+  private List<Position> _europeanOptions;
+  private List<Position> _allOptions;
+  private ArrayList<Position> _usd;
+  private ArrayList<Position> _gbp;
+  private List<Position> _gbpEquities;
+  private ArrayList<Position> _usdEquities;
 
-  public FullyPopulatedPortfolio makeTestPortfolio() {
+  public Portfolio makeTestPortfolio() {
     Expiry expiry = new Expiry(ZonedDateTime.fromInstant(Clock.system(TimeZone.UTC).instant(), TimeZone.UTC));
     
     EquitySecurity aaplSec = new EquitySecurity("AAPL US", "BLOOMBERG");
@@ -72,88 +73,87 @@ public class AggregationTest {
     EquitySecurity ibmSec = new EquitySecurity("IBM US", "BLOOMBERG");
     ibmSec.setCurrency(Currency.getInstance("USD"));
     
-    FullyPopulatedPosition aaplPos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(2000), aaplSec.getIdentityKey()), aaplSec);
-    FullyPopulatedPosition aaplOption1Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), aaplOption1.getIdentityKey()), aaplOption1);
-    FullyPopulatedPosition aaplOption2Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), aaplOption2.getIdentityKey()), aaplOption2);
-    FullyPopulatedPosition aaplOption3Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), aaplOption3.getIdentityKey()), aaplOption3);
-    FullyPopulatedPosition aaplOption4Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), aaplOption4.getIdentityKey()), aaplOption4);
-    FullyPopulatedPosition aaplOption5Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), aaplOption5.getIdentityKey()), aaplOption5);
+    Position aaplPos = new PositionBean(new BigDecimal(2000), aaplSec.getIdentityKey(), aaplSec);
+    Position aaplOption1Pos = new PositionBean(new BigDecimal(5000), aaplOption1.getIdentityKey(), aaplOption1);
+    Position aaplOption2Pos = new PositionBean(new BigDecimal(5000), aaplOption2.getIdentityKey(), aaplOption2);
+    Position aaplOption3Pos = new PositionBean(new BigDecimal(5000), aaplOption3.getIdentityKey(), aaplOption3);
+    Position aaplOption4Pos = new PositionBean(new BigDecimal(5000), aaplOption4.getIdentityKey(), aaplOption4);
+    Position aaplOption5Pos = new PositionBean(new BigDecimal(5000), aaplOption5.getIdentityKey(), aaplOption5);
     
-    FullyPopulatedPosition vodafPos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(-1000), vodafSec.getIdentityKey()), vodafSec);
-    FullyPopulatedPosition vodafOption1Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), vodafOption1.getIdentityKey()), vodafOption1);
-    FullyPopulatedPosition vodafOption2Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), vodafOption2.getIdentityKey()), vodafOption2);
-    FullyPopulatedPosition vodafOption3Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), vodafOption3.getIdentityKey()), vodafOption3);
-    FullyPopulatedPosition vodafOption4Pos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(5000), vodafOption4.getIdentityKey()), vodafOption4);
+    Position vodafPos = new PositionBean(new BigDecimal(-1000), vodafSec.getIdentityKey(), vodafSec);
+    Position vodafOption1Pos = new PositionBean(new BigDecimal(5000), vodafOption1.getIdentityKey(), vodafOption1);
+    Position vodafOption2Pos = new PositionBean(new BigDecimal(5000), vodafOption2.getIdentityKey(), vodafOption2);
+    Position vodafOption3Pos = new PositionBean(new BigDecimal(5000), vodafOption3.getIdentityKey(), vodafOption3);
+    Position vodafOption4Pos = new PositionBean(new BigDecimal(5000), vodafOption4.getIdentityKey(), vodafOption4);
     
-    FullyPopulatedPosition ibmPos = new FullyPopulatedPosition(new PositionBean(new BigDecimal(4000), ibmSec.getIdentityKey()), ibmSec);
+    Position ibmPos = new PositionBean(new BigDecimal(4000), ibmSec.getIdentityKey(), ibmSec);
     
-    FullyPopulatedPortfolio fullyPopulatedPortfolio = new FullyPopulatedPortfolio("Test Portfolio");
+    PortfolioImpl fullyPopulatedPortfolio = new PortfolioImpl("Test Portfolio");
     
-    FullyPopulatedPortfolioNode callNode = new FullyPopulatedPortfolioNode("calls");
-    FullyPopulatedPortfolioNode putNode = new FullyPopulatedPortfolioNode("puts");
-    FullyPopulatedPortfolioNode ukCallNode = new FullyPopulatedPortfolioNode("uk calls");
-    FullyPopulatedPortfolioNode usCallNode = new FullyPopulatedPortfolioNode("us calls");
+    PortfolioNodeImpl callNode = new PortfolioNodeImpl("calls");
+    PortfolioNodeImpl putNode = new PortfolioNodeImpl("puts");
+    PortfolioNodeImpl ukCallNode = new PortfolioNodeImpl("uk calls");
+    PortfolioNodeImpl usCallNode = new PortfolioNodeImpl("us calls");
     
-    fullyPopulatedPortfolio.addPosition(ibmPos.getPosition(), ibmPos.getSecurity());
+    fullyPopulatedPortfolio.addPosition(ibmPos);
     fullyPopulatedPortfolio.addSubNode(putNode);
     fullyPopulatedPortfolio.addSubNode(callNode);
     callNode.addSubNode(ukCallNode);
     callNode.addSubNode(usCallNode);
     
-    FullyPopulatedPosition[] putList = new FullyPopulatedPosition[] { aaplOption2Pos, aaplOption4Pos, vodafOption1Pos, vodafOption3Pos };
-    FullyPopulatedPosition[] ukCallList = new FullyPopulatedPosition[] { vodafOption2Pos, vodafOption4Pos };
-    FullyPopulatedPosition[] usCallList = new FullyPopulatedPosition[] { aaplOption1Pos, aaplOption3Pos, aaplOption5Pos };
+    Position[] putList = new Position[] { aaplOption2Pos, aaplOption4Pos, vodafOption1Pos, vodafOption3Pos };
+    Position[] ukCallList = new Position[] { vodafOption2Pos, vodafOption4Pos };
+    Position[] usCallList = new Position[] { aaplOption1Pos, aaplOption3Pos, aaplOption5Pos };
     
-    _equities = Arrays.asList(new FullyPopulatedPosition[] { aaplPos, vodafPos, ibmPos });
-    _americanOptions = Arrays.asList(new FullyPopulatedPosition[] { aaplOption1Pos, aaplOption2Pos, aaplOption3Pos, aaplOption4Pos, aaplOption5Pos });
-    _europeanOptions = Arrays.asList(new FullyPopulatedPosition[] { vodafOption1Pos, vodafOption2Pos, vodafOption3Pos, vodafOption4Pos });
-    _allOptions = new ArrayList<FullyPopulatedPosition>(_americanOptions);
+    _equities = Arrays.asList(new Position[] { aaplPos, vodafPos, ibmPos });
+    _americanOptions = Arrays.asList(new Position[] { aaplOption1Pos, aaplOption2Pos, aaplOption3Pos, aaplOption4Pos, aaplOption5Pos });
+    _europeanOptions = Arrays.asList(new Position[] { vodafOption1Pos, vodafOption2Pos, vodafOption3Pos, vodafOption4Pos });
+    _allOptions = new ArrayList<Position>(_americanOptions);
     _allOptions.addAll(_europeanOptions);
-    _usd = new ArrayList<FullyPopulatedPosition>(_americanOptions);
+    _usd = new ArrayList<Position>(_americanOptions);
     _usd.add(ibmPos);
     _usd.add(aaplPos);
-    _gbp = new ArrayList<FullyPopulatedPosition>(_europeanOptions);
+    _gbp = new ArrayList<Position>(_europeanOptions);
     _gbp.add(vodafPos);
     _gbpEquities = Collections.singletonList(vodafPos);
-    _usdEquities = new ArrayList<FullyPopulatedPosition>();
+    _usdEquities = new ArrayList<Position>();
     _usdEquities.add(aaplPos);
     _usdEquities.add(ibmPos);
     
-    for (FullyPopulatedPosition position : putList) {
-      putNode.addPosition(position.getPosition(), position.getSecurity());
+    for (Position position : putList) {
+      putNode.addPosition(position);
     }
-    putNode.addPosition(aaplPos.getPosition(), aaplPos.getSecurity());
+    putNode.addPosition(aaplPos);
     
-    for (FullyPopulatedPosition position : ukCallList) {
-      ukCallNode.addPosition(position.getPosition(), position.getSecurity());
+    for (Position position : ukCallList) {
+      ukCallNode.addPosition(position);
     }
-    ukCallNode.addPosition(vodafPos.getPosition(), vodafPos.getSecurity());
+    ukCallNode.addPosition(vodafPos);
     
-    for (FullyPopulatedPosition position : usCallList) {
-      usCallNode.addPosition(position.getPosition(), position.getSecurity());
+    for (Position position : usCallList) {
+      usCallNode.addPosition(position);
     }
     return fullyPopulatedPortfolio;
   }
   
   @Test
   public void testDetailedAssetClassAggregation() {
-    FullyPopulatedPortfolio testPortfolio = makeTestPortfolio();
+    Portfolio testPortfolio = makeTestPortfolio();
     PortfolioAggregator aggregator = new PortfolioAggregator(new DetailedAssetClassAggregationFunction());
-    FullyPopulatedPortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
+    PortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
     Assert.assertEquals(0, aggregatedPortfolio.getPositions().size());
-    Assert.assertEquals(0, aggregatedPortfolio.getPopulatedPositions().size());
-    Assert.assertEquals(3, aggregatedPortfolio.getPopulatedSubNodes().size());
-    for (FullyPopulatedPortfolioNode node : aggregatedPortfolio.getPopulatedSubNodes()) {
-      Assert.assertEquals(0, node.getPopulatedSubNodes().size());
+    Assert.assertEquals(3, aggregatedPortfolio.getSubNodes().size());
+    for (PortfolioNode node : aggregatedPortfolio.getSubNodes()) {
+      Assert.assertEquals(0, node.getSubNodes().size());
       if (node.getName().endsWith(DetailedAssetClassAggregationFunction.EQUITIES)) {
-        Assert.assertTrue(_equities.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_equities));
+        Assert.assertTrue(_equities.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_equities));
       } else if (node.getName().endsWith(DetailedAssetClassAggregationFunction.AMERICAN_VANILLA_EQUITY_OPTIONS)) {
-        Assert.assertTrue(_americanOptions.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_americanOptions));
+        Assert.assertTrue(_americanOptions.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_americanOptions));
       } else if (node.getName().endsWith(DetailedAssetClassAggregationFunction.EUROPEAN_VANILLA_EQUITY_OPTIONS)) {
-        Assert.assertTrue(_europeanOptions.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_europeanOptions));
+        Assert.assertTrue(_europeanOptions.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_europeanOptions));
       } else {
         Assert.fail();
       }
@@ -162,22 +162,21 @@ public class AggregationTest {
   
   @Test
   public void testAssetClassAggregation() {
-    FullyPopulatedPortfolio testPortfolio = makeTestPortfolio();
+    Portfolio testPortfolio = makeTestPortfolio();
     PortfolioAggregator aggregator = new PortfolioAggregator(new AssetClassAggregationFunction());
-    FullyPopulatedPortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
+    PortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
     Assert.assertEquals(0, aggregatedPortfolio.getPositions().size());
-    Assert.assertEquals(0, aggregatedPortfolio.getPopulatedPositions().size());
-    Assert.assertEquals(2, aggregatedPortfolio.getPopulatedSubNodes().size());
+    Assert.assertEquals(2, aggregatedPortfolio.getSubNodes().size());
     int total = 0; // this makes sure both branches are visited only once.
-    for (FullyPopulatedPortfolioNode node : aggregatedPortfolio.getPopulatedSubNodes()) {
-      Assert.assertEquals(0, node.getPopulatedSubNodes().size());
+    for (PortfolioNode node : aggregatedPortfolio.getSubNodes()) {
+      Assert.assertEquals(0, node.getSubNodes().size());
       if (node.getName().endsWith(AssetClassAggregationFunction.EQUITIES)) {
-        Assert.assertTrue(_equities.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_equities));
+        Assert.assertTrue(_equities.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_equities));
         total += 10;
       } else if (node.getName().endsWith(AssetClassAggregationFunction.EQUITY_OPTIONS)) {
-        Assert.assertTrue(_allOptions.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_allOptions));
+        Assert.assertTrue(_allOptions.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_allOptions));
         total += 1;
       } else {
         Assert.fail();
@@ -188,22 +187,21 @@ public class AggregationTest {
   
   @Test
   public void testCurrencyAggregation() {
-    FullyPopulatedPortfolio testPortfolio = makeTestPortfolio();
+    Portfolio testPortfolio = makeTestPortfolio();
     PortfolioAggregator aggregator = new PortfolioAggregator(new CurrencyAggregationFunction());
-    FullyPopulatedPortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
+    PortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
     Assert.assertEquals(0, aggregatedPortfolio.getPositions().size());
-    Assert.assertEquals(0, aggregatedPortfolio.getPopulatedPositions().size());
-    Assert.assertEquals(2, aggregatedPortfolio.getPopulatedSubNodes().size());
+    Assert.assertEquals(2, aggregatedPortfolio.getSubNodes().size());
     int total = 0; // this makes sure both branches are visited only once.
-    for (FullyPopulatedPortfolioNode node : aggregatedPortfolio.getPopulatedSubNodes()) {
-      Assert.assertEquals(0, node.getPopulatedSubNodes().size());
+    for (PortfolioNode node : aggregatedPortfolio.getSubNodes()) {
+      Assert.assertEquals(0, node.getSubNodes().size());
       if (node.getName().contains("GBP")) {
-        Assert.assertTrue(_gbp.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_gbp));
+        Assert.assertTrue(_gbp.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_gbp));
         total += 10;
       } else if (node.getName().contains("USD")) {
-        Assert.assertTrue(_usd.containsAll(node.getPopulatedPositions()));
-        Assert.assertTrue(node.getPopulatedPositions().containsAll(_usd));
+        Assert.assertTrue(_usd.containsAll(node.getPositions()));
+        Assert.assertTrue(node.getPositions().containsAll(_usd));
         total += 1;
       } else {
         Assert.fail();
@@ -215,27 +213,26 @@ public class AggregationTest {
   @Test
   public void testMultiLevelAggregation() {
     s_logger.info("Starting testMultiLevelAggregation()");
-    FullyPopulatedPortfolio testPortfolio = makeTestPortfolio();
+    Portfolio testPortfolio = makeTestPortfolio();
     PortfolioAggregator aggregator = new PortfolioAggregator(new AssetClassAggregationFunction(), new CurrencyAggregationFunction());
-    FullyPopulatedPortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
+    PortfolioNode aggregatedPortfolio = aggregator.aggregate(testPortfolio);
     Assert.assertEquals(0, aggregatedPortfolio.getPositions().size());
-    Assert.assertEquals(0, aggregatedPortfolio.getPopulatedPositions().size());
-    Assert.assertEquals(2, aggregatedPortfolio.getPopulatedSubNodes().size());
+    Assert.assertEquals(2, aggregatedPortfolio.getSubNodes().size());
     int total = 0; // make sure both branches are visited only once.
-    for (FullyPopulatedPortfolioNode node : aggregatedPortfolio.getPopulatedSubNodes()) {
-      Assert.assertEquals(0, node.getPopulatedPositions().size());
+    for (PortfolioNode node : aggregatedPortfolio.getSubNodes()) {
+      Assert.assertEquals(0, node.getPositions().size());
       if (node.getName().endsWith(AssetClassAggregationFunction.EQUITIES)) {
         int subTotal = 0; // this makes sure both branches are visited only once.
-        for (FullyPopulatedPortfolioNode subNode : node.getPopulatedSubNodes()) {
-          Assert.assertEquals(0, subNode.getPopulatedSubNodes().size());
+        for (PortfolioNode subNode : node.getSubNodes()) {
+          Assert.assertEquals(0, subNode.getSubNodes().size());
           if (subNode.getName().contains("GBP")) {
-            System.err.println(node.getPopulatedPositions());
-            Assert.assertTrue(_gbpEquities.containsAll(subNode.getPopulatedPositions()));
-            Assert.assertTrue(subNode.getPopulatedPositions().containsAll(_gbpEquities));
+            System.err.println(node.getPositions());
+            Assert.assertTrue(_gbpEquities.containsAll(subNode.getPositions()));
+            Assert.assertTrue(subNode.getPositions().containsAll(_gbpEquities));
             subTotal += 10;
           } else if (subNode.getName().contains("USD")) {
-            Assert.assertTrue(_usdEquities.containsAll(subNode.getPopulatedPositions()));
-            Assert.assertTrue(subNode.getPopulatedPositions().containsAll(_usdEquities));
+            Assert.assertTrue(_usdEquities.containsAll(subNode.getPositions()));
+            Assert.assertTrue(subNode.getPositions().containsAll(_usdEquities));
             subTotal += 1;
           } else {
             Assert.fail();
@@ -245,15 +242,15 @@ public class AggregationTest {
         total += 10;
       } else if (node.getName().endsWith(AssetClassAggregationFunction.EQUITY_OPTIONS)) {
         int subTotal = 0; // this makes sure both branches are visited only once.
-        for (FullyPopulatedPortfolioNode subNode : node.getPopulatedSubNodes()) {
-          Assert.assertEquals(0, subNode.getPopulatedSubNodes().size());
+        for (PortfolioNode subNode : node.getSubNodes()) {
+          Assert.assertEquals(0, subNode.getSubNodes().size());
           if (subNode.getName().contains("GBP")) {
-            Assert.assertTrue(_europeanOptions.containsAll(subNode.getPopulatedPositions()));
-            Assert.assertTrue(subNode.getPopulatedPositions().containsAll(_europeanOptions));
+            Assert.assertTrue(_europeanOptions.containsAll(subNode.getPositions()));
+            Assert.assertTrue(subNode.getPositions().containsAll(_europeanOptions));
             subTotal += 10;
           } else if (subNode.getName().contains("USD")) {
-            Assert.assertTrue(_americanOptions.containsAll(subNode.getPopulatedPositions()));
-            Assert.assertTrue(subNode.getPopulatedPositions().containsAll(_americanOptions));
+            Assert.assertTrue(_americanOptions.containsAll(subNode.getPositions()));
+            Assert.assertTrue(subNode.getPositions().containsAll(_americanOptions));
             subTotal += 1;
           } else {
             Assert.fail();
