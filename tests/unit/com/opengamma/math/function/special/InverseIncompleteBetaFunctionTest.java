@@ -50,8 +50,8 @@ public class InverseIncompleteBetaFunctionTest {
 
   @Test
   public void test() {
-    final double a = Math.random();
-    final double b = Math.random();
+    final double a = 0.35;
+    final double b = 6.7;
     final double x = Math.random();
     final Function1D<Double, Double> beta = new IncompleteBetaFunction(a, b);
     final Function1D<Double, Double> inverse = new InverseIncompleteBetaFunction(a, b);

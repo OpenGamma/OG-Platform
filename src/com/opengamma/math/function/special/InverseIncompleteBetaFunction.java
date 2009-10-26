@@ -30,55 +30,56 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
   }
 
   @Override
-  public Double evaluate(final Double p) {
-    if (p < 0 || p > 1)
+  public Double evaluate(final Double x) {
+    if (x < 0 || x > 1)
       throw new IllegalArgumentException("x must lie in the range 0 to 1");
-    double pp, x, t, a1 = _a - 1;
+    double pp, p, t, h, w, lnA, lnB, u, a1 = _a - 1;
     final double b1 = _b - 1;
-    double h, w, lna, lnb, u;
     if (_a >= 1 && _b >= 1) {
-      pp = p < 0.5 ? p : 1 - p;
+      pp = x < 0.5 ? x : 1 - x;
       t = Math.sqrt(-2 * Math.log(pp));
-      x = (2.30753 + t * 0.27061) / (1 + t * (0.99229 + t * 0.04481)) - t;
-      if (x < 0.5) {
-        x *= -1;
+      p = (2.30753 + t * 0.27061) / (1 + t * (0.99229 + t * 0.04481)) - t;
+      if (p < 0.5) {
+        p *= -1;
       }
-      a1 = (Math.sqrt(x) - 3.) / 6.;
-      h = 2. / (1. / (2 * _a - 1) + 1. / (2 * _b - 1));
-      w = x * Math.sqrt(a1 + h) / h - (1. / (2 * _b - 1) - 1. / (2 * _a - 1)) * (a1 + 5. / 6 - 2. / (3 * h));
-      x = _a / (_a + _b + Math.exp(2 * w));
+      a1 = (Math.sqrt(p) - 3.) / 6.;
+      final double tempA = 1. / (2 * _a - 1);
+      final double tempB = 1. / (2 * _b - 1);
+      h = 2. / (tempA + tempB);
+      w = p * Math.sqrt(a1 + h) / h - (tempB - tempA) * (a1 + 5. / 6 - 2. / (3 * h));
+      p = _a / (_a + _b + Math.exp(2 * w));
     } else {
-      lna = Math.log(_a / (_a + _b));
-      lnb = Math.log(_b / (_a + _b));
-      t = Math.exp(_a * lna) / _a;
-      u = Math.exp(_b * lnb) / _b;
+      lnA = Math.log(_a / (_a + _b));
+      lnB = Math.log(_b / (_a + _b));
+      t = Math.exp(_a * lnA) / _a;
+      u = Math.exp(_b * lnB) / _b;
       w = t + u;
-      if (p < t / w) {
-        x = Math.pow(_a * w * p, 1. / _a);
+      if (x < t / w) {
+        p = Math.pow(_a * w * x, 1. / _a);
       } else {
-        x = 1 - Math.pow(_b * w * (1 - p), 1. / _b);
+        p = 1 - Math.pow(_b * w * (1 - x), 1. / _b);
       }
     }
     final double afac = -_lnGamma.evaluate(_a) - _lnGamma.evaluate(_b) + _lnGamma.evaluate(_a + _b);
-    double err;
+    double error;
     for (int j = 0; j < 10; j++) {
-      if (x == 0 || x == 1)
+      if (p == 0 || p == 1)
         throw new MathException("a or b too small for accurate evaluation");
-      err = _beta.evaluate(x) - p;
-      t = Math.exp(a1 * Math.log(x) + b1 * Math.log(1 - x) + afac);
-      u = err / t;
-      t = u / (1 - 0.5 * Math.min(1, u * (a1 / x - b1 / (1 - x))));
-      x -= t;
-      if (x <= 0) {
-        x = 0.5 * (x + t);
+      error = _beta.evaluate(p) - x;
+      t = Math.exp(a1 * Math.log(p) + b1 * Math.log(1 - p) + afac);
+      u = error / t;
+      t = u / (1 - 0.5 * Math.min(1, u * (a1 / p - b1 / (1 - p))));
+      p -= t;
+      if (p <= 0) {
+        p = 0.5 * (p + t);
       }
-      if (x >= 1) {
-        x = 0.5 * (x + t + 1);
+      if (p >= 1) {
+        p = 0.5 * (p + t + 1);
       }
-      if (Math.abs(t) < EPS * x && j > 0) {
+      if (Math.abs(t) < EPS * p && j > 0) {
         break;
       }
     }
-    return x;
+    return p;
   }
 }

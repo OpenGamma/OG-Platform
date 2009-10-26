@@ -13,7 +13,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class LeastSquaredRegressionTest {
+public class LeastSquaresRegressionTest {
 
   @Test
   public void test() {
