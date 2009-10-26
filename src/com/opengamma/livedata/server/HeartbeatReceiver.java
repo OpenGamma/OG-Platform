@@ -57,7 +57,11 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   public void messageReceived(byte[] message) {
     FudgeMsgEnvelope heartbeatEnvelope = getFudgeContext().deserialize(message);
     FudgeMsg heartbeatMsg = heartbeatEnvelope.getMessage();
-    for(FudgeField field : heartbeatMsg.getAllFields()) {
+    messageReceived(heartbeatMsg);
+  }
+  
+  public void messageReceived(FudgeFieldContainer msg) {
+    for(FudgeField field : msg.getAllFields()) {
       if(field.getValue() instanceof FudgeFieldContainer) {
         LiveDataSpecification liveDataSpec = new LiveDataSpecificationImpl((FudgeFieldContainer) field.getValue());
         s_logger.debug("Heartbeat received on live data specification {}", liveDataSpec);
