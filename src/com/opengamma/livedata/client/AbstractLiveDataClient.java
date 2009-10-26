@@ -11,6 +11,7 @@ import java.util.Timer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private LiveDataSpecificationResolver _specificationResolver = new IdentitySpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
+  private FudgeContext _fudgeContext = new FudgeContext();
   // Running State:
   private final ValueDistributor _valueDistributor = new ValueDistributor();
   private final Timer _timer = new Timer("LiveDataClient Timer");
@@ -50,7 +52,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
     ArgumentChecker.checkNotNull(messageSender, "Message Sender");
-    _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getTimer(), getHeartbeatPeriod());
+    _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getFudgeContext(), getTimer(), getHeartbeatPeriod());
   }
 
   /**
@@ -116,6 +118,20 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
    */
   public ValueDistributor getValueDistributor() {
     return _valueDistributor;
+  }
+
+  /**
+   * @return the fudgeContext
+   */
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
+  /**
+   * @param fudgeContext the fudgeContext to set
+   */
+  public void setFudgeContext(FudgeContext fudgeContext) {
+    _fudgeContext = fudgeContext;
   }
 
   /**

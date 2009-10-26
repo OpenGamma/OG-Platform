@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -31,17 +32,20 @@ public class HeartbeatSender {
   private static final Logger s_logger = LoggerFactory.getLogger(HeartbeatSender.class);
   private final ByteArrayMessageSender _messageSender;
   private final ValueDistributor _valueDistributor;
+  private final FudgeContext _fudgeContext;
   
   public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor) {
-    this(messageSender, valueDistributor, new Timer("HeartbeatSender Thread"), DEFAULT_PERIOD);
+    this(messageSender, valueDistributor, new FudgeContext(), new Timer("HeartbeatSender Thread"), DEFAULT_PERIOD);
   }
   
-  public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor, Timer timer, long period) {
+  public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor, FudgeContext fudgeContext, Timer timer, long period) {
     ArgumentChecker.checkNotNull(messageSender, "Message Sender");
     ArgumentChecker.checkNotNull(valueDistributor, "Value Distributor");
+    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     ArgumentChecker.checkNotNull(timer, "Timer");
     _messageSender = messageSender;
     _valueDistributor = valueDistributor;
+    _fudgeContext = fudgeContext;
     timer.schedule(new HeartbeatSendingTask(), period, period);
   }
 
@@ -59,6 +63,13 @@ public class HeartbeatSender {
     return _valueDistributor;
   }
 
+  /**
+   * @return the fudgeContext
+   */
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
   public class HeartbeatSendingTask extends TimerTask {
     @Override
     public void run() {
@@ -66,7 +77,7 @@ public class HeartbeatSender {
       FudgeMsg heartbeatMsg = new FudgeMsg();
       Set<LiveDataSpecification> liveDataSpecs = getValueDistributor().getActiveSpecifications();
       for(LiveDataSpecification liveDataSpecification : liveDataSpecs) {
-        FudgeFieldContainer specMsg = liveDataSpecification.toFudgeMsg();
+        FudgeFieldContainer specMsg = liveDataSpecification.toFudgeMsg(getFudgeContext());
         heartbeatMsg.add(null, null, specMsg);
       }
       byte[] bytes = heartbeatMsg.toByteArray();

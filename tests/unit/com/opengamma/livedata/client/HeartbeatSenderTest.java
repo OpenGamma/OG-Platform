@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
@@ -61,7 +62,7 @@ public class HeartbeatSenderTest {
     valueDistributor.addListener(spec2, listener1);
     
     @SuppressWarnings("unused")
-    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, _timer, 100l);
+    HeartbeatSender heartbeatSender = new HeartbeatSender(messageSender, valueDistributor, new FudgeContext(), _timer, 100l);
     // Wait 250ms to make sure we get two ticks.
     Thread.sleep(250l);
     
