@@ -13,6 +13,7 @@
         <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
         <dependency org="cern" name="colt" rev="1.2.0"/>
         <dependency org="org.freehep" name="freehep-java3d" rev="2.0-20070206.232550-2"/>
+        <dependency org="net.sourceforge.ehcache" name="ehcache" rev="1.6.0"/>
     </dependencies>
 </ivy-module>
 
