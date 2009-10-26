@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
@@ -125,6 +126,19 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getClass().getSimpleName()).append("[");
+    List<String> idsAsText = new ArrayList<String>();
+    for(DomainSpecificIdentifier identifier : _identifiers) {
+      idsAsText.add(identifier.getDomain().getDomainName() + ":" + identifier.getValue());
+    }
+    sb.append(StringUtils.join(idsAsText, ", "));
+    sb.append("]");
+    return sb.toString();
   }
 
 }
