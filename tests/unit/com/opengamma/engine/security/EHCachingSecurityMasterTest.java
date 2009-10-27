@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import net.sf.ehcache.Element;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -197,9 +195,75 @@ public class EHCachingSecurityMasterTest {
   }
 
   @Test
-  @Ignore
   public void refresh() {
-    fail("Not yet implemented"); // TODO
+    addSecuritiesToMemorySecurityMaster();
+    
+    SecurityKey secKey1 = new SecurityKeyImpl(_secId1);
+    SecurityKey secKey2 = new SecurityKeyImpl(_secId2);
+    SecurityKey secKey3 = new SecurityKeyImpl(_secId1, _secId2);
+    
+    _cachingSecMaster.getSecurity(secKey1);
+    
+    Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
+    assertEquals(1, singleSecCache.getSize());
+    Element sec1Element = singleSecCache.getQuiet(secKey1);
+    assertNotNull(sec1Element);
+    for (int i = 1; i < 10; i++) {
+      _cachingSecMaster.getSecurity(secKey1);
+      assertEquals(i, sec1Element.getHitCount());
+    }
+    
+    //remove security1 from cache
+    _cachingSecMaster.refresh(secKey1);
+    assertEquals(0, singleSecCache.getSize());
+    
+    _cachingSecMaster.getSecurity(secKey1);
+    assertEquals(1, singleSecCache.getSize());
+    sec1Element = singleSecCache.getQuiet(secKey1);
+    assertNotNull(sec1Element);
+    for (int i = 1; i < 10; i++) {
+      _cachingSecMaster.getSecurity(secKey1);
+      assertEquals(i, sec1Element.getHitCount());
+    }
+    
+    _cachingSecMaster.getSecurities(secKey3);
+    Cache multiSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
+    assertEquals(2, singleSecCache.getSize());
+    assertEquals(1, multiSecCache.getSize());
+    
+    sec1Element = singleSecCache.getQuiet(secKey1);
+    Element multiElement = multiSecCache.getQuiet(secKey3);
+    Element sec2Element = singleSecCache.getQuiet(secKey2);
+    assertNotNull(sec1Element);
+    assertNotNull(sec2Element);
+    assertNotNull(multiElement);
+    int lastHit = (int)sec1Element.getHitCount();
+    for (int i = 1; i < 10; i++) {
+      _cachingSecMaster.getSecurities(secKey3);
+      assertEquals(lastHit + i, sec1Element.getHitCount());
+      assertEquals(i, sec2Element.getHitCount());
+      assertEquals(i, multiElement.getHitCount());
+    }
+    
+    //remove security3 from cache
+    _cachingSecMaster.refresh(secKey3);
+    assertEquals(0, multiSecCache.getSize());
+    assertEquals(0, singleSecCache.getSize());
+    
+    _cachingSecMaster.getSecurities(secKey3);
+    sec1Element = singleSecCache.getQuiet(secKey1);
+    sec2Element = singleSecCache.getQuiet(secKey2);
+    multiElement = multiSecCache.getQuiet(secKey3);
+    assertNotNull(sec1Element);
+    assertNotNull(sec2Element);
+    assertNotNull(multiElement);
+    for (int i = 1; i < 10; i++) {
+      _cachingSecMaster.getSecurities(secKey3);
+      assertEquals(i, multiElement.getHitCount());
+      assertEquals(i, sec1Element.getHitCount());
+      assertEquals(i, sec2Element.getHitCount());
+    }
+     
   }
   
   /**
