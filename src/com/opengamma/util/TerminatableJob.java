@@ -19,7 +19,14 @@ public abstract class TerminatableJob implements Runnable {
   @Override
   public void run() {
     preStart();
-    _terminated.set(false);
+    // REVIEW kirk 2009-10-21 -- Originally we had the following line
+    // uncommented out so that you could continually restart the job after terminating.
+    // However, in cases where you call start() on the owning thread, and then call
+    // job.terminate() BEFORE the thread even starts, this line will prevent the
+    // termination from ever being registered. Therefore, I'm changing this for
+    // the time being and if we need to support restarts, we'll have to find another
+    // mechanism for that.
+    //_terminated.set(false);
     while(!_terminated.get()) {
       runOneCycle();
     }
