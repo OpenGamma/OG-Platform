@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
@@ -68,7 +69,7 @@ public class DomainSpecificIdentifiersImplTest {
         new DomainSpecificIdentifier(new IdentificationDomain("id1"), "value1"),
         new DomainSpecificIdentifier(new IdentificationDomain("id2"), "value2")
       );
-    FudgeFieldContainer msg = input.toFudgeMsg();
+    FudgeFieldContainer msg = input.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     

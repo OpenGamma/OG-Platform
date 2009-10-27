@@ -7,6 +7,7 @@ package com.opengamma.id;
 
 import java.util.Collection;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
 
@@ -30,5 +31,5 @@ public interface DomainSpecificIdentifiers {
    */
   Collection<DomainSpecificIdentifier> getIdentifiers();
   String getIdentifier(IdentificationDomain domain);
-  FudgeFieldContainer toFudgeMsg();
+  FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext);
 }
