@@ -1,14 +1,18 @@
 <ivysettings>
-  <settings defaultResolver="googlethenibiblio"/>
+  <settings defaultResolver="chainResolver"/>
   <credentials host="ivyrepo.opengamma.com" username="opengamma" passwd="opengamma" realm="secure"/>
   <resolvers>
-    <chain name="googlethenibiblio" returnFirst="true">
+    <chain name="chainResolver" returnFirst="true">
+      <!-- This resolver is primarily useful if you're working on maintaining the OG-PrivateIvy repository before pushing changes.
+           However, it's also useful if you have the OG-PrivateIvy repository maintained, so it's left in here.
+      -->
+      <url name="opengamma-ivyrepo-local">
+        <ivy pattern="file://${user.home}/src/OG-PrivateIvy/public_html/[organization]/[module]/[revision]/ivy.xml" />
+        <artifact pattern="file://${user.home}/src/OG-PrivateIvy/public_html/[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
+      </url>
       <url name="opengamma-ivyrepo">
         <ivy pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/ivy.xml" />
         <artifact pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
-        <artifact pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/[artifact]-docs-[revision].[ext]" />
-        <artifact pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/[artifact]-src-[revision].[ext]" />
-        <artifact pattern="http://ivyrepo.opengamma.com/[organization]/[module]/[revision]/[artifact]-[revision]-src.[ext]" />
       </url>
       <url name="fudgemsg-org-dist">
         <ivy pattern="http://dist.fudgemsg.org/java/ivy/[organization]/[module]/[revision]/ivy.xml" />
@@ -18,7 +22,7 @@
         <ivy pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/ivy.xml"/>
         <artifact pattern="http://ivyroundup.googlecode.com/svn/trunk/repo/modules/[organisation]/[module]/[revision]/packager.xml"/>
       </packager>
-      <ibiblio name="ibiblio" m2compatible="true"/>
+      <ibiblio name="ibiblio" m2compatible="true" />
     </chain>
   </resolvers>
 </ivysettings>
