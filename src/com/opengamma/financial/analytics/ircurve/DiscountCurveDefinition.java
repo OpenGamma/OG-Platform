@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.yc;
+package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -15,7 +15,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.financial.securities.Currency;
+import com.opengamma.financial.Currency;
 
 /**
  * 

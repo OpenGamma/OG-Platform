@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.yc;
+package com.opengamma.financial.analytics.ircurve;
 
 import java.io.Serializable;
 

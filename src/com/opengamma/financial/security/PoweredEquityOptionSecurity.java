@@ -6,7 +6,7 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.financial.securities.Currency;
+import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -37,6 +37,11 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
   @Override
   public double getPower() {
     return _power;
+  }
+
+  @Override
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitPoweredEquityOptionSecurity(this);
   }
 
 }

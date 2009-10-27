@@ -9,9 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.securities.Currency;
+import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 
@@ -20,7 +19,8 @@ import com.opengamma.id.IdentificationDomain;
  *
  * @author kirk
  */
-public class EquitySecurity extends DefaultSecurity {
+
+public class EquitySecurity extends FinancialSecurity {
   public static final String EQUITY_TYPE = "EQUITY";
   private String _ticker;
   private String _exchange;
@@ -119,5 +119,9 @@ public class EquitySecurity extends DefaultSecurity {
   public void setCurrency(Currency currency) {
     _currency = currency;
   }
-  
+
+  @Override
+  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return visitor.visitEquitySecurity(this);
+  }
 }

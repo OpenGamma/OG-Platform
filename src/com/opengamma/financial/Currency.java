@@ -1,4 +1,4 @@
-package com.opengamma.financial.securities;
+package com.opengamma.financial;
 
 import java.util.HashMap;
 import java.util.Map;
