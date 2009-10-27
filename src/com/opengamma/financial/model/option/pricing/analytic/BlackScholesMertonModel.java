@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import javax.time.calendar.ZonedDateTime;
@@ -28,33 +33,33 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  *         foreign risk-free rate <em>r<sub>f</sub></em>
  */
 public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
-  ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
+  ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
 
   @Override
-  public GreekVisitor<GreekResult<?>> getGreekVisitor(Function1D<StandardOptionDataBundle, Double> pricingFunction, StandardOptionDataBundle vars,
-      EuropeanVanillaOptionDefinition definition) {
+  public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle vars,
+      final EuropeanVanillaOptionDefinition definition) {
     return new BlackScholesMertonGreekVisitor(vars, pricingFunction, definition);
   }
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
+    final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) {
+      public Double evaluate(final StandardOptionDataBundle data) {
         try {
-          ZonedDateTime date = data.getDate();
-          double s = data.getSpot();
-          double k = definition.getStrike();
-          double t = definition.getTimeToExpiry(date);
-          double r = data.getInterestRate(t);
-          double b = data.getCostOfCarry();
-          double sigma = data.getVolatility(t, k);
-          double d1 = getD1(s, k, t, sigma, b);
-          double d2 = getD2(d1, sigma, t);
-          int sign = definition.isCall() ? 1 : -1;
-          return sign * Math.exp(-r * t) * (s * Math.exp(b * t) * _normalProbabilityDistribution.getCDF(sign * d1) - k * _normalProbabilityDistribution.getCDF(sign * d2));
-        } catch (InterpolationException e) {
+          final ZonedDateTime date = data.getDate();
+          final double s = data.getSpot();
+          final double k = definition.getStrike();
+          final double t = definition.getTimeToExpiry(date);
+          final double r = data.getInterestRate(t);
+          final double b = data.getCostOfCarry();
+          final double sigma = data.getVolatility(t, k);
+          final double d1 = getD1(s, k, t, sigma, b);
+          final double d2 = getD2(d1, sigma, t);
+          final int sign = definition.isCall() ? 1 : -1;
+          return sign * Math.exp(-r * t) * (s * Math.exp(b * t) * _normal.getCDF(sign * d1) - k * _normal.getCDF(sign * d2));
+        } catch (final InterpolationException e) {
           throw new OptionPricingException(e);
         }
       }
@@ -75,7 +80,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     private final double _d2;
     private final double _price;
 
-    public BlackScholesMertonGreekVisitor(StandardOptionDataBundle vars, Function1D<StandardOptionDataBundle, Double> pricingFunction, EuropeanVanillaOptionDefinition definition) {
+    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle vars, final Function1D<StandardOptionDataBundle, Double> pricingFunction,
+        final EuropeanVanillaOptionDefinition definition) {
       super(pricingFunction, vars, definition);
       _s = vars.getSpot();
       _k = definition.getStrike();
@@ -90,15 +96,67 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       _price = pricingFunction.evaluate(vars);
     }
 
+    public GreekResult<Double> visitCarryRho() {
+      final int sign = _isCall ? 1 : -1;
+      final double value = sign * _t * _s * _df * _normal.getCDF(sign * _d1);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitDDeltaDVar() {
+      final double value = -_s * _df * _normal.getPDF(_d1) * _d2 / (2 * _sigma * _sigma);
+      return new SingleGreekResult(value);
+    }
+
     @Override
     public GreekResult<Double> visitDelta() {
-      double value = _isCall ? _df * _normalProbabilityDistribution.getCDF(_d1) : _df * (_normalProbabilityDistribution.getCDF(_d1) - 1);
+      final double value = _df * (_isCall ? _normal.getCDF(_d1) : _normal.getCDF(_d1) - 1);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitDeltaBleed() {
+      final int sign = _isCall ? 1 : -1;
+      final double value = -_df * _normal.getPDF(_d1) * (_b / (_sigma * Math.sqrt(_t)) - _d2 / (2 * _t) + sign * (_b - _r) * _normal.getCDF(sign * _d1));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitDriftlessTheta() {
+      final double value = -_s * _normal.getPDF(_d1) * _sigma / (2 * Math.sqrt(_t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitDZetaDVol() {
+      final double value = (_isCall ? -1 : 1) * _d1 / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitElasticity() {
+      final double value = _df * (_isCall ? _normal.getCDF(_d1) : _normal.getCDF(_d1) - 1) * _s / _price;
       return new SingleGreekResult(value);
     }
 
     @Override
     public GreekResult<Double> visitGamma() {
-      double value = _df * _normalProbabilityDistribution.getPDF(_d1) / (_s * _sigma * Math.sqrt(_t));
+      final double value = _df * _normal.getPDF(_d1) / (_s * _sigma * Math.sqrt(_t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitGammaBleed() {
+      final double value = visitGamma().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitGammaP() {
+      return new SingleGreekResult(visitGamma().getResult() * _s / 100);
+    }
+
+    public GreekResult<Double> visitGammaPBleed() {
+      final double value = visitGammaP().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitPhi() {
+      final int sign = _isCall ? 1 : -1;
+      final double value = -sign * _s * _df * _normal.getCDF(_d1 * sign);
       return new SingleGreekResult(value);
     }
 
@@ -109,8 +167,108 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
 
     @Override
     public GreekResult<Double> visitRho() {
-      int sign = _isCall ? 1 : -1;
-      double value = sign * _t * _k * Math.exp(-_r * _t) * _normalProbabilityDistribution.getCDF(sign * _d2);
+      final int sign = _isCall ? 1 : -1;
+      final double value = sign * _t * _k * Math.exp(-_r * _t) * _normal.getCDF(sign * _d2);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitSpeed() {
+      final double value = -visitGamma().getResult() * (1 + _d1 / (_sigma * Math.sqrt(_t))) / _s;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitSpeedP() {
+      final double value = -visitGamma().getResult() * _d1 / (100 * _sigma * Math.sqrt(_t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitStrikeDelta() {
+      final int sign = _isCall ? 1 : -1;
+      final double value = -sign * Math.exp(-_r * _t) * _normal.getCDF(sign * _d2);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitStrikeGamma() {
+      final double value = _normal.getPDF(_d2) * Math.exp(-_r * _t) / (_k * _sigma * Math.sqrt(_t));
+      return new SingleGreekResult(value);
+    }
+
+    @Override
+    public GreekResult<Double> visitTheta() {
+      final int sign = _isCall ? 1 : -1;
+      final double value = -_s * _df * _normal.getPDF(_d1) * _sigma / (2 * Math.sqrt(_t)) - sign * (_b - _r) * _s * _df * _normal.getCDF(sign * _d1) - sign * _r * _k
+          * Math.exp(-_r * _t) * _normal.getCDF(sign * _d2);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVanna() {
+      final double value = -_df * _d2 * _normal.getPDF(_d1) / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVarianceUltima() {
+      final double value = _s * _df * Math.sqrt(_t) / (8 * Math.pow(_sigma, 5)) * _normal.getPDF(_d1) * ((_d1 * _d2 - 1) * (_d1 * _d2 - 3) - (_d1 * _d1 + _d2 * _d2));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVarianceVega() {
+      final double value = _s * _df * _normal.getPDF(_d1) * Math.sqrt(_t) / (2 * _sigma);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVarianceVomma() {
+      final double value = _s * _df * Math.sqrt(_t) / (4 * Math.pow(_sigma, 3)) * _normal.getPDF(_d1) * (_d1 * _d2 - 1);
+      return new SingleGreekResult(value);
+    }
+
+    @Override
+    public GreekResult<Double> visitVega() {
+      final double value = _s * _df * _normal.getPDF(_d1) * Math.sqrt(_t);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVegaBleed() {
+      final double value = visitVega().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) - (1 + _d1 * _d2) / (2 * _t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVegaP() {
+      final double value = visitVega().getResult() * _sigma / 10;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitUltima() {
+      final double value = visitVomma().getResult() * (_d1 * _d2 - _d1 / _d2 - _d2 / _d1 - 1) / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVomma() {
+      final double value = visitVega().getResult() * _d1 * _d2 / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitVommaP() {
+      final double value = visitVegaP().getResult() * _d1 * _d2 / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitZeta() {
+      final double value = _normal.getCDF(_isCall ? _d2 : -_d2);
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitZetaBleed() {
+      final double value = (_isCall ? 1 : -1) * (_b / (_sigma * Math.sqrt(_t)) - _d1 / (2 * _t));
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitZomma() {
+      final double value = visitGamma().getResult() * (_d1 * _d2 - 1) / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    public GreekResult<Double> visitZommaP() {
+      final double value = visitGammaP().getResult() * (_d1 * _d2 - 1) / _sigma;
       return new SingleGreekResult(value);
     }
   }

@@ -17,6 +17,8 @@ public interface GreekVisitor<T> {
 
   public T visitGamma();
 
+  public T visitVega();
+
   public T visitRho();
 
   public T visitTheta();
