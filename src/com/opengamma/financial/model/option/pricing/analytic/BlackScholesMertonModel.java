@@ -43,10 +43,14 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    if (definition == null)
+      throw new IllegalArgumentException("Null option definition");
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
+        if (data == null)
+          throw new IllegalArgumentException("Null data bundle");
         try {
           final ZonedDateTime date = data.getDate();
           final double s = data.getSpot();
@@ -96,12 +100,14 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       _price = pricingFunction.evaluate(vars);
     }
 
+    @Override
     public GreekResult<Double> visitCarryRho() {
       final int sign = _isCall ? 1 : -1;
       final double value = sign * _t * _s * _df * _normal.getCDF(sign * _d1);
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitDDeltaDVar() {
       final double value = -_s * _df * _normal.getPDF(_d1) * _d2 / (2 * _sigma * _sigma);
       return new SingleGreekResult(value);
@@ -113,22 +119,32 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitDeltaBleed() {
       final int sign = _isCall ? 1 : -1;
-      final double value = -_df * _normal.getPDF(_d1) * (_b / (_sigma * Math.sqrt(_t)) - _d2 / (2 * _t) + sign * (_b - _r) * _normal.getCDF(sign * _d1));
+      final double value = -_df * (_normal.getPDF(_d1) * (_b / (_sigma * Math.sqrt(_t)) - _d2 / (2 * _t)) + sign * (_b - _r) * _normal.getCDF(sign * _d1));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitDriftlessTheta() {
       final double value = -_s * _normal.getPDF(_d1) * _sigma / (2 * Math.sqrt(_t));
       return new SingleGreekResult(value);
     }
 
-    public GreekResult<Double> visitDZetaDVol() {
-      final double value = (_isCall ? -1 : 1) * _d1 / _sigma;
+    @Override
+    public GreekResult<Double> visitDVannaDVol() {
+      final double value = visitVanna().getResult() * (_d1 * _d2 - _d1 / _d2 - 1) / _sigma;
       return new SingleGreekResult(value);
     }
 
+    @Override
+    public GreekResult<Double> visitDZetaDVol() {
+      final double value = (_isCall ? -1 : 1) * _normal.getPDF(_d2) * _d1 / _sigma;
+      return new SingleGreekResult(value);
+    }
+
+    @Override
     public GreekResult<Double> visitElasticity() {
       final double value = _df * (_isCall ? _normal.getCDF(_d1) : _normal.getCDF(_d1) - 1) * _s / _price;
       return new SingleGreekResult(value);
@@ -140,23 +156,27 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitGammaBleed() {
       final double value = visitGamma().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitGammaP() {
       return new SingleGreekResult(visitGamma().getResult() * _s / 100);
     }
 
+    @Override
     public GreekResult<Double> visitGammaPBleed() {
       final double value = visitGammaP().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitPhi() {
       final int sign = _isCall ? 1 : -1;
-      final double value = -sign * _s * _df * _normal.getCDF(_d1 * sign);
+      final double value = -sign * _t * _s * _df * _normal.getCDF(_d1 * sign);
       return new SingleGreekResult(value);
     }
 
@@ -172,22 +192,26 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitSpeed() {
       final double value = -visitGamma().getResult() * (1 + _d1 / (_sigma * Math.sqrt(_t))) / _s;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitSpeedP() {
       final double value = -visitGamma().getResult() * _d1 / (100 * _sigma * Math.sqrt(_t));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitStrikeDelta() {
       final int sign = _isCall ? 1 : -1;
       final double value = -sign * Math.exp(-_r * _t) * _normal.getCDF(sign * _d2);
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitStrikeGamma() {
       final double value = _normal.getPDF(_d2) * Math.exp(-_r * _t) / (_k * _sigma * Math.sqrt(_t));
       return new SingleGreekResult(value);
@@ -201,21 +225,25 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVanna() {
       final double value = -_df * _d2 * _normal.getPDF(_d1) / _sigma;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVarianceUltima() {
       final double value = _s * _df * Math.sqrt(_t) / (8 * Math.pow(_sigma, 5)) * _normal.getPDF(_d1) * ((_d1 * _d2 - 1) * (_d1 * _d2 - 3) - (_d1 * _d1 + _d2 * _d2));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVarianceVega() {
       final double value = _s * _df * _normal.getPDF(_d1) * Math.sqrt(_t) / (2 * _sigma);
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVarianceVomma() {
       final double value = _s * _df * Math.sqrt(_t) / (4 * Math.pow(_sigma, 3)) * _normal.getPDF(_d1) * (_d1 * _d2 - 1);
       return new SingleGreekResult(value);
@@ -227,46 +255,55 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVegaBleed() {
       final double value = visitVega().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) - (1 + _d1 * _d2) / (2 * _t));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVegaP() {
       final double value = visitVega().getResult() * _sigma / 10;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitUltima() {
       final double value = visitVomma().getResult() * (_d1 * _d2 - _d1 / _d2 - _d2 / _d1 - 1) / _sigma;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVomma() {
       final double value = visitVega().getResult() * _d1 * _d2 / _sigma;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitVommaP() {
       final double value = visitVegaP().getResult() * _d1 * _d2 / _sigma;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitZeta() {
       final double value = _normal.getCDF(_isCall ? _d2 : -_d2);
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitZetaBleed() {
-      final double value = (_isCall ? 1 : -1) * (_b / (_sigma * Math.sqrt(_t)) - _d1 / (2 * _t));
+      final double value = (_isCall ? 1 : -1) * _normal.getPDF(_d2) * (_b / (_sigma * Math.sqrt(_t)) - _d1 / (2 * _t));
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitZomma() {
       final double value = visitGamma().getResult() * (_d1 * _d2 - 1) / _sigma;
       return new SingleGreekResult(value);
     }
 
+    @Override
     public GreekResult<Double> visitZommaP() {
       final double value = visitGammaP().getResult() * (_d1 * _d2 - 1) / _sigma;
       return new SingleGreekResult(value);

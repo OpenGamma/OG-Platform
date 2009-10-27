@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.greeks;
 
 public enum Greek {
@@ -17,8 +22,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitZeta();
     }
 
   },
@@ -32,8 +36,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitCarryRho();
     }
 
   },
@@ -49,8 +52,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitDriftlessTheta();
     }
 
   },
@@ -58,8 +60,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitDZetaDVol();
     }
 
   },
@@ -67,8 +68,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitElasticity();
     }
 
   },
@@ -76,8 +76,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitPhi();
     }
 
   },
@@ -91,8 +90,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitStrikeDelta();
     }
 
   },
@@ -112,8 +110,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVarianceVega();
     }
 
   },
@@ -129,8 +126,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVegaP();
     }
 
   },
@@ -138,8 +134,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitZetaBleed();
     }
 
   },
@@ -153,8 +148,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitDDeltaDVar();
     }
 
   },
@@ -162,8 +156,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitDeltaBleed();
     }
 
   },
@@ -177,8 +170,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitGammaP();
     }
 
   },
@@ -186,8 +178,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitStrikeGamma();
     }
 
   },
@@ -195,16 +186,14 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVanna();
     }
   },
   VARIANCE_VOMMA {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVarianceVomma();
     }
 
   },
@@ -212,8 +201,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVegaBleed();
     }
 
   },
@@ -221,8 +209,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVomma();
     }
 
   },
@@ -230,8 +217,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVommaP();
     }
 
   },
@@ -241,12 +227,19 @@ public enum Greek {
    * Third order greeks
    * 
    */
+  DVANNA_DVOL {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      return visitor.visitDVannaDVol();
+    }
+
+  },
   GAMMA_BLEED {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitGammaBleed();
     }
 
   },
@@ -254,8 +247,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitGammaPBleed();
     }
 
   },
@@ -263,8 +255,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitSpeed();
     }
 
   },
@@ -272,8 +263,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitSpeedP();
     }
 
   },
@@ -281,8 +271,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitUltima();
     }
 
   },
@@ -290,8 +279,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitVarianceUltima();
     }
 
   },
@@ -299,8 +287,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitZomma();
     }
 
   },
@@ -308,8 +295,7 @@ public enum Greek {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitZommaP();
     }
 
   };
