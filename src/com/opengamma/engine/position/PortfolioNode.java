@@ -18,4 +18,5 @@ public interface PortfolioNode {
   
   Collection<PortfolioNode> getSubNodes();
 
+  String getName();
 }

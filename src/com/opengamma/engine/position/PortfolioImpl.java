@@ -14,15 +14,14 @@ import java.io.Serializable;
  */
 public class PortfolioImpl extends PortfolioNodeImpl implements Portfolio,
     Serializable {
-  private final String _name;
   
   public PortfolioImpl(String name) {
-    _name = name;
+    super(name);
   }
 
   @Override
-  public String getName() {
-    return _name;
+  public String getPortfolioName() {
+    return getName();
   }
 
 }

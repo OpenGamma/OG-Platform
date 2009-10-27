@@ -17,6 +17,7 @@ import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.engine.depgraph.SecurityDependencyGraph;
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -178,6 +179,7 @@ public class SingleComputationCycle {
     return true;
   }
   
+  // someone thinks this is a database kernel... :)
   public void executePlans() {
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
       SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
@@ -193,9 +195,9 @@ public class SingleComputationCycle {
 
   public void populateResultModel() {
     Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
-    for(FullyPopulatedPosition populatedPosition : getPortfolioEvaluationModel().getPopulatedPositions()) {
+    for(Position populatedPosition : getPortfolioEvaluationModel().getPopulatedPositions()) {
       // REVIEW kirk 2009-09-14 -- Could be parallelized if we need to.
-      getResultModel().addPosition(populatedPosition.getPosition());
+      getResultModel().addPosition(populatedPosition);
       Security security = populatedPosition.getSecurity();
       String securityType = security.getSecurityType();
       Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
@@ -211,8 +213,8 @@ public class SingleComputationCycle {
         AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedOutputs().get(analyticValueDefinition);
         AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
         if(unscaledValue != null) {
-          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(populatedPosition.getPosition().getQuantity());
-          getResultModel().addValue(populatedPosition.getPosition(), scaledValue);
+          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(populatedPosition.getQuantity());
+          getResultModel().addValue(populatedPosition, scaledValue);
         }
       }
     }

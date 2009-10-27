@@ -21,7 +21,9 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 
@@ -43,10 +45,10 @@ public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
   private final PortfolioNode _rootNode;
 
-  private FullyPopulatedPortfolioNode _populatedRootNode;
+  private PortfolioNode _populatedRootNode;
   private DependencyGraphModel _dependencyGraphModel;
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
-  private final Set<FullyPopulatedPosition> _populatedPositions = new HashSet<FullyPopulatedPosition>();
+  private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
   
   public PortfolioEvaluationModel(PortfolioNode rootNode) {
@@ -64,21 +66,21 @@ public class PortfolioEvaluationModel {
   /**
    * @param populatedRootNode the populatedRootNode to set
    */
-  public void setPopulatedRootNode(FullyPopulatedPortfolioNode populatedRootNode) {
+  public void setPopulatedRootNode(PortfolioNode populatedRootNode) {
     _populatedRootNode = populatedRootNode;
   }
 
   /**
    * @return the rootNode
    */
-  public FullyPopulatedPortfolioNode getPopulatedRootNode() {
+  public PortfolioNode getPopulatedRootNode() {
     return _populatedRootNode;
   }
 
   /**
    * @return the positions
    */
-  public Set<FullyPopulatedPosition> getPopulatedPositions() {
+  public Set<Position> getPopulatedPositions() {
     return _populatedPositions;
   }
   
@@ -115,7 +117,7 @@ public class PortfolioEvaluationModel {
     assert liveDataSnapshotProvider != null;
     assert viewDefinition != null;
     
-    FullyPopulatedPortfolioNode populatedRootNode = getPopulatedPortfolioNode(getRootNode(), secMaster);
+    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getRootNode(), secMaster);
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     
@@ -129,7 +131,7 @@ public class PortfolioEvaluationModel {
    * @param node
    * @return
    */
-  protected FullyPopulatedPortfolioNode getPopulatedPortfolioNode(
+  protected PortfolioNode getPopulatedPortfolioNode(
       PortfolioNode node, SecurityMaster secMaster) {
     if(node == null) {
       return null;
@@ -138,13 +140,14 @@ public class PortfolioEvaluationModel {
     // - Gather up all the distinct SecurityKeys
     // - Scatter/gather to resolve all Securities
     // - Build the node tree from the resolved Securities
-    FullyPopulatedPortfolioNode populatedNode = new FullyPopulatedPortfolioNode();
+    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
     for(Position position : node.getPositions()) {
       Security security = secMaster.getSecurity(position.getSecurityKey());
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      populatedNode.addPosition(position, security);
+      Position populatedPosition = new PositionBean(position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
+      populatedNode.addPosition(populatedPosition);
     }
     for(PortfolioNode subNode : node.getSubNodes()) {
       populatedNode.addSubNode(getPopulatedPortfolioNode(subNode, secMaster));
@@ -153,22 +156,22 @@ public class PortfolioEvaluationModel {
   }
 
   public void loadPositions() {
-    FullyPopulatedPortfolioNode populatedRootNode = getPopulatedRootNode();
+    PortfolioNode populatedRootNode = getPopulatedRootNode();
     loadPositions(populatedRootNode);
     setPopulatedRootNode(populatedRootNode);
     s_logger.debug("Operating on {} positions", getPopulatedPositions().size());
     // TODO kirk 2009-09-15 -- cache securities
   }
   
-  protected void loadPositions(FullyPopulatedPortfolioNode node) {
-    getPopulatedPositions().addAll(node.getPopulatedPositions());
-    for(FullyPopulatedPortfolioNode child : node.getPopulatedSubNodes()) {
+  protected void loadPositions(PortfolioNode node) {
+    getPopulatedPositions().addAll(node.getPositions());
+    for(PortfolioNode child : node.getSubNodes()) {
       loadPositions(child);
     }
   }
   
   public void loadSecurities() {
-    for(FullyPopulatedPosition position : getPopulatedPositions()) {
+    for(Position position : getPopulatedPositions()) {
       getSecurities().add(position.getSecurity());
     }
   }

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.util.CompareUtils;
 
@@ -22,10 +23,18 @@ import com.opengamma.util.CompareUtils;
 public class PositionBean implements Position, Serializable, Cloneable {
   private final BigDecimal _quantity;
   private final SecurityKey _securityKey;
+  private Security _security;
   
   public PositionBean(BigDecimal quantity, SecurityKey securityKey) {
     _quantity = quantity;
     _securityKey = securityKey;
+    _security = null;
+  }
+  
+  public PositionBean(BigDecimal quantity, SecurityKey securityKey, Security security) {
+    _quantity = quantity;
+    _securityKey = securityKey;
+    _security = security;
   }
 
   @Override
@@ -36,6 +45,15 @@ public class PositionBean implements Position, Serializable, Cloneable {
   @Override
   public SecurityKey getSecurityKey() {
     return _securityKey;
+  }
+  
+  @Override
+  public Security getSecurity() {
+    return _security;
+  }
+  
+  public void setSecurity(Security security) {
+    _security = security;
   }
 
   @Override
@@ -64,6 +82,9 @@ public class PositionBean implements Position, Serializable, Cloneable {
       return false;
     }
     if(!ObjectUtils.equals(getSecurityKey(), other.getSecurityKey())) {
+      return false;
+    }
+    if(!ObjectUtils.equals(getSecurity(), other.getSecurity())) {
       return false;
     }
     return true;

@@ -21,6 +21,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.util.ThreadUtil;
@@ -184,29 +185,6 @@ public class ViewImpl implements View, Lifecycle {
     setPortfolioEvaluationModel(portfolioEvaluationModel);
   }
   
-  /**
-   * @param node
-   * @return
-   */
-  protected FullyPopulatedPortfolioNode getPopulatedPortfolioNode(
-      PortfolioNode node) {
-    if(node == null) {
-      return null;
-    }
-    FullyPopulatedPortfolioNode populatedNode = new FullyPopulatedPortfolioNode();
-    for(Position position : node.getPositions()) {
-      Security security = getProcessingContext().getSecurityMaster().getSecurity(position.getSecurityKey());
-      if(security == null) {
-        throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
-      }
-      populatedNode.addPosition(position, security);
-    }
-    for(PortfolioNode subNode : node.getSubNodes()) {
-      populatedNode.addSubNode(getPopulatedPortfolioNode(subNode));
-    }
-    return populatedNode;
-  }
-
   /**
    * 
    */

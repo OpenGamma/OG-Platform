@@ -13,6 +13,6 @@ package com.opengamma.engine.position;
  */
 public interface Portfolio extends PortfolioNode {
   
-  String getName();
+  String getPortfolioName();
 
 }
