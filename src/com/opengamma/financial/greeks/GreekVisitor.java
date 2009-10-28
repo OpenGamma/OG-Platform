@@ -43,7 +43,7 @@ public interface GreekVisitor<T> {
 
   public T visitZetaBleed();
 
-  public T visitDDeltaDVar();
+  public T visitVarianceVanna();
 
   public T visitDeltaBleed();
 

@@ -33,7 +33,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
    * @param expiry
    * @param isCall
    */
-  public OptionDefinition(Double strike, Expiry expiry, Boolean isCall) {
+  public OptionDefinition(final Double strike, final Expiry expiry, final Boolean isCall) {
     _strike = strike;
     _expiry = expiry;
     _isCall = isCall;
@@ -63,7 +63,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
    * @param date
    * @return The time to expiry in years, where a year is defined as 365.25
    */
-  public double getTimeToExpiry(ZonedDateTime date) {
+  public double getTimeToExpiry(final ZonedDateTime date) {
     return DateUtil.getDifferenceInYears(date, getExpiry().getExpiry());
   }
 
@@ -117,7 +117,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (obj == null)

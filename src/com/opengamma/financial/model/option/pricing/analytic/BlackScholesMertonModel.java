@@ -108,12 +108,6 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     }
 
     @Override
-    public GreekResult<Double> visitDDeltaDVar() {
-      final double value = -_s * _df * _normal.getPDF(_d1) * _d2 / (2 * _sigma * _sigma);
-      return new SingleGreekResult(value);
-    }
-
-    @Override
     public GreekResult<Double> visitDelta() {
       final double value = _df * (_isCall ? _normal.getCDF(_d1) : _normal.getCDF(_d1) - 1);
       return new SingleGreekResult(value);
@@ -234,6 +228,12 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     @Override
     public GreekResult<Double> visitVarianceUltima() {
       final double value = _s * _df * Math.sqrt(_t) / (8 * Math.pow(_sigma, 5)) * _normal.getPDF(_d1) * ((_d1 * _d2 - 1) * (_d1 * _d2 - 3) - (_d1 * _d1 + _d2 * _d2));
+      return new SingleGreekResult(value);
+    }
+
+    @Override
+    public GreekResult<Double> visitVarianceVanna() {
+      final double value = -_s * _df * _normal.getPDF(_d1) * _d2 / (2 * _sigma * _sigma);
       return new SingleGreekResult(value);
     }
 

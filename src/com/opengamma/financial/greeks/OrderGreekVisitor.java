@@ -57,7 +57,7 @@ public class OrderGreekVisitor implements GreekVisitor<Order> {
   }
 
   @Override
-  public Order visitDDeltaDVar() {
+  public Order visitVarianceVanna() {
     // TODO Auto-generated method stub
     return null;
   }

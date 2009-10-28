@@ -130,8 +130,8 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
       final double r = _data.getInterestRate(t);
       final DiscountCurve upCurve = new ConstantInterestRateDiscountCurve(r + EPS);
       final DiscountCurve downCurve = new ConstantInterestRateDiscountCurve(r - EPS);
-      final S dataUp = (S) new StandardOptionDataBundle(upCurve, _data.getCostOfCarry(), _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
-      final S dataDown = (S) new StandardOptionDataBundle(downCurve, _data.getCostOfCarry(), _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
+      final S dataUp = (S) new StandardOptionDataBundle(upCurve, _data.getCostOfCarry() + EPS, _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
+      final S dataDown = (S) new StandardOptionDataBundle(downCurve, _data.getCostOfCarry() - EPS, _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
       return new SingleGreekResult(getFirstDerivative(dataUp, dataDown));
     }
 
@@ -171,21 +171,6 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
     }
 
     @Override
-    public GreekResult<?> visitDDeltaDVar() {
-      final double k = _definition.getStrike();
-      final double t = _definition.getTimeToExpiry(_data.getDate());
-      final double sigma = _data.getVolatility(t, k);
-      final double variance = sigma * sigma;
-      final VolatilitySurface upSurface = new ConstantVolatilitySurface(Math.sqrt(variance + EPS));
-      final VolatilitySurface downSurface = new ConstantVolatilitySurface(Math.sqrt(variance - EPS));
-      final S dataUp1Up2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), upSurface, _data.getSpot() + EPS, _data.getDate());
-      final S dataUp1Down2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), upSurface, _data.getSpot() - EPS, _data.getDate());
-      final S dataDown1Up2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), downSurface, _data.getSpot() + EPS, _data.getDate());
-      final S dataDown1Down2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), downSurface, _data.getSpot() - EPS, _data.getDate());
-      return new SingleGreekResult(getMixedSecondDerivative(dataUp1Up2, dataUp1Down2, dataDown1Up2, dataDown1Down2));
-    }
-
-    @Override
     public GreekResult<?> visitDZetaDVol() {
       final double s = _data.getSpot();
       final double k = _definition.getStrike();
@@ -201,8 +186,6 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
     // TODO need to use forward differencing for dt?
     @Override
     public GreekResult<?> visitDeltaBleed() {
-      final double t = _definition.getTimeToExpiry(_data.getDate());
-      final double sigma = _data.getVolatility(t, _definition.getStrike());
       final ZonedDateTime dateUp = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), EPS);
       final ZonedDateTime dateDown = DateUtil.getDateOffsetWithYearFraction(_data.getDate(), -EPS);
       final S dataUp1Up2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), _data.getVolatilitySurface(), _data.getSpot() + EPS, dateUp);
@@ -214,11 +197,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
 
     @Override
     public GreekResult<?> visitDriftlessTheta() {
-      final ZonedDateTime date = _data.getDate();
-      final ZonedDateTime offset = DateUtil.getDateOffsetWithYearFraction(date, EPS);
-      final S dataUp = (S) new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.), 0., _data.getVolatilitySurface(), _data.getSpot(), offset);
-      final S data = (S) new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.), 0., _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
-      return new SingleGreekResult(getForwardFirstDerivative(dataUp, data));
+      return null;
     }
 
     @Override
@@ -321,8 +300,21 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
           _data.getSpot(), _data.getDate());
       final S dataDown = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), new ConstantVolatilitySurface(Math.sqrt(variance - EPS)), _data
           .getSpot(), _data.getDate());
-      ;
       return new SingleGreekResult(getThirdDerivative(dataUpUp, dataUp, _data, dataDown));
+    }
+
+    @Override
+    public GreekResult<?> visitVarianceVanna() {
+      final double t = _definition.getTimeToExpiry(_data.getDate());
+      final double sigma = _data.getVolatility(t, _definition.getStrike());
+      final double variance = sigma * sigma;
+      final VolatilitySurface upSurface = new ConstantVolatilitySurface(Math.sqrt(variance + EPS));
+      final VolatilitySurface downSurface = new ConstantVolatilitySurface(Math.sqrt(variance - EPS));
+      final S dataUp1Up2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), upSurface, _data.getSpot() + EPS, _data.getDate());
+      final S dataUp1Down2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), upSurface, _data.getSpot() - EPS, _data.getDate());
+      final S dataDown1Up2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), downSurface, _data.getSpot() + EPS, _data.getDate());
+      final S dataDown1Down2 = (S) new StandardOptionDataBundle(_data.getDiscountCurve(), _data.getCostOfCarry(), downSurface, _data.getSpot() - EPS, _data.getDate());
+      return new SingleGreekResult(_data.getSpot() * getMixedSecondDerivative(dataUp1Up2, dataUp1Down2, dataDown1Up2, dataDown1Down2));
     }
 
     @Override
@@ -425,8 +417,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
 
     @Override
     public GreekResult<?> visitZommaP() {
-      // TODO Auto-generated method stub
-      return null;
+      return new SingleGreekResult(((SingleGreekResult) visitZomma()).getResult() * _data.getSpot() / 100);
     }
 
     @Override

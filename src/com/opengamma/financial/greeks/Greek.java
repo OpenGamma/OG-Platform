@@ -144,14 +144,6 @@ public enum Greek {
    * Second order greeks
    * 
    */
-  DDELTA_DVAR {
-
-    @Override
-    public <T> T accept(final GreekVisitor<T> visitor) {
-      return visitor.visitDDeltaDVar();
-    }
-
-  },
   DELTA_BLEED {
 
     @Override
@@ -188,6 +180,14 @@ public enum Greek {
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVanna();
     }
+  },
+  VARIANCE_VANNA {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      return visitor.visitVarianceVanna();
+    }
+
   },
   VARIANCE_VOMMA {
 
