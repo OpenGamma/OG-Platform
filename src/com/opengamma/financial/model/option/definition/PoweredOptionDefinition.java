@@ -18,7 +18,24 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class PoweredOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+public class PoweredOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+
+    @Override
+    public Double evaluate(final StandardOptionDataBundle data) {
+      final double spot = data.getSpot();
+      return isCall() ? Math.pow(Math.max(0, spot - getStrike()), getPower()) : Math.pow(Math.max(0, getStrike() - spot), getPower());
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+      return false;
+    }
+
+  };
   private final double _power;
 
   /**
@@ -28,31 +45,9 @@ public class PoweredOptionDefinition extends OptionDefinition<StandardOptionData
    * @param power
    * @param isCall
    */
-  public PoweredOptionDefinition(double strike, Expiry expiry, double power, boolean isCall) {
+  public PoweredOptionDefinition(final double strike, final Expiry expiry, final double power, final boolean isCall) {
     super(strike, expiry, isCall);
     _power = power;
-  }
-
-  @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
-
-      @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        final double spot = data.getSpot();
-        return isCall() ? Math.pow(Math.max(0, spot - getStrike()), getPower()) : Math.pow(Math.max(0, getStrike() - spot), getPower());
-      }
-
-    };
-
-    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundle data) {
-        return false;
-      }
-
-    };
   }
 
   /**
@@ -61,5 +56,39 @@ public class PoweredOptionDefinition extends OptionDefinition<StandardOptionData
    */
   public double getPower() {
     return _power;
+  }
+
+  @Override
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
+  }
+
+  @Override
+  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+    return _payoffFunction;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_power);
+    result = prime * result + (int) (temp ^ temp >>> 32);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (!super.equals(obj))
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final PoweredOptionDefinition other = (PoweredOptionDefinition) obj;
+    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power))
+      return false;
+    return true;
   }
 }

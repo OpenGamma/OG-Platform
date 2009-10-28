@@ -21,6 +21,14 @@ public class StandardOptionDataBundle {
     _date = date;
   }
 
+  public StandardOptionDataBundle(final StandardOptionDataBundle data) {
+    _discountCurve = data.getDiscountCurve();
+    _b = data.getCostOfCarry();
+    _volatilitySurface = data.getVolatilitySurface();
+    _spot = data.getSpot();
+    _date = data.getDate();
+  }
+
   public Double getInterestRate(final Double t) {
     return getDiscountCurve().getInterestRate(t);
   }
@@ -47,6 +55,26 @@ public class StandardOptionDataBundle {
 
   public ZonedDateTime getDate() {
     return _date;
+  }
+
+  public StandardOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+    return new StandardOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate());
+  }
+
+  public StandardOptionDataBundle withCostOfCarry(final double costOfCarry) {
+    return new StandardOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate());
+  }
+
+  public StandardOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate());
+  }
+
+  public StandardOptionDataBundle withSpot(final double spot) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
+  }
+
+  public StandardOptionDataBundle withDate(final ZonedDateTime date) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date);
   }
 
   @Override

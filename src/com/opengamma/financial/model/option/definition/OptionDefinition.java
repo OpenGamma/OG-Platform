@@ -20,12 +20,10 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
+public abstract class OptionDefinition {
   private final Double _strike;
   private final Expiry _expiry;
   private final Boolean _isCall;
-  protected Function1D<T, Boolean> _exerciseFunction;
-  protected Function1D<T, Double> _payoffFunction;
 
   /**
    * 
@@ -37,10 +35,7 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
     _strike = strike;
     _expiry = expiry;
     _isCall = isCall;
-    initPayoffAndExerciseFunctions();
   }
-
-  protected abstract void initPayoffAndExerciseFunctions();
 
   /**
    * 
@@ -78,44 +73,25 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
   /**
    * 
    * @return The exercise function.
-   * @throws IllegalArgumentException
-   *           If the exercise function has not been initialised in the
-   *           descendant class.
    */
-  public Function1D<T, Boolean> getExerciseFunction() {
-    if (_exerciseFunction == null)
-      throw new IllegalArgumentException("Exercise function was not initialised");
-    return _exerciseFunction;
-  }
+  public abstract <T> Function1D<? super OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction();
 
   /**
    * 
    * @return The payoff function.
-   * @throws IllegalArgumentException
-   *           If the payoff function has not been initialised in the descendant
-   *           class.
    */
-  public Function1D<T, Double> getPayoffFunction() {
-    if (_payoffFunction == null)
-      throw new IllegalArgumentException("Payoff function was not initialised");
-    return _payoffFunction;
-  }
+  public abstract <T> Function1D<? super StandardOptionDataBundle, Double> getPayoffFunction();
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (_exerciseFunction == null ? 0 : _exerciseFunction.hashCode());
     result = prime * result + (_expiry == null ? 0 : _expiry.hashCode());
-    result = prime * result + (_isCall ? 1231 : 1237);
-    result = prime * result + (_payoffFunction == null ? 0 : _payoffFunction.hashCode());
-    long temp;
-    temp = Double.doubleToLongBits(_strike);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (_isCall == null ? 0 : _isCall.hashCode());
+    result = prime * result + (_strike == null ? 0 : _strike.hashCode());
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj)
@@ -125,24 +101,20 @@ public abstract class OptionDefinition<T extends StandardOptionDataBundle> {
     if (getClass() != obj.getClass())
       return false;
     final OptionDefinition other = (OptionDefinition) obj;
-    if (_exerciseFunction == null) {
-      if (other._exerciseFunction != null)
-        return false;
-    } else if (!_exerciseFunction.equals(other._exerciseFunction))
-      return false;
     if (_expiry == null) {
       if (other._expiry != null)
         return false;
     } else if (!_expiry.equals(other._expiry))
       return false;
-    if (_isCall != other._isCall)
-      return false;
-    if (_payoffFunction == null) {
-      if (other._payoffFunction != null)
+    if (_isCall == null) {
+      if (other._isCall != null)
         return false;
-    } else if (!_payoffFunction.equals(other._payoffFunction))
+    } else if (!_isCall.equals(other._isCall))
       return false;
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+    if (_strike == null) {
+      if (other._strike != null)
+        return false;
+    } else if (!_strike.equals(other._strike))
       return false;
     return true;
   }

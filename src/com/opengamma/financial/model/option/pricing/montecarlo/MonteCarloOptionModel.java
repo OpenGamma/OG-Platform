@@ -7,19 +7,19 @@ import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.financial.model.stochastic.StochasticProcess;
 import com.opengamma.financial.montecarlo.MonteCarlo;
 
-public abstract class MonteCarloOptionModel<U extends MonteCarlo<StochasticProcess>, T extends OptionDefinition<V>, V extends StandardOptionDataBundle> implements OptionModel<T, V> {
+public abstract class MonteCarloOptionModel<U extends MonteCarlo<StochasticProcess>, T extends OptionDefinition, V extends StandardOptionDataBundle> implements OptionModel<T, V> {
   private final int _n;
 
-  public MonteCarloOptionModel(int n) {
+  public MonteCarloOptionModel(final int n) {
     _n = n;
   }
 
-  public GreekResultCollection getGreeks(T definition, V vars) {
+  public GreekResultCollection getGreeks(final T definition, final V vars) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public double getPrice(T definition, V vars) {
+  public double getPrice(final T definition, final V vars) {
     /*
      * double r = vars.getInterestRate(); double t =
      * definition.getTimeToExpiry(date); double[] underlying =

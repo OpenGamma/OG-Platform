@@ -36,7 +36,7 @@ import com.opengamma.util.time.DateUtil;
  * 
  * @param <T>
  */
-public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
+public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 

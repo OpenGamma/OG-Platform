@@ -8,7 +8,6 @@ package com.opengamma.financial.model.option.definition;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.InstantProvider;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.Greek;
@@ -33,11 +32,29 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 
-public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+public class SimpleChooserOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+
+    @Override
+    public Double evaluate(final StandardOptionDataBundle data) {
+      final double callPrice = ((SingleGreekResult) BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.PRICE)).getResult();
+      final double putPrice = ((SingleGreekResult) BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.PRICE)).getResult();
+      return Math.max(callPrice, putPrice);
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+      return false;
+    }
+
+  };
   private final ZonedDateTime _chooseDate;
-  protected final EuropeanVanillaOptionDefinition _callDefinition;
-  protected final EuropeanVanillaOptionDefinition _putDefinition;
-  protected final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private final OptionDefinition _callDefinition;
+  private final OptionDefinition _putDefinition;
+  protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
 
   /**
@@ -48,7 +65,7 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
    * @param optionExpiry
    * @param vars
    */
-  public SimpleChooserOptionDefinition(double strike, Expiry underlyingExpiry, ZonedDateTime chooseDate) {
+  public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry, final ZonedDateTime chooseDate) {
     super(strike, underlyingExpiry, null);
     if (chooseDate.toInstant().isAfter(underlyingExpiry.toInstant()))
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
@@ -57,61 +74,47 @@ public class SimpleChooserOptionDefinition extends OptionDefinition<StandardOpti
     _putDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, false);
   }
 
-  @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
-
-      @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        final double callPrice = ((SingleGreekResult)BSM.getGreeks(_callDefinition, data, GREEKS).get(Greek.PRICE)).getResult();
-        final double putPrice = ((SingleGreekResult)BSM.getGreeks(_putDefinition, data, GREEKS).get(Greek.PRICE)).getResult();
-        return Math.max(callPrice, putPrice);
-      }
-
-    };
-
-    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundle data) {
-        return false;
-      }
-
-    };
-  }
-
-  public InstantProvider getChooseDate() {
+  public ZonedDateTime getChooseDate() {
     return _chooseDate;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
+  public OptionDefinition getCallDefinition() {
+    return _callDefinition;
+  }
+
+  public OptionDefinition getPutDefinition() {
+    return _putDefinition;
+  }
+
+  @Override
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
+  }
+
+  @Override
+  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+    return _payoffFunction;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result
-        + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
-    result = prime * result
-        + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
-    result = prime * result
-        + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
+    result = prime * result + (_callDefinition == null ? 0 : _callDefinition.hashCode());
+    result = prime * result + (_chooseDate == null ? 0 : _chooseDate.hashCode());
+    result = prime * result + (_putDefinition == null ? 0 : _putDefinition.hashCode());
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    SimpleChooserOptionDefinition other = (SimpleChooserOptionDefinition) obj;
+    final SimpleChooserOptionDefinition other = (SimpleChooserOptionDefinition) obj;
     if (_callDefinition == null) {
       if (other._callDefinition != null)
         return false;

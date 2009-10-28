@@ -32,15 +32,33 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+public class ComplexChooserOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+
+    @Override
+    public Double evaluate(final StandardOptionDataBundle data) {
+      final double callPrice = ((SingleGreekResult) BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.PRICE)).getResult();
+      final double putPrice = ((SingleGreekResult) BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.PRICE)).getResult();
+      return Math.max(callPrice, putPrice);
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+      return false;
+    }
+
+  };
   private final double _callStrike;
   private final double _putStrike;
   private final ZonedDateTime _chooseDate;
   private final Expiry _callExpiry;
   private final Expiry _putExpiry;
-  protected final EuropeanVanillaOptionDefinition _callDefinition;
-  protected final EuropeanVanillaOptionDefinition _putDefinition;
-  protected final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private final OptionDefinition _callDefinition;
+  private final OptionDefinition _putDefinition;
+  protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
 
   /**
@@ -52,7 +70,8 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
    * @param callExpiry
    * @param putExpiry
    */
-  public ComplexChooserOptionDefinition(double callStrike, double putStrike, Expiry expiry, ZonedDateTime chooseDate, Expiry callExpiry, Expiry putExpiry) {
+  public ComplexChooserOptionDefinition(final double callStrike, final double putStrike, final Expiry expiry, final ZonedDateTime chooseDate, final Expiry callExpiry,
+      final Expiry putExpiry) {
     super(null, expiry, null);
     if (chooseDate.toInstant().isAfter(expiry.toInstant()))
       throw new IllegalArgumentException("Option expiry must be after the choice date");
@@ -63,29 +82,6 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
     _putExpiry = putExpiry;
     _callDefinition = new EuropeanVanillaOptionDefinition(callStrike, callExpiry, true);
     _putDefinition = new EuropeanVanillaOptionDefinition(putStrike, putExpiry, false);
-  }
-
-  @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
-
-      @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        final double callPrice = ((SingleGreekResult)(BSM.getGreeks(_callDefinition, data, GREEKS).get(Greek.PRICE))).getResult();
-        final double putPrice = ((SingleGreekResult)(BSM.getGreeks(_putDefinition, data, GREEKS).get(Greek.PRICE))).getResult();
-        return Math.max(callPrice, putPrice);
-      }
-
-    };
-
-    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundle data) {
-        return false;
-      }
-
-    };
   }
 
   public double getCallStrike() {
@@ -108,43 +104,50 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
     return _putExpiry;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
+  public OptionDefinition getCallDefinition() {
+    return _callDefinition;
+  }
+
+  public OptionDefinition getPutDefinition() {
+    return _putDefinition;
+  }
+
+  @Override
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
+  }
+
+  @Override
+  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+    return _payoffFunction;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result
-        + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
-    result = prime * result
-        + ((_callExpiry == null) ? 0 : _callExpiry.hashCode());
+    result = prime * result + (_callDefinition == null ? 0 : _callDefinition.hashCode());
+    result = prime * result + (_callExpiry == null ? 0 : _callExpiry.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_callStrike);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result
-        + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
-    result = prime * result
-        + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
-    result = prime * result
-        + ((_putExpiry == null) ? 0 : _putExpiry.hashCode());
+    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (_chooseDate == null ? 0 : _chooseDate.hashCode());
+    result = prime * result + (_putDefinition == null ? 0 : _putDefinition.hashCode());
+    result = prime * result + (_putExpiry == null ? 0 : _putExpiry.hashCode());
     temp = Double.doubleToLongBits(_putStrike);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    ComplexChooserOptionDefinition other = (ComplexChooserOptionDefinition) obj;
+    final ComplexChooserOptionDefinition other = (ComplexChooserOptionDefinition) obj;
     if (_callDefinition == null) {
       if (other._callDefinition != null)
         return false;
@@ -155,8 +158,7 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
         return false;
     } else if (!_callExpiry.equals(other._callExpiry))
       return false;
-    if (Double.doubleToLongBits(_callStrike) != Double
-        .doubleToLongBits(other._callStrike))
+    if (Double.doubleToLongBits(_callStrike) != Double.doubleToLongBits(other._callStrike))
       return false;
     if (_chooseDate == null) {
       if (other._chooseDate != null)
@@ -173,8 +175,7 @@ public class ComplexChooserOptionDefinition extends OptionDefinition<StandardOpt
         return false;
     } else if (!_putExpiry.equals(other._putExpiry))
       return false;
-    if (Double.doubleToLongBits(_putStrike) != Double
-        .doubleToLongBits(other._putStrike))
+    if (Double.doubleToLongBits(_putStrike) != Double.doubleToLongBits(other._putStrike))
       return false;
     return true;
   }

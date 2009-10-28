@@ -35,11 +35,11 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class AnalyticOptionModelTest {
-  protected static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> DUMMY_MODEL = new AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle>() {
+  protected static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> DUMMY_MODEL = new AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle>() {
 
     @Override
-    public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+    public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
       return BSM.getPricingFunction(definition);
     }
   };
@@ -51,7 +51,7 @@ public class AnalyticOptionModelTest {
       DATE);
   private static final double EPS = 1e-2;
 
-  public <S extends OptionDefinition<?>, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {
+  public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {
     try {
       model.getPricingFunction(null);
       fail();

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.regression.AdaptiveLeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegression;
@@ -22,7 +23,7 @@ import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
 
 public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
   private static final Logger s_Log = LoggerFactory.getLogger(PractitionerBlackScholesVolatilitySurfaceModel.class);
-  private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+  private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   private final LeastSquaresRegression _regression = new AdaptiveLeastSquaresRegression(new OrdinaryLeastSquaresRegression(), 0.05);
 
   @Override
@@ -38,7 +39,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       k = entry.getKey().getStrike();
       t = entry.getKey().getTimeToExpiry(data.getDate());
       try {
-        sigma = _bsmVolatilityModel.getSurface(Collections.<EuropeanVanillaOptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(t, k);
+        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(t, k);
         if (k != null && t != null && sigma != null) {
           kList.add(k);
           tList.add(t);

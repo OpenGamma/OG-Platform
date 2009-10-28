@@ -22,31 +22,36 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition<StandardOptionDataBundleWithSpotTimeSeries> {
+public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> _payoffFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double>() {
 
-  public FloatingStrikeLookbackOptionDefinition(Expiry expiry, boolean isCall) {
+    @Override
+    public Double evaluate(final StandardOptionDataBundleWithSpotTimeSeries data) {
+      return isCall() ? data.getSpot() - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()) : DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries())
+          - data.getSpot();
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice x) {
+      return false;
+    }
+
+  };
+
+  public FloatingStrikeLookbackOptionDefinition(final Expiry expiry, final boolean isCall) {
     super(null, expiry, isCall);
   }
 
   @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double>() {
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
+  }
 
-      @Override
-      public Double evaluate(StandardOptionDataBundleWithSpotTimeSeries data) {
-        return isCall() ? data.getSpot() - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()) : DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries())
-            - data.getSpot();
-      }
-
-    };
-
-    _exerciseFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundleWithSpotTimeSeries x) {
-        return false;
-      }
-
-    };
+  @Override
+  public Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> getPayoffFunction() {
+    return _payoffFunction;
   }
 }

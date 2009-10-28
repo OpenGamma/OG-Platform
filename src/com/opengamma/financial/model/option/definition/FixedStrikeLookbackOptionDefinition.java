@@ -17,32 +17,36 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class FixedStrikeLookbackOptionDefinition extends OptionDefinition<StandardOptionDataBundleWithSpotTimeSeries> {
+public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> _payoffFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double>() {
 
-  public FixedStrikeLookbackOptionDefinition(double strike, Expiry expiry, boolean isCall) {
+    @Override
+    public Double evaluate(final StandardOptionDataBundleWithSpotTimeSeries data) {
+      return isCall() ? Math.max(0, DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries()) - getStrike()) : Math.max(0, getStrike()
+          - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()));
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice x) {
+      return false;
+    }
+
+  };
+
+  public FixedStrikeLookbackOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
     super(strike, expiry, isCall);
   }
 
   @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double>() {
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
+  }
 
-      @Override
-      public Double evaluate(StandardOptionDataBundleWithSpotTimeSeries data) {
-        return isCall() ? Math.max(0, DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries()) - getStrike()) : Math.max(0, getStrike()
-            - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()));
-      }
-
-    };
-
-    _exerciseFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundleWithSpotTimeSeries x) {
-        return false;
-      }
-
-    };
-
+  @Override
+  public Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> getPayoffFunction() {
+    return _payoffFunction;
   }
 }

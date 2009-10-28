@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -22,6 +21,7 @@ import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.PoweredOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
@@ -35,7 +35,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class PoweredOptionModelTest {
   private static final AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> POWERED_MODEL = new PoweredOptionModel();
-  private static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
@@ -51,7 +51,7 @@ public class PoweredOptionModelTest {
     try {
       POWERED_MODEL.getGreeks(new PoweredOptionDefinition(100, EXPIRY, 1.3, true), null, REQUIRED_GREEKS);
       fail();
-    } catch (OptionPricingException e) {
+    } catch (final OptionPricingException e) {
       // Expected
     }
   }
@@ -90,28 +90,28 @@ public class PoweredOptionModelTest {
     assertPriceEquals(definition, 0.3, 3745.1853);
   }
 
-  private void assertPriceEquals(PoweredOptionDefinition poweredDefinition, EuropeanVanillaOptionDefinition vanillaDefinition, double sigma) {
-    StandardOptionDataBundle bundle = getBundle(sigma);
-    GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
-    GreekResultCollection expected = BSM.getGreeks(vanillaDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult)actual.get(Greek.PRICE)).getResult(), ((SingleGreekResult)expected.get(Greek.PRICE)).getResult(), SMALL_EPS);
+  private void assertPriceEquals(final PoweredOptionDefinition poweredDefinition, final EuropeanVanillaOptionDefinition vanillaDefinition, final double sigma) {
+    final StandardOptionDataBundle bundle = getBundle(sigma);
+    final GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
+    final GreekResultCollection expected = BSM.getGreeks(vanillaDefinition, bundle, REQUIRED_GREEKS);
+    assertEquals(((SingleGreekResult) actual.get(Greek.PRICE)).getResult(), ((SingleGreekResult) expected.get(Greek.PRICE)).getResult(), SMALL_EPS);
   }
 
-  private void assertPriceEquals(PoweredOptionDefinition poweredDefinition, double sigma, double price) {
-    StandardOptionDataBundle bundle = getBundle(sigma);
-    GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult)actual.get(Greek.PRICE)).getResult(), price, BIG_EPS * price);
+  private void assertPriceEquals(final PoweredOptionDefinition poweredDefinition, final double sigma, final double price) {
+    final StandardOptionDataBundle bundle = getBundle(sigma);
+    final GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
+    assertEquals(((SingleGreekResult) actual.get(Greek.PRICE)).getResult(), price, BIG_EPS * price);
   }
 
-  private StandardOptionDataBundle getBundle(double sigma) {
+  private StandardOptionDataBundle getBundle(final double sigma) {
     return new StandardOptionDataBundle(CURVE, B, new ConstantVolatilitySurface(sigma), SPOT, DATE);
   }
 
-  private PoweredOptionDefinition getPoweredDefinition(double power, boolean isCall) {
+  private PoweredOptionDefinition getPoweredDefinition(final double power, final boolean isCall) {
     return new PoweredOptionDefinition(STRIKE, EXPIRY, power, isCall);
   }
 
-  private EuropeanVanillaOptionDefinition getVanillaOption(boolean isCall) {
+  private EuropeanVanillaOptionDefinition getVanillaOption(final boolean isCall) {
     return new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, isCall);
   }
 }

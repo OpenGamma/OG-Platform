@@ -17,47 +17,36 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class LogOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+public class LogOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
-  public LogOptionDefinition(double strike, Expiry expiry) {
+    @Override
+    public Double evaluate(final StandardOptionDataBundle data) {
+      final double spot = data.getSpot();
+      return Math.max(0, Math.log(spot / getStrike()));
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+      return false;
+    }
+
+  };
+
+  public LogOptionDefinition(final double strike, final Expiry expiry) {
     super(strike, expiry, null);
   }
 
   @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
-
-      @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        final double spot = data.getSpot();
-        return Math.max(0, Math.log(spot / getStrike()));
-      }
-
-    };
-
-    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundle data) {
-        return false;
-      }
-
-    };
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
   }
 
   @Override
-  public int hashCode() {
-    return super.hashCode() ^ 17;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (getClass() != obj.getClass())
-      return false;
-    if (this == obj)
-      return true;
-    if (!super.equals(obj))
-      return false;
-    return true;
+  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+    return _payoffFunction;
   }
 }

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.tree;
 
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -9,7 +14,7 @@ import com.opengamma.financial.model.option.pricing.OptionModel;
  * @author emcleod
  * 
  */
-public abstract class TreeOptionModel<T extends OptionDefinition<U>, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
+public abstract class TreeOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
   // TODO get trees
 }
