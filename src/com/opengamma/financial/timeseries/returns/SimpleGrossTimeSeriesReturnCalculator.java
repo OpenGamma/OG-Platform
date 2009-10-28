@@ -33,7 +33,7 @@ import com.opengamma.util.CalculationMode;
 
 public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
-  public SimpleGrossTimeSeriesReturnCalculator(CalculationMode mode) {
+  public SimpleGrossTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
   }
 
@@ -55,14 +55,17 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) {
-    if (x == null)
+  public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
+    if (x == null) {
       throw new TimeSeriesException("Time series array was null");
-    if (x.length == 0)
+    }
+    if (x.length == 0) {
       throw new TimeSeriesException("Need at least one time series to calculate return");
+    }
     final DoubleTimeSeries ts = x[0];
-    if (ts.size() < 2)
+    if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
+    }
     final DoubleTimeSeries d = x.length > 1 ? x[1] : null;
     final List<InstantProvider> times = new ArrayList<InstantProvider>();
     final List<Double> data = new ArrayList<Double>();
@@ -72,7 +75,7 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
     double dividend;
     while (iter.hasNext()) {
       entry = iter.next();
-      if (isValueNonZero(previousEntry.getValue())) {
+      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
         times.add(entry.getKey());
         try {
           dividend = d == null ? 0 : d.getDataPoint(entry.getKey());

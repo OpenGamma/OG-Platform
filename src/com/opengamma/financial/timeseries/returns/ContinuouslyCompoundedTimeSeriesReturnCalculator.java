@@ -56,13 +56,16 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    */
   @Override
   public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
-    if (x == null)
+    if (x == null) {
       throw new TimeSeriesException("Time series array was null");
-    if (x.length == 0)
+    }
+    if (x.length == 0) {
       throw new TimeSeriesException("Time series array was empty");
+    }
     final DoubleTimeSeries ts = x[0];
-    if (ts.size() < 2)
+    if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
+    }
     DoubleTimeSeries d = null;
     if (x.length > 1) {
       d = x[1];
@@ -75,8 +78,8 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
     double dividend;
     while (iter.hasNext()) {
       entry = iter.next();
-      times.add(entry.getKey());
-      if (isValueNonZero(previousEntry.getValue())) {
+      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
+        times.add(entry.getKey());
         try {
           dividend = d == null ? 0 : d.getDataPoint(entry.getKey());
           data.add(Math.log((entry.getValue() + dividend) / previousEntry.getValue()));

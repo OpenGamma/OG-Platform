@@ -72,8 +72,8 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     double dividend;
     while (iter.hasNext()) {
       entry = iter.next();
-      times.add(entry.getKey());
-      if (isValueNonZero(previousEntry.getValue())) {
+      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
+        times.add(entry.getKey());
         try {
           dividend = d == null ? 0 : d.getDataPoint(entry.getKey());
           data.add((entry.getValue() + dividend) / previousEntry.getValue() - 1);
@@ -82,7 +82,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
         } catch (final NoSuchElementException e) {
           data.add(entry.getValue() / previousEntry.getValue() - 1);
         }
-      }
+      } 
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(times, data);
