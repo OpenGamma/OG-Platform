@@ -35,8 +35,8 @@ public class EHCachingSecurityMasterTest {
   private SecurityMaster _underlyingSecMaster = null;
   private EHCachingSecurityMaster _cachingSecMaster = null;
   
-  DomainSpecificIdentifier _secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
-  DomainSpecificIdentifier _secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
+  private DomainSpecificIdentifier _secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
+  private DomainSpecificIdentifier _secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
 
   @Before
   public void setUp() throws Exception {    
