@@ -40,14 +40,14 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
   private final String _value;
 
   public DomainSpecificIdentifier(IdentificationDomain domain, String value) {
-    if(domain == null) {
-      throw new NullPointerException("Must provide a valid domain.");
-    }
-    if(value == null) {
-      throw new NullPointerException("Must provide a valid value.");
-    }
+    ArgumentChecker.checkNotNull(domain, "Identification Domain");
+    ArgumentChecker.checkNotNull(value, "Value");
     _domain = domain;
     _value = value;
+  }
+  
+  public DomainSpecificIdentifier(String domainName, String value) {
+    this(new IdentificationDomain(domainName), value);
   }
   
   public DomainSpecificIdentifier(FudgeFieldContainer fudgeMsg) {

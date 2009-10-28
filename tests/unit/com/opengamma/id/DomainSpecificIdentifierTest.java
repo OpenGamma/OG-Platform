@@ -24,12 +24,22 @@ public class DomainSpecificIdentifierTest {
   
   @Test(expected=NullPointerException.class)
   public void noDomainConstruction() {
-    new DomainSpecificIdentifier(null, "foo");
+    new DomainSpecificIdentifier((IdentificationDomain)null, "foo");
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void noDomainNameConstruction() {
+    new DomainSpecificIdentifier((String)null, "foo");
   }
 
   @Test(expected=NullPointerException.class)
   public void noValueConstruction() {
     new DomainSpecificIdentifier(new IdentificationDomain("Bloomberg"), null);
+  }
+  
+  @Test
+  public void domainNameOnlyConstruction() {
+    assertEquals(new IdentificationDomain("Bloomberg"), (new DomainSpecificIdentifier("Bloomberg", "foo")).getDomain());
   }
   
   @Test
