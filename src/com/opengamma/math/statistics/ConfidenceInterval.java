@@ -16,6 +16,12 @@ public class ConfidenceInterval {
   private final double _value;
 
   public ConfidenceInterval(final double value, final double lower, final double upper, final double confidenceLevel) {
+    if (confidenceLevel < 0 || confidenceLevel > 1)
+      throw new IllegalArgumentException("Confidence level must be in the range 0 <= x <= 1");
+    if (value < lower)
+      throw new IllegalArgumentException("Lower bound must be less than the value");
+    if (value > upper)
+      throw new IllegalArgumentException("Upper bound must be greater than the value");
     _value = value;
     _lower = lower;
     _upper = upper;
@@ -38,8 +44,8 @@ public class ConfidenceInterval {
     return _confidenceLevel;
   }
 
-  public boolean isWithinInterval(final double value) {
-    return value > _lower || value < _upper;
+  public boolean isWithinInterval(final double x) {
+    return x > _lower && x < _upper;
   }
 
   @Override

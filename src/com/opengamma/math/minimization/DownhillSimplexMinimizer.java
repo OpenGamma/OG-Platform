@@ -1,120 +1,146 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.minimization;
 
 import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.function.Function;
-import com.opengamma.util.CompareUtils;
+import com.opengamma.math.function.FunctionND;
 
 /**
  * 
  * @author emcleod
- * 
  */
-
-public class DownhillSimplexMinimizer implements MultidimensionalMinimizer<Double> {
-  private final double _eps = 1e-9;
-  private final int _maxIter = 100;
+public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
+  private static final double DELTA = Math.random();
+  private static final double EPS = 1e-12;
+  private static final double OFFSET = 1e-15;
+  private static final int MAX_FUNCTION_EVAL = 5000;
 
   @Override
-  public Double[] minimize(Function<Double, Double> f, Double[] initialPoints) {
-    int n = initialPoints.length;
-    Double[][] simplex = getSimplex(initialPoints);
-    Double[] sumX = getSumX(simplex);
-    Double[] y = new Double[n + 1];
-    for (int i = 0; i <= n; i++) {
-      y[i] = f.evaluate(simplex[i]);
-    }
-    int iLow = 0;
-    int iHigh, inHigh;
+  public Double[] minimize(final FunctionND<Double, Double> f, final Double[][] initialPoints) {
+    checkInputs(f, initialPoints, 1);
+    final int dim = f.getDimension();
+    final int n = dim + 1;
+    final Double[][] p = getInitialSimplex(initialPoints, dim, n);
+    final Double[] y = getFunctionValues(f, n, p);
+    Double[] pSum = getPSum(p, dim, n);
+    final Double[] pMin = new Double[dim];
+    int evaluationCount = 0;
+    int iHigh, iLow;
     double diff, newY, tempY;
-    for (int ii = 0; ii < _maxIter; ii++) {
-      iHigh = y[0] > y[1] ? 0 : 1;
-      inHigh = iHigh == 1 ? 0 : 1;
-      for (int i = 0; i <= n; i++) {
-        if (y[i] <= y[iLow]) {
-          iLow = i;
+    while (evaluationCount < MAX_FUNCTION_EVAL) {
+      final int[] indices = getIndices(y, n);
+      iLow = indices[0];
+      iHigh = indices[1];
+      diff = 2 * Math.abs(y[iHigh] - y[iLow]) / (Math.abs(y[iHigh]) + Math.abs(y[iLow]) + OFFSET);
+      if (diff < EPS) {
+        for (int i = 0; i < dim; i++) {
+          pMin[i] = p[iLow][i];
         }
-        if (y[i] > y[iHigh]) {
-          inHigh = iHigh;
-          iHigh = i;
-        } else if (y[i] > y[inHigh] && i != iHigh) {
-          inHigh = i;
-        }
+        return pMin;
       }
-      System.out.println(ii + " " + y[iLow]);
-      diff = 2 * Math.abs(y[iHigh] - y[iLow]) / (Math.abs(y[iHigh]) + Math.abs(y[iLow]) + _eps);
-      if (diff < _eps) {
-        return simplex[iLow];
-      }
-      newY = getExtrapolatedPoint(simplex, y, sumX, iHigh, -1.0, f);
-      if (newY < y[iLow]) {
-        newY = getExtrapolatedPoint(simplex, y, sumX, iHigh, 2.0, f);
-      } else if (newY >= y[inHigh]) {
+      evaluationCount += 2;
+      newY = getExtrapolatedValues(p, y, pSum, iHigh, -1., f, dim);
+      if (newY <= y[iLow]) {
+        newY = getExtrapolatedValues(p, y, pSum, iHigh, 2, f, dim);
+      } else if (newY >= y[iHigh]) {
         tempY = y[iHigh];
-        newY = getExtrapolatedPoint(simplex, y, sumX, iHigh, 0.5, f);
-        if (newY >= tempY) {
-          System.out.println("---------------------------------------" + iLow);
+        newY = getExtrapolatedValues(p, y, pSum, iHigh, 0.5, f, dim);
+        if (newY > tempY) {
           for (int i = 0; i < n; i++) {
             if (i != iLow) {
-              for (int j = 0; j < n - 1; j++) {
-                simplex[i][j] = 0.5 * (simplex[i][j] + simplex[iLow][j]);
+              for (int j = 0; j < dim; j++) {
+                pSum[j] = 0.5 * (p[i][j] + p[iLow][j]);
+                p[i][j] = pSum[j];
               }
-              sumX = simplex[i];
-              y[i] = f.evaluate(sumX);
+              y[i] = f.evaluate(pSum);
             }
           }
-          sumX = getSumX(simplex);
+          evaluationCount += dim;
+          pSum = getPSum(p, dim, n);
         }
+      } else {
+        --evaluationCount;
       }
     }
-    throw new ConvergenceException();
+    throw new ConvergenceException("Could not converge in " + MAX_FUNCTION_EVAL + " function evaluations");
   }
 
-  private Double getExtrapolatedPoint(Double[][] simplex, Double[] y, Double[] sumX, int iHigh, double factor, Function<Double, Double> f) {
-    int n = simplex.length - 1;
-    Double[] newX = new Double[n];
-    double factor1 = (1 - factor) / n;
-    double factor2 = factor1 - factor;
+  private Double[][] getInitialSimplex(final Double[][] initialPoints, final int dim, final int n) {
+    final Double[][] p = new Double[n][dim];
     for (int i = 0; i < n; i++) {
-      newX[i] = sumX[i] * factor1 - simplex[iHigh][i] * factor2;
+      for (int j = 0; j < dim; j++) {
+        p[i][j] = initialPoints[0][j];
+      }
+      if (i != 0) {
+        p[i][i - 1] += DELTA;
+      }
     }
-    double newY = f.evaluate(newX);
+    return p;
+  }
+
+  private Double[] getPSum(final Double[][] p, final int ndim, final int mpts) {
+    final Double[] psum = new Double[ndim];
+    for (int j = 0; j < ndim; j++) {
+      double sum = 0;
+      for (int i = 0; i < mpts; i++) {
+        sum += p[i][j];
+      }
+      psum[j] = sum;
+    }
+    return psum;
+  }
+
+  private double getExtrapolatedValues(final Double[][] p, final Double[] y, final Double[] pSum, final int iHigh, final double scaleFactor, final FunctionND<Double, Double> f,
+      final int dim) {
+    final Double[] newP = new Double[dim];
+    final double scaleFactor1 = (1 - scaleFactor) / dim;
+    final double scaleFactor2 = scaleFactor1 - scaleFactor;
+    for (int j = 0; j < dim; j++) {
+      newP[j] = pSum[j] * scaleFactor1 - p[iHigh][j] * scaleFactor2;
+    }
+    final double newY = f.evaluate(newP);
     if (newY < y[iHigh]) {
       y[iHigh] = newY;
-      for (int i = 0; i < n; i++) {
-        sumX[i] += newX[i] - simplex[iHigh][i];
-        simplex[iHigh][i] = newX[i];
+      for (int j = 0; j < dim; j++) {
+        pSum[j] += newP[j] - p[iHigh][j];
+        p[iHigh][j] = newP[j];
       }
     }
     return newY;
   }
 
-  private Double[][] getSimplex(Double[] initialPoints) {
-    int n = initialPoints.length + 1;
-    Double[][] result = new Double[n][n - 1];
+  private Double[] getFunctionValues(final FunctionND<Double, Double> f, final int n, final Double[][] p) {
+    final Double[] y = new Double[n];
     for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n - 1; j++) {
-        result[i][j] = initialPoints[j];
-        if (i > 0 && j == i - 1) {
-          if (CompareUtils.closeEquals(result[i][j], 0)) {
-            result[i][j] = 0.05;
-          }
-          result[i][j] *= 1.05;
-        }
-      }
+      y[i] = f.evaluate(p[i]);
     }
-    return result;
+    return y;
   }
 
-  private Double[] getSumX(Double[][] simplex) {
-    Double[] result = new Double[simplex.length];
-    double sum;
-    for (int i = 0; i < simplex.length; i++) {
-      sum = 0;
-      for (int j = 0; j < simplex[0].length; j++) {
-        sum += simplex[i][j];
-      }
-      result[i] = sum;
+  private int[] getIndices(final Double[] y, final int n) {
+    int iLow, iHigh, iNextHigh;
+    iLow = 0;
+    if (y[0] > y[1]) {
+      iHigh = 0;
+      iNextHigh = 1;
+    } else {
+      iHigh = 1;
+      iNextHigh = 0;
     }
-    return result;
+    for (int i = 0; i < n; i++) {
+      if (y[i] <= y[iLow]) {
+        iLow = i;
+      }
+      if (y[i] > y[iHigh]) {
+        iNextHigh = iHigh;
+        iHigh = i;
+      } else if (y[i] > y[iNextHigh] && i != iHigh) {
+        iNextHigh = i;
+      }
+    }
+    return new int[] { iLow, iHigh };
   }
 }

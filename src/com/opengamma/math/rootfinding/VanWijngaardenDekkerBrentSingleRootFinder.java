@@ -1,64 +1,74 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.MathException;
-import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 
-public class VanWijngaardenDekkerBrentSingleRootFinder implements DoubleSingleRootFinder {
+/**
+ * 
+ * @author emcleod
+ */
+public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFinder {
+  private final double _accuracy;
+  private static final int MAX_ITER = 100;
+  private static final double ZERO = 1e-16;
+
+  public VanWijngaardenDekkerBrentSingleRootFinder() {
+    _accuracy = 1e-9;
+  }
+
+  public VanWijngaardenDekkerBrentSingleRootFinder(final double accuracy) {
+    _accuracy = accuracy;
+  }
 
   @Override
-  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) {
-    if (accuracy == null)
-      throw new IllegalArgumentException("Accuracy was null");
-    double a = xLow;
-    double b = xHigh;
-    double c = b;
-    double yA = function.evaluate(a);
-    double yB = function.evaluate(b);
-    if (Math.abs(yA) < accuracy)
-      return xHigh;
-    if (Math.abs(yB) < accuracy)
-      return xLow;
-    if (yA * yB >= 0)
-      throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
-    double yC = yB;
-    double d, e, p, q, r, s, tolerance, xMid, min1, min2;
-    d = b - a;
-    e = d;
-    for (int i = 0; i < MAX_ATTEMPTS; i++) {
-      if ((yB > 0 && yC > 0) || (yB < 0 && yC < 0)) {
+  public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
+    checkInputs(function, x1, x2);
+    double a = x1, b = x2, c = x2, d = 0, e = 0;
+    double fa = function.evaluate(a);
+    double fb = function.evaluate(b);
+    if (fa > 0 && fb > 0 || fa < 0 && fb < 0)
+      throw new RootNotFoundException("Root was not bracketed by " + x1 + " and " + x2);
+    double fc = fb;
+    double p, q, r, s, eps, xMid, min1, min2;
+    for (int i = 0; i < MAX_ITER; i++) {
+      if (fb > 0 && fc > 0 || fb < 0 && fc < 0) {
         c = a;
-        yC = yA;
+        fc = fa;
         d = b - a;
         e = d;
       }
-      if (Math.abs(yC) < Math.abs(yB)) {
+      if (Math.abs(fc) < Math.abs(fb)) {
         a = b;
         b = c;
         c = a;
-        yA = yB;
-        yB = yC;
-        yC = yA;
+        fa = fb;
+        fb = fc;
+        fc = fa;
       }
-      tolerance = 2 * accuracy * Math.abs(b) + 0.5 * accuracy;
+      eps = 2 * ZERO * Math.abs(b) + 0.5 * _accuracy;
       xMid = 0.5 * (c - b);
-      if (Math.abs(xMid) <= tolerance || Math.abs(yB) < ZERO)
+      if (Math.abs(xMid) <= eps || Math.abs(fb) <= ZERO)
         return b;
-      if (Math.abs(e) >= tolerance && Math.abs(yA) > Math.abs(yB)) {
-        s = yB / yA;
+      if (Math.abs(e) >= eps && Math.abs(fa) > Math.abs(fb)) {
+        s = fb / fa;
         if (Math.abs(a - c) < ZERO) {
           p = 2 * xMid * s;
           q = 1 - s;
         } else {
-          q = yA / yC;
-          r = yB / yC;
-          p = s * (2 * xMid * q * (r - q) - (b - a) * (r - 1));
+          q = fa / fc;
+          r = fb / fc;
+          p = s * (2 * xMid * q * (q - r) - (b - a) * (r - 1));
           q = (q - 1) * (r - 1) * (s - 1);
         }
-        if (p > 0)
-          q = -q;
+        if (p > 0) {
+          q *= -1;
+        }
         p = Math.abs(p);
-        min1 = 3 * xMid * q - Math.abs(tolerance * q);
+        min1 = 3 * xMid * q - Math.abs(eps * q);
         min2 = Math.abs(e * q);
         if (2 * p < (min1 < min2 ? min1 : min2)) {
           e = d;
@@ -72,18 +82,17 @@ public class VanWijngaardenDekkerBrentSingleRootFinder implements DoubleSingleRo
         e = d;
       }
       a = b;
-      yA = yB;
-      if (Math.abs(d) > tolerance) {
+      fa = fb;
+      if (Math.abs(d) > eps) {
         b += d;
       } else {
-        b += adjustSign(tolerance, xMid);
-        yB = function.evaluate(b);
+        b += Math.copySign(eps, xMid);
+        fb = function.evaluate(b);
       }
+      fa = function.evaluate(a);
+      fb = function.evaluate(b);
+      fc = function.evaluate(c);
     }
-    throw new ConvergenceException(CONVERGENCE_STRING);
-  }
-
-  private double adjustSign(double x, double y) {
-    return Math.abs(x) * Math.signum(y);
+    throw new RootNotFoundException("Could not converge to root in " + MAX_ITER + " attempts");
   }
 }

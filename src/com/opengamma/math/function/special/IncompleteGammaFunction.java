@@ -21,6 +21,8 @@ public class IncompleteGammaFunction extends Function2D<Double, Double> {
   // TODO Gauss-Laguerre quadrature when a is large.
   @Override
   public Double evaluate(final Double a, final Double x) {
+    if (a <= 0)
+      throw new IllegalArgumentException("Cannot have a negative value for a");
     double sum, delta, ap;
     final double gammaLn = _lnGamma.evaluate(a);
     ap = a;

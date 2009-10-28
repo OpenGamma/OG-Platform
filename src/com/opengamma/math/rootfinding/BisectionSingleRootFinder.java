@@ -1,45 +1,58 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.ConvergenceException;
-import com.opengamma.math.MathException;
-import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 
 /**
  * 
  * @author emcleod
  * 
  */
-public class BisectionSingleRootFinder implements SingleRootFinder<Double, Double, Double> {
+public class BisectionSingleRootFinder extends RealSingleRootFinder {
+  private final double _accuracy;
+  private static final int MAX_ITER = 100;
+  private static final double ZERO = 1e-16;
+
+  public BisectionSingleRootFinder() {
+    _accuracy = 1e-9;
+  }
+
+  public BisectionSingleRootFinder(final double accuracy) {
+    _accuracy = Math.abs(accuracy);
+  }
 
   @Override
-  public Double getRoot(Function<Double, Double> function, Double xLow, Double xHigh, Double accuracy) {
-    if (accuracy == null)
-      throw new IllegalArgumentException("Accuracy was null");
-    double yLow = function.evaluate(xLow);
-    double y = function.evaluate(xHigh);
-    if (Math.abs(y) < accuracy)
-      return xHigh;
-    if (Math.abs(yLow) < accuracy)
-      return xLow;
-    if (yLow * y >= 0)
-      throw new MathException(xLow + " and " + xHigh + " do not bracket a root");
+  public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
+    final double y1 = function.evaluate(x1);
+    double y = function.evaluate(x2);
+    if (Math.abs(y) < _accuracy)
+      return x2;
+    if (Math.abs(y1) < _accuracy)
+      return x1;
+    if (y1 * y >= 0)
+      throw new RootNotFoundException(x1 + " and " + x2 + " do not bracket a root");
     double dx, xRoot, xMid;
-    if (yLow < 0) {
-      dx = xHigh - xLow;
-      xRoot = xLow;
+    if (y1 < 0) {
+      dx = x2 - x1;
+      xRoot = x1;
     } else {
-      dx = xLow - xHigh;
-      xRoot = xHigh;
+      dx = x1 - x2;
+      xRoot = x2;
     }
-    for (int i = 0; i < MAX_ATTEMPTS; i++) {
+    for (int i = 0; i < MAX_ITER; i++) {
       dx *= 0.5;
       xMid = xRoot + dx;
       y = function.evaluate(xMid);
-      if (y <= 0)
+      if (y <= 0) {
         xRoot = xMid;
-      if (Math.abs(dx) < accuracy || Math.abs(y) < ZERO)
+      }
+      if (Math.abs(dx) < _accuracy || Math.abs(y) < ZERO)
         return xRoot;
     }
-    throw new ConvergenceException(CONVERGENCE_STRING);
+    throw new RootNotFoundException("Could not find root in " + MAX_ITER + " attempts");
   }
 }

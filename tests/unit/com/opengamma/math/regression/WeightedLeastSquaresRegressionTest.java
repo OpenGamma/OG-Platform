@@ -15,15 +15,15 @@ import org.junit.Test;
  * @author emcleod
  */
 public class WeightedLeastSquaresRegressionTest {
+  private static final double EPS = 1e-6;
 
   @Test
   public void test() {
-    final double eps = 1e-9;
     final Double a0 = 2.3;
     final Double a1 = -4.5;
     final Double a2 = 0.76;
     final Double a3 = 3.4;
-    final int n = 10;
+    final int n = 30;
     final Double[][] x = new Double[n][3];
     final Double[] yIntercept = new Double[n];
     final Double[] yNoIntercept = new Double[n];
@@ -44,56 +44,50 @@ public class WeightedLeastSquaresRegressionTest {
       w1[i][i] = 1.;
       w2[i] = 1.;
     }
-    final WeightedLeastSquaresRegression regression = new WeightedLeastSquaresRegression();
+    final WeightedLeastSquaresRegression wlsRegression = new WeightedLeastSquaresRegression();
+    final OrdinaryLeastSquaresRegression olsRegression = new OrdinaryLeastSquaresRegression();
     try {
-      regression.regress(x, (Double[]) null, yNoIntercept, false);
+      wlsRegression.regress(x, (Double[]) null, yNoIntercept, false);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    LeastSquaresRegressionResult result = regression.regress(x, w1, yIntercept, true);
-    testRegression(4, 3, result, a0, a1, a2, a3, eps);
-    result = regression.regress(x, w1, yNoIntercept, false);
-    testRegression(3, result, a1, a2, a3, eps);
-    result = regression.regress(x, w2, yIntercept, true);
-    testRegression(4, 3, result, a0, a1, a2, a3, eps);
-    result = regression.regress(x, w2, yNoIntercept, false);
-    testRegression(3, result, a1, a2, a3, eps);
+    LeastSquaresRegressionResult wls = wlsRegression.regress(x, w1, yIntercept, true);
+    LeastSquaresRegressionResult ols = olsRegression.regress(x, yIntercept, true);
+    testRegressions(n, 4, wls, ols);
+    wls = wlsRegression.regress(x, w1, yNoIntercept, false);
+    ols = olsRegression.regress(x, yNoIntercept, false);
+    testRegressions(n, 3, wls, ols);
+    wls = wlsRegression.regress(x, w2, yIntercept, true);
+    ols = olsRegression.regress(x, yIntercept, true);
+    testRegressions(n, 4, wls, ols);
+    wls = wlsRegression.regress(x, w2, yNoIntercept, false);
+    ols = olsRegression.regress(x, yNoIntercept, false);
+    testRegressions(n, 3, wls, ols);
   }
 
-  private void testRegression(final int n, final int k, final LeastSquaresRegressionResult result, final double a0, final double a1, final double a2, final double a3,
-      final double eps) {
-    final Double[] betas = result.getBetas();
-    final Double[] residuals = result.getResiduals();
-    assertEquals(betas.length, n);
-    assertEquals(residuals.length, k);
-    assertEquals(betas[0], a0, eps);
-    assertEquals(betas[1], a1, eps);
-    assertEquals(betas[2], a2, eps);
-    assertEquals(betas[3], a3, eps);
-    testStatistics(result, eps);
-  }
-
-  private void testRegression(final int n, final LeastSquaresRegressionResult result, final double a1, final double a2, final double a3, final double eps) {
-    final Double[] betas = result.getBetas();
-    final Double[] residuals = result.getResiduals();
-    assertEquals(betas.length, n);
-    assertEquals(residuals.length, n);
-    assertEquals(betas[0], a1, eps);
-    assertEquals(betas[1], a2, eps);
-    assertEquals(betas[2], a3, eps);
-    testStatistics(result, eps);
-  }
-
-  private void testStatistics(final LeastSquaresRegressionResult result, final double eps) {
-    for (final double r : result.getResiduals()) {
-      assertEquals(r, 0, eps);
+  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1, final LeastSquaresRegressionResult regression2) {
+    final Double[] r1 = regression1.getResiduals();
+    final Double[] r2 = regression2.getResiduals();
+    for (int i = 0; i < n; i++) {
+      assertEquals(r1[i], r2[i], EPS);
     }
-    assertEquals(result.getMeanSquareError(), 0, eps);
-    assertEquals(result.getRSquared(), 0, eps);
-    assertEquals(result.getAdjustedRSquared(), 0, eps);
-    final Double[] tStats = result.getTStatistics();
-    final Double[] pValues = result.getPValues();
-    // TODO test t and p stats
+    final Double[] b1 = regression1.getBetas();
+    final Double[] t1 = regression1.getTStatistics();
+    final Double[] p1 = regression1.getPValues();
+    final Double[] s1 = regression1.getStandardErrorOfBetas();
+    final Double[] b2 = regression2.getBetas();
+    final Double[] t2 = regression2.getTStatistics();
+    final Double[] p2 = regression2.getPValues();
+    final Double[] s2 = regression2.getStandardErrorOfBetas();
+    for (int i = 0; i < k; i++) {
+      assertEquals(b1[i], b2[i], EPS);
+      assertEquals(t1[i], t2[i], EPS);
+      assertEquals(p1[i], p2[i], EPS);
+      assertEquals(s1[i], s2[i], EPS);
+    }
+    assertEquals(regression1.getRSquared(), regression2.getRSquared(), EPS);
+    assertEquals(regression1.getAdjustedRSquared(), regression2.getAdjustedRSquared(), EPS);
+    assertEquals(regression1.getMeanSquareError(), regression2.getMeanSquareError(), EPS);
   }
 }

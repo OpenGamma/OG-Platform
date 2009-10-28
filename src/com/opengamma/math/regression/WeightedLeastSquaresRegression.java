@@ -13,7 +13,9 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
-import cern.jet.stat.Probability;
+
+import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.TwoTailedStudentTDistribution;
 
 /**
  * 
@@ -69,31 +71,28 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     yMean /= y.length;
     Double totalSumOfSquares = 0.;
     Double errorSumOfSquares = 0.;
-    final Double regressionSumOfSquares = 0.;
     final int n = x.length;
-    final int k = x[0].length;
-    final Double[] residuals = new Double[k];
-    final Double[] stdErrorBetas = new Double[k];
+    final int k = betas.length;
+    final Double[] residuals = new Double[n];
+    final Double[] standardErrorsOfBeta = new Double[k];
     final Double[] tStats = new Double[k];
     final Double[] pValues = new Double[k];
-    for (int i = 0; i < k; i++) {
+    for (int i = 0; i < n; i++) {
       totalSumOfSquares += w[i][i] * (y[i] - yMean) * (y[i] - yMean);
       residuals[i] = y[i] - yModel[i];
       errorSumOfSquares += w[i][i] * residuals[i] * residuals[i];
     }
+    final Double regressionSumOfSquares = totalSumOfSquares - errorSumOfSquares;
     final Double[][] covarianceBetas = convertArray(_algebra.inverse(_algebra.mult(transpose, matrix)).toArray());
     final Double rSquared = regressionSumOfSquares / totalSumOfSquares;
-    final Double adjustedRSquared = 1 - (n - 1) / (n - k) * (1 - rSquared);
-    final Double meanSquareError = 0.;
-    final Double[] standardErrorOfBeta = null;
+    final Double adjustedRSquared = 1. - (1 - rSquared) * (n - 1) / (n - k);
+    final Double meanSquareError = errorSumOfSquares / (n - k);
+    final ProbabilityDistribution<Double> studentT = new TwoTailedStudentTDistribution(n - k);
     for (int i = 0; i < k; i++) {
-      stdErrorBetas[i] = Math.sqrt(covarianceBetas[i][i]);
-      tStats[i] = Math.sqrt(meanSquareError) * betas[i] / stdErrorBetas[i];
-      pValues[i] = Probability.studentT(n - k, tStats[i]);// new
-      // StudentTDistribution(n
-      // -
-      // k).getCDF(tStats[i]);
+      standardErrorsOfBeta[i] = Math.sqrt(meanSquareError * covarianceBetas[i][i]);
+      tStats[i] = betas[i] / standardErrorsOfBeta[i];
+      pValues[i] = 1 - studentT.getCDF(Math.abs(tStats[i]));
     }
-    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorOfBeta, rSquared, adjustedRSquared, tStats, pValues);
+    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorsOfBeta, rSquared, adjustedRSquared, tStats, pValues);
   }
 }

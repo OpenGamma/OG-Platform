@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.rootfinding;
 
 /**
@@ -10,15 +15,15 @@ public class RootNotFoundException extends RuntimeException {
     super();
   }
 
-  public RootNotFoundException(String s) {
+  public RootNotFoundException(final String s) {
     super(s);
   }
 
-  public RootNotFoundException(String s, Throwable cause) {
+  public RootNotFoundException(final String s, final Throwable cause) {
     super(s, cause);
   }
 
-  public RootNotFoundException(Throwable cause) {
+  public RootNotFoundException(final Throwable cause) {
     super(cause);
   }
 }

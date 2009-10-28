@@ -1,9 +1,13 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.function;
 
 /**
  * 
  * @author emcleod
- * 
  */
 public class PolynomialFunction1D extends Function1D<Double, Double> {
   private final Double[] _coefficients;
@@ -18,7 +22,7 @@ public class PolynomialFunction1D extends Function1D<Double, Double> {
    *          If a coefficient is zero, the value in the array must be zero; a
    *          null value will throw an exception.
    */
-  public PolynomialFunction1D(Double[] coefficients) {
+  public PolynomialFunction1D(final Double[] coefficients) {
     if (coefficients == null)
       throw new IllegalArgumentException("Coefficient array was null");
     if (coefficients.length == 0)
@@ -31,10 +35,10 @@ public class PolynomialFunction1D extends Function1D<Double, Double> {
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(final Double x) {
     if (x == null)
       throw new IllegalArgumentException("Null argument");
-    int n = _coefficients.length;
+    final int n = _coefficients.length;
     double y = _coefficients[n - 1].doubleValue();
     for (int i = n - 2; i >= 0; i--) {
       y = x * y + _coefficients[i];

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.math.differentiation;
 
 import java.util.Arrays;
@@ -15,59 +20,78 @@ public class FiniteDifferenceDifferentiation {
     FORWARD, CENTRAL, BACKWARD
   }
 
-  public static double getFirstOrder(Function<Double, Double> f, Double[] vars, int index, double eps, DifferenceType type) {
-    Double[] newVars = Arrays.copyOf(vars, vars.length);
+  public static double getFirstOrder(final Function<Double, Double> f, final Double[] vars, final int index, final double eps, final DifferenceType type) {
+    checkInputs(f, vars, index, type);
+    final Double[] newVars = Arrays.copyOf(vars, vars.length);
     if (type.equals(DifferenceType.FORWARD)) {
-      double original = f.evaluate(newVars);
+      final double original = f.evaluate(newVars);
       newVars[index] += eps;
-      double up = f.evaluate(newVars);
+      final double up = f.evaluate(newVars);
       return (up - original) / eps;
     } else if (type.equals(DifferenceType.BACKWARD)) {
-      double original = f.evaluate(newVars);
+      final double original = f.evaluate(newVars);
       newVars[index] -= eps;
-      double down = f.evaluate(newVars);
+      final double down = f.evaluate(newVars);
       return (original - down) / eps;
     }
-    double twiceEps = eps * 2;
+    final double twiceEps = eps * 2;
     newVars[index] += eps;
-    Double up = f.evaluate(vars);
+    final double up = f.evaluate(newVars);
     newVars[index] -= twiceEps;
-    Double down = f.evaluate(vars);
+    final double down = f.evaluate(newVars);
     return (up - down) / twiceEps;
   }
 
-  public static double getMixedFirstOrder(Function<Double, Double> f, Double[] vars, int index1, int index2, double eps1, double eps2) {
-    Double[] newVars = Arrays.copyOf(vars, vars.length);
+  public static double getMixedSecondOrder(final Function<Double, Double> f, final Double[] vars, final int index1, final int index2, final double eps1, final double eps2) {
+    checkInputs(f, vars, new int[] { index1, index2 });
+    final Double[] newVars = Arrays.copyOf(vars, vars.length);
     newVars[index1] += eps1;
     newVars[index2] += eps2;
-    double firstTerm = f.evaluate(newVars);
+    final double firstTerm = f.evaluate(newVars);
     newVars[index2] -= 2 * eps2;
-    double secondTerm = f.evaluate(newVars);
+    final double secondTerm = f.evaluate(newVars);
     newVars[index1] -= 2 * eps1;
     newVars[index2] += 2 * eps2;
-    double thirdTerm = f.evaluate(newVars);
+    final double thirdTerm = f.evaluate(newVars);
     newVars[index2] -= 2 * eps2;
-    double fourthTerm = f.evaluate(newVars);
+    final double fourthTerm = f.evaluate(newVars);
     return (firstTerm - secondTerm - thirdTerm + fourthTerm) / (4 * eps1 * eps2);
   }
 
-  public static double getSecondOrder(Function<Double, Double> f, Double[] vars, int index, double eps) {
-    Double[] newVars = Arrays.copyOf(vars, vars.length);
-    double original = f.evaluate(newVars);
+  public static double getSecondOrder(final Function<Double, Double> f, final Double[] vars, final int index, final double eps) {
+    checkInputs(f, vars, new int[] { index });
+    final Double[] newVars = Arrays.copyOf(vars, vars.length);
+    final double original = f.evaluate(newVars);
     newVars[index] += eps;
-    double up = f.evaluate(newVars);
+    final double up = f.evaluate(newVars);
     newVars[index] -= 2 * eps;
-    double down = f.evaluate(newVars);
+    final double down = f.evaluate(newVars);
     return (up - 2 * original + down) / (eps * eps);
   }
 
-  public static double getMixedSecondOrder(Function<Double, Double> f, Double[] vars, int index1, int index2, double eps1, double eps2) {
-    // TODO
-    return 0;
+  private static void checkInputs(final Function<Double, Double> f, final Double[] vars, final int index, final DifferenceType type) {
+    if (f == null)
+      throw new IllegalArgumentException("Function was null");
+    if (vars == null)
+      throw new IllegalArgumentException("Variable array was null");
+    if (vars.length == 0)
+      throw new IllegalArgumentException("Variable array was empty");
+    if (index < 0)
+      throw new IllegalArgumentException("Cannot have a negative index");
+    if (type == null)
+      throw new IllegalArgumentException("Difference type was null");
   }
 
-  public static double getThirdOrder(Function<Double, Double> f, Double[] vars, int index, double eps) {
-    // TODO
-    return 0;
+  private static void checkInputs(final Function<Double, Double> f, final Double[] vars, final int[] index) {
+    if (f == null)
+      throw new IllegalArgumentException("Function was null");
+    if (vars == null)
+      throw new IllegalArgumentException("Variable array was null");
+    if (vars.length == 0)
+      throw new IllegalArgumentException("Variable array was empty");
+    for (final int i : index) {
+      if (i < 0)
+        throw new IllegalArgumentException("Cannot have a negative index");
+    }
   }
 }

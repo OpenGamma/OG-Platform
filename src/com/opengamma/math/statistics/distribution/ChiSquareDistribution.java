@@ -24,22 +24,39 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   private final double _degrees;
 
   public ChiSquareDistribution(final double degrees) {
+    if (degrees < 0)
+      throw new IllegalArgumentException("Degrees of freedom must be greater than zero");
     _chiSquare = new ChiSquare(degrees, _engine);
+    _degrees = degrees;
+  }
+
+  public ChiSquareDistribution(final double degrees, final RandomEngine engine) {
+    if (degrees < 0)
+      throw new IllegalArgumentException("Degrees of freedom must be greater than zero");
+    if (engine == null)
+      throw new IllegalArgumentException("Engine was null");
+    _chiSquare = new ChiSquare(degrees, engine);
     _degrees = degrees;
   }
 
   @Override
   public double getCDF(final Double x) {
+    if (x == null)
+      throw new IllegalArgumentException("x was null");
     return _chiSquare.cdf(x);
   }
 
   @Override
   public double getPDF(final Double x) {
+    if (x == null)
+      throw new IllegalArgumentException("x was null");
     return _chiSquare.pdf(x);
   }
 
   @Override
   public double getInverseCDF(final Double p) {
+    if (p == null)
+      throw new IllegalArgumentException("p was null");
     if (p < 0 || p >= 1)
       throw new IllegalArgumentException("Probability must lie between 0 and 1: have " + p);
     return 2 * _inverseFunction.evaluate(0.5 * _degrees, p);

@@ -1,25 +1,42 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.integration;
-
 
 /**
  * 
  * @author emcleod
  * 
  */
-
-public class GaussLegendreOrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
+public class GaussLegendreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
   private static final double EPS = 1e-12;
 
+  public GaussLegendreOrthogonalPolynomialGeneratingFunction() {
+    super();
+  }
+
+  public GaussLegendreOrthogonalPolynomialGeneratingFunction(final int maxIter) {
+    super(maxIter);
+  }
+
   @Override
-  public GaussianQuadratureFunction generate(int n, Double... params) {
-    double lower = params[0];
-    double upper = params[1];
-    int m = (n + 1) / 2;
-    double xm, xl, z, z1, p1, p2, p3, pp;
-    Double[] x = new Double[n];
-    Double[] w = new Double[n];
-    xm = 0.5 * (upper + lower);
-    xl = 0.5 * (upper - lower);
+  public GaussianQuadratureFunction generate(final int n, final Double... params) {
+    if (n <= 0)
+      throw new IllegalArgumentException("Must have n > 0");
+    if (params == null)
+      throw new IllegalArgumentException("Parameter array cannot be null");
+    if (params.length == 0)
+      throw new IllegalArgumentException("Parameter array is empty");
+    final double lower = params[0];
+    final double upper = params[1];
+    final int m = (n + 1) / 2;
+    final double xm = (upper + lower) / 2.;
+    final double xl = (upper - lower) / 2.;
+    double z, z1, p1, p2, p3, pp;
+    final Double[] x = new Double[n];
+    final Double[] w = new Double[n];
     for (int i = 0; i < m; i++) {
       z = Math.cos(Math.PI * (i + 0.75) / (n + 0.5));
       do {

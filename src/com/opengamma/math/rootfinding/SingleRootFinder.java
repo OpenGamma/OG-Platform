@@ -1,17 +1,17 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.math.rootfinding;
 
-import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 
 /**
  * 
  * @author emcleod
- * 
- * @param <T>
  */
 public interface SingleRootFinder<S, T, U> {
-  public static final int MAX_ATTEMPTS = 100;
-  public static final double ZERO = 1e-12;
-  public static final String CONVERGENCE_STRING = "Could not find root in " + MAX_ATTEMPTS + " attempts";
 
-  public U getRoot(Function<S, T> function, T xLow, T xHigh, Double accuracy);
+  public U getRoot(Function1D<S, T> function, T x1, T x2);
 }

@@ -50,12 +50,11 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
       yMean += y1;
     }
     yMean /= y.length;
-    final int k = x[0].length;
-    final Double[] residuals = new Double[k];
-    for (int i = 0; i < k; i++) {
+    final int n = x.length;
+    final Double[] residuals = new Double[n];
+    for (int i = 0; i < n; i++) {
       residuals[i] = y[i] - yModel[i];
     }
-    // TODO need to add statistics calculations in here
     return new LeastSquaresRegressionResult(betas, residuals, null, null, null, null, null, null);
   }
 }

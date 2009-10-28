@@ -22,12 +22,12 @@ public class InterpolationResult<T> {
   private T _error;
 
   public InterpolationResult(final T result) {
-    _result = result;
+    this(result, null);
   }
 
-  public InterpolationResult(final T result, final T error) {
+  public InterpolationResult(final T result, final T errorEstimate) {
     _result = result;
-    _error = error;
+    _error = errorEstimate;
   }
 
   public T getResult() {
@@ -35,9 +35,8 @@ public class InterpolationResult<T> {
   }
 
   public T getErrorEstimate() {
-    if (_error == null) {
+    if (_error == null)
       throw new MathException("Error was not calculated for this interpolation result");
-    }
     return _error;
   }
 
@@ -45,38 +44,31 @@ public class InterpolationResult<T> {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_error == null) ? 0 : _error.hashCode());
-    result = prime * result + ((_result == null) ? 0 : _result.hashCode());
+    result = prime * result + (_error == null ? 0 : _error.hashCode());
+    result = prime * result + (_result == null ? 0 : _result.hashCode());
     return result;
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) {
+    if (this == obj)
       return true;
-    }
-    if (obj == null) {
+    if (obj == null)
       return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (getClass() != obj.getClass())
       return false;
-    }
     final InterpolationResult other = (InterpolationResult) obj;
     if (_error == null) {
-      if (other._error != null) {
+      if (other._error != null)
         return false;
-      }
-    } else if (!_error.equals(other._error)) {
+    } else if (!_error.equals(other._error))
       return false;
-    }
     if (_result == null) {
-      if (other._result != null) {
+      if (other._result != null)
         return false;
-      }
-    } else if (!_result.equals(other._result)) {
+    } else if (!_result.equals(other._result))
       return false;
-    }
     return true;
   }
 
