@@ -136,7 +136,7 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
     } else if (numItems == 0) {
       return EMPTY_SERIES;
     } else {
-      return new MapDoubleTimeSeries(_data.headMap(keys[keys.length - numItems]));
+      return new MapDoubleTimeSeries(_data.headMap(keys[numItems]));
     }
   }
   
@@ -179,12 +179,10 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   @Override
   public TimeSeries<Double> tail(int numItems) {
     // TODO: make this efficient
+    if(numItems == 0) return EMPTY_SERIES; 
     if (numItems < _data.size()) {
-      Iterator<InstantProvider> iter = _data.keySet().iterator();
-      for (int i=0; i<numItems; i++) {
-        iter.next();
-      }
-      return new MapDoubleTimeSeries(_data.tailMap(iter.next()));
+      InstantProvider[] keys = _data.keySet().toArray(new InstantProvider[] {});      
+      return new MapDoubleTimeSeries(_data.tailMap(keys[keys.length - numItems]));
     } else {
       throw new IndexOutOfBoundsException("Cannot reference data point outside size of time series");
     }

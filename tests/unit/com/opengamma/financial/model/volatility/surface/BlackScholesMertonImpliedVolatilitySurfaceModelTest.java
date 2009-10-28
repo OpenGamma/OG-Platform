@@ -65,7 +65,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
     StandardOptionDataBundle initialData, data;
     for (int i = 0; i < 100; i++) {
       expiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, Math.random() * 2));
-      sigma = Math.random();
+      sigma = Math.random() + 0.03;
       spot = 2 * Math.random() + 10;
       strike = 2 * Math.random() + 10;
       curve = new ConstantInterestRateDiscountCurve(Math.random() / 10);

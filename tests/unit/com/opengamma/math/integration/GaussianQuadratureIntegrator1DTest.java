@@ -36,7 +36,7 @@ public class GaussianQuadratureIntegrator1DTest {
 
     @Override
     public Double evaluate(final Double x) {
-      return Math.exp(-3 * x);
+      return Math.exp(-2 * x);
     }
 
   };
