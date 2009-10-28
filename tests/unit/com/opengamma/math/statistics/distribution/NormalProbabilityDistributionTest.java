@@ -20,15 +20,14 @@ public class NormalProbabilityDistributionTest extends ProbabilityDistributionTe
       0.99999 };
   private static final double[] Z = new double[] { 0.39894, 0.39695, 0.36827, 0.28969, 0.24197, 0.16693, 0.08182, 0.05399, 0.02463, 0.00630, 4.43184e-3, 8.72682e-4, 1.3383e-4,
       1.59837e-5, 1.48671e-6 };
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void negativeDistribution() {
+    new NormalProbabilityDistribution(1, -0.4);
+  }
 
   @Test
   public void test() {
-    try {
-      new NormalProbabilityDistribution(1, -0.4);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
     try {
       new NormalProbabilityDistribution(1, 0.4, null);
       fail();
