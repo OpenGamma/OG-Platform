@@ -20,17 +20,20 @@ public class LiveDataSubscriptionResponse implements Serializable, Cloneable {
   private final LiveDataSpecification _requestedSpecification;
   private final LiveDataSpecification _fullyQualifiedSpecification;
   private final LiveDataSubscriptionResult _subscriptionResult;
+  private final String _userMessage;
   
   public LiveDataSubscriptionResponse(
       String requestingUserName,
       LiveDataSpecification requestedSpecification,
       LiveDataSpecification fullyQualifiedSpecification,
-      LiveDataSubscriptionResult subscriptionResult) {
+      LiveDataSubscriptionResult subscriptionResult,
+      String userMessage) {
     // TODO kirk 2009-09-29 -- Check inputs.
     _requestingUserName = requestingUserName;
     _requestedSpecification = requestedSpecification;
     _fullyQualifiedSpecification = fullyQualifiedSpecification;
     _subscriptionResult = subscriptionResult;
+    _userMessage = userMessage;
   }
 
   /**
@@ -59,6 +62,13 @@ public class LiveDataSubscriptionResponse implements Serializable, Cloneable {
    */
   public LiveDataSubscriptionResult getSubscriptionResult() {
     return _subscriptionResult;
+  }
+
+  /**
+   * @return the userMessage
+   */
+  public String getUserMessage() {
+    return _userMessage;
   }
 
   @Override

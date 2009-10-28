@@ -21,17 +21,21 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SubscriptionHandle {
   private final String _userName;
+  private final LiveDataSpecification _requestedSpecification;
   private final LiveDataSpecification _fullyQualifiedSpecification;
   private final LiveDataListener _listener;
   
   public SubscriptionHandle(
       String userName,
+      LiveDataSpecification requestedSpecification,
       LiveDataSpecification fullyQualifiedSpecification,
       LiveDataListener listener) {
     ArgumentChecker.checkNotNull(userName, "User Name");
+    // Intentionally don't check the requested specification.
     ArgumentChecker.checkNotNull(fullyQualifiedSpecification, "Fully Qualified Specification");
     ArgumentChecker.checkNotNull(listener, "Live Data Listener");
     _userName = userName;
+    _requestedSpecification = requestedSpecification;
     _fullyQualifiedSpecification = fullyQualifiedSpecification;
     _listener = listener;
   }
@@ -41,6 +45,13 @@ public class SubscriptionHandle {
    */
   public String getUserName() {
     return _userName;
+  }
+
+  /**
+   * @return the requestedSpecification
+   */
+  public LiveDataSpecification getRequestedSpecification() {
+    return _requestedSpecification;
   }
 
   /**
@@ -59,12 +70,12 @@ public class SubscriptionHandle {
 
   @Override
   public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
+    return EqualsBuilder.reflectionEquals(this, obj, new String[] {"_requestedSpecification"});
   }
 
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+    return HashCodeBuilder.reflectionHashCode(this, new String[] {"_requestedSpecification"});
   }
 
   @Override

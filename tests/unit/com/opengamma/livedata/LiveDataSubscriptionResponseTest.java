@@ -16,7 +16,7 @@ public class LiveDataSubscriptionResponseTest {
   
   @Test
   public void simpleConstruction() {
-    new LiveDataSubscriptionResponse("Kirk Wylie", new LiveDataSpecificationImpl(), new LiveDataSpecificationImpl(), LiveDataSubscriptionResult.SUCCESS);
+    new LiveDataSubscriptionResponse("Kirk Wylie", new LiveDataSpecificationImpl(), new LiveDataSpecificationImpl(), LiveDataSubscriptionResult.SUCCESS, null);
   }
 
 }

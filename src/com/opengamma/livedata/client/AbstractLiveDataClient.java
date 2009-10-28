@@ -159,19 +159,20 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     LiveDataSpecification qualifiedSpecification = getSpecificationResolver().resolve(requestedSpecification);
     if(qualifiedSpecification == null) {
       s_logger.info("Unable to resolve requested specification {}", requestedSpecification);
-      listener.subscriptionResultReceived(new LiveDataSubscriptionResponse(userName, requestedSpecification, null, LiveDataSubscriptionResult.NOT_PRESENT));
+      listener.subscriptionResultReceived(new LiveDataSubscriptionResponse(userName, requestedSpecification, null, LiveDataSubscriptionResult.NOT_PRESENT, null));
       return;
     }
     
     if(!getEntitlementChecker().isEntitled(userName, qualifiedSpecification)) {
       s_logger.info("User {} not entitled to specification {}", userName, qualifiedSpecification);
-      listener.subscriptionResultReceived(new LiveDataSubscriptionResponse(userName, requestedSpecification, qualifiedSpecification, LiveDataSubscriptionResult.NOT_AUTHORIZED));
+      // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to get a user message.
+      listener.subscriptionResultReceived(new LiveDataSubscriptionResponse(userName, requestedSpecification, qualifiedSpecification, LiveDataSubscriptionResult.NOT_AUTHORIZED, null));
       return;
     }
     
     // Now we've got the fully qualified request, we can acquire the subscription
     // lock and enqueue the pending subscription handle.
-    SubscriptionHandle subHandle = new SubscriptionHandle(userName, qualifiedSpecification, listener);
+    SubscriptionHandle subHandle = new SubscriptionHandle(userName, requestedSpecification, qualifiedSpecification, listener);
     if(!addPendingSubscription(subHandle)) {
       // Already enqueued. Do nothing, the original request will take
       // care of it.
@@ -186,11 +187,27 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle) {
     _subscriptionLock.lock();
     try {
+      removePendingSubscription(subHandle);
       _activeSubscriptionSpecifications.add(subHandle.getFullyQualifiedSpecification());
       getValueDistributor().addListener(subHandle.getFullyQualifiedSpecification(), subHandle.getListener());
     } finally {
       _subscriptionLock.unlock();
     }
+    subHandle.getListener().subscriptionResultReceived(
+        new LiveDataSubscriptionResponse(
+            subHandle.getUserName(), subHandle.getRequestedSpecification(), subHandle.getFullyQualifiedSpecification(), LiveDataSubscriptionResult.SUCCESS, null));
+  }
+  
+  protected void subscriptionRequestFailed(SubscriptionHandle subHandle, LiveDataSubscriptionResult result, String userMessage) {
+    _subscriptionLock.lock();
+    try {
+      removePendingSubscription(subHandle);
+    } finally {
+      _subscriptionLock.unlock();
+    }
+    subHandle.getListener().subscriptionResultReceived(
+        new LiveDataSubscriptionResponse(
+            subHandle.getUserName(), subHandle.getRequestedSpecification(), subHandle.getFullyQualifiedSpecification(), result, userMessage));
   }
   
   protected boolean addPendingSubscription(SubscriptionHandle subHandle) {
@@ -221,7 +238,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       LiveDataListener listener) {
     s_logger.info("Unsubscribing by {} to {} delivered to {}",
         new Object[] {userName, fullyQualifiedSpecification, listener} );
-    SubscriptionHandle subHandle = new SubscriptionHandle(userName, fullyQualifiedSpecification, listener);
+    SubscriptionHandle subHandle = new SubscriptionHandle(userName, null, fullyQualifiedSpecification, listener);
     boolean unsubscribeToSpec = false;
     _subscriptionLock.lock();
     try {

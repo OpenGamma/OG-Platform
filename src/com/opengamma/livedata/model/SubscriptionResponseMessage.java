@@ -21,7 +21,9 @@ import com.opengamma.livedata.LiveDataSubscriptionResult;
  */
 public class SubscriptionResponseMessage implements Serializable {
   private static final String RESULT_FIELD_NAME = "result";
+  private static final String USER_MESSAGE_FIELD_NAME = "userMessage";
   private LiveDataSubscriptionResult _subscriptionResult;
+  private String _userMessage;
 
   /**
    * @return the subscriptionResult
@@ -37,6 +39,20 @@ public class SubscriptionResponseMessage implements Serializable {
     _subscriptionResult = subscriptionResult;
   }
 
+  /**
+   * @return the userMessage
+   */
+  public String getUserMessage() {
+    return _userMessage;
+  }
+
+  /**
+   * @param userMessage the userMessage to set
+   */
+  public void setUserMessage(String userMessage) {
+    _userMessage = userMessage;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -47,6 +63,9 @@ public class SubscriptionResponseMessage implements Serializable {
     if(getSubscriptionResult() != null) {
       msg.add(RESULT_FIELD_NAME, getSubscriptionResult().name());
     }
+    if(getUserMessage() != null) {
+      msg.add(USER_MESSAGE_FIELD_NAME, getUserMessage());
+    }
     return msg;
   }
 
@@ -56,6 +75,7 @@ public class SubscriptionResponseMessage implements Serializable {
     if(subResultText != null) {
       result.setSubscriptionResult(LiveDataSubscriptionResult.valueOf(subResultText));
     }
+    result.setUserMessage(msg.getString(USER_MESSAGE_FIELD_NAME));
     return result;
   }
 }
