@@ -7,7 +7,9 @@ package com.opengamma.livedata;
 
 import java.io.Serializable;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 
 /**
@@ -17,6 +19,9 @@ import org.fudgemsg.FudgeFieldContainer;
  */
 public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     Serializable {
+  private static final String RELEVANT_TIMESTAMP_FIELD_NAME = "relevantTimestamp";
+  private static final String SPECIFICATION_FIELD_NAME = "specification";
+  private static final String FIELDS_FIELD_NAME = "fields";
   private final long _relevantTimestamp;
   private final LiveDataSpecification _specification;
   private final FudgeFieldContainer _fieldContainer;
@@ -41,6 +46,36 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   @Override
   public LiveDataSpecification getSpecification() {
     return _specification;
+  }
+  
+  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
+    FudgeMsg msg = fudgeContext.newMessage();
+    msg.add(RELEVANT_TIMESTAMP_FIELD_NAME, getRelevantTimestamp());
+    if(getSpecification() != null) {
+      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeContext));
+    }
+    if(getFields() != null) {
+      msg.add(FIELDS_FIELD_NAME, getFields());
+    }
+    return msg;
+  }
+  
+  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeMsg msg) {
+    Long relevantTimestamp = msg.getLong(RELEVANT_TIMESTAMP_FIELD_NAME);
+    FudgeFieldContainer specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
+    FudgeFieldContainer fields = msg.getMessage(FIELDS_FIELD_NAME);
+    // REVIEW kirk 2009-10-28 -- Right thing to do here?
+    if(relevantTimestamp == null) {
+      return null;
+    }
+    if(specificationFields == null) {
+      return null;
+    }
+    if(fields == null) {
+      return null;
+    }
+    LiveDataSpecification spec = new LiveDataSpecificationImpl(specificationFields);
+    return new LiveDataValueUpdateBean(relevantTimestamp, spec, fields);
   }
 
 }
