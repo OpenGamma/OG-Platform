@@ -31,6 +31,7 @@ import com.opengamma.engine.analytics.SecurityAnalyticFunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
@@ -56,7 +57,7 @@ extends AbstractAnalyticFunction
 implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   
-  private final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
+  private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
     
   public HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction() {
     _volatilitySurfaceModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
@@ -89,8 +90,8 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
           Expiry expiry = option.getExpiry();
           double years = DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant());
           final double b = discountCurve.getInterestRate(years);
-          EuropeanVanillaOptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(option.getStrike(), expiry, (option.getOptionType() == OptionType.CALL));
-          Map<EuropeanVanillaOptionDefinition, Double> prices = new HashMap<EuropeanVanillaOptionDefinition, Double>();
+          OptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(option.getStrike(), expiry, (option.getOptionType() == OptionType.CALL));
+          Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
           prices.put(europeanVanillaOptionDefinition, price);
           try {
             return _volatilitySurfaceModel.getSurface(prices, new StandardOptionDataBundle(discountCurve, b, null, spot, today));

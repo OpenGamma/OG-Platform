@@ -30,6 +30,7 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
@@ -68,7 +69,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       final double spot = underlyingDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);       
       StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volSurface, spot, today);
       EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
-      AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
+      AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
       GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
       return Collections.<AnalyticValue<?>>singleton(new GreeksResultAnalyticValue(new GreeksResultValueDefinition(security.getIdentityKey()), greeks));
     } else {
