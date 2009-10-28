@@ -19,8 +19,8 @@ import com.opengamma.math.function.special.NaturalLogGammaFunction;
 
 public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
   private static final Logger s_Log = LoggerFactory.getLogger(GaussLaguerreOrthogonalPolynomialGeneratingFunction.class);
-  private static final double EPS = 1e-6;
-  private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
+  private final double EPS = 1e-6;
+  private final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
 
   public GaussLaguerreOrthogonalPolynomialGeneratingFunction() {
@@ -81,7 +81,6 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
         throw new ConvergenceException("Could not converge in " + max + " iterations");
       x[i] = z;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);
-      w[i] *= Math.exp(z);
     }
     return new GaussianQuadratureFunction(x, w);
   }

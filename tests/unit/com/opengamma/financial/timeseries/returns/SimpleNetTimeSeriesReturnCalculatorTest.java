@@ -81,7 +81,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
       random = Math.random();
       data[i] = random;
       if (i > 0) {
-        returns[i - 1] = Math.log(random / data[i - 1]);
+        returns[i - 1] = (random / data[i - 1]) - 1;
       }
     }
     times[n - 2] = n - 2;
@@ -90,7 +90,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     data[n - 1] = Math.random();
     final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
     final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns);
-    final TimeSeriesReturnCalculator strict = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.STRICT);
+    final TimeSeriesReturnCalculator strict = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.STRICT);
     final DoubleTimeSeries[] tsArray = new DoubleTimeSeries[] { priceTS };
     try {
       strict.evaluate(tsArray);
@@ -98,7 +98,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     } catch (final TimeSeriesException e) {
       // Expected
     }
-    final TimeSeriesReturnCalculator lenient = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+    final TimeSeriesReturnCalculator lenient = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
     assertTrue(lenient.evaluate(tsArray).equals(returnTS));
   }
 

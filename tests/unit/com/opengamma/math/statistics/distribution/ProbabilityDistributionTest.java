@@ -19,14 +19,14 @@ public class ProbabilityDistributionTest {
   protected static final RandomEngine ENGINE = new MersenneTwister(0);
 
   public void testCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
-    testCDFWithNull(null);
+    testCDFWithNull(dist);
     for (int i = 0; i < p.length; i++) {
       assertEquals(dist.getCDF(x[i]), p[i], EPS);
     }
   }
 
   public void testPDF(final double[] z, final double[] x, final ProbabilityDistribution<Double> dist) {
-    testPDFWithNull(null);
+    testPDFWithNull(dist);
     for (int i = 0; i < z.length; i++) {
       assertEquals(dist.getPDF(x[i]), z[i], EPS);
     }

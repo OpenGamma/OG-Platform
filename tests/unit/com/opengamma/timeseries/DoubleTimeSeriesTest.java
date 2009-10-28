@@ -96,8 +96,8 @@ public abstract class DoubleTimeSeriesTest {
   @Test
   public void testTail() {
     DoubleTimeSeries dts = createStandardTimeSeries();
-    DoubleTimeSeries head5 = (DoubleTimeSeries) dts.tail(5);
-    Iterator<Entry<InstantProvider, Double>> iterator = head5.iterator();
+    DoubleTimeSeries tail5 = (DoubleTimeSeries) dts.tail(5);
+    Iterator<Entry<InstantProvider, Double>> iterator = tail5.iterator();
     for (long i=2; i<=6; i++) {
       Entry<InstantProvider, Double> entry = iterator.next();
       assertEquals(i, entry.getKey().toInstant().toEpochMillis());
