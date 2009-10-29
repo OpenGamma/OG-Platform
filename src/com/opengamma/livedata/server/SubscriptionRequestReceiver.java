@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.model.SubscriptionRequestMessage;
 import com.opengamma.livedata.model.SubscriptionResponseMessage;
-import com.opengamma.transport.FudgeMsgRequestReceiver;
+import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class SubscriptionRequestReceiver implements FudgeMsgRequestReceiver {
+public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(SubscriptionRequestReceiver.class);
   private final AbstractLiveDataServer _liveDataServer;
   
