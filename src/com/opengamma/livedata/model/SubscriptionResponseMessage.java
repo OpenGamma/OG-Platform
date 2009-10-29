@@ -24,6 +24,13 @@ public class SubscriptionResponseMessage implements Serializable {
   private static final String USER_MESSAGE_FIELD_NAME = "userMessage";
   private LiveDataSubscriptionResult _subscriptionResult;
   private String _userMessage;
+  
+  public SubscriptionResponseMessage() {
+  }
+  
+  public SubscriptionResponseMessage(LiveDataSubscriptionResult subscriptionResult) {
+    setSubscriptionResult(subscriptionResult);
+  }
 
   /**
    * @return the subscriptionResult
