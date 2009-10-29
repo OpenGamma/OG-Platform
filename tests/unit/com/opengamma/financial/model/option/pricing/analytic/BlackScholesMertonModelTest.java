@@ -42,7 +42,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
 
   @Test
   public void testInputs() {
-    final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(1., EIGHT_DAYS, true);
+    final OptionDefinition definition = new EuropeanVanillaOptionDefinition(1., EIGHT_DAYS, true);
     super.testInputs(MODEL, definition);
   }
 

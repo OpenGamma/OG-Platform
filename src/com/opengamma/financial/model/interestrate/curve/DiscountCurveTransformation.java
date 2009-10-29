@@ -24,6 +24,20 @@ import com.opengamma.math.interpolation.InterpolationException;
 // TODO I don't like this name.
 public class DiscountCurveTransformation {
 
+  public static DiscountCurve getParallelShiftedCurve(final DiscountCurve original, final double shift) {
+    if (original instanceof ConstantInterestRateDiscountCurve)
+      return getParallelShiftedCurve((ConstantInterestRateDiscountCurve) original, shift);
+    if (original instanceof InterpolatedDiscountCurve)
+      return getParallelShiftedCurve((InterpolatedDiscountCurve) original, shift);
+    throw new IllegalArgumentException();
+  }
+
+  public static DiscountCurve getParallelShiftedCurve(final ConstantInterestRateDiscountCurve original, final double shift) {
+    if (shift == 0)
+      return new ConstantInterestRateDiscountCurve(original.getInterestRate(0.));
+    return new ConstantInterestRateDiscountCurve(original.getInterestRate(0.) + shift);
+  }
+
   /**
    * Shifts all interest rates that form the original curve by a constant value.
    * 
@@ -33,14 +47,14 @@ public class DiscountCurveTransformation {
    *          The amount as a decimal by which to shift the curve.
    * @return A parallel-shifted discount curve.
    */
-  public static DiscountCurve getParallelShiftedCurve(DiscountCurve original, double shift) {
+  public static DiscountCurve getParallelShiftedCurve(final InterpolatedDiscountCurve original, final double shift) {
     if (shift == 0)
-      return new DiscountCurve(original.getData(), original.getInterpolator());
+      return new InterpolatedDiscountCurve(original.getData(), original.getInterpolator());
     final Map<Double, Double> data = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : original.getData().entrySet()) {
       data.put(entry.getKey(), entry.getValue() + shift);
     }
-    return new DiscountCurve(data, original.getInterpolator());
+    return new InterpolatedDiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -61,13 +75,13 @@ public class DiscountCurveTransformation {
    *           If the shift index is negative or greater than the size of the
    *           data map of the original curve.
    */
-  public static DiscountCurve getSingleShiftedDataPointCurve(DiscountCurve original, int dataIndex, double shift) {
+  public static DiscountCurve getSingleShiftedDataPointCurve(final InterpolatedDiscountCurve original, final int dataIndex, final double shift) {
     if (dataIndex < 0)
       throw new IllegalArgumentException("Shift point must be positive");
     if (dataIndex >= original.getData().size())
       throw new IllegalArgumentException("Could not shift point " + dataIndex + "; number of data points in DiscountCurve is " + original.getData().size());
     if (shift == 0)
-      return new DiscountCurve(original.getData(), original.getInterpolator());
+      return new InterpolatedDiscountCurve(original.getData(), original.getInterpolator());
     final SortedMap<Double, Double> data = new TreeMap<Double, Double>(original.getData());
     int i = 0;
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
@@ -76,7 +90,7 @@ public class DiscountCurveTransformation {
         break;
       }
     }
-    return new DiscountCurve(data, original.getInterpolator());
+    return new InterpolatedDiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -93,14 +107,14 @@ public class DiscountCurveTransformation {
    *           If the shift time to maturity is negative or is greater than the
    *           longest time to maturity of the original curve.
    */
-  public static DiscountCurve getSingleShiftedPointCurve(DiscountCurve original, double shiftTime, double shift) {
+  public static DiscountCurve getSingleShiftedPointCurve(final InterpolatedDiscountCurve original, final double shiftTime, final double shift) {
     if (shiftTime < 0)
       throw new IllegalArgumentException("Shift time must be positive");
     final SortedMap<Double, Double> data = new TreeMap<Double, Double>(original.getData());
     if (shiftTime >= data.lastKey())
       throw new IllegalArgumentException("Could not shift at time " + shiftTime + "; last time in DiscountCurve is " + data.lastKey());
     if (shift == 0)
-      return new DiscountCurve(original.getData(), original.getInterpolator());
+      return new InterpolatedDiscountCurve(original.getData(), original.getInterpolator());
     if (data.containsKey(shiftTime)) {
       data.put(shiftTime, data.get(shiftTime) + shift);
     } else {
@@ -112,7 +126,7 @@ public class DiscountCurveTransformation {
         return null;
       }
     }
-    return new DiscountCurve(data, original.getInterpolator());
+    return new InterpolatedDiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -131,9 +145,9 @@ public class DiscountCurveTransformation {
    *          with data points in the original curve, it is ignored.
    * @return A discount curve with shifted points.
    */
-  public static DiscountCurve getMultipleShiftedDataPointCurve(DiscountCurve original, Map<Integer, Double> shifts) {
+  public static DiscountCurve getMultipleShiftedDataPointCurve(final InterpolatedDiscountCurve original, final Map<Integer, Double> shifts) {
     if (shifts == null || shifts.isEmpty())
-      return new DiscountCurve(original.getData(), original.getInterpolator());
+      return new InterpolatedDiscountCurve(original.getData(), original.getInterpolator());
     final SortedMap<Double, Double> data = new TreeMap<Double, Double>();
     data.putAll(original.getData());
     int i = 0;
@@ -143,7 +157,7 @@ public class DiscountCurveTransformation {
       }
       i++;
     }
-    return new DiscountCurve(data, original.getInterpolator());
+    return new InterpolatedDiscountCurve(data, original.getInterpolator());
   }
 
   /**
@@ -158,9 +172,9 @@ public class DiscountCurveTransformation {
    * @return A discount curve with various points shifted.
    */
 
-  public static DiscountCurve getMultipleShiftedPointCurve(DiscountCurve original, Map<Double, Double> shifts) {
+  public static DiscountCurve getMultipleShiftedPointCurve(final InterpolatedDiscountCurve original, final Map<Double, Double> shifts) {
     if (shifts == null || shifts.isEmpty())
-      return new DiscountCurve(original.getData(), original.getInterpolator());
+      return new InterpolatedDiscountCurve(original.getData(), original.getInterpolator());
     final Map<Double, Double> data = new HashMap<Double, Double>(original.getData());
     for (final Map.Entry<Double, Double> entry : shifts.entrySet()) {
       if (data.containsKey(entry.getKey())) {
@@ -175,6 +189,6 @@ public class DiscountCurveTransformation {
         }
       }
     }
-    return new DiscountCurve(data, original.getInterpolator());
+    return new InterpolatedDiscountCurve(data, original.getInterpolator());
   }
 }

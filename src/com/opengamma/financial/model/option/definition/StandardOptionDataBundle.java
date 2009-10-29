@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
@@ -5,6 +10,11 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
+/**
+ * 
+ * @author emcleod
+ * 
+ */
 public class StandardOptionDataBundle {
   private final DiscountCurve _discountCurve;
   private final Double _b;

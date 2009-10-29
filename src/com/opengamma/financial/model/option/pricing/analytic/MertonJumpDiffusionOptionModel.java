@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import javax.time.calendar.ZonedDateTime;
@@ -20,25 +25,25 @@ public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<European
 
   @Override
   public Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<MertonJumpDiffusionModelOptionDataBundle, Double>() {
+    final Function1D<MertonJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<MertonJumpDiffusionModelOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(MertonJumpDiffusionModelOptionDataBundle data) {
+      public Double evaluate(final MertonJumpDiffusionModelOptionDataBundle data) {
         try {
-          ZonedDateTime date = data.getDate();
-          double k = definition.getStrike();
-          double t = definition.getTimeToExpiry(date);
-          double sigma = data.getVolatility(t, k);
-          double lambda = data.getLambda();
-          double gamma = data.getGamma();
-          double sigmaSq = sigma * sigma;
-          double delta = gamma * sigmaSq / lambda;
+          final ZonedDateTime date = data.getDate();
+          final double k = definition.getStrike();
+          final double t = definition.getTimeToExpiry(date);
+          final double sigma = data.getVolatility(t, k);
+          final double lambda = data.getLambda();
+          final double gamma = data.getGamma();
+          final double sigmaSq = sigma * sigma;
+          final double delta = gamma * sigmaSq / lambda;
           double sigmaAdjusted = Math.sqrt(sigmaSq - lambda * delta);
-          double lambdaT = lambda * t;
+          final double lambdaT = lambda * t;
           double mult = Math.exp(-lambdaT);
           // TODO this is not right
-          StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getDiscountCurve(), data.getCostOfCarry(), data.getVolatilitySurface(), data.getSpot(), date);
-          Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
+          final StandardOptionDataBundle bsmData = new StandardOptionDataBundle(data.getDiscountCurve(), data.getCostOfCarry(), data.getVolatilitySurface(), data.getSpot(), date);
+          final Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
           double price = mult * bsmFunction.evaluate(bsmData);
           for (int i = 1; i < 50; i++) {
             sigmaAdjusted = Math.sqrt(sigmaAdjusted * sigmaAdjusted + delta * i / t);
@@ -47,7 +52,7 @@ public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<European
             price += mult * bsmFunction.evaluate(bsmData);
           }
           return price;
-        } catch (InterpolationException e) {
+        } catch (final InterpolationException e) {
           throw new OptionPricingException(e);
         }
       }
