@@ -6,6 +6,7 @@
 package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.model.SubscriptionRequestMessage;
 import com.opengamma.livedata.model.SubscriptionResponseMessage;
-import com.opengamma.transport.ByteArrayRequestReceiver;
+import com.opengamma.transport.FudgeMsgRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,20 +22,13 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class SubscriptionRequestReceiver implements ByteArrayRequestReceiver {
+public class SubscriptionRequestReceiver implements FudgeMsgRequestReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(SubscriptionRequestReceiver.class);
   private final AbstractLiveDataServer _liveDataServer;
-  private final FudgeContext _fudgeContext;
   
   public SubscriptionRequestReceiver(AbstractLiveDataServer liveDataServer) {
-    this(liveDataServer, new FudgeContext());
-  }
-
-  public SubscriptionRequestReceiver(AbstractLiveDataServer liveDataServer, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(liveDataServer, "Live Data Server");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _liveDataServer = liveDataServer;
-    _fudgeContext = fudgeContext;
   }
 
   /**
@@ -44,23 +38,16 @@ public class SubscriptionRequestReceiver implements ByteArrayRequestReceiver {
     return _liveDataServer;
   }
 
-  /**
-   * @return the fudgeContext
-   */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
   @Override
-  public byte[] requestReceived(byte[] message) {
-    FudgeMsgEnvelope msgEnvelope = getFudgeContext().deserialize(message);
-    FudgeMsg requestFudgeMsg = msgEnvelope.getMessage();
+  public FudgeFieldContainer requestReceived(
+      FudgeContext fudgeContext,
+      FudgeMsgEnvelope requestEnvelope) {
+    FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
     SubscriptionRequestMessage subscriptionRequest = SubscriptionRequestMessage.fromFudgeMsg(requestFudgeMsg);
     s_logger.debug("Received subscription request for {} on behalf of {}", subscriptionRequest.getSpecification(), subscriptionRequest.getUserName());
     SubscriptionResponseMessage subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
-    FudgeMsg responseFudgeMsg = subscriptionResponse.toFudgeMsg(getFudgeContext());
-    byte[] responseBytes = getFudgeContext().toByteArray(responseFudgeMsg);
-    return responseBytes;
+    FudgeMsg responseFudgeMsg = subscriptionResponse.toFudgeMsg(fudgeContext);
+    return responseFudgeMsg;
   }
 
 }
