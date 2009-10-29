@@ -7,6 +7,8 @@ package com.opengamma.livedata;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
@@ -76,6 +78,11 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     }
     LiveDataSpecification spec = new LiveDataSpecificationImpl(specificationFields);
     return new LiveDataValueUpdateBean(relevantTimestamp, spec, fields);
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }
