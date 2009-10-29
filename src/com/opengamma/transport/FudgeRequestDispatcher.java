@@ -13,19 +13,19 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Receives byte array messages and dispatches them to a {@link FudgeMsgRequestReceiver}.
+ * Receives byte array messages and dispatches them to a {@link FudgeRequestReceiver}.
  *
  * @author kirk
  */
-public class FudgeMsgRequestDispatcher implements ByteArrayRequestReceiver {
-  private final FudgeMsgRequestReceiver _underlying;
+public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
+  private final FudgeRequestReceiver _underlying;
   private final FudgeContext _fudgeContext;
   
-  public FudgeMsgRequestDispatcher(FudgeMsgRequestReceiver underlying) {
+  public FudgeRequestDispatcher(FudgeRequestReceiver underlying) {
     this(underlying, new FudgeContext());
   }
   
-  public FudgeMsgRequestDispatcher(FudgeMsgRequestReceiver underlying, FudgeContext fudgeContext) {
+  public FudgeRequestDispatcher(FudgeRequestReceiver underlying, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(underlying, "Underlying FudgeMsgRequestReceiver");
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _underlying = underlying;
@@ -35,7 +35,7 @@ public class FudgeMsgRequestDispatcher implements ByteArrayRequestReceiver {
   /**
    * @return the underlying
    */
-  public FudgeMsgRequestReceiver getUnderlying() {
+  public FudgeRequestReceiver getUnderlying() {
     return _underlying;
   }
 

@@ -15,7 +15,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
  *
  * @author kirk
  */
-public interface FudgeMsgRequestReceiver {
+public interface FudgeRequestReceiver {
   
   FudgeFieldContainer requestReceived(FudgeContext fudgeContext, FudgeMsgEnvelope requestEnvelope);
 
