@@ -40,6 +40,7 @@ public class ByteArrayFudgeMessageSender implements FudgeMessageSender {
   /**
    * @return the fudgeContext
    */
+  @Override
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
