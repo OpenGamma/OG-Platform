@@ -25,5 +25,9 @@ public enum LiveDataSubscriptionResult {
    * The requested piece of live data was found, but the specified user
    * was not entitled to receive it.
    */
-  NOT_AUTHORIZED;
+  NOT_AUTHORIZED,
+  /**
+   * Request wasn't fully specified or malformed.
+   */
+  INVALID_REQUEST;
 }
