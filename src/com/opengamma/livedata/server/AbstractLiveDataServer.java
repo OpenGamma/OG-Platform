@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.model.SubscriptionRequestMessage;
+import com.opengamma.livedata.model.SubscriptionResponseMessage;
 
 /**
  * The base class from which most OpenGamma Live Data feed servers should
@@ -22,5 +24,16 @@ public abstract class AbstractLiveDataServer {
 
   public void terminatePublication(LiveDataSpecification dataSpec) {
     s_logger.info("Terminating publication of {}", dataSpec);
+  }
+
+
+  /**
+   * @param subscriptionRequest
+   * @return
+   */
+  public SubscriptionResponseMessage subscriptionRequestMade(
+      SubscriptionRequestMessage subscriptionRequest) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
