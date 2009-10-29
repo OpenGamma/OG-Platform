@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -57,7 +58,13 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
         throw new IllegalArgumentException("Must provide security invoker for security definition.");
       }
     } else if(function instanceof PositionAnalyticFunctionDefinition) {
-      throw new UnsupportedOperationException("Cannot currently handle PositionAnalyticFunctionInvokers, as they've not been written.");
+      if(!(invoker instanceof PositionAnalyticFunctionInvoker)) {
+        throw new IllegalArgumentException("Must provide position invoker for position definition.");
+      }
+    } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
+      if(!(invoker instanceof AggregatePositionAnalyticFunctionInvoker)) {
+        throw new IllegalArgumentException("Must provide aggregate position invoker for aggregate position definition.");
+      }
     } else {
       throw new IllegalArgumentException("Unexpected analytic function definition " + function.getClass());
     }
@@ -78,16 +85,34 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
         // security or position context.
         continue;
       }
-      if(functionProducesAllValues(function, null, outputs)) {
+      if(functionProducesAllValuesInternal(function, null, outputs)) {
         result.add(function);
       }
     }
     return result;
   }
-
+  
   @Override
   public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs, Security security) {
+    return getFunctionsProducingInternal(outputs, security);
+  }
+  
+  @Override
+  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
+      Collection<AnalyticValueDefinition<?>> outputs, Position position) {
+    return getFunctionsProducingInternal(outputs, position);
+  }
+  
+  @Override
+  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
+      Collection<AnalyticValueDefinition<?>> outputs, Collection<Position> positions) {
+    return getFunctionsProducingInternal(outputs, positions);
+  }
+
+  @SuppressWarnings("unchecked")
+  protected Collection<AnalyticFunctionDefinition> getFunctionsProducingInternal(
+      Collection<AnalyticValueDefinition<?>> outputs, Object securityOrPositionOrCollection) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
       boolean applicable = true;
@@ -96,29 +121,46 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
         applicable = true;
       } else if(function instanceof SecurityAnalyticFunctionDefinition) {
         SecurityAnalyticFunctionDefinition secDefinition = (SecurityAnalyticFunctionDefinition) function;
+        Security security = (Security)securityOrPositionOrCollection;
         if(security != null) {
           applicable = secDefinition.isApplicableTo(security.getSecurityType());
         } else {
           applicable = secDefinition.isApplicableTo((String)null);
         }
+      } else if(function instanceof PositionAnalyticFunctionDefinition) {
+        PositionAnalyticFunctionDefinition posDefinition = (PositionAnalyticFunctionDefinition) function;
+        Position position = (Position)securityOrPositionOrCollection;
+        applicable = posDefinition.isApplicableTo(position);
+      } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
+        AggregatePositionAnalyticFunctionDefinition aggDefinition = (AggregatePositionAnalyticFunctionDefinition) function;
+        Collection<Position> positions = (Collection<Position>) securityOrPositionOrCollection;
+        applicable = aggDefinition.isApplicableTo(positions);
       }
       if(applicable
-          && functionProducesAllValues(function, security, outputs)) {
+          && functionProducesAllValuesInternal(function, securityOrPositionOrCollection, outputs)) {
         result.add(function);
       }
     }
     return result;
   }
   
-  protected boolean functionProducesAllValues(
+  @SuppressWarnings("unchecked")
+  protected boolean functionProducesAllValuesInternal(
       AnalyticFunctionDefinition function,
-      Security security,
+      Object securityOrPositionOrCollection,
       Collection<AnalyticValueDefinition<?>> outputs) {
     Collection<AnalyticValueDefinition<?>> possibleResults = null;
     if(function instanceof PrimitiveAnalyticFunctionDefinition) {
       possibleResults = ((PrimitiveAnalyticFunctionDefinition) function).getPossibleResults();
     } else if(function instanceof SecurityAnalyticFunctionDefinition) {
+      Security security = (Security)securityOrPositionOrCollection;
       possibleResults = ((SecurityAnalyticFunctionDefinition) function).getPossibleResults(security);
+    } else if(function instanceof PositionAnalyticFunctionDefinition) {
+      Position position = (Position)securityOrPositionOrCollection;
+      possibleResults = ((PositionAnalyticFunctionDefinition) function).getPossibleResults(position);
+    } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
+      Collection<Position> positions = (Collection<Position>)securityOrPositionOrCollection;
+      possibleResults = ((AggregatePositionAnalyticFunctionDefinition) function).getPossibleResults(positions);
     } else {
       throw new UnsupportedOperationException("Can only handle primitive/security functions now.");
     }

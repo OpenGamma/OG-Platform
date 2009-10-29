@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueImpl;
-import com.opengamma.engine.depgraph.SecurityDependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
@@ -179,10 +181,41 @@ public class SingleComputationCycle {
     return true;
   }
   
-  // someone thinks this is a database kernel... :)
   public void executePlans() {
+    PortfolioNode populatedRootNode = getPortfolioEvaluationModel().getPopulatedRootNode();
+    executeSecuritySpecificPlans();
+    executeAggregateAndPositionDependentPlans(populatedRootNode);
+  }
+  
+  public void executeAggregateAndPositionDependentPlans(PortfolioNode node) {
+    for(Position position : node.getPositions()) {
+      DependencyGraph posDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(position);
+      if (posDepGraph != null) { // we might not have a portfolio specific graph here.
+        DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
+            getViewName(),
+            position,
+            posDepGraph,
+            getProcessingContext());
+        depGraphExecutor.executeGraph(getSnapshotTime());
+      }
+    }
+    // NOTE: jim 28-Oct-2009 -- I've done this second because the first bit might have populated the cache or something - actually could work either way I guess.
+    DependencyGraph aggDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(node);
+    DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
+        getViewName(),
+        aggDepGraph.getPositions(), // I _think_ this is okay...
+        aggDepGraph,
+        getProcessingContext());
+    depGraphExecutor.executeGraph(getSnapshotTime());
+    for(PortfolioNode subNode : node.getSubNodes()) {
+      executeAggregateAndPositionDependentPlans(subNode);
+    }
+  }
+  
+  // someone thinks this is a database kernel... :)
+  public void executeSecuritySpecificPlans() {
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
-      SecurityDependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
+      DependencyGraph secDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
       assert secDepGraph != null;
       DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
@@ -193,35 +226,57 @@ public class SingleComputationCycle {
     }
   }
 
+  @SuppressWarnings("deprecation")
   public void populateResultModel() {
-    Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes(); 
-    for(Position populatedPosition : getPortfolioEvaluationModel().getPopulatedPositions()) {
-      // REVIEW kirk 2009-09-14 -- Could be parallelized if we need to.
-      getResultModel().addPosition(populatedPosition);
-      Security security = populatedPosition.getSecurity();
-      String securityType = security.getSecurityType();
-      Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
-
-      if(secTypeValueDefs == null) {
-        // Nothing required for this sec type for outputs, so no values
-        // to populate.
-        continue;
-      }
-      SecurityDependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
-      
-      for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {
-        AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedOutputs().get(analyticValueDefinition);
-        AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
-        if(unscaledValue != null) {
-          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(populatedPosition.getQuantity());
-          getResultModel().addValue(populatedPosition, scaledValue);
-        }
-      }
-    }
+    populateResultModel(getPortfolioEvaluationModel().getPopulatedRootNode());
     // so viewer can access dependency graph values.
     getResultModel().setDependencyGraphModel(getPortfolioEvaluationModel().getDependencyGraphModel());
     getResultModel().setComputationCache(getProcessingContext().getComputationCacheSource().cloneCache( getViewName(), getSnapshotTime()));
     getResultModel().setSecurityMaster(getProcessingContext().getSecurityMaster()); // this is teh nasty.  We need some better way for the viewer to convert positions to securities.
+  }
+  
+  public Collection<String> populateResultModel(PortfolioNode node) {
+    Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes();
+    Collection<String> typesForPositionsUnder = new HashSet<String>();
+    for (Position position : node.getPositions()) {
+      getResultModel().addPosition(position);
+      Security security = position.getSecurity();
+      String securityType = security.getSecurityType();
+      typesForPositionsUnder.add(securityType);
+      Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
+      if (secTypeValueDefs == null) {
+        // Nothing required for this security type for outputs, so no values to populate
+        continue;
+      }
+      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(security);
+      if (depGraph == null) {
+        depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(position); // if not per-security, try per-position.
+      }
+      for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {
+        AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedOutputs().get(analyticValueDefinition);
+        AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
+        if(unscaledValue != null) {
+          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(position.getQuantity()); // not sure if we should do this if we've got a position dependent function result.
+          getResultModel().addValue(position, scaledValue);
+        }
+      }      
+    }
+    for (PortfolioNode subNode : node.getSubNodes()) {
+      typesForPositionsUnder.addAll(populateResultModel(subNode));
+    }
+    Collection<AnalyticValueDefinition<?>> commonValueDefsForPositionsUnder = new HashSet<AnalyticValueDefinition<?>>();
+    for (String securityType : typesForPositionsUnder) {
+      commonValueDefsForPositionsUnder.retainAll(valueDefsBySecTypes.get(securityType));
+    }
+    DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(node);
+    for(AnalyticValueDefinition<?> analyticValueDefinition : commonValueDefsForPositionsUnder) {
+      AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedOutputs().get(analyticValueDefinition);
+      AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
+      if(unscaledValue != null) {
+        getResultModel().addValue(node, unscaledValue);
+      }
+    }
+    return typesForPositionsUnder;
   }
   
   public void releaseResources() {

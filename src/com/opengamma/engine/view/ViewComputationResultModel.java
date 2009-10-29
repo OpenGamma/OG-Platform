@@ -11,6 +11,7 @@ import java.util.Map;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
 
@@ -47,5 +48,11 @@ public interface ViewComputationResultModel {
   
   ViewComputationCache getComputationCache();
   // review this.
+  // this should probably be removed now we package securities with positions.
+  @Deprecated
   SecurityMaster getSecurityMaster();
+
+  AnalyticValue<?> getValue(PortfolioNode node, AnalyticValueDefinition<?> valueDefinition);
+
+  Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(PortfolioNode node);
 }

@@ -21,9 +21,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 import com.opengamma.util.ThreadUtil;
 
 /**

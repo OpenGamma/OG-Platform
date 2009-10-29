@@ -5,13 +5,18 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.ViewComputationCache;
@@ -75,12 +80,45 @@ implements Lifecycle {
     protected void runOneCycle() {
       CalculationJob job = getJobSource().getJob(5, TimeUnit.SECONDS);
       if(job != null) {
-        Security security = getSecurityMaster().getSecurity(job.getSecurityKey());
         CalculationJobSpecification spec = job.getSpecification();
         assert spec != null;
         ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
-        AnalyticFunctionInvocationJob invocationJob = new AnalyticFunctionInvocationJob(
-            job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
+        AnalyticFunctionInvocationJob invocationJob;
+        switch(job.getComputationTargetType()) {
+        case SECURITY_KEY:
+          {
+            Security security = getSecurityMaster().getSecurity(job.getSecurityKey());
+            invocationJob = new AnalyticFunctionInvocationJob(
+                job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
+          }
+          break;
+        case UNRESOLVED_POSITION:
+          {
+            // REVIEW: jim 28-Oct-2009 -- should we be modifying the position in place or copying into a new PositionBean?
+            Security security = getSecurityMaster().getSecurity(job.getPosition().getSecurityKey());
+            PositionBean position = (PositionBean) job.getPosition();
+            position.setSecurity(security);
+            invocationJob = new AnalyticFunctionInvocationJob(job.getFunctionUniqueIdentifier(),
+                  job.getInputs(), position, cache, getFunctionRepository());
+          }
+          break;
+        case MULTIPLE_UNRESOLVED_POSITIONS:
+          {
+            Collection<Position> positions = new ArrayList<Position>(job.getPositions());
+            // REVIEW jim 28-Oct-2009 -- Maybe we should be able to pass a list of positions or security keys to be resolved into the sec master?
+            //                           also, should we be modifying the position in place or copying into a new PositionBean?
+            for (Position position : positions) {
+              Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
+              PositionBean positionBean = (PositionBean) position;
+              positionBean.setSecurity(security);
+            }
+            invocationJob = new AnalyticFunctionInvocationJob(job.getFunctionUniqueIdentifier(),
+                                                              job.getInputs(), positions, cache, getFunctionRepository());
+          }
+          break;
+        default:
+          throw new OpenGammaRuntimeException("switch doesn't cover all cases");
+        }
         long startTS = System.currentTimeMillis();
         boolean wasException = false;
         try {
@@ -103,5 +141,4 @@ implements Lifecycle {
     }
     
   }
-
 }

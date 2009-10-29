@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine.analytics;
 
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.security.Security;
 
 // REVIEW kirk 2009-09-22 -- This is getting REALLY large and unwieldy. We need to
 // segregate this out into various facets for different types of functions I think.
@@ -34,9 +31,6 @@ public interface AnalyticFunctionDefinition {
   
   boolean buildsOwnSubGraph();
   
-  DependencyNode buildSubGraph(
-      Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver);
+
   
 }

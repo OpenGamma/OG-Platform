@@ -9,20 +9,19 @@ import java.util.Collection;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 
 /**
  * 
  *
  * @author kirk
  */
-public interface PrimitiveAnalyticFunctionDefinition extends
-    AnalyticFunctionDefinition {
-
-  Collection<AnalyticValueDefinition<?>> getPossibleResults();
-  
-  Collection<AnalyticValueDefinition<?>> getInputs();
-  
-  DependencyNode buildSubGraph(
+public abstract class AbstractPrimitiveAnalyticFunction extends AbstractAnalyticFunction implements PrimitiveAnalyticFunctionDefinition {
+  @Override
+  public DependencyNode buildSubGraph(
       AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver);
+      DependencyNodeResolver dependencyNodeResolver) {
+    return null;
+  }
 }

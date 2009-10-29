@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,10 +17,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.SecurityDependencyGraph;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -35,9 +39,11 @@ import com.opengamma.engine.view.calcnode.InvocationResult;
 public class DependencyGraphExecutor {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
-  private final String _viewName;
-  private final Security _security;
-  private final SecurityDependencyGraph _dependencyGraph;
+  private final String _viewName; 
+  private Security _security; // compiler too stupid to let us make these final.
+  private Position _position;
+  private Collection<Position> _positions;
+  private final DependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
   // Running State:
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
@@ -49,13 +55,51 @@ public class DependencyGraphExecutor {
   public DependencyGraphExecutor(
       String viewName,
       Security security,
-      SecurityDependencyGraph dependencyGraph,
+      DependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext) {
+    this(viewName, dependencyGraph, processingContext);
+    if(security == null) {
+      throw new NullPointerException("Must provide a security over which to execute.");
+    }
+    _security = security;
+    _position = null;
+    _positions = null;
+  }
+  
+  public DependencyGraphExecutor(
+      String viewName,
+      Position position,
+      DependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext) {
+    this(viewName, dependencyGraph, processingContext);
+    if(position == null) {
+      throw new NullPointerException("Must provide a position over which to execute.");
+    }
+    _security = null;
+    _position = position;
+    _positions = null;
+  }
+  
+  public DependencyGraphExecutor(
+      String viewName,
+      Collection<Position> positions,
+      DependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext) {
+    this(viewName, dependencyGraph, processingContext);
+    if(positions == null) {
+      throw new NullPointerException("Must provide a collection of positions over which to execute.");
+    }
+    _security = null;
+    _position = null;
+    _positions = positions;
+  }
+  
+  private DependencyGraphExecutor(
+      String viewName,
+      DependencyGraph dependencyGraph,
       ViewProcessingContext processingContext) {
     if(viewName == null) {
       throw new NullPointerException("Must provide the name of the view being executed.");
-    }
-    if(security == null) {
-      throw new NullPointerException("Must provide a security over which to execute.");
     }
     if(dependencyGraph == null) {
       throw new NullPointerException("Must provide a dependency graph to execute.");
@@ -64,11 +108,10 @@ public class DependencyGraphExecutor {
       throw new NullPointerException("Must provide a processing context.");
     }
     _viewName = viewName;
-    _security = security;
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
   }
-
+  
   /**
    * @return the viewName
    */
@@ -77,16 +120,61 @@ public class DependencyGraphExecutor {
   }
 
   /**
-   * @return the security
+   * This should only be called if getComputationTargetType() returns SECURITY_KEY
+   * @return the securityKey
    */
   public Security getSecurity() {
+    if (_security == null) {
+      s_logger.warn("getSecurityKey() called when job is "+toString());
+    }
     return _security;
+  }
+  
+  /**
+   * This should only be called if getComputationTargetType() returns POSITION
+   * @return the position
+   */
+  public Position getPosition() {
+    if (_position == null) {
+      s_logger.warn("getPosition() called when job is "+toString());
+    }
+    return _position;
+  }
+  
+  /**
+   * This should only be called if getPositions() returns AGGREGATE_POSITION
+   * @return the positions
+   */
+  public Collection<Position> getPositions() {
+    if (_positions == null) {
+      s_logger.warn("getPositions() called when job is "+toString());
+    }
+    return _positions;
+  }
+  
+  public ComputationTarget getComputationTargetType() {
+    if (_security != null) {
+      assert _position == null;
+      assert _positions == null;
+      return ComputationTarget.SECURITY;
+    } else if (_position != null) {
+      assert _positions == null; // already checked _securityKey
+      return ComputationTarget.POSITION;
+    } else if (_positions != null) { // already checked the others.
+      return ComputationTarget.MULTIPLE_POSITIONS;
+    } else {
+      return ComputationTarget.PRIMITIVE;
+    }
+  }
+  
+  public enum ComputationTarget {
+    PRIMITIVE, SECURITY, POSITION, MULTIPLE_POSITIONS
   }
 
   /**
    * @return the dependencyGraph
    */
-  public SecurityDependencyGraph getDependencyGraph() {
+  public DependencyGraph getDependencyGraph() {
     return _dependencyGraph;
   }
 
@@ -195,6 +283,18 @@ public class DependencyGraphExecutor {
     }
   }
   
+  private Position stripDownPosition(Position position) {
+    return new PositionBean(position.getQuantity(), position.getSecurityKey());
+  }
+  
+  private Collection<Position> stripDownPositions(Collection<Position> positions) {
+    Collection<Position> resultPositions = new ArrayList<Position>(positions.size());
+    for (Position position : positions) {
+      resultPositions.add(new PositionBean(position.getQuantity(), position.getSecurityKey()));
+    }
+    return resultPositions;
+  }
+  
   /**
    * @param depNode
    */
@@ -208,16 +308,57 @@ public class DependencyGraphExecutor {
       resolvedInputs.add(depNode.getResolvedInput(input));
     }
     long jobId = jobIdSource.addAndGet(1l);
-    s_logger.debug("Enqueuing job {} to invoke {} on security {}",
-        new Object[] {jobId, depNode.getFunction().getShortName(), getSecurity().getIdentityKey()});
+    
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
-    CalculationJob job = new CalculationJob(
-        getViewName(),
-        iterationTimestamp,
-        jobId,
-        depNode.getFunction().getUniqueIdentifier(),
-        getSecurity().getIdentityKey(),
-        resolvedInputs);
+    CalculationJob job;
+    switch (getComputationTargetType()) {
+    case PRIMITIVE:
+      s_logger.debug("Enqueuing job {} to invoke {} on primative function",
+          new Object[] {jobId, depNode.getFunction().getShortName()});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          resolvedInputs);
+      break;
+    case SECURITY:
+      s_logger.debug("Enqueuing job {} to invoke {} on security {}",
+          new Object[] {jobId, depNode.getFunction().getShortName(), getSecurity().getIdentityKey()});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          getSecurity().getIdentityKey(),
+          resolvedInputs);
+      break;
+    case POSITION:
+      s_logger.debug("Enqueuing job {} to invoke {} on position {}",
+          new Object[] {jobId, depNode.getFunction().getShortName(), getPosition()});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          stripDownPosition(getPosition()),
+          resolvedInputs);
+      break;
+    case MULTIPLE_POSITIONS:
+      s_logger.debug("Enqueuing job {} to invoke {} on list of positions {}",
+          new Object[] {jobId, depNode.getFunction().getShortName(), getPositions()});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          stripDownPositions(getPositions()),
+          resolvedInputs);
+      break;
+    default:
+      throw new OpenGammaRuntimeException("Unhandled case in switch");
+    }
+
     getProcessingContext().getJobSink().invoke(job);
     return jobSpec;
   }

@@ -12,7 +12,6 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.viewer.ValueDefinitionRenderingVisitor;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
 
@@ -22,7 +21,7 @@ import com.opengamma.engine.viewer.VisitableValueDefinition;
  *
  * @author kirk
  */
-public class LiveDataSourcingFunction extends AbstractAnalyticFunction
+public class LiveDataSourcingFunction extends AbstractPrimitiveAnalyticFunction
 implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   private final AnalyticValueDefinition<?> _specifiedResult;
   private final String _shortName;
@@ -68,8 +67,7 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
   }
 
   @Override
-  public DependencyNode buildSubGraph(Security security,
-      AnalyticFunctionResolver functionResolver,
+  public DependencyNode buildSubGraph(AnalyticFunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     throw new UnsupportedOperationException("Does not build own sub graph");
   }

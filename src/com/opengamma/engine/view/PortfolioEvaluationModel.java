@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,13 +183,40 @@ public class PortfolioEvaluationModel {
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
 
     Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
-    for(Security security : getSecurities()) {
+    for(Position position : getPopulatedPositions()) {
       // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
       // operation. We could/should do them in parallel.
-      Collection<AnalyticValueDefinition<?>> requiredOutputValues = outputsBySecurityType.get(security.getSecurityType());
-      dependencyGraphModel.addSecurity(security, requiredOutputValues);
+      Collection<AnalyticValueDefinition<?>> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
+      dependencyGraphModel.addPosition(position, requiredOutputValues);
     }
+    buildDependencyGraphs(getPopulatedRootNode(), dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
     setDependencyGraphModel(dependencyGraphModel);
+  }
+  
+  public Set<String> buildDependencyGraphs(PortfolioNode node,
+      DependencyGraphModel dependencyGraphModel,
+      AnalyticFunctionRepository analyticFunctionRepository, 
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider, 
+      ViewDefinition viewDefinition) {
+      Set<String> securityTypesUnder = new TreeSet<String>();
+      // find out the security types for all the positions we have right here.
+      for(Position position : node.getPositions()) {
+        securityTypesUnder.add(position.getSecurity().getSecurityType());
+      }
+      // recursively find the security types for the positions under this node.
+      for (PortfolioNode subNode : node.getSubNodes()) {
+        securityTypesUnder.addAll(buildDependencyGraphs(subNode, dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition));
+      }
+      // now we work out the intersection of all the value definitions for those securities.
+      Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
+      Set<AnalyticValueDefinition<?>> requiredOutputs = new HashSet<AnalyticValueDefinition<?>>();
+      // calculate the INTERSECTION
+      for(String type : securityTypesUnder) {
+        requiredOutputs.retainAll(outputsBySecurityType.get(type));
+      }
+      // add this node to the dependency model.
+      dependencyGraphModel.addAggregatePosition(node, requiredOutputs);
+      return securityTypesUnder;
   }
   
   public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {

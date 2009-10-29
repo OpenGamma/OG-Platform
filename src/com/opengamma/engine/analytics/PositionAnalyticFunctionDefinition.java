@@ -5,6 +5,10 @@
  */
 package com.opengamma.engine.analytics;
 
+import java.util.Collection;
+
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 
@@ -29,5 +33,14 @@ extends AnalyticFunctionDefinition {
    *         the provided position.
    */
   boolean isApplicableTo(Position position);
+  
+  Collection<AnalyticValueDefinition<?>> getPossibleResults(Position position);
+  
+  Collection<AnalyticValueDefinition<?>> getInputs(Position position);
+  
+  DependencyNode buildSubGraph(
+      Position position,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver);
   
 }

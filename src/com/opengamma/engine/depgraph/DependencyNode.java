@@ -12,11 +12,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.analytics.PositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -51,6 +54,24 @@ public class DependencyNode {
     _function = function;
     _outputValues.addAll(function.getPossibleResults(security));
     _inputValues.addAll(function.getInputs(security));
+  }
+  
+  public DependencyNode(PositionAnalyticFunctionDefinition function, Position position) {
+    if(function == null) {
+      throw new NullPointerException("Must provide a function for this node.");
+    }
+    _function = function;
+    _outputValues.addAll(function.getPossibleResults(position));
+    _inputValues.addAll(function.getInputs(position));
+  }
+
+  public DependencyNode(AggregatePositionAnalyticFunctionDefinition function, Collection<Position> positions) {
+    if(function == null) {
+      throw new NullPointerException("Must provide a function for this node.");
+    }
+    _function = function;
+    _outputValues.addAll(function.getPossibleResults(positions));
+    _inputValues.addAll(function.getInputs(positions));
   }
   
   /**

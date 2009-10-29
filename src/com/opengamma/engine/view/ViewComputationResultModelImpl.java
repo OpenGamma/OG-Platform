@@ -14,22 +14,28 @@ import java.util.Map;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
 
 /**
  * A simple in-memory implementation of {@link ViewComputatinResultModel}.
- *
+ * REVIEW: jim 29-Oct-2009 -- at the moment this model uses references to PortfolioNodes and Positions that will break if we
+ * start incrementally updating the portfolio.  It also won't travel well over the wire.  We're going to need to deal with this
+ * once we start doing that.
  * @author kirk
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
   private final Map<Position, PositionResultModel> _perPositionResults = new HashMap<Position, PositionResultModel>();
+  private final Map<PortfolioNode, AggregatePositionResultModel> _perNodeResults = new HashMap<PortfolioNode, AggregatePositionResultModel>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
   private ViewComputationCache _cache;
   private DependencyGraphModel _dependencyGraphModel;
   private SecurityMaster _securityMaster;
+  private Portfolio _portfolio;
   @Override
   public long getInputDataTimestamp() {
     return _inputDataTimestamp;
@@ -42,6 +48,9 @@ public class ViewComputationResultModelImpl implements
     _inputDataTimestamp = inputDataTimestamp;
   }
 
+  /**
+   * @returns flat collection of all the positions in the portfolio
+   */
   @Override
   public Collection<Position> getPositions() {
     return Collections.unmodifiableSet(_perPositionResults.keySet());
@@ -69,6 +78,16 @@ public class ViewComputationResultModelImpl implements
       return perPositionModel.get(valueDefinition);
     }
   }
+  
+  @Override 
+  public AnalyticValue<?> getValue(PortfolioNode node, AnalyticValueDefinition<?> valueDefinition) {
+    AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
+    if(perAggregatePositionModel == null) {
+      return null;
+    } else {
+      return perAggregatePositionModel.get(valueDefinition);
+    }
+  }
 
   @Override
   public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(Position position) {
@@ -77,6 +96,16 @@ public class ViewComputationResultModelImpl implements
       return Collections.emptyMap();
     } else {
       return perPositionModel.getAllResults();
+    }
+  }
+  
+  @Override
+  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(PortfolioNode node) {
+    AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
+    if(perAggregatePositionModel == null) {
+      return Collections.emptyMap();
+    } else {
+      return perAggregatePositionModel.getAllResults();
     }
   }
   
@@ -92,6 +121,39 @@ public class ViewComputationResultModelImpl implements
       perPositionModel = new PositionResultModel(position);
       _perPositionResults.put(position, perPositionModel);
     }
+  }
+  
+  public void addValue(PortfolioNode node, AnalyticValue<?> value) {
+    AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
+    assert perAggregatePositionModel != null;
+    perAggregatePositionModel.add(value);
+  }
+  
+  public void addAggregatePosition(PortfolioNode node) {
+    AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
+    if(perAggregatePositionModel == null) {
+      perAggregatePositionModel = new AggregatePositionResultModel(node);
+      _perNodeResults.put(node, perAggregatePositionModel);
+    }
+  }
+  
+  public void addPortfolio(Portfolio portfolio) {
+    _portfolio = portfolio; 
+    recursiveAddPortfolio(portfolio);
+  }
+  
+  public Portfolio getPortfolio() {
+    return _portfolio;
+  }
+  
+  private void recursiveAddPortfolio(PortfolioNode node) {
+    for (Position position : node.getPositions()) {
+      addPosition(position);
+    }
+    for (PortfolioNode subNode : node.getSubNodes()) {
+      recursiveAddPortfolio(subNode);
+    }
+    addAggregatePosition(node);
   }
   
   public void setComputationCache(ViewComputationCache cache) {
@@ -117,10 +179,12 @@ public class ViewComputationResultModelImpl implements
   /**
    * @param securityMaster
    */
+  @Deprecated
   public void setSecurityMaster(SecurityMaster securityMaster) {
     _securityMaster = securityMaster;
   }
   
+  @Deprecated
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }

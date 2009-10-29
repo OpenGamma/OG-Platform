@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -31,4 +33,8 @@ extends AnalyticFunctionDefinition {
   
   Collection<AnalyticValueDefinition<?>> getInputs(Security security);
   
+  DependencyNode buildSubGraph(
+      Security security,
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver);
 }
