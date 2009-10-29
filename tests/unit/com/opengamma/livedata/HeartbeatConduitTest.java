@@ -17,9 +17,9 @@ import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
-import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.ActiveSecurityPublicationManager;
 import com.opengamma.livedata.server.HeartbeatReceiver;
+import com.opengamma.livedata.server.MockLiveDataServer;
 import com.opengamma.transport.InMemoryByteArrayConduit;
 
 /**
@@ -31,9 +31,7 @@ public class HeartbeatConduitTest {
   
   @Test
   public void singleSpecification() throws InterruptedException {
-    AbstractLiveDataServer dataServer = new AbstractLiveDataServer() {
-      
-    };
+    MockLiveDataServer dataServer = new MockLiveDataServer();
     ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
     InMemoryByteArrayConduit conduit = new InMemoryByteArrayConduit(receiver);

@@ -31,9 +31,5 @@ public abstract class AbstractLiveDataServer {
    * @param subscriptionRequest
    * @return
    */
-  public SubscriptionResponseMessage subscriptionRequestMade(
-      SubscriptionRequestMessage subscriptionRequest) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  public abstract SubscriptionResponseMessage subscriptionRequestMade(SubscriptionRequestMessage subscriptionRequest);
 }
