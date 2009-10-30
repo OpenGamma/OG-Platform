@@ -12,13 +12,13 @@ import javax.jms.JMSException;
  *
  * @author kirk
  */
-public class JMSRuntimeException extends RuntimeException {
+public class JmsRuntimeException extends RuntimeException {
   
-  public JMSRuntimeException(JMSException cause) {
+  public JmsRuntimeException(JMSException cause) {
     super(cause);
   }
   
-  public JMSRuntimeException(String message, JMSException cause) {
+  public JmsRuntimeException(String message, JMSException cause) {
     super(message, cause);
   }
 

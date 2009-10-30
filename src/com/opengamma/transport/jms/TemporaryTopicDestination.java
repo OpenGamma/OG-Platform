@@ -8,6 +8,7 @@ package com.opengamma.transport.jms;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
+import javax.jms.TemporaryTopic;
 
 /**
  * 
@@ -15,6 +16,7 @@ import javax.jms.Session;
  * @author kirk
  */
 public class TemporaryTopicDestination extends AbstractDestination {
+  private String _temporaryTopicName = null;
 
   /**
    * @param name
@@ -23,12 +25,40 @@ public class TemporaryTopicDestination extends AbstractDestination {
     super("");
   }
 
+  
+  /**
+   * @return the temporaryTopicName
+   */
+  public String getTemporaryTopicName() {
+    return _temporaryTopicName;
+  }
+
+
+  /**
+   * @param temporaryTopicName the temporaryTopicName to set
+   */
+  public void setTemporaryTopicName(String temporaryTopicName) {
+    _temporaryTopicName = temporaryTopicName;
+  }
+
+
+  @Override
+  public String getName() {
+    if(getTemporaryTopicName() == null) {
+      return super.getName();
+    }
+    return getTemporaryTopicName();
+  }
+
+
   @Override
   public Destination constructDestination(Session jmsSession) {
     try {
-      return jmsSession.createTemporaryTopic();
+      TemporaryTopic tempTopic = jmsSession.createTemporaryTopic();
+      setTemporaryTopicName(tempTopic.getTopicName());
+      return tempTopic;
     } catch (JMSException e) {
-      throw new JMSRuntimeException("Creating temporary topic", e);
+      throw new JmsRuntimeException("Creating temporary topic", e);
     }
   }
 

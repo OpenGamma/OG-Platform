@@ -28,7 +28,7 @@ public class QueueDestination extends AbstractDestination {
     try {
       return jmsSession.createQueue(getName());
     } catch (JMSException e) {
-      throw new JMSRuntimeException("Creating queue " + getName(), e);
+      throw new JmsRuntimeException("Creating queue " + getName(), e);
     }
   }
 

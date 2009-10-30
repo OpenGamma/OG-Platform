@@ -28,7 +28,7 @@ public class TopicDestination extends AbstractDestination {
     try {
       return jmsSession.createTopic(getName());
     } catch (JMSException e) {
-      throw new JMSRuntimeException("Creating topic " + getName(), e);
+      throw new JmsRuntimeException("Creating topic " + getName(), e);
     }
   }
 
