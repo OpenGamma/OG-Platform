@@ -17,6 +17,7 @@ import com.opengamma.livedata.model.SubscriptionRequestMessage;
 import com.opengamma.livedata.model.SubscriptionResponseMessage;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
+import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class DistributedLiveDataClient extends AbstractLiveDataClient implements ByteArrayMessageReceiver {
+public class DistributedLiveDataClient extends AbstractLiveDataClient implements FudgeMessageReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedLiveDataClient.class);
   // Injected Inputs:
   private final FudgeContext _fudgeContext;
@@ -121,9 +122,9 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   // REVIEW kirk 2009-10-28 -- This is just a braindead way of getting ticks to come in
   // until we can get a handle on the construction of receivers based on responses.
   @Override
-  public void messageReceived(byte[] message) {
-    FudgeMsgEnvelope envelope = getFudgeContext().deserialize(message);
-    FudgeMsg fudgeMsg = envelope.getMessage();
+  public void messageReceived(FudgeContext fudgeContext,
+      FudgeMsgEnvelope msgEnvelope) {
+    FudgeMsg fudgeMsg = msgEnvelope.getMessage();
     LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fudgeMsg);
     getValueDistributor().notifyListeners(update.getRelevantTimestamp(), update.getSpecification(), update.getFields());
   }
