@@ -30,7 +30,6 @@ import com.opengamma.util.time.DateUtil;
  * 
  * @author emcleod
  * 
- * @param <T>
  */
 public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
