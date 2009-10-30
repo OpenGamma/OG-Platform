@@ -16,37 +16,19 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
 import com.opengamma.transport.ByteArrayMessageSender;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  *
  * @author kirk
  */
-public class JmsByteArrayMessageSender implements ByteArrayMessageSender {
+public class JmsByteArrayMessageSender
+extends AbstractJmsByteArraySender
+implements ByteArrayMessageSender {
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageSender.class);
-  private final String _destinationName;
-  private final JmsTemplate _jmsTemplate;
   
   public JmsByteArrayMessageSender(String destinationName, JmsTemplate jmsTemplate) {
-    ArgumentChecker.checkNotNull(destinationName, "JMS Destination Name");
-    ArgumentChecker.checkNotNull(jmsTemplate, "JmsTemplate");
-    _destinationName = destinationName;
-    _jmsTemplate = jmsTemplate;
-  }
-
-  /**
-   * @return the destinationName
-   */
-  public String getDestinationName() {
-    return _destinationName;
-  }
-
-  /**
-   * @return the jmsTemplate
-   */
-  public JmsTemplate getJmsTemplate() {
-    return _jmsTemplate;
+    super(destinationName, jmsTemplate);
   }
 
   @Override

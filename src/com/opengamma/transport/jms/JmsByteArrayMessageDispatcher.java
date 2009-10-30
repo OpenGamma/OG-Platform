@@ -5,8 +5,6 @@
  */
 package com.opengamma.transport.jms;
 
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
@@ -39,22 +37,9 @@ public class JmsByteArrayMessageDispatcher implements MessageListener {
 
   @Override
   public void onMessage(Message message) {
-    if(!(message instanceof BytesMessage)) {
-      throw new IllegalArgumentException("JmsByteArrayMessageDispatcher can only dispatch BytesMessage instances.");
-    }
-    BytesMessage bytesMessage = (BytesMessage) message;
-    try {
-      long bodyLength = bytesMessage.getBodyLength();
-      if(bodyLength > Integer.MAX_VALUE) {
-        throw new IllegalArgumentException("Can only dispatch 2GB messages. Received one of length " + bodyLength);
-      }
-      byte[] bytes = new byte[(int)bodyLength];
-      bytesMessage.readBytes(bytes);
-      s_logger.debug("Dispatching byte array of length {}", bodyLength);
-      getUnderlying().messageReceived(bytes);
-    } catch (JMSException jmse) {
-      throw new JmsRuntimeException(jmse);
-    }
+    byte[] bytes = JmsByteArrayHelper.extractBytes(message);
+    s_logger.debug("Dispatching byte array of length {}", bytes.length);
+    getUnderlying().messageReceived(bytes);
   }
 
 }
