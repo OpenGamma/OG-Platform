@@ -22,8 +22,10 @@ import com.opengamma.livedata.LiveDataSubscriptionResult;
 public class SubscriptionResponseMessage implements Serializable {
   private static final String RESULT_FIELD_NAME = "result";
   private static final String USER_MESSAGE_FIELD_NAME = "userMessage";
+  private static final String TICK_DISTRIBUTION_FIELD_NAME = "tickDistributionSpecification";
   private LiveDataSubscriptionResult _subscriptionResult;
   private String _userMessage;
+  private String _tickDistributionSpecification;
   
   public SubscriptionResponseMessage() {
   }
@@ -60,6 +62,21 @@ public class SubscriptionResponseMessage implements Serializable {
     _userMessage = userMessage;
   }
 
+  /**
+   * @return the tickDistributionSpecification
+   */
+  public String getTickDistributionSpecification() {
+    return _tickDistributionSpecification;
+  }
+
+  /**
+   * @param tickDistributionSpecification the tickDistributionSpecification to set
+   */
+  public void setTickDistributionSpecification(
+      String tickDistributionSpecification) {
+    _tickDistributionSpecification = tickDistributionSpecification;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -73,6 +90,9 @@ public class SubscriptionResponseMessage implements Serializable {
     if(getUserMessage() != null) {
       msg.add(USER_MESSAGE_FIELD_NAME, getUserMessage());
     }
+    if(getTickDistributionSpecification() != null) {
+      msg.add(TICK_DISTRIBUTION_FIELD_NAME, getTickDistributionSpecification());
+    }
     return msg;
   }
 
@@ -83,6 +103,7 @@ public class SubscriptionResponseMessage implements Serializable {
       result.setSubscriptionResult(LiveDataSubscriptionResult.valueOf(subResultText));
     }
     result.setUserMessage(msg.getString(USER_MESSAGE_FIELD_NAME));
+    result.setTickDistributionSpecification(msg.getString(TICK_DISTRIBUTION_FIELD_NAME));
     return result;
   }
 }

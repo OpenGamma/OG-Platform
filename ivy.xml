@@ -5,6 +5,7 @@
         <dependency org="org.junit" name="junit" rev="4.5"/>
         <dependency org="org.slf4j" name="slf4j" rev="1.5.8" conf="*->core"/>
         <dependency org="ch.qos" name="logback" rev="0.9.17" conf="default->classic"/>
+        <dependency org="org.springframework" name="spring" rev="2.5.6" conf="*->context-support,jms"/>
     </dependencies>
 </ivy-module>
 

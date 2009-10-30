@@ -26,7 +26,22 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class AbstractLiveDataServer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
   private final Set<MarketDataFieldReceiver> _fieldReceivers = new HashSet<MarketDataFieldReceiver>();
+  private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
 
+  /**
+   * @return the distributionSpecificationResolver
+   */
+  public DistributionSpecificationResolver getDistributionSpecificationResolver() {
+    return _distributionSpecificationResolver;
+  }
+
+  /**
+   * @param distributionSpecificationResolver the distributionSpecificationResolver to set
+   */
+  public void setDistributionSpecificationResolver(
+      DistributionSpecificationResolver distributionSpecificationResolver) {
+    _distributionSpecificationResolver = distributionSpecificationResolver;
+  }
 
   public void terminatePublication(LiveDataSpecification dataSpec) {
     s_logger.info("Terminating publication of {}", dataSpec);

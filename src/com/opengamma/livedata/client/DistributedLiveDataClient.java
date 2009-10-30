@@ -95,6 +95,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       case SUCCESS:
         s_logger.info("Established subscription to {}", _subHandle.getFullyQualifiedSpecification());
         subscriptionRequestSatisfied(_subHandle);
+        startReceivingTicks(responseMessage.getTickDistributionSpecification());
         break;
       }
     }
@@ -112,6 +113,13 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     return bytes;
   }
   
+  /**
+   * @param tickDistributionSpecification
+   */
+  public void startReceivingTicks(String tickDistributionSpecification) {
+    // Default no-op.
+  }
+
   protected SubscriptionRequestMessage composeSubscriptionRequestMessage(SubscriptionHandle subHandle) {
     SubscriptionRequestMessage request = new SubscriptionRequestMessage();
     request.setUserName(subHandle.getUserName());
