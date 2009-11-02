@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -76,4 +78,10 @@ public class DefaultSecurity implements Security, Serializable {
       AnalyticValueDefinition<FudgeMsg> marketDataDefinition) {
     _marketDataDefinition = marketDataDefinition;
   }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
 }
