@@ -5,7 +5,12 @@
  */
 package com.opengamma.financial.analytics;
 
+import java.util.Collection;
+
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -24,11 +29,20 @@ public class GreeksResultValueDefinition extends
     super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"));
   }
   @SuppressWarnings("unchecked")
-  public GreeksResultValueDefinition(SecurityKey securityKey) {
+  public GreeksResultValueDefinition(Security security) {
      super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"),
-           new KeyValuePair<String, Object>("SECURITY", securityKey));
+           new KeyValuePair<String, Object>("SECURITY", security));
   }
-  
+//  public GreeksResultValueDefinition(Security securityKey, Position position) {
+//    super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"),
+//          new KeyValuePair<String, Object>("SECURITY", securityKey),
+//          new KeyValuePair<String, Object>("POSITION", position));
+// }
+  @SuppressWarnings("unchecked")
+  public GreeksResultValueDefinition(Collection<Position> positions) {
+     super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"),
+           new KeyValuePair<String, Object>("POSITIONS", positions));
+  }
   public <E> E accept(FinancialValueDefinitionVisitor<E> visitor) {
     return visitor.visitGreeksResultValueDefinition(this);
   }

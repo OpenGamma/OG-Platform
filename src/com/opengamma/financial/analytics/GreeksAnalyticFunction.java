@@ -16,7 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -48,7 +48,7 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class GreeksAnalyticFunction extends AbstractAnalyticFunction
+public class GreeksAnalyticFunction extends AbstractSecurityAnalyticFunction
 implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
@@ -70,7 +70,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
       AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
       GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
-      return Collections.<AnalyticValue<?>>singleton(new GreeksResultAnalyticValue(new GreeksResultValueDefinition(security.getIdentityKey()), greeks));
+      return Collections.<AnalyticValue<?>>singleton(new GreeksResultAnalyticValue(new GreeksResultValueDefinition(security), greeks));
     } else {
       throw new IllegalStateException("Illegal security type "+security.getSecurityType());
     }
@@ -115,7 +115,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
 
   @Override
   public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
-    return Collections.<AnalyticValueDefinition<?>>singleton(new GreeksResultValueDefinition(security.getIdentityKey()));
+    return Collections.<AnalyticValueDefinition<?>>singleton(new GreeksResultValueDefinition(security));
   }
 
   @Override

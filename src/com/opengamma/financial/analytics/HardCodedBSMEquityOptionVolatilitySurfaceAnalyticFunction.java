@@ -19,7 +19,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -52,7 +52,7 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction
-extends AbstractAnalyticFunction
+extends AbstractSecurityAnalyticFunction
 implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   
