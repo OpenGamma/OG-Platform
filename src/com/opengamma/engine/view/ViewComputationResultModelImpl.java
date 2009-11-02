@@ -138,9 +138,9 @@ public class ViewComputationResultModelImpl implements
     }
   }
   
-  public void addPortfolio(Portfolio portfolio) {
+  public void setPortfolio(Portfolio portfolio, PortfolioNode populatedRootNode) {
     _portfolio = portfolio; 
-    recursiveAddPortfolio(portfolio);
+    recursiveAddPortfolio(populatedRootNode);
   }
   
   public Portfolio getPortfolio() {
