@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
@@ -101,7 +102,7 @@ public class PositionBean implements Position, Serializable, Cloneable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }
