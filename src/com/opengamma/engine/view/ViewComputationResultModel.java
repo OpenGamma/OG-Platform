@@ -11,6 +11,7 @@ import java.util.Map;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
@@ -47,6 +48,9 @@ public interface ViewComputationResultModel {
   DependencyGraphModel getDependencyGraphModel();
   
   ViewComputationCache getComputationCache();
+  
+  Portfolio getPortfolio();
+  
   // review this.
   // this should probably be removed now we package securities with positions.
   @Deprecated
