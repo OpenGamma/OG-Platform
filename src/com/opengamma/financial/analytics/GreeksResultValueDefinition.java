@@ -8,10 +8,8 @@ package com.opengamma.financial.analytics;
 import java.util.Collection;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
-import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.util.KeyValuePair;
