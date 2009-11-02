@@ -75,7 +75,7 @@ public class DependencyNodeFormatter {
     for(int i = 0; i < indentLevel; i++) {
       pw.print(getIndentText());
     }
-    pw.print(node.toString());
+    pw.println(node.toString());
     for(DependencyNode subNode : node.getInputNodes()) {
       format(pw, subNode, indentLevel + 1);
     }
