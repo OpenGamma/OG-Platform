@@ -25,6 +25,7 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.DiscountCurveAnalyticValue;
 import com.opengamma.financial.analytics.DiscountCurveValueDefinition;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 
@@ -85,7 +86,7 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
       Double price = fieldContainer.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
-    DiscountCurve discountCurve = new DiscountCurve(timeInYearsToRates, s_interpolator);
+    DiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, s_interpolator);
 
     return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
   }
