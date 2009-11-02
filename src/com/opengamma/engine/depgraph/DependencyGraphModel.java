@@ -112,7 +112,7 @@ public class DependencyGraphModel {
     if(liveDataAvailabilityProvider.isAvailable(outputValue)) {
       assert !_requiredLiveData.contains(outputValue) : "Should have found existing dependency graph node.";
       _requiredLiveData.add(outputValue);
-      node = new DependencyNode(new LiveDataSourcingFunction(outputValue));
+      node = new DependencyNode(new LiveDataSourcingFunction(outputValue), null);
       _primitiveGraph.addNode(node);
       _primitiveGraph.addRequiredLiveData(outputValue);
       return node;
@@ -135,7 +135,7 @@ public class DependencyGraphModel {
     {
       assert function instanceof PrimitiveAnalyticFunctionDefinition;
       PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
-      node = new DependencyNode(primitiveFunction);
+      node = new DependencyNode(primitiveFunction, null);
       nodeInputs = primitiveFunction.getInputs();
       depGraph = _primitiveGraph;
       break;

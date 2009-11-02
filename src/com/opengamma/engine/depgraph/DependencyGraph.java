@@ -226,7 +226,7 @@ public class DependencyGraph {
     if(liveDataAvailabilityProvider.isAvailable(outputValue)) {
       assert !requiredLiveData.contains(outputValue) : "Should have found existing dependency graph node.";
       requiredLiveData.add(outputValue);
-      node = new DependencyNode(new LiveDataSourcingFunction(outputValue));
+      node = new DependencyNode(new LiveDataSourcingFunction(outputValue), null);
       nodeResolver.addSubGraph(node);
       return node;
     }
@@ -278,7 +278,7 @@ public class DependencyGraph {
     } else {
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
         assert getComputationTargetType() == ComputationTarget.PRIMITIVE;
-        node = new DependencyNode((PrimitiveAnalyticFunctionDefinition) function);
+        node = new DependencyNode((PrimitiveAnalyticFunctionDefinition) function, null);
       } else if(function instanceof SecurityAnalyticFunctionDefinition) {
         _position = null;
         assert getComputationTargetType() == ComputationTarget.SECURITY;

@@ -42,40 +42,37 @@ public class DependencyNode {
   private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedInputs =
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
-  public DependencyNode(PrimitiveAnalyticFunctionDefinition function) {
+  @SuppressWarnings("unchecked")
+  public DependencyNode(AnalyticFunctionDefinition function, Object computationTarget) {
     ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
-    _computationTargetType = ComputationTargetType.PRIMITIVE;
-    _computationTarget = null;
     _function = function;
-    _outputValues.addAll(function.getPossibleResults());
-    _inputValues.addAll(function.getInputs());
-  }
-  
-  public DependencyNode(SecurityAnalyticFunctionDefinition function, Security security) {
-    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
-    _computationTargetType = ComputationTargetType.SECURITY;
-    _computationTarget = security;
-    _function = function;
-    _outputValues.addAll(function.getPossibleResults(security));
-    _inputValues.addAll(function.getInputs(security));
-  }
-  
-  public DependencyNode(PositionAnalyticFunctionDefinition function, Position position) {
-    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
-    _computationTargetType = ComputationTargetType.POSITION;
-    _computationTarget = position;
-    _function = function;
-    _outputValues.addAll(function.getPossibleResults(position));
-    _inputValues.addAll(function.getInputs(position));
-  }
-
-  public DependencyNode(AggregatePositionAnalyticFunctionDefinition function, Collection<Position> positions) {
-    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
-    _computationTargetType = ComputationTargetType.MULTIPLE_POSITIONS;
-    _computationTarget = positions;
-    _function = function;
-    _outputValues.addAll(function.getPossibleResults(positions));
-    _inputValues.addAll(function.getInputs(positions));
+    _computationTargetType = function.getTargetType();
+    _computationTarget = computationTarget;
+    if(!ComputationTargetType.isCompatible(function.getTargetType(), computationTarget)) {
+      throw new IllegalArgumentException("Computation target " + computationTarget + " not compatible with function's target type " + function.getTargetType());
+    }
+    switch(_computationTargetType) {
+    case PRIMITIVE:
+      PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      _inputValues.addAll(primitiveFunction.getInputs());
+      _outputValues.addAll(primitiveFunction.getPossibleResults());
+      break;
+    case SECURITY:
+      SecurityAnalyticFunctionDefinition securityFunction = (SecurityAnalyticFunctionDefinition) function;
+      _inputValues.addAll(securityFunction.getInputs((Security) computationTarget));
+      _outputValues.addAll(securityFunction.getPossibleResults((Security) computationTarget));
+      break;
+    case POSITION:
+      PositionAnalyticFunctionDefinition positionFunction = (PositionAnalyticFunctionDefinition) function;
+      _inputValues.addAll(positionFunction.getInputs((Position) computationTarget));
+      _outputValues.addAll(positionFunction.getPossibleResults((Position) computationTarget));
+      break;
+    case MULTIPLE_POSITIONS:
+      AggregatePositionAnalyticFunctionDefinition aggFunction = (AggregatePositionAnalyticFunctionDefinition) function;
+      _inputValues.addAll(aggFunction.getInputs((Collection) computationTarget));
+      _outputValues.addAll(aggFunction.getPossibleResults((Collection) computationTarget));
+      break;
+    }
   }
   
   /**
