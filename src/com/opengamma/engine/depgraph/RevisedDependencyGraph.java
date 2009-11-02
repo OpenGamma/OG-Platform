@@ -110,5 +110,32 @@ public class RevisedDependencyGraph {
   public AnalyticValueDefinition<?> getResolvedRequirement(AnalyticValueDefinition<?> requiredOutput) {
     return _resolvedRequirements.get(requiredOutput);
   }
+  
+  /**
+   * Obtain all nodes that have no <em>local</em> inputs. If there is another
+   * {@link RevisedDependencyGraph} which contains pointers to a particular node, but no node
+   * in the current graph, this method will include that node.
+   * 
+   * @return
+   */
+  public Set<DependencyNode> getNodesWithoutLocalInputs() {
+    Set<DependencyNode> result = new HashSet<DependencyNode>();
+    result.addAll(_nodes);
+    for(DependencyNode node : _nodes) {
+      removeInputNodes(node, result);
+    }
+    return result;
+  }
+
+  /**
+   * @param node
+   * @param result
+   */
+  protected void removeInputNodes(DependencyNode node, Set<DependencyNode> result) {
+    for(DependencyNode inputNode : node.getInputNodes()) {
+      result.remove(inputNode);
+      removeInputNodes(inputNode, result);
+    }
+  }
 
 }
