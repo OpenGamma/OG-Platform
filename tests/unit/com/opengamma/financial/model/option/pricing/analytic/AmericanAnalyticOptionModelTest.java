@@ -130,6 +130,7 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
 
   private void testResult(final GreekResultCollection result, final double value, final double eps) {
     assertEquals(((Double) result.get(Greek.PRICE).getResult()), value, eps);
+    System.out.println(result.get(Greek.PRICE) + " " + value);
   }
 
 }

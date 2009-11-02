@@ -23,6 +23,17 @@ public class LeastSquaresRegressionResult {
   private final Double[] _tStats;
   private final Double[] _pValues;
 
+  public LeastSquaresRegressionResult(final LeastSquaresRegressionResult result) {
+    _betas = result.getBetas();
+    _residuals = result.getResiduals();
+    _meanSquareError = result.getMeanSquareError();
+    _standardErrorOfBeta = result.getStandardErrorOfBetas();
+    _rSquared = result.getRSquared();
+    _rSquaredAdjusted = result.getAdjustedRSquared();
+    _tStats = result.getTStatistics();
+    _pValues = result.getPValues();
+  }
+
   public LeastSquaresRegressionResult(final Double[] betas, final Double[] residuals, final Double meanSquareError, final Double[] standardErrorOfBeta, final Double rSquared,
       final Double rSquaredAdjusted, final Double[] tStats, final Double[] pValues) {
     _betas = betas;
@@ -65,6 +76,19 @@ public class LeastSquaresRegressionResult {
 
   public Double[] getPValues() {
     return _pValues;
+  }
+
+  public Double getPredictedValue(final Double[] x) {
+    if (x == null)
+      throw new IllegalArgumentException("x array was null");
+    final Double[] betas = getBetas();
+    if (x.length != betas.length)
+      throw new IllegalArgumentException("Number of variables did not match number used in regression");
+    double sum = 0;
+    for (int i = 0; i < x.length; i++) {
+      sum += x[i] * betas[i];
+    }
+    return sum;
   }
 
   @Override

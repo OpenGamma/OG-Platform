@@ -55,20 +55,17 @@ public class JuZhongOptionModel extends AnalyticOptionModel<AmericanVanillaOptio
         final double beta = getBeta(r, b, sigmaSq);
         final double lambda = getLambda(phi, alpha, beta, h);
         final double lambdaDash = getLambdaDash(phi, alpha, beta, h);
-        System.out.println(h + " " + alpha + " " + beta + " " + lambda + " " + lambdaDash);
-        final Function1D<Double, Double> function = getFunction(phi, Math.exp(-r * t), k, t, sigmaSq, b, lambda, definition, data);
+        final Function1D<Double, Double> function = getFunction(phi, Math.exp(-b * t), k, t, sigmaSq, b, lambda, definition, data);
         final double sEstimate = FINDER.getRoot(function, 0., s * 2);
-        System.out.println(sEstimate);
         if (phi * (sEstimate - s) <= 0)
           return phi * (s - k);
         final double estimatePrice = ((SingleGreekResult) BSM.getGreeks(definition, data.withSpot(sEstimate), PRICE).get(Greek.PRICE)).getResult();
-        System.out.println(estimatePrice);
         final double hA = phi * (sEstimate - k) - estimatePrice;
         final double derivative = getDerivative(k, r, b, t, sigma, phi, sEstimate);
-        final double c = getC(phi, alpha, lambdaDash, lambda, beta);
+        final double c = getC(h, alpha, lambdaDash, lambda, beta);
         final double d = getD(h, alpha, derivative, hA, lambdaDash, lambda, beta);
-        final double chi = c * Math.pow(Math.log(s / sEstimate), 2) + d * Math.log(s / sEstimate);
-        System.out.println(hA + " " + derivative + " " + c + " " + d + " " + chi);
+        final double ratio = Math.log(s / sEstimate);
+        final double chi = c * Math.pow(ratio, 2) + d * ratio;
         return bsmPrice + hA * Math.pow(s / sEstimate, lambda) / (1 - chi);
       }
 
@@ -102,18 +99,14 @@ public class JuZhongOptionModel extends AnalyticOptionModel<AmericanVanillaOptio
   }
 
   protected double getD(final double h, final double alpha, final double derivative, final double hA, final double lambdaDash, final double lambda, final double beta) {
-    return (1 - h) * alpha * (derivative / hA + 1 / h + lambdaDash / (2 * lambda + beta - 1)) / (2 * lambda + beta - 1);
-  }
-
-  protected double getChi(final double b, final double s, final double sEstimate, final double c) {
-    return b * Math.pow(Math.log(s / sEstimate), 2) + c * Math.log(s / sEstimate);
+    final double denom = 2 * lambda + beta - 1;
+    return (1 - h) * alpha * (derivative / hA + 1 / h + lambdaDash / denom) / denom;
   }
 
   protected double getDerivative(final double k, final double r, final double b, final double t, final double sigma, final double phi, final double sEstimate) {
     final double df = Math.exp(t * (r - b));
     final double d1 = getD1(sEstimate, k, t, sigma, b);
     final double d2 = getD2(d1, sigma, t);
-    System.out.println("--- " + sEstimate + " " + k + " " + d1 + " " + d2 + " " + _normal.getPDF(d1) + " " + _normal.getCDF(phi * d2));
     return sEstimate * _normal.getPDF(d1) * sigma * df / (2 * r * Math.sqrt(t)) - phi * b * sEstimate * _normal.getCDF(phi * d1) * df / r + phi * k * _normal.getCDF(phi * d2);
   }
 

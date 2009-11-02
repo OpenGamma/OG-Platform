@@ -70,8 +70,13 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
       }
     }
     final LeastSquaresRegressionResult newResult = _regression.regress(newX, newW, y, useIntercept);
-    if (result.getAdjustedRSquared() > newResult.getAdjustedRSquared())
-      return result;
+    if (areCoefficientsSignificant(newResult.getPValues())) {
+      final List<String> names = new ArrayList<String>();
+      for (final Integer index : significantIndex) {
+        names.add(index.toString());
+      }
+      return new NamedVariableLeastSquaredRegressionResult(names, newResult);
+    }
     return getBestResult(newResult, newX, newW, y, useIntercept);
   }
 
