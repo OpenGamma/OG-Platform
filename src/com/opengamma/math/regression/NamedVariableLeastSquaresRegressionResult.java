@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author emcleod
  */
-public class NamedVariableLeastSquaredRegressionResult extends LeastSquaresRegressionResult {
-  private static final Logger s_Log = LoggerFactory.getLogger(NamedVariableLeastSquaredRegressionResult.class);
+public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
+  private static final Logger s_Log = LoggerFactory.getLogger(NamedVariableLeastSquaresRegressionResult.class);
   private final List<String> _independentVariableNames;
   private final LeastSquaresRegressionResult _result;
 
-  public NamedVariableLeastSquaredRegressionResult(final List<String> independentVariableNames, final LeastSquaresRegressionResult result) {
+  public NamedVariableLeastSquaresRegressionResult(final List<String> independentVariableNames, final LeastSquaresRegressionResult result) {
     super(result);
     if (independentVariableNames.size() != result.getBetas().length)
       throw new IllegalArgumentException("Length of variable name array did not match number of results in the regression");

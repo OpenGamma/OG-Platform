@@ -75,7 +75,7 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
       for (final Integer index : significantIndex) {
         names.add(index.toString());
       }
-      return new NamedVariableLeastSquaredRegressionResult(names, newResult);
+      return new NamedVariableLeastSquaresRegressionResult(names, newResult);
     }
     return getBestResult(newResult, newX, newW, y, useIntercept);
   }

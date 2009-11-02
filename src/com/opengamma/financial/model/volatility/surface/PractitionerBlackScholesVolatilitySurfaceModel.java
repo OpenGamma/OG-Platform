@@ -22,7 +22,7 @@ import com.opengamma.math.function.Function2D;
 import com.opengamma.math.regression.AdaptiveLeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.math.regression.NamedVariableLeastSquaredRegressionResult;
+import com.opengamma.math.regression.NamedVariableLeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
 
 /**
@@ -117,7 +117,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   private VolatilitySurface getVolatilitySurfaceForRegression(final LeastSquaresRegressionResult result) {
     if (_regression instanceof OrdinaryLeastSquaresRegression)
       return new OrdinaryLeastSquareRegressionVolatilitySurface(result);
-    return new AdaptiveLeastSquareRegressionVolatilitySurface((NamedVariableLeastSquaredRegressionResult) result);
+    return new AdaptiveLeastSquareRegressionVolatilitySurface((NamedVariableLeastSquaresRegressionResult) result);
   }
 
   private class OrdinaryLeastSquareRegressionVolatilitySurface extends VolatilitySurface {
@@ -135,9 +135,9 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   }
 
   private class AdaptiveLeastSquareRegressionVolatilitySurface extends VolatilitySurface {
-    private final NamedVariableLeastSquaredRegressionResult _result;
+    private final NamedVariableLeastSquaresRegressionResult _result;
 
-    public AdaptiveLeastSquareRegressionVolatilitySurface(final NamedVariableLeastSquaredRegressionResult result) {
+    public AdaptiveLeastSquareRegressionVolatilitySurface(final NamedVariableLeastSquaresRegressionResult result) {
       _result = result;
     }
 
