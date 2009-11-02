@@ -47,11 +47,11 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, matrix)), transpose), vector);
     final Double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final Double[] betas = convertArray(betasVector.toArray());
-    return getResultWithStatistics(x, y, betas, yModel, transpose, matrix);
+    return getResultWithStatistics(x, y, betas, yModel, transpose, matrix, useIntercept);
   }
 
   private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[] y, final Double[] betas, final Double[] yModel, final DoubleMatrix2D transpose,
-      final DoubleMatrix2D matrix) {
+      final DoubleMatrix2D matrix, final boolean useIntercept) {
     Double yMean = 0.;
     for (final Double y1 : y) {
       yMean += y1;
@@ -81,6 +81,6 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
       tStats[i] = betas[i] / stdErrorBetas[i];
       pValues[i] = 1 - studentT.getCDF(Math.abs(tStats[i]));
     }
-    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, stdErrorBetas, rSquared, adjustedRSquared, tStats, pValues);
+    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, stdErrorBetas, rSquared, adjustedRSquared, tStats, pValues, useIntercept);
   }
 }

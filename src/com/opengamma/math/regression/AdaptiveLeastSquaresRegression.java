@@ -21,6 +21,10 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
   private final double _significanceLevel;
 
   public AdaptiveLeastSquaresRegression(final LeastSquaresRegression regression, final double significanceLevel) {
+    if (regression == null)
+      throw new IllegalArgumentException("Regression was null");
+    if (significanceLevel <= 0)
+      throw new IllegalArgumentException("Significance level must be greater than zero; have " + significanceLevel);
     _regression = regression;
     _significanceLevel = significanceLevel;
   }
@@ -33,38 +37,40 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     try {
       return getBestResult(result, x, weights, y, useIntercept);
     } catch (final RegressionException e) {
-      s_Log.info("Could not find improvement on original regression; this is the result that has been returned");
+      s_Log.info("Could not find improvement on original regression; returning original");
       return result;
     }
   }
 
   private LeastSquaresRegressionResult getBestResult(final LeastSquaresRegressionResult result, final Double[][] x, final Double[][] w, final Double[] y, final boolean useIntercept) {
-    final Double[] pStats = result.getPValues();
+    final Double[] pValues = result.getPValues();
     final List<Integer> significantIndex = new ArrayList<Integer>();
     int i = 0;
-    for (final Double p : pStats) {
+    for (final Double p : pValues) {
       if (isCoefficientSignificant(p)) {
         significantIndex.add(i);
       }
       i++;
     }
-    final int oldLength = pStats.length;
+    final int oldLength = pValues.length;
     final int newLength = significantIndex.size();
     if (newLength == 0) {
       s_Log.info("Could not find any significant regression coefficients");
       return result;
     }
-    if (newLength == pStats.length)
+    if (newLength == pValues.length)
       return result;
     final Double[][] newX = new Double[x.length][newLength];
-    final Double[][] newW = new Double[x.length][newLength];
+    final Double[][] newW = w == null ? null : new Double[x.length][newLength];
     int k;
     for (i = 0; i < x.length; i++) {
+      k = 0;
       for (int j = 0; j < oldLength; j++) {
-        k = 0;
         if (significantIndex.contains(j)) {
           newX[i][k] = x[i][j];
-          newW[i][k] = w[i][j];
+          if (w != null) {
+            newW[i][k] = w[i][j];
+          }
           k++;
         }
       }
@@ -80,16 +86,16 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     return getBestResult(newResult, newX, newW, y, useIntercept);
   }
 
-  private boolean areCoefficientsSignificant(final Double[] pStats) {
-    for (final Double p : pStats) {
+  private boolean areCoefficientsSignificant(final Double[] pValue) {
+    for (final Double p : pValue) {
       if (!isCoefficientSignificant(p))
         return false;
     }
     return true;
   }
 
-  private boolean isCoefficientSignificant(final Double pStat) {
-    if (pStat > _significanceLevel)
+  private boolean isCoefficientSignificant(final Double pValue) {
+    if (pValue > _significanceLevel)
       return false;
     return true;
   }

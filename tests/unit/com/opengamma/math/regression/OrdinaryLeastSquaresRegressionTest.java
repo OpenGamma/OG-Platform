@@ -21,16 +21,34 @@ public class OrdinaryLeastSquaresRegressionTest {
 
   @Test
   public void test() {
-    final Double[][] x = new Double[20][5];
-    final Double[] y = new Double[20];
-    final double[] a = new double[] { 3.4, 1.2, -0.62, -0.44, 0.65 };
-    for (int i = 0; i < 20; i++) {
+    final int n = 20;
+    final Double[][] x = new Double[n][5];
+    final Double[] y1 = new Double[n];
+    final Double[] y2 = new Double[n];
+    final double[] a1 = new double[] { 3.4, 1.2, -0.62, -0.44, 0.65 };
+    final double[] a2 = new double[] { 0.98, 3.4, 1.2, -0.62, -0.44, 0.65 };
+    for (int i = 0; i < n; i++) {
       for (int j = 0; j < 5; j++) {
         x[i][j] = Math.random() + (Math.random() - 0.5) / FACTOR;
       }
-      y[i] = a[0] * x[i][0] + a[1] * x[i][1] + a[2] * x[i][2] + a[3] * x[i][3] + a[4] * x[i][4] + Math.random() / FACTOR;
+      y1[i] = a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4] + Math.random() / FACTOR;
+      y2[i] = a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4] + Math.random() / FACTOR;
     }
-    final LeastSquaresRegressionResult result = REGRESSION.regress(x, null, y, false);
+    final LeastSquaresRegressionResult result1 = REGRESSION.regress(x, null, y1, false);
+    final LeastSquaresRegressionResult result2 = REGRESSION.regress(x, null, y2, true);
+    testRegression(result1, a1);
+    testRegression(result2, a2);
+    final Double[] residuals1 = result1.getResiduals();
+    for (int i = 0; i < n; i++) {
+      assertEquals(y1[i], a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4] + residuals1[i], 10 * EPS);
+    }
+    final Double[] residuals2 = result2.getResiduals();
+    for (int i = 0; i < n; i++) {
+      assertEquals(y2[i], a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4] + residuals2[i], 10 * EPS);
+    }
+  }
+
+  private void testRegression(final LeastSquaresRegressionResult result, final double[] a) {
     final Double[] beta = result.getBetas();
     final Double[] tStat = result.getTStatistics();
     final Double[] pStat = result.getPValues();
@@ -43,9 +61,5 @@ public class OrdinaryLeastSquaresRegressionTest {
     }
     assertEquals(result.getRSquared(), 1, EPS);
     assertEquals(result.getAdjustedRSquared(), 1, EPS);
-    final Double[] residuals = result.getResiduals();
-    for (int i = 0; i < 20; i++) {
-      assertEquals(y[i], a[0] * x[i][0] + a[1] * x[i][1] + a[2] * x[i][2] + a[3] * x[i][3] + a[4] * x[i][4] + residuals[i], 10 * EPS);
-    }
   }
 }

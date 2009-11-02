@@ -59,11 +59,11 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
         vector);
     final Double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final Double[] betas = convertArray(betasVector.toArray());
-    return getResultWithStatistics(x, convertArray(wDiag.toArray()), y, betas, yModel, transpose, matrix);
+    return getResultWithStatistics(x, convertArray(wDiag.toArray()), y, betas, yModel, transpose, matrix, useIntercept);
   }
 
   private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[][] w, final Double[] y, final Double[] betas, final Double[] yModel,
-      final DoubleMatrix2D transpose, final DoubleMatrix2D matrix) {
+      final DoubleMatrix2D transpose, final DoubleMatrix2D matrix, final boolean useIntercept) {
     Double yMean = 0.;
     for (final Double y1 : y) {
       yMean += y1;
@@ -93,6 +93,6 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
       tStats[i] = betas[i] / standardErrorsOfBeta[i];
       pValues[i] = 1 - studentT.getCDF(Math.abs(tStats[i]));
     }
-    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorsOfBeta, rSquared, adjustedRSquared, tStats, pValues);
+    return new WeightedLeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorsOfBeta, rSquared, adjustedRSquared, tStats, pValues, useIntercept);
   }
 }

@@ -41,10 +41,10 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(w, matrix))), transpose), w), vector);
     final Double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final Double[] betas = convertArray(betasVector.toArray());
-    return getResultWithStatistics(x, y, betas, yModel);
+    return getResultWithStatistics(x, y, betas, yModel, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[] y, final Double[] betas, final Double[] yModel) {
+  private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[] y, final Double[] betas, final Double[] yModel, final boolean useIntercept) {
     Double yMean = 0.;
     for (final Double y1 : y) {
       yMean += y1;
@@ -55,6 +55,6 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     for (int i = 0; i < n; i++) {
       residuals[i] = y[i] - yModel[i];
     }
-    return new LeastSquaresRegressionResult(betas, residuals, null, null, null, null, null, null);
+    return new WeightedLeastSquaresRegressionResult(betas, residuals, null, null, null, null, null, null, useIntercept);
   }
 }

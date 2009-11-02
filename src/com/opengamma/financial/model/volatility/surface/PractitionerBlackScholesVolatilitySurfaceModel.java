@@ -63,7 +63,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
     if (useAdaptiveModel) {
       _regression = new AdaptiveLeastSquaresRegression(ols, significanceLevel);
     } else {
-      s_Log.info("Significance level was provider, but model being used is not adaptive");
+      s_Log.info("Significance level was provided, but model being used is not adaptive");
       _regression = ols;
     }
   }
@@ -115,41 +115,27 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   }
 
   private VolatilitySurface getVolatilitySurfaceForRegression(final LeastSquaresRegressionResult result) {
-    if (_regression instanceof OrdinaryLeastSquaresRegression)
-      return new OrdinaryLeastSquareRegressionVolatilitySurface(result);
-    return new AdaptiveLeastSquareRegressionVolatilitySurface((NamedVariableLeastSquaresRegressionResult) result);
-  }
+    if (result instanceof NamedVariableLeastSquaresRegressionResult)
+      return new VolatilitySurface() {
 
-  private class OrdinaryLeastSquareRegressionVolatilitySurface extends VolatilitySurface {
-    private final LeastSquaresRegressionResult _result;
+        @Override
+        public Double getVolatility(final Double t, final Double k) {
+          final Double[] values = _independentVariableFunction.evaluate(t, k);
+          final Map<String, Double> namesAndValues = new HashMap<String, Double>();
+          for (int i = 0; i < values.length; i++) {
+            namesAndValues.put(Integer.toString(i), values[i]);
+          }
+          return ((NamedVariableLeastSquaresRegressionResult) result).getPredictedValue(namesAndValues);
+        }
 
-    public OrdinaryLeastSquareRegressionVolatilitySurface(final LeastSquaresRegressionResult result) {
-      _result = result;
-    }
+      };
+    return new VolatilitySurface() {
 
-    @Override
-    public Double getVolatility(final Double t, final Double k) {
-      final Double[] x = _independentVariableFunction.evaluate(t, k);
-      return _result.getPredictedValue(x);
-    }
-  }
-
-  private class AdaptiveLeastSquareRegressionVolatilitySurface extends VolatilitySurface {
-    private final NamedVariableLeastSquaresRegressionResult _result;
-
-    public AdaptiveLeastSquareRegressionVolatilitySurface(final NamedVariableLeastSquaresRegressionResult result) {
-      _result = result;
-    }
-
-    @Override
-    public Double getVolatility(final Double t, final Double k) {
-      final Double[] x = _independentVariableFunction.evaluate(t, k);
-      final List<String> names = _result.getIndependentVariableNames();
-      final Map<String, Double> usedVariables = new HashMap<String, Double>();
-      for (final String name : names) {
-        usedVariables.put(name, x[Integer.parseInt(name)]);
+      @Override
+      public Double getVolatility(final Double t, final Double k) {
+        return result.getPredictedValue(_independentVariableFunction.evaluate(t, k));
       }
-      return _result.getPredictedValueForVariables(usedVariables);
-    }
+
+    };
   }
 }

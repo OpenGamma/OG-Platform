@@ -29,6 +29,6 @@ public abstract class FunctionND<S, T> implements Function<S, T> {
     return _dimension;
   }
 
-  public abstract T evaluateFunction(S[] x);
+  protected abstract T evaluateFunction(S[] x);
 
 }

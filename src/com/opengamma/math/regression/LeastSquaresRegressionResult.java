@@ -22,8 +22,11 @@ public class LeastSquaresRegressionResult {
   private final Double _rSquaredAdjusted;
   private final Double[] _tStats;
   private final Double[] _pValues;
+  private final boolean _hasIntercept;
 
   public LeastSquaresRegressionResult(final LeastSquaresRegressionResult result) {
+    if (result == null)
+      throw new IllegalArgumentException("Regression result was null");
     _betas = result.getBetas();
     _residuals = result.getResiduals();
     _meanSquareError = result.getMeanSquareError();
@@ -32,10 +35,11 @@ public class LeastSquaresRegressionResult {
     _rSquaredAdjusted = result.getAdjustedRSquared();
     _tStats = result.getTStatistics();
     _pValues = result.getPValues();
+    _hasIntercept = result.hasIntercept();
   }
 
   public LeastSquaresRegressionResult(final Double[] betas, final Double[] residuals, final Double meanSquareError, final Double[] standardErrorOfBeta, final Double rSquared,
-      final Double rSquaredAdjusted, final Double[] tStats, final Double[] pValues) {
+      final Double rSquaredAdjusted, final Double[] tStats, final Double[] pValues, final boolean hasIntercept) {
     _betas = betas;
     _residuals = residuals;
     _meanSquareError = meanSquareError;
@@ -44,6 +48,7 @@ public class LeastSquaresRegressionResult {
     _rSquaredAdjusted = rSquaredAdjusted;
     _tStats = tStats;
     _pValues = pValues;
+    _hasIntercept = hasIntercept;
   }
 
   public Double[] getBetas() {
@@ -78,15 +83,32 @@ public class LeastSquaresRegressionResult {
     return _pValues;
   }
 
+  public boolean hasIntercept() {
+    return _hasIntercept;
+  }
+
   public Double getPredictedValue(final Double[] x) {
     if (x == null)
       throw new IllegalArgumentException("x array was null");
     final Double[] betas = getBetas();
-    if (x.length != betas.length)
-      throw new IllegalArgumentException("Number of variables did not match number used in regression");
+    if (hasIntercept()) {
+      if (x.length != betas.length - 1)
+        throw new IllegalArgumentException("Number of variables did not match number used in regression");
+    } else {
+      if (x.length != betas.length)
+        throw new IllegalArgumentException("Number of variables did not match number used in regression");
+    }
     double sum = 0;
-    for (int i = 0; i < x.length; i++) {
-      sum += x[i] * betas[i];
+    for (int i = 0; i < (hasIntercept() ? x.length + 1 : x.length); i++) {
+      if (hasIntercept()) {
+        if (i == 0) {
+          sum += betas[0];
+        } else {
+          sum += betas[i] * x[i - 1];
+        }
+      } else {
+        sum += x[i] * betas[i];
+      }
     }
     return sum;
   }
@@ -96,6 +118,7 @@ public class LeastSquaresRegressionResult {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(_betas);
+    result = prime * result + (_hasIntercept ? 1231 : 1237);
     result = prime * result + (_meanSquareError == null ? 0 : _meanSquareError.hashCode());
     result = prime * result + Arrays.hashCode(_pValues);
     result = prime * result + (_rSquared == null ? 0 : _rSquared.hashCode());
@@ -116,6 +139,8 @@ public class LeastSquaresRegressionResult {
       return false;
     final LeastSquaresRegressionResult other = (LeastSquaresRegressionResult) obj;
     if (!Arrays.equals(_betas, other._betas))
+      return false;
+    if (_hasIntercept != other._hasIntercept)
       return false;
     if (_meanSquareError == null) {
       if (other._meanSquareError != null)
