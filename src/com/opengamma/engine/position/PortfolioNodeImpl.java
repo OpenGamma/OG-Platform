@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * A simple implementation of {@link PortfolioNode}. 
  *
@@ -56,6 +59,14 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   @Override
   public String getName() {
     return _name;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("PortfolioNodeImpl[").append(getName());
+    sb.append(" ").append(_positions.size() + " positions, ").append(_subNodes.size() + " sub-nodes]");
+    return sb.toString();
   }
 
 }

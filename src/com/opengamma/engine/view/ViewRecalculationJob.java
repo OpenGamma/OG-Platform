@@ -61,6 +61,7 @@ public class ViewRecalculationJob extends TerminatableJob {
   protected void runOneCycle() {
     PortfolioEvaluationModel portfolioEvaluationModel = getView().getPortfolioEvaluationModel();
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
+    result.addPortfolio(portfolioEvaluationModel.getPortfolio());
     
     SingleComputationCycle cycle = new SingleComputationCycle(
         getView().getDefinition().getName(),

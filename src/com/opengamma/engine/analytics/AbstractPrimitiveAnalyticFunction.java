@@ -5,12 +5,9 @@
  */
 package com.opengamma.engine.analytics;
 
-import java.util.Collection;
-
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 
 /**
  * 
@@ -24,4 +21,10 @@ public abstract class AbstractPrimitiveAnalyticFunction extends AbstractAnalytic
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
   }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PRIMITIVE;
+  }
+
 }

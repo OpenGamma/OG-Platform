@@ -28,6 +28,7 @@ import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A logical dependency graph capable of satisfying computations
@@ -178,12 +179,8 @@ public class DependencyGraph {
   public void buildDependencyGraph(
       AnalyticFunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
-    if(functionRepository == null) {
-      throw new NullPointerException("Function repository cannot be null.");
-    }
-    if(liveDataAvailabilityProvider == null) {
-      throw new NullPointerException("Live data availability provider cannot be null.");
-    }
+    ArgumentChecker.checkNotNull(functionRepository, "Analytic Function Repository");
+    ArgumentChecker.checkNotNull(liveDataAvailabilityProvider, "Live Data Availability Provider");
     buildDependencyGraphImpl(functionRepository, liveDataAvailabilityProvider);
   }
   

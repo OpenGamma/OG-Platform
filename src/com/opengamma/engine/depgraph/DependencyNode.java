@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -21,6 +22,7 @@ import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An individual node in any dependency graph.
@@ -28,6 +30,8 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public class DependencyNode {
+  private final ComputationTargetType _computationTargetType;
+  private final Object _computationTarget;
   private final AnalyticFunctionDefinition _function;
   private final Set<AnalyticValueDefinition<?>> _outputValues =
     new HashSet<AnalyticValueDefinition<?>>();
@@ -39,36 +43,36 @@ public class DependencyNode {
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
   public DependencyNode(PrimitiveAnalyticFunctionDefinition function) {
-    if(function == null) {
-      throw new NullPointerException("Must provide a function for this node.");
-    }
+    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
+    _computationTargetType = ComputationTargetType.PRIMITIVE;
+    _computationTarget = null;
     _function = function;
     _outputValues.addAll(function.getPossibleResults());
     _inputValues.addAll(function.getInputs());
   }
   
   public DependencyNode(SecurityAnalyticFunctionDefinition function, Security security) {
-    if(function == null) {
-      throw new NullPointerException("Must provide a function for this node.");
-    }
+    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
+    _computationTargetType = ComputationTargetType.SECURITY;
+    _computationTarget = security;
     _function = function;
     _outputValues.addAll(function.getPossibleResults(security));
     _inputValues.addAll(function.getInputs(security));
   }
   
   public DependencyNode(PositionAnalyticFunctionDefinition function, Position position) {
-    if(function == null) {
-      throw new NullPointerException("Must provide a function for this node.");
-    }
+    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
+    _computationTargetType = ComputationTargetType.POSITION;
+    _computationTarget = position;
     _function = function;
     _outputValues.addAll(function.getPossibleResults(position));
     _inputValues.addAll(function.getInputs(position));
   }
 
   public DependencyNode(AggregatePositionAnalyticFunctionDefinition function, Collection<Position> positions) {
-    if(function == null) {
-      throw new NullPointerException("Must provide a function for this node.");
-    }
+    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
+    _computationTargetType = ComputationTargetType.MULTIPLE_POSITIONS;
+    _computationTarget = positions;
     _function = function;
     _outputValues.addAll(function.getPossibleResults(positions));
     _inputValues.addAll(function.getInputs(positions));
@@ -98,6 +102,20 @@ public class DependencyNode {
    */
   public AnalyticFunctionDefinition getFunction() {
     return _function;
+  }
+
+  /**
+   * @return the computationTargetType
+   */
+  public ComputationTargetType getComputationTargetType() {
+    return _computationTargetType;
+  }
+
+  /**
+   * @return the computationTarget
+   */
+  public Object getComputationTarget() {
+    return _computationTarget;
   }
 
   public void addOutputValues(Collection<AnalyticValueDefinition<?>> outputValues) {

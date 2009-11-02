@@ -19,6 +19,9 @@ import com.opengamma.engine.security.Security;
 public interface AnalyticFunctionResolver {
   
   AnalyticFunctionDefinition resolve(
+      AnalyticValueDefinition<?> requiredValue);
+  
+  AnalyticFunctionDefinition resolve(
       AnalyticValueDefinition<?> requiredValue,
       Security security);
   

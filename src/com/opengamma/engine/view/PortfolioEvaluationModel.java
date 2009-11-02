@@ -44,7 +44,7 @@ import com.opengamma.engine.security.SecurityMaster;
  */
 public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
-  private final PortfolioNode _rootNode;
+  private final Portfolio _portfolio;
 
   private PortfolioNode _populatedRootNode;
   private DependencyGraphModel _dependencyGraphModel;
@@ -52,16 +52,16 @@ public class PortfolioEvaluationModel {
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
   
-  public PortfolioEvaluationModel(PortfolioNode rootNode) {
-    assert rootNode != null;
-    _rootNode = rootNode;
+  public PortfolioEvaluationModel(Portfolio portfolio) {
+    assert portfolio != null;
+    _portfolio = portfolio;
   }
 
   /**
    * @return the rootNode
    */
-  public PortfolioNode getRootNode() {
-    return _rootNode;
+  public Portfolio getPortfolio() {
+    return _portfolio;
   }
 
   /**
@@ -118,7 +118,7 @@ public class PortfolioEvaluationModel {
     assert liveDataSnapshotProvider != null;
     assert viewDefinition != null;
     
-    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getRootNode(), secMaster);
+    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio(), secMaster);
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     

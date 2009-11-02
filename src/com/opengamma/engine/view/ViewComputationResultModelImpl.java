@@ -36,6 +36,7 @@ public class ViewComputationResultModelImpl implements
   private DependencyGraphModel _dependencyGraphModel;
   private SecurityMaster _securityMaster;
   private Portfolio _portfolio;
+  
   @Override
   public long getInputDataTimestamp() {
     return _inputDataTimestamp;

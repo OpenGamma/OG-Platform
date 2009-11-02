@@ -80,12 +80,16 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       Collection<AnalyticValueDefinition<?>> outputs) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
+      Collection<AnalyticValueDefinition<?>> possibleResults = null;
       if(!(function instanceof PrimitiveAnalyticFunctionDefinition)) {
         // Can't work with it because it requires execution inside of a
         // security or position context.
         continue;
       }
-      if(functionProducesAllValuesInternal(function, null, outputs)) {
+      PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      // Might be applicable even if we're in a position-specific context.
+      possibleResults = primitiveFunction.getPossibleResults();
+      if(allValuesSatisfied(outputs, possibleResults)) {
         result.add(function);
       }
     }
@@ -97,10 +101,13 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       Collection<AnalyticValueDefinition<?>> outputs, Security security) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
+      Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
+        PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
         // Might be applicable even if we're in a security-specific context.
         applicable = true;
+        possibleResults = primitiveFunction.getPossibleResults();
       } else if(function instanceof SecurityAnalyticFunctionDefinition) {
         SecurityAnalyticFunctionDefinition secDefinition = (SecurityAnalyticFunctionDefinition) function;
         if(security != null) {
@@ -108,10 +115,12 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
         } else {
           applicable = secDefinition.isApplicableTo((String)null);
         }
+        if(applicable) {
+          possibleResults = secDefinition.getPossibleResults(security);
+        }
       }
       // Neither Position or Aggregate are ever applicable to just a Security.
-      if(applicable
-          && functionProducesAllValuesInternal(function, security, outputs)) {
+      if(applicable && allValuesSatisfied(outputs, possibleResults)) {
         result.add(function);
       }
     }
@@ -123,10 +132,13 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       Collection<AnalyticValueDefinition<?>> outputs, Position position) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
-      boolean applicable = true;
+      Collection<AnalyticValueDefinition<?>> possibleResults = null;
+      boolean applicable = false;
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
+        PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
         // Might be applicable even if we're in a position-specific context.
         applicable = true;
+        possibleResults = primitiveFunction.getPossibleResults();
       } else if(function instanceof SecurityAnalyticFunctionDefinition) {
         // Might be applicable as we've got a security resolved.
         SecurityAnalyticFunctionDefinition secDefinition = (SecurityAnalyticFunctionDefinition) function;
@@ -136,13 +148,18 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
         } else {
           applicable = secDefinition.isApplicableTo((String)null);
         }
+        if(applicable) {
+          possibleResults = secDefinition.getPossibleResults(security);
+        }
       } else if(function instanceof PositionAnalyticFunctionDefinition) {
         PositionAnalyticFunctionDefinition posDefinition = (PositionAnalyticFunctionDefinition) function;
         applicable = posDefinition.isApplicableTo(position);
+        if(applicable) {
+          possibleResults = posDefinition.getPossibleResults(position);
+        }
       }
       // Aggregates are never applicable.
-      if(applicable
-          && functionProducesAllValuesInternal(function, position, outputs)) {
+      if(applicable && allValuesSatisfied(outputs, possibleResults)) {
         result.add(function);
       }
     }
@@ -154,46 +171,36 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
       Collection<AnalyticValueDefinition<?>> outputs, Collection<Position> positions) {
     Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
     for(AnalyticFunctionDefinition function : _functions) {
-      boolean applicable = true;
+      Collection<AnalyticValueDefinition<?>> possibleResults = null;
+      boolean applicable = false;
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
+        PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
         // Might be applicable even if we're in an aggregate context.
         applicable = true;
+        possibleResults = primitiveFunction.getPossibleResults();
       } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
         AggregatePositionAnalyticFunctionDefinition aggDefinition = (AggregatePositionAnalyticFunctionDefinition) function;
         applicable = aggDefinition.isApplicableTo(positions);
+        if(applicable) {
+          possibleResults = aggDefinition.getPossibleResults(positions);
+        }
       }
       // Security and position functions are never applicable to an aggregate
-      if(applicable
-          && functionProducesAllValuesInternal(function, positions, outputs)) {
+      if(applicable && allValuesSatisfied(outputs, possibleResults)) {
         result.add(function);
       }
     }
     return result;
   }
 
-  @SuppressWarnings("unchecked")
-  protected boolean functionProducesAllValuesInternal(
-      AnalyticFunctionDefinition function,
-      Object securityOrPositionOrCollection,
-      Collection<AnalyticValueDefinition<?>> outputs) {
-    Collection<AnalyticValueDefinition<?>> possibleResults = null;
-    if(function instanceof PrimitiveAnalyticFunctionDefinition) {
-      possibleResults = ((PrimitiveAnalyticFunctionDefinition) function).getPossibleResults();
-    } else if(function instanceof SecurityAnalyticFunctionDefinition) {
-      assert securityOrPositionOrCollection instanceof Security;
-      Security security = (Security)securityOrPositionOrCollection;
-      possibleResults = ((SecurityAnalyticFunctionDefinition) function).getPossibleResults(security);
-    } else if(function instanceof PositionAnalyticFunctionDefinition) {
-      assert securityOrPositionOrCollection instanceof Position;
-      Position position = (Position)securityOrPositionOrCollection;
-      possibleResults = ((PositionAnalyticFunctionDefinition) function).getPossibleResults(position);
-    } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
-      assert securityOrPositionOrCollection instanceof Collection;
-      Collection<Position> positions = (Collection<Position>)securityOrPositionOrCollection;
-      possibleResults = ((AggregatePositionAnalyticFunctionDefinition) function).getPossibleResults(positions);
-    } else {
-      throw new UnsupportedOperationException("Can only handle primitive/security functions now.");
-    }
+  /**
+   * @param outputs
+   * @param possibleResults
+   * @return
+   */
+  private boolean allValuesSatisfied(
+      Collection<AnalyticValueDefinition<?>> outputs,
+      Collection<AnalyticValueDefinition<?>> possibleResults) {
     assert possibleResults != null;
     for(AnalyticValueDefinition<?> output : outputs) {
       boolean foundForOutput = false;

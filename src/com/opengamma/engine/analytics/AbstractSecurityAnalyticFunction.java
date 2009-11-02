@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.analytics;
 
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.security.Security;
@@ -23,4 +24,10 @@ public abstract class AbstractSecurityAnalyticFunction extends AbstractAnalyticF
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
   }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
+  }
+
 }

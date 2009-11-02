@@ -116,6 +116,10 @@ implements Lifecycle {
                                                               job.getInputs(), positions, cache, getFunctionRepository());
           }
           break;
+        case PRIMITIVE:
+          invocationJob = new AnalyticFunctionInvocationJob(
+              job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository());
+          break;
         default:
           throw new OpenGammaRuntimeException("switch doesn't cover all cases");
         }
