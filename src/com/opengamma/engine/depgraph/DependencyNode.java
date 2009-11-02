@@ -156,4 +156,18 @@ public class DependencyNode {
     _inputNodes.add(inputNode);
     _resolvedInputs.put(satisfyingInput, inputNode.getBestOutput(satisfyingInput));
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("DependencyNode[");
+    sb.append(getFunction().getShortName());
+    sb.append(" (").append(getComputationTargetType()).append(")");
+    if(getComputationTarget() != null) {
+      sb.append(" on ").append(getComputationTarget());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
 }
