@@ -376,6 +376,10 @@ public class DependencyGraphModel {
   public RevisedDependencyGraph getPrimitiveGraph() {
     return _primitiveGraph;
   }
+  
+  public Set<Security> getSecuritiesWithDependencyGraphs() {
+    return _graphForSecurity.keySet();
+  }
 
   public RevisedDependencyGraph getDependencyGraph(Security security) {
     return _graphForSecurity.get(security);
@@ -383,6 +387,10 @@ public class DependencyGraphModel {
   
   public RevisedDependencyGraph getDependencyGraph(PortfolioNode node) {
     return _graphForAggregatePosition.get(node);
+  }
+  
+  public Set<Position> getPositionsWithDependencyGraphs() {
+    return _graphForPosition.keySet();
   }
 
   public RevisedDependencyGraph getDependencyGraph(Position position) {
