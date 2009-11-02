@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import javax.time.calendar.ZonedDateTime;
@@ -6,10 +11,9 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurveTransformation;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.BivariateNormalDistribution;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -26,121 +30,127 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
+    if (definition == null)
+      throw new IllegalArgumentException("Option definition was null");
+    final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        try {
-          ZonedDateTime date = data.getDate();
-          double s = data.getSpot();
-          double k = definition.getStrike();
-          double t = definition.getTimeToExpiry(date);
-          double sigma = data.getVolatility(t, k);
-          double r = data.getInterestRate(t);
-          double b = data.getCostOfCarry();
-          StandardOptionDataBundle newData = data;
-          if (!definition.isCall()) {
-            r -= b;
-            b *= -1;
-            DiscountCurve curve = DiscountCurveTransformation.getParallelShiftedCurve(data.getDiscountCurve(), -b);
-            newData = new StandardOptionDataBundle(curve, b, data.getVolatilitySurface(), s, date);
-          }
-          if (b >= r) {
-            EuropeanVanillaOptionDefinition european = new EuropeanVanillaOptionDefinition(definition.getStrike(), definition.getExpiry(), definition.isCall());
-            Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(european);
-            return bsm.evaluate(newData);
-          }
-          return getCallPrice(s, k, sigma, t, r, b);
-        } catch (InterpolationException e) {
-          throw new OptionPricingException(e);
+      public Double evaluate(final StandardOptionDataBundle data) {
+        if (data == null)
+          throw new IllegalArgumentException("Data bundle was null");
+        final ZonedDateTime date = data.getDate();
+        double s = data.getSpot();
+        double k = definition.getStrike();
+        final double t = definition.getTimeToExpiry(date);
+        final double sigma = data.getVolatility(t, k);
+        double r = data.getInterestRate(t);
+        double b = data.getCostOfCarry();
+        StandardOptionDataBundle newData = data;
+        if (!definition.isCall()) {
+          r -= b;
+          b *= -1;
+          final double temp = s;
+          s = k;
+          k = temp;
+          final DiscountCurve curve = DiscountCurveTransformation.getParallelShiftedCurve(data.getDiscountCurve(), -b);
+          newData = data.withDiscountCurve(curve).withSpot(s);
         }
+        if (b >= r) {
+          final OptionDefinition european = new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), definition.isCall());
+          final Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(european);
+          return bsm.evaluate(newData);
+        }
+        return getCallPrice(s, k, sigma, t, r, b);
       }
     };
     return pricingFunction;
   }
 
-  double getCallPrice(double s, double k, double sigma, double t, double r, double b) {
-    double a = 0.5 - b / (sigma * sigma);
-    double beta = a + Math.sqrt(a * a + 2 * r / (sigma * sigma));
-    double b0 = getB0(k, r, b);
-    double bInfinity = getBInfinity(k, beta);
-    double h1 = getH(k, b, getT1(t), sigma, b0, bInfinity);
-    double h2 = getH(k, b, t, sigma, b0, bInfinity);
-    double i2 = getI(b0, bInfinity, h2);
-    if (s >= i2)
+  double getCallPrice(final double s, final double k, final double sigma, final double t2, final double r, final double b) {
+    final double sigmaSq = sigma * sigma;
+    final double y = 0.5 - b / sigmaSq;
+    final double beta = y + Math.sqrt(y * y + 2 * r / sigmaSq);
+    final double b0 = Math.max(k, r * k / (r - b));
+    final double bInfinity = beta * k / (beta - 1);
+    final double t1 = 0.5 * (Math.sqrt(5) - 1) * t2;
+    final double h1 = getH(b, t1, sigma, k, b0, bInfinity);
+    final double h2 = getH(b, t2, sigma, k, b0, bInfinity);
+    final double x1 = getX(b0, bInfinity, h1);
+    final double x2 = getX(b0, bInfinity, h2);
+    if (s >= x2)
       return s - k;
-    double i1 = getI(b0, bInfinity, h1);
-    double alpha1 = Math.pow(i1, -beta) * (i1 - k);
-    double alpha2 = Math.pow(i2, -beta) * (i2 - k);
-    double t1 = getT1(t);
-    return alpha2 * Math.pow(s, beta) - alpha2 * getPhi(s, t1, beta, i2, i2, b, sigma, r) + getPhi(s, t1, 1, i2, i2, b, sigma, r) - getPhi(s, t1, 1, i1, i1, b, sigma, r) - k
-        * getPhi(s, t1, 0, i2, i2, b, sigma, r) + k * getPhi(s, t1, 0, i1, i2, b, sigma, r) + alpha1 * getPhi(s, t1, beta, i1, i2, b, sigma, r) - alpha1
-        * getPsi(s, t, beta, i1, i2, i1, t1, b, sigma, r) + getPsi(s, t, 1, i1, i2, i1, t1, b, sigma, r) - getPsi(s, t, 1, k, i2, i1, t1, b, sigma, r) - k
-        * getPsi(s, t, 0, i1, i2, i1, t1, b, sigma, r) + getPsi(s, t, 0, k, i2, i1, t1, b, sigma, r);
+    final double alpha1 = getAlpha(x1, beta, k);
+    final double alpha2 = getAlpha(x2, beta, k);
+    return alpha2 * Math.pow(s, beta) - alpha2 * getPhi(s, t1, beta, x2, x2, r, b, sigma) + getPhi(s, t1, 1, x2, x2, r, b, sigma) - getPhi(s, t1, 1, x1, x2, r, b, sigma) - k
+        * getPhi(s, t1, 0, x2, x2, r, b, sigma) + k * getPhi(s, t1, 0, x1, x2, r, b, sigma) + alpha1 * getPhi(s, t1, beta, x1, x2, r, b, sigma) - alpha1
+        * getPsi(s, t1, t2, beta, x1, x2, x1, r, b, sigma) + getPsi(s, t1, t2, 1, x1, x2, x1, r, b, sigma) - getPsi(s, t1, t2, 1, k, x2, x1, r, b, sigma) - k
+        * getPsi(s, t1, t2, 0, x1, x2, x1, r, b, sigma) + k * getPsi(s, t1, t2, 0, k, x2, x1, r, b, sigma);
   }
 
-  private double getB0(double k, double r, double b) {
-    return k * Math.max(1, 1 * r / (r - b));
+  private double getH(final double b, final double t, final double sigma, final double k, final double b0, final double bInfinity) {
+    return -(b * t + 2 * sigma * Math.sqrt(t)) * k * k / (b0 * (bInfinity - b0));
   }
 
-  private double getBInfinity(double k, double beta) {
-    return k * beta / (beta - 1);
-  }
-
-  private double getT1(double t) {
-    return t * (Math.sqrt(5) - 1) / 2.;
-  }
-
-  private double getH(double k, double b, double t, double sigma, double b0, double bInfinity) {
-    return -(b * t + 2 * sigma * Math.sqrt(t)) * (k * k / (b0 * (bInfinity - b0)));
-  }
-
-  private double getI(double b0, double bInfinity, double h) {
+  private double getX(final double b0, final double bInfinity, final double h) {
     return b0 + (bInfinity - b0) * (1 - Math.exp(h));
   }
 
-  private double getLambda(double r, double b, double sigma, double gamma) {
-    return -r + gamma * b + 0.5 * sigma * sigma * gamma * (gamma - 1);
+  private double getAlpha(final double i, final double beta, final double k) {
+    return Math.pow(i, -beta) * (i - k);
   }
 
-  private double getKappa(double b, double sigma, double gamma) {
-    return 2 * b / (sigma * sigma) + 2 * gamma - 1;
+  private double getPhi(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b, final double sigma) {
+    final double sigmaSq = sigma * sigma;
+    final double denom = getDenom(t, sigma);
+    final double lambda = getLambda(r, gamma, b, sigmaSq);
+    final double kappa = getKappa(b, gamma, sigmaSq);
+    final double y = getY(t, b, sigmaSq, gamma, denom);
+    final double d1 = getD(s / h, denom, y);
+    final double d2 = getD(x * x / (s * h), denom, y);
+    return Math.exp(lambda * t) * Math.pow(s, gamma) * (_normal.getCDF(d1) - Math.pow(x / s, kappa) * _normal.getCDF(d2));
   }
 
-  private double getPhi(double s, double t, double gamma, double h, double i, double b, double sigma, double r) {
-    double d = b + sigma * sigma * (gamma - 0.5);
-    double denom = sigma * Math.sqrt(t);
-    double d1 = getD((s / h), d, t, denom);
-    double d2 = getD((i * i) / (s * h), d, t, denom);
-    double lambda = getLambda(r, b, sigma, gamma);
-    double kappa = getKappa(b, sigma, gamma);
-    return Math.exp(lambda) * Math.pow(s, gamma) * (_normal.getCDF(-d1) - Math.pow(i / s, kappa) * _normal.getCDF(-d2));
-  }
-
-  private double getPsi(double s, double t, double gamma, double h, double i2, double i1, double t1, double b, double sigma, double r) {
-    double denom = sigma * Math.sqrt(t);
-    double denom1 = sigma * Math.sqrt(t1);
-    double d = b + sigma * sigma * (gamma - 0.5);
-    double x1 = s / i1;
-    double x2 = i2 * i2 / (s * i1);
-    double e1 = getD(x1, d, t1, denom1);
-    double e2 = getD(x2, d, t1, denom1);
-    double e3 = getD(x1, -d, t1, denom1);
-    double e4 = getD(x2, -d, t1, denom1);
-    double f1 = getD(s / h, d, t, denom);
-    double f2 = getD((i1 * i1) / (s * h), d, t, denom);
-    double f3 = getD((i2 * i2) / (s * h), d, t, denom);
-    double f4 = getD((s * i1 * i1) / (h * i2 * i2), d, t, denom);
-    double rho = Math.sqrt(t1 / t);
-    double lambda = getLambda(r, b, sigma, gamma);
-    double kappa = getKappa(b, sigma, gamma);
-    return Math.exp(lambda * t)
+  private double getPsi(final double s, final double t1, final double t2, final double gamma, final double h, final double x2, final double x1, final double r, final double b,
+      final double sigma) {
+    final double sigmaSq = sigma * sigma;
+    final double denom1 = getDenom(t1, sigma);
+    final double denom2 = getDenom(t2, sigma);
+    final double y1 = getY(t1, b, sigmaSq, gamma, denom1);
+    final double y2 = getY(t2, b, sigmaSq, gamma, denom2);
+    final double d1 = getD(s / x1, denom1, y1);
+    final double d2 = getD(x2 * x2 / (s * x1), denom1, y1);
+    final double d3 = d1 + 2 * y1;
+    final double d4 = d2 + 2 * y1;
+    final double e1 = getD(s / h, denom2, y2);
+    final double e2 = getD(x2 * x2 / (s * h), denom2, y2);
+    final double e3 = getD(x1 * x1 / (s * h), denom2, y2);
+    final double e4 = getD(s * x1 * x1 / (h * x2 * x2), denom2, y2);
+    final double lambda = getLambda(r, gamma, b, sigmaSq);
+    final double kappa = getKappa(b, gamma, sigmaSq);
+    final double rho = Math.sqrt(t1 / t2);
+    return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
-        * (_bivariateNormal.getCDF(new Double[] { -e1, -f1, rho }) - Math.pow(i2 / s, kappa) * _bivariateNormal.getCDF(new Double[] { -e2, -f2, rho }) - Math.pow(i1 / s, kappa)
-            * _bivariateNormal.getCDF(new Double[] { -e3, -f3, -rho }) + Math.pow(i1 / i2, kappa) * _bivariateNormal.getCDF(new Double[] { -e4, -f4, -rho }));
+        * (_bivariateNormal.getCDF(new Double[] { d1, e1, rho }) - Math.pow(x2 / s, kappa) * _bivariateNormal.getCDF(new Double[] { d2, e2, rho }) - Math.pow(x1 / s, kappa)
+            * _bivariateNormal.getCDF(new Double[] { d3, e3, -rho }) + Math.pow(x1 / x2, kappa) * _bivariateNormal.getCDF(new Double[] { d4, e4, -rho }));
   }
 
-  private double getD(double x, double y, double t, double denom) {
-    return (Math.log(x) + y * t) / denom;
+  private double getLambda(final double r, final double gamma, final double b, final double sigmaSq) {
+    return -r + gamma * b + 0.5 * gamma * (gamma - 1) * sigmaSq;
+  }
+
+  private double getKappa(final double b, final double gamma, final double sigmaSq) {
+    return 2 * b / sigmaSq + 2 * gamma - 1;
+  }
+
+  private double getY(final double t, final double b, final double sigmaSq, final double gamma, final double denom) {
+    return t * (b + sigmaSq * (gamma - 0.5)) / denom;
+  }
+
+  private double getDenom(final double t, final double sigma) {
+    return sigma * Math.sqrt(t);
+  }
+
+  private double getD(final double x, final double denom, final double y) {
+    return -(Math.log(x) / denom + y);
   }
 }

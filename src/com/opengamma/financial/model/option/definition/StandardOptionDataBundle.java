@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
@@ -5,6 +10,11 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
+/**
+ * 
+ * @author emcleod
+ * 
+ */
 public class StandardOptionDataBundle {
   private final DiscountCurve _discountCurve;
   private final Double _b;
@@ -19,6 +29,14 @@ public class StandardOptionDataBundle {
     _volatilitySurface = volatilitySurface;
     _spot = spot;
     _date = date;
+  }
+
+  public StandardOptionDataBundle(final StandardOptionDataBundle data) {
+    _discountCurve = data.getDiscountCurve();
+    _b = data.getCostOfCarry();
+    _volatilitySurface = data.getVolatilitySurface();
+    _spot = data.getSpot();
+    _date = data.getDate();
   }
 
   public Double getInterestRate(final Double t) {
@@ -47,6 +65,26 @@ public class StandardOptionDataBundle {
 
   public ZonedDateTime getDate() {
     return _date;
+  }
+
+  public StandardOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+    return new StandardOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate());
+  }
+
+  public StandardOptionDataBundle withCostOfCarry(final double costOfCarry) {
+    return new StandardOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate());
+  }
+
+  public StandardOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate());
+  }
+
+  public StandardOptionDataBundle withSpot(final double spot) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
+  }
+
+  public StandardOptionDataBundle withDate(final ZonedDateTime date) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date);
   }
 
   @Override

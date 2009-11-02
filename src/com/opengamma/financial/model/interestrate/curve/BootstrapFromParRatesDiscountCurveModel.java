@@ -29,7 +29,7 @@ public class BootstrapFromParRatesDiscountCurveModel implements DiscountCurveMod
   }
 
   @Override
-  public DiscountCurve getCurve(final Set<FixedInterestRateInstrumentDefinition> data, final ZonedDateTime date) {
+  public InterpolatedDiscountCurve getCurve(final Set<FixedInterestRateInstrumentDefinition> data, final ZonedDateTime date) {
     final Map<Double, Double> zeroRates = new HashMap<Double, Double>();
     final Comparator<FixedInterestRateInstrumentDefinition> comparator = new FixedIncomeDefinitionComparator(date);
     final TreeSet<FixedInterestRateInstrumentDefinition> sorted = new TreeSet<FixedInterestRateInstrumentDefinition>(comparator);
@@ -49,7 +49,7 @@ public class BootstrapFromParRatesDiscountCurveModel implements DiscountCurveMod
       zeroRates.put(t, r);
       sum += Math.exp(-r * t);
     }
-    return new DiscountCurve(zeroRates, _interpolator);
+    return new InterpolatedDiscountCurve(zeroRates, _interpolator);
   }
 
   class FixedIncomeDefinitionComparator implements Comparator<FixedInterestRateInstrumentDefinition> {

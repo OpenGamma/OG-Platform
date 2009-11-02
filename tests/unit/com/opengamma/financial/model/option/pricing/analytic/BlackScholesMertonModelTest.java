@@ -19,6 +19,7 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.util.time.DateUtil;
@@ -36,12 +37,12 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   private static final Expiry THREE_MONTHS = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25));
   private static final Expiry EIGHT_DAYS = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 8. / 365));
   private static final Expiry ONE_MONTH = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1. / 12));
-  private static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonModel();
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonModel();
   private static final double EPS = 1e-4;
 
   @Test
   public void testInputs() {
-    final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(1., EIGHT_DAYS, true);
+    final OptionDefinition definition = new EuropeanVanillaOptionDefinition(1., EIGHT_DAYS, true);
     super.testInputs(MODEL, definition);
   }
 

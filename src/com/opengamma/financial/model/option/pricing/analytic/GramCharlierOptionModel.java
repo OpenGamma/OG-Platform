@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -18,31 +23,30 @@ public class GramCharlierOptionModel extends AnalyticOptionModel<EuropeanVanilla
 
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
-    Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
+    final Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(SkewKurtosisOptionDataBundle data) {
+      public Double evaluate(final SkewKurtosisOptionDataBundle data) {
         try {
-          double s = data.getSpot();
-          double k = definition.getStrike();
-          double t = definition.getTimeToExpiry(data.getDate());
-          double sigma = data.getVolatility(t, k);
-          double r = data.getInterestRate(t);
-          double b = data.getCostOfCarry();
-          double sqrtT = Math.sqrt(t);
-          double skew = data.getSkew() / sqrtT;
-          double kurtosis = data.getKurtosis() / t;
-          double d1 = getD1(s, k, t, sigma, b);
-          double sigmaT = sigma * sqrtT;
-          double df1 = Math.exp(-r * t);
-          double df2 = getDF(r, b, t);
-          double callPrice = s * df2 * _normalProbabilityDistribution.getCDF(d1) - k * df1 * _normalProbabilityDistribution.getCDF(d1 - sigmaT) + s
+          final double s = data.getSpot();
+          final double k = definition.getStrike();
+          final double t = definition.getTimeToExpiry(data.getDate());
+          final double sigma = data.getVolatility(t, k);
+          final double r = data.getInterestRate(t);
+          final double b = data.getCostOfCarry();
+          final double sqrtT = Math.sqrt(t);
+          final double skew = data.getSkew() / sqrtT;
+          final double kurtosis = data.getKurtosis() / t;
+          final double d1 = getD1(s, k, t, sigma, b);
+          final double sigmaT = sigma * sqrtT;
+          final double df1 = Math.exp(-r * t);
+          final double df2 = getDF(r, b, t);
+          final double callPrice = s * df2 * _normalProbabilityDistribution.getCDF(d1) - k * df1 * _normalProbabilityDistribution.getCDF(d1 - sigmaT) + s
               * _normalProbabilityDistribution.getPDF(d1) * sigmaT * (skew * (2 * sigmaT - d1) / 6. - kurtosis * (1 - d1 * d1 + 3 * d1 * sigmaT - 3 * sigmaT * sigmaT) / 24.);
-          if (!definition.isCall()) {
+          if (!definition.isCall())
             return callPrice + k * df1 - s * df2;
-          }
           return callPrice;
-        } catch (InterpolationException e) {
+        } catch (final InterpolationException e) {
           throw new OptionPricingException(e);
         }
       }

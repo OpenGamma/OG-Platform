@@ -1,10 +1,15 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.tree;
 
+import com.opengamma.financial.model.option.definition.OptionDataBundleWithOptionPrice;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.interpolation.InterpolationException;
+import com.opengamma.math.function.Function1D;
 
 /**
  * 
@@ -17,11 +22,11 @@ public class CoxRossRubinsteinBinomialOptionAndSpotPricingTree {
   private RecombiningBinomialTree<Double> _spotPrices;
   private RecombiningBinomialTree<Double> _optionPrices;
 
-  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(OptionDefinition definition, StandardOptionDataBundle vars) {
+  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(final OptionDefinition definition, final StandardOptionDataBundle vars) {
     createTrees(definition, vars, DEFAULT_N);
   }
 
-  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(int n, OptionDefinition definition, StandardOptionDataBundle vars) {
+  public CoxRossRubinsteinBinomialOptionAndSpotPricingTree(final int n, final OptionDefinition definition, final StandardOptionDataBundle vars) {
     createTrees(definition, vars, n);
   }
 
@@ -29,43 +34,41 @@ public class CoxRossRubinsteinBinomialOptionAndSpotPricingTree {
     return _spotPrices;
   }
 
-  private void createTrees(OptionDefinition definition, StandardOptionDataBundle vars, int n) {
-    try {
-      double spot = vars.getSpot();
-      int nodesAtMaturity = RecombiningBinomialTree.NODES.evaluate(n);
-      Function<Double, Double> payoff = definition.getPayoffFunction();
-      Function<Double, Boolean> shouldExercise = definition.getExerciseFunction();
-      double t = definition.getTimeToExpiry(vars.getDate());
-      double sigma = vars.getVolatility(t, definition.getStrike());
-      double r = vars.getInterestRate(t);
-      double dt = t / n;
-      double u = Math.exp(sigma * Math.sqrt(dt));
-      double d = 1. / u;
-      double p = (Math.exp(r * dt) - d) / (u - d);
-      Double[][] s = new Double[n][nodesAtMaturity];
-      Double[][] o = new Double[n][nodesAtMaturity];
-      Double[] spotArray = new Double[] { spot * Math.pow(d, n) };
-      s[n - 1][0] = spotArray[0];
-      o[n - 1][0] = payoff.evaluate(spotArray);
-      for (int i = 1; i < nodesAtMaturity; i++) {
-        spotArray[0] *= u / d;
-        s[n - 1][i] = spotArray[0];
-        o[n - 1][i] = payoff.evaluate(spotArray);
-      }
-      double option;
-      double df = Math.exp(-r * dt);
-      for (int i = n - 2; i >= 0; i--) {
-        for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
-          option = df * (p * o[i + 1][j] + (1 - p) * o[i + 1][j + 1]);
-          s[i][j] = s[i + 1][j] / d;
-          o[i][j] = shouldExercise.evaluate(s[i][j], option) ? option : payoff.evaluate(new Double[] { s[i][j] });
-        }
-      }
-      _spotPrices = new RecombiningBinomialTree<Double>(s);
-      _optionPrices = new RecombiningBinomialTree<Double>(o);
-    } catch (InterpolationException e) {
-      // TODO
+  private void createTrees(final OptionDefinition definition, final StandardOptionDataBundle vars, final int n) {
+    final double spot = vars.getSpot();
+    final int nodesAtMaturity = RecombiningBinomialTree.NODES.evaluate(n);
+    final Function1D<? super StandardOptionDataBundle, Double> payoff = definition.getPayoffFunction();
+    final Function1D<? super OptionDataBundleWithOptionPrice, Boolean> shouldExercise = definition.getExerciseFunction();
+    final double t = definition.getTimeToExpiry(vars.getDate());
+    final double sigma = vars.getVolatility(t, definition.getStrike());
+    final double r = vars.getInterestRate(t);
+    final double dt = t / n;
+    final double u = Math.exp(sigma * Math.sqrt(dt));
+    final double d = 1. / u;
+    final double p = (Math.exp(r * dt) - d) / (u - d);
+    final Double[][] s = new Double[n][nodesAtMaturity];
+    final Double[][] o = new Double[n][nodesAtMaturity];
+    double newSpot = spot * Math.pow(d, n);
+    for (int i = 0; i < nodesAtMaturity; i++) {
+      s[n - 1][i] = newSpot;
+      o[n - 1][i] = payoff.evaluate(vars.withSpot(newSpot));
+      newSpot *= u / d;
     }
+    double option;
+    final double df = Math.exp(-r * dt);
+    OptionDataBundleWithOptionPrice newVarsWithPrice = new OptionDataBundleWithOptionPrice(vars, 0);
+    StandardOptionDataBundle newVars = vars;
+    for (int i = n - 2; i >= 0; i--) {
+      for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
+        option = df * (p * o[i + 1][j] + (1 - p) * o[i + 1][j + 1]);
+        s[i][j] = s[i + 1][j] / d;
+        newVars = newVars.withSpot(s[i][j]);
+        newVarsWithPrice = newVarsWithPrice.withPrice(option).withData(newVars);
+        o[i][j] = shouldExercise.evaluate(newVarsWithPrice) ? option : payoff.evaluate(newVars);
+      }
+    }
+    _spotPrices = new RecombiningBinomialTree<Double>(s);
+    _optionPrices = new RecombiningBinomialTree<Double>(o);
   }
 
   public RecombiningBinomialTree<Double> getOptionTree() {

@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.pricing.tree;
 
 import java.util.List;
@@ -13,10 +18,10 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
  * 
  */
 
-public class TrinomialOptionModel extends TreeOptionModel<OptionDefinition<StandardOptionDataBundle>, StandardOptionDataBundle> {
+public class TrinomialOptionModel extends TreeOptionModel<OptionDefinition, StandardOptionDataBundle> {
 
   @Override
-  public GreekResultCollection getGreeks(OptionDefinition<StandardOptionDataBundle> definition, StandardOptionDataBundle vars, List<Greek> requiredGreeks) {
+  public GreekResultCollection getGreeks(final OptionDefinition definition, final StandardOptionDataBundle vars, final List<Greek> requiredGreeks) {
     return null;
   }
 

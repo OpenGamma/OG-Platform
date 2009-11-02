@@ -17,7 +17,7 @@ import com.opengamma.math.interpolation.Interpolator2D;
  * 
  * @author emcleod
  */
-public class TimeToExpiryUnderlyingTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition<?>> extends
+public class TimeToExpiryUnderlyingTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition> extends
     InterpolatedVolatilitySurfaceModel<T, StandardFixedIncomeUnderlyingOptionDataBundle> {
   private final Function1D<Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle>, Double> _xAxisFunction = new Function1D<Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle>, Double>() {
 

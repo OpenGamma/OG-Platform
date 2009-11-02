@@ -6,8 +6,6 @@
 package com.opengamma.financial.model.option.pricing.analytic;
 
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -15,11 +13,9 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
-import com.opengamma.financial.greeks.MultipleGreekResult;
 import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurveTransformation;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
@@ -34,9 +30,8 @@ import com.opengamma.util.time.DateUtil;
  * 
  * @author emcleod
  * 
- * @param <T>
  */
-public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
+public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
@@ -145,22 +140,27 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition<?>, U exten
 
     @Override
     public GreekResult<?> visitTimeBucketedRho() {
-      final DiscountCurve curve = _data.getDiscountCurve();
-      final Map<String, Double> partialGreeks = new TreeMap<String, Double>();
-      DiscountCurve upCurve, downCurve;
-      S upVars, downVars;
-      double upPrice, downPrice;
-      for (int i = 0; i < curve.getData().size(); i++) {
-        upCurve = DiscountCurveTransformation.getSingleShiftedDataPointCurve(curve, i, EPS);
-        downCurve = DiscountCurveTransformation.getSingleShiftedDataPointCurve(curve, i, -EPS);
-        upVars = (S) new StandardOptionDataBundle(upCurve, _data.getCostOfCarry(), _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
-        downVars = (S) new StandardOptionDataBundle(downCurve, _data.getCostOfCarry(), _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
-        upPrice = _pricingFunction.evaluate(upVars);
-        downPrice = _pricingFunction.evaluate(downVars);
-        // TODO make a better string than this
-        partialGreeks.put(Greek.RHO.name() + "(" + i + ")", (upPrice - downPrice) / (2 * EPS));
-      }
-      return new MultipleGreekResult(partialGreeks);
+      /*
+       * final DiscountCurve curve = _data.getDiscountCurve(); final Map<String,
+       * Double> partialGreeks = new TreeMap<String, Double>(); DiscountCurve
+       * upCurve, downCurve; S upVars, downVars; double upPrice, downPrice; for
+       * (int i = 0; i < curve.getData().size(); i++) { upCurve =
+       * DiscountCurveTransformation.getSingleShiftedDataPointCurve(curve, i,
+       * EPS); downCurve =
+       * DiscountCurveTransformation.getSingleShiftedDataPointCurve(curve, i,
+       * -EPS); upVars = (S) new StandardOptionDataBundle(upCurve,
+       * _data.getCostOfCarry(), _data.getVolatilitySurface(), _data.getSpot(),
+       * _data.getDate()); downVars = (S) new
+       * StandardOptionDataBundle(downCurve, _data.getCostOfCarry(),
+       * _data.getVolatilitySurface(), _data.getSpot(), _data.getDate());
+       * upPrice = _pricingFunction.evaluate(upVars); downPrice =
+       * _pricingFunction.evaluate(downVars); // TODO make a better string than
+       * this partialGreeks.put(Greek.RHO.name() + "(" + i + ")", (upPrice -
+       * downPrice) / (2 * EPS)); } return new
+       * MultipleGreekResult(partialGreeks);
+       */
+      // TODO
+      return null;
     }
 
     @Override

@@ -5,10 +5,6 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import java.util.Collections;
-
-import com.opengamma.math.interpolation.Interpolator1D;
-
 /**
  * 
  * 
@@ -20,18 +16,41 @@ import com.opengamma.math.interpolation.Interpolator1D;
 public class ConstantInterestRateDiscountCurve extends DiscountCurve {
   private final double _rate;
 
-  public ConstantInterestRateDiscountCurve(Double rate) {
-    super(Collections.<Double, Double> singletonMap(0., rate), null);
+  public ConstantInterestRateDiscountCurve(final Double rate) {
     _rate = rate;
   }
 
   @Override
-  public Interpolator1D getInterpolator() {
-    throw new UnsupportedOperationException();
+  public double getInterestRate(final Double t) {
+    return _rate;
   }
 
   @Override
-  public double getInterestRate(Double t) {
-    return _rate;
+  public double getDiscountFactor(final Double t) {
+    return Math.exp(-_rate * t);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_rate);
+    result = prime * result + (int) (temp ^ temp >>> 32);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final ConstantInterestRateDiscountCurve other = (ConstantInterestRateDiscountCurve) obj;
+    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate))
+      return false;
+    return true;
   }
 }

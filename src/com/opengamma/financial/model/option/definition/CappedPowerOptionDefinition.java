@@ -20,7 +20,24 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 
-public class CappedPowerOptionDefinition extends OptionDefinition<StandardOptionDataBundle> {
+public class CappedPowerOptionDefinition extends OptionDefinition {
+  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+
+    @Override
+    public Double evaluate(final StandardOptionDataBundle data) {
+      final double spot = data.getSpot();
+      return isCall() ? Math.min(Math.max(Math.pow(spot, getPower()) - getStrike(), 0), getCap()) : Math.min(Math.max(getStrike() - Math.pow(spot, getPower()), 0), getCap());
+    }
+
+  };
+  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+      return false;
+    }
+
+  };
   private final double _power;
   private final double _cap;
 
@@ -32,7 +49,7 @@ public class CappedPowerOptionDefinition extends OptionDefinition<StandardOption
    * @param cap
    * @param isCall
    */
-  public CappedPowerOptionDefinition(double strike, Expiry expiry, double power, double cap, boolean isCall) {
+  public CappedPowerOptionDefinition(final double strike, final Expiry expiry, final double power, final double cap, final boolean isCall) {
     super(strike, expiry, isCall);
     _power = power;
     _cap = cap;
@@ -55,25 +72,13 @@ public class CappedPowerOptionDefinition extends OptionDefinition<StandardOption
   }
 
   @Override
-  protected void initPayoffAndExerciseFunctions() {
-    _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+    return _exerciseFunction;
+  }
 
-      @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        final double spot = data.getSpot();
-        return isCall() ? Math.min(Math.max(Math.pow(spot, getPower()) - getStrike(), 0), getCap()) : Math.min(Math.max(getStrike() - Math.pow(spot, getPower()), 0), getCap());
-      }
-
-    };
-    _exerciseFunction = new Function1D<StandardOptionDataBundle, Boolean>() {
-
-      @Override
-      public Boolean evaluate(StandardOptionDataBundle data) {
-        return false;
-      }
-
-    };
-
+  @Override
+  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+    return _payoffFunction;
   }
 
   @Override
@@ -82,21 +87,21 @@ public class CappedPowerOptionDefinition extends OptionDefinition<StandardOption
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_cap);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_power);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     return result;
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj)
       return true;
     if (!super.equals(obj))
       return false;
     if (getClass() != obj.getClass())
       return false;
-    CappedPowerOptionDefinition other = (CappedPowerOptionDefinition) obj;
+    final CappedPowerOptionDefinition other = (CappedPowerOptionDefinition) obj;
     if (Double.doubleToLongBits(_cap) != Double.doubleToLongBits(other._cap))
       return false;
     if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power))

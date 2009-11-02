@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.greeks.SingleGreekResult;
-import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
@@ -32,17 +32,17 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  *         <em>b = r - r<sub>f</sub></em> Garman-Kohlhagen FX option model, with
  *         foreign risk-free rate <em>r<sub>f</sub></em>
  */
-public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
+public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> {
   ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
 
   @Override
   public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle vars,
-      final EuropeanVanillaOptionDefinition definition) {
+      final OptionDefinition definition) {
     return new BlackScholesMertonGreekVisitor(vars, pricingFunction, definition);
   }
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final EuropeanVanillaOptionDefinition definition) {
+  public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     if (definition == null)
       throw new IllegalArgumentException("Null option definition");
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
@@ -71,7 +71,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     return pricingFunction;
   }
 
-  protected class BlackScholesMertonGreekVisitor extends AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, EuropeanVanillaOptionDefinition> {
+  protected class BlackScholesMertonGreekVisitor extends AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition> {
     private final double _s;
     private final double _k;
     private final double _sigma;
@@ -84,8 +84,7 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<EuropeanVanilla
     private final double _d2;
     private final double _price;
 
-    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle vars, final Function1D<StandardOptionDataBundle, Double> pricingFunction,
-        final EuropeanVanillaOptionDefinition definition) {
+    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle vars, final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
       super(pricingFunction, vars, definition);
       _s = vars.getSpot();
       _k = definition.getStrike();

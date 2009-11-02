@@ -17,6 +17,7 @@ import org.junit.Test;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
@@ -28,8 +29,8 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
-  private static final VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
-  private static final AnalyticOptionModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private static final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonImpliedVolatilitySurfaceModel();
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final double EPS = 1e-3;
 
@@ -42,13 +43,13 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       // Expected
     }
     try {
-      MODEL.getSurface(Collections.<EuropeanVanillaOptionDefinition, Double> emptyMap(), null);
+      MODEL.getSurface(Collections.<OptionDefinition, Double> emptyMap(), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      MODEL.getSurface(Collections.singletonMap(new EuropeanVanillaOptionDefinition(Math.random(), new Expiry(DATE), true), 2.3), null);
+      MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(new EuropeanVanillaOptionDefinition(Math.random(), new Expiry(DATE), true), 2.3), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -76,7 +77,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       initialData = new StandardOptionDataBundle(curve, b, null, spot, DATE);
       data = new StandardOptionDataBundle(curve, b, new ConstantVolatilitySurface(sigma), spot, DATE);
       price = BSM.getPricingFunction(definition).evaluate(data);
-      assertEquals(sigma, MODEL.getSurface(Collections.singletonMap(definition, price), initialData).getVolatility(0., 0.), EPS);
+      assertEquals(sigma, MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(definition, price), initialData).getVolatility(0., 0.), EPS);
     }
   }
 }
