@@ -9,7 +9,6 @@ import java.util.Collection;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.util.KeyValuePair;
@@ -27,9 +26,9 @@ public class GreeksResultValueDefinition extends
     super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"));
   }
   @SuppressWarnings("unchecked")
-  public GreeksResultValueDefinition(Security security) {
+  public GreeksResultValueDefinition(String securityIdentityKey) {
      super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"),
-           new KeyValuePair<String, Object>("SECURITY", security));
+           new KeyValuePair<String, Object>("SECURITY", securityIdentityKey));
   }
 //  public GreeksResultValueDefinition(Security securityKey, Position position) {
 //    super(new KeyValuePair<String, Object>("TYPE", "GREEKS_RESULT"),

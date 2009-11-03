@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security;
 
-import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
@@ -24,8 +23,8 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
    * @param expiry
    */
   public PoweredEquityOptionSecurity(OptionType optionType, double strike,
-      Expiry expiry, double power, SecurityKey underlying, Currency currency) {
-    super(optionType, strike, expiry, underlying, currency);
+      Expiry expiry, double power, String underlyingIdentityKey, Currency currency) {
+    super(optionType, strike, expiry, underlyingIdentityKey, currency);
     _power = power;
   }
 
