@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractPrimitiveAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -34,7 +34,7 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticFunction extends AbstractAnalyticFunction
+public class DiscountCurveAnalyticFunction extends AbstractPrimitiveAnalyticFunction
 implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 

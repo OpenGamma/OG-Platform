@@ -17,9 +17,11 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -53,8 +55,9 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction
-extends AbstractAnalyticFunction
+extends AbstractSecurityAnalyticFunction
 implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.class);
   public static final String PRICE_FIELD_NAME = "PRICE";
   
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
@@ -71,7 +74,8 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
     if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       AnalyticValueDefinition<?> justThisOptionHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec);
-      AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlying());
+      s_logger.debug("In execute() asking for option header {}", justThisOptionHeader);
+      AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlyingIdentityKey());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
       FudgeFieldContainer optionDataFields = (FudgeFieldContainer)inputs.getValue(justThisOptionHeader);
       if(optionDataFields == null) {
@@ -83,6 +87,9 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       }
       final double price = priceObj;
       FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(underlyingHeader);
+      if(underlyingDataFields == null) {
+        throw new OpenGammaRuntimeException("No data available for underlying header " + underlyingHeader);
+      }
       final double spot = underlyingDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveForCurrency);
       final VolatilitySurface volSurface = equityOptionSec.accept(new OptionVisitor<VolatilitySurface>() {
@@ -129,7 +136,8 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
     if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)security;
       AnalyticValueDefinition<?> justThisOptionHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec);
-      AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlying());
+      s_logger.debug("In getInputs() asking for option header {}", justThisOptionHeader);
+      AnalyticValueDefinition<?> underlyingHeader = MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOptionSec.getUnderlyingIdentityKey());
       AnalyticValueDefinition<?> discountCurveForCurrency = new DiscountCurveValueDefinition(equityOptionSec.getCurrency());
       final List<AnalyticValueDefinition<?>> justThisOption = new ArrayList<AnalyticValueDefinition<?>>();
       //justThisOption.add(justThisOptionDefinition);

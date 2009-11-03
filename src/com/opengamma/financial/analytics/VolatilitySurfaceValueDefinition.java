@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
-import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.KeyValuePair;
@@ -24,9 +23,9 @@ public class VolatilitySurfaceValueDefinition extends
      super(new KeyValuePair<String, Object>("TYPE", "VOLATILITY_SURFACE"));
   }
   @SuppressWarnings("unchecked")
-  public VolatilitySurfaceValueDefinition(SecurityKey securityKey) {
+  public VolatilitySurfaceValueDefinition(String identityKey) {
      super(new KeyValuePair<String, Object>("TYPE", "VOLATILITY_SURFACE"),
-           new KeyValuePair<String, Object>("SECURITY", securityKey));
+           new KeyValuePair<String, Object>("SECURITY", identityKey));
   }
   
   public <T> T accept(FinancialValueDefinitionVisitor<T> visitor) {

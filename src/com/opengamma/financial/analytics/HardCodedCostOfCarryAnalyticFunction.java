@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractPrimitiveAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -28,7 +28,7 @@ import com.opengamma.util.KeyValuePair;
 
 
 public class HardCodedCostOfCarryAnalyticFunction<T extends OptionDefinition>
-extends AbstractAnalyticFunction
+extends AbstractPrimitiveAnalyticFunction
 implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
   
   private final double _costOfCarry;

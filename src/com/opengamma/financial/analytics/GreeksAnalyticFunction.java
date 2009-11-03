@@ -16,7 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -49,7 +49,7 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class GreeksAnalyticFunction extends AbstractAnalyticFunction
+public class GreeksAnalyticFunction extends AbstractSecurityAnalyticFunction
 implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
@@ -62,7 +62,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
       final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
-      FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlying()));
+      FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlyingIdentityKey()));
       final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
       final Expiry expiry = equityOption.getExpiry();
       final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant()));
@@ -86,7 +86,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
       inputs.add(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
       // we do this in two lists so we can separate out what MIGHT be specific to the option type in some cases.
       final Collection<AnalyticValueDefinition<?>> justThisOption = new ArrayList<AnalyticValueDefinition<?>>();
-      justThisOption.add(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlying()));
+      justThisOption.add(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlyingIdentityKey()));
       
       Collection<AnalyticValueDefinition<?>> result = equityOption.accept(new OptionVisitor<Collection<AnalyticValueDefinition<?>>>() {
         @Override
