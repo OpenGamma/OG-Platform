@@ -9,6 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiersImpl;
+import com.opengamma.id.IdentificationDomain;
 
 // REVIEW kirk 2009-09-01 -- I'm not particularly happy with the name of this class.
 
@@ -30,6 +31,14 @@ implements SecurityKey {
   
   public SecurityKeyImpl(DomainSpecificIdentifier secIdentifier) {
     super(secIdentifier);
+  }
+  
+  public SecurityKeyImpl(IdentificationDomain domain, String value) {
+    this(new DomainSpecificIdentifier(domain, value));
+  }
+  
+  public SecurityKeyImpl(String domainName, String value) {
+    this(new IdentificationDomain(domainName), value);
   }
 
   public String toString() {

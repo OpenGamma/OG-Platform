@@ -12,7 +12,6 @@ import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**
@@ -27,6 +26,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
 public final class MarketDataAnalyticValueDefinitionFactory {
   public static final String MARKET_DATA_TYPE_NAME = "Type";
   public static final String HEADER_TYPE_VALUE = "MarketDataHeader";
+  public static final String IDENTITY_KEY_NAME = "IdentityKey";
   
   private MarketDataAnalyticValueDefinitionFactory() {
   }
@@ -41,11 +41,13 @@ public final class MarketDataAnalyticValueDefinitionFactory {
   
   public static AnalyticValueDefinition<FudgeMsg> constructHeaderDefinition(
       Security security) {
-    AnalyticValueDefinition<FudgeMsg> securityMarketDataDefinition = security.getMarketDataDefinition();
-    if(securityMarketDataDefinition != null) {
-      return securityMarketDataDefinition;
+    Map<String, Object> predicates = new TreeMap<String, Object>();
+    predicates.put(MARKET_DATA_TYPE_NAME, HEADER_TYPE_VALUE);
+    for(DomainSpecificIdentifier identifier : security.getIdentifiers()) {
+      predicates.put(identifier.getDomain().getDomainName(), identifier.getValue());
     }
-    return constructHeaderDefinition(new SecurityKeyImpl(security.getIdentifiers()));
+    predicates.put(IDENTITY_KEY_NAME, security.getIdentityKey());
+    return new AnalyticValueDefinitionImpl<FudgeMsg>(predicates);
   }
   
   public static AnalyticValueDefinition<FudgeMsg> constructHeaderDefinition(
@@ -56,6 +58,10 @@ public final class MarketDataAnalyticValueDefinitionFactory {
       predicates.put(identifier.getDomain().getDomainName(), identifier.getValue());
     }
     return new AnalyticValueDefinitionImpl<FudgeMsg>(predicates);
+  }
+  
+  public static AnalyticValueDefinition<FudgeMsg> constructHeaderDefinition(String securityIdentityKey) {
+    return constructHeaderDefinition(IDENTITY_KEY_NAME, securityIdentityKey);
   }
   
 }

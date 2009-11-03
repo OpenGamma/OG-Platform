@@ -7,6 +7,9 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
+
 /**
  * 
  *
@@ -19,4 +22,7 @@ public interface PrimitiveAnalyticFunctionDefinition extends
   
   Collection<AnalyticValueDefinition<?>> getInputs();
   
+  DependencyNode buildSubGraph(
+      AnalyticFunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver);
 }

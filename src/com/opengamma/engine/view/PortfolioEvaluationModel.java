@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ import com.opengamma.engine.security.SecurityMaster;
  */
 public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
-  private final PortfolioNode _rootNode;
+  private final Portfolio _portfolio;
 
   private PortfolioNode _populatedRootNode;
   private DependencyGraphModel _dependencyGraphModel;
@@ -51,16 +52,16 @@ public class PortfolioEvaluationModel {
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
   
-  public PortfolioEvaluationModel(PortfolioNode rootNode) {
-    assert rootNode != null;
-    _rootNode = rootNode;
+  public PortfolioEvaluationModel(Portfolio portfolio) {
+    assert portfolio != null;
+    _portfolio = portfolio;
   }
 
   /**
    * @return the rootNode
    */
-  public PortfolioNode getRootNode() {
-    return _rootNode;
+  public Portfolio getPortfolio() {
+    return _portfolio;
   }
 
   /**
@@ -117,7 +118,7 @@ public class PortfolioEvaluationModel {
     assert liveDataSnapshotProvider != null;
     assert viewDefinition != null;
     
-    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getRootNode(), secMaster);
+    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio(), secMaster);
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     
@@ -182,13 +183,40 @@ public class PortfolioEvaluationModel {
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
 
     Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
-    for(Security security : getSecurities()) {
+    for(Position position : getPopulatedPositions()) {
       // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
       // operation. We could/should do them in parallel.
-      Collection<AnalyticValueDefinition<?>> requiredOutputValues = outputsBySecurityType.get(security.getSecurityType());
-      dependencyGraphModel.addSecurity(security, requiredOutputValues);
+      Collection<AnalyticValueDefinition<?>> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
+      dependencyGraphModel.addPosition(position, requiredOutputValues);
     }
+    buildDependencyGraphs(getPopulatedRootNode(), dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
     setDependencyGraphModel(dependencyGraphModel);
+  }
+  
+  public Set<String> buildDependencyGraphs(PortfolioNode node,
+      DependencyGraphModel dependencyGraphModel,
+      AnalyticFunctionRepository analyticFunctionRepository, 
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider, 
+      ViewDefinition viewDefinition) {
+      Set<String> securityTypesUnder = new TreeSet<String>();
+      // find out the security types for all the positions we have right here.
+      for(Position position : node.getPositions()) {
+        securityTypesUnder.add(position.getSecurity().getSecurityType());
+      }
+      // recursively find the security types for the positions under this node.
+      for (PortfolioNode subNode : node.getSubNodes()) {
+        securityTypesUnder.addAll(buildDependencyGraphs(subNode, dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition));
+      }
+      // now we work out the intersection of all the value definitions for those securities.
+      Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
+      Set<AnalyticValueDefinition<?>> requiredOutputs = new HashSet<AnalyticValueDefinition<?>>();
+      // calculate the UNION
+      for(String type : securityTypesUnder) {
+        requiredOutputs.addAll(outputsBySecurityType.get(type));
+      }
+      // add this node to the dependency model.
+      dependencyGraphModel.addAggregatePosition(node, requiredOutputs);
+      return securityTypesUnder;
   }
   
   public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {

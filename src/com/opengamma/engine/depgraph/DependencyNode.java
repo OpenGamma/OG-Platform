@@ -12,12 +12,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.analytics.PositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An individual node in any dependency graph.
@@ -25,6 +30,8 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public class DependencyNode {
+  private final ComputationTargetType _computationTargetType;
+  private final Object _computationTarget;
   private final AnalyticFunctionDefinition _function;
   private final Set<AnalyticValueDefinition<?>> _outputValues =
     new HashSet<AnalyticValueDefinition<?>>();
@@ -35,22 +42,37 @@ public class DependencyNode {
   private final Map<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>> _resolvedInputs =
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
-  public DependencyNode(PrimitiveAnalyticFunctionDefinition function) {
-    if(function == null) {
-      throw new NullPointerException("Must provide a function for this node.");
-    }
+  @SuppressWarnings("unchecked")
+  public DependencyNode(AnalyticFunctionDefinition function, Object computationTarget) {
+    ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
     _function = function;
-    _outputValues.addAll(function.getPossibleResults());
-    _inputValues.addAll(function.getInputs());
-  }
-  
-  public DependencyNode(SecurityAnalyticFunctionDefinition function, Security security) {
-    if(function == null) {
-      throw new NullPointerException("Must provide a function for this node.");
+    _computationTargetType = function.getTargetType();
+    _computationTarget = computationTarget;
+    if(!ComputationTargetType.isCompatible(function.getTargetType(), computationTarget)) {
+      throw new IllegalArgumentException("Computation target " + computationTarget + " not compatible with function's target type " + function.getTargetType());
     }
-    _function = function;
-    _outputValues.addAll(function.getPossibleResults(security));
-    _inputValues.addAll(function.getInputs(security));
+    switch(_computationTargetType) {
+    case PRIMITIVE:
+      PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      _inputValues.addAll(primitiveFunction.getInputs());
+      _outputValues.addAll(primitiveFunction.getPossibleResults());
+      break;
+    case SECURITY:
+      SecurityAnalyticFunctionDefinition securityFunction = (SecurityAnalyticFunctionDefinition) function;
+      _inputValues.addAll(securityFunction.getInputs((Security) computationTarget));
+      _outputValues.addAll(securityFunction.getPossibleResults((Security) computationTarget));
+      break;
+    case POSITION:
+      PositionAnalyticFunctionDefinition positionFunction = (PositionAnalyticFunctionDefinition) function;
+      _inputValues.addAll(positionFunction.getInputs((Position) computationTarget));
+      _outputValues.addAll(positionFunction.getPossibleResults((Position) computationTarget));
+      break;
+    case MULTIPLE_POSITIONS:
+      AggregatePositionAnalyticFunctionDefinition aggFunction = (AggregatePositionAnalyticFunctionDefinition) function;
+      _inputValues.addAll(aggFunction.getInputs((Collection) computationTarget));
+      _outputValues.addAll(aggFunction.getPossibleResults((Collection) computationTarget));
+      break;
+    }
   }
   
   /**
@@ -77,6 +99,20 @@ public class DependencyNode {
    */
   public AnalyticFunctionDefinition getFunction() {
     return _function;
+  }
+
+  /**
+   * @return the computationTargetType
+   */
+  public ComputationTargetType getComputationTargetType() {
+    return _computationTargetType;
+  }
+
+  /**
+   * @return the computationTarget
+   */
+  public Object getComputationTarget() {
+    return _computationTarget;
   }
 
   public void addOutputValues(Collection<AnalyticValueDefinition<?>> outputValues) {
@@ -120,4 +156,18 @@ public class DependencyNode {
     _inputNodes.add(inputNode);
     _resolvedInputs.put(satisfyingInput, inputNode.getBestOutput(satisfyingInput));
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("DependencyNode[");
+    sb.append(getFunction().getShortName());
+    sb.append(" (").append(getComputationTargetType()).append(")");
+    if(getComputationTarget() != null) {
+      sb.append(" on ").append(getComputationTarget());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
 }

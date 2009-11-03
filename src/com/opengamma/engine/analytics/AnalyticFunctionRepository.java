@@ -7,6 +7,7 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -27,6 +28,10 @@ public interface AnalyticFunctionRepository {
   Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
   
   Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Security security);
+  
+  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Position position);
+  
+  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Collection<Position> positions);
   
   AnalyticFunctionInvoker getInvoker(String uniqueIdentifier);
 

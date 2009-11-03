@@ -5,12 +5,8 @@
  */
 package com.opengamma.engine.analytics;
 
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.security.Security;
+import com.opengamma.engine.ComputationTargetType;
 
-// REVIEW kirk 2009-09-22 -- This is getting REALLY large and unwieldy. We need to
-// segregate this out into various facets for different types of functions I think.
 
 /**
  * A single unit of work capable of operating on inputs to produce results. 
@@ -34,9 +30,14 @@ public interface AnalyticFunctionDefinition {
   
   boolean buildsOwnSubGraph();
   
-  DependencyNode buildSubGraph(
-      Security security,
-      AnalyticFunctionResolver functionResolver,
-      DependencyNodeResolver dependencyNodeResolver);
+  /**
+   * While this can be determined by the subgraph, it is provided at this
+   * level for ease of programming.
+   *  
+   * @return
+   */
+  ComputationTargetType getTargetType();
+  
+
   
 }

@@ -11,6 +11,7 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
@@ -36,6 +37,27 @@ public class DefaultAnalyticFunctionResolver implements
   public AnalyticFunctionRepository getRepository() {
     return _repository;
   }
+  
+  // TODO kirk 2009-11-02 -- Much refactoring love required here.
+
+  @Override
+  public AnalyticFunctionDefinition resolve(
+      AnalyticValueDefinition<?> requiredValue) {
+    assert requiredValue != null;
+    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue));
+    assert possibleFunctions != null;
+    if(possibleFunctions.isEmpty()) {
+      return null;
+    }
+    // REVIEW kirk 2009-09-04 -- This is the extension point for better lookups.
+    if(possibleFunctions.size() > 1) {
+      s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
+    }
+    AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+    s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
+    
+    return function;
+  }
 
   @Override
   public AnalyticFunctionDefinition resolve(AnalyticValueDefinition<?> requiredValue,
@@ -54,6 +76,44 @@ public class DefaultAnalyticFunctionResolver implements
     s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
     
     return function;
+  }
+
+  @Override
+  public AnalyticFunctionDefinition resolve(
+      AnalyticValueDefinition<?> requiredValue, Position position) {
+    assert requiredValue != null;
+    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), position);
+    assert possibleFunctions != null;
+    if(possibleFunctions.isEmpty()) {
+      return null;
+    }
+    // REVIEW kirk 2009-09-04 -- This is the extension point for better lookups.
+    if(possibleFunctions.size() > 1) {
+      s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
+    }
+    AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+    s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
+    
+    return function;
+  }
+
+  @Override
+  public AnalyticFunctionDefinition resolve(
+        AnalyticValueDefinition<?> requiredValue, Collection<Position> positions) {
+      assert requiredValue != null;
+      Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), positions);
+      assert possibleFunctions != null;
+      if(possibleFunctions.isEmpty()) {
+        return null;
+      }
+      // REVIEW kirk 2009-09-04 -- This is the extension point for better lookups.
+      if(possibleFunctions.size() > 1) {
+        s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
+      }
+      AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+      s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
+      
+      return function;
   }
 
 }

@@ -10,12 +10,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 
 /**
@@ -24,22 +22,22 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public class PositionResultModel implements Serializable {
-  private final Position _position;
+public class AggregatePositionResultModel implements Serializable {
+  private final PortfolioNode _portfolioNode;
   private final Map<AnalyticValueDefinition<?>, AnalyticValue<?>> _results = new HashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>();
   
-  public PositionResultModel(Position position) {
-    if(position == null) {
-      throw new NullPointerException("Must specify a valid position.");
+  public AggregatePositionResultModel(PortfolioNode portfolioNode) {
+    if(portfolioNode == null) {
+      throw new NullPointerException("Must specify a valid portfolio node.");
     }
-    _position = position;
+    _portfolioNode = portfolioNode;
   }
 
   /**
-   * @return the position
+   * @return the portfolio node
    */
-  public Position getPosition() {
-    return _position;
+  public PortfolioNode getPortfolioNode() {
+    return _portfolioNode;
   }
   
   public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getAllResults() {
@@ -66,10 +64,6 @@ public class PositionResultModel implements Serializable {
       }
     }
     return null;
-  }
-
-  public String debugToString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

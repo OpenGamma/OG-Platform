@@ -7,6 +7,8 @@ package com.opengamma.engine.analytics;
 
 import java.util.Collection;
 
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 
 /**
@@ -14,8 +16,7 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public interface AggregatePositionAnalyticFunctionDefinition
-extends AnalyticFunctionDefinition {
+public interface AggregatePositionAnalyticFunctionDefinition extends AnalyticFunctionDefinition {
 
   /**
    * Determine whether this function is applicable to the collection of 
@@ -26,5 +27,7 @@ extends AnalyticFunctionDefinition {
    *         the provided position.
    */
   boolean isApplicableTo(Collection<Position> positions);
-  
+  Collection<AnalyticValueDefinition<?>> getPossibleResults(Collection<Position> positions);
+  Collection<AnalyticValueDefinition<?>> getInputs(Collection<Position> positions);
+  DependencyNode buildSubGraph(Collection<Position> positions, AnalyticFunctionResolver functionResolver, DependencyNodeResolver dependencyNodeResolver);
 }

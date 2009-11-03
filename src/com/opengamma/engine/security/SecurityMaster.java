@@ -39,6 +39,8 @@ public interface SecurityMaster {
    */
   Security getSecurity(SecurityKey secKey);
   
+  Security getSecurity(String identityKey);
+  
   /**
    * Obtain all security types in this security master.
    * It is up to the implementation to determine whether this returns

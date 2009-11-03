@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,26 +49,29 @@ public class InMemorySecurityMaster implements SecurityMaster {
   // 1 - Tighten down the synchronization dramatically
   // 2 - Cache (using putIfAbsent on a series of ConcurrentHashMaps) the
   //     mapping from SecurityIdentifier to Security.
+  private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
   private final List<Security> _securities = new ArrayList<Security>();
-  private final Map<SecurityKey, Security> _securitiesByIdentityKey =
-    new HashMap<SecurityKey, Security>();
+  private final Map<String, Security> _securitiesByIdentityKey =
+    new HashMap<String, Security>();
   
   public InMemorySecurityMaster() {
   }
   
-  public InMemorySecurityMaster(Collection<? extends Security> securities) {
+  public InMemorySecurityMaster(Collection<? extends DefaultSecurity> securities) {
     if(securities != null) {
-      for(Security sec : securities) {
+      for(DefaultSecurity sec : securities) {
         add(sec);
       }
     }
   }
   
-  public synchronized void add(Security security) {
+  public synchronized void add(DefaultSecurity security) {
     if(security.getSecurityType() == null) {
       s_logger.warn("Security {} lacks a security type.", security);
     }
     _securities.add(security);
+    String identityKey = Long.toString(_nextIdentityKey.getAndAdd(1l));
+    security.setIdentityKey(identityKey);
     _securitiesByIdentityKey.put(security.getIdentityKey(), security);
   }
 
@@ -92,12 +96,6 @@ public class InMemorySecurityMaster implements SecurityMaster {
     if(secKey == null) {
       return null;
     }
-    // First check to see whether we have it as the identity key for something.
-    Security identitySec = _securitiesByIdentityKey.get(secKey);
-    if(identitySec != null) {
-      return identitySec;
-    }
-    
     for(DomainSpecificIdentifier secId : secKey.getIdentifiers()) {
       for(Security sec : _securities) {
         if(sec.getIdentifiers().contains(secId)) {
@@ -118,6 +116,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
       }
     }
     return result;
+  }
+
+  @Override
+  public Security getSecurity(String identityKey) {
+    return _securitiesByIdentityKey.get(identityKey);
   }
   
 }

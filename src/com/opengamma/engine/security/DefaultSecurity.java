@@ -8,6 +8,8 @@ package com.opengamma.engine.security;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -23,6 +25,7 @@ public class DefaultSecurity implements Security, Serializable {
   private DomainSpecificIdentifiersImpl _identifiers;
   private String _securityType;
   private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
+  private String _identityKey;
   
   public DefaultSecurity() {
   }
@@ -45,11 +48,16 @@ public class DefaultSecurity implements Security, Serializable {
     _identifiers = new DomainSpecificIdentifiersImpl(identifiers);
   }
   
-  // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
-  // REVIEW kirk 2009-10-16 -- Almost certainly.
   @Override
-  public SecurityKey getIdentityKey() {
-    return new SecurityKeyImpl(_identifiers.getIdentifiers());
+  public String getIdentityKey() {
+    return _identityKey;
+  }
+
+  /**
+   * @param identityKey the identityKey to set
+   */
+  public void setIdentityKey(String identityKey) {
+    _identityKey = identityKey;
   }
 
   @Override
@@ -76,4 +84,10 @@ public class DefaultSecurity implements Security, Serializable {
       AnalyticValueDefinition<FudgeMsg> marketDataDefinition) {
     _marketDataDefinition = marketDataDefinition;
   }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
 }

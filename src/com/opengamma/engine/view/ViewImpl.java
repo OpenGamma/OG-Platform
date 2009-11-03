@@ -20,10 +20,9 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 import com.opengamma.util.ThreadUtil;
 
 /**
@@ -171,11 +170,11 @@ public class ViewImpl implements View, Lifecycle {
   
   public void reloadPortfolio() {
     s_logger.info("Reloading portfolio named {}", getDefinition().getRootPortfolioName());
-    PortfolioNode positionRoot = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getRootPortfolioName());
-    if(positionRoot == null) {
+    Portfolio portfolio = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getRootPortfolioName());
+    if(portfolio == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getRootPortfolioName());
     }
-    PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(positionRoot);
+    PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
         getProcessingContext().getSecurityMaster(),
         getProcessingContext().getAnalyticFunctionRepository(),
@@ -204,7 +203,7 @@ public class ViewImpl implements View, Lifecycle {
     if(getPortfolioEvaluationModel() == null) {
       return null;
     }
-    return getPortfolioEvaluationModel().getRootNode();
+    return getPortfolioEvaluationModel().getPortfolio();
   }
   
   public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {

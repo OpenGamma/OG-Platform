@@ -5,9 +5,11 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -16,15 +18,20 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.SecurityDependencyGraph;
+import com.opengamma.engine.depgraph.RevisedDependencyGraph;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Will walk through a particular {@link SecurityDependencyGraph} and execute
@@ -35,11 +42,15 @@ import com.opengamma.engine.view.calcnode.InvocationResult;
 public class DependencyGraphExecutor {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
-  private final String _viewName;
-  private final Security _security;
-  private final SecurityDependencyGraph _dependencyGraph;
+  private final String _viewName; 
+  private Security _security; // compiler too stupid to let us make these final.
+  private Position _position;
+  private Collection<Position> _positions;
+  private ComputationTargetType _computationTargetType;
+  private final RevisedDependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
   // Running State:
+  private final Set<DependencyNode> _nodesToExecute = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
   private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
     new HashMap<CalculationJobSpecification, DependencyNode>();
@@ -49,26 +60,55 @@ public class DependencyGraphExecutor {
   public DependencyGraphExecutor(
       String viewName,
       Security security,
-      SecurityDependencyGraph dependencyGraph,
+      RevisedDependencyGraph dependencyGraph,
       ViewProcessingContext processingContext) {
-    if(viewName == null) {
-      throw new NullPointerException("Must provide the name of the view being executed.");
-    }
-    if(security == null) {
-      throw new NullPointerException("Must provide a security over which to execute.");
-    }
-    if(dependencyGraph == null) {
-      throw new NullPointerException("Must provide a dependency graph to execute.");
-    }
-    if(processingContext == null) {
-      throw new NullPointerException("Must provide a processing context.");
-    }
-    _viewName = viewName;
+    this(viewName, dependencyGraph, processingContext);
+    ArgumentChecker.checkNotNull(security, "Security");
+    _computationTargetType = ComputationTargetType.SECURITY;
     _security = security;
+    _position = null;
+    _positions = null;
+  }
+  
+  public DependencyGraphExecutor(
+      String viewName,
+      Position position,
+      RevisedDependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext) {
+    this(viewName, dependencyGraph, processingContext);
+    ArgumentChecker.checkNotNull(position, "Position");
+    _computationTargetType = ComputationTargetType.POSITION;
+    _security = null;
+    _position = position;
+    _positions = null;
+  }
+  
+  public DependencyGraphExecutor(
+      String viewName,
+      Collection<Position> positions,
+      RevisedDependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext) {
+    this(viewName, dependencyGraph, processingContext);
+    ArgumentChecker.checkNotNull(positions, "Positions");
+    _computationTargetType = ComputationTargetType.MULTIPLE_POSITIONS;
+    _security = null;
+    _position = null;
+    _positions = positions;
+  }
+  
+  public DependencyGraphExecutor(
+      String viewName,
+      RevisedDependencyGraph dependencyGraph,
+      ViewProcessingContext processingContext) {
+    ArgumentChecker.checkNotNull(viewName, "View Name");
+    ArgumentChecker.checkNotNull(dependencyGraph, "Dependency Graph");
+    ArgumentChecker.checkNotNull(processingContext, "View Processing Context");
+    _computationTargetType = ComputationTargetType.PRIMITIVE;
+    _viewName = viewName;
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
   }
-
+  
   /**
    * @return the viewName
    */
@@ -84,9 +124,23 @@ public class DependencyGraphExecutor {
   }
 
   /**
+   * @return the position
+   */
+  public Position getPosition() {
+    return _position;
+  }
+
+  /**
+   * @return the positions
+   */
+  public Collection<Position> getPositions() {
+    return _positions;
+  }
+
+  /**
    * @return the dependencyGraph
    */
-  public SecurityDependencyGraph getDependencyGraph() {
+  public RevisedDependencyGraph getDependencyGraph() {
     return _dependencyGraph;
   }
 
@@ -97,11 +151,19 @@ public class DependencyGraphExecutor {
     return _processingContext;
   }
 
+  /**
+   * @return the computationTargetType
+   */
+  public ComputationTargetType getComputationTargetType() {
+    return _computationTargetType;
+  }
+
   public synchronized void executeGraph(long iterationTimestamp) {
+    addAllNodesToExecute(getDependencyGraph().getNodes());
     markLiveDataSourcingFunctionsCompleted();
     AtomicLong jobIdSource = new AtomicLong(0l);
     
-    while(_executedNodes.size() < getDependencyGraph().getNodeCount()) {
+    while(!_nodesToExecute.isEmpty()) {
       enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
       // REVIEW kirk 2009-10-20 -- I'm not happy with this check here.
       // The rationale is that if we get a failed node, the next time we attempt to enqueue we may
@@ -111,7 +173,7 @@ public class DependencyGraphExecutor {
       /*if(_executedNodes.size() >= getDependencyGraph().getNodeCount()) {
         break;
       }*/
-      assert !_executingSpecifications.isEmpty();
+      assert !_executingSpecifications.isEmpty() : "Graph problem found. Nodes available, but none enqueued. Breaks execution contract";
       // Suck everything available off the retrieval source.
       // First time we're willing to wait for some period, but after that we pull
       // off as fast as we can.
@@ -132,12 +194,33 @@ public class DependencyGraphExecutor {
   }
 
   /**
+   * @param nodes
+   */
+  protected void addAllNodesToExecute(Set<DependencyNode> nodes) {
+    for(DependencyNode node : nodes) {
+      addAllNodesToExecute(node);
+    }
+  }
+  
+  protected void addAllNodesToExecute(DependencyNode node) {
+    // TODO kirk 2009-11-02 -- Handle optimization for where computation
+    // targets don't match. We don't have to enqueue the node at all.
+    for(DependencyNode inputNode : node.getInputNodes()) {
+      addAllNodesToExecute(inputNode);
+    }
+    _nodesToExecute.add(node);
+  }
+
+  /**
    * @param completedNode
    */
   protected void failNodesAbove(DependencyNode failedNode) {
+    // TODO kirk 2009-11-02 -- Have to figure out how to do this now.
+    /*
     for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
       failNodesAbove(failedNode, node);
     }
+    */
   }
 
   /**
@@ -166,38 +249,69 @@ public class DependencyGraphExecutor {
    * 
    */
   protected void markLiveDataSourcingFunctionsCompleted() {
-    for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
-      markLiveDataSourcingFunctionsCompleted(node);
+    Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
+    while(depNodeIter.hasNext()) {
+      DependencyNode depNode = depNodeIter.next();
+      if(depNode.getFunction() instanceof LiveDataSourcingFunction) {
+        depNodeIter.remove();
+        _executedNodes.add(depNode);
+      }
     }
   }
   
-  protected void markLiveDataSourcingFunctionsCompleted(DependencyNode node) {
-    if(node.getFunction() instanceof LiveDataSourcingFunction) {
-      _executedNodes.add(node);
-    }
-    for(DependencyNode inputNode : node.getInputNodes()) {
-      markLiveDataSourcingFunctionsCompleted(inputNode);
-    }
-  }
-
   /**
    * @param completionService
    */
   protected synchronized void enqueueAllAvailableNodes(
       long iterationTimestamp,
       AtomicLong jobIdSource) {
-    DependencyNode depNode = findExecutableNode();
-    while(depNode != null) {
-      _executingNodes.add(depNode);
-      CalculationJobSpecification jobSpec = submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
-      _executingSpecifications.put(jobSpec, depNode);
-      depNode = findExecutableNode();
+    Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
+    while(depNodeIter.hasNext()) {
+      DependencyNode depNode = depNodeIter.next();
+      if(canExecute(depNode)) {
+        depNodeIter.remove();
+        _executingNodes.add(depNode);
+        CalculationJobSpecification jobSpec = submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
+        _executingSpecifications.put(jobSpec, depNode);
+      }
     }
   }
   
   /**
    * @param depNode
+   * @return
    */
+  private boolean canExecute(DependencyNode node) {
+    assert !_executingNodes.contains(node);
+    assert !_executedNodes.contains(node);
+    
+    // Are all inputs done?
+    boolean allInputsExecuted = true;
+    for(DependencyNode inputNode : node.getInputNodes()) {
+      if(!_executedNodes.contains(inputNode)) {
+        allInputsExecuted = false;
+        break;
+      }
+    }
+    return allInputsExecuted;
+  }
+
+  private Position stripDownPosition(Position position) {
+    return new PositionBean(position.getQuantity(), position.getSecurityKey());
+  }
+  
+  private Collection<Position> stripDownPositions(Collection<Position> positions) {
+    Collection<Position> resultPositions = new ArrayList<Position>(positions.size());
+    for (Position position : positions) {
+      resultPositions.add(new PositionBean(position.getQuantity(), position.getSecurityKey()));
+    }
+    return resultPositions;
+  }
+  
+  /**
+   * @param depNode
+   */
+  @SuppressWarnings("unchecked")
   protected CalculationJobSpecification submitNodeInvocationJob(
       long iterationTimestamp,
       AtomicLong jobIdSource,
@@ -208,60 +322,61 @@ public class DependencyGraphExecutor {
       resolvedInputs.add(depNode.getResolvedInput(input));
     }
     long jobId = jobIdSource.addAndGet(1l);
-    s_logger.debug("Enqueuing job {} to invoke {} on security {}",
-        new Object[] {jobId, depNode.getFunction().getShortName(), getSecurity().getIdentityKey()});
+    
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
-    CalculationJob job = new CalculationJob(
-        getViewName(),
-        iterationTimestamp,
-        jobId,
-        depNode.getFunction().getUniqueIdentifier(),
-        getSecurity().getIdentityKey(),
-        resolvedInputs);
+    CalculationJob job;
+    switch (depNode.getComputationTargetType()) {
+    case PRIMITIVE:
+      s_logger.debug("Enqueuing job {} to invoke {} on primative function",
+          new Object[] {jobId, depNode.getFunction().getShortName()});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          resolvedInputs);
+      break;
+    case SECURITY:
+      Security security = (Security)depNode.getComputationTarget();
+      s_logger.debug("Enqueuing job {} to invoke {} on security {}",
+          new Object[] {jobId, depNode.getFunction().getShortName(), security.getIdentityKey()});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          security.getIdentityKey(),
+          resolvedInputs);
+      break;
+    case POSITION:
+      Position position = (Position)depNode.getComputationTarget();
+      s_logger.debug("Enqueuing job {} to invoke {} on position {}",
+          new Object[] {jobId, depNode.getFunction().getShortName(), position});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          stripDownPosition(position),
+          resolvedInputs);
+      break;
+    case MULTIPLE_POSITIONS:
+      Collection<Position> positions = (Collection<Position>)depNode.getComputationTarget();
+      s_logger.debug("Enqueuing job {} to invoke {} on list of positions {}",
+          new Object[] {jobId, depNode.getFunction().getShortName(), positions});
+      job = new CalculationJob(
+          getViewName(),
+          iterationTimestamp,
+          jobId,
+          depNode.getFunction().getUniqueIdentifier(),
+          stripDownPositions(positions),
+          resolvedInputs);
+      break;
+    default:
+      throw new OpenGammaRuntimeException("Unhandled case in switch");
+    }
+
     getProcessingContext().getJobSink().invoke(job);
     return jobSpec;
-  }
-
-  /**
-   * @return
-   */
-  protected synchronized DependencyNode findExecutableNode() {
-    for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
-      DependencyNode result = findExecutableNode(node); 
-      if(result != null) {
-        return result;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * @param node
-   * @return
-   */
-  protected DependencyNode findExecutableNode(DependencyNode node) {
-    // If it's already queued up, we can't do anything and don't descend.
-    if(_executedNodes.contains(node) || _executingNodes.contains(node)) {
-      return null;
-    }
-    // Are all inputs done?
-    boolean allInputsExecuted = true;
-    for(DependencyNode inputNode : node.getInputNodes()) {
-      if(!_executedNodes.contains(inputNode)) {
-        allInputsExecuted = false;
-        break;
-      }
-    }
-    if(allInputsExecuted) {
-      return node;
-    }
-    // Inputs aren't executed. Have to descend to execute.
-    for(DependencyNode inputNode : node.getInputNodes()) {
-      DependencyNode nodeToExecute = findExecutableNode(inputNode);
-      if(nodeToExecute != null) {
-        return nodeToExecute;
-      }
-    }
-    return null;
   }
 }

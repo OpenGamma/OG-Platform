@@ -8,7 +8,6 @@ package com.opengamma.engine.analytics;
 import java.util.Collection;
 
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
 
 /**
  * An analytic function invoker for a Security-specific analytic function. 
