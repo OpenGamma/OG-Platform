@@ -30,7 +30,7 @@ public interface Security {
   /**
    * Obtain a SecurityKey that uniquely identifies the security in question
    */
-  SecurityKey getIdentityKey();
+  String getIdentityKey();
   
   /**
    * Obtain the dedicated market data definition for this security.

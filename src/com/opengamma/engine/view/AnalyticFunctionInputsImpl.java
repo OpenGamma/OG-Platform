@@ -17,6 +17,7 @@ import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 
 /**
  * A wrapper for the instances of {@link AnalyticValue}
@@ -145,9 +146,12 @@ public class AnalyticFunctionInputsImpl implements Serializable, AnalyticFunctio
       return null;
     }
     for(AnalyticValue<?> value : _values) {
-      if(ObjectUtils.equals(value.getDefinition(), definition)) {
+      if(AnalyticValueDefinitionComparator.matches(definition, value.getDefinition())) {
         return value.getValue();
       }
+      /*if(ObjectUtils.equals(value.getDefinition(), definition)) {
+        return value.getValue();
+      }*/
     }
     return null;
   }

@@ -29,7 +29,7 @@ public class CalculationJob implements Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class); 
   private final CalculationJobSpecification _specification;
   private final String _functionUniqueIdentifier;
-  private final SecurityKey _securityKey;
+  private final String _securityKey;
   private final Position _position;
   private final Collection<Position> _positions;
   private final Set<AnalyticValueDefinition<?>> _inputs = new HashSet<AnalyticValueDefinition<?>>();
@@ -48,7 +48,7 @@ public class CalculationJob implements Serializable {
   }
   // security specific functions
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
-      String functionUniqueIdentifier, SecurityKey securityKey, 
+      String functionUniqueIdentifier, String securityKey, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
         functionUniqueIdentifier, securityKey, null, null, inputs);
@@ -69,7 +69,7 @@ public class CalculationJob implements Serializable {
   }
   
   public CalculationJob(CalculationJobSpecification specification,
-      String functionUniqueIdentifier, SecurityKey securityKey, Position position, Collection<Position> positions,
+      String functionUniqueIdentifier, String securityKey, Position position, Collection<Position> positions,
       Collection<AnalyticValueDefinition<?>> inputs) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _specification = specification;
@@ -91,7 +91,7 @@ public class CalculationJob implements Serializable {
    * This should only be called if getComputationTargetType() returns SECURITY_KEY
    * @return the securityKey
    */
-  public SecurityKey getSecurityKey() {
+  public String getSecurityKey() {
     if (_securityKey == null) {
       s_logger.warn("getSecurityKey() called when job is "+toString());
     }

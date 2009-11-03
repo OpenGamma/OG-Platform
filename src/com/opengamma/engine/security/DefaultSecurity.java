@@ -25,6 +25,7 @@ public class DefaultSecurity implements Security, Serializable {
   private Collection<DomainSpecificIdentifier> _identifiers;
   private String _securityType;
   private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
+  private String _identityKey;
   
   public DefaultSecurity() {
   }
@@ -47,11 +48,16 @@ public class DefaultSecurity implements Security, Serializable {
     _identifiers = new ArrayList<DomainSpecificIdentifier>(identifiers);
   }
   
-  // REVIEW jim 23-Sep-2009 -- maybe this should be separate from the identifiers
-  // REVIEW kirk 2009-10-16 -- Almost certainly.
   @Override
-  public SecurityKey getIdentityKey() {
-    return new SecurityKeyImpl(_identifiers);
+  public String getIdentityKey() {
+    return _identityKey;
+  }
+
+  /**
+   * @param identityKey the identityKey to set
+   */
+  public void setIdentityKey(String identityKey) {
+    _identityKey = identityKey;
   }
 
   @Override
