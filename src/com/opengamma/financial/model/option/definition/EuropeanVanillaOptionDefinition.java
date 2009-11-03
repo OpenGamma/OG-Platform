@@ -48,4 +48,9 @@ public class EuropeanVanillaOptionDefinition extends OptionDefinition {
   public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
     return _payoffFunction;
   }
+
+  @Override
+  public String toString() {
+    return "Vanilla European" + (isCall() ? " call " : " put ") + "[K = " + getStrike() + ", " + getExpiry() + "]";
+  }
 }

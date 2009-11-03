@@ -14,7 +14,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function;
@@ -30,15 +29,17 @@ import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
  * @author emcleod
  * 
  */
-public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<EuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
+public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
   private static final Logger s_Log = LoggerFactory.getLogger(PractitionerBlackScholesVolatilitySurfaceModel.class);
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
-  protected final LeastSquaresRegression _regression;
+  private final double DEFAULT_SIGNIFICANCE = 0.05;
+  private final int DEGREE = 5;
+  private final LeastSquaresRegression _regression;
   protected final Function<Double, Double[]> _independentVariableFunction = new Function2D<Double, Double[]>() {
 
     @Override
     public Double[] evaluate(final Double t, final Double k) {
-      final Double[] result = new Double[5];
+      final Double[] result = new Double[DEGREE];
       result[0] = k;
       result[1] = k * k;
       result[2] = t;
@@ -52,7 +53,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   public PractitionerBlackScholesVolatilitySurfaceModel(final boolean useAdaptiveModel) {
     final LeastSquaresRegression ols = new OrdinaryLeastSquaresRegression();
     if (useAdaptiveModel) {
-      _regression = new AdaptiveLeastSquaresRegression(ols, 0.05);
+      _regression = new AdaptiveLeastSquaresRegression(ols, DEFAULT_SIGNIFICANCE);
     } else {
       _regression = ols;
     }
@@ -69,15 +70,18 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   }
 
   @Override
-  public VolatilitySurface getSurface(final Map<EuropeanVanillaOptionDefinition, Double> prices, final StandardOptionDataBundle data) {
+  public VolatilitySurface getSurface(final Map<OptionDefinition, Double> prices, final StandardOptionDataBundle data) {
+    if (prices == null)
+      throw new IllegalArgumentException("Price map was null");
+    if (data == null)
+      throw new IllegalArgumentException("Data bundle was null");
+    if (prices.size() < DEGREE)
+      throw new IllegalArgumentException("Price map contained " + prices.size() + " data point(s); need at least " + DEGREE);
     final List<Double> kList = new ArrayList<Double>();
     final List<Double> tList = new ArrayList<Double>();
     final List<Double> sigmaList = new ArrayList<Double>();
-    final boolean[] includeVariable = new boolean[5];
-    int i = 0;
     Double k, t, sigma;
-    for (final Map.Entry<EuropeanVanillaOptionDefinition, Double> entry : prices.entrySet()) {
-      includeVariable[i++] = true;
+    for (final Map.Entry<OptionDefinition, Double> entry : prices.entrySet()) {
       k = entry.getKey().getStrike();
       t = entry.getKey().getTimeToExpiry(data.getDate());
       try {
@@ -108,7 +112,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       k = kArray[i];
       t = tArray[i];
       sigma = sigmaArray[i];
-      x[i] = _independentVariableFunction.evaluate(k, t);
+      x[i] = _independentVariableFunction.evaluate(t, k);
       y[i] = sigma;
     }
     return _regression.regress(x, null, y, true);
