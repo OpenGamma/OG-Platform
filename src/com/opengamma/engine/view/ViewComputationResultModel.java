@@ -51,6 +51,8 @@ public interface ViewComputationResultModel {
   
   Portfolio getPortfolio();
   
+  PortfolioNode getRootPopulatedNode();
+  
   // review this.
   // this should probably be removed now we package securities with positions.
   @Deprecated

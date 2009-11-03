@@ -36,6 +36,7 @@ public class ViewComputationResultModelImpl implements
   private DependencyGraphModel _dependencyGraphModel;
   private SecurityMaster _securityMaster;
   private Portfolio _portfolio;
+  private PortfolioNode _rootPopulatedNode;
   
   @Override
   public long getInputDataTimestamp() {
@@ -147,6 +148,18 @@ public class ViewComputationResultModelImpl implements
     return _portfolio;
   }
   
+  /**
+   * @param rootPopulatedNode the rootPopulatedNode to set
+   */
+  public void setRootPopulatedNode(PortfolioNode rootPopulatedNode) {
+    _rootPopulatedNode = rootPopulatedNode;
+  }
+
+  @Override
+  public PortfolioNode getRootPopulatedNode() {
+    return _rootPopulatedNode;
+  }
+  
   private void recursiveAddPortfolio(PortfolioNode node) {
     for (Position position : node.getPositions()) {
       addPosition(position);
@@ -189,4 +202,14 @@ public class ViewComputationResultModelImpl implements
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
+  
+  public String getPositionValuesAsText() {
+    StringBuilder sb = new StringBuilder();
+    for(Map.Entry<Position, PositionResultModel> entry : _perPositionResults.entrySet()) {
+      sb.append(entry.getValue().debugToString());
+      sb.append("\n");
+    }
+    return sb.toString();
+  }
+
 }

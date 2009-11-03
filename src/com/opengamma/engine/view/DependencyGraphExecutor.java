@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,9 +163,7 @@ public class DependencyGraphExecutor {
     markLiveDataSourcingFunctionsCompleted();
     AtomicLong jobIdSource = new AtomicLong(0l);
     
-    // TODO kirk 2009-11-02 -- A better way to control the loop now that we've flattened
-    // the execution model?
-    while(_executedNodes.size() < getDependencyGraph().getNodes().size()) {
+    while(!_nodesToExecute.isEmpty()) {
       enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
       // REVIEW kirk 2009-10-20 -- I'm not happy with this check here.
       // The rationale is that if we get a failed node, the next time we attempt to enqueue we may
@@ -176,7 +173,7 @@ public class DependencyGraphExecutor {
       /*if(_executedNodes.size() >= getDependencyGraph().getNodeCount()) {
         break;
       }*/
-      assert !_executingSpecifications.isEmpty();
+      assert !_executingSpecifications.isEmpty() : "Graph problem found. Nodes available, but none enqueued. Breaks execution contract";
       // Suck everything available off the retrieval source.
       // First time we're willing to wait for some period, but after that we pull
       // off as fast as we can.

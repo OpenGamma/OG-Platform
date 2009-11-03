@@ -160,6 +160,7 @@ public class SingleComputationCycle {
     assert cache != null;
     setComputationCache(cache);
     getResultModel().setInputDataTimestamp(getSnapshotTime());
+    getResultModel().setRootPopulatedNode(getPortfolioEvaluationModel().getPopulatedRootNode());
     
     Set<AnalyticValueDefinition<?>> requiredLiveData = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.debug("Populating {} market data items for snapshot {}", requiredLiveData.size(), getSnapshotTime());
@@ -256,41 +257,48 @@ public class SingleComputationCycle {
   @SuppressWarnings("deprecation")
   public void populateResultModel() {
     populateResultModel(getPortfolioEvaluationModel().getPopulatedRootNode());
+    s_logger.info("Computed result model {}", getResultModel().getPositionValuesAsText());
     // so viewer can access dependency graph values.
     getResultModel().setDependencyGraphModel(getPortfolioEvaluationModel().getDependencyGraphModel());
     getResultModel().setComputationCache(getProcessingContext().getComputationCacheSource().cloneCache( getViewName(), getSnapshotTime()));
     getResultModel().setSecurityMaster(getProcessingContext().getSecurityMaster()); // this is teh nasty.  We need some better way for the viewer to convert positions to securities.
   }
   
-  public Collection<String> populateResultModel(PortfolioNode node) {
+  public Set<String> populateResultModel(PortfolioNode node) {
     Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes();
-    Collection<String> typesForPositionsUnder = new HashSet<String>();
+    Set<String> allSecurityTypesRecursive = new HashSet<String>();
     for (Position position : node.getPositions()) {
       getResultModel().addPosition(position);
       Security security = position.getSecurity();
+      assert security != null;
       String securityType = security.getSecurityType();
-      typesForPositionsUnder.add(securityType);
+      assert securityType != null;
+      allSecurityTypesRecursive.add(securityType);
+      
       Collection<AnalyticValueDefinition<?>> secTypeValueDefs = valueDefsBySecTypes.get(securityType);
       if (secTypeValueDefs == null) {
         // Nothing required for this security type for outputs, so no values to populate
         continue;
       }
+      
       RevisedDependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(position);
       assert depGraph != null;
       for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {
         AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedRequirement(analyticValueDefinition);
         AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
         if(unscaledValue != null) {
-          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(position.getQuantity()); // not sure if we should do this if we've got a position dependent function result.
+          // REVIEW kirk 2009-11-03 -- When we put scaling as function nodes at the Position
+          // level, we won't scale here. It doesn't work for Position-specific values from a Position-based function.
+          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(position.getQuantity());
           getResultModel().addValue(position, scaledValue);
         }
       }      
     }
     for (PortfolioNode subNode : node.getSubNodes()) {
-      typesForPositionsUnder.addAll(populateResultModel(subNode));
+      allSecurityTypesRecursive.addAll(populateResultModel(subNode));
     }
     Collection<AnalyticValueDefinition<?>> commonValueDefsForPositionsUnder = new HashSet<AnalyticValueDefinition<?>>();
-    for (String securityType : typesForPositionsUnder) {
+    for (String securityType : allSecurityTypesRecursive) {
       commonValueDefsForPositionsUnder.retainAll(valueDefsBySecTypes.get(securityType));
     }
     RevisedDependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(node);
@@ -303,7 +311,7 @@ public class SingleComputationCycle {
         getResultModel().addValue(node, unscaledValue);
       }
     }
-    return typesForPositionsUnder;
+    return allSecurityTypesRecursive;
   }
   
   public void releaseResources() {
