@@ -11,6 +11,7 @@ import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.render.RenderVisitor;
 import com.opengamma.financial.render.Renderable;
 
@@ -31,7 +32,7 @@ public class DiscountCurveAnalyticValue extends AnalyticValueImpl<DiscountCurve>
 
   @Override
   public <T> T accept(RenderVisitor<T> visitor) {
-    return visitor.visitDiscountCurve(getValue());
+    return visitor.visitDiscountCurve((InterpolatedDiscountCurve)getValue());
   }
 
 }
