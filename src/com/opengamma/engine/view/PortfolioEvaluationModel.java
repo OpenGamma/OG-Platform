@@ -210,9 +210,9 @@ public class PortfolioEvaluationModel {
       // now we work out the intersection of all the value definitions for those securities.
       Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
       Set<AnalyticValueDefinition<?>> requiredOutputs = new HashSet<AnalyticValueDefinition<?>>();
-      // calculate the INTERSECTION
+      // calculate the UNION
       for(String type : securityTypesUnder) {
-        requiredOutputs.retainAll(outputsBySecurityType.get(type));
+        requiredOutputs.addAll(outputsBySecurityType.get(type));
       }
       // add this node to the dependency model.
       dependencyGraphModel.addAggregatePosition(node, requiredOutputs);

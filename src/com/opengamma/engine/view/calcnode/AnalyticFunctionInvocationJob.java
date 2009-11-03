@@ -214,6 +214,10 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
     
+    if(getComputationTargetType() == ComputationTarget.MULTIPLE_POSITIONS) {
+      s_logger.info("Invoking on multiple positions.");
+    }
+    
     Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
     for(AnalyticValueDefinition<?> inputDefinition : getResolvedInputs()) {
       AnalyticValue<?> input = getComputationCache().getValue(inputDefinition);

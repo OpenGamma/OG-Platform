@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.SecurityKey;
 
 /**
  * The definition of a particular job that must be performed by

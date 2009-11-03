@@ -58,7 +58,8 @@ implements Lifecycle {
 
   @Override
   public synchronized void start() {
-    _dispatchThread = new Thread(_dispatchJob, "SingleThreadCalculationNode job dispatch");
+    _dispatchThread = new Thread(_dispatchJob, "SingleThreadCalculationNode dispatch");
+    _dispatchThread.setDaemon(true);
     _dispatchThread.start();
   }
 

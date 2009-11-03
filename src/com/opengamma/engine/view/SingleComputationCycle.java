@@ -204,7 +204,7 @@ public class SingleComputationCycle {
     depGraphExecutor.executeGraph(getSnapshotTime());
   }
 
-  // someone thinks this is a database kernel... :)
+  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executeSecuritySpecificPlans() {
     // REVIEW kirk 2009-11-02 -- These can actually run in parallel.
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
@@ -299,13 +299,11 @@ public class SingleComputationCycle {
     }
     Collection<AnalyticValueDefinition<?>> commonValueDefsForPositionsUnder = new HashSet<AnalyticValueDefinition<?>>();
     for (String securityType : allSecurityTypesRecursive) {
-      commonValueDefsForPositionsUnder.retainAll(valueDefsBySecTypes.get(securityType));
+      commonValueDefsForPositionsUnder.addAll(valueDefsBySecTypes.get(securityType));
     }
     RevisedDependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(node);
     for(AnalyticValueDefinition<?> analyticValueDefinition : commonValueDefsForPositionsUnder) {
-      AnalyticValueDefinition<?> resolvedDefinition = analyticValueDefinition;
-      // TODO kirk 2009-11-02 --
-      //AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedOutputs().get(analyticValueDefinition);
+      AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedRequirement(analyticValueDefinition);
       AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
       if(unscaledValue != null) {
         getResultModel().addValue(node, unscaledValue);

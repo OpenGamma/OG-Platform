@@ -311,6 +311,7 @@ public class DependencyGraphExecutor {
   /**
    * @param depNode
    */
+  @SuppressWarnings("unchecked")
   protected CalculationJobSpecification submitNodeInvocationJob(
       long iterationTimestamp,
       AtomicLong jobIdSource,
@@ -324,7 +325,7 @@ public class DependencyGraphExecutor {
     
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
     CalculationJob job;
-    switch (getComputationTargetType()) {
+    switch (depNode.getComputationTargetType()) {
     case PRIMITIVE:
       s_logger.debug("Enqueuing job {} to invoke {} on primative function",
           new Object[] {jobId, depNode.getFunction().getShortName()});
@@ -336,36 +337,39 @@ public class DependencyGraphExecutor {
           resolvedInputs);
       break;
     case SECURITY:
+      Security security = (Security)depNode.getComputationTarget();
       s_logger.debug("Enqueuing job {} to invoke {} on security {}",
-          new Object[] {jobId, depNode.getFunction().getShortName(), getSecurity().getIdentityKey()});
+          new Object[] {jobId, depNode.getFunction().getShortName(), security.getIdentityKey()});
       job = new CalculationJob(
           getViewName(),
           iterationTimestamp,
           jobId,
           depNode.getFunction().getUniqueIdentifier(),
-          getSecurity().getIdentityKey(),
+          security.getIdentityKey(),
           resolvedInputs);
       break;
     case POSITION:
+      Position position = (Position)depNode.getComputationTarget();
       s_logger.debug("Enqueuing job {} to invoke {} on position {}",
-          new Object[] {jobId, depNode.getFunction().getShortName(), getPosition()});
+          new Object[] {jobId, depNode.getFunction().getShortName(), position});
       job = new CalculationJob(
           getViewName(),
           iterationTimestamp,
           jobId,
           depNode.getFunction().getUniqueIdentifier(),
-          stripDownPosition(getPosition()),
+          stripDownPosition(position),
           resolvedInputs);
       break;
     case MULTIPLE_POSITIONS:
+      Collection<Position> positions = (Collection<Position>)depNode.getComputationTarget();
       s_logger.debug("Enqueuing job {} to invoke {} on list of positions {}",
-          new Object[] {jobId, depNode.getFunction().getShortName(), getPositions()});
+          new Object[] {jobId, depNode.getFunction().getShortName(), positions});
       job = new CalculationJob(
           getViewName(),
           iterationTimestamp,
           jobId,
           depNode.getFunction().getUniqueIdentifier(),
-          stripDownPositions(getPositions()),
+          stripDownPositions(positions),
           resolvedInputs);
       break;
     default:

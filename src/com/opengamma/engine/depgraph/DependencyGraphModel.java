@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
@@ -32,6 +33,8 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.util.ArgumentChecker;
+
+// TODO kirk 2009-11-03 -- Something better than this Collection<Position> crap for aggregates.
 
 /**
  * A full model representing all operations that must be performed to
@@ -50,8 +53,8 @@ public class DependencyGraphModel {
     new HashMap<Security, RevisedDependencyGraph>();
   private final Map<Position, RevisedDependencyGraph> _graphForPosition = 
     new HashMap<Position, RevisedDependencyGraph>();
-  private final Map<PortfolioNode, RevisedDependencyGraph> _graphForAggregatePosition =
-    new HashMap<PortfolioNode, RevisedDependencyGraph>();
+  private final Map<Collection<Position>, RevisedDependencyGraph> _graphForAggregatePosition =
+    new HashMap<Collection<Position>, RevisedDependencyGraph>();
   private final Set<AnalyticValueDefinition<?>> _requiredLiveData =
     new HashSet<AnalyticValueDefinition<?>>();
   
@@ -178,7 +181,22 @@ public class DependencyGraphModel {
       break;
     }
     case MULTIPLE_POSITIONS:
-      throw new OpenGammaRuntimeException("Not yet implemented.");
+    {
+      assert function instanceof AggregatePositionAnalyticFunctionDefinition;
+      if(computationTargetType != ComputationTargetType.MULTIPLE_POSITIONS) {
+        assert false : "Should not have been able to get an AggregatePositionAnalyticFunctionDefinition on input type " + computationTargetType;
+      }
+      @SuppressWarnings("unchecked")
+      Collection<Position> aggTarget = (Collection<Position>) computationTarget;
+      AggregatePositionAnalyticFunctionDefinition aggFunction = (AggregatePositionAnalyticFunctionDefinition) function;
+      node = new DependencyNode(aggFunction, aggTarget);
+      nodeInputs = aggFunction.getInputs(aggTarget);
+      depGraph = _graphForAggregatePosition.get(aggTarget);
+      if(depGraph == null) {
+        depGraph = new RevisedDependencyGraph(ComputationTargetType.MULTIPLE_POSITIONS, aggTarget);
+        _graphForAggregatePosition.put(aggTarget, depGraph);
+      }
+    }
     }
     assert node != null;
     depGraph.addNode(node);
@@ -261,8 +279,31 @@ public class DependencyGraphModel {
   public DependencyNode resolveMultiplePosition(
       AnalyticValueDefinition<?> outputValue,
       Collection<Position> computationTarget) {
-    // TODO Auto-generated method stub
-    return null;
+    DependencyNode resolved = null;
+    resolved = resolveWithinGraph(outputValue, _primitiveGraph);
+    if(resolved != null) {
+      return resolved;
+    }
+    
+    for(RevisedDependencyGraph securityDepGraph : _graphForSecurity.values()) {
+      resolved = resolveWithinGraph(outputValue, securityDepGraph);
+      if(resolved != null) {
+        return resolved;
+      }
+    }
+    
+    for(RevisedDependencyGraph positionDepGraph : _graphForPosition.values()) {
+      resolved = resolveWithinGraph(outputValue, positionDepGraph);
+      if(resolved != null) {
+        return resolved;
+      }
+    }
+    
+    resolved = resolveWithinGraph(outputValue, _graphForAggregatePosition.get(computationTarget));
+    if(resolved != null) {
+      return resolved;
+    }
+    return resolved;
   }
 
   /**
@@ -298,6 +339,9 @@ public class DependencyGraphModel {
       return resolved;
     }
     resolved = resolveWithinGraph(outputValue, _graphForSecurity.get(computationTarget));
+    // REVIEW kirk 2009-11-03 -- Have to make sure this works, because in the case of
+    // expensive-to-compute underlyings, we will want to still be able to get them from
+    // other securities graphs.
     return resolved;
   }
 
@@ -348,9 +392,14 @@ public class DependencyGraphModel {
       return;
     }
     Collection<Position> positions = flattenPortfolio(node);
+    RevisedDependencyGraph aggDepGraph = new RevisedDependencyGraph(ComputationTargetType.MULTIPLE_POSITIONS, positions);
+    _graphForAggregatePosition.put(positions, aggDepGraph);
     AnalyticFunctionResolver functionResolver = new DefaultAnalyticFunctionResolver(getAnalyticFunctionRepository());
     for(AnalyticValueDefinition requiredOutputValue : requiredOutputValues) {
-      satisfyDependency(requiredOutputValue, functionResolver, getLiveDataAvailabilityProvider(), positions);
+      DependencyNode depNode = satisfyDependency(requiredOutputValue, functionResolver, getLiveDataAvailabilityProvider(), positions);
+      assert depNode != null;
+      AnalyticValueDefinition satisfying = depNode.getBestOutput(requiredOutputValue);
+      aggDepGraph.setResolvedRequirement(requiredOutputValue, satisfying);
     }
   }
   
@@ -386,7 +435,7 @@ public class DependencyGraphModel {
   }
   
   public RevisedDependencyGraph getDependencyGraph(PortfolioNode node) {
-    return _graphForAggregatePosition.get(node);
+    return _graphForAggregatePosition.get(flattenPortfolio(node));
   }
   
   public Set<Position> getPositionsWithDependencyGraphs() {
