@@ -234,11 +234,14 @@ public class EHCachingSecurityMaster implements SecurityMaster {
       Set<SecurityKey> keys = new HashSet<SecurityKey>();
       Collection<Security> securities = getUnderlying().getSecurities(secKey);
       if (securities != null && !securities.isEmpty()) {
+        // TODO kirk 2009-11-03 -- Yomi, fix this.
+        /*
         for (Security security : securities) {
           SecurityKey key = security.getIdentityKey();
           _singleSecurityCache.put(new Element(key, security));
           keys.add(key);
         }
+        */
         _multiSecuritiesCache.put(new Element(secKey, keys));
       }
       return securities;
@@ -314,6 +317,11 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     _manager.removeCache(SINGLE_SECURITY_CACHE);
     _manager.removeCache(MULTI_SECURITIES_CACHE);
     _manager.shutdown();
+  }
+
+  @Override
+  public Security getSecurity(String identityKey) {
+    throw new OpenGammaRuntimeException("Not yet implemented.");
   }
 
 }
