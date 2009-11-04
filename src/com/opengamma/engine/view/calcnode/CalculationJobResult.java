@@ -7,12 +7,19 @@ package com.opengamma.engine.view.calcnode;
 
 import java.io.Serializable;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
+
 /**
  * The response that a Calculation Node will return to invokers.
  *
  * @author kirk
  */
 public class CalculationJobResult implements Serializable {
+  public static final String INVOCATION_RESULT_FIELD_NAME = "result";
+  public static final String DURATION_FIELD_NAME = "duration";
+  
   private final CalculationJobSpecification _specification;
   private final InvocationResult _result;
   private final long _duration;
@@ -48,4 +55,21 @@ public class CalculationJobResult implements Serializable {
     return _duration;
   }
 
+  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
+    FudgeMsg msg = fudgeContext.newMessage();
+    getSpecification().writeFields(msg);
+    msg.add(INVOCATION_RESULT_FIELD_NAME, getResult().name());
+    msg.add(DURATION_FIELD_NAME, getDuration());
+    return msg;
+  }
+  
+  public static CalculationJobResult fromFudgeMsg(FudgeMsgEnvelope envelope) {
+    FudgeMsg msg = envelope.getMessage();
+    CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(envelope);
+    
+    InvocationResult result = InvocationResult.valueOf(msg.getString(INVOCATION_RESULT_FIELD_NAME));
+    long duration = msg.getLong(DURATION_FIELD_NAME);
+    
+    return new CalculationJobResult(jobSpec, result, duration);
+  }
 }

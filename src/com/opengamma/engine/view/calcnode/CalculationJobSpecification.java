@@ -11,6 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
  * A description of a job that will be executed by a Calculation Node.
@@ -102,5 +103,14 @@ public class CalculationJobSpecification implements Serializable {
     fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
     fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
     fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
+  }
+  
+  public static CalculationJobSpecification fromFudgeMsg(FudgeMsgEnvelope envelope) {
+    FudgeMsg msg = envelope.getMessage();
+    String viewName = msg.getString(VIEW_NAME_FIELD_NAME);
+    long iterationTimestamp = msg.getLong(ITERATION_TIMESTAMP_FIELD_NAME);
+    long jobId = msg.getLong(JOB_ID_FIELD_NAME);
+    
+    return new CalculationJobSpecification(viewName, iterationTimestamp, jobId);
   }
 }
