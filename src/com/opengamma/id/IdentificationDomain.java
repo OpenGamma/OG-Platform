@@ -9,6 +9,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * An Identification Domain defines a particular domain in which values
@@ -77,7 +78,7 @@ public class IdentificationDomain implements Serializable, Cloneable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
 }

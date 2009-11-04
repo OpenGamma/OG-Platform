@@ -10,6 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
@@ -98,7 +99,7 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this);
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
   public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
