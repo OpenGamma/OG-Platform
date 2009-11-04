@@ -10,6 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeMsg;
 
 /**
  * A description of a job that will be executed by a Calculation Node.
@@ -19,6 +20,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
  * @author kirk
  */
 public class CalculationJobSpecification implements Serializable {
+  public static final String VIEW_NAME_FIELD_NAME = "viewName";
+  public static final String ITERATION_TIMESTAMP_FIELD_NAME = "iterationTimestamp";
+  public static final String JOB_ID_FIELD_NAME = "jobId";
+  
   private final String _viewName;
   private final long _iterationTimestamp;
   private final long _jobId;
@@ -91,5 +96,11 @@ public class CalculationJobSpecification implements Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  public void writeFields(FudgeMsg fudgeMsg) {
+    fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
+    fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
+    fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
   }
 }

@@ -6,17 +6,25 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.analytics.AnalyticValueDefinitionEncoder;
 import com.opengamma.engine.position.PositionReference;
 
 /**
@@ -26,6 +34,12 @@ import com.opengamma.engine.position.PositionReference;
  * @author kirk
  */
 public class CalculationJob implements Serializable {
+  public static final String COMPUTATION_TARGET_TYPE_FIELD_NAME = "computationTargetType";
+  public static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
+  public static final String SECURITY_KEY_FIELD_NAME = "securityKey";
+  public static final String POSITION_REFERENCE_FIELD_NAME = "positionReference";
+  public static final String INPUT_FIELD_NAME = "valueInput";
+  
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class); 
   private final CalculationJobSpecification _specification;
   private final ComputationTargetType _computationTargetType;
@@ -152,5 +166,64 @@ public class CalculationJob implements Serializable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
+  
+  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
+    FudgeMsg msg = fudgeContext.newMessage();
+    getSpecification().writeFields(msg);
+    msg.add(COMPUTATION_TARGET_TYPE_FIELD_NAME, getComputationTargetType().name());
+    msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
+    
+    for(AnalyticValueDefinition<?> inputDefinition : getInputs()) {
+      msg.add(INPUT_FIELD_NAME, AnalyticValueDefinitionEncoder.toFudgeMsg(inputDefinition, fudgeContext));
+    }
+    
+    switch(getComputationTargetType()) {
+    case PRIMITIVE: break; // Nothing to encode
+    case SECURITY: msg.add(SECURITY_KEY_FIELD_NAME, getSecurityKey()); break;
+    case POSITION: msg.add(POSITION_REFERENCE_FIELD_NAME, getPositionReference().toFudgeMsg(fudgeContext)); break;
+    case MULTIPLE_POSITIONS:
+      for(PositionReference positionReference : getPositionReferences()) {
+        msg.add(POSITION_REFERENCE_FIELD_NAME, positionReference.toFudgeMsg(fudgeContext));
+      }
+      break;
+    }
+    
+    return msg;
+  }
 
+  public static CalculationJob fromFudgeMsg(FudgeMsgEnvelope envelope) {
+    FudgeMsg msg = envelope.getMessage();
+    
+    String viewName = msg.getString(CalculationJobSpecification.VIEW_NAME_FIELD_NAME);
+    long iterationTimestamp = msg.getLong(CalculationJobSpecification.ITERATION_TIMESTAMP_FIELD_NAME);
+    long jobId = msg.getLong(CalculationJobSpecification.JOB_ID_FIELD_NAME);
+    String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
+    
+    List<AnalyticValueDefinition<?>> inputs = new ArrayList<AnalyticValueDefinition<?>>();
+    for(FudgeField field : msg.getAllByName(INPUT_FIELD_NAME)) {
+      AnalyticValueDefinition<?> input = AnalyticValueDefinitionEncoder.fromFudgeMsg(new FudgeMsgEnvelope((FudgeMsg) field.getValue()));
+      inputs.add(input);
+    }
+    
+    ComputationTargetType computationTargetType = ComputationTargetType.valueOf(msg.getString(COMPUTATION_TARGET_TYPE_FIELD_NAME));
+    switch(computationTargetType) {
+    case PRIMITIVE:
+      return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, inputs);
+    case SECURITY:
+      String securityKey = msg.getString(SECURITY_KEY_FIELD_NAME);
+      return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, securityKey, inputs);
+    case POSITION:
+      PositionReference positionReference = PositionReference.fromFudgeMsg(new FudgeMsgEnvelope((FudgeMsg)msg.getMessage(POSITION_REFERENCE_FIELD_NAME)));
+      return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, positionReference, inputs);
+    case MULTIPLE_POSITIONS:
+      List<PositionReference> positionReferences = new ArrayList<PositionReference>();
+      for(FudgeField field : msg.getAllByName(POSITION_REFERENCE_FIELD_NAME)) {
+        positionReference = PositionReference.fromFudgeMsg(new FudgeMsgEnvelope((FudgeMsg)field.getValue()));
+        positionReferences.add(positionReference);
+      }
+      return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, positionReferences, inputs);
+    }
+    
+    throw new OpenGammaRuntimeException("Unhandled computation target type");
+  }
 }
