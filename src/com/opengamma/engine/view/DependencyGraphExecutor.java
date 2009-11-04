@@ -12,9 +12,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +36,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,6 +62,7 @@ public class DependencyGraphExecutor {
     new HashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
+  private final BlockingQueue<CalculationJobResult> _pendingResults = new ArrayBlockingQueue<CalculationJobResult>(100);
   
   public DependencyGraphExecutor(
       String viewName,
@@ -177,7 +184,12 @@ public class DependencyGraphExecutor {
       // First time we're willing to wait for some period, but after that we pull
       // off as fast as we can.
       CalculationJobResult jobResult = null;
-      jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompleted(1, TimeUnit.SECONDS);
+      try {
+        jobResult = _pendingResults.poll(1, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        // REVIEW kirk 2009-11-04 -- Anything else here to do?
+      }
       while(jobResult != null) {
         DependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
         assert completedNode != null : "Got result " + jobResult.getSpecification() + " for job we didn't enqueue. No node to remove.";
@@ -187,7 +199,7 @@ public class DependencyGraphExecutor {
           _failedNodes.add(completedNode);
           failNodesAbove(completedNode);
         }
-        jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompletedNoWait();
+        jobResult = _pendingResults.poll();
       }
     }
   }
@@ -372,7 +384,28 @@ public class DependencyGraphExecutor {
     }
 
     s_logger.debug("Enqueuing job with specification {}", jobSpec);
-    getProcessingContext().getJobSink().invoke(job);
+    invokeJob(job);
     return jobSpec;
+  }
+
+  /**
+   * @param job
+   */
+  protected void invokeJob(CalculationJob job) {
+    FudgeMsg jobMsg = job.toFudgeMsg(getProcessingContext().getComputationJobRequestSender().getFudgeContext());
+    getProcessingContext().getComputationJobRequestSender().sendRequest(jobMsg, new FudgeMessageReceiver() {
+      @Override
+      public void messageReceived(
+          FudgeContext fudgeContext,
+          FudgeMsgEnvelope msgEnvelope) {
+        CalculationJobResult jobResult = CalculationJobResult.fromFudgeMsg(msgEnvelope);
+        jobResultReceived(jobResult);
+      }
+      
+    });
+  }
+  
+  protected void jobResultReceived(CalculationJobResult jobResult) {
+    _pendingResults.add(jobResult);
   }
 }

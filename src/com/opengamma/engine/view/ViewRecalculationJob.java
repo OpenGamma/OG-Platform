@@ -67,8 +67,7 @@ public class ViewRecalculationJob extends TerminatableJob {
         getView().getDefinition().getName(),
         getView().getProcessingContext(),
         portfolioEvaluationModel,
-        result, getView().getDefinition(),
-        getView().getComputationExecutorService());
+        result, getView().getDefinition());
     if(!cycle.prepareInputs()) {
       s_logger.info("Not executing as couldn't snapshot market data. Probably waiting for source data to finish populating.");
       try {

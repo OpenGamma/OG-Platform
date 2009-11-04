@@ -10,8 +10,7 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.engine.view.calcnode.CalculationJobSink;
-import com.opengamma.engine.view.calcnode.JobCompletionRetriever;
+import com.opengamma.transport.FudgeRequestSender;
 
 /**
  * A collection for everything relating to processing a particular view.
@@ -25,8 +24,7 @@ public class ViewProcessingContext {
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
-  private final CalculationJobSink _jobSink;
-  private final JobCompletionRetriever _jobCompletionRetriever;
+  private final FudgeRequestSender _computationJobRequestSender;
 
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -35,8 +33,7 @@ public class ViewProcessingContext {
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
-      CalculationJobSink jobSink,
-      JobCompletionRetriever jobCompletionRetriever
+      FudgeRequestSender computationJobRequestSender
       ) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -45,8 +42,7 @@ public class ViewProcessingContext {
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
-    _jobSink = jobSink;
-    _jobCompletionRetriever = jobCompletionRetriever;
+    _computationJobRequestSender = computationJobRequestSender;
   }
 
   /**
@@ -92,17 +88,10 @@ public class ViewProcessingContext {
   }
 
   /**
-   * @return the jobSink
+   * @return the computationJobRequestSender
    */
-  public CalculationJobSink getJobSink() {
-    return _jobSink;
-  }
-
-  /**
-   * @return the jobCompletionRetriever
-   */
-  public JobCompletionRetriever getJobCompletionRetriever() {
-    return _jobCompletionRetriever;
+  public FudgeRequestSender getComputationJobRequestSender() {
+    return _computationJobRequestSender;
   }
 
 }

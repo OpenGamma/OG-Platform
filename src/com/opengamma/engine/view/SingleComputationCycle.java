@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -46,7 +45,6 @@ public class SingleComputationCycle {
   private final ViewProcessingContext _processingContext;
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   private final ViewDefinition _viewDefinition;
-  private final ExecutorService _computationExecutorService;
   
   // State:
   private final long _startTime;
@@ -62,20 +60,17 @@ public class SingleComputationCycle {
       ViewProcessingContext processingContext,
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition,
-      ExecutorService computationExecutorService) {
+      ViewDefinition viewDefinition) {
     assert viewName != null;
     assert processingContext != null;
     assert portfolioEvaluationModel != null;
     assert resultModel != null;
     assert viewDefinition != null;
-    assert computationExecutorService != null;
     _viewName = viewName;
     _processingContext = processingContext;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _resultModel = resultModel;
     _viewDefinition = viewDefinition;
-    _computationExecutorService = computationExecutorService;
     _startTime = System.currentTimeMillis();
   }
   
@@ -147,13 +142,6 @@ public class SingleComputationCycle {
    */
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;
-  }
-
-  /**
-   * @return the computationExecutorService
-   */
-  public ExecutorService getComputationExecutorService() {
-    return _computationExecutorService;
   }
 
   public boolean prepareInputs() {
