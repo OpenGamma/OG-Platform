@@ -86,14 +86,14 @@ implements Lifecycle {
         ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
         AnalyticFunctionInvocationJob invocationJob;
         switch(job.getComputationTargetType()) {
-        case SECURITY_KEY:
+        case SECURITY:
           {
             Security security = getSecurityMaster().getSecurity(job.getSecurityKey());
             invocationJob = new AnalyticFunctionInvocationJob(
                 job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
           }
           break;
-        case UNRESOLVED_POSITION:
+        case POSITION:
           {
             // REVIEW: jim 28-Oct-2009 -- should we be modifying the position in place or copying into a new PositionBean?
             Security security = getSecurityMaster().getSecurity(job.getPosition().getSecurityKey());
@@ -103,7 +103,7 @@ implements Lifecycle {
                   job.getInputs(), position, cache, getFunctionRepository());
           }
           break;
-        case MULTIPLE_UNRESOLVED_POSITIONS:
+        case MULTIPLE_POSITIONS:
           {
             Collection<Position> positions = new ArrayList<Position>(job.getPositions());
             // REVIEW jim 28-Oct-2009 -- Maybe we should be able to pass a list of positions or security keys to be resolved into the sec master?

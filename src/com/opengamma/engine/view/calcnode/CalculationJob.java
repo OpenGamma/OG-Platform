@@ -15,6 +15,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Position;
 
@@ -27,6 +28,7 @@ import com.opengamma.engine.position.Position;
 public class CalculationJob implements Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class); 
   private final CalculationJobSpecification _specification;
+  private final ComputationTargetType _computationTargetType;
   private final String _functionUniqueIdentifier;
   private final String _securityKey;
   private final Position _position;
@@ -43,33 +45,35 @@ public class CalculationJob implements Serializable {
       String functionUniqueIdentifier, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, null, null, null, inputs);
+        functionUniqueIdentifier, null, null, null, inputs, ComputationTargetType.PRIMITIVE);
   }
   // security specific functions
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
       String functionUniqueIdentifier, String securityKey, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, securityKey, null, null, inputs);
+        functionUniqueIdentifier, securityKey, null, null, inputs, ComputationTargetType.SECURITY);
   }
   // position specific functions
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
       String functionUniqueIdentifier, Position position, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, null, position, null, inputs);
+        functionUniqueIdentifier, null, position, null, inputs, ComputationTargetType.POSITION);
   }
   // aggregate position specific functions
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
       String functionUniqueIdentifier, Collection<Position> positions, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, null, null, positions, inputs);
+        functionUniqueIdentifier, null, null, positions, inputs, ComputationTargetType.MULTIPLE_POSITIONS);
   }
   
-  public CalculationJob(CalculationJobSpecification specification,
+  protected CalculationJob(
+      CalculationJobSpecification specification,
       String functionUniqueIdentifier, String securityKey, Position position, Collection<Position> positions,
-      Collection<AnalyticValueDefinition<?>> inputs) {
+      Collection<AnalyticValueDefinition<?>> inputs,
+      ComputationTargetType computationTargetType) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _specification = specification;
     _functionUniqueIdentifier = functionUniqueIdentifier;
@@ -77,6 +81,7 @@ public class CalculationJob implements Serializable {
     _position = position;
     _positions = positions;
     _inputs.addAll(inputs);
+    _computationTargetType = computationTargetType;
   }
 
   /**
@@ -119,24 +124,13 @@ public class CalculationJob implements Serializable {
     return _positions;
   }
   
-  public ComputationTarget getComputationTargetType() {
-    if (_securityKey != null) {
-      assert _position == null;
-      assert _positions == null;
-      return ComputationTarget.SECURITY_KEY;
-    } else if (_position != null) {
-      assert _positions == null; // already checked _securityKey
-      return ComputationTarget.UNRESOLVED_POSITION;
-    } else if (_positions != null) { // already checked the others.
-      return ComputationTarget.MULTIPLE_UNRESOLVED_POSITIONS;
-    } else {
-      return ComputationTarget.PRIMITIVE;
-    }
+  /**
+   * @return the computationTargetType
+   */
+  public ComputationTargetType getComputationTargetType() {
+    return _computationTargetType;
   }
-
-  public enum ComputationTarget {
-    PRIMITIVE, SECURITY_KEY, UNRESOLVED_POSITION, MULTIPLE_UNRESOLVED_POSITIONS
-  }
+  
   /**
    * @return the inputs
    */
