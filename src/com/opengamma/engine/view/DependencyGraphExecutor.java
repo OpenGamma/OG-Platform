@@ -25,7 +25,7 @@ import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.RevisedDependencyGraph;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
@@ -158,10 +158,9 @@ public class DependencyGraphExecutor {
     return _computationTargetType;
   }
 
-  public synchronized void executeGraph(long iterationTimestamp) {
+  public synchronized void executeGraph(long iterationTimestamp, AtomicLong jobIdSource) {
     addAllNodesToExecute(getDependencyGraph().getNodes());
     markLiveDataSourcingFunctionsCompleted();
-    AtomicLong jobIdSource = new AtomicLong(0l);
     
     while(!_nodesToExecute.isEmpty()) {
       enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
@@ -181,7 +180,7 @@ public class DependencyGraphExecutor {
       jobResult = getProcessingContext().getJobCompletionRetriever().getNextCompleted(1, TimeUnit.SECONDS);
       while(jobResult != null) {
         DependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
-        assert completedNode != null;
+        assert completedNode != null : "Got result " + jobResult.getSpecification() + " for job we didn't enqueue. No node to remove.";
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
         if(jobResult.getResult() != InvocationResult.SUCCESS) {
@@ -296,16 +295,12 @@ public class DependencyGraphExecutor {
     return allInputsExecuted;
   }
 
-  private Position stripDownPosition(Position position) {
-    return new PositionBean(position.getQuantity(), position.getSecurityKey());
-  }
-  
-  private Collection<Position> stripDownPositions(Collection<Position> positions) {
-    Collection<Position> resultPositions = new ArrayList<Position>(positions.size());
+  protected static Collection<PositionReference> convertToPositionReferences(Collection<Position> positions) {
+    Collection<PositionReference> resultReferences = new ArrayList<PositionReference>(positions.size());
     for (Position position : positions) {
-      resultPositions.add(new PositionBean(position.getQuantity(), position.getSecurityKey()));
+      resultReferences.add(new PositionReference(position));
     }
-    return resultPositions;
+    return resultReferences;
   }
   
   /**
@@ -357,7 +352,7 @@ public class DependencyGraphExecutor {
           iterationTimestamp,
           jobId,
           depNode.getFunction().getUniqueIdentifier(),
-          stripDownPosition(position),
+          new PositionReference(position),
           resolvedInputs);
       break;
     case MULTIPLE_POSITIONS:
@@ -369,13 +364,14 @@ public class DependencyGraphExecutor {
           iterationTimestamp,
           jobId,
           depNode.getFunction().getUniqueIdentifier(),
-          stripDownPositions(positions),
+          convertToPositionReferences(positions),
           resolvedInputs);
       break;
     default:
       throw new OpenGammaRuntimeException("Unhandled case in switch");
     }
 
+    s_logger.debug("Enqueuing job with specification {}", jobSpec);
     getProcessingContext().getJobSink().invoke(job);
     return jobSpec;
   }

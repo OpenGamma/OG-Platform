@@ -6,7 +6,7 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -17,6 +17,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.ViewComputationCache;
@@ -95,23 +96,16 @@ implements Lifecycle {
           break;
         case POSITION:
           {
-            // REVIEW: jim 28-Oct-2009 -- should we be modifying the position in place or copying into a new PositionBean?
-            Security security = getSecurityMaster().getSecurity(job.getPosition().getSecurityKey());
-            PositionBean position = (PositionBean) job.getPosition();
-            position.setSecurity(security);
+            Position position = constructPosition(job.getPositionReference());
             invocationJob = new AnalyticFunctionInvocationJob(job.getFunctionUniqueIdentifier(),
                   job.getInputs(), position, cache, getFunctionRepository());
           }
           break;
         case MULTIPLE_POSITIONS:
           {
-            Collection<Position> positions = new ArrayList<Position>(job.getPositions());
-            // REVIEW jim 28-Oct-2009 -- Maybe we should be able to pass a list of positions or security keys to be resolved into the sec master?
-            //                           also, should we be modifying the position in place or copying into a new PositionBean?
-            for (Position position : positions) {
-              Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
-              PositionBean positionBean = (PositionBean) position;
-              positionBean.setSecurity(security);
+            List<Position> positions = new ArrayList<Position>(job.getPositionReferences().size());
+            for(PositionReference positionReference : job.getPositionReferences()) {
+              positions.add(constructPosition(positionReference));
             }
             invocationJob = new AnalyticFunctionInvocationJob(job.getFunctionUniqueIdentifier(),
                                                               job.getInputs(), positions, cache, getFunctionRepository());
@@ -143,6 +137,20 @@ implements Lifecycle {
         CalculationJobResult jobResult = new CalculationJobResult(spec, invocationResult, duration);
         getCompletionNotifier().jobCompleted(jobResult);
       }
+    }
+
+    /**
+     * @param positionReference
+     * @return
+     */
+    private Position constructPosition(PositionReference positionReference) {
+      Security security = getSecurityMaster().getSecurity(positionReference.getSecurityIdentityKey());
+      if(security == null) {
+        // REVIEW kirk 2009-11-04 -- This is bad because the try{} above won't catch it and
+        // it'll kill the calc node.
+        throw new OpenGammaRuntimeException("Unable to resolve security identity key " + positionReference.getSecurityIdentityKey());
+      }
+      return new PositionBean(positionReference.getQuantity(), security);
     }
     
   }

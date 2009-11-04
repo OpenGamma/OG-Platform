@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ public class SingleComputationCycle {
   // State:
   private final long _startTime;
   private ViewComputationCache _computationCache;
+  private final AtomicLong _jobIdSource = new AtomicLong(0l);
   
   // Outputs:
   private long _snapshotTime;
@@ -201,7 +203,7 @@ public class SingleComputationCycle {
         getViewName(),
         primitiveDepGraph,
         getProcessingContext());
-    depGraphExecutor.executeGraph(getSnapshotTime());
+    depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
   }
 
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
@@ -219,7 +221,7 @@ public class SingleComputationCycle {
           security,
           secDepGraph,
           getProcessingContext()); 
-      depGraphExecutor.executeGraph(getSnapshotTime());
+      depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
     }
   }
 
@@ -233,7 +235,7 @@ public class SingleComputationCycle {
             position,
             posDepGraph,
             getProcessingContext());
-        depGraphExecutor.executeGraph(getSnapshotTime());
+        depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
       }
     }
     // NOTE: jim 28-Oct-2009 -- I've done this second because the first bit might have populated the cache or something - actually could work either way I guess.
@@ -248,7 +250,7 @@ public class SingleComputationCycle {
         new ArrayList<Position>(), //aggDepGraph.getPositions(), // I _think_ this is okay...
         aggDepGraph,
         getProcessingContext());
-    depGraphExecutor.executeGraph(getSnapshotTime());
+    depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
     for(PortfolioNode subNode : node.getSubNodes()) {
       executeAggregateAndPositionDependentPlans(subNode);
     }

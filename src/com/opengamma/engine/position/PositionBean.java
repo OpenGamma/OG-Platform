@@ -37,6 +37,13 @@ public class PositionBean implements Position, Serializable, Cloneable {
     _securityKey = securityKey;
     _security = security;
   }
+  
+  public PositionBean(BigDecimal quantity, Security security) {
+    _quantity = quantity;
+    _security = security;
+    // REVIEW kirk 2009-11-04 -- Is this right?
+    _securityKey = null;
+  }
 
   @Override
   public BigDecimal getQuantity() {
@@ -95,8 +102,13 @@ public class PositionBean implements Position, Serializable, Cloneable {
   public int hashCode() {
     int hashCode = 65;
     hashCode += getQuantity().hashCode();
-    hashCode <<= 5;
-    hashCode += getSecurityKey().hashCode();
+    if(getSecurityKey() != null) {
+      hashCode <<= 5;
+      hashCode += getSecurityKey().hashCode();
+    } else if(getSecurity() != null) {
+      hashCode <<= 5;
+      hashCode += getSecurity().hashCode();
+    }
     return hashCode;
   }
 

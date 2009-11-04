@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionReference;
 
 /**
  * The definition of a particular job that must be performed by
@@ -31,8 +31,8 @@ public class CalculationJob implements Serializable {
   private final ComputationTargetType _computationTargetType;
   private final String _functionUniqueIdentifier;
   private final String _securityKey;
-  private final Position _position;
-  private final Collection<Position> _positions;
+  private final PositionReference _positionReference;
+  private final Collection<PositionReference> _positionReferences;
   private final Set<AnalyticValueDefinition<?>> _inputs = new HashSet<AnalyticValueDefinition<?>>();
   
   /**
@@ -56,30 +56,33 @@ public class CalculationJob implements Serializable {
   }
   // position specific functions
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
-      String functionUniqueIdentifier, Position position, 
+      String functionUniqueIdentifier, PositionReference positionReference, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, null, position, null, inputs, ComputationTargetType.POSITION);
+        functionUniqueIdentifier, null, positionReference, null, inputs, ComputationTargetType.POSITION);
   }
   // aggregate position specific functions
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
-      String functionUniqueIdentifier, Collection<Position> positions, 
+      String functionUniqueIdentifier, Collection<PositionReference> positionReferences, 
       Collection<AnalyticValueDefinition<?>> inputs) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, null, null, positions, inputs, ComputationTargetType.MULTIPLE_POSITIONS);
+        functionUniqueIdentifier, null, null, positionReferences, inputs, ComputationTargetType.MULTIPLE_POSITIONS);
   }
   
   protected CalculationJob(
       CalculationJobSpecification specification,
-      String functionUniqueIdentifier, String securityKey, Position position, Collection<Position> positions,
+      String functionUniqueIdentifier,
+      String securityKey,
+      PositionReference positionReference,
+      Collection<PositionReference> positionReferences,
       Collection<AnalyticValueDefinition<?>> inputs,
       ComputationTargetType computationTargetType) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _specification = specification;
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _securityKey = securityKey;
-    _position = position;
-    _positions = positions;
+    _positionReference = positionReference;
+    _positionReferences = positionReferences;
     _inputs.addAll(inputs);
     _computationTargetType = computationTargetType;
   }
@@ -106,22 +109,22 @@ public class CalculationJob implements Serializable {
    * This should only be called if getComputationTargetType() returns POSITION
    * @return the position
    */
-  public Position getPosition() {
-    if (_position == null) {
+  public PositionReference getPositionReference() {
+    if (_positionReference == null) {
       s_logger.warn("getPosition() called when job is "+toString());
     }
-    return _position;
+    return _positionReference;
   }
   
   /**
    * This should only be called if getPositions() returns AGGREGATE_POSITION
    * @return the positions
    */
-  public Collection<Position> getPositions() {
-    if (_positions == null) {
+  public Collection<PositionReference> getPositionReferences() {
+    if (_positionReferences == null) {
       s_logger.warn("getPositions() called when job is "+toString());
     }
-    return _positions;
+    return _positionReferences;
   }
   
   /**
