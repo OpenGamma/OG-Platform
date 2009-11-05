@@ -67,7 +67,6 @@ public class AdaptiveLeastSquaresRegressionTest {
       }
       x[i][0] = i % 2 == 0 ? -1. : 1.;
     }
-    assertEquals(ADAPTIVE.regress(X, null, y, false), OLS.regress(X, null, y, false));
     final NamedVariableLeastSquaresRegressionResult result = (NamedVariableLeastSquaresRegressionResult) ADAPTIVE.regress(x, null, y, false);
     final Double[] betas = result.getBetas();
     assertEquals(betas.length, 2);

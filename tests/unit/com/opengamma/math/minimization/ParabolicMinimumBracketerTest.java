@@ -79,6 +79,5 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTest {
     final double f2 = f.evaluate(result[1]);
     assertTrue(f.evaluate(result[0]) > f2);
     assertTrue(f.evaluate(result[2]) > f2);
-    System.out.println(result[0] + " " + result[1] + " " + result[2]);
   }
 }
