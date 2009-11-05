@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.math.regression.NamedVariableLeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
+import com.opengamma.util.Pair;
 
 /**
  * 
@@ -85,7 +87,8 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       k = entry.getKey().getStrike();
       t = entry.getKey().getTimeToExpiry(data.getDate());
       try {
-        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(t, k);
+        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(
+            new Pair<Double, Double>(t, k));
         if (k != null && t != null && sigma != null) {
           kList.add(k);
           tList.add(t);
@@ -123,8 +126,8 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       return new VolatilitySurface() {
 
         @Override
-        public Double getVolatility(final Double t, final Double k) {
-          final Double[] values = _independentVariableFunction.evaluate(t, k);
+        public Double getVolatility(final Pair<Double, Double> tk) {
+          final Double[] values = _independentVariableFunction.evaluate(tk.getFirst(), tk.getSecond());
           final Map<String, Double> namesAndValues = new HashMap<String, Double>();
           for (int i = 0; i < values.length; i++) {
             namesAndValues.put(Integer.toString(i), values[i]);
@@ -132,12 +135,60 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
           return ((NamedVariableLeastSquaresRegressionResult) result).getPredictedValue(namesAndValues);
         }
 
+        @Override
+        public Set<Pair<Double, Double>> getXYData() {
+          // TODO Auto-generated method stub
+          return null;
+        }
+
+        @Override
+        public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+          // TODO Auto-generated method stub
+          return null;
+        }
+
+        @Override
+        public VolatilitySurface withParallelShift(final Double shift) {
+          // TODO Auto-generated method stub
+          return null;
+        }
+
+        @Override
+        public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
+          // TODO Auto-generated method stub
+          return null;
+        }
+
       };
     return new VolatilitySurface() {
 
       @Override
-      public Double getVolatility(final Double t, final Double k) {
-        return result.getPredictedValue(_independentVariableFunction.evaluate(t, k));
+      public Double getVolatility(final Pair<Double, Double> tk) {
+        return result.getPredictedValue(_independentVariableFunction.evaluate(tk.getFirst(), tk.getSecond()));
+      }
+
+      @Override
+      public Set<Pair<Double, Double>> getXYData() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public VolatilitySurface withParallelShift(final Double shift) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
+        // TODO Auto-generated method stub
+        return null;
       }
 
     };

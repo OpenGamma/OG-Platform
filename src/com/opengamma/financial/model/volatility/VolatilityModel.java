@@ -11,7 +11,7 @@ package com.opengamma.financial.model.volatility;
  * 
  */
 
-public interface VolatilityModel<T, U> {
+public interface VolatilityModel<T> {
 
-  public Double getVolatility(T x, U y);
+  public Double getVolatility(T t);
 }

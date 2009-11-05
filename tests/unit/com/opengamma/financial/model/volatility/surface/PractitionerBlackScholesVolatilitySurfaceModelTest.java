@@ -23,6 +23,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.util.Pair;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -78,7 +79,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     final VolatilitySurface surface = MODEL.getSurface(prices, data);
     for (final Expiry expiry : TEST_EXPIRY) {
       for (final double strike : TEST_STRIKE) {
-        assertEquals(surface.getVolatility(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike), sigma, EPS);
+        assertEquals(surface.getVolatility(new Pair<Double, Double>(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), sigma, EPS);
       }
     }
   }
@@ -105,7 +106,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
       expiry = TEST_EXPIRY[i];
       result = sigma[i] + 4 * diff * DateUtil.getDifferenceInYears(EXPIRY[i], expiry);
       for (final double strike : TEST_STRIKE) {
-        assertEquals(surface.getVolatility(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike), result, EPS);
+        assertEquals(surface.getVolatility(new Pair<Double, Double>(DateUtil.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), result, EPS);
       }
     }
   }

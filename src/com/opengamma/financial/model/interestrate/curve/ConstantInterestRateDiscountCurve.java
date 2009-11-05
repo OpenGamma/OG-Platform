@@ -25,6 +25,8 @@ public class ConstantInterestRateDiscountCurve extends DiscountCurve {
   private final double _rate;
 
   public ConstantInterestRateDiscountCurve(final Double rate) {
+    if (rate == null)
+      throw new IllegalArgumentException("Rate was null");
     if (rate < 0)
       throw new IllegalArgumentException("Cannot have a negative interest rate");
     _rate = rate;
@@ -72,7 +74,7 @@ public class ConstantInterestRateDiscountCurve extends DiscountCurve {
     if (shifts == null)
       throw new IllegalArgumentException("Shift map was null");
     if (shifts.isEmpty()) {
-      s_Log.info("Shift map was empty; returning original curve");
+      s_Log.info("Shift map was empty; returning unchanged curve");
       return new ConstantInterestRateDiscountCurve(_rate);
     }
     if (shifts.size() != 1) {

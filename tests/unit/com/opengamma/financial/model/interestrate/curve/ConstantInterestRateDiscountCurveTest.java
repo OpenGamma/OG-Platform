@@ -23,6 +23,11 @@ public class ConstantInterestRateDiscountCurveTest {
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(RATE);
 
   @Test(expected = IllegalArgumentException.class)
+  public void testNullInput() {
+    new ConstantInterestRateDiscountCurve(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testInput() {
     new ConstantInterestRateDiscountCurve(-RATE);
   }

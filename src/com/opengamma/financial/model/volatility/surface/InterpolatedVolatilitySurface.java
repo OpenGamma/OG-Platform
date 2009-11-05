@@ -7,6 +7,7 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -71,8 +72,32 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    * @return The volatility for (x, y).
    */
   @Override
-  public Double getVolatility(final Double x, final Double y) {
-    return _interpolator.interpolate(_data, new Pair<Double, Double>(x, y)).getResult();
+  public Double getVolatility(final Pair<Double, Double> xy) {
+    return _interpolator.interpolate(_data, new Pair<Double, Double>(xy.getFirst(), xy.getSecond())).getResult();
+  }
+
+  @Override
+  public Set<Pair<Double, Double>> getXYData() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public VolatilitySurface withParallelShift(final Double shift) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   @Override

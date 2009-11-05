@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
+import com.opengamma.util.Pair;
 
 /**
  * 
@@ -48,7 +49,7 @@ public class StandardOptionDataBundle {
   }
 
   public Double getVolatility(final Double timeToExpiry, final Double strike) {
-    return getVolatilitySurface().getVolatility(timeToExpiry, strike);
+    return getVolatilitySurface().getVolatility(new Pair<Double, Double>(timeToExpiry, strike));
   }
 
   public Double getSpot() {

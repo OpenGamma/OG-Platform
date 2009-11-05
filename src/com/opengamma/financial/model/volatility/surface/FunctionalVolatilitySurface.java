@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
+import com.opengamma.util.Pair;
+
 /**
  * 
  * @author emcleod
@@ -12,7 +14,7 @@ package com.opengamma.financial.model.volatility.surface;
 public abstract class FunctionalVolatilitySurface<T, U> extends VolatilitySurface {
 
   @Override
-  public Double getVolatility(final Double x, final Double y) {
+  public Double getVolatility(final Pair<Double, Double> xy) {
     // TODO Auto-generated method stub
     return null;
   }

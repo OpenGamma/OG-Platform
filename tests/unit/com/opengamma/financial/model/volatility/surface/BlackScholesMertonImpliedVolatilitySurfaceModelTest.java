@@ -21,6 +21,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.util.Pair;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -77,7 +78,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       initialData = new StandardOptionDataBundle(curve, b, null, spot, DATE);
       data = new StandardOptionDataBundle(curve, b, new ConstantVolatilitySurface(sigma), spot, DATE);
       price = BSM.getPricingFunction(definition).evaluate(data);
-      assertEquals(sigma, MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(definition, price), initialData).getVolatility(0., 0.), EPS);
+      assertEquals(sigma, MODEL.getSurface(Collections.<OptionDefinition, Double> singletonMap(definition, price), initialData).getVolatility(new Pair<Double, Double>(0., 0.)),
+          EPS);
     }
   }
 }
