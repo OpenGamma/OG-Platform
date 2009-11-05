@@ -183,8 +183,6 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    * @return
    */
   protected Cache getCacheFromManager(CacheManager manager, String name) {
-    ArgumentChecker.checkNotNull(manager, "CacheManager");
-    ArgumentChecker.checkNotNull(name, "cache name");
     Cache cache = null;
     try {
       cache = manager.getCache(name);
@@ -218,55 +216,30 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   @Override
   public Collection<Security> getSecurities(SecurityKey secKey) {
     Element e = _multiSecuritiesCache.get(secKey);
+    Collection<Security> securities = new HashSet<Security>();
     if (e != null) {
-      Set<Security> result = new HashSet<Security>();
       Serializable value = e.getValue();
-      if (isSetOfSecurityKeys(value)) {
-        Set<SecurityKey> keys = (Set<SecurityKey>) value;
-        for (SecurityKey key : keys) {
-          result.add(getSecurity(key));
+      if (value instanceof Set<?>) {
+        Set<String> identityKeys = (Set<String>) value;
+        for (String identityKey : identityKeys) {
+          securities.add(getSecurity(identityKey));
         }
       } else {
         s_logger.warn("returned object {} from cache is not a Set<SecurityKey> type", value);
       }
-      return result;
     } else {
-      Set<SecurityKey> keys = new HashSet<SecurityKey>();
-      Collection<Security> securities = getUnderlying().getSecurities(secKey);
+      Set<String> identityKeys = new HashSet<String>();
+      securities = getUnderlying().getSecurities(secKey);
       if (securities != null && !securities.isEmpty()) {
-        // TODO kirk 2009-11-03 -- Yomi, fix this.
-        /*
         for (Security security : securities) {
-          SecurityKey key = security.getIdentityKey();
-          _singleSecurityCache.put(new Element(key, security));
-          keys.add(key);
+          String identityKey = security.getIdentityKey();
+          _singleSecurityCache.put(new Element(identityKey, security));
+          identityKeys.add(identityKey);
         }
-        */
-        _multiSecuritiesCache.put(new Element(secKey, keys));
+        _multiSecuritiesCache.put(new Element(secKey, identityKeys));
       }
-      return securities;
     }
-  }
-
-  /**
-   * @param value
-   * @return
-   */
-  private boolean isSetOfSecurityKeys(Serializable value) {
-    if (!(value instanceof Set<?>)) {
-      return false;
-    } else {
-      // REVIEW kirk 2009-10-26 -- The following block is a candidate for an assertion.
-      /*
-       * Set<?> elements = (Set<?>) value;
-       * for (Object e : elements) {
-       * if (!(e instanceof SecurityKey)) {
-       * return false;
-       * }
-       * }
-       */
-    }
-    return true;
+    return securities;
   }
 
   @Override
@@ -291,16 +264,17 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   /**
-   * refresh value for given key
+   * refresh value for given security key
    */
   @SuppressWarnings("unchecked")
-  public void refresh(SecurityKey secKey) {
+  public void refresh(Object secKey) {
+    ArgumentChecker.checkNotNull(secKey, "Security Key");
     Element element = _multiSecuritiesCache.get(secKey);
     if (element != null) {
       Serializable value = element.getValue();
-      if (isSetOfSecurityKeys(value)) {
-        Set<SecurityKey> keys = (Set<SecurityKey>) value;
-        for (SecurityKey key : keys) {
+      if (value instanceof Set<?>) {
+        Set<String> keys = (Set<String>) value;
+        for (String key : keys) {
           _singleSecurityCache.remove(key);
         }
       }
@@ -308,7 +282,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     }
     _singleSecurityCache.remove(secKey);
   }
-
+  
   /**
    * Call this at the end of a unit test run to clear the state of EHCache.
    * It should not be part of a generic lifecycle method.
@@ -321,7 +295,23 @@ public class EHCachingSecurityMaster implements SecurityMaster {
 
   @Override
   public Security getSecurity(String identityKey) {
-    throw new OpenGammaRuntimeException("Not yet implemented.");
+    Element e = _singleSecurityCache.get(identityKey);
+    Security sec = null;
+    if (e != null) {
+      Serializable value = e.getValue();
+      if (value instanceof Security) {
+        sec = (Security) value;
+        s_logger.debug("retrieved security: {} from single-security-cache", sec);
+      } else {
+        s_logger.warn("returned object {} from single-security-cache not a security type", value);
+      }
+    } else {
+      sec = getUnderlying().getSecurity(identityKey);
+      if (sec != null) {
+        _singleSecurityCache.put(new Element(identityKey, sec));
+      }
+    }
+    return sec;
   }
 
 }
