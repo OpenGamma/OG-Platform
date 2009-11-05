@@ -42,21 +42,16 @@ public class CappedPowerOptionModelTest {
   private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
-  private static final double HIGH_CAP = 100;
+  private static final double HIGH_CAP = 1e20;
   private static final double EPS = 1e-4;
 
   @Test
   public void test() {
-    // assertEquals(getCappedPrice(1.9, HIGH_CAP, true), getUncappedPrice(1.9,
-    // true), EPS);
-    // assertEquals(getCappedPrice(1.95, HIGH_CAP, true), getUncappedPrice(1.95,
-    // true), EPS);
-    // assertEquals(getCappedPrice(2., HIGH_CAP, true), getUncappedPrice(2.,
-    // true), EPS);
-    // assertEquals(getCappedPrice(2.05, HIGH_CAP, true), getUncappedPrice(2.05,
-    // true), EPS);
-    // assertEquals(getCappedPrice(2.1, HIGH_CAP, true), getUncappedPrice(2.1,
-    // true), EPS);
+    assertEquals(getCappedPrice(1.9, HIGH_CAP, true), getUncappedPrice(1.9, true), EPS);
+    assertEquals(getCappedPrice(1.95, HIGH_CAP, true), getUncappedPrice(1.95, true), EPS);
+    assertEquals(getCappedPrice(2., HIGH_CAP, true), getUncappedPrice(2., true), EPS);
+    assertEquals(getCappedPrice(2.05, HIGH_CAP, true), getUncappedPrice(2.05, true), EPS);
+    assertEquals(getCappedPrice(2.1, HIGH_CAP, true), getUncappedPrice(2.1, true), EPS);
     assertEquals(getCappedPrice(1.9, HIGH_CAP, false), getUncappedPrice(1.9, false), EPS);
     assertEquals(getCappedPrice(1.95, HIGH_CAP, false), getUncappedPrice(1.95, false), EPS);
     assertEquals(getCappedPrice(2., HIGH_CAP, false), getUncappedPrice(2., false), EPS);

@@ -6,7 +6,9 @@
 package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -17,14 +19,15 @@ import com.opengamma.math.interpolation.Interpolator1D;
  * @author emcleod
  */
 public class InterpolatedDiscountCurve extends DiscountCurve {
-  private final SortedMap<Double, Double> _data;
+  private final SortedMap<Double, Double> _rateData;
+  private final SortedMap<Double, Double> _dfData;
   private final Interpolator1D _interpolator;
 
   /**
    * 
    * @param data
    *          A map containing pairs of maturities in years and interest rates
-   *          as decimals (i.e. 3% = 0.03).
+   *          in percent (e.g. 3% = 0.03)
    * @param interpolator
    *          An interpolator to get interest rates / discount factors for
    *          maturities that fall in between nodes. This can be null.
@@ -35,24 +38,30 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
   public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D interpolator) {
     if (data == null)
       throw new IllegalArgumentException("Data map was null");
-    if (data.isEmpty())
-      throw new IllegalArgumentException("Data map was empty");
-    final SortedMap<Double, Double> sorted = new TreeMap<Double, Double>();
+    if (interpolator == null)
+      throw new IllegalArgumentException("Interpolator was null");
+    if (data.size() < 2)
+      throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
+    final SortedMap<Double, Double> sortedRates = new TreeMap<Double, Double>();
+    final SortedMap<Double, Double> sortedDF = new TreeMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
-      sorted.put(entry.getKey(), Math.exp(-entry.getKey() * entry.getValue()));
+      if (entry.getKey() < 0)
+        throw new IllegalArgumentException("Cannot have negative time in a discount curve");
+      sortedRates.put(entry.getKey(), entry.getValue());
+      sortedDF.put(entry.getKey(), Math.exp(-entry.getValue() * entry.getKey()));
     }
-    if (sorted.firstKey() < 0)
-      throw new IllegalArgumentException("Cannot have negative time in a discount curve");
-    _data = Collections.<Double, Double> unmodifiableSortedMap(sorted);
+    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
+    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
     _interpolator = interpolator;
   }
 
   /**
    * 
-   * @return The data sorted by maturity.
+   * @return The data sorted by maturity. Note that these are discount factors,
+   *         not rates.
    */
   public SortedMap<Double, Double> getData() {
-    return _data;
+    return _rateData;
   }
 
   /**
@@ -70,6 +79,8 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
    */
   @Override
   public double getInterestRate(final Double t) {
+    if (t == null)
+      throw new IllegalArgumentException("t was null");
     if (t < 0)
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     return -Math.log(getDiscountFactor(t)) / t;
@@ -82,16 +93,72 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
    */
   @Override
   public double getDiscountFactor(final Double t) {
+    if (t == null)
+      throw new IllegalArgumentException("t was null");
     if (t < 0)
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
-    return _interpolator.interpolate(_data, t).getResult();
+    return _interpolator.interpolate(_dfData, t).getResult();
+  }
+
+  @Override
+  public Set<Double> getMaturities() {
+    return getData().keySet();
+  }
+
+  @Override
+  public DiscountCurve withParallelShift(final Double shift) {
+    if (shift == null)
+      throw new IllegalArgumentException("Shift was null");
+    final Map<Double, Double> map = new HashMap<Double, Double>();
+    for (final Map.Entry<Double, Double> entry : _rateData.entrySet()) {
+      map.put(entry.getKey(), entry.getValue() + shift);
+    }
+    return new InterpolatedDiscountCurve(map, getInterpolator());
+  }
+
+  @Override
+  public DiscountCurve withSingleShift(final Double t, final Double shift) {
+    if (t == null)
+      throw new IllegalArgumentException("t was null");
+    if (t < 0)
+      throw new IllegalArgumentException("t was negative");
+    if (shift == null)
+      throw new IllegalArgumentException("Shift was null");
+    final Map<Double, Double> data = getData();
+    final Map<Double, Double> map = new HashMap<Double, Double>(data);
+    if (data.containsKey(t)) {
+      map.put(t, data.get(t) + shift);
+      return new InterpolatedDiscountCurve(map, getInterpolator());
+    }
+    map.put(t, getInterestRate(t) + shift);
+    return new InterpolatedDiscountCurve(map, getInterpolator());
+  }
+
+  @Override
+  public DiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
+    if (shifts == null)
+      throw new IllegalArgumentException("Shift map was null");
+    if (shifts.isEmpty())
+      return new InterpolatedDiscountCurve(getData(), getInterpolator());
+    final Map<Double, Double> data = getData();
+    final Map<Double, Double> map = new HashMap<Double, Double>(data);
+    for (final Map.Entry<Double, Double> entry : shifts.entrySet()) {
+      if (entry.getKey() < 0)
+        throw new IllegalArgumentException("Negative time in shift map");
+      if (data.containsKey(entry.getKey())) {
+        map.put(entry.getKey(), data.get(entry.getKey()) + entry.getValue());
+      } else {
+        map.put(entry.getKey(), getInterestRate(entry.getKey()) + entry.getValue());
+      }
+    }
+    return new InterpolatedDiscountCurve(map, getInterpolator());
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (_data == null ? 0 : _data.hashCode());
+    result = prime * result + (_rateData == null ? 0 : _rateData.hashCode());
     result = prime * result + (_interpolator == null ? 0 : _interpolator.hashCode());
     return result;
   }
@@ -105,10 +172,10 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
     if (getClass() != obj.getClass())
       return false;
     final InterpolatedDiscountCurve other = (InterpolatedDiscountCurve) obj;
-    if (_data == null) {
-      if (other._data != null)
+    if (_rateData == null) {
+      if (other._rateData != null)
         return false;
-    } else if (!_data.equals(other._data))
+    } else if (!_rateData.equals(other._rateData))
       return false;
     if (_interpolator == null) {
       if (other._interpolator != null)
@@ -117,5 +184,4 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
       return false;
     return true;
   }
-
 }

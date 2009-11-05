@@ -19,7 +19,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> {
-  final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
+  final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final CappedPowerOptionDefinition definition) {
@@ -46,9 +46,9 @@ public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptio
           final int sign = isCall ? 1 : -1;
           final double df1 = Math.exp(-r * t);
           final double df2 = Math.exp(t * ((power - 1) * (r + power * sigma * sigma * 0.5) - power * (r - b)));
-          return sign
-              * (Math.pow(s, power) * df2 * (_normalProbabilityDistribution.getCDF(sign * d1) - _normalProbabilityDistribution.getCDF(sign * d3)) + sign * df1
-                  * (k * _normalProbabilityDistribution.getCDF(sign * d2) - (k + sign * cap) * _normalProbabilityDistribution.getCDF(sign * d4)));
+          final double term1 = Math.pow(s, power) * df2 * (_normal.getCDF(sign * d1) - _normal.getCDF(sign * d3));
+          final double term2 = df1 * (k * _normal.getCDF(sign * d2) - 1 / (k + sign * cap) * _normal.getCDF(sign * d4));
+          return sign * (term1 - term2);
         } catch (final InterpolationException e) {
           throw new OptionPricingException(e);
         }

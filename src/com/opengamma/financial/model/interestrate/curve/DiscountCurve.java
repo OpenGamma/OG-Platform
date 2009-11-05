@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 
 /**
@@ -31,4 +34,12 @@ public abstract class DiscountCurve implements InterestRateModel<Double> {
    *           If the time to maturity is negative.
    */
   public abstract double getDiscountFactor(final Double t);
+
+  public abstract Set<Double> getMaturities();
+
+  public abstract DiscountCurve withParallelShift(final Double shift);
+
+  public abstract DiscountCurve withSingleShift(final Double t, Double shift);
+
+  public abstract DiscountCurve withMultipleShifts(final Map<Double, Double> shifts);
 }

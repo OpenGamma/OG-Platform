@@ -8,7 +8,6 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurveTransformation;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -52,7 +51,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
           final double temp = s;
           s = k;
           k = temp;
-          final DiscountCurve curve = DiscountCurveTransformation.getParallelShiftedCurve(data.getDiscountCurve(), -b);
+          final DiscountCurve curve = data.getDiscountCurve().withParallelShift(-b);
           newData = data.withDiscountCurve(curve).withSpot(s);
         }
         if (b >= r) {
