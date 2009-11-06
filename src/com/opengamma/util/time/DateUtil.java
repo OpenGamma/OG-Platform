@@ -13,7 +13,10 @@ import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.field.DayOfWeek;
 import javax.time.calendar.field.MonthOfYear;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * 
@@ -260,6 +263,63 @@ public class DateUtil {
       result++;
     }
     return mult * (includeEnd ? result : result - 1);
+  }
+
+  /**
+   * @param startDate
+   * @return date in "yyyymmdd" format
+   */
+  public static String printYYMMDD(ZonedDateTime date) {
+    if (date == null)
+      throw new IllegalArgumentException("date was null");
+    StringBuilder formatedDate = new StringBuilder();
+    int year = date.getYear();
+    formatedDate.append(Integer.toString(year));
+    int month = date.getMonthOfYear().getValue();
+    if (month < 10) {
+      formatedDate.append("0").append(Integer.toString(month));
+    } else {
+      formatedDate.append(Integer.toString(month));
+    }
+    int day = date.getDayOfMonth();
+    if (day < 10) {
+      formatedDate.append("0").append(Integer.toString(day));
+    } else {
+      formatedDate.append(Integer.toString(day));
+    }
+    
+    return formatedDate.toString();
+  }
+
+  /**
+   * @param today
+   * @return
+   */
+  public static LocalDate previousWeekDay(LocalDate date) {
+    if (date == null) {
+      throw new IllegalArgumentException("date was null");
+    }
+    LocalDate previous = null;
+    DayOfWeek dayOfWeek = date.getDayOfWeek();
+    switch(dayOfWeek)  {
+    case MONDAY:
+      previous = date.minusDays(3);
+      break;
+    case TUESDAY:
+    case WEDNESDAY:
+    case THURSDAY:
+    case FRIDAY:
+    case SATURDAY:
+      previous = date.minusDays(1);
+      break;
+    case SUNDAY:
+      previous = date.minusDays(2);
+      break;
+    default :
+       throw new OpenGammaRuntimeException("Unrecognised day of the week");
+    }
+    
+    return previous;
   }
 
   // TODO useful to have methods such as # weeks between.

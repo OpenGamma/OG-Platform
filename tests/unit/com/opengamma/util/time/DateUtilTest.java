@@ -177,4 +177,40 @@ public class DateUtilTest {
     assertEquals(DateUtil.getDaysBetween(startDate, false, endDate, true), 366);
     assertEquals(DateUtil.getDaysBetween(startDate, true, endDate, true), 367);
   }
+  
+  @Test
+  public void testPrintYYMMDD() {
+    final int year = 2009;
+    final int month = 9;
+    final int day = 1;
+    ZonedDateTime date = DateUtil.getUTCDate(year, month, day);
+    assertEquals("20090901", DateUtil.printYYMMDD(date));
+    try {
+      DateUtil.printYYMMDD(null);
+      fail();
+    } catch (final IllegalArgumentException e) {
+      //Expected
+    }
+  }
+  
+  @Test
+  public void testPreviousWeekDay() {
+    LocalDate sun = LocalDate.date(2009, 11, 8);
+    LocalDate sat = LocalDate.date(2009, 11, 7);
+    LocalDate fri = LocalDate.date(2009, 11, 6);
+    LocalDate thur = LocalDate.date(2009, 11, 5);
+    LocalDate wed = LocalDate.date(2009, 11, 4);
+    LocalDate tue = LocalDate.date(2009, 11, 3);
+    LocalDate mon = LocalDate.date(2009, 11, 2);
+    LocalDate lastFri = LocalDate.date(2009, 10, 30);
+    
+    assertEquals(fri, DateUtil.previousWeekDay(sun));
+    assertEquals(fri, DateUtil.previousWeekDay(sat));
+    assertEquals(thur, DateUtil.previousWeekDay(fri));
+    assertEquals(wed, DateUtil.previousWeekDay(thur));
+    assertEquals(tue, DateUtil.previousWeekDay(wed));
+    assertEquals(mon, DateUtil.previousWeekDay(tue));
+    assertEquals(lastFri, DateUtil.previousWeekDay(mon));
+  }
+  
 }
