@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
@@ -19,6 +22,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
  * @author emcleod
  */
 public class InterpolatedDiscountCurve extends DiscountCurve {
+  private static final Logger s_Log = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
   private final SortedMap<Double, Double> _dfData;
   private final Interpolator1D _interpolator;
@@ -138,11 +142,15 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
   public DiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
     if (shifts == null)
       throw new IllegalArgumentException("Shift map was null");
-    if (shifts.isEmpty())
+    if (shifts.isEmpty()) {
+      s_Log.info("Shift map was empty; returning identical curve");
       return new InterpolatedDiscountCurve(getData(), getInterpolator());
+    }
     final Map<Double, Double> data = getData();
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
     for (final Map.Entry<Double, Double> entry : shifts.entrySet()) {
+      if (entry.getValue() == null)
+        throw new IllegalArgumentException("Null shift in shift map");
       if (entry.getKey() < 0)
         throw new IllegalArgumentException("Negative time in shift map");
       if (data.containsKey(entry.getKey())) {

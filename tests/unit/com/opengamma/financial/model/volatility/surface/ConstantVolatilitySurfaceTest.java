@@ -35,6 +35,11 @@ public class ConstantVolatilitySurfaceTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testGetVolatilityWithNullXY() {
+    SURFACE.getVolatility(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testGetVolatilityWithNullX() {
     SURFACE.getVolatility(new Pair<Double, Double>(null, 2.));
   }
@@ -86,25 +91,25 @@ public class ConstantVolatilitySurfaceTest {
 
   @Test
   public void test() {
-    final double sigma = 0.3;
-    final VolatilitySurface surface = new ConstantVolatilitySurface(sigma);
-    final double t = 2;
-    final double k = 50;
-    assertEquals(sigma, surface.getVolatility(new Pair<Double, Double>(t, k)), EPS);
+    assertEquals(SIGMA, SURFACE.getVolatility(XY), EPS);
+    assertEquals(Collections.<Pair<Double, Double>> emptySet(), SURFACE.getXYData());
   }
 
   @Test
   public void testParallelShift() {
-
+    final VolatilitySurface surface = SURFACE.withParallelShift(SHIFT);
+    assertEquals(SIGMA + SHIFT, surface.getVolatility(XY), EPS);
   }
 
   @Test
   public void testSingleShift() {
-
+    final VolatilitySurface surface = SURFACE.withSingleShift(XY, SHIFT);
+    assertEquals(SIGMA + SHIFT, surface.getVolatility(XY), EPS);
   }
 
   @Test
   public void testMultipleShift() {
-
+    final VolatilitySurface surface = SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(XY, SHIFT));
+    assertEquals(SIGMA + SHIFT, surface.getVolatility(XY), EPS);
   }
 }

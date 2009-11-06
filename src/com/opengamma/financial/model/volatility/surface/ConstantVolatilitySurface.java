@@ -63,6 +63,8 @@ public class ConstantVolatilitySurface extends VolatilitySurface {
       throw new IllegalArgumentException("x was null");
     if (xy.getSecond() == null)
       throw new IllegalArgumentException("y was null");
+    if (shift == null)
+      throw new IllegalArgumentException("Shift was null");
     return new ConstantVolatilitySurface(_sigma + shift);
   }
 
