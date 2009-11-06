@@ -179,14 +179,14 @@ public class DateUtilTest {
   }
   
   @Test
-  public void testPrintYYMMDD() {
+  public void testPrintYYYYMMDD() {
     final int year = 2009;
     final int month = 9;
     final int day = 1;
     ZonedDateTime date = DateUtil.getUTCDate(year, month, day);
-    assertEquals("20090901", DateUtil.printYYMMDD(date));
+    assertEquals("20090901", DateUtil.printYYYYMMDD(date));
     try {
-      DateUtil.printYYMMDD(null);
+      DateUtil.printYYYYMMDD(null);
       fail();
     } catch (final IllegalArgumentException e) {
       //Expected

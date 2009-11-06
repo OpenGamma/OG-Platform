@@ -15,6 +15,9 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.field.DayOfWeek;
 import javax.time.calendar.field.MonthOfYear;
+import javax.time.calendar.format.DateTimeFormatters;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -269,26 +272,11 @@ public class DateUtil {
    * @param startDate
    * @return date in "yyyymmdd" format
    */
-  public static String printYYMMDD(ZonedDateTime date) {
+  public static String printYYYYMMDD(ZonedDateTime date) {
     if (date == null)
       throw new IllegalArgumentException("date was null");
-    StringBuilder formatedDate = new StringBuilder();
-    int year = date.getYear();
-    formatedDate.append(Integer.toString(year));
-    int month = date.getMonthOfYear().getValue();
-    if (month < 10) {
-      formatedDate.append("0").append(Integer.toString(month));
-    } else {
-      formatedDate.append(Integer.toString(month));
-    }
-    int day = date.getDayOfMonth();
-    if (day < 10) {
-      formatedDate.append("0").append(Integer.toString(day));
-    } else {
-      formatedDate.append(Integer.toString(day));
-    }
-    
-    return formatedDate.toString();
+    String formatted = DateTimeFormatters.isoLocalDate().print(date);
+    return StringUtils.remove(formatted, '-');
   }
 
   /**
