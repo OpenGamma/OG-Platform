@@ -19,6 +19,8 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     final TreeMap<Double, Double> sorted = initData(data);
     final int low = getLowerBoundIndex(sorted, value);
+    if (low == sorted.size() - 1)
+      return new InterpolationResult<Double>(sorted.get(low));
     final int high = low + 1;
     final Double[] xData = sorted.keySet().toArray(new Double[0]);
     final Double[] yData = sorted.values().toArray(new Double[0]);

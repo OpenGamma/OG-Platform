@@ -35,11 +35,13 @@ public class LogLinearInterpolator1D extends Interpolator1D {
    *           If the x-value is null.
    */
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
+  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     if (value == null)
       throw new IllegalArgumentException("x value was null");
     final TreeMap<Double, Double> sorted = initData(data);
     final Double x1 = getLowerBoundKey(sorted, value);
+    if (x1.equals(sorted.lastKey()))
+      return new InterpolationResult<Double>(sorted.lastEntry().getValue());
     final Double x2 = sorted.higherKey(x1);
     final Double y1 = sorted.get(x1);
     final Double y2 = sorted.get(x2);

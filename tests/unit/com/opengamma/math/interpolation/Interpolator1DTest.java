@@ -23,7 +23,7 @@ public class Interpolator1DTest {
   private static final Interpolator1D DUMMY = new Interpolator1D() {
 
     @Override
-    public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
+    public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
       return new InterpolationResult<Double>(0., 0.);
     }
 
@@ -43,58 +43,52 @@ public class Interpolator1DTest {
     try {
       DUMMY.initData(null);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       DUMMY.initData(Collections.<Double, Double> singletonMap(1., 2.));
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
-    Double[] x = new Double[] { 1., 2., 3., 3.5, 6.7 };
-    TreeMap<Double, Double> sorted = DUMMY.initData(DATA);
+    final Double[] x = new Double[] { 1., 2., 3., 3.5, 6.7 };
+    final TreeMap<Double, Double> sorted = DUMMY.initData(DATA);
     assertArrayEquals(sorted.keySet().toArray(new Double[0]), x);
   }
 
   @Test
   public void testGetLowerBound() {
-    TreeMap<Double, Double> sorted = DUMMY.initData(DATA);
+    final TreeMap<Double, Double> sorted = DUMMY.initData(DATA);
     try {
       DUMMY.getLowerBoundKey(null, 0.);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       DUMMY.getLowerBoundKey(sorted, null);
       fail();
-    } catch (IllegalArgumentException e) {
+    } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
       DUMMY.getLowerBoundKey(sorted, 0.);
       fail();
-    } catch (InterpolationException e) {
+    } catch (final InterpolationException e) {
       // Expected
     }
     try {
       DUMMY.getLowerBoundKey(sorted, 10.);
       fail();
-    } catch (InterpolationException e) {
-      // Expected
-    }
-    try {
-      DUMMY.getLowerBoundKey(sorted, 6.7);
-      fail();
-    } catch (InterpolationException e) {
+    } catch (final InterpolationException e) {
       // Expected
     }
     assertEquals(DUMMY.getLowerBoundKey(sorted, 3.2), 3., EPS);
     assertEquals(DUMMY.getLowerBoundIndex(sorted, 3.2), 2);
   }
 
-  private void assertArrayEquals(Double[] x, Double[] y) {
+  private void assertArrayEquals(final Double[] x, final Double[] y) {
     assertEquals(x.length, y.length);
     for (int i = 0; i < x.length; i++) {
       assertEquals(x[i], y[i]);

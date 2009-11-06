@@ -26,9 +26,8 @@ public class PolynomialInterpolator1D extends Interpolator1D {
    *           If the degree is less than 1.
    */
   public PolynomialInterpolator1D(final int degree) {
-    if (degree < 1) {
+    if (degree < 1)
       throw new IllegalArgumentException("Need a degree of at least 1 to perform polynomial interpolation");
-    }
     _degree = degree;
   }
 
@@ -51,17 +50,17 @@ public class PolynomialInterpolator1D extends Interpolator1D {
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     final TreeMap<Double, Double> sorted = initData(data);
-    if (data.size() < _degree + 1) {
+    if (data.size() < _degree + 1)
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
-    }
     final int lower = getLowerBoundIndex(sorted, value);
+    if (lower == sorted.size() - 1)
+      return new InterpolationResult<Double>(sorted.lastEntry().getValue());
     final Double[] xArray = sorted.keySet().toArray(new Double[0]);
     final Double[] yArray = sorted.values().toArray(new Double[0]);
     final double[] c = new double[_degree + 1];
     final double[] d = new double[_degree + 1];
-    if (lower + _degree >= data.size()) {
+    if (lower + _degree >= data.size())
       throw new InterpolationException("Lower bound index of x (=" + lower + ") is within " + _degree + " data points of end of series (length = " + data.size() + ")");
-    }
     int ns = Math.abs(value - xArray[lower]) < Math.abs(value - xArray[lower + 1]) ? 0 : 1;
     for (int i = 0; i <= _degree; i++) {
       c[i] = yArray[i + lower];
@@ -72,9 +71,8 @@ public class PolynomialInterpolator1D extends Interpolator1D {
     double diff = 0;
     for (int i = 1; i <= _degree; i++) {
       for (int j = 0, k = lower; j <= _degree - i; j++, k++) {
-        if (Math.abs(xArray[k] - xArray[k + 1]) < EPS) {
+        if (Math.abs(xArray[k] - xArray[k + 1]) < EPS)
           throw new InterpolationException("Two values of x were within " + EPS + ": " + xArray[k] + " " + xArray[k + i]);
-        }
         diff = (c[j + 1] - d[j]) / (xArray[k] - xArray[k + i]);
         d[j] = (xArray[k + i] - value) * diff;
         c[j] = (xArray[k] - value) * diff;

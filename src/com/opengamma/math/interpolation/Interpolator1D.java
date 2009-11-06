@@ -39,7 +39,7 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    * @throws IllegalArgumentException
    *           Thrown if the data set is null or if its size is less than two.
    */
-  protected TreeMap<Double, Double> initData(Map<Double, Double> data) {
+  protected TreeMap<Double, Double> initData(final Map<Double, Double> data) {
     if (data == null)
       throw new IllegalArgumentException("Data map was null");
     if (data.size() < 2)
@@ -61,18 +61,16 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *           value of x in the data set, or if x is larger than the largest
    *           value of x in the data set.
    */
-  protected Double getLowerBoundKey(TreeMap<Double, Double> data, Double value) {
+  protected Double getLowerBoundKey(final TreeMap<Double, Double> data, final Double value) {
     if (data == null)
       throw new IllegalArgumentException("Data set was null");
     if (value == null)
       throw new IllegalArgumentException("x value was null");
     final Double lower = data.floorKey(value);
-    if (lower == null) {
+    if (lower == null)
       throw new InterpolationException("Value was less than the lowest data point for x");
-    }
-    if (lower.equals(data.lastKey())) {
+    if (!value.equals(data.lastKey()) && lower.equals(data.lastKey()))
       throw new InterpolationException("Value was greater than the largest data point for x");
-    }
     return lower;
   }
 
@@ -87,7 +85,7 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *          The value of x for which the interpolated point y is to be found.
    * @return The index of the nearest low value of x in the data set.
    */
-  protected int getLowerBoundIndex(TreeMap<Double, Double> data, Double value) {
+  protected int getLowerBoundIndex(final TreeMap<Double, Double> data, final Double value) {
     final Double lower = getLowerBoundKey(data, value);
     int i = 0;
     final Iterator<Double> iter = data.keySet().iterator();
