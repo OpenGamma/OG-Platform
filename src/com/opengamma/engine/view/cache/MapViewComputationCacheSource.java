@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.cache;
 
 import java.util.HashMap;
 import java.util.Map;
+
 
 /**
  * An implementation of {@link ViewComputationCacheSource} that generates

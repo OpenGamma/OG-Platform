@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.engine.view.ViewComputationCacheSource;
+import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.transport.FudgeRequestReceiver;
 
 /**

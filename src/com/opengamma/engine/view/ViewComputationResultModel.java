@@ -15,6 +15,7 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
  * The data model represents the sum total of analytic functions applied to positions

@@ -18,8 +18,8 @@ import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.engine.view.ViewComputationCache;
-import com.opengamma.engine.view.ViewComputationCacheSource;
+import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 
 /**
  * 

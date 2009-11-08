@@ -10,6 +10,7 @@ import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.transport.FudgeRequestSender;
 
 /**

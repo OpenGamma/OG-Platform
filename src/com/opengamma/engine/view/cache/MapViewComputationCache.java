@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine.view.cache;
 
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;

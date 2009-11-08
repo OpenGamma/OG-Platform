@@ -22,6 +22,7 @@ import com.opengamma.engine.depgraph.RevisedDependencyGraph;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
  * Holds all data and actions for a single pass through a computation cycle.

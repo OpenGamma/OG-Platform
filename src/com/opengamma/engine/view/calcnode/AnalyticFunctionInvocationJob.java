@@ -25,7 +25,7 @@ import com.opengamma.engine.analytics.SecurityAnalyticFunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.AnalyticFunctionInputsImpl;
-import com.opengamma.engine.view.ViewComputationCache;
+import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
  * The job that will actually invoke a {@link AnalyticFunctionDefinition} as part
