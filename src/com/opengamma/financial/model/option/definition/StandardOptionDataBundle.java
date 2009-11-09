@@ -80,12 +80,12 @@ public class StandardOptionDataBundle {
     return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate());
   }
 
-  public StandardOptionDataBundle withSpot(final double spot) {
-    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
-  }
-
   public StandardOptionDataBundle withDate(final ZonedDateTime date) {
     return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date);
+  }
+
+  public StandardOptionDataBundle withSpot(final Double spot) {
+    return new StandardOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate());
   }
 
   @Override

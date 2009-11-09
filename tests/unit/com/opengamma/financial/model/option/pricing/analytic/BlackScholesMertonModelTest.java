@@ -101,7 +101,6 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     final GreekResultCollection result = MODEL.getGreeks(definition, data, greekList);
     testResults(result, expected);
     testPutCallParity(strike, expiry, r, b, sigma, spot);
-    testPutCallSupersymmetry(strike, expiry, r, b, sigma, spot);
   }
 
   private void testGreek(final Greek greek, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma, final double spot,
@@ -124,18 +123,4 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     final double t = call.getTimeToExpiry(DATE);
     assertEquals(c, p + spot * Math.exp(t * (b - r)) - strike * Math.exp(-r * t), EPS);
   }
-
-  private void testPutCallSupersymmetry(final double strike, final Expiry expiry, final double r, final double b, final double sigma, final double spot) {
-    final List<Greek> greekList = Arrays.asList(Greek.PRICE);
-    final EuropeanVanillaOptionDefinition call = new EuropeanVanillaOptionDefinition(strike, expiry, true);
-    final EuropeanVanillaOptionDefinition put = new EuropeanVanillaOptionDefinition(strike, expiry, false);
-    final StandardOptionDataBundle callData = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
-    final StandardOptionDataBundle putData = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(-sigma), spot, DATE);
-    final GreekResultCollection callResult = MODEL.getGreeks(call, callData, greekList);
-    final GreekResultCollection putResult = MODEL.getGreeks(put, putData, greekList);
-    final Double c = ((SingleGreekResult) callResult.values().iterator().next()).getResult();
-    final Double p = ((SingleGreekResult) putResult.values().iterator().next()).getResult();
-    assertEquals(c, -p, EPS);
-  }
-
 }

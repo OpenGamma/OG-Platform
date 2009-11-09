@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
@@ -26,6 +31,31 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
 
   public double getKurtosis() {
     return _kurtosis;
+  }
+
+  @Override
+  public SkewKurtosisOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+    return new SkewKurtosisOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getSkew(), getKurtosis());
+  }
+
+  @Override
+  public SkewKurtosisOptionDataBundle withCostOfCarry(final double costOfCarry) {
+    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getSkew(), getKurtosis());
+  }
+
+  @Override
+  public SkewKurtosisOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
+    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getSkew(), getKurtosis());
+  }
+
+  @Override
+  public SkewKurtosisOptionDataBundle withDate(final ZonedDateTime date) {
+    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getSkew(), getKurtosis());
+  }
+
+  @Override
+  public SkewKurtosisOptionDataBundle withSpot(final Double spot) {
+    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getSkew(), getKurtosis());
   }
 
   @Override
