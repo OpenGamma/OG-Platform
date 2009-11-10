@@ -12,9 +12,7 @@ import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.interpolation.InterpolationException;
 import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -51,21 +49,17 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
       public Double evaluate(final StandardOptionDataBundle data) {
         if (data == null)
           throw new IllegalArgumentException("Null data bundle");
-        try {
-          final ZonedDateTime date = data.getDate();
-          final double s = data.getSpot();
-          final double k = definition.getStrike();
-          final double t = definition.getTimeToExpiry(date);
-          final double r = data.getInterestRate(t);
-          final double b = data.getCostOfCarry();
-          final double sigma = data.getVolatility(t, k);
-          final double d1 = getD1(s, k, t, sigma, b);
-          final double d2 = getD2(d1, sigma, t);
-          final int sign = definition.isCall() ? 1 : -1;
-          return sign * Math.exp(-r * t) * (s * Math.exp(b * t) * _normal.getCDF(sign * d1) - k * _normal.getCDF(sign * d2));
-        } catch (final InterpolationException e) {
-          throw new OptionPricingException(e);
-        }
+        final ZonedDateTime date = data.getDate();
+        final double s = data.getSpot();
+        final double k = definition.getStrike();
+        final double t = definition.getTimeToExpiry(date);
+        final double r = data.getInterestRate(t);
+        final double b = data.getCostOfCarry();
+        final double sigma = data.getVolatility(t, k);
+        final double d1 = getD1(s, k, t, sigma, b);
+        final double d2 = getD2(d1, sigma, t);
+        final int sign = definition.isCall() ? 1 : -1;
+        return sign * Math.exp(-r * t) * (s * Math.exp(b * t) * _normal.getCDF(sign * d1) - k * _normal.getCDF(sign * d2));
       }
     };
     return pricingFunction;

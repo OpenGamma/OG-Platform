@@ -34,8 +34,8 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<Europea
           final double sigma = data.getVolatility(t, k);
           final double r = data.getInterestRate(t);
           final double b = data.getCostOfCarry();
-          final double skew = data.getOnePeriodSkew();
-          final double kurtosis = data.getOnePeriodKurtosis();
+          final double skew = data.getAnnualisedSkew();
+          final double kurtosis = data.getAnnualisedKurtosis();
           EuropeanVanillaOptionDefinition callDefinition = definition;
           if (!definition.isCall()) {
             callDefinition = new EuropeanVanillaOptionDefinition(callDefinition.getStrike(), callDefinition.getExpiry(), true);

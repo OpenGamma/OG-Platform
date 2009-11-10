@@ -41,8 +41,8 @@ public class EdgeworthBinomialOptionAndSpotPricingTree {
 
   private void createTrees(final OptionDefinition definition, final SkewKurtosisOptionDataBundle vars, final int n) {
     final double spot = vars.getSpot();
-    final double skew = vars.getOnePeriodSkew();
-    final double kurtosis = vars.getOnePeriodKurtosis();
+    final double skew = vars.getAnnualisedSkew();
+    final double kurtosis = vars.getAnnualisedKurtosis();
     final int nodesAtMaturity = RecombiningBinomialTree.NODES.evaluate(n);
     final Function1D<? super StandardOptionDataBundle, Double> payoff = definition.getPayoffFunction();
     final Function1D<? super OptionDataBundleWithOptionPrice, Boolean> shouldExercise = definition.getExerciseFunction();

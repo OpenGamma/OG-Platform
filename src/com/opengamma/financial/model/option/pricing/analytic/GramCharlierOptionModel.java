@@ -17,7 +17,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class GramCharlierOptionModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
-  ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
 
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
@@ -32,20 +32,18 @@ public class GramCharlierOptionModel extends AnalyticOptionModel<OptionDefinitio
         final double s = data.getSpot();
         final double k = definition.getStrike();
         final double t = definition.getTimeToExpiry(data.getDate());
-        final double periodsPerYear = data.getPeriodsPerYear();
-        final double sqrtN = Math.sqrt(periodsPerYear);
-        final double periodsToExpiry = definition.getTimeToExpiry(data.getDate()) * periodsPerYear;
-        final double sqrtT = Math.sqrt(periodsToExpiry);
-        final double sigmaT = data.getVolatility(t, k) * sqrtT / sqrtN;
-        final double r = data.getInterestRate(t) / periodsPerYear;
-        final double b = data.getCostOfCarry() / periodsPerYear;
-        final double d = (Math.log(s / k) + periodsToExpiry * b + sigmaT * sigmaT / 2) / sigmaT;
-        final double gamma1T = data.getOnePeriodSkew() / sqrtT;
-        final double gamma2T = data.getOnePeriodKurtosis() / periodsToExpiry;
-        final double df1 = Math.exp(-r * periodsToExpiry);
-        final double df2 = getDF(r, b, periodsToExpiry);
-        final double correction = sigmaT * (gamma1T * (2 * sigmaT - d) / 6. - gamma2T * (1 - d * d + 3 * d * sigmaT - 3 * sigmaT * sigmaT) / 24.);
-        final double callPrice = s * df2 * (_normal.getCDF(d) + _normal.getPDF(d) * correction) - k * df1 * _normal.getCDF(d - sigmaT);
+        final double b = data.getCostOfCarry();
+        final double r = data.getInterestRate(t);
+        final double sigma = data.getVolatility(t, k);
+        final double sigmaT = sigma * Math.sqrt(t);
+        final double d1 = getD1(s, k, t, sigma, b);
+        final double d2 = getD2(d1, sigma, t);
+        final double skew = data.getAnnualisedSkew();
+        final double kurtosis = data.getAnnualisedKurtosis();
+        final double correction = sigmaT * (skew * (2 * sigmaT - d1) / (6. * Math.sqrt(t)) - kurtosis * (1 - d1 * d1 + 3 * sigmaT * (d1 - sigmaT)) / (24 * t));
+        final double df1 = Math.exp(-r * t);
+        final double df2 = getDF(r, b, t);
+        final double callPrice = s * df2 * (_normal.getCDF(d1) + _normal.getPDF(d1) * correction) - k * df1 * _normal.getCDF(d2);
         if (!definition.isCall())
           return callPrice + k * df1 - s * df2;
         return callPrice;

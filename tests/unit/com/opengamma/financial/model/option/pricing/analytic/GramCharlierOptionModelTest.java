@@ -36,10 +36,10 @@ public class GramCharlierOptionModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 5. / 12));
   private static final double PERIODS_PER_YEAR = 12;
-  private static final double SKEW = -2.3;
-  private static final double KURTOSIS = 1.2;
-  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, 0, 0, PERIODS_PER_YEAR);
-  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS, PERIODS_PER_YEAR);
+  private static final double SKEW = -2.3 / Math.sqrt(PERIODS_PER_YEAR);
+  private static final double KURTOSIS = 1.2 / PERIODS_PER_YEAR;
+  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, 0, 0);
+  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS);
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(30, EXPIRY, true);
   private static final OptionDefinition PUT = new EuropeanVanillaOptionDefinition(30, EXPIRY, false);
   private static final double EPS = 1e-6;
