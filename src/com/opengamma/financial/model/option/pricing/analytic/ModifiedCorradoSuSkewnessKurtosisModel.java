@@ -39,8 +39,8 @@ public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<
         final double sigma = data.getVolatility(t, k);
         final double r = data.getInterestRate(t);
         final double b = data.getCostOfCarry();
-        final double skew = data.getAnnualisedSkew();
-        final double kurtosis = data.getAnnualisedKurtosis();
+        final double skew = data.getAnnualizedSkew();
+        final double kurtosis = data.getAnnualizedKurtosis();
         final double sigmaT = sigma * Math.sqrt(t);
         OptionDefinition callDefinition = definition;
         if (!definition.isCall()) {
