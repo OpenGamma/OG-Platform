@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.tree;
 
 /**
@@ -9,17 +14,17 @@ package com.opengamma.financial.model.tree;
 public abstract class RecombiningTree<T> implements Lattice<T> {
   private final T[][] _tree;
 
-  public RecombiningTree(T[][] data) {
+  public RecombiningTree(final T[][] data) {
     _tree = data;
   }
 
   protected abstract int getMaxNodesForStep(int step);
 
   @Override
-  public T getNode(int step, int node) {
+  public T getNode(final int step, final int node) {
     if (step > _tree.length)
       throw new IllegalArgumentException("Step number " + step + " is greater than maximum in this tree (max =  " + _tree.length + ")");
-    int max = getMaxNodesForStep(step);
+    final int max = getMaxNodesForStep(step);
     if (node > max)
       throw new IllegalArgumentException("Node number " + node + " is greater than the number of nodes at this step number (max = " + max + ")");
     return _tree[step][node];
@@ -31,10 +36,10 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
   }
 
   @Override
-  public void setNode(T value, int step, int node) {
+  public void setNode(final T value, final int step, final int node) {
     if (step > _tree.length)
       throw new IllegalArgumentException("Step number " + step + " is greater than maximum in this tree (max =  " + _tree.length + ")");
-    int max = getMaxNodesForStep(step);
+    final int max = getMaxNodesForStep(step);
     if (node > max)
       throw new IllegalArgumentException("Node number " + node + " is greater than the number of nodes at this step number (max = " + max + ")");
     _tree[step][node] = value;

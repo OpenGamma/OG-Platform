@@ -11,10 +11,10 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class JuZhongOptionModelTest extends AmericanAnalyticOptionModelTest {
+public class JuZhongModelTest extends AmericanAnalyticOptionModelTest {
 
   @Test
   public void test() {
-    super.test(new JuZhongOptionModel(), 10);
+    super.test(new JuZhongModel(), 10);
   }
 }

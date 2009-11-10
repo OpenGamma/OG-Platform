@@ -26,8 +26,8 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class GramCharlierOptionModelTest {
-  private static final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> GRAM_CHARLIER = new GramCharlierOptionModel();
+public class GramCharlierModelTest {
+  private static final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> GRAM_CHARLIER = new GramCharlierModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.05);
   private static final double B = 0.05;

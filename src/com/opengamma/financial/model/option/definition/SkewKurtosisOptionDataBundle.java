@@ -39,7 +39,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   }
 
   @Override
-  public SkewKurtosisOptionDataBundle withCostOfCarry(final double costOfCarry) {
+  public SkewKurtosisOptionDataBundle withCostOfCarry(final Double costOfCarry) {
     return new SkewKurtosisOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedKurtosis());
   }
 

@@ -24,7 +24,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  * @author emcleod
  */
-public class JuZhongOptionModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
+public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   protected final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   protected final List<Greek> PRICE = Arrays.asList(Greek.PRICE);

@@ -48,7 +48,7 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends Standard
   }
 
   @Override
-  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withCostOfCarry(final double costOfCarry) {
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withCostOfCarry(final Double costOfCarry) {
     return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(),
         getExpectedJumpSize(), getDelta());
   }

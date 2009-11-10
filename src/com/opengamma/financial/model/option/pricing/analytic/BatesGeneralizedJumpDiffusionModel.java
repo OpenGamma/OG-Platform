@@ -20,7 +20,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  */
 
-public class BatesGeneralizedJumpDiffusionOptionModel extends AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelOptionDataBundle> {
+public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelOptionDataBundle> {
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
   protected final int N = 50;
 

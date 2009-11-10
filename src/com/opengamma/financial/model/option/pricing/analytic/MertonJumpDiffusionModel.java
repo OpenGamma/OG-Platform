@@ -19,7 +19,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class MertonJumpDiffusionOptionModel extends AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelOptionDataBundle> {
+public class MertonJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelOptionDataBundle> {
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
   protected final int N = 50;
 

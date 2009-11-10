@@ -16,7 +16,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * @author emcleod
  * 
  */
-public class GramCharlierOptionModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
+public class GramCharlierModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
   final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
 
   @Override
