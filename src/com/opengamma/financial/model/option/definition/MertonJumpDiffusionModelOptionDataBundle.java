@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
@@ -26,6 +31,39 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
 
   public double getGamma() {
     return _gamma;
+  }
+
+  @Override
+  public MertonJumpDiffusionModelOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+    return new MertonJumpDiffusionModelOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
+  }
+
+  @Override
+  public MertonJumpDiffusionModelOptionDataBundle withCostOfCarry(final double costOfCarry) {
+    return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
+  }
+
+  @Override
+  public MertonJumpDiffusionModelOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
+    return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getGamma());
+  }
+
+  @Override
+  public MertonJumpDiffusionModelOptionDataBundle withDate(final ZonedDateTime date) {
+    return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(), getGamma());
+  }
+
+  @Override
+  public MertonJumpDiffusionModelOptionDataBundle withSpot(final Double spot) {
+    return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(), getGamma());
+  }
+
+  public MertonJumpDiffusionModelOptionDataBundle withLambda(final Double lambda) {
+    return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getGamma());
+  }
+
+  public MertonJumpDiffusionModelOptionDataBundle withGamma(final Double gamma) {
+    return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), gamma);
   }
 
   @Override
