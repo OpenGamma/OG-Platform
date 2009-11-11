@@ -10,8 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Timer;
@@ -21,7 +19,6 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.FudgeStreamDecoder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,8 +66,10 @@ public class HeartbeatSenderTest {
     List<byte[]> messages = messageSender.getMessages();
     assertTrue(messages.size() >= 2);
     
+    FudgeContext fudgeContext = new FudgeContext();
+    
     for(byte[] message : messages) {
-      FudgeMsgEnvelope fudgeMsgEnvelope = FudgeStreamDecoder.readMsg(new DataInputStream(new ByteArrayInputStream(message)));
+      FudgeMsgEnvelope fudgeMsgEnvelope = fudgeContext.deserialize(message);
       FudgeMsg fudgeMsg = fudgeMsgEnvelope.getMessage();
       assertNotNull(fudgeMsg);
       assertEquals(2, fudgeMsg.getNumFields());
