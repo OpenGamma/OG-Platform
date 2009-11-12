@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -18,22 +17,20 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class LogOptionDefinition extends OptionDefinition {
-  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+  private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double evaluate(final StandardOptionDataBundle data) {
+    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       final double spot = data.getSpot();
       return Math.max(0, Math.log(spot / getStrike()));
     }
-
   };
-  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
       return false;
     }
-
   };
 
   public LogOptionDefinition(final double strike, final Expiry expiry) {
@@ -41,12 +38,12 @@ public class LogOptionDefinition extends OptionDefinition {
   }
 
   @Override
-  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+  public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+  public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -20,22 +19,20 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class AsymmetricPowerOptionDefinition extends OptionDefinition {
-  private final Function1D<StandardOptionDataBundle, Double> _payoffFunction = new Function1D<StandardOptionDataBundle, Double>() {
+  private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double evaluate(final StandardOptionDataBundle data) {
+    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       final double spot = data.getSpot();
       return isCall() ? Math.max(0, Math.pow(spot, getPower()) - getStrike()) : Math.max(0, getStrike() - Math.pow(spot, getPower()));
     }
-
   };
-  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Boolean evaluate(final OptionDataBundleWithOptionPrice x) {
+    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
       return false;
     }
-
   };
   private final double _power;
 
@@ -60,12 +57,12 @@ public class AsymmetricPowerOptionDefinition extends OptionDefinition {
   }
 
   @Override
-  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+  public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+  public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
 

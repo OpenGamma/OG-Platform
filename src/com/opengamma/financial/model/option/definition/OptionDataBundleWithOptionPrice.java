@@ -9,12 +9,11 @@ package com.opengamma.financial.model.option.definition;
  * 
  * @author emcleod
  */
-public class OptionDataBundleWithOptionPrice extends StandardOptionDataBundle {
+public class OptionDataBundleWithOptionPrice {
   private final StandardOptionDataBundle _data;
   private final double _optionPrice;
 
   public OptionDataBundleWithOptionPrice(final StandardOptionDataBundle data, final double optionPrice) {
-    super(data);
     _data = data;
     _optionPrice = optionPrice;
   }

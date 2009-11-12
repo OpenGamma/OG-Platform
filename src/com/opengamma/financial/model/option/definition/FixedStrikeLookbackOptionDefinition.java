@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.timeseries.DoubleTimeSeriesOperations;
 import com.opengamma.util.time.Expiry;
 
@@ -18,22 +17,20 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
-  private final Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> _payoffFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double>() {
+  private final OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries>() {
 
     @Override
-    public Double evaluate(final StandardOptionDataBundleWithSpotTimeSeries data) {
+    public Double getPayoff(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
       return isCall() ? Math.max(0, DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries()) - getStrike()) : Math.max(0, getStrike()
           - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()));
     }
-
   };
-  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+  private final OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries>() {
 
     @Override
-    public Boolean evaluate(final OptionDataBundleWithOptionPrice x) {
+    public Boolean shouldExercise(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
       return false;
     }
-
   };
 
   public FixedStrikeLookbackOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
@@ -41,12 +38,12 @@ public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
   }
 
   @Override
-  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+  public OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> getExerciseFunction() {
     return _exerciseFunction;
   }
 
   @Override
-  public Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> getPayoffFunction() {
+  public OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> getPayoffFunction() {
     return _payoffFunction;
   }
 }

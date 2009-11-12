@@ -1,6 +1,5 @@
 package com.opengamma.financial.model.option.definition;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -22,13 +21,13 @@ public class EuropeanSingleBarrierOptionDefinition extends OptionDefinition {
   }
 
   @Override
-  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
+  public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     // TODO Auto-generated method stub
     return null;
   }
 
   @Override
-  public Function1D<StandardOptionDataBundle, Double> getPayoffFunction() {
+  public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     // TODO Auto-generated method stub
     return null;
   }
