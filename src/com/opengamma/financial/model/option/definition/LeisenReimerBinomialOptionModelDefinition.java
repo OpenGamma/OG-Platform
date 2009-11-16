@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import com.opengamma.financial.model.tree.RecombiningBinomialTree;
+
 /**
  * 
  * @author emcleod
@@ -12,17 +14,17 @@ package com.opengamma.financial.model.option.definition;
 public class LeisenReimerBinomialOptionModelDefinition extends BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> {
 
   @Override
-  public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final double n) {
+  public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     final double b = data.getCostOfCarry();
     final double t = option.getTimeToExpiry(data.getDate());
     final double dt = t / n;
-    final double p = getProbability(option, data, n);
-    final double u = getUpFactor(option, data, n);
+    final double p = getUpProbabilityTree(option, data, n, j).getNode(0, 0);
+    final double u = getUpFactor(option, data, n, j);
     return (Math.exp(b * dt) - p * u) / (1 - p);
   }
 
   @Override
-  public double getProbability(final OptionDefinition option, final StandardOptionDataBundle data, final double n) {
+  public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     final double b = data.getCostOfCarry();
     final double s = data.getSpot();
     final double k = option.getStrike();
@@ -30,11 +32,18 @@ public class LeisenReimerBinomialOptionModelDefinition extends BinomialOptionMod
     final double sigma = data.getVolatility(t, k);
     final double d1 = getD1(s, k, t, sigma, b);
     final double d2 = getD2(d1, sigma, t);
-    return getH(d2, n);
+    final Double[][] tree = new Double[n + 1][j];
+    final double p = getH(d2, n);
+    for (int i = 0; i <= n; i++) {
+      for (int ii = 0; ii < j; ii++) {
+        tree[i][ii] = p;
+      }
+    }
+    return new RecombiningBinomialTree<Double>(tree);
   }
 
   @Override
-  public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final double n) {
+  public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     final double b = data.getCostOfCarry();
     final double s = data.getSpot();
     final double k = option.getStrike();

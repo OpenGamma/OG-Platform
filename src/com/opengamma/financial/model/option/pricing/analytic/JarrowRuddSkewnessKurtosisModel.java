@@ -36,7 +36,7 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<OptionD
         final double r = data.getInterestRate(t);
         final double b = data.getCostOfCarry();
         final double skew = data.getAnnualizedSkew();
-        final double kurtosis = data.getAnnualizedKurtosis();
+        final double kurtosis = data.getAnnualizedFischerKurtosis();
         final OptionDefinition callDefinition = definition.isCall() ? definition : new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), true);
         final Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(callDefinition);
         final double bsmCall = bsm.evaluate(data);

@@ -39,7 +39,7 @@ public class GramCharlierModel extends AnalyticOptionModel<OptionDefinition, Ske
         final double d1 = getD1(s, k, t, sigma, b);
         final double d2 = getD2(d1, sigma, t);
         final double skew = data.getAnnualizedSkew();
-        final double kurtosis = data.getAnnualizedKurtosis();
+        final double kurtosis = data.getAnnualizedPearsonKurtosis();
         final double correction = sigmaT * (skew * (2 * sigmaT - d1) / (6. * Math.sqrt(t)) - kurtosis * (1 - d1 * d1 + 3 * sigmaT * (d1 - sigmaT)) / (24 * t));
         final double df1 = Math.exp(-r * t);
         final double df2 = getDF(r, b, t);

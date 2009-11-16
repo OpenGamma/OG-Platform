@@ -19,17 +19,20 @@ import com.opengamma.util.Pair;
  * @author emcleod
  * 
  */
-public class MultiplicativeBinomialOptionModel extends TreeOptionModel<OptionDefinition, StandardOptionDataBundle> {
+public class BinomialOptionModel extends TreeOptionModel<OptionDefinition, StandardOptionDataBundle> {
   protected final int _n;
+  protected final int _j;
 
-  public MultiplicativeBinomialOptionModel(final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> model) {
+  public BinomialOptionModel(final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> model) {
     super(model);
     _n = 1000;
+    _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
-  public MultiplicativeBinomialOptionModel(final int n, final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> model) {
+  public BinomialOptionModel(final int n, final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> model) {
     super(model);
     _n = n;
+    _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
   @Override
@@ -39,27 +42,27 @@ public class MultiplicativeBinomialOptionModel extends TreeOptionModel<OptionDef
       @SuppressWarnings("unchecked")
       @Override
       public RecombiningBinomialTree<Pair<Double, Double>> evaluate(final StandardOptionDataBundle data) {
-        // TODO move into constructor
-        final int nodesAtMaturity = RecombiningBinomialTree.NODES.evaluate(_n);
-        final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][nodesAtMaturity];
+        final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][_j];
         final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction = definition.getPayoffFunction();
         final OptionExerciseFunction<StandardOptionDataBundle> exerciseFunction = definition.getExerciseFunction();
-        final double u = _model.getUpFactor(definition, data, _n);
-        final double d = _model.getDownFactor(definition, data, _n);
-        final double p = _model.getProbability(definition, data, _n);
+        final double u = _model.getUpFactor(definition, data, _n, _j);
+        final double d = _model.getDownFactor(definition, data, _n, _j);
+        final RecombiningBinomialTree<Double> pTree = _model.getUpProbabilityTree(definition, data, _n, _j);
         final double spot = data.getSpot();
         final double t = definition.getTimeToExpiry(data.getDate());
         final double r = data.getInterestRate(t);
         double newSpot = spot * Math.pow(d, _n);
-        for (int i = 0; i < nodesAtMaturity; i++) {
+        for (int i = 0; i < _j; i++) {
           spotAndOptionPrices[_n][i] = new Pair<Double, Double>(newSpot, payoffFunction.getPayoff(data.withSpot(newSpot), 0.));
           newSpot *= u / d;
         }
         final double df = Math.exp(-r * t / _n);
         Double optionValue, spotValue;
         StandardOptionDataBundle newData;
+        double p;
         for (int i = _n - 1; i >= 0; i--) {
           for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
+            p = pTree.getNode(i, j);
             optionValue = df * ((1 - p) * spotAndOptionPrices[i + 1][j].getSecond() + p * spotAndOptionPrices[i + 1][j + 1].getSecond());
             spotValue = spotAndOptionPrices[i + 1][j].getFirst() / d;
             newData = data.withSpot(spotValue);

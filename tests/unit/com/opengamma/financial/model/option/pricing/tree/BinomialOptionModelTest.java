@@ -25,6 +25,7 @@ import com.opengamma.financial.model.option.definition.LeisenReimerBinomialOptio
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.RendlemanBartterBinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.definition.TrisgeorgisBinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
@@ -38,7 +39,7 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class MultiplicativeBinomialOptionModelTest {
+public class BinomialOptionModelTest {
   private static final double EPS = 1e-2;
   private static final Double STRIKE = 95.;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
@@ -49,28 +50,36 @@ public class MultiplicativeBinomialOptionModelTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
+  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> DUMMY = new BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle>() {
     @Override
-    public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final double n) {
+    public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
       return 1. / 1.1;
     }
 
     @Override
-    public double getProbability(final OptionDefinition option, final StandardOptionDataBundle data, final double n) {
+    public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
       final double t = option.getTimeToExpiry(data.getDate());
       final double dt = t / n;
       final double r = data.getInterestRate(t);
-      final double u = getUpFactor(option, data, n);
-      final double d = getDownFactor(option, data, n);
-      return (Math.exp(r * dt) - d) / (u - d);
+      final double u = getUpFactor(option, data, n, j);
+      final double d = getDownFactor(option, data, n, j);
+      final double p = (Math.exp(r * dt) - d) / (u - d);
+      final Double[][] tree = new Double[n + 1][j];
+      for (int i = 0; i <= n; i++) {
+        for (int ii = 0; ii < j; ii++) {
+          tree[i][ii] = p;
+        }
+      }
+      return new RecombiningBinomialTree<Double>(tree);
     }
 
     @Override
-    public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final double n) {
+    public double getUpFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
       return 1.1;
     }
   };
-  private static final MultiplicativeBinomialOptionModel BINOMIAL_THREE_STEPS = new MultiplicativeBinomialOptionModel(3, DUMMY);
+  private static final BinomialOptionModel BINOMIAL_THREE_STEPS = new BinomialOptionModel(3, DUMMY);
 
   @SuppressWarnings("unchecked")
   @Test
@@ -120,13 +129,16 @@ public class MultiplicativeBinomialOptionModelTest {
   public void test() {
     final OptionDefinition call = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
     final OptionDefinition put = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, false);
-    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new MultiplicativeBinomialOptionModel(CRR);
+    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel(CRR);
     testAgainstBSM(call, binomial);
     testAgainstBSM(put, binomial);
-    binomial = new MultiplicativeBinomialOptionModel(LR);
+    binomial = new BinomialOptionModel(LR);
     testAgainstBSM(call, binomial);
     testAgainstBSM(put, binomial);
-    binomial = new MultiplicativeBinomialOptionModel(1001, RB);
+    binomial = new BinomialOptionModel(1001, RB);
+    testAgainstBSM(call, binomial);
+    testAgainstBSM(put, binomial);
+    binomial = new BinomialOptionModel(TRISGEORGIS);
     testAgainstBSM(call, binomial);
     testAgainstBSM(put, binomial);
   }
