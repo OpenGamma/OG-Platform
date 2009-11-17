@@ -15,7 +15,7 @@ public class HaltonQuasiRandomNumberGenerator implements QuasiRandomNumberGenera
 
   @Override
   public List<Double[]> getQuasiRandomVectors(final int dimension, final int n) {
-
+    return null;
   }
 
 }
