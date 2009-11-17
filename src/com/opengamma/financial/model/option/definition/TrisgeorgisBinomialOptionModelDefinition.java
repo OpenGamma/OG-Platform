@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import com.opengamma.financial.model.tree.ConstantRecombiningBinomialTree;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
@@ -26,14 +27,7 @@ public class TrisgeorgisBinomialOptionModelDefinition extends BinomialOptionMode
     final double dt = t / n;
     final double nu = r - 0.5 * sigma * sigma;
     final double du = getUpFactor(option, data, n, j);
-    final Double[][] tree = new Double[n + 1][j];
-    final double p = 0.5 * (1 + nu * dt / Math.log(du));
-    for (int i = 0; i <= n; i++) {
-      for (int ii = 0; ii < j; ii++) {
-        tree[i][ii] = p;
-      }
-    }
-    return new RecombiningBinomialTree<Double>(tree);
+    return new ConstantRecombiningBinomialTree<Double>(0.5 * (1 + nu * dt / Math.log(du)));
   }
 
   @Override

@@ -19,29 +19,29 @@ import com.opengamma.util.Pair;
  * @author emcleod
  * 
  */
-public class BinomialOptionModel extends TreeOptionModel<OptionDefinition, StandardOptionDataBundle> {
+public class BinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
   protected final int _n;
   protected final int _j;
 
-  public BinomialOptionModel(final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> model) {
+  public BinomialOptionModel(final BinomialOptionModelDefinition<OptionDefinition, T> model) {
     super(model);
     _n = 1000;
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
-  public BinomialOptionModel(final int n, final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> model) {
+  public BinomialOptionModel(final int n, final BinomialOptionModelDefinition<OptionDefinition, T> model) {
     super(model);
     _n = n;
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
   @Override
-  public Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> getTreeGeneratingFunction(final OptionDefinition definition) {
-    return new Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>>() {
+  public Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> getTreeGeneratingFunction(final OptionDefinition definition) {
+    return new Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>>() {
 
       @SuppressWarnings("unchecked")
       @Override
-      public RecombiningBinomialTree<Pair<Double, Double>> evaluate(final StandardOptionDataBundle data) {
+      public RecombiningBinomialTree<Pair<Double, Double>> evaluate(final T data) {
         final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][_j];
         final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction = definition.getPayoffFunction();
         final OptionExerciseFunction<StandardOptionDataBundle> exerciseFunction = definition.getExerciseFunction();

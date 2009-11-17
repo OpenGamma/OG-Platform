@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import com.opengamma.financial.model.tree.ConstantRecombiningBinomialTree;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
@@ -25,13 +26,7 @@ public class RendlemanBartterBinomialOptionModelDefinition extends BinomialOptio
 
   @Override
   public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
-    final Double[][] tree = new Double[n + 1][j];
-    for (int i = 0; i <= n; i++) {
-      for (int ii = 0; ii < j; ii++) {
-        tree[i][ii] = 0.5;
-      }
-    }
-    return new RecombiningBinomialTree<Double>(tree);
+    return new ConstantRecombiningBinomialTree<Double>(0.5);
   }
 
   @Override

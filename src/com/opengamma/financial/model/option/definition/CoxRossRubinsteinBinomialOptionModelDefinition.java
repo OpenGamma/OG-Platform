@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import com.opengamma.financial.model.tree.ConstantRecombiningBinomialTree;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
@@ -34,13 +35,6 @@ public class CoxRossRubinsteinBinomialOptionModelDefinition extends BinomialOpti
     final double dt = t / n;
     final double u = getUpFactor(option, data, n, j);
     final double d = getDownFactor(option, data, n, j);
-    final Double[][] tree = new Double[n + 1][j];
-    final double p = (Math.exp(b * dt) - d) / (u - d);
-    for (int i = 0; i <= n; i++) {
-      for (int ii = 0; ii < j; ii++) {
-        tree[i][ii] = p;
-      }
-    }
-    return new RecombiningBinomialTree<Double>(tree);
+    return new ConstantRecombiningBinomialTree<Double>((Math.exp(b * dt) - d) / (u - d));
   }
 }

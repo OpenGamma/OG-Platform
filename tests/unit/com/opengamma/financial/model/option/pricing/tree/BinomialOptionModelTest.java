@@ -8,26 +8,16 @@ package com.opengamma.financial.model.option.pricing.tree;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
-import com.opengamma.financial.model.option.definition.CoxRossRubinsteinBinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.LeisenReimerBinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.RendlemanBartterBinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.definition.TrisgeorgisBinomialOptionModelDefinition;
-import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.math.function.Function1D;
@@ -40,17 +30,6 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class BinomialOptionModelTest {
-  private static final double EPS = 1e-2;
-  private static final Double STRIKE = 95.;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
-  private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 100.,
-      DATE);
-  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
-  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
-  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
-  private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> DUMMY = new BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle>() {
     @Override
     public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
@@ -79,7 +58,7 @@ public class BinomialOptionModelTest {
       return 1.1;
     }
   };
-  private static final BinomialOptionModel BINOMIAL_THREE_STEPS = new BinomialOptionModel(3, DUMMY);
+  private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<StandardOptionDataBundle>(3, DUMMY);
 
   @SuppressWarnings("unchecked")
   @Test
@@ -125,24 +104,6 @@ public class BinomialOptionModelTest {
     testTrees(expected, result, 4);
   }
 
-  @Test
-  public void test() {
-    final OptionDefinition call = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
-    final OptionDefinition put = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, false);
-    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel(CRR);
-    testAgainstBSM(call, binomial);
-    testAgainstBSM(put, binomial);
-    binomial = new BinomialOptionModel(LR);
-    testAgainstBSM(call, binomial);
-    testAgainstBSM(put, binomial);
-    binomial = new BinomialOptionModel(1001, RB);
-    testAgainstBSM(call, binomial);
-    testAgainstBSM(put, binomial);
-    binomial = new BinomialOptionModel(TRISGEORGIS);
-    testAgainstBSM(call, binomial);
-    testAgainstBSM(put, binomial);
-  }
-
   private void testTrees(final Pair<Double, Double>[][] expected, final Pair<Double, Double>[][] result, final int n) {
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
@@ -154,12 +115,5 @@ public class BinomialOptionModelTest {
         }
       }
     }
-  }
-
-  private void testAgainstBSM(final OptionDefinition option, final TreeOptionModel<OptionDefinition, StandardOptionDataBundle> model) {
-    final List<Greek> requiredGreeks = Arrays.asList(Greek.PRICE);
-    final Double expected = (Double) BSM.getGreeks(option, DATA, requiredGreeks).get(Greek.PRICE).getResult();
-    final Double result = (Double) model.getGreeks(option, DATA, requiredGreeks).get(Greek.PRICE).getResult();
-    assertEquals(expected, result, EPS);
   }
 }

@@ -34,14 +34,4 @@ public abstract class RecombiningTree<T> implements Lattice<T> {
   public T[][] getTree() {
     return _tree;
   }
-
-  @Override
-  public void setNode(final T value, final int step, final int node) {
-    if (step > _tree.length)
-      throw new IllegalArgumentException("Step number " + step + " is greater than maximum in this tree (max =  " + _tree.length + ")");
-    final int max = getMaxNodesForStep(step);
-    if (node > max)
-      throw new IllegalArgumentException("Node number " + node + " is greater than the number of nodes at this step number (max = " + max + ")");
-    _tree[step][node] = value;
-  }
 }

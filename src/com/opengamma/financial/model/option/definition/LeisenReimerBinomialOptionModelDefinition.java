@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import com.opengamma.financial.model.tree.ConstantRecombiningBinomialTree;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
@@ -32,14 +33,7 @@ public class LeisenReimerBinomialOptionModelDefinition extends BinomialOptionMod
     final double sigma = data.getVolatility(t, k);
     final double d1 = getD1(s, k, t, sigma, b);
     final double d2 = getD2(d1, sigma, t);
-    final Double[][] tree = new Double[n + 1][j];
-    final double p = getH(d2, n);
-    for (int i = 0; i <= n; i++) {
-      for (int ii = 0; ii < j; ii++) {
-        tree[i][ii] = p;
-      }
-    }
-    return new RecombiningBinomialTree<Double>(tree);
+    return new ConstantRecombiningBinomialTree<Double>(getH(d2, n));
   }
 
   @Override
