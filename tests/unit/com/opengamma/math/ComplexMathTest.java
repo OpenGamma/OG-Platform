@@ -16,7 +16,7 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 
-public class MathTest {
+public class ComplexMathTest {
   private static final double X = 0.62;
   private static final double Y = -4.5;
   private static final ComplexNumber COMPLEX_X = new ComplexNumber(X, 0);
@@ -27,7 +27,7 @@ public class MathTest {
   @Test
   public void testWrapping() throws Exception {
     Class<java.lang.Math> javaMathClass = java.lang.Math.class;
-    Class<com.opengamma.math.Math> mathClass = com.opengamma.math.Math.class;
+    Class<com.opengamma.math.ComplexMath> mathClass = com.opengamma.math.ComplexMath.class;
     List<Method> javaMathClassMethods = Arrays.asList(javaMathClass.getDeclaredMethods());
     Class<?>[] oneParameter = new Class<?>[] { Number.class };
     Class<?>[] twoParameters = new Class<?>[] { Number.class, Number.class };
@@ -69,10 +69,10 @@ public class MathTest {
 
   @Test
   public void testArithmetic() {
-    assertEquals(Math.acosh(Math.cosh(X)).doubleValue(), X, EPS);
-    assertEquals(Math.acosh(Math.cosh(Y)).doubleValue(), Math.abs(Y).doubleValue(), EPS);
-    assertEquals(Math.subtract(Math.add(X, Y), Y).doubleValue(), X, EPS);
-    assertEquals(Math.atanh(Math.tanh(Y)).doubleValue(), Y, EPS);
+    assertEquals(ComplexMath.acosh(ComplexMath.cosh(X)).doubleValue(), X, EPS);
+    assertEquals(ComplexMath.acosh(ComplexMath.cosh(Y)).doubleValue(), ComplexMath.abs(Y).doubleValue(), EPS);
+    assertEquals(ComplexMath.subtract(ComplexMath.add(X, Y), Y).doubleValue(), X, EPS);
+    assertEquals(ComplexMath.atanh(ComplexMath.tanh(Y)).doubleValue(), Y, EPS);
   }
 
   @Test

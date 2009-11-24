@@ -8,7 +8,7 @@ import com.opengamma.math.number.ComplexNumber;
  * 
  */
 
-public class Math {
+public class ComplexMath {
 
   public static double PI = java.lang.Math.PI;
   public static double E = java.lang.Math.E;
