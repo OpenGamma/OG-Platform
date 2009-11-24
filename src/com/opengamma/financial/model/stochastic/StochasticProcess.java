@@ -1,6 +1,18 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.stochastic;
 
-public interface StochasticProcess {
+import java.util.List;
 
-  public double[] getPath(int n);
+/**
+ * 
+ * @author emcleod
+ * 
+ */
+public interface StochasticProcess<T, U> {
+
+  public List<Double[]> getPath(T t, U u, int n, int steps);
 }

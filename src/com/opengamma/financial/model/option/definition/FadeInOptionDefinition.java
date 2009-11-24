@@ -61,16 +61,6 @@ public class FadeInOptionDefinition extends OptionDefinition {
   }
 
   @Override
-  public OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> getExerciseFunction() {
-    return _exerciseFunction;
-  }
-
-  @Override
-  public OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> getPayoffFunction() {
-    return _payoffFunction;
-  }
-
-  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
@@ -96,5 +86,15 @@ public class FadeInOptionDefinition extends OptionDefinition {
     if (Double.doubleToLongBits(_upperBound) != Double.doubleToLongBits(other._upperBound))
       return false;
     return true;
+  }
+
+  @Override
+  public OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> getExerciseFunction() {
+    return _exerciseFunction;
+  }
+
+  @Override
+  public OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> getPayoffFunction() {
+    return _payoffFunction;
   }
 }
