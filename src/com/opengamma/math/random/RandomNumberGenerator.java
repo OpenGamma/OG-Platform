@@ -5,11 +5,13 @@
  */
 package com.opengamma.math.random;
 
+import java.util.List;
 
 /**
  * 
  * @author emcleod
  */
-public interface QuasiRandomNumberGenerator extends RandomNumberGenerator {
+public interface RandomNumberGenerator {
 
+  public List<Double[]> getVectors(final int dimension, final int n);
 }

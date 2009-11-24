@@ -15,6 +15,6 @@ public class VanDerCorputQuasiRandomNumberGeneratorTest {
 
   @Test
   public void test() {
-    new VanDerCorputQuasiRandomNumberGenerator(3).getQuasiRandomVectors(1, 24);
+    new VanDerCorputQuasiRandomNumberGenerator(3).getVectors(1, 24);
   }
 }

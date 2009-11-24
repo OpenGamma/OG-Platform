@@ -18,6 +18,6 @@ public class FaureSequenceQuasiRandomNumberGeneratorTest {
 
   @Test
   public void test() {
-    final List<Double[]> vectors = GENERATOR.getQuasiRandomVectors(2000, 2);
+    final List<Double[]> vectors = GENERATOR.getVectors(2000, 2);
   }
 }

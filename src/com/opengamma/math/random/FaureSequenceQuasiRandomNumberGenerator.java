@@ -5,44 +5,41 @@
  */
 package com.opengamma.math.random;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.TreeSet;
+
+import com.opengamma.math.PrimeNumbers;
 
 /**
  * 
  * @author emcleod
  */
 public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
-  // TODO need a large table of primes
-  private final List<Integer> PRIME_LIST = Arrays.asList(1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41);
-  private final TreeSet<Integer> PRIME_SET = new TreeSet<Integer>(PRIME_LIST);
 
   @Override
-  public List<Double[]> getQuasiRandomVectors(final int dimension, final int n) {
-    final Integer p = PRIME_SET.ceiling(n);
-    final int m = (int) Math.floor(Math.log(dimension) / Math.log(p));
-    final List<Double[]> vectors = new ArrayList<Double[]>();
-    final double[][] a = new double[n][m];
-    final double[][] binomial = new double[m][m];
-    binomial[0][0] = 1;
-    for (int i = 1; i < m; i++) {
-      binomial[i][0] = 1;
-      for (int j = 1; j < m; j++) {
-        binomial[i][j] = binomial[i - 1][j] + binomial[i - 1][j - 1];
-      }
-    }
-    Double[] x;
-    for (int k = 0; k < n; k++) {
-      x = new Double[dimension];
-      if (k == 0) {
-        for (int l = 0; l < m; l++) {
-          a[k][l] = (int) Math.floor(dimension % Math.pow(p, l + 1) / p);
+  public List<Double[]> getVectors(final int dimension, final int n) {
+    // TODO check dimension
+    final int base = PrimeNumbers.getNextPrime(dimension);
+    final QuasiRandomNumberGenerator vanDerCorput = new VanDerCorputQuasiRandomNumberGenerator(base);
+    final Double[] x = new Double[n];
+    for (int i = 1; i < n + 1; i++) {
+      final int m = (int) Math.floor(Math.log(i) / Math.log(base));
+      final int[] a = new int[m + 1];
+      final double[] power = new double[m + 2];
+      double number = i;
+      power[m + 1] = Math.pow(base, m + 1);
+      power[m] = power[m + 1] / base;
+      for (int j = m; j >= 0; j--) {
+        a[j] = (int) (number / power[j]);
+        number = number % power[j];
+        if (j > 0) {
+          power[j - 1] = power[j] / base;
         }
       }
-      vectors.add(x);
+      x[i - 1] = 0.;
+      for (int j = m; j >= 0; j--) {
+        x[i - 1] += a[j] / power[j + 1];
+      }
     }
-    return vectors;
+    return null;
   }
 }

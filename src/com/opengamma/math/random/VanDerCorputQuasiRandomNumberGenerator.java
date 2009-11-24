@@ -24,12 +24,13 @@ public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumber
   }
 
   @Override
-  public List<Double[]> getQuasiRandomVectors(final int dimension, final int n) {
+  public List<Double[]> getVectors(final int dimension, final int n) {
     if (dimension != 1) {
-      s_Log.info("Van der Corput sequences are one-dimensional only: not using dimension " + dimension);
+      s_Log.info("Van der Corput sequences are one-dimensional only: ignoring other " + (dimension - 1) + " dimension(s)");
     }
-    final Double[] x = new Double[n];
-    for (int i = 1; i < n; i++) {
+    final List<Double[]> result = new ArrayList<Double[]>();
+    Double x;
+    for (int i = 1; i < n + 1; i++) {
       final int m = (int) Math.floor(Math.log(i) / Math.log(_base));
       final int[] a = new int[m + 1];
       final double[] power = new double[m + 2];
@@ -43,14 +44,12 @@ public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumber
           power[j - 1] = power[j] / _base;
         }
       }
-      x[i - 1] = 0.;
+      x = 0.;
       for (int j = m; j >= 0; j--) {
-        x[i - 1] += a[j] / power[j + 1];
+        x += a[j] / power[j + 1];
       }
-      System.out.println(i + ": " + x[i - 1]);
+      result.add(new Double[] { x });
     }
-    final List<Double[]> result = new ArrayList<Double[]>();
-    result.add(x);
     return result;
   }
 }
