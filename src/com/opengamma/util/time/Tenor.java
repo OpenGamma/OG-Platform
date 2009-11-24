@@ -12,7 +12,8 @@ public class Tenor {
   public static final Tenor YEAR = new Tenor(Period.days(365));
   public static final Tenor LEAP_YEAR = new Tenor(Period.days(366));
   public static final Tenor TWO_FINANCIAL_YEARS = new Tenor(FINANCIAL_YEAR.getPeriod().multipliedBy(2));
-
+  public static final Tenor MONTH = new Tenor(YEAR.getPeriod().dividedBy(12));
+  
   public Tenor(final Period period) {
     _period = period;
   }
