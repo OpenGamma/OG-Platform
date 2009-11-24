@@ -41,6 +41,17 @@ public class Triple<S,T,U> implements Serializable, Comparable<Triple<S, T, U>>{
     return new CompareToBuilder().append(_first, o._first).append(_second, o._second).append(_third, o._third).toComparison();
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Triple[");
+    sb.append(_first);
+    sb.append(", ");
+    sb.append(_second);
+    sb.append(", ");
+    sb.append(_third);
+    sb.append("]");
+    return sb.toString();
+  }
   @Override
   public int hashCode() {
     final int prime = 31;
