@@ -34,6 +34,7 @@ public class KeyValuePair<K, V> implements Entry<K, V> {
     return _value = value;
   }
   
+  @Override
   public boolean equals(Object o) {
     if(this == o) {
       return true;
@@ -54,7 +55,18 @@ public class KeyValuePair<K, V> implements Entry<K, V> {
     return true;
   }
   
+  @Override
   public int hashCode() {
     return getKey().hashCode() ^ getValue().hashCode();
+  }
+  
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder("KeyValuePair[");
+    sb.append(getKey());
+    sb.append(", ");
+    sb.append(getValue());
+    sb.append("]");
+    return sb.toString();
   }
 }
