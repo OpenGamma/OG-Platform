@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import util.PrintToFile;
-
 /**
  * 
  * @author emcleod
@@ -21,6 +19,5 @@ public class HaltonQuasiRandomNumberGeneratorTest {
   public void test() {
     final QuasiRandomNumberGenerator generator = new HaltonQuasiRandomNumberGenerator();
     final List<Double[]> result = generator.getVectors(50, 1000);
-    PrintToFile.printToFile("test.txt", result);
   }
 }
