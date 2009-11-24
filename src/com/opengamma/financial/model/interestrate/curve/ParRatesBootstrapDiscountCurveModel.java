@@ -21,10 +21,10 @@ import com.opengamma.math.interpolation.Interpolator1D;
  * 
  * @author emcleod
  */
-public class BootstrapFromParRatesDiscountCurveModel implements DiscountCurveModel<FixedInterestRateInstrumentDefinition> {
+public class ParRatesBootstrapDiscountCurveModel implements DiscountCurveModel<FixedInterestRateInstrumentDefinition> {
   private final Interpolator1D _interpolator;
 
-  public BootstrapFromParRatesDiscountCurveModel(final Interpolator1D interpolator) {
+  public ParRatesBootstrapDiscountCurveModel(final Interpolator1D interpolator) {
     _interpolator = interpolator;
   }
 
