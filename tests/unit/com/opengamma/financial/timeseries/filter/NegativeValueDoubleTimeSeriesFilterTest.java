@@ -65,6 +65,5 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
     }
     final FilteredDoubleTimeSeries result = FILTER.evaluate(new ArrayDoubleTimeSeries(dates, data));
     assertEquals(result, new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(filteredDates, filteredData), new ArrayDoubleTimeSeries(rejectedDates, rejectedData)));
-
   }
 }
