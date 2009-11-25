@@ -82,15 +82,4 @@ public class SpikeDoubleTimeSeriesFilterTest {
     assertEquals(rejected.getValue(0), ts.getValue(index));
     assertEquals(filtered.getFilteredTS().size(), 99);
   }
-
-  @Test
-  public void testNegativeSpike() {
-    final List<Double> data = new ArrayList<Double>(DATA);
-    data.set(10, -100.);
-    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(DATES, data);
-    final DoubleTimeSeries rejected = FILTER.evaluate(ts).getRejectedTS();
-    assertEquals(rejected.size(), 1);
-    assertEquals(rejected.getTime(0), ts.getTime(10));
-    assertEquals(rejected.getValue(0), ts.getValue(10));
-  }
 }
