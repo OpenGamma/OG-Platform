@@ -25,12 +25,22 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class ZeroValueDoubleTimeSeriesFilterTest {
-  private static final DoubleTimeSeriesFilter SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter();
-  private static final DoubleTimeSeriesFilter LARGE_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter(1e-3);
+  private static final ZeroValueDoubleTimeSeriesFilter SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter();
+  private static final ZeroValueDoubleTimeSeriesFilter LARGE_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter(1e-3);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
     SMALL_ZERO_FILTER.evaluate((DoubleTimeSeries) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeZero() {
+    new ZeroValueDoubleTimeSeriesFilter(-1e-12);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetNegativeZero() {
+    SMALL_ZERO_FILTER.setZero(-1e-12);
   }
 
   @Test

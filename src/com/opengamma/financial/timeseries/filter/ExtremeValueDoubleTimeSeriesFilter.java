@@ -22,24 +22,35 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class ZeroValueDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
-  private static final Logger s_Log = LoggerFactory.getLogger(ZeroValueDoubleTimeSeriesFilter.class);
-  private double _zero;
+public class ExtremeValueDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
+  private static final Logger s_Log = LoggerFactory.getLogger(ExtremeValueDoubleTimeSeriesFilter.class);
+  private double _minValue;
+  private double _maxValue;
 
-  public ZeroValueDoubleTimeSeriesFilter() {
-    _zero = 1e-15;
+  public ExtremeValueDoubleTimeSeriesFilter(final double minValue, final double maxValue) {
+    if (minValue >= maxValue)
+      throw new IllegalArgumentException("Minumum value must be less than maximum value");
+    _minValue = minValue;
+    _maxValue = maxValue;
   }
 
-  public ZeroValueDoubleTimeSeriesFilter(final double zero) {
-    if (zero < 0)
-      throw new IllegalArgumentException("Must have a positive value of zero");
-    _zero = zero;
+  public void setMinimumValue(final double minValue) {
+    if (minValue >= _maxValue)
+      throw new IllegalArgumentException("Minimum value must be less than maximum value");
+    _minValue = minValue;
   }
 
-  public void setZero(final double zero) {
-    if (zero < 0)
-      throw new IllegalArgumentException("Must have a positive value of zero");
-    _zero = zero;
+  public void setMaximumValue(final double maxValue) {
+    if (maxValue <= _minValue)
+      throw new IllegalArgumentException("Maximum value must be greater than mimumum value");
+    _maxValue = maxValue;
+  }
+
+  public void setRange(final double minValue, final double maxValue) {
+    if (minValue >= maxValue)
+      throw new IllegalArgumentException("Minumum value must be less than maximum value");
+    _minValue = minValue;
+    _maxValue = maxValue;
   }
 
   @Override
@@ -56,9 +67,11 @@ public class ZeroValueDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
     final List<Double> rejectedData = new ArrayList<Double>();
     final Iterator<Entry<ZonedDateTime, Double>> iter = ts.iterator();
     Entry<ZonedDateTime, Double> entry;
+    Double value;
     while (iter.hasNext()) {
       entry = iter.next();
-      if (Math.abs(entry.getValue()) < _zero) {
+      value = entry.getValue();
+      if (value > _maxValue || value < _minValue) {
         rejectedDates.add(entry.getKey());
         rejectedData.add(entry.getValue());
       } else {
