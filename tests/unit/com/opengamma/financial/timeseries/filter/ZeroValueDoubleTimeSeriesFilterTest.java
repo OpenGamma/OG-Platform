@@ -51,7 +51,7 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
   }
 
   @Test
-  public void testStrict() {
+  public void test() {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final List<Double> data = new ArrayList<Double>();
     final List<ZonedDateTime> smallZeroFilteredDates = new ArrayList<ZonedDateTime>();
