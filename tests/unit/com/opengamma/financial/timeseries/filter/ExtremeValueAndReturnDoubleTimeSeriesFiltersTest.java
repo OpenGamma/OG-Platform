@@ -17,21 +17,31 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
+import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.CalculationMode;
 
 /**
  * 
  * @author emcleod
  */
-public class ExtremeValueDoubleTimeSeriesFilterTest {
+public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final double MAX = 10;
   private static final double MIN = -1;
-  private static final ExtremeValueDoubleTimeSeriesFilter FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
+  private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  private static final ExtremeValueDoubleTimeSeriesFilter VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
+  private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullTS() {
-    FILTER.evaluate((DoubleTimeSeries) null);
+  public void testNullTS1() {
+    VALUE_FILTER.evaluate((DoubleTimeSeries) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullTS2() {
+    RETURN_FILTER.evaluate((DoubleTimeSeries) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -40,28 +50,38 @@ public class ExtremeValueDoubleTimeSeriesFilterTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testNullCalculator() {
+    new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testSetMax() {
-    FILTER.setMaximumValue(MIN - 1);
+    VALUE_FILTER.setMaximumValue(MIN - 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetMaxEqualsMin() {
-    FILTER.setMaximumValue(MIN);
+    VALUE_FILTER.setMaximumValue(MIN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetMin() {
-    FILTER.setMinimumValue(MAX + 1);
+    VALUE_FILTER.setMinimumValue(MAX + 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSetMinEqualsMax() {
-    FILTER.setMinimumValue(MAX);
+    VALUE_FILTER.setMinimumValue(MAX);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetCalculator() {
+    RETURN_FILTER.setReturnCalculator(null);
   }
 
   @Test
   public void testEmptyTS() {
-    final FilteredDoubleTimeSeries filtered = FILTER.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredDoubleTimeSeries filtered = VALUE_FILTER.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), ArrayDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
@@ -92,7 +112,27 @@ public class ExtremeValueDoubleTimeSeriesFilterTest {
         filteredData.add(d);
       }
     }
-    final FilteredDoubleTimeSeries result = FILTER.evaluate(new ArrayDoubleTimeSeries(dates, data));
+    final List<ZonedDateTime> returnFilteredDates = new ArrayList<ZonedDateTime>();
+    final List<Double> returnFilteredData = new ArrayList<Double>();
+    final List<ZonedDateTime> returnRejectedDates = new ArrayList<ZonedDateTime>();
+    final List<Double> returnRejectedData = new ArrayList<Double>();
+    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(dates, data);
+    final DoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
+    for (int i = 0; i < 99; i++) {
+      date = returnTS.getTime(i);
+      d = returnTS.getValue(i);
+      if (d > MAX || d < MIN) {
+        returnRejectedDates.add(date);
+        returnRejectedData.add(d);
+      } else {
+        returnFilteredDates.add(date);
+        returnFilteredData.add(d);
+      }
+    }
+    FilteredDoubleTimeSeries result = VALUE_FILTER.evaluate(ts);
     assertEquals(result, new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(filteredDates, filteredData), new ArrayDoubleTimeSeries(rejectedDates, rejectedData)));
+    result = RETURN_FILTER.evaluate(ts);
+    assertEquals(result, new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(returnFilteredDates, returnFilteredData), new ArrayDoubleTimeSeries(returnRejectedDates,
+        returnRejectedData)));
   }
 }
