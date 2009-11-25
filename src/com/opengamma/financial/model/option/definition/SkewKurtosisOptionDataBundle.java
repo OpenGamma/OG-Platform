@@ -29,7 +29,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
     return _annualizedSkew;
   }
 
-  public double getAnnualizedFischerKurtosis() {
+  public double getAnnualizedFisherKurtosis() {
     return _annualizedPearsonKurtosis - 3;
   }
 
@@ -59,7 +59,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
 
   @Override
   public SkewKurtosisOptionDataBundle withSpot(final Double spot) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedFischerKurtosis());
+    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedFisherKurtosis());
   }
 
   public SkewKurtosisOptionDataBundle withSkew(final Double skew) {

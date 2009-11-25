@@ -24,7 +24,7 @@ public class GramCharlierSkewKurtosisBinomialOptionModelDefinition extends Binom
     final Double[][] rbTree = _rb.getUpProbabilityTree(option, data, n, j).getTree();
     final Double[][] tree = new Double[n + 1][j];
     final double skew = data.getAnnualizedSkew();
-    final double kurtosis = data.getAnnualizedFischerKurtosis();
+    final double kurtosis = data.getAnnualizedFisherKurtosis();
     double x, x2, x4, x6, p;
     for (int i = 0; i <= n; i++) {
       x = (2. * i - n) / Math.sqrt(Double.valueOf(n));
