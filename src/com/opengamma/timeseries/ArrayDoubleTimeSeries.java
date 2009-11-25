@@ -295,6 +295,16 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return _values[index];
   }
 
+  //REVIEW Elaine - 2009-11-25 This is really horrible and it's my fault
+  @Override
+  public Double[] getValues() {
+    Double[] values = new Double[_values.length];
+    for(int i = 0; i < _values.length; i++) {
+      values[i] = _values[i];
+    }
+    return values;
+  }
+  
   @Override
   public ZonedDateTime getTime(final int index) {
     return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);

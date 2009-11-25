@@ -25,6 +25,7 @@ public abstract class DoubleTimeSeries implements TimeSeries<Double> {
   public abstract Iterator<Map.Entry<ZonedDateTime, Double>> iterator();
   public abstract Double getDataPoint(ZonedDateTime instant);
   public abstract DoubleTimeSeries subSeries(ZonedDateTime startTime, ZonedDateTime endTime);
+  public abstract Double[] getValues();
   public DoubleTimeSeries subSeries(ZonedDateTime startTime, Duration duration) {
     Instant offset = startTime.toInstant().plus(duration);
     return subSeries(startTime, ZonedDateTime.fromInstant(offset, startTime.getZone()));

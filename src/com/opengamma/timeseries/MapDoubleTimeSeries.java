@@ -119,6 +119,11 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
     return _data.size();
   }
   
+  @Override
+  public Double[] getValues() {
+    return _data.values().toArray(new Double[0]);
+  }
+  
   public boolean isEmpty() {
     return _data.isEmpty();
   }
