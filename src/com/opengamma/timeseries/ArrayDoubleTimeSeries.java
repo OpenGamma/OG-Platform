@@ -297,7 +297,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   @Override
   public ZonedDateTime getTime(final int index) {
-    return ZonedDateTime.fromInstant(Instant.instant(_times[index]), _zones[index]);
+    return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);
   }
 
   @Override
