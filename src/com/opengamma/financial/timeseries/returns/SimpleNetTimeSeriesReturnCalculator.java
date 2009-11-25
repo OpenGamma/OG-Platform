@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -33,7 +33,7 @@ import com.opengamma.util.CalculationMode;
 
 public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
-  public SimpleNetTimeSeriesReturnCalculator(CalculationMode mode) {
+  public SimpleNetTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
   }
 
@@ -55,7 +55,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries evaluate(DoubleTimeSeries... x) {
+  public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)
@@ -64,11 +64,11 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     if (ts.size() < 2)
       throw new TimeSeriesException("Need at least two data points to calculate return series");
     final DoubleTimeSeries d = x.length > 1 ? x[1] : null;
-    final List<InstantProvider> times = new ArrayList<InstantProvider>();
+    final List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
     final List<Double> data = new ArrayList<Double>();
-    final Iterator<Map.Entry<InstantProvider, Double>> iter = ts.iterator();
-    Map.Entry<InstantProvider, Double> previousEntry = iter.next();
-    Map.Entry<InstantProvider, Double> entry;
+    final Iterator<Map.Entry<ZonedDateTime, Double>> iter = ts.iterator();
+    Map.Entry<ZonedDateTime, Double> previousEntry = iter.next();
+    Map.Entry<ZonedDateTime, Double> entry;
     double dividend;
     while (iter.hasNext()) {
       entry = iter.next();
@@ -82,7 +82,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
         } catch (final NoSuchElementException e) {
           data.add(entry.getValue() / previousEntry.getValue() - 1);
         }
-      } 
+      }
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(times, data);

@@ -7,7 +7,7 @@ package com.opengamma.financial.covariance;
 
 import java.util.Iterator;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.math.function.Function2D;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -34,7 +34,7 @@ public abstract class CovarianceCalculator extends Function2D<DoubleTimeSeries, 
       throw new IllegalArgumentException("Second time series had fewer than two points");
     if (ts1.size() != ts2.size())
       throw new IllegalArgumentException("Time series were not the same length");
-    final Iterator<InstantProvider> iter = ts1.timeIterator();
+    final Iterator<ZonedDateTime> iter = ts1.timeIterator();
     while (iter.hasNext()) {
       try {
         ts2.getDataPoint(iter.next());

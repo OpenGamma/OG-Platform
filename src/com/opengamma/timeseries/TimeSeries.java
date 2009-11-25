@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.time.Duration;
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
-public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
+public interface TimeSeries<T> extends Iterable<Map.Entry<ZonedDateTime, T>> {
   /**
    * Get the size of the time series, the number of data points.
    * 
@@ -28,7 +28,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    *          instant of the requested sample
    * @return the requested sample
    */
-  public T getValue(InstantProvider instant);
+  public T getValue(ZonedDateTime instant);
 
   /**
    * Gets the data point at the (zero-based) index provided. If no entry is
@@ -48,14 +48,14 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    * implementations, this call will not be O(1), so it's use should be
    * avoided inside loops.
    */
-  public InstantProvider getTime(int index);
+  public ZonedDateTime getTime(int index);
   
   /**
    * Gets the latest time for which there is a data point (most positive).
    * 
    * @return the requested time
    */
-  public InstantProvider getLatestTime();
+  public ZonedDateTime getLatestTime();
 
   /**
    * Gets the value associated with the latest data point in the series.
@@ -73,7 +73,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    *           if the series is empty.
    * @return the requested time
    */
-  public InstantProvider getEarliestTime();
+  public ZonedDateTime getEarliestTime();
 
   /**
    * Gets the value associated with the earliest data point in the series.
@@ -100,7 +100,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    * 
    * @return the iterator
    */
-  public Iterator<InstantProvider> timeIterator();
+  public Iterator<ZonedDateTime> timeIterator();
 
   /**
    * The standard iterator that returns pairs of times and values as instances
@@ -108,7 +108,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    * 
    * @return the iterator
    */
-  public Iterator<Map.Entry<InstantProvider, T>> iterator();
+  public Iterator<Map.Entry<ZonedDateTime, T>> iterator();
 
   /**
    * Return the subset of the current TimeSeries from the start to the end time.
@@ -120,7 +120,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    * @throws NoSuchElementException
    * @return subset of TimeSeries
    */
-  public TimeSeries<T> subSeries(InstantProvider startTime, InstantProvider endTime);
+  public TimeSeries<T> subSeries(ZonedDateTime startTime, ZonedDateTime endTime);
 
   /**
    * Return the subset of the current TimeSeries from the start time for the
@@ -132,7 +132,7 @@ public interface TimeSeries<T> extends Iterable<Map.Entry<InstantProvider, T>> {
    * @throws NoSuchElementException
    * @return subset of TimeSeries.
    */
-  public TimeSeries<T> subSeries(InstantProvider startTime, Duration duration);
+  public TimeSeries<T> subSeries(ZonedDateTime startTime, Duration duration);
 
   /**
    * return the first numItems from the time series as a new time series. These

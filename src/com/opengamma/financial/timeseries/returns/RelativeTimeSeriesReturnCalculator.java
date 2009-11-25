@@ -7,7 +7,7 @@ package com.opengamma.financial.timeseries.returns;
 
 import java.util.Iterator;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
@@ -33,9 +33,9 @@ public abstract class RelativeTimeSeriesReturnCalculator extends TimeSeriesRetur
       if (x[i].size() != size)
         throw new TimeSeriesException("Time series were not all the same length");
     }
-    final Iterator<InstantProvider> iter = x[0].timeIterator();
+    final Iterator<ZonedDateTime> iter = x[0].timeIterator();
     while (iter.hasNext()) {
-      final InstantProvider instant = iter.next();
+      final ZonedDateTime instant = iter.next();
       for (int i = 1; i < x.length; i++) {
         try {
           x[i].getDataPoint(instant);

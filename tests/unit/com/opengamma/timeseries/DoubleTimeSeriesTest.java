@@ -1,6 +1,9 @@
 package com.opengamma.timeseries;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,7 +13,8 @@ import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -19,18 +23,22 @@ import com.opengamma.util.CompareUtils;
 public abstract class DoubleTimeSeriesTest {
   
   public abstract DoubleTimeSeries createEmptyTimeSeries();
-  public abstract DoubleTimeSeries createTimeSeries(long[] times, double[] values);
-  public abstract DoubleTimeSeries createTimeSeries(List<InstantProvider> times, List<Double> values);
+  public abstract DoubleTimeSeries createTimeSeries(long[] times, double[] values, TimeZone[] zones);
+  public abstract DoubleTimeSeries createTimeSeries(List<ZonedDateTime> times, List<Double> values);
   public abstract DoubleTimeSeries createTimeSeries(DoubleTimeSeries dts);
-  public abstract DoubleTimeSeries createTimeSeries(SortedMap<InstantProvider, Double> initialMap);
+  public abstract DoubleTimeSeries createTimeSeries(SortedMap<ZonedDateTime, Double> initialMap);
 
   @Test
   public void testArrayConstructor() {
-    DoubleTimeSeries dts = createTimeSeries(new long[0], new double[0]);
+    DoubleTimeSeries dts = createTimeSeries(new long[0], new double[0], new TimeZone[0]);
     assertEquals(0, dts.size());
     long[] times = {1, 2, 3, 4, 5, 6};
     double[] values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-    dts = createTimeSeries(times, values);
+    TimeZone[] zones = new TimeZone[6];
+    for(int i = 0; i < 6; i++) {
+      zones[i] = TimeZone.UTC;
+    }
+    dts = createTimeSeries(times, values, zones);
     assertEquals(6, dts.size());
     Iterator<Double> valuesIter = dts.valuesIterator();
     for (double i=1.0; i<=6.0; i+=1.0) {
@@ -40,14 +48,14 @@ public abstract class DoubleTimeSeriesTest {
   
   @Test
   public void testListConstructor() {
-    DoubleTimeSeries dts = createTimeSeries(new ArrayList<InstantProvider>(), new ArrayList<Double>());
+    DoubleTimeSeries dts = createTimeSeries(new ArrayList<ZonedDateTime>(), new ArrayList<Double>());
     assertEquals(0, dts.size());
     long[] times = {1, 2, 3, 4, 5, 6};
     double[] values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-    List<InstantProvider> timesList = new ArrayList<InstantProvider>();
+    List<ZonedDateTime> timesList = new ArrayList<ZonedDateTime>();
     List<Double> valuesList = new ArrayList<Double>();
     for (int i=0; i<times.length; i++) {
-      timesList.add(Instant.millisInstant(times[i]));
+      timesList.add(ZonedDateTime.fromInstant(Instant.millisInstant(times[i]), TimeZone.UTC));
       valuesList.add(values[i]);
     }
     dts = createTimeSeries(timesList, valuesList);
@@ -65,7 +73,11 @@ public abstract class DoubleTimeSeriesTest {
     assertEquals(0, dts2.size());
     long[] times = {1, 2, 3, 4, 5, 6};
     double[] values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-    dts = createTimeSeries(times, values);
+    TimeZone[] zones = new TimeZone[6];
+    for(int i = 0; i < 6; i++) {
+      zones[i] = TimeZone.UTC;
+    }
+    dts = createTimeSeries(times, values, zones);
     dts2 = createTimeSeries(dts);
     assertEquals(6, dts2.size());
     Iterator<Double> valuesIter = dts2.valuesIterator();
@@ -77,16 +89,17 @@ public abstract class DoubleTimeSeriesTest {
   public DoubleTimeSeries createStandardTimeSeries() {
     long[] times = {1, 2, 3, 4, 5, 6};
     double[] values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
-    return createTimeSeries(times, values);
+    TimeZone[] zones = {TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC};
+    return createTimeSeries(times, values, zones);
   }
   
   @Test
   public void testHead() {
     DoubleTimeSeries dts = createStandardTimeSeries();
     DoubleTimeSeries head5 = (DoubleTimeSeries) dts.head(5);
-    Iterator<Entry<InstantProvider, Double>> iterator = head5.iterator();
+    Iterator<Entry<ZonedDateTime, Double>> iterator = head5.iterator();
     for (long i=1; i<=5; i++) {
-      Entry<InstantProvider, Double> entry = iterator.next();
+      Entry<ZonedDateTime, Double> entry = iterator.next();
       assertEquals(i, entry.getKey().toInstant().toEpochMillis());
       assertEquals(Double.valueOf(i), entry.getValue());
     }
@@ -97,9 +110,9 @@ public abstract class DoubleTimeSeriesTest {
   public void testTail() {
     DoubleTimeSeries dts = createStandardTimeSeries();
     DoubleTimeSeries tail5 = (DoubleTimeSeries) dts.tail(5);
-    Iterator<Entry<InstantProvider, Double>> iterator = tail5.iterator();
+    Iterator<Entry<ZonedDateTime, Double>> iterator = tail5.iterator();
     for (long i=2; i<=6; i++) {
-      Entry<InstantProvider, Double> entry = iterator.next();
+      Entry<ZonedDateTime, Double> entry = iterator.next();
       assertEquals(i, entry.getKey().toInstant().toEpochMillis());
       assertEquals(Double.valueOf(i), entry.getValue());
     }
@@ -199,12 +212,13 @@ public abstract class DoubleTimeSeriesTest {
 
   @Test
   public void testTimeIterator() {    
-    Iterator<InstantProvider> emptyTimesIter = createEmptyTimeSeries().timeIterator();
-    Iterator<InstantProvider> dtsTimesIter = createStandardTimeSeries().timeIterator();
+    Iterator<ZonedDateTime> emptyTimesIter = createEmptyTimeSeries().timeIterator();
+    Iterator<ZonedDateTime> dtsTimesIter = createStandardTimeSeries().timeIterator();
     for (long i=1; i<=6.0; i+=1.0d) {
       assertTrue(dtsTimesIter.hasNext());
-      InstantProvider instant = dtsTimesIter.next();
-      assertEquals(i, instant.toInstant().toEpochMillis());
+      ZonedDateTime time = dtsTimesIter.next();
+      assertEquals(i, time.toInstant().toEpochMillis());
+      assertEquals(TimeZone.UTC, time.getZone());
     }
     try {
       dtsTimesIter.next();
@@ -221,13 +235,15 @@ public abstract class DoubleTimeSeriesTest {
 
   @Test
   public void testIterator() {
-    Iterator<Entry<InstantProvider, Double>> emptyIter = createEmptyTimeSeries().iterator();
-    Iterator<Entry<InstantProvider, Double>> dtsIter = createStandardTimeSeries().iterator();
+    Iterator<Entry<ZonedDateTime, Double>> emptyIter = createEmptyTimeSeries().iterator();
+    Iterator<Entry<ZonedDateTime, Double>> dtsIter = createStandardTimeSeries().iterator();
     for (double i=1; i<=6.0d; i+=1.0d) {
       assertTrue(dtsIter.hasNext());
-      Entry<InstantProvider, Double> entry = dtsIter.next();
+      Entry<ZonedDateTime, Double> entry = dtsIter.next();
+      ZonedDateTime time = entry.getKey();
       CompareUtils.closeEquals(entry.getValue(), i);
-      assertEquals((long)i, entry.getKey().toInstant().toEpochMillis());
+      assertEquals((long)i, time.toInstant().toEpochMillis());
+      assertEquals(TimeZone.UTC, time.getZone());
     }
     try {
       dtsIter.next();
@@ -247,7 +263,7 @@ public abstract class DoubleTimeSeriesTest {
     DoubleTimeSeries emptyTS = createEmptyTimeSeries();
     DoubleTimeSeries dts = createStandardTimeSeries();
     for (int i=0; i<6; i++) {
-      Double val = dts.getValue(Instant.millisInstant((long)i+1));
+      Double val = dts.getValue(ZonedDateTime.fromInstant(Instant.millisInstant((long)i+1), TimeZone.UTC));
       CompareUtils.closeEquals(val, i+1);
       val = dts.getValue(i);
       CompareUtils.closeEquals(val, i+1);
@@ -260,17 +276,18 @@ public abstract class DoubleTimeSeriesTest {
   public void testSubSeriesInstantProviderInstantProvider() {
     DoubleTimeSeries emptyTS = createEmptyTimeSeries();
     DoubleTimeSeries dts = createStandardTimeSeries();
-    DoubleTimeSeries threeToFive = dts.subSeries(Instant.millisInstant(3), Instant.millisInstant(5));
+    DoubleTimeSeries threeToFive = dts.subSeries(ZonedDateTime.fromInstant(Instant.millisInstant(3), TimeZone.UTC), ZonedDateTime.fromInstant(Instant.millisInstant(5), TimeZone.UTC));
     assertEquals(3, threeToFive.size());
-    Iterator<Entry<InstantProvider, Double>> iterator = threeToFive.iterator();
+    Iterator<Entry<ZonedDateTime, Double>> iterator = threeToFive.iterator();
     for (int i=3; i<=5; i++) {
-      Entry<InstantProvider, Double> item = iterator.next();
+      Entry<ZonedDateTime, Double> item = iterator.next();
       assertEquals(Instant.millisInstant((long)i), item.getKey().toInstant());
       assertTrue(CompareUtils.closeEquals((double)i, item.getValue()));
+      assertEquals(TimeZone.UTC, item.getKey().getZone());
     }
-    assertEquals(4, dts.subSeries(Instant.millisInstant(0), Instant.millisInstant(4)).size());
-    assertEquals(3, dts.subSeries(Instant.millisInstant(4), Instant.millisInstant(7)).size());
-    assertEquals(emptyTS, emptyTS.subSeries(Instant.millisInstant(1), Instant.millisInstant(1)));
+    assertEquals(4, dts.subSeries(ZonedDateTime.fromInstant(Instant.millisInstant(0), TimeZone.UTC), ZonedDateTime.fromInstant(Instant.millisInstant(4), TimeZone.UTC)).size());
+    assertEquals(3, dts.subSeries(ZonedDateTime.fromInstant(Instant.millisInstant(4), TimeZone.UTC), ZonedDateTime.fromInstant(Instant.millisInstant(7), TimeZone.UTC)).size());
+    assertEquals(emptyTS, emptyTS.subSeries(ZonedDateTime.fromInstant(Instant.millisInstant(1), TimeZone.UTC), ZonedDateTime.fromInstant(Instant.millisInstant(1), TimeZone.UTC)));
   }
 
   @Test

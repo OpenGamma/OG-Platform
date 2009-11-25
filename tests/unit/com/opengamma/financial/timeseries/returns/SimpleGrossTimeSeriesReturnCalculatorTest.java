@@ -10,6 +10,8 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
+import javax.time.calendar.TimeZone;
+
 import org.junit.Test;
 
 import com.opengamma.math.function.Function;
@@ -40,7 +42,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     } catch (final TimeSeriesException e) {
       // Expected
     }
-    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(new long[] { 1 }, new double[] { 4 });
+    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(new long[] { 1 }, new double[] { 4 }, new TimeZone[] { TimeZone.UTC });
     try {
       CALCULATOR.evaluate(new DoubleTimeSeries[] { ts });
       fail();
@@ -54,6 +56,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
+    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
@@ -63,9 +66,10 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
       if (i > 0) {
         returns[i - 1] = random / data[i - 1];
       }
+      zones[i] = TimeZone.UTC;
     }
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns, Arrays.copyOfRange(zones, 1, n));
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS }).equals(returnTS));
   }
 
@@ -74,7 +78,8 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
-    final double[] returns = new double[n - 2];
+    final TimeZone[] zones = new TimeZone[n];
+    final double[] returns = new double[n - 3];
     double random;
     for (int i = 0; i < n - 2; i++) {
       times[i] = i;
@@ -83,13 +88,16 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
       if (i > 0) {
         returns[i - 1] = random / data[i - 1];
       }
+      zones[i] = TimeZone.UTC;
     }
     times[n - 2] = n - 2;
     data[n - 2] = 0;
+    zones[n - 2] = TimeZone.UTC;
     times[n - 1] = n - 1;
     data[n - 1] = Math.random();
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns);
+    zones[n - 1] = TimeZone.UTC;
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns, Arrays.copyOfRange(zones, 1, n - 2));
     final TimeSeriesReturnCalculator strict = new SimpleGrossTimeSeriesReturnCalculator(CalculationMode.STRICT);
     final DoubleTimeSeries[] tsArray = new DoubleTimeSeries[] { priceTS };
     try {
@@ -106,6 +114,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
+    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
@@ -115,10 +124,11 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
       if (i > 0) {
         returns[i - 1] = random / data[i - 1];
       }
+      zones[i] = TimeZone.UTC;
     }
-    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(new long[] { 300 }, new double[] { 3 });
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(new long[] { 300 }, new double[] { 3 }, new TimeZone[] { TimeZone.UTC });
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns, Arrays.copyOfRange(zones, 1, n));
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 
@@ -127,9 +137,11 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
+    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 1];
     final long[] dividendTimes = new long[] { 1, 4 };
     final double[] dividendData = new double[] { 0.4, 0.6 };
+    final TimeZone[] dividendZones = new TimeZone[] { TimeZone.UTC, TimeZone.UTC };
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
@@ -144,10 +156,11 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
           returns[i - 1] = random / data[i - 1];
         }
       }
+      zones[i] = TimeZone.UTC;
     }
-    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(dividendTimes, dividendData);
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(dividendTimes, dividendData, dividendZones);
+    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
+    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns, Arrays.copyOfRange(zones, 1, n));
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 }

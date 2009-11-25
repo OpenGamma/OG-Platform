@@ -3,7 +3,8 @@ package com.opengamma.timeseries;
 import java.util.List;
 import java.util.SortedMap;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 public class MapDoubleTimeSeriesTest extends DoubleTimeSeriesTest {
 
@@ -13,23 +14,22 @@ public class MapDoubleTimeSeriesTest extends DoubleTimeSeriesTest {
   }
 
   @Override
-  public DoubleTimeSeries createTimeSeries(long[] times, double[] values) {
-    return new MapDoubleTimeSeries(times, values);
+  public DoubleTimeSeries createTimeSeries(long[] times, double[] values, TimeZone[] zones) {
+    return new MapDoubleTimeSeries(times, values, zones);
   }
 
   @Override
-  public DoubleTimeSeries createTimeSeries(List<InstantProvider> times, List<Double> values) {
+  public DoubleTimeSeries createTimeSeries(List<ZonedDateTime> times, List<Double> values) {
     return new MapDoubleTimeSeries(times, values);
   }
-
+  
   @Override
   public DoubleTimeSeries createTimeSeries(DoubleTimeSeries dts) {
     return new MapDoubleTimeSeries(dts);
   }
 
   @Override
-  public DoubleTimeSeries createTimeSeries(
-      SortedMap<InstantProvider, Double> initialMap) {
+  public DoubleTimeSeries createTimeSeries(SortedMap<ZonedDateTime, Double> initialMap) {
     return new MapDoubleTimeSeries(initialMap);
   }
 

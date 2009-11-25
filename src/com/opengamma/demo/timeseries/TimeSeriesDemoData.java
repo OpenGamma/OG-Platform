@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeProvider;
@@ -30,16 +29,15 @@ public class TimeSeriesDemoData {
   }
 
   // TODO one with start and end dates
-  public DoubleTimeSeries getTimeSeries(int n) {
-    if (getDataPoint() == null) {
+  public DoubleTimeSeries getTimeSeries(final int n) {
+    if (getDataPoint() == null)
       return ArrayDoubleTimeSeries.EMPTY_SERIES;
-    }
     LocalDate dateProvider = LocalDate.date(2000, 1, 1);
-    TimeProvider timeProvider = LocalTime.time(0, 0);
-    TimeZone timeZone = TimeZone.timeZone(ZoneOffset.zoneOffset(0));
-    List<InstantProvider> dates = new ArrayList<InstantProvider>();
-    List<Double> data = new ArrayList<Double>();
-    InstantProvider start = ZonedDateTime.dateTime(dateProvider, timeProvider, timeZone);
+    final TimeProvider timeProvider = LocalTime.time(0, 0);
+    final TimeZone timeZone = TimeZone.timeZone(ZoneOffset.zoneOffset(0));
+    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<Double> data = new ArrayList<Double>();
+    ZonedDateTime start = ZonedDateTime.dateTime(dateProvider, timeProvider, timeZone);
     for (int i = 0; i < n; i++) {
       dates.add(start);
       data.add(getDataPoint());
@@ -55,7 +53,7 @@ class NormalDistributionTimeSeriesData extends TimeSeriesDemoData {
   private final double _mu;
   private final double _sigma;
 
-  public NormalDistributionTimeSeriesData(double mu, double sigma) {
+  public NormalDistributionTimeSeriesData(final double mu, final double sigma) {
     _generator = new Normal(mu, sigma, _engine1);
     _mu = mu;
     _sigma = sigma;
@@ -94,7 +92,7 @@ class WeibullDistributionTimeSeriesData extends TimeSeriesDemoData {
   private final double _alpha;
   private final double _beta;
 
-  public WeibullDistributionTimeSeriesData(double alpha, double beta) {
+  public WeibullDistributionTimeSeriesData(final double alpha, final double beta) {
     _alpha = alpha;
     _beta = beta;
   }
@@ -113,7 +111,7 @@ class WeibullDistributionTimeSeriesData extends TimeSeriesDemoData {
 class CauchyDistributionTimeSeriesData extends TimeSeriesDemoData {
   private final double _cutoff;
 
-  public CauchyDistributionTimeSeriesData(double cutoff) {
+  public CauchyDistributionTimeSeriesData(final double cutoff) {
     _cutoff = cutoff;
   }
 
@@ -138,8 +136,8 @@ class AutoregressiveTimeSeriesData extends TimeSeriesDemoData {
   private final int _order;
   private final List<Double> _phi;
 
-  public AutoregressiveTimeSeriesData(int order, int n, List<Double> phi) {
-    AutoregressiveModel model = new AutoregressiveModel();
+  public AutoregressiveTimeSeriesData(final int order, final int n, final List<Double> phi) {
+    final AutoregressiveModel model = new AutoregressiveModel();
     _order = order;
     _phi = phi;
     _data = model.getSeries(order, 0, phi, n + 1);
@@ -152,8 +150,8 @@ class AutoregressiveTimeSeriesData extends TimeSeriesDemoData {
 
   @Override
   public String toString() {
-    StringBuffer result = new StringBuffer("AR(" + _order + "), {");
-    String phiString = "phi";
+    final StringBuffer result = new StringBuffer("AR(" + _order + "), {");
+    final String phiString = "phi";
     for (int i = 1; i <= _order; i++) {
       result.append(phiString + "(i)"); // TODO subscript
     }

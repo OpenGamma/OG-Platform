@@ -1,29 +1,39 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.analysis;
 
 import java.util.Map;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.timeseries.DoubleTimeSeries;
 
+/**
+ * 
+ * @author emcleod
+ * 
+ */
 public class DoubleTimeSeriesSampleStatistics {
 
-  public static double getSampleMean(DoubleTimeSeries ts) {
+  public static double getSampleMean(final DoubleTimeSeries ts) {
     double sum = 0;
     long n = 0L;
-    for (Map.Entry<InstantProvider, Double> entry : ts) {
+    for (final Map.Entry<ZonedDateTime, Double> entry : ts) {
       sum += entry.getValue();
       n++;
     }
     return sum / n;
   }
 
-  public static double getSampleVariance(DoubleTimeSeries ts) {
-    double mean = getSampleMean(ts);
+  public static double getSampleVariance(final DoubleTimeSeries ts) {
+    final double mean = getSampleMean(ts);
     long n = -1L;
     double sum = 0;
     double diff;
-    for (Map.Entry<InstantProvider, Double> entry : ts) {
+    for (final Map.Entry<ZonedDateTime, Double> entry : ts) {
       diff = entry.getValue() - mean;
       sum += diff * diff;
       n++;
@@ -31,27 +41,27 @@ public class DoubleTimeSeriesSampleStatistics {
     return sum / n;
   }
 
-  public static double getSampleSkewness(DoubleTimeSeries ts) {
+  public static double getSampleSkewness(final DoubleTimeSeries ts) {
     return getSampleNthMoment(ts, 3);
   }
 
-  public static double getSampleKurtosis(DoubleTimeSeries ts) {
+  public static double getSampleKurtosis(final DoubleTimeSeries ts) {
     return getSampleNthMoment(ts, 4);
   }
 
-  public static double getSampleNthMoment(DoubleTimeSeries ts, int n) {
-    double mean = getSampleMean(ts);
+  public static double getSampleNthMoment(final DoubleTimeSeries ts, final int n) {
+    final double mean = getSampleMean(ts);
     long m = -1L;
     double sumN = 0;
     double sumSq = 0;
     double diff;
-    for (Map.Entry<InstantProvider, Double> entry : ts) {
+    for (final Map.Entry<ZonedDateTime, Double> entry : ts) {
       diff = entry.getValue() - mean;
       sumN += Math.pow(diff, n);
       sumSq += diff * diff;
       m++;
     }
-    double divisor = Math.pow(sumSq / m, n / 2);
+    final double divisor = Math.pow(sumSq / m, n / 2);
     return sumN / (m * divisor);
   }
 }
