@@ -5,6 +5,10 @@
  */
 package com.opengamma.math.random;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.junit.Test;
 
 /**
@@ -27,5 +31,14 @@ public class NormalRandomNumberGeneratorTest {
   @Test(expected = IllegalArgumentException.class)
   public void testBadN() {
     GENERATOR.getVectors(1, -5);
+  }
+
+  @Test
+  public void test() {
+    final List<Double[]> result = GENERATOR.getVectors(10, 50);
+    assertEquals(result.size(), 50);
+    for (final Double[] d : result) {
+      assertEquals(d.length, 10);
+    }
   }
 }
