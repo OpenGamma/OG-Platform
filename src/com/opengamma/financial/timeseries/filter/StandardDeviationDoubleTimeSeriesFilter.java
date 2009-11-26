@@ -29,9 +29,16 @@ public class StandardDeviationDoubleTimeSeriesFilter extends DoubleTimeSeriesFil
   private static final Logger s_Log = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
   private final DoubleTimeSeriesStatisticsCalculator _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
   private final DoubleTimeSeriesStatisticsCalculator _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator());
-  private final double _standardDeviations;
+  private double _standardDeviations;
 
   public StandardDeviationDoubleTimeSeriesFilter(final double standardDeviations) {
+    if (standardDeviations < 0) {
+      s_Log.info("Standard deviation was negative; using absolute value");
+    }
+    _standardDeviations = Math.abs(standardDeviations);
+  }
+
+  public void setStandardDeviations(final double standardDeviations) {
     if (standardDeviations < 0) {
       s_Log.info("Standard deviation was negative; using absolute value");
     }

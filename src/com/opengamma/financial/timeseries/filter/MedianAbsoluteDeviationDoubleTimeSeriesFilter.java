@@ -29,9 +29,16 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilter extends DoubleTimeSer
   private static final Logger s_Log = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
   private final DoubleTimeSeriesStatisticsCalculator _medianCalculator = new DoubleTimeSeriesStatisticsCalculator(new MedianCalculator());
   private final DoubleTimeSeriesStatisticsCalculator _madCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleMedianAbsoluteDeviationCalculator());
-  private final double _standardDeviations;
+  private double _standardDeviations;
 
   public MedianAbsoluteDeviationDoubleTimeSeriesFilter(final double standardDeviations) {
+    if (standardDeviations < 0) {
+      s_Log.info("Standard deviation was negative; using absolute value");
+    }
+    _standardDeviations = Math.abs(standardDeviations);
+  }
+
+  public void setStandardDeviations(final double standardDeviations) {
     if (standardDeviations < 0) {
       s_Log.info("Standard deviation was negative; using absolute value");
     }
