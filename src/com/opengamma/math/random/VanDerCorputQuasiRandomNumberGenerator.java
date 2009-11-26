@@ -17,14 +17,26 @@ import org.slf4j.LoggerFactory;
  */
 public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
   private static final Logger s_Log = LoggerFactory.getLogger(VanDerCorputQuasiRandomNumberGenerator.class);
-  private final int _base;
+  private int _base;
 
   public VanDerCorputQuasiRandomNumberGenerator(final int base) {
+    if (base < 2)
+      throw new IllegalArgumentException("Base must be greater than or equal to two");
+    _base = base;
+  }
+
+  public void setBase(final int base) {
+    if (base < 2)
+      throw new IllegalArgumentException("Base must be greater than or equal to two");
     _base = base;
   }
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
+    if (dimension < 0)
+      throw new IllegalArgumentException("Dimension must be greater than zero");
+    if (n < 0)
+      throw new IllegalArgumentException("Number of values must be greater than zero");
     if (dimension != 1) {
       s_Log.info("Van der Corput sequences are one-dimensional only: ignoring other " + (dimension - 1) + " dimension(s)");
     }

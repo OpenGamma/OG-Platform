@@ -15,23 +15,26 @@ import com.opengamma.math.PrimeNumbers;
  * @author emcleod
  */
 public class HaltonQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
+  private final VanDerCorputQuasiRandomNumberGenerator _vanDerCorput = new VanDerCorputQuasiRandomNumberGenerator(2);
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
-    final Double[][] sequences = new Double[dimension][n];
-    QuasiRandomNumberGenerator vanDerCorput;
+    if (dimension < 0)
+      throw new IllegalArgumentException("Dimension must be greater than zero");
+    if (n < 0)
+      throw new IllegalArgumentException("Number of values must be greater than zero");
+    final Double[][] sequence = new Double[n][dimension];
+    final List<Double[]> result = new ArrayList<Double[]>(n);
+    List<Double[]> s;
     for (int i = 0; i < dimension; i++) {
-      vanDerCorput = new VanDerCorputQuasiRandomNumberGenerator(PrimeNumbers.getNthPrime(i + 1));
-      sequences[i] = vanDerCorput.getVectors(1, n).get(0);
-    }
-    final List<Double[]> result = new ArrayList<Double[]>();
-    Double[] vector;
-    for (int i = 0; i < n; i++) {
-      vector = new Double[dimension];
-      for (int j = 0; j < dimension; j++) {
-        vector[j] = sequences[j][i];
+      _vanDerCorput.setBase(PrimeNumbers.getNthPrime(i + 1));
+      s = _vanDerCorput.getVectors(1, n);
+      for (int j = 0; j < n; j++) {
+        sequence[j][i] = s.get(j)[0];
       }
-      result.add(vector);
+    }
+    for (int i = 0; i < n; i++) {
+      result.add(sequence[i]);
     }
     return result;
   }
