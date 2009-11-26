@@ -19,11 +19,17 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
   private final ProbabilityDistribution<Double> _normal;
 
   public NormalRandomNumberGenerator(final double mean, final double sigma) {
+    if (sigma <= 0)
+      throw new IllegalArgumentException("Cannot have a negative standard deviation");
     _normal = new NormalProbabilityDistribution(mean, sigma);
   }
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
+    if (dimension < 0)
+      throw new IllegalArgumentException("Dimension must be greater than zero");
+    if (n < 0)
+      throw new IllegalArgumentException("Number of values must be greater than zero");
     final List<Double[]> result = new ArrayList<Double[]>();
     Double[] x;
     for (int i = 0; i < n; i++) {
@@ -35,5 +41,4 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
     }
     return result;
   }
-
 }
