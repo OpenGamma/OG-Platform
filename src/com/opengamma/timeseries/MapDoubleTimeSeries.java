@@ -13,7 +13,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 
 public class MapDoubleTimeSeries extends DoubleTimeSeries  {
-  public static final MapDoubleTimeSeries EMPTY_SERIES = new MapDoubleTimeSeries();
+  public static final DoubleTimeSeries EMPTY_SERIES = new MapDoubleTimeSeries();
   private TreeMap<InstantProvider, Double> _data;
   
   public MapDoubleTimeSeries() {
