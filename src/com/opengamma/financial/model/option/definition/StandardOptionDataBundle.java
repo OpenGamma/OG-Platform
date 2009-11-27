@@ -72,7 +72,7 @@ public class StandardOptionDataBundle {
     return new StandardOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate());
   }
 
-  public StandardOptionDataBundle withCostOfCarry(final double costOfCarry) {
+  public StandardOptionDataBundle withCostOfCarry(final Double costOfCarry) {
     return new StandardOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate());
   }
 

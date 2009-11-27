@@ -11,6 +11,9 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.tree.RecombiningTrinomialTree;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.util.Pair;
 
 /**
  * 
@@ -20,8 +23,18 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
 public class TrinomialOptionModel extends TreeOptionModel<OptionDefinition, StandardOptionDataBundle> {
 
+  public TrinomialOptionModel() {
+    super(null);
+  }
+
   @Override
   public GreekResultCollection getGreeks(final OptionDefinition definition, final StandardOptionDataBundle vars, final List<Greek> requiredGreeks) {
+    return null;
+  }
+
+  @Override
+  public Function1D<StandardOptionDataBundle, RecombiningTrinomialTree<Pair<Double, Double>>> getTreeGeneratingFunction(final OptionDefinition definition) {
+    // TODO Auto-generated method stub
     return null;
   }
 

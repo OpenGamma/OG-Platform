@@ -9,7 +9,8 @@ import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import javax.time.Instant;
-import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.KeyValuePair;
@@ -19,77 +20,86 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   protected final long[] _times;
   protected final double[] _values;
+  protected final TimeZone[] _zones;
 
   private ArrayDoubleTimeSeries() {
     _times = new long[0];
     _values = new double[0];
+    _zones = new TimeZone[0];
   }
 
-  public ArrayDoubleTimeSeries(long[] times, double[] values) {
+  public ArrayDoubleTimeSeries(final long[] times, final double[] values, final TimeZone[] zones) {
+    if (times.length != values.length || times.length != zones.length)
+      throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length + ", " + zones.length);
     _times = new long[times.length];
     System.arraycopy(times, 0, _times, 0, times.length);
     _values = new double[values.length];
     System.arraycopy(values, 0, _values, 0, values.length);
+    _zones = new TimeZone[zones.length];
+    System.arraycopy(zones, 0, _zones, 0, zones.length);
     // check dates are ordered
     long maxTime = 0L;
-    for (long time : _times) {
-      if (time < maxTime) {
+    for (final long time : _times) {
+      if (time < maxTime)
         throw new IllegalArgumentException("dates must be ordered");
-      }
       maxTime = time;
     }
   }
 
-  public ArrayDoubleTimeSeries(List<InstantProvider> times, List<Double> values) {
-    if (times.size() != values.size()) {
+  public ArrayDoubleTimeSeries(final List<ZonedDateTime> times, final List<Double> values) {
+    if (times.size() != values.size())
       throw new IllegalArgumentException("lists are of different sizes");
-    }
     _times = new long[times.size()];
     _values = new double[values.size()];
-    Iterator<Double> iter = values.iterator();
+    _zones = new TimeZone[times.size()];
+    final Iterator<Double> iter = values.iterator();
     int i = 0;
     long maxTime = 0L; // for checking the dates are sorted.
-    for (InstantProvider time : times) {
-      Double value = iter.next();
-      long epochMillis = time.toInstant().toEpochMillis();
+    for (final ZonedDateTime time : times) {
+      final Double value = iter.next();
+      final long epochMillis = time.toInstant().toEpochMillis();
       if (maxTime < epochMillis) {
         _times[i] = epochMillis;
         _values[i] = value;
+        _zones[i] = time.getZone();
         maxTime = epochMillis;
-      } else {
+      } else
         throw new IllegalArgumentException("dates must be ordered");
-      }
       i++;
     }
   }
 
-  public ArrayDoubleTimeSeries(DoubleTimeSeries dts) {
+  public ArrayDoubleTimeSeries(final DoubleTimeSeries dts) {
     final int size = dts.size();
     _times = new long[size];
     _values = new double[size];
+    _zones = new TimeZone[size];
     if (dts instanceof ArrayDoubleTimeSeries) { // interesting to know if this
       // is worth it
-      ArrayDoubleTimeSeries adts = (ArrayDoubleTimeSeries) dts;
+      final ArrayDoubleTimeSeries adts = (ArrayDoubleTimeSeries) dts;
       System.arraycopy(adts._times, 0, _times, 0, size);
       System.arraycopy(adts._values, 0, _values, 0, size);
+      System.arraycopy(adts._zones, 0, _zones, 0, size);
     } else {
       int pos = 0;
-      for (Map.Entry<InstantProvider, Double> entry : dts) {
+      for (final Map.Entry<ZonedDateTime, Double> entry : dts) {
         _times[pos] = entry.getKey().toInstant().toEpochMillis();
         _values[pos] = entry.getValue();
+        _zones[pos] = entry.getKey().getZone();
         pos++;
       }
     }
   }
 
-  public ArrayDoubleTimeSeries(SortedMap<InstantProvider, Double> initialMap) {
+  public ArrayDoubleTimeSeries(final SortedMap<ZonedDateTime, Double> initialMap) {
     final int size = initialMap.size();
     _times = new long[size];
     _values = new double[size];
-    Iterator<Entry<InstantProvider, Double>> iterator = initialMap.entrySet().iterator();
+    _zones = new TimeZone[size];
+    final Iterator<Entry<ZonedDateTime, Double>> iterator = initialMap.entrySet().iterator();
     int i = 0;
     while (iterator.hasNext()) {
-      Entry<InstantProvider, Double> entry = iterator.next();
+      final Entry<ZonedDateTime, Double> entry = iterator.next();
       _times[i] = entry.getKey().toInstant().toEpochMillis();
       _values[i] = entry.getValue().doubleValue();
       i++;
@@ -97,69 +107,69 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public DoubleTimeSeries subSeries(InstantProvider startTime, InstantProvider endTime) {
-    if (isEmpty()) {
+  public DoubleTimeSeries subSeries(final ZonedDateTime startTime, final ZonedDateTime endTime) {
+    if (isEmpty())
       return EMPTY_SERIES;
-    }
+    // throw new NoSuchElementException("Series is empty");
     final long startMillis = startTime.toInstant().toEpochMillis();
     final long endMillis = endTime.toInstant().toEpochMillis();
     int startPos = Arrays.binarySearch(_times, startMillis);
     int endPos = Arrays.binarySearch(_times, endMillis);
-    startPos = (startPos >= 0) ? startPos : (-startPos) - 1;
-    endPos = (endPos >= 0) ? endPos : (-endPos) - 1;
+    // if either is -1, make it zero
+    startPos = startPos >= 0 ? startPos : -startPos - 1;
+    endPos = endPos >= 0 ? endPos : -endPos - 1; 
     if (endPos >= _times.length) {
       endPos--;
     }
-    final int length = (endPos - startPos) + 1;
-    long[] resultTimes = new long[length];
-    double[] resultValues = new double[length];
+    final int length = endPos - startPos + 1;
+    final long[] resultTimes = new long[length];
+    final double[] resultValues = new double[length];
+    final TimeZone[] resultTimeZones = new TimeZone[length];
     System.arraycopy(_times, startPos, resultTimes, 0, length);
     System.arraycopy(_values, startPos, resultValues, 0, length);
-    return new ArrayDoubleTimeSeries(resultTimes, resultValues);
+    System.arraycopy(_zones, startPos, resultTimeZones, 0, length);
+    return new ArrayDoubleTimeSeries(resultTimes, resultValues, resultTimeZones);
   }
 
   @Override
-  public Double getDataPoint(InstantProvider instant) {
+  public Double getDataPoint(final ZonedDateTime instant) {
     return _values[Arrays.binarySearch(_times, instant.toInstant().toEpochMillis())];
   }
 
   @Override
-  public InstantProvider getEarliestTime() {
-    if (_times.length > 0) {
-      return Instant.millisInstant(_times[0]);
-    } else {
+  public ZonedDateTime getEarliestTime() {
+    if (_times.length > 0)
+      return ZonedDateTime.fromInstant(Instant.millisInstant(_times[0]), _zones[0]);
+    else
       throw new NoSuchElementException("Series is empty");
-    }
   }
 
   @Override
   public Double getEarliestValue() {
-    if (_values.length > 0) {
+    if (_values.length > 0)
       return _values[0];
-    } else {
+    else
       throw new NoSuchElementException("Series is empty");
-    }
   }
 
   @Override
-  public InstantProvider getLatestTime() {
+  public ZonedDateTime getLatestTime() {
     if (_times.length > 0) {
-      return Instant.millisInstant(_times[_times.length - 1]);
-    } else {
+      final int index = _times.length - 1;
+      return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);
+    } else
       throw new NoSuchElementException("Series is empty");
-    }
   }
 
   @Override
   public Double getLatestValue() {
-    if (_values.length > 0) {
+    if (_values.length > 0)
       return _values[_values.length - 1];
-    } else {
+    else
       throw new NoSuchElementException("Series is empty");
-    }
   }
 
-  /*package*/ class ArrayDoubleTimeSeriesIterator implements Iterator<Entry<InstantProvider, Double>> {
+  /* package */class ArrayDoubleTimeSeriesIterator implements Iterator<Entry<ZonedDateTime, Double>> {
     private int _current = 0;
 
     @Override
@@ -168,14 +178,14 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     }
 
     @Override
-    public Entry<InstantProvider, Double> next() {
+    public Entry<ZonedDateTime, Double> next() {
       if (hasNext()) {
-        KeyValuePair<InstantProvider, Double> keyValuePair = new KeyValuePair<InstantProvider, Double>(Instant.millisInstant(_times[_current]), _values[_current]);
+        final KeyValuePair<ZonedDateTime, Double> keyValuePair = new KeyValuePair<ZonedDateTime, Double>(ZonedDateTime.fromInstant(Instant.millisInstant(_times[_current]),
+            _zones[_current]), _values[_current]);
         _current++;
         return keyValuePair;
-      } else {
+      } else
         throw new NoSuchElementException();
-      }
     }
 
     @Override
@@ -185,7 +195,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public Iterator<Entry<InstantProvider, Double>> iterator() {
+  public Iterator<Entry<ZonedDateTime, Double>> iterator() {
     return new ArrayDoubleTimeSeriesIterator();
   }
 
@@ -199,7 +209,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return _times.length == 0;
   }
 
-  /*package*/ class ArrayDoubleTimeSeriesTimeIterator implements Iterator<InstantProvider> {
+  /* package */class ArrayDoubleTimeSeriesTimeIterator implements Iterator<ZonedDateTime> {
     private int _current = 0;
 
     @Override
@@ -208,14 +218,13 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     }
 
     @Override
-    public InstantProvider next() {
+    public ZonedDateTime next() {
       if (hasNext()) {
-        InstantProvider instant = Instant.millisInstant(_times[_current]);
+        final ZonedDateTime time = ZonedDateTime.fromInstant(Instant.millisInstant(_times[_current]), _zones[_current]);
         _current++;
-        return instant;
-      } else {
+        return time;
+      } else
         throw new NoSuchElementException();
-      }
     }
 
     @Override
@@ -225,11 +234,11 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public Iterator<InstantProvider> timeIterator() {
+  public Iterator<ZonedDateTime> timeIterator() {
     return new ArrayDoubleTimeSeriesTimeIterator();
   }
 
-  /*package*/ class ArrayDoubleTimeSeriesValuesIterator implements Iterator<Double> {
+  /* package */class ArrayDoubleTimeSeriesValuesIterator implements Iterator<Double> {
     private int _current = 0;
 
     @Override
@@ -240,12 +249,11 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     @Override
     public Double next() {
       if (hasNext()) {
-        Double value = _values[_current];
+        final Double value = _values[_current];
         _current++;
         return value;
-      } else {
+      } else
         throw new NoSuchElementException();
-      }
     }
 
     @Override
@@ -260,97 +268,107 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   }
 
   @Override
-  public Double getValue(int index) {
+  public Double getValue(final int index) {
     return _values[index];
+  }
+
+  //REVIEW Elaine - 2009-11-25 This is really horrible and it's my fault
+  @Override
+  public Double[] getValues() {
+    Double[] values = new Double[_values.length];
+    for(int i = 0; i < _values.length; i++) {
+      values[i] = _values[i];
+    }
+    return values;
   }
   
   @Override
-  public InstantProvider getTime(int index) {
-    return Instant.instant(_times[index]);
+  public ZonedDateTime getTime(final int index) {
+    return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);
   }
 
   @Override
-  public DoubleTimeSeries tail(int numItems) {
+  public DoubleTimeSeries tail(final int numItems) {
     if (numItems <= _times.length) {
-      long[] times = new long[numItems];
-      double[] values = new double[numItems];
+      final long[] times = new long[numItems];
+      final double[] values = new double[numItems];
+      final TimeZone[] zones = new TimeZone[numItems];
       System.arraycopy(_times, _times.length - numItems, times, 0, numItems);
       System.arraycopy(_values, _values.length - numItems, values, 0, numItems);
-      return new ArrayDoubleTimeSeries(times, values);
-    } else {
+      System.arraycopy(_zones, _zones.length - numItems, zones, 0, numItems);
+      return new ArrayDoubleTimeSeries(times, values, zones);
+    } else
       throw new NoSuchElementException("Not enough elements");
-    }
   }
 
   @Override
-  public DoubleTimeSeries head(int numItems) {
+  public DoubleTimeSeries head(final int numItems) {
     if (numItems <= _times.length) {
-      long[] times = new long[numItems];
-      double[] values = new double[numItems];
+      final long[] times = new long[numItems];
+      final double[] values = new double[numItems];
+      final TimeZone[] zones = new TimeZone[numItems];
       System.arraycopy(_times, 0, times, 0, numItems);
       System.arraycopy(_values, 0, values, 0, numItems);
-      return new ArrayDoubleTimeSeries(times, values);
-    } else {
+      System.arraycopy(_zones, 0, zones, 0, numItems);
+      return new ArrayDoubleTimeSeries(times, values, zones);
+    } else
       throw new NoSuchElementException("Not enough elements");
-    }
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(final Object o) {
+    if (this == o)
       return true;
-    }
     // the aim here is to always minimize the number of comparisons.
-    if (!(o instanceof DoubleTimeSeries)) {
+    if (!(o instanceof DoubleTimeSeries))
       return false;
-    }
-    if (!(o instanceof ArrayDoubleTimeSeries)) {
-      ArrayDoubleTimeSeries otherADTS = (ArrayDoubleTimeSeries) o;
-      if (otherADTS._times.length != _times.length) {
+    if (o instanceof ArrayDoubleTimeSeries) {
+      final ArrayDoubleTimeSeries otherADTS = (ArrayDoubleTimeSeries) o;
+      if (otherADTS._times.length != _times.length)
         return false;
-      }
-      if (!Arrays.equals(otherADTS._times, _times)) {
+      if (!Arrays.equals(otherADTS._times, _times))
         return false;
-      }
-      return Arrays.equals(otherADTS._values, _values);
+      if (!Arrays.equals(otherADTS._values, _values))
+        return false;
+      return Arrays.equals(otherADTS._zones, _zones);
     } else {
-      DoubleTimeSeries dts = (DoubleTimeSeries) o;
-      if (dts.size() != size()) {
+      final DoubleTimeSeries dts = (DoubleTimeSeries) o;
+      if (dts.size() != size())
         return false;
-      }
-      if (isEmpty()) {
+      if (isEmpty())
         return true;
-      }
-      Iterator<Entry<InstantProvider, Double>> otherIter = dts.iterator();
+      final Iterator<Entry<ZonedDateTime, Double>> otherIter = dts.iterator();
       // would be neater if we just had two iterators, but it will use
       // quite a bit more memory creating objects for no point. Of course
       // this probably is the _definition_ of premature optimization.
       int i = 0;
       while (otherIter.hasNext()) {
-        Entry<InstantProvider, Double> entry = otherIter.next();
-        if (entry.getKey().toInstant().toEpochMillis() != _times[i]) {
+        final Entry<ZonedDateTime, Double> entry = otherIter.next();
+        if (entry.getKey().toInstant().toEpochMillis() != _times[i])
           return false;
-        }
-        if (!CompareUtils.closeEquals(entry.getValue(), _values[i])) {
+        if (!CompareUtils.closeEquals(entry.getValue(), _values[i]))
           return false;
-        }
+        if (!entry.getKey().equals(_zones[i]))
+          return false;
         i++;
       }
       return true;
     }
 
   }
-  
-  public List<InstantProvider> times() {
-    InstantProvider[] times = new InstantProvider[_times.length];
-    for (int i=0; i<_times.length; i++) {
-      times[i] = Instant.instant(_times[i]);
+
+  @Override
+  public List<ZonedDateTime> times() {
+    final ZonedDateTime[] times = new ZonedDateTime[_times.length];
+    for (int i = 0; i < _times.length; i++) {
+      times[i] = ZonedDateTime.fromInstant(Instant.instant(_times[i]), _zones[i]);
     }
     return Arrays.asList(times);
   }
-  
+
+  @Override
   public List<Double> values() {
-    Double[] copy = new Double[_values.length];
+    final Double[] copy = new Double[_values.length];
     System.arraycopy(_values, 0, copy, 0, _values.length);
     return Arrays.asList(copy);
   }
@@ -358,23 +376,22 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   @Override
   public int hashCode() {
     int value = 0;
-    for (int i = 0; i < ((_times.length > 0) ? 1 : 0); i++) {
+    for (int i = 0; i < (_times.length > 0 ? 1 : 0); i++) {
       final long bits = Double.doubleToLongBits(_values[i]);
-      value += _times[i] ^ (bits ^ (bits >>> 32));
+      value += _times[i] ^ bits ^ bits >>> 32;
     }
     return value;
   }
 
   @Override
-  public Double getValue(InstantProvider instant) {
-    Instant time = instant.toInstant();
-    long epochMillis = time.toEpochMillis();
-    int binarySearch = Arrays.binarySearch(_times, epochMillis);
-    if (_times[binarySearch] == epochMillis) {
+  public Double getValue(final ZonedDateTime instant) {
+    final Instant time = instant.toInstant();
+    final long epochMillis = time.toEpochMillis();
+    final int binarySearch = Arrays.binarySearch(_times, epochMillis);
+    if (_times[binarySearch] == epochMillis)
       return _values[binarySearch];
-    } else {
+    else
       throw new NoSuchElementException();
-    }
   }
 
 }

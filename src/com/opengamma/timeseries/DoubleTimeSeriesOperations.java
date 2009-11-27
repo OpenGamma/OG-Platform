@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -109,45 +110,53 @@ public class DoubleTimeSeriesOperations {
     int max = Math.max(a.size(), b.size());
     long[] times = new long[max];
     double[] values = new double[max];
+    TimeZone[] zones = new TimeZone[max];
     int pos = 0;
-    for (Entry<InstantProvider, Double> entry : a) {
+    for (Entry<ZonedDateTime, Double> entry : a) {
       Double valueB = b.getDataPoint(entry.getKey());
       if (valueB != null) {
         double newValue = operator.operate(entry.getValue(), valueB);
         times[pos] = entry.getKey().toInstant().toEpochMillis();
         values[pos] = newValue;
+        zones[pos] = entry.getKey().getZone();
         pos++;
       }
     }
     long[] trimmedTimes = new long[pos];
     double[] trimmedValues = new double[pos];
+    TimeZone[] trimmedZones = new TimeZone[pos];
     System.arraycopy(times, 0, trimmedTimes, 0, pos - 1);
     System.arraycopy(values, 0, trimmedValues, 0, pos - 1);
-    return new ArrayDoubleTimeSeries(trimmedTimes, trimmedValues);
+    System.arraycopy(zones, 0, trimmedZones, 0, pos - 1);
+    return new ArrayDoubleTimeSeries(trimmedTimes, trimmedValues, trimmedZones);
   }
 
   private static DoubleTimeSeries operate(DoubleTimeSeries a, UnaryOperator operator) {
     final int size = a.size();
     long[] times = new long[size];
     double[] values = new double[size];
+    TimeZone[] zones = new TimeZone[size];
     int pos = 0;
-    for (Entry<InstantProvider, Double> entry : a) {
+    for (Entry<ZonedDateTime, Double> entry : a) {
       times[pos] = entry.getKey().toInstant().toEpochMillis();
       values[pos] = operator.operate(entry.getValue());
+      zones[pos] = entry.getKey().getZone();
     }
-    return new ArrayDoubleTimeSeries(times, values);
+    return new ArrayDoubleTimeSeries(times, values, zones);
   }
 
   private static DoubleTimeSeries operate(DoubleTimeSeries a, double b, BinaryOperator operator) {
     final int size = a.size();
     long[] times = new long[size];
     double[] values = new double[size];
+    TimeZone[] zones = new TimeZone[size];
     int pos = 0;
-    for (Entry<InstantProvider, Double> entry : a) {
+    for (Entry<ZonedDateTime, Double> entry : a) {
       times[pos] = entry.getKey().toInstant().toEpochMillis();
       values[pos] = operator.operate(entry.getValue(), b);
+      zones[pos] = entry.getKey().getZone();
     }
-    return new ArrayDoubleTimeSeries(times, values);
+    return new ArrayDoubleTimeSeries(times, values, zones);
   }
 
   public static DoubleTimeSeries add(DoubleTimeSeries a, DoubleTimeSeries b) {
@@ -254,9 +263,9 @@ public class DoubleTimeSeriesOperations {
       throw new IllegalArgumentException("Lag must be less than series size");
     if (lag == 0)
       return a;
-    List<InstantProvider> dates = new ArrayList<InstantProvider>();
+    List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     List<Double> data = new ArrayList<Double>();
-    Iterator<InstantProvider> timeIter = a.timeIterator();
+    Iterator<ZonedDateTime> timeIter = a.timeIterator();
     Iterator<Double> dataIter = a.valuesIterator();
     for (int i = 0; i < a.size(); i++) {
       if (i < lag) {

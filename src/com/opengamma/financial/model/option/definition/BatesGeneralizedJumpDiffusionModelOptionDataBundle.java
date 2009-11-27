@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
@@ -34,6 +39,51 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends Standard
 
   public double getDelta() {
     return _delta;
+  }
+
+  @Override
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(),
+        getDelta());
+  }
+
+  @Override
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withCostOfCarry(final Double costOfCarry) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(),
+        getExpectedJumpSize(), getDelta());
+  }
+
+  @Override
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withVolatilitySurface(final VolatilitySurface surface) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), surface, getSpot(), getDate(), getLambda(), getExpectedJumpSize(),
+        getDelta());
+  }
+
+  @Override
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withDate(final ZonedDateTime date) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getLambda(),
+        getExpectedJumpSize(), getDelta());
+  }
+
+  @Override
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withSpot(final Double spot) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getLambda(),
+        getExpectedJumpSize(), getDelta());
+  }
+
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withLambda(final Double lambda) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda,
+        getExpectedJumpSize(), getDelta());
+  }
+
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withExpectedJumpSize(final Double expectedJumpSize) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(),
+        expectedJumpSize, getDelta());
+  }
+
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withDelta(final Double delta) {
+    return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(),
+        getExpectedJumpSize(), delta);
   }
 
   @Override

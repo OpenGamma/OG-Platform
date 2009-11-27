@@ -7,7 +7,6 @@ package com.opengamma.financial.model.option.definition;
 
 import java.util.Iterator;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.Expiry;
 
@@ -20,10 +19,10 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class FadeInOptionDefinition extends OptionDefinition {
-  private final Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> _payoffFunction = new Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double>() {
+  private final OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries>() {
 
     @Override
-    public Double evaluate(final StandardOptionDataBundleWithSpotTimeSeries data) {
+    public Double getPayoff(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
       final DoubleTimeSeries spotTS = data.getSpotTimeSeries();
       final Iterator<Double> iter = spotTS.valuesIterator();
       double inRange = 0;
@@ -36,13 +35,12 @@ public class FadeInOptionDefinition extends OptionDefinition {
       return inRange / spotTS.size() * (isCall() ? Math.max(0, data.getSpot() - getStrike()) : Math.max(0, getStrike() - data.getSpot()));
     }
   };
-  private final Function1D<OptionDataBundleWithOptionPrice, Boolean> _exerciseFunction = new Function1D<OptionDataBundleWithOptionPrice, Boolean>() {
+  private final OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries>() {
 
     @Override
-    public Boolean evaluate(final OptionDataBundleWithOptionPrice data) {
+    public Boolean shouldExercise(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
       return false;
     }
-
   };
   // TODO maybe use a barrier here?
   private final double _lowerBound;
@@ -60,16 +58,6 @@ public class FadeInOptionDefinition extends OptionDefinition {
 
   public double getUpperBound() {
     return _upperBound;
-  }
-
-  @Override
-  public Function1D<OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction() {
-    return _exerciseFunction;
-  }
-
-  @Override
-  public Function1D<StandardOptionDataBundleWithSpotTimeSeries, Double> getPayoffFunction() {
-    return _payoffFunction;
   }
 
   @Override
@@ -98,5 +86,15 @@ public class FadeInOptionDefinition extends OptionDefinition {
     if (Double.doubleToLongBits(_upperBound) != Double.doubleToLongBits(other._upperBound))
       return false;
     return true;
+  }
+
+  @Override
+  public OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> getExerciseFunction() {
+    return _exerciseFunction;
+  }
+
+  @Override
+  public OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> getPayoffFunction() {
+    return _payoffFunction;
   }
 }

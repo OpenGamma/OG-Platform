@@ -23,7 +23,7 @@ public class TwoTailedStudentTDistributionTest {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    final ProbabilityDistribution<Double> dist = new TwoTailedStudentTDistribution(1000);
+    final ProbabilityDistribution<Double> dist = new TwoTailedStudentTDistribution(10000);
     final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(0, 1);
     try {
       dist.getCDF(-3.);

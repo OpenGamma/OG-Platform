@@ -39,7 +39,7 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
   }
 
   @Override
-  public MertonJumpDiffusionModelOptionDataBundle withCostOfCarry(final double costOfCarry) {
+  public MertonJumpDiffusionModelOptionDataBundle withCostOfCarry(final Double costOfCarry) {
     return new MertonJumpDiffusionModelOptionDataBundle(getDiscountCurve(), costOfCarry, getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
   }
 

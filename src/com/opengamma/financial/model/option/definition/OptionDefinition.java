@@ -7,7 +7,6 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -74,13 +73,13 @@ public abstract class OptionDefinition {
    * 
    * @return The exercise function.
    */
-  public abstract <T> Function1D<? super OptionDataBundleWithOptionPrice, Boolean> getExerciseFunction();
+  public abstract <T extends StandardOptionDataBundle> OptionExerciseFunction<T> getExerciseFunction();
 
   /**
    * 
    * @return The payoff function.
    */
-  public abstract <T> Function1D<? super StandardOptionDataBundle, Double> getPayoffFunction();
+  public abstract <T extends StandardOptionDataBundle> OptionPayoffFunction<T> getPayoffFunction();
 
   @Override
   public int hashCode() {

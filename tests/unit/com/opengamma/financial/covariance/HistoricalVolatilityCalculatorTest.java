@@ -7,9 +7,10 @@ package com.opengamma.financial.covariance;
 
 import static org.junit.Assert.fail;
 
+import javax.time.calendar.TimeZone;
+
 import org.junit.Test;
 
-import com.opengamma.financial.covariance.HistoricalVolatilityCalculator;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
@@ -31,9 +32,15 @@ public class HistoricalVolatilityCalculatorTest {
       145., 150. };
   private static final double[] LOW = new double[] { 131., 131., 134., 133., 133., 133., 135., 135., 137., 142., 142., 145., 143., 148., 146.5, 147., 146., 146.5, 144.5, 144.,
       143.5 };
-  protected static final DoubleTimeSeries CLOSE_TS = new ArrayDoubleTimeSeries(T, CLOSE);
-  protected static final DoubleTimeSeries HIGH_TS = new ArrayDoubleTimeSeries(T, HIGH);
-  protected static final DoubleTimeSeries LOW_TS = new ArrayDoubleTimeSeries(T, LOW);
+  private static final TimeZone[] ZONES = new TimeZone[21];
+  static {
+    for (int i = 0; i < ZONES.length; i++) {
+      ZONES[i] = TimeZone.UTC;
+    }
+  }
+  protected static final DoubleTimeSeries CLOSE_TS = new ArrayDoubleTimeSeries(T, CLOSE, ZONES);
+  protected static final DoubleTimeSeries HIGH_TS = new ArrayDoubleTimeSeries(T, HIGH, ZONES);
+  protected static final DoubleTimeSeries LOW_TS = new ArrayDoubleTimeSeries(T, LOW, ZONES);
   protected static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   protected static final RelativeTimeSeriesReturnCalculator RELATIVE_RETURN_CALCULATOR = new ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   protected static final double EPS = 1e-4;
@@ -77,21 +84,24 @@ public class HistoricalVolatilityCalculatorTest {
       // Expected
     }
     try {
-      CALCULATOR.testTimeSeries(new DoubleTimeSeries[] { new ArrayDoubleTimeSeries(new long[] { 1l }, new double[] { 3 }) }, 2);
+      CALCULATOR.testTimeSeries(new DoubleTimeSeries[] { new ArrayDoubleTimeSeries(new long[] { 1l }, new double[] { 3 }, new TimeZone[] { TimeZone.UTC }) }, 2);
       fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }
     try {
-      CALCULATOR.testDatesCoincide(new DoubleTimeSeries[] { new ArrayDoubleTimeSeries(new long[] { 1l, 2l, 3l }, new double[] { 3, 4, 5 }),
-          new ArrayDoubleTimeSeries(new long[] { 1l, 2l }, new double[] { 3, 4 }) });
+      CALCULATOR.testDatesCoincide(new DoubleTimeSeries[] {
+          new ArrayDoubleTimeSeries(new long[] { 1l, 2l, 3l }, new double[] { 3, 4, 5 }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC, TimeZone.UTC }),
+          new ArrayDoubleTimeSeries(new long[] { 1l, 2l }, new double[] { 3, 4 }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC }) });
       fail();
     } catch (final TimeSeriesException e) {
       // Expected
     }
     try {
-      CALCULATOR.testDatesCoincide(new DoubleTimeSeries[] { new ArrayDoubleTimeSeries(new long[] { 1l, 2l, 3l }, new double[] { 3, 4, 5 }),
-          new ArrayDoubleTimeSeries(new long[] { 1l, 2l, 3l }, new double[] { 4, 5, 6 }), new ArrayDoubleTimeSeries(new long[] { 2l, 3l, 4l }, new double[] { 4, 5, 6 }) });
+      CALCULATOR.testDatesCoincide(new DoubleTimeSeries[] {
+          new ArrayDoubleTimeSeries(new long[] { 1l, 2l, 3l }, new double[] { 3, 4, 5 }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC, TimeZone.UTC }),
+          new ArrayDoubleTimeSeries(new long[] { 1l, 2l, 3l }, new double[] { 4, 5, 6 }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC, TimeZone.UTC }),
+          new ArrayDoubleTimeSeries(new long[] { 2l, 3l, 4l }, new double[] { 4, 5, 6 }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC, TimeZone.UTC }) });
       fail();
     } catch (final TimeSeriesException e) {
       // Expected

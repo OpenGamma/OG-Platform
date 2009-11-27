@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -56,25 +56,22 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    */
   @Override
   public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
-    if (x == null) {
+    if (x == null)
       throw new TimeSeriesException("Time series array was null");
-    }
-    if (x.length == 0) {
+    if (x.length == 0)
       throw new TimeSeriesException("Time series array was empty");
-    }
     final DoubleTimeSeries ts = x[0];
-    if (ts.size() < 2) {
+    if (ts.size() < 2)
       throw new TimeSeriesException("Need at least two data points to calculate return series");
-    }
     DoubleTimeSeries d = null;
     if (x.length > 1) {
       d = x[1];
     }
-    final List<InstantProvider> times = new ArrayList<InstantProvider>();
+    final List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
     final List<Double> data = new ArrayList<Double>();
-    final Iterator<Map.Entry<InstantProvider, Double>> iter = ts.iterator();
-    Map.Entry<InstantProvider, Double> previousEntry = iter.next();
-    Map.Entry<InstantProvider, Double> entry;
+    final Iterator<Map.Entry<ZonedDateTime, Double>> iter = ts.iterator();
+    Map.Entry<ZonedDateTime, Double> previousEntry = iter.next();
+    Map.Entry<ZonedDateTime, Double> entry;
     double dividend;
     while (iter.hasNext()) {
       entry = iter.next();

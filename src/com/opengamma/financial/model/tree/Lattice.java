@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.model.tree;
 
 /**
@@ -7,12 +12,6 @@ package com.opengamma.financial.model.tree;
  */
 
 public interface Lattice<T> {
-
-  public void setNode(T value, int step, int node);// TODO
-
-  // rename
-  // node
-  // variable
 
   public T[][] getTree();
 
