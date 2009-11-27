@@ -8,6 +8,8 @@ package com.opengamma.util.time;
 import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.Calendrical;
+import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
@@ -278,6 +280,11 @@ public class DateUtil {
     String formatted = DateTimeFormatters.isoLocalDate().print(date);
     return StringUtils.remove(formatted, '-');
   }
+  
+  public static LocalDate previousWeekDay() {
+    Clock clock = Clock.system(TimeZone.UTC);
+    return previousWeekDay(clock.today());
+  }
 
   /**
    * @param today
@@ -308,6 +315,30 @@ public class DateUtil {
     }
     
     return previous;
+  }
+
+  /**
+   * 
+   * @param date in YYYYMMDD
+   * @return
+   */
+  public static long getUTCEpochMilis(int date) {
+    Calendrical parse = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date));
+    LocalDate localDate = parse.mergeStrict().toLocalDate();
+    ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthOfYear().getValue(), localDate.getDayOfMonth());
+    return zonedDateTime.toInstant().toEpochMillis();
+  }
+
+  /**
+   * 
+   * @param date in YYYYMMDD
+   * @return
+   */
+  public static ZonedDateTime toZonedDateTimeUTC(int date) {
+    Calendrical parse = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date));
+    LocalDate localDate = parse.mergeStrict().toLocalDate();
+    ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthOfYear().getValue(), localDate.getDayOfMonth());
+    return zonedDateTime;
   }
 
   // TODO useful to have methods such as # weeks between.
