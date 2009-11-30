@@ -38,7 +38,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     _zones = new TimeZone[zones.length];
     System.arraycopy(zones, 0, _zones, 0, zones.length);
     // check dates are ordered
-    long maxTime = 0L;
+    long maxTime = Long.MIN_VALUE;
     for (final long time : _times) {
       if (time < maxTime)
         throw new IllegalArgumentException("dates must be ordered");
@@ -54,7 +54,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     _zones = new TimeZone[times.size()];
     final Iterator<Double> iter = values.iterator();
     int i = 0;
-    long maxTime = 0L; // for checking the dates are sorted.
+    long maxTime = Long.MIN_VALUE; // for checking the dates are sorted.
     for (final ZonedDateTime time : times) {
       final Double value = iter.next();
       final long epochMillis = time.toInstant().toEpochMillis();
@@ -63,8 +63,9 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
         _values[i] = value;
         _zones[i] = time.getZone();
         maxTime = epochMillis;
-      } else
+      } else {
         throw new IllegalArgumentException("dates must be ordered");
+      }
       i++;
     }
   }
