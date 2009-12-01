@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.security.db">
+  <class name="DomainSpecificIdentifierAssociationBean" table="domain_specific_identifier_associations">
+    <id name="id" column="domain_specific_indentifier_id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <!-- this is a special association that deals with the fact we've implemented
+         securities with a table-per-concrete class model.  This means that whenever
+         we have a polymorphic reference to the base class we need a discriminator to
+         tell us which table to look in.  We use table-per-concrete class because in 
+         the normal lookup case it means we can avoid joins. -->
+    <any name="security"
+         meta-type="string"
+         id-type="long"
+         cascade="save-update">
+      <meta-value value="EQUITY" class="EquitySecurityBean"/>
+      <!--  insert more subclasses of SecurityBean here -->
+      <!--  note the order is important here -->
+      <column name="security_descriminator"/>
+      <column name="security_id"/>
+    </any>
+    <!-- component means that it's 'part of' the object, although Java models it as a reference, I wanted
+         the actual identifier to be a separate class -->
+    <component name="domainSpecificIdentifier"
+               class="DomainSpecificIdentifierBean">
+      <property name="domain" type="string" not-null="true" unique-key="unique_associations"/>
+      <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
+    </component>
+  </class>
+  <!-- this is here to add a uniqueness constraint which hibernate doesn't support directly.  Note
+       the unique-key fields on the above properties link to the definition below -->
+  <database-object>
+    <create> 
+      alter table domain_specific_identifier_associations 
+        add constraint unique_associations unique (domain, identifier)
+    </create>
+    <drop>
+      alter table domain_specific_identifier_associations
+        drop constraint unique_associations
+    </drop>
+  </database-object>
+  
+</hibernate-mapping>

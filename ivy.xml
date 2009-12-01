@@ -2,12 +2,17 @@
     <info organisation="com.opengamma" module="og-financial"/>
     <dependencies>
         <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
+        <dependency org="org.apache.commons" name="commons-dbcp" rev="1.2.2"/>
         <dependency org="org.junit" name="junit" rev="4.5"/>
         <dependency org="org.slf4j" name="slf4j" rev="1.5.8" conf="*->core"/>
         <dependency org="ch.qos" name="logback" rev="0.9.17" conf="*->classic"/>
+        <dependency org="org.springframework" name="spring" rev="2.5.6" conf="default->orm"/>
         <dependency org="javax.time" name="jsr-310-ri" rev="20090901"/>
         <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
         <dependency org="cern" name="colt" rev="1.2.0"/>
+        <dependency org="org.hibernate" name="hibernate" rev="3.3.2.GA"/>
+        <dependency org="org.hibernate" name="hibernate-tools" rev="3.2.4"/>
+        <dependency org="org.apache.derby" name="derby" rev="10.5.1.1"/>
     </dependencies>
 </ivy-module>
 

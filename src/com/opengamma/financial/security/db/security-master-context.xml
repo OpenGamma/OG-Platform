@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+    <property name="url" value="jdbc:derby:/test;create=true"/>
+    <property name="username" value=""/>
+    <property name="password" value=""/>
+  </bean>
+  
+  <bean id="mySessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <property name="dataSource" ref="myDataSource"/>
+    <property name="mappingResources">
+      <list>
+        <value>com/opengamma/financial/security/db/DomainSpecificIdentifierBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/EnumBeans.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/EquitySecurityBean.hbm.xml</value>
+      </list>
+    </property>
+    <property name="hibernateProperties">
+      <value>
+        hibernate.dialect=org.hibernate.dialect.DerbyDialect
+      </value>
+    </property>
+  </bean>
+  
+  <bean id="myHibernateSecurityMaster" class="com.opengamma.financial.security.db.HibernateSecurityMaster" >
+    <property name="sessionFactory" ref="mySessionFactory"/>  
+  </bean>
+</beans>
