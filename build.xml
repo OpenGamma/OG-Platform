@@ -169,5 +169,24 @@
     <zip destfile="${dist.dir}/og-analytics-${og-analytics.version}.zip" basedir="${dist.dir}/og-analytics-${og-analytics.version}"/>
   </target>
   
-	
+  <target name="javadocs" depends="install-ivy">
+    <ivy:cachepath pathid="src.build.classpath" conf="*"/>
+    <echo message="path = ${toString:src.build.classpath}/latexlet/latexlet/jars/LaTeXlet-1.1.jar"/>
+    <javadoc destdir="${basedir}/docs/api"
+             author="true"
+             version="true"
+             use="true"
+             windowtitle="OpenGamma Analytics API">
+      <packageset dir="${basedir}/src" defaultexcludes="yes">
+        <include name="com/opengamma/**"/>
+      </packageset>
+
+      <doctitle><![CDATA[<h1>OpenGamma Analytics</h1>]]></doctitle>
+      <bottom><![CDATA[<i>CopyRIght &#169; 2009 OpenGamma Limited.  All Rights Reserved.</i>]]></bottom>
+      <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:src.build.classpath}"/>
+      <taglet name="latexlet.BlockLaTeXlet" path="${toString:src.build.classpath}"/>
+      <taglet name="latexlet.InlineLaTeXlet" path="${toString:src.build.classpath}"/>
+      <group title="Analytics" packages="com.opengamma.analytics.*"/>
+    </javadoc>
+  </target>
 </project>
