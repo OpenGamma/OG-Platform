@@ -14,7 +14,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 public class MapDoubleTimeSeries extends DoubleTimeSeries  {
-  public static final MapDoubleTimeSeries EMPTY_SERIES = new MapDoubleTimeSeries();
+  public static final DoubleTimeSeries EMPTY_SERIES = new MapDoubleTimeSeries();
   private TreeMap<ZonedDateTime, Double> _data;
   
   public MapDoubleTimeSeries() {

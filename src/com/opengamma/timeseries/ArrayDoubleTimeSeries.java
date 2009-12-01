@@ -38,7 +38,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     _zones = new TimeZone[zones.length];
     System.arraycopy(zones, 0, _zones, 0, zones.length);
     // check dates are ordered
-    long maxTime = 0L;
+    long maxTime = Long.MIN_VALUE;
     for (final long time : _times) {
       if (time < maxTime)
         throw new IllegalArgumentException("dates must be ordered");
@@ -54,7 +54,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     _zones = new TimeZone[times.size()];
     final Iterator<Double> iter = values.iterator();
     int i = 0;
-    long maxTime = 0L; // for checking the dates are sorted.
+    long maxTime = Long.MIN_VALUE; // for checking the dates are sorted.
     for (final ZonedDateTime time : times) {
       final Double value = iter.next();
       final long epochMillis = time.toInstant().toEpochMillis();
@@ -63,8 +63,9 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
         _values[i] = value;
         _zones[i] = time.getZone();
         maxTime = epochMillis;
-      } else
+      } else {
         throw new IllegalArgumentException("dates must be ordered");
+      }
       i++;
     }
   }
@@ -115,25 +116,12 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     final long endMillis = endTime.toInstant().toEpochMillis();
     int startPos = Arrays.binarySearch(_times, startMillis);
     int endPos = Arrays.binarySearch(_times, endMillis);
+    // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -startPos - 1;
-    endPos = endPos >= 0 ? endPos : -endPos - 1; // if either is -1, make
-    // it zero
-    /*
-     * Commented out because Maps turn out to let you use nearest element. if
-     * (_times[startPos] == startMillis && _times[endPos] == endMillis) {
-     */
-    // endPos is odd, because it may or may not be inclusive
-    if (startPos == endPos)
-      // TODO: change to Empty time series when we've defined it.
-      return new ArrayDoubleTimeSeries(new long[0], new double[0], new TimeZone[0]);
-    // final long endEpochMillis = endTime.toInstant().toEpochMillis();
+    endPos = endPos >= 0 ? endPos : -endPos - 1; 
     if (endPos >= _times.length) {
       endPos--;
     }
-    // if (_times[endPos] > endEpochMillis) { // should implicitly be >0
-    // beacuse of startPos != endPos
-    // endPos--;
-    // }
     final int length = endPos - startPos + 1;
     final long[] resultTimes = new long[length];
     final double[] resultValues = new double[length];
@@ -142,16 +130,6 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     System.arraycopy(_values, startPos, resultValues, 0, length);
     System.arraycopy(_zones, startPos, resultTimeZones, 0, length);
     return new ArrayDoubleTimeSeries(resultTimes, resultValues, resultTimeZones);
-    /*
-     * Also commented out because Maps are more tolerant than I initially
-     * thought. } else { if (_times[startPos] != startMillis && _times[endPos]
-     * != endMillis) { throw new
-     * NoSuchElementException("Neither start time or end time are in the series"
-     * ); } else if (_times[startPos] != startMillis) { throw new
-     * NoSuchElementException("Start time is not in the series"); } else { // by
-     * process of elimination, it must be only the end time not in the series
-     * throw new NoSuchElementException("End time is not in the series"); } }
-     */
   }
 
   @Override
