@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>OG Build</name>
+	<comment></comment>
+	<projects>
+		<project>Fudge</project>
+		<project>OG Analytics</project>
+		<project>OG Bloomberg</project>
+		<project>OG Engine</project>
+		<project>OG Financial</project>
+		<project>OG LiveData</project>
+		<project>OG Util</project>
+		<project>OG-Integration</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+</projectDescription>

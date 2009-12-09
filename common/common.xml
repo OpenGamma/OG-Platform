@@ -1,0 +1,288 @@
+
+	<!--
+		Licensed to the Apache Software Foundation (ASF) under one or more
+		contributor license agreements. See the NOTICE file distributed with
+		this work for additional information regarding copyright ownership.
+		The ASF licenses this file to you under the Apache License, Version
+		2.0 (the "License"); you may not use this file except in compliance
+		with the License. You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0 Unless required by
+		applicable law or agreed to in writing, software distributed under the
+		License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+		CONDITIONS OF ANY KIND, either express or implied. See the License for
+		the specific language governing permissions and limitations under the
+		License.
+	-->
+<project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property file="${common.dir}/build.properties" />
+
+	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+
+	<target name="download-ivy" unless="skip.download">
+		<mkdir dir="${ivy.jar.dir}" />
+		<!--
+			download Ivy from web site so that it can be used even without any
+			special installation
+		-->
+		<echo message="installing ivy..." />
+		<get
+			src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+			dest="${ivy.jar.file}" usetimestamp="true" />
+	</target>
+	<!--
+		================================= target: load-ivy this target is not
+		necessary if you put ivy.jar in your ant lib directory if you already
+		have ivy 2.0 in your ant lib, you can simply remove this target
+		=================================
+	-->
+	<target name="load-ivy" depends="download-ivy">
+		<!--
+			try to load ivy here from home ivy dir, in case the user has not
+			already dropped it into ant's lib dir (note that the latter copy will
+			always take precedence). We will not fail as long as ivy home lib dir
+			exists (it may be empty) and ivy is in at least one of ant's lib dir
+			or the ivy home lib dir.
+		-->
+		<mkdir dir="${ivy.jar.dir}" />
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
+			classpathref="ivy.lib.path" />
+		<ivy:settings file="${common.dir}/ivysettings.xml" />
+	</target>
+
+	<path id="lib.path.id">
+		<fileset dir="${lib.dir}" />
+	</path>
+	<path id="run.path.id">
+		<path refid="lib.path.id" />
+		<path location="${classes.dir}" />
+	</path>
+
+
+	<!-- setup ivy default configuration with some custom info -->
+	<property name="ivy.local.default.root" value="${repository.dir}/local" />
+	<property name="ivy.shared.default.root" value="${repository.dir}/shared" />
+
+	<target name="resolve" depends="clean-lib, load-ivy"
+		description="--> resolve and retrieve dependencies with ivy">
+		<mkdir dir="${lib.dir}" />
+		<!--
+			not usually necessary, ivy creates the directory IF there are
+			dependencies
+		-->
+
+		<!--
+			the call to resolve is not mandatory, retrieve makes an implicit call
+			if we don't
+		-->
+		<ivy:resolve file="${ivy.file}" />
+		<ivy:retrieve
+			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
+	</target>
+
+	<target name="report" depends="resolve"
+		description="--> generates a report of dependencies">
+		<ivy:report todir="${build.dir}" />
+	</target>
+
+	<target name="compile" depends="compile-src,compile-tests"
+		description="--> compile all source code" />
+
+	<target name="compile-src" depends="resolve"
+		description="--> compile the main project files">
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}"
+			classpathref="lib.path.id" debug="${build.debug}" optimize="${build.optimize}"
+			verbose="${build.verbose}" listfiles="${build.listfiles}" />
+		<copy todir="${classes.dir}">
+			<fileset dir="${src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="javadoc" depends="load-ivy" description="--> build Javadocs for the project">
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${docs.dir}/javadoc" />
+		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
+			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
+			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
+	</target>
+
+	<target name="compile-tests" depends="resolve" description="--> compile the tests">
+		<mkdir dir="${tests.classes.dir}" />
+		<path id="tests.build.classpath.id">
+			<path refid="lib.path.id" />
+			<pathelement path="${classes.dir}" />
+		</path>
+		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
+			classpathref="tests.build.classpath.id" debug="${build.debug}"
+			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+		<copy todir="${tests.classes.dir}">
+			<fileset dir="${tests.src.dir}">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="tests" depends="junit-batch,junit-report" description="--> run unit tests and generate report"/>
+
+	<target name="junit-batch" depends="compile-tests">
+		<mkdir dir="${tests.junit.output}/xml" />
+		<junit printSummary="true" fork="true" forkmode="once">
+			<classpath>
+	      <path refid="lib.path.id" />
+	      <pathelement path="${classes.dir}" />
+				<pathelement path="${tests.classes.dir}" />
+			</classpath>
+			<assertions>
+				<enable />
+			</assertions>
+			<formatter type="xml" />
+			<batchtest todir="${tests.junit.dir}/xml">
+				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
+				<!-- TODO: deal with interop, integration, etc -->
+				<!--fileset dir="${tests.dir}/interop" includes="**/*Test.java" /-->
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="junit-report" depends="junit-batch">
+		<mkdir dir="${tests.junit.dir}/html" />
+		<junitreport todir="${tests.junit.dir}/xml">
+			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
+			<report todir="${tests.junit.dir}/html" />
+		</junitreport>
+	</target>
+
+	<target name="run" depends="version, compile" description="--> compile and run the project">
+		<java classpathref="run.path.id" classname="${main.class.name}" />
+	</target>
+
+	<target name="ivy-new-version" depends="load-ivy" unless="ivy.new.revision">
+		<!-- default module version prefix value -->
+		<property name="module.version.prefix" value="${module.version.target}-dev-b" />
+
+		<!-- asks to ivy an available version number -->
+		<ivy:info file="${ivy.file}" />
+		<ivy:buildnumber organisation="${ivy.organisation}"
+			module="${ivy.module}" revision="${module.version.prefix}"
+			defaultBuildNumber="1" revSep="" />
+	</target>
+
+	<target name="local-version">
+		<tstamp>
+			<format property="now" pattern="yyyyMMddHHmmss" />
+		</tstamp>
+		<property name="ivy.new.revision" value="${module.version.target}-local-${now}" />
+	</target>
+
+	<target name="version" depends="ivy-new-version">
+		<!-- create version file in classpath for later inclusion in jar -->
+		<mkdir dir="${classes.dir}" />
+		<echo message="version=${ivy.new.revision}" file="${classes.dir}/${ant.project.name}.properties"
+			append="false" />
+
+		<!-- load generated version properties file -->
+		<property file="${classes.dir}/${ant.project.name}.properties" />
+	</target>
+
+	<target name="jar" depends="version, compile"
+		description="--> make a jar file for this project">
+		<jar destfile="${jar.file}">
+			<fileset dir="${classes.dir}" />
+			<fileset dir="${tests.classes.dir}" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Build-Version" value="${version}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="src-jar" depends="version"
+		description="--> make a source jar file for this project">
+		<jar destfile="${src.jar.file}" compress="${jar.compress}">
+			<fileset dir="${src.dir}" excludes="**/*.class" />
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+				<attribute name="Build-Version" value="${version}" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="javadoc-jar" depends="version, javadoc"
+		description="--> make a javadoc jar file for this project">
+		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
+			compress="${jar.compress}" />
+	</target>
+
+	<target name="publish" depends="clean-build, jar"
+		description="--> publish this project in the ivy repository">
+		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
+			resolver="shared" pubrevision="${version}" status="release" />
+		<echo message="project ${ant.project.name} released with version ${version}" />
+	</target>
+
+	<target name="publish-local" depends="local-version, jar"
+		description="--> publish this project in the local ivy repository">
+		<ivy:publish artifactspattern="${build.dir}/[artifact].[ext]"
+			resolver="local" pubrevision="${version}" pubdate="${now}" status="integration"
+			forcedeliver="true" />
+		<echo
+			message="project ${ant.project.name} published locally with version ${version}" />
+	</target>
+
+	<target name="dist" depends="jar,src-jar,javadoc-jar">
+		<mkdir dir="${dist.dir}" />
+		<copy todir="${dist.dir}/${dist.name}-${version}" file="${basedir}/LICENSE.txt" failonerror="false"/>
+		<copy todir="${dist.dir}/${dist.name}" file="${basedir}/README.txt" failonerror="false"/>
+		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}" file="${src.jar.file}" />
+		<copy todir="${dist.dir}/${dist.name}" file="${javadocs.jar.file}" />
+		<mkdir dir="${dist.dir}/${dist.name}/lib" />
+		<ivy:retrieve
+			pattern="${dist.dir}/${dist.name}/lib/[artifact]-[revision].[ext]" />
+	</target>
+
+	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
+		<tar destfile="${dist.dir}/${dist.name}-${version}.tar" basedir="${dist.dir}">
+			<include name="${dist.name}/**/*" />
+		</tar>
+		<bzip2 src="${dist.dir}/${dist.name}-${version}.tar" destfile="${dist.dir}/${dist.name}-${version}.tar.bz2" />
+	</target>
+
+	<target name="zipfile" depends="dist" description="--> generate a zip file for distribution">
+		<zip destfile="${dist.dir}/${dist.name}-${version}.zip" basedir="${dist.dir}">
+			<include name="${dist.name}/**/*" />
+		</zip>
+	</target>
+
+	<target name="clean-local" depends="load-ivy"
+		description="--> cleans the local repository for the current module">
+		<ivy:info file="${ivy.file}" />
+		<delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}" />
+	</target>
+
+	<target name="clean-lib"
+		description="--> clean the project libraries directory (dependencies)">
+		<delete includeemptydirs="true" dir="${lib.dir}" />
+	</target>
+
+	<target name="clean-build" description="--> clean the project built files">
+		<delete includeemptydirs="true" dir="${build.dir}" />
+		<delete includeemptydirs="true" dir="${tests.build.dir}" />
+	</target>
+	
+	<target name="clean-dist" description="--> clean the project distribution files">
+    <delete includeemptydirs="true" dir="${dist.dir}" />
+	</target>
+	
+	<target name="clean" depends="clean-build, clean-lib, clean-dist"
+		description="--> clean the project" />
+
+</project>
