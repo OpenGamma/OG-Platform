@@ -22,6 +22,8 @@
 	<property name="ivy.install.version" value="2.1.0" />
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
+	
+	<import file="git-macros.xml" />
 
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
@@ -60,14 +62,14 @@
 
 	<target name="buildlist" depends="load-ivy">
 		<ivy:buildlist reference="build-path">
-			<fileset dir="projects" >
-				<include name="**/build.xml"/>
-				<exclude name="Fudge-CSharp/**"/>
-				<exclude name="fudgemsg-dist/**"/>
-				<exclude name="Hermit/**"/>
-				<exclude name="jsr-310-ri-20090901/**"/>
-				<exclude name="OG-PrivateIvy/**"/>
-				<exclude name="sysadmin/**"/>
+			<fileset dir="projects">
+				<include name="**/build.xml" />
+				<exclude name="Fudge-CSharp/**" />
+				<exclude name="fudgemsg-dist/**" />
+				<exclude name="Hermit/**" />
+				<exclude name="jsr-310-ri-20090901/**" />
+				<exclude name="OG-PrivateIvy/**" />
+				<exclude name="sysadmin/**" />
 			</fileset>
 		</ivy:buildlist>
 	</target>
@@ -82,6 +84,26 @@
 		<subant target="publish-local" buildpathref="build-path" />
 	</target>
 
+	<target name="compile" depends="buildlist"
+	    description="compile all projects in the right order">
+		<subant target="compile" buildpathref="build-path" />
+	</target>
+
+	<target name="tarball" depends="buildlist"
+		    description="build tarballs for all projects">
+			<subant target="tarball" buildpathref="build-path" />
+	</target>
+
+	<target name="zipfile" depends="buildlist"
+		    description="build zip files for all projects">
+			<subant target="zipfile" buildpathref="build-path" />
+	</target>
+	
+	<target name="tests" depends="buildlist"
+		    description="run unit tests for all projects">
+			<subant target="tests" buildpathref="build-path" />
+	</target>
+	
 	<target name="clean-all" depends="buildlist" description="clean all projects">
 		<subant target="clean" buildpathref="build-path" />
 	</target>
@@ -92,5 +114,16 @@
 		<ivy:cleancache />
 	</target>
 
-
+    <target name="clone-or-pull">
+    	<git-clone-pull repository="git://github.com/OpenGamma/Fudge-Java.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/Fudge-CSharp.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-Analytics.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-Bloomberg.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-Engine.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-Financial.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-LiveData.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-Util.git" dest="projects" />
+    	<git-clone-pull repository="git://github.com/OpenGamma/OG-Integration.git" dest="projects" />
+   	</target>
 </project>
+
