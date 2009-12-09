@@ -114,8 +114,8 @@
 		<ivy:cleancache />
 	</target>
 
-    <target name="clone-or-pull">
-    	<git-clone-pull repository="git://github.com/OpenGamma/Fudge-Java.git" dest="projects" />
+        <target name="clone-or-pull" description="clone or pull all projects from git">
+      	<git-clone-pull repository="git://github.com/OpenGamma/Fudge-Java.git" dest="projects" />
     	<git-clone-pull repository="git://github.com/OpenGamma/Fudge-CSharp.git" dest="projects" />
     	<git-clone-pull repository="git://github.com/OpenGamma/OG-Analytics.git" dest="projects" />
     	<git-clone-pull repository="git://github.com/OpenGamma/OG-Bloomberg.git" dest="projects" />
