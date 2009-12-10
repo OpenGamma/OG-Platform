@@ -1,6 +1,11 @@
 <ivy-module version="2.0">
-    <info organisation="com.opengamma" module="og-util"/>
+    <info organisation="com.opengamma" module="og-util" status="integration"/>
+    <publications>
+      <artifact name="og-util" type="jar"/>
+    </publications>
     <dependencies>
+    	<dependency org="org.fudgemsg" name="fudge" rev="latest.integration" conf="*->core"/>
+    	
         <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
         <dependency org="org.junit" name="junit" rev="4.7"/>
         <dependency org="org.slf4j" name="slf4j" rev="1.5.8" conf="*->core"/>
