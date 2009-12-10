@@ -32,7 +32,7 @@ public class AutoregressiveTimeSeriesModelTest {
   private static final double STD = 0.25;
   private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalProbabilityDistribution(MEAN, STD));
   private static final int ORDER = 2;
-  private static final DoubleTimeSeries AR;
+  private static final DoubleTimeSeries MA;
   private static final Double[] PHI;
   private static double LIMIT = 3;
 
@@ -46,7 +46,7 @@ public class AutoregressiveTimeSeriesModelTest {
     for (int i = 0; i <= ORDER; i++) {
       PHI[i] = (i + 1) / 10.;
     }
-    AR = MODEL.getSeries(PHI, ORDER, dates);
+    MA = MODEL.getSeries(PHI, ORDER, dates);
     LIMIT /= Math.sqrt(n);
   }
 
@@ -88,12 +88,12 @@ public class AutoregressiveTimeSeriesModelTest {
   @Test
   public void testACF() {
     final double eps = 1e-2;
-    final Double[] rho = new AutocorrelationFunctionCalculator().evaluate(AR);
+    final Double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
     final double rho1 = PHI[1] / (1 - PHI[2]);
     assertEquals(rho[0], 1, 1e-16);
     assertEquals(rho[1], rho1, eps);
     assertEquals(rho[2], rho1 * PHI[1] + PHI[2], eps);
-    final Double mean = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()).evaluate(AR);
+    final Double mean = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()).evaluate(MA);
     assertEquals(mean, PHI[0] / (1 - PHI[1] - PHI[2]), eps);
   }
 }
