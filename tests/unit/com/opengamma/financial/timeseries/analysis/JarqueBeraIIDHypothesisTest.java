@@ -14,25 +14,26 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class DifferenceSignIIDHypothesisTest extends IIDHypothesisTest {
-  private static final IIDHypothesis DIFFERENCE_SIGN = new DifferenceSignIIDHypothesis(0.05);
+public class JarqueBeraIIDHypothesisTest extends IIDHypothesisTest {
+  private static final IIDHypothesis JARQUE_BERA = new JarqueBeraIIDHypothesis(0.05);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new DifferenceSignIIDHypothesis(-0.1);
+    new JarqueBeraIIDHypothesis(-0.1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new DifferenceSignIIDHypothesis(1.5);
+    new JarqueBeraIIDHypothesis(1.5);
   }
 
   @Test
   public void test() {
-    super.testNullTS(DIFFERENCE_SIGN);
-    super.testEmptyTS(DIFFERENCE_SIGN);
-    assertTrue(DIFFERENCE_SIGN.evaluate(RANDOM));
-    assertTrue(DIFFERENCE_SIGN.evaluate(SIGNAL));
-    assertFalse(DIFFERENCE_SIGN.evaluate(INCREASING));
+    super.testNullTS(JARQUE_BERA);
+    super.testEmptyTS(JARQUE_BERA);
+    assertTrue(JARQUE_BERA.evaluate(RANDOM));
+    assertFalse(JARQUE_BERA.evaluate(SIGNAL));
+    assertFalse(JARQUE_BERA.evaluate(INCREASING));
   }
+
 }

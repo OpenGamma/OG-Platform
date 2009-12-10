@@ -32,7 +32,7 @@ public class IIDHypothesisTest {
     final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(0, 0.5);
     for (int i = 0; i < n; i++) {
       dates[i] = i;
-      random[i] = Math.random();
+      random[i] = normal.nextRandom();
       signal[i] = Math.cos(i / 10.) + normal.nextRandom();
       increasing[i] = i == 0 ? 1 : increasing[i - 1] * 1.0001;
       zones[i] = TimeZone.UTC;
