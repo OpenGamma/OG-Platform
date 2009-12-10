@@ -1,38 +1,54 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.timeseries.model;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import cern.jet.random.engine.MersenneTwister;
-import cern.jet.random.engine.RandomEngine;
+import javax.time.calendar.ZonedDateTime;
 
-//TODO this is just an AR(1) series at the moment
-public class AutoregressiveModel implements TimeSeriesModel {
-  // TODO change the seed to something sensible
-  private RandomEngine _engine = new MersenneTwister(0);
+import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.timeseries.ArrayDoubleTimeSeries;
+import com.opengamma.timeseries.DoubleTimeSeries;
 
-  // TODO set variance of a(t)
-  public List<Double> getSeries(int n, double mean, List<Double> phi, int num) {
-    if (phi.size() != n)
-      throw new IllegalArgumentException("Number of coefficients must equal the order of the model: have " + phi.size() + " coefficients for an AR(" + n + ") model");
-    List<Double> series = new ArrayList<Double>();
-    double sum = 0;
-    for (double p : phi) {
-      sum += p;
-    }
-    double phi0 = mean * (1 - sum);
-    for (int i = 0; i < num; i++) {
-      if (i < n) {
-        series.add(phi0);
-      } else {
-        sum = phi0;
-        for (int j = 0; j < n; j++) {
-          sum += series.get(i - j - 1) * phi.get(j);
-        }
-        series.add(sum + _engine.nextDouble());
-      }
-    }
-    return series;
+/**
+ * 
+ * @author emcleod
+ */
+public class AutoregressiveTimeSeriesModel {
+  private final ProbabilityDistribution<Double> _random;
+
+  public AutoregressiveTimeSeriesModel(final ProbabilityDistribution<Double> random) {
+    if (random == null)
+      throw new IllegalArgumentException("Probability distribution was null");
+    _random = random;
   }
-  // TODO another getSeries with an initial value of r(-1);
+
+  public DoubleTimeSeries getSeries(final Double[] phi, final int q, final List<ZonedDateTime> dates) {
+    if (phi == null)
+      throw new IllegalArgumentException("Coefficient array was null");
+    if (q < 1)
+      throw new IllegalArgumentException("Order must be greater than zero");
+    if (phi.length < q + 1)
+      throw new IllegalArgumentException("Coefficient array must contain at least " + (q + 1) + " elements");
+    if (dates == null)
+      throw new IllegalArgumentException("Dates list was null");
+    if (dates.isEmpty())
+      throw new IllegalArgumentException("Dates list was empty");
+    final int n = dates.size();
+    final Double[] data = new Double[n];
+    data[0] = phi[0] + _random.nextRandom();
+    double sum;
+    for (int i = 1; i < n; i++) {
+      sum = phi[0] + _random.nextRandom();
+      for (int j = 1; j < (i < q ? i : q + 1); j++) {
+        sum += phi[j] * data[i - j];
+      }
+      data[i] = sum;
+    }
+    return new ArrayDoubleTimeSeries(dates, Arrays.asList(data));
+  }
 }
