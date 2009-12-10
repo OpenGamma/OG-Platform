@@ -1,4 +1,4 @@
-<project name="OG-Financial" default="compile">
+<project name="og-financial" default="compile">
   <property file="build.properties"/>
 
   <import file="${common.dir}/common.xml"/>
