@@ -7,5 +7,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/OG Util"/>
 	<classpathentry exported="true" kind="src" path="/OG Analytics"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG Engine"/>
+	<classpathentry kind="con" path="DERBY_CONTAINER"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

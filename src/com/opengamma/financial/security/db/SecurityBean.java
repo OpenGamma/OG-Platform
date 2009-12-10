@@ -26,4 +26,5 @@ public abstract class SecurityBean {
     return _id;
   }
 
+  public abstract <T> T accept(SecurityBeanVisitor<T> visitor);
 }

@@ -5,12 +5,6 @@
  */
 package com.opengamma.financial.security.db;
 
-import com.opengamma.engine.security.Security;
-
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-import org.hibernate.annotations.Entity;
-
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
  *
@@ -88,5 +82,10 @@ public class EquitySecurityBean extends SecurityBean {
    */
   public void setCurrency(CurrencyBean currency) {
     _currency = currency;
+  }
+
+  @Override
+  public <T> T accept(SecurityBeanVisitor<T> visitor) {
+    return visitor.visitEquitySecurityBean(this);
   }
 }

@@ -30,17 +30,4 @@
       <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
     </component>
   </class>
-  <!-- this is here to add a uniqueness constraint which hibernate doesn't support directly.  Note
-       the unique-key fields on the above properties link to the definition below -->
-  <database-object>
-    <create> 
-      alter table domain_specific_identifier_associations 
-        add constraint unique_associations unique (domain, identifier)
-    </create>
-    <drop>
-      alter table domain_specific_identifier_associations
-        drop constraint unique_associations
-    </drop>
-  </database-object>
-  
 </hibernate-mapping>

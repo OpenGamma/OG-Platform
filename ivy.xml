@@ -1,6 +1,13 @@
 <ivy-module version="2.0">
-    <info organisation="com.opengamma" module="og-financial"/>
+    <info organisation="com.opengamma" module="og-financial" status="integration"/>
+    <publications>
+      <artifact name="og-financial" type="jar"/>
+    </publications>
     <dependencies>
+        <dependency name="og-analytics" rev="latest.integration"/>
+        <dependency name="og-engine" rev="latest.integration"/>
+        <dependency name="og-util" rev="latest.integration"/>
+        
         <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
         <dependency org="org.apache.commons" name="commons-dbcp" rev="1.2.2"/>
         <dependency org="org.junit" name="junit" rev="4.5"/>
