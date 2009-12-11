@@ -1,4 +1,4 @@
-<project name="OG-LiveData" default="compile">
+<project name="og-livedata" default="compile">
 	<property file="build.properties"/>
 	
 	<import file="${common.dir}/common.xml"/>
