@@ -6,3 +6,5 @@ dist/
 ivy/
 tests/classes/
 tests/output/
+build/
+lib/
