@@ -37,7 +37,7 @@ public class MovingAverageTimeSeriesOrderIdentifier {
     final Double[] acf = _calculator.evaluate(ts);
     final int n = ts.size();
     final double bound = _criticalValue / Math.sqrt(n);
-    for (int i = _maxOrder; i >= 0; i--) {
+    for (int i = _maxOrder; i > 0; i--) {
       if (Math.abs(acf[i]) > bound)
         return i;
     }
