@@ -14,35 +14,35 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class BoxLjungPortmanteauIIDHypothesisTest extends IIDHypothesisTest {
-  private static final IIDHypothesis BOX_LJUNG = new BoxLjungPortmanteauIIDHypothesis(0.05, 20);
+public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTest {
+  private static final IIDHypothesis LI_MCLEOD = new LiMcLeodPortmanteauIIDHypothesis(0.05, 20);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new BoxLjungPortmanteauIIDHypothesis(-0.1, 20);
+    new LiMcLeodPortmanteauIIDHypothesis(-0.1, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new BoxLjungPortmanteauIIDHypothesis(1.5, 20);
+    new LiMcLeodPortmanteauIIDHypothesis(1.5, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testZeroLag() {
-    new BoxLjungPortmanteauIIDHypothesis(0.05, 0);
+    new LiMcLeodPortmanteauIIDHypothesis(0.05, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    BOX_LJUNG.evaluate(RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3)));
+    LI_MCLEOD.evaluate(RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3)));
   }
 
   @Test
   public void test() {
-    super.testNullTS(BOX_LJUNG);
-    super.testEmptyTS(BOX_LJUNG);
-    assertTrue(BOX_LJUNG.evaluate(RANDOM));
-    assertFalse(BOX_LJUNG.evaluate(SIGNAL));
-    assertFalse(BOX_LJUNG.evaluate(INCREASING));
+    super.testNullTS(LI_MCLEOD);
+    super.testEmptyTS(LI_MCLEOD);
+    assertTrue(LI_MCLEOD.evaluate(RANDOM));
+    assertFalse(LI_MCLEOD.evaluate(SIGNAL));
+    assertFalse(LI_MCLEOD.evaluate(INCREASING));
   }
 }
