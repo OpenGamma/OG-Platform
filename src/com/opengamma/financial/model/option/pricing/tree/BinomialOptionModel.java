@@ -5,11 +5,19 @@
  */
 package com.opengamma.financial.model.option.pricing.tree;
 
+import java.util.List;
+
+import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekResult;
+import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.financial.greeks.GreekVisitor;
+import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionExerciseFunction;
 import com.opengamma.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.option.pricing.FiniteDifferenceGreekVisitor;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.Pair;
@@ -22,17 +30,42 @@ import com.opengamma.util.Pair;
 public class BinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
   protected final int _n;
   protected final int _j;
+  protected BinomialOptionModelDefinition<OptionDefinition, T> _model;
 
   public BinomialOptionModel(final BinomialOptionModelDefinition<OptionDefinition, T> model) {
-    super(model);
+    _model = model;
     _n = 1000;
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
   public BinomialOptionModel(final int n, final BinomialOptionModelDefinition<OptionDefinition, T> model) {
-    super(model);
+    _model = model;
     _n = n;
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
+  }
+
+  public GreekResultCollection getGreeks(final OptionDefinition definition, final T data, final List<Greek> requiredGreeks) {
+    final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction = getTreeGeneratingFunction(definition);
+    final GreekResultCollection results = new GreekResultCollection();
+    final GreekVisitor<GreekResult<?>> visitor = getGreekVisitor(treeFunction, data, definition);
+    for (final Greek greek : requiredGreeks) {
+      final GreekResult<?> result = greek.accept(visitor);
+      results.put(greek, result);
+    }
+    return results;
+  }
+
+  public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction, final T data,
+      final OptionDefinition definition) {
+    final Function1D<T, Double> callFunction = new Function1D<T, Double>() {
+
+      @Override
+      public Double evaluate(final T t) {
+        return treeFunction.evaluate(t).getNode(0, 0).getSecond();
+      }
+
+    };
+    return new BinomialModelFiniteDifferenceGreekVisitor(treeFunction.evaluate(data), callFunction, data, definition);
   }
 
   @Override
@@ -73,5 +106,43 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
         return new RecombiningBinomialTree<Pair<Double, Double>>(spotAndOptionPrices);
       }
     };
+  }
+
+  protected class BinomialModelFiniteDifferenceGreekVisitor extends FiniteDifferenceGreekVisitor<T, OptionDefinition> {
+    private final RecombiningBinomialTree<Pair<Double, Double>> _tree;
+    private final double _dt;
+
+    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<Pair<Double, Double>> tree, final Function1D<T, Double> callFunction, final T data,
+        final OptionDefinition definition) {
+      super(callFunction, data, definition);
+      _tree = tree;
+      _dt = definition.getTimeToExpiry(data.getDate()) / _n;
+    }
+
+    @Override
+    public GreekResult<?> visitDelta() {
+      final Pair<Double, Double> node11 = _tree.getNode(1, 1);
+      final Pair<Double, Double> node10 = _tree.getNode(1, 0);
+      final double delta = (node11.getSecond() - node10.getSecond()) / (node11.getFirst() - node10.getFirst());
+      return new SingleGreekResult(delta);
+    }
+
+    @Override
+    public GreekResult<?> visitGamma() {
+      final Pair<Double, Double> node22 = _tree.getNode(2, 2);
+      final Pair<Double, Double> node21 = _tree.getNode(2, 1);
+      final Pair<Double, Double> node20 = _tree.getNode(2, 0);
+      double gamma = (node22.getSecond() - node21.getSecond()) / (node22.getFirst() - node21.getFirst()) - (node21.getSecond() - node20.getSecond())
+          / (node21.getFirst() - node20.getFirst());
+      gamma /= 0.5 * (node22.getFirst() - node20.getFirst());
+      return new SingleGreekResult(gamma);
+    }
+
+    @Override
+    public GreekResult<?> visitTheta() {
+      final Pair<Double, Double> node21 = _tree.getNode(2, 1);
+      final Pair<Double, Double> node00 = _tree.getNode(0, 0);
+      return new SingleGreekResult((node21.getSecond() - node00.getSecond()) / (2 * _dt));
+    }
   }
 }

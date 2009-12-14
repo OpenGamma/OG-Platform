@@ -6,8 +6,10 @@
 package com.opengamma.financial.model.option.pricing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
@@ -15,6 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
@@ -48,61 +51,58 @@ public class VanillaOptionCrossModelPricingTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.PRICE);
+  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.PRICE, Greek.DELTA, Greek.GAMMA);
+  private static final double EPS = 0.02;
 
   @Test
   public void testEuropeanOption() {
-    final double eps = 1e-3;
     final OptionDefinition call = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
     final OptionDefinition put = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, false);
     final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> bsm = new BlackScholesMertonModel();
-    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel<StandardOptionDataBundle>(CRR);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(LR);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
+    TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, CRR);
+    testGreeks(call, binomial, bsm);
+    testGreeks(put, binomial, bsm);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, LR);
+    testGreeks(call, binomial, bsm);
+    testGreeks(put, binomial, bsm);
     binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, RB);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(TRISGEORGIS);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bsm.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
+    testGreeks(call, binomial, bsm);
+    testGreeks(put, binomial, bsm);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, TRISGEORGIS);
+    testGreeks(call, binomial, bsm);
+    testGreeks(put, binomial, bsm);
   }
 
   @Test
   public void testAmericanOption() {
-    final double eps = 1e-2;
     final AmericanVanillaOptionDefinition call = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, true);
     final AmericanVanillaOptionDefinition put = new AmericanVanillaOptionDefinition(STRIKE, EXPIRY, false);
     final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> bs = new BjerksundStenslandModel();
     TreeOptionModel<OptionDefinition, StandardOptionDataBundle> binomial = new BinomialOptionModel<StandardOptionDataBundle>(CRR);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(LR);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
+    testGreeks(call, binomial, bs);
+    testGreeks(put, binomial, bs);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, LR);
+    testGreeks(call, binomial, bs);
+    testGreeks(put, binomial, bs);
     binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, RB);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    binomial = new BinomialOptionModel<StandardOptionDataBundle>(TRISGEORGIS);
-    assertEquals((Double) binomial.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(call, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
-    assertEquals((Double) binomial.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE).getResult(), (Double) bs.getGreeks(put, DATA, REQUIRED_GREEKS).get(Greek.PRICE)
-        .getResult(), eps);
+    testGreeks(call, binomial, bs);
+    testGreeks(put, binomial, bs);
+    binomial = new BinomialOptionModel<StandardOptionDataBundle>(1001, TRISGEORGIS);
+    testGreeks(call, binomial, bs);
+    testGreeks(put, binomial, bs);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void testGreeks(final OptionDefinition definition, final OptionModel first, final OptionModel second) {
+    final GreekResultCollection firstResult = first.getGreeks(definition, DATA, REQUIRED_GREEKS);
+    final GreekResultCollection secondResult = second.getGreeks(definition, DATA, REQUIRED_GREEKS);
+    assertEquals(firstResult.size(), secondResult.size());
+    final Iterator<Greek> iter = firstResult.keySet().iterator();
+    while (iter.hasNext()) {
+      final Greek greek = iter.next();
+      final Double result = (Double) firstResult.get(greek).getResult();
+      assertTrue(secondResult.containsKey(greek));
+      assertEquals(result, (Double) secondResult.get(greek).getResult(), EPS);
+    }
   }
 }
