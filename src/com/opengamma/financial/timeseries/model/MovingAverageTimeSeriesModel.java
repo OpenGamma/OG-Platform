@@ -27,13 +27,13 @@ public class MovingAverageTimeSeriesModel {
     _random = random;
   }
 
-  public DoubleTimeSeries getSeries(final Double[] theta, final int p, final List<ZonedDateTime> dates) {
+  public DoubleTimeSeries getSeries(final Double[] theta, final int q, final List<ZonedDateTime> dates) {
     if (theta == null)
       throw new IllegalArgumentException("Coefficient array was null");
-    if (p < 1)
+    if (q < 1)
       throw new IllegalArgumentException("Order must be greater than zero");
-    if (theta.length < p + 1)
-      throw new IllegalArgumentException("Coefficient array must contain at least " + (p + 1) + " elements");
+    if (theta.length < q)
+      throw new IllegalArgumentException("Coefficient array must contain at least " + q + " elements");
     if (dates == null)
       throw new IllegalArgumentException("Dates list was null");
     if (dates.isEmpty())
@@ -48,7 +48,7 @@ public class MovingAverageTimeSeriesModel {
     double sum;
     for (int i = 1; i < n; i++) {
       sum = theta[0] + z[i];
-      for (int j = 1; j < (i < p ? i : p + 1); j++) {
+      for (int j = 1; j < (i < q ? i : q); j++) {
         sum += z[i - j] * theta[j];
       }
       data.add(sum);

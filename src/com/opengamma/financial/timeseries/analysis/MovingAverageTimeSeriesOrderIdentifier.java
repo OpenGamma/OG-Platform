@@ -39,7 +39,7 @@ public class MovingAverageTimeSeriesOrderIdentifier {
     final double bound = _criticalValue / Math.sqrt(n);
     for (int i = _maxOrder; i > 0; i--) {
       if (Math.abs(acf[i]) > bound)
-        return i;
+        return i + 1;
     }
     throw new IllegalArgumentException("Could not find order of series; no significant autocorrelations");
   }
