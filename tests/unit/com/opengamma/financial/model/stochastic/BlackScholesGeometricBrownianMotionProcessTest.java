@@ -8,6 +8,7 @@ package com.opengamma.financial.model.stochastic;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
@@ -19,6 +20,7 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.util.time.DateUtil;
@@ -30,8 +32,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
-  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(
-      GENERATOR);
+  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
@@ -42,33 +43,30 @@ public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
-  public void testConstructor() {
-    new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {
-    PROCESS.getPath(null, DATA, 100, 100);
+    PROCESS.getPathGeneratingFunction(null, DATA, 1000);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    PROCESS.getPath(CALL, null, 100, 100);
+    PROCESS.getPathGeneratingFunction(CALL, null, 1000);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientPaths() {
-    PROCESS.getPath(CALL, DATA, 0, 100);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInsufficientSteps() {
-    PROCESS.getPath(CALL, DATA, 100, 0);
+    PROCESS.getPathGeneratingFunction(CALL, DATA, -1);
   }
 
   @Test
   public void testWithZeroVol() {
-    final List<Double[]> paths = PROCESS.getPath(CALL, DATA, 100, 100);
+    final int steps = 100;
+    final int dimension = 100;
+    final Function1D<Double[], Double[]> generatingFunction = PROCESS.getPathGeneratingFunction(CALL, DATA, steps);
+    final List<Double[]> paths = new ArrayList<Double[]>();
+    final List<Double[]> randomNumbers = GENERATOR.getVectors(dimension, steps);
+    for (final Double[] e : randomNumbers) {
+      paths.add(generatingFunction.evaluate(e));
+    }
     final Double[] zeroth = paths.get(0);
     final double s1 = Math.log(S) + R - B;
     assertEquals(zeroth[99], s1, EPS);
