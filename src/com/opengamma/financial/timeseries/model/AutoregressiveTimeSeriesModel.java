@@ -27,13 +27,13 @@ public class AutoregressiveTimeSeriesModel {
     _random = random;
   }
 
-  public DoubleTimeSeries getSeries(final Double[] phi, final int q, final List<ZonedDateTime> dates) {
+  public DoubleTimeSeries getSeries(final Double[] phi, final int p, final List<ZonedDateTime> dates) {
     if (phi == null)
       throw new IllegalArgumentException("Coefficient array was null");
-    if (q < 1)
+    if (p < 1)
       throw new IllegalArgumentException("Order must be greater than zero");
-    if (phi.length < q + 1)
-      throw new IllegalArgumentException("Coefficient array must contain at least " + (q + 1) + " elements");
+    if (phi.length < p + 1)
+      throw new IllegalArgumentException("Coefficient array must contain at least " + (p + 1) + " elements");
     if (dates == null)
       throw new IllegalArgumentException("Dates list was null");
     if (dates.isEmpty())
@@ -44,7 +44,7 @@ public class AutoregressiveTimeSeriesModel {
     double sum;
     for (int i = 1; i < n; i++) {
       sum = phi[0] + _random.nextRandom();
-      for (int j = 1; j < (i < q ? i : q + 1); j++) {
+      for (int j = 1; j < (i < p ? i : p + 1); j++) {
         sum += phi[j] * data[i - j];
       }
       data[i] = sum;
