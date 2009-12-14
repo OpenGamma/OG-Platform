@@ -57,7 +57,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
 
   public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction, final T data,
       final OptionDefinition definition) {
-    final Function1D<T, Double> callFunction = new Function1D<T, Double>() {
+    final Function1D<T, Double> function = new Function1D<T, Double>() {
 
       @Override
       public Double evaluate(final T t) {
@@ -65,7 +65,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
       }
 
     };
-    return new BinomialModelFiniteDifferenceGreekVisitor(treeFunction.evaluate(data), callFunction, data, definition);
+    return new BinomialModelFiniteDifferenceGreekVisitor(treeFunction.evaluate(data), function, data, definition);
   }
 
   @Override
@@ -76,8 +76,8 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
       @Override
       public RecombiningBinomialTree<Pair<Double, Double>> evaluate(final T data) {
         final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][_j];
-        final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction = definition.getPayoffFunction();
-        final OptionExerciseFunction<StandardOptionDataBundle> exerciseFunction = definition.getExerciseFunction();
+        final OptionPayoffFunction<T> payoffFunction = definition.getPayoffFunction();
+        final OptionExerciseFunction<T> exerciseFunction = definition.getExerciseFunction();
         final double u = _model.getUpFactor(definition, data, _n, _j);
         final double d = _model.getDownFactor(definition, data, _n, _j);
         final RecombiningBinomialTree<Double> pTree = _model.getUpProbabilityTree(definition, data, _n, _j);
@@ -86,19 +86,19 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
         final double r = data.getInterestRate(t);
         double newSpot = spot * Math.pow(d, _n);
         for (int i = 0; i < _j; i++) {
-          spotAndOptionPrices[_n][i] = new Pair<Double, Double>(newSpot, payoffFunction.getPayoff(data.withSpot(newSpot), 0.));
+          spotAndOptionPrices[_n][i] = new Pair<Double, Double>(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
           newSpot *= u / d;
         }
         final double df = Math.exp(-r * t / _n);
         Double optionValue, spotValue;
-        StandardOptionDataBundle newData;
+        T newData;
         double p;
         for (int i = _n - 1; i >= 0; i--) {
           for (int j = 0; j < RecombiningBinomialTree.NODES.evaluate(i); j++) {
             p = pTree.getNode(i, j);
             optionValue = df * ((1 - p) * spotAndOptionPrices[i + 1][j].getSecond() + p * spotAndOptionPrices[i + 1][j + 1].getSecond());
             spotValue = spotAndOptionPrices[i + 1][j].getFirst() / d;
-            newData = data.withSpot(spotValue);
+            newData = (T) data.withSpot(spotValue);
             spotAndOptionPrices[i][j] = new Pair<Double, Double>(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue)
                 : optionValue);
           }
@@ -112,9 +112,9 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
     private final RecombiningBinomialTree<Pair<Double, Double>> _tree;
     private final double _dt;
 
-    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<Pair<Double, Double>> tree, final Function1D<T, Double> callFunction, final T data,
+    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<Pair<Double, Double>> tree, final Function1D<T, Double> function, final T data,
         final OptionDefinition definition) {
-      super(callFunction, data, definition);
+      super(function, data, definition);
       _tree = tree;
       _dt = definition.getTimeToExpiry(data.getDate()) / _n;
     }
