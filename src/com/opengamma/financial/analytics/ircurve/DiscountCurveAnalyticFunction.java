@@ -14,7 +14,7 @@ import java.util.Set;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.analytics.AbstractPrimitiveAnalyticFunction;
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
@@ -79,7 +79,7 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
 
   @Override
   public Collection<AnalyticValue<?>> execute(
-      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
+      FunctionExecutionContext executionContext, FunctionInputs inputs) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
     for(FixedIncomeStrip strip : getDefinition().getStrips()) {
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer)inputs.getValue(strip.getStripValueDefinition());

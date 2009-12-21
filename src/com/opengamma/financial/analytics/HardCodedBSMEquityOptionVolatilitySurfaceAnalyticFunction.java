@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
@@ -68,7 +68,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
 
   @Override
   public Collection<AnalyticValue<?>> execute(
-      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
+      FunctionExecutionContext executionContext, FunctionInputs inputs,
       Security security) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {

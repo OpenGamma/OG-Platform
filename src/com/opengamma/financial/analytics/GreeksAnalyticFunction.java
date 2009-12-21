@@ -17,7 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
@@ -56,7 +56,7 @@ implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
 
   @Override
   public Collection<AnalyticValue<?>> execute(
-      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs,
+      FunctionExecutionContext executionContext, FunctionInputs inputs,
       Security security) {
     if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
       final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;

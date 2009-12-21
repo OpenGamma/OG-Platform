@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.opengamma.engine.analytics.AbstractPrimitiveAnalyticFunction;
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
@@ -57,7 +57,7 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
 
   @Override
   public Collection<AnalyticValue<?>> execute(
-      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
+      FunctionExecutionContext executionContext, FunctionInputs inputs) {
     return Collections.<AnalyticValue<?>>singleton(
         new DoubleAnalyticValue(
             s_resultDefinition, _costOfCarry)
