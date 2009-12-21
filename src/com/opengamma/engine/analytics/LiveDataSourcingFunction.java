@@ -47,7 +47,7 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
 
   @Override
   public Collection<AnalyticValue<?>> execute(
-      FunctionExecutionContext executionContext, AnalyticFunctionInputs inputs) {
+      FunctionExecutionContext executionContext, FunctionInputs inputs) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }
 

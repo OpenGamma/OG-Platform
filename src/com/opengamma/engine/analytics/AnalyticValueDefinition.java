@@ -10,7 +10,7 @@ import java.util.Set;
 
 
 /**
- * Allows specification of the types of data that an {@link AnalyticFunctionDefinition} can
+ * Allows specification of the types of data that an {@link FunctionDefinition} can
  * produce.
  * Examples of concrete {@code AnalyticValueDefinition} instances might include:
  * <ul>

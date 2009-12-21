@@ -16,7 +16,7 @@ import com.opengamma.engine.depgraph.DependencyNodeResolver;
  * @author kirk
  */
 public interface PrimitiveAnalyticFunctionDefinition extends
-    AnalyticFunctionDefinition {
+    FunctionDefinition {
 
   Collection<AnalyticValueDefinition<?>> getPossibleResults();
   

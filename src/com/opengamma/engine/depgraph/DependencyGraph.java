@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -232,7 +232,7 @@ public class DependencyGraph {
     }
     // note we access the fields here directly because the get methods contains checks that mean they 
     // won't work until we've established the function type.
-    AnalyticFunctionDefinition function;
+    FunctionDefinition function;
     if(_security != null) {
       function = functionResolver.resolve(outputValue, _security);
       if(function == null) {

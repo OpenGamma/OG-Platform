@@ -11,28 +11,28 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
- * A container for the {@link AnalyticFunctionDefinition} instances available
+ * A container for the {@link FunctionDefinition} instances available
  * to a particular environment. 
  *
  * @author kirk
  */
 public interface AnalyticFunctionRepository {
   
-  Collection<AnalyticFunctionDefinition> getAllFunctions();
+  Collection<FunctionDefinition> getAllFunctions();
   
   /**
    * This method <em>must not</em> return {@code null}.
    * @param outputs
    * @return
    */
-  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
+  Collection<FunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs);
   
-  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Security security);
+  Collection<FunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Security security);
   
-  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Position position);
+  Collection<FunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Position position);
   
-  Collection<AnalyticFunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Collection<Position> positions);
+  Collection<FunctionDefinition> getFunctionsProducing(Collection<AnalyticValueDefinition<?>> outputs, Collection<Position> positions);
   
-  AnalyticFunctionInvoker getInvoker(String uniqueIdentifier);
+  FunctionInvoker getInvoker(String uniqueIdentifier);
 
 }

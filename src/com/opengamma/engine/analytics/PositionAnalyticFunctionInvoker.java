@@ -15,10 +15,10 @@ import com.opengamma.engine.position.Position;
  * @author kirk
  */
 public interface PositionAnalyticFunctionInvoker
-extends AnalyticFunctionInvoker {
+extends FunctionInvoker {
 
   Collection<AnalyticValue<?>> execute(
       FunctionExecutionContext executionContext,
-      AnalyticFunctionInputs inputs,
+      FunctionInputs inputs,
       Position position);
 }

@@ -15,10 +15,10 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public interface SecurityAnalyticFunctionInvoker
-extends AnalyticFunctionInvoker {
+extends FunctionInvoker {
 
   Collection<AnalyticValue<?>> execute(
       FunctionExecutionContext executionContext,
-      AnalyticFunctionInputs inputs,
+      FunctionInputs inputs,
       Security security);
 }

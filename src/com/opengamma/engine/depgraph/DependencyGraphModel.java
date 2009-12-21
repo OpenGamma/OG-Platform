@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -121,7 +121,7 @@ public class DependencyGraphModel {
       return node;
     }
 
-    AnalyticFunctionDefinition function =
+    FunctionDefinition function =
       resolveFunctionForTarget(
           outputValue,
           functionResolver,
@@ -217,11 +217,11 @@ public class DependencyGraphModel {
    * @return
    */
   @SuppressWarnings("unchecked")
-  protected AnalyticFunctionDefinition resolveFunctionForTarget(
+  protected FunctionDefinition resolveFunctionForTarget(
       AnalyticValueDefinition<?> outputValue,
       AnalyticFunctionResolver functionResolver, Object computationTarget,
       ComputationTargetType computationTargetType) {
-    AnalyticFunctionDefinition function = null;
+    FunctionDefinition function = null;
     switch(computationTargetType) {
     case PRIMITIVE:
       function = functionResolver.resolve(outputValue);

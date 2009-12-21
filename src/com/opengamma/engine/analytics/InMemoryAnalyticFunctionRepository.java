@@ -23,14 +23,14 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepository {
-  private final Map<String, AnalyticFunctionInvoker> _invokersByUniqueIdentifier =
-    new HashMap<String, AnalyticFunctionInvoker>();
-  private final Set<AnalyticFunctionDefinition> _functions = new HashSet<AnalyticFunctionDefinition>();
+  private final Map<String, FunctionInvoker> _invokersByUniqueIdentifier =
+    new HashMap<String, FunctionInvoker>();
+  private final Set<FunctionDefinition> _functions = new HashSet<FunctionDefinition>();
   
   public InMemoryAnalyticFunctionRepository() {
   }
   
-  public synchronized void addFunction(AbstractAnalyticFunction function, AnalyticFunctionInvoker invoker) {
+  public synchronized void addFunction(AbstractAnalyticFunction function, FunctionInvoker invoker) {
     validateFunction(function, invoker);
     _functions.add(function);
     function.setUniqueIdentifier(Integer.toString(_functions.size()));
@@ -42,7 +42,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
    * @param invoker
    */
   private void validateFunction(AbstractAnalyticFunction function,
-      AnalyticFunctionInvoker invoker) {
+      FunctionInvoker invoker) {
     if(function == null) {
       throw new NullPointerException("Must provide a function.");
     }
@@ -71,15 +71,15 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
 
   @Override
-  public Collection<AnalyticFunctionDefinition> getAllFunctions() {
+  public Collection<FunctionDefinition> getAllFunctions() {
     return Collections.unmodifiableCollection(_functions);
   }
 
   @Override
-  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
+  public Collection<FunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs) {
-    Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
-    for(AnalyticFunctionDefinition function : _functions) {
+    Set<FunctionDefinition> result = new HashSet<FunctionDefinition>();
+    for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       if(!(function instanceof PrimitiveAnalyticFunctionDefinition)) {
         // Can't work with it because it requires execution inside of a
@@ -97,10 +97,10 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
   
   @Override
-  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
+  public Collection<FunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs, Security security) {
-    Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
-    for(AnalyticFunctionDefinition function : _functions) {
+    Set<FunctionDefinition> result = new HashSet<FunctionDefinition>();
+    for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
@@ -128,10 +128,10 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
   
   @Override
-  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
+  public Collection<FunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs, Position position) {
-    Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
-    for(AnalyticFunctionDefinition function : _functions) {
+    Set<FunctionDefinition> result = new HashSet<FunctionDefinition>();
+    for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
@@ -167,10 +167,10 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
   
   @Override
-  public Collection<AnalyticFunctionDefinition> getFunctionsProducing(
+  public Collection<FunctionDefinition> getFunctionsProducing(
       Collection<AnalyticValueDefinition<?>> outputs, Collection<Position> positions) {
-    Set<AnalyticFunctionDefinition> result = new HashSet<AnalyticFunctionDefinition>();
-    for(AnalyticFunctionDefinition function : _functions) {
+    Set<FunctionDefinition> result = new HashSet<FunctionDefinition>();
+    for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
       if(function instanceof PrimitiveAnalyticFunctionDefinition) {
@@ -218,7 +218,7 @@ public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepos
   }
 
   @Override
-  public AnalyticFunctionInvoker getInvoker(String uniqueIdentifier) {
+  public FunctionInvoker getInvoker(String uniqueIdentifier) {
     return _invokersByUniqueIdentifier.get(uniqueIdentifier);
   }
 

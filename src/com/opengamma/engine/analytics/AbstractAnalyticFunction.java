@@ -7,12 +7,12 @@ package com.opengamma.engine.analytics;
 
 
 /**
- * The base class from which most {@link AnalyticFunctionDefinition} implementations
+ * The base class from which most {@link FunctionDefinition} implementations
  * should inherit.
  *
  * @author kirk
  */
-public abstract class AbstractAnalyticFunction implements AnalyticFunctionDefinition {
+public abstract class AbstractAnalyticFunction implements FunctionDefinition {
   private String _uniqueIdentifier;
 
   /**

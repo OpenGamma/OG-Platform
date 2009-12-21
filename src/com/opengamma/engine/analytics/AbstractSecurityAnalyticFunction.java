@@ -11,7 +11,7 @@ import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.security.Security;
 
 /**
- * The base class from which most {@link AnalyticFunctionDefinition} implementations
+ * The base class from which most {@link FunctionDefinition} implementations
  * should inherit.
  *
  * @author kirk

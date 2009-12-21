@@ -13,19 +13,19 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
+import com.opengamma.engine.analytics.FunctionDefinition;
+import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 
 /**
  * A wrapper for the instances of {@link AnalyticValue}
- * that are passed to an {@link AnalyticFunctionDefinition}'s {@code execute} methods.
+ * that are passed to an {@link FunctionDefinition}'s {@code execute} methods.
  *
  * @author kirk
  */
-public class AnalyticFunctionInputsImpl implements Serializable, AnalyticFunctionInputs {
+public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs {
   // TODO kirk 2009-09-18 -- This is horrifically inefficient, but I'm not 100%
   // sure that that needs fixing; linear searches may actually be better than
   // building up a lot of indices. Needs to be investigated.

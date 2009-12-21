@@ -11,6 +11,6 @@ package com.opengamma.engine.analytics;
  *
  * @author kirk
  */
-public interface AnalyticFunctionInvoker {
+public interface FunctionInvoker {
 
 }

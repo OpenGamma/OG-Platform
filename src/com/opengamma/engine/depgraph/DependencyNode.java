@@ -14,7 +14,7 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.analytics.PositionAnalyticFunctionDefinition;
@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 public class DependencyNode {
   private final ComputationTargetType _computationTargetType;
   private final Object _computationTarget;
-  private final AnalyticFunctionDefinition _function;
+  private final FunctionDefinition _function;
   private final Set<AnalyticValueDefinition<?>> _outputValues =
     new HashSet<AnalyticValueDefinition<?>>();
   private final Set<AnalyticValueDefinition<?>> _inputValues =
@@ -43,7 +43,7 @@ public class DependencyNode {
     new HashMap<AnalyticValueDefinition<?>, AnalyticValueDefinition<?>>();
   
   @SuppressWarnings("unchecked")
-  public DependencyNode(AnalyticFunctionDefinition function, Object computationTarget) {
+  public DependencyNode(FunctionDefinition function, Object computationTarget) {
     ArgumentChecker.checkNotNull(function, "Analytic Function Definition");
     _function = function;
     _computationTargetType = function.getTargetType();
@@ -97,7 +97,7 @@ public class DependencyNode {
   /**
    * @return the function
    */
-  public AnalyticFunctionDefinition getFunction() {
+  public FunctionDefinition getFunction() {
     return _function;
   }
 

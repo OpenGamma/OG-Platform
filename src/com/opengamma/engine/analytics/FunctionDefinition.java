@@ -13,11 +13,11 @@ import com.opengamma.engine.ComputationTargetType;
  *
  * @author kirk
  */
-public interface AnalyticFunctionDefinition {
+public interface FunctionDefinition {
   
   /**
    * The unique identifier for an {@code AnalyticFunction} is the handle
-   * through which its {@link AnalyticFunctionInvoker} can be identified
+   * through which its {@link FunctionInvoker} can be identified
    * from the {@link AnalyticFunctionRepository} which sourced the function.
    * In general, functions will not specify this themselves, but the repository
    * will provide a unique identifier for them.

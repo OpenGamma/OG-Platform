@@ -41,10 +41,10 @@ public class DefaultAnalyticFunctionResolver implements
   // TODO kirk 2009-11-02 -- Much refactoring love required here.
 
   @Override
-  public AnalyticFunctionDefinition resolve(
+  public FunctionDefinition resolve(
       AnalyticValueDefinition<?> requiredValue) {
     assert requiredValue != null;
-    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue));
+    Collection<FunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue));
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;
@@ -53,17 +53,17 @@ public class DefaultAnalyticFunctionResolver implements
     if(possibleFunctions.size() > 1) {
       s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
     }
-    AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+    FunctionDefinition function = possibleFunctions.iterator().next();
     s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
     
     return function;
   }
 
   @Override
-  public AnalyticFunctionDefinition resolve(AnalyticValueDefinition<?> requiredValue,
+  public FunctionDefinition resolve(AnalyticValueDefinition<?> requiredValue,
       Security security) {
     assert requiredValue != null;
-    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), security);
+    Collection<FunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), security);
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;
@@ -72,17 +72,17 @@ public class DefaultAnalyticFunctionResolver implements
     if(possibleFunctions.size() > 1) {
       s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
     }
-    AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+    FunctionDefinition function = possibleFunctions.iterator().next();
     s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
     
     return function;
   }
 
   @Override
-  public AnalyticFunctionDefinition resolve(
+  public FunctionDefinition resolve(
       AnalyticValueDefinition<?> requiredValue, Position position) {
     assert requiredValue != null;
-    Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), position);
+    Collection<FunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), position);
     assert possibleFunctions != null;
     if(possibleFunctions.isEmpty()) {
       return null;
@@ -91,17 +91,17 @@ public class DefaultAnalyticFunctionResolver implements
     if(possibleFunctions.size() > 1) {
       s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
     }
-    AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+    FunctionDefinition function = possibleFunctions.iterator().next();
     s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
     
     return function;
   }
 
   @Override
-  public AnalyticFunctionDefinition resolve(
+  public FunctionDefinition resolve(
         AnalyticValueDefinition<?> requiredValue, Collection<Position> positions) {
       assert requiredValue != null;
-      Collection<AnalyticFunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), positions);
+      Collection<FunctionDefinition> possibleFunctions = getRepository().getFunctionsProducing(Collections.<AnalyticValueDefinition<?>>singleton(requiredValue), positions);
       assert possibleFunctions != null;
       if(possibleFunctions.isEmpty()) {
         return null;
@@ -110,7 +110,7 @@ public class DefaultAnalyticFunctionResolver implements
       if(possibleFunctions.size() > 1) {
         s_logger.info("Got {} functions for output value {}", possibleFunctions.size(), requiredValue);
       }
-      AnalyticFunctionDefinition function = possibleFunctions.iterator().next();
+      FunctionDefinition function = possibleFunctions.iterator().next();
       s_logger.debug("Chose function {} for output value {}", function.getShortName(), requiredValue);
       
       return function;

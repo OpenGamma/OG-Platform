@@ -14,7 +14,7 @@ import java.util.List;
  *
  * @author kirk
  */
-public interface AnalyticFunctionInputs {
+public interface FunctionInputs {
 
   Collection<AnalyticValue<?>> getAllValues();
 

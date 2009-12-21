@@ -17,7 +17,7 @@ import com.opengamma.engine.security.Security;
  * @author kirk
  */
 public interface SecurityAnalyticFunctionDefinition
-extends AnalyticFunctionDefinition {
+extends FunctionDefinition {
 
   /**
    * Determine whether this function is applicable to the specified security type

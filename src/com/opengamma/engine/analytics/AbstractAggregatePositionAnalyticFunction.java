@@ -13,7 +13,7 @@ import com.opengamma.engine.depgraph.DependencyNodeResolver;
 import com.opengamma.engine.position.Position;
 
 /**
- * The base class from which most {@link AnalyticFunctionDefinition} implementations
+ * The base class from which most {@link FunctionDefinition} implementations
  * should inherit.
  *
  * @author kirk

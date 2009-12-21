@@ -18,7 +18,7 @@ import com.opengamma.engine.position.Position;
  * @author kirk
  */
 public interface PositionAnalyticFunctionDefinition
-extends AnalyticFunctionDefinition {
+extends FunctionDefinition {
 
   /**
    * Determine whether this function is applicable to a position of the type provided.

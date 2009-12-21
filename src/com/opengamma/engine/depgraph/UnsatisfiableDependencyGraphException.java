@@ -9,7 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Thrown when a desired dependency graph cannot be constructed from
- * the {@link AnalyticFunctionDefinition}s available in the provided
+ * the {@link FunctionDefinition}s available in the provided
  * {@link AnalyticFunctionRepository}.
  *
  * @author kirk

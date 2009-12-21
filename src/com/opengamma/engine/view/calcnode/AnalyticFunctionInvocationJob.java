@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionInvoker;
-import com.opengamma.engine.analytics.AnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionInputs;
-import com.opengamma.engine.analytics.AnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.FunctionDefinition;
+import com.opengamma.engine.analytics.FunctionInputs;
+import com.opengamma.engine.analytics.FunctionInvoker;
 import com.opengamma.engine.analytics.AnalyticFunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
@@ -28,7 +28,7 @@ import com.opengamma.engine.view.AnalyticFunctionInputsImpl;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
- * The job that will actually invoke a {@link AnalyticFunctionDefinition} as part
+ * The job that will actually invoke a {@link FunctionDefinition} as part
  * of dependency graph execution.
  *
  * @author kirk
@@ -209,7 +209,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   @Override
   public void run() {
     s_logger.debug("Invoking {} on security {}", getFunctionUniqueIdentifier(), getSecurity());
-    AnalyticFunctionInvoker invoker = getFunctionRepository().getInvoker(getFunctionUniqueIdentifier());
+    FunctionInvoker invoker = getFunctionRepository().getInvoker(getFunctionUniqueIdentifier());
     if(invoker == null) {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
@@ -227,7 +227,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       }
       inputs.add(getComputationCache().getValue(inputDefinition));
     }
-    AnalyticFunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
+    FunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
     
     Collection<AnalyticValue<?>> outputs = null;
     if(invoker instanceof PrimitiveAnalyticFunctionInvoker) {

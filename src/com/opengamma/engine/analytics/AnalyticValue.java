@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 
 /**
  * Represents a particular value which is produced as a result of invoking
- * an {@link AnalyticFunctionDefinition} over a set of inputs.
+ * an {@link FunctionDefinition} over a set of inputs.
  *
  * @author jim
  */
