@@ -19,8 +19,8 @@ public class HaltonQuasiRandomNumberGenerator implements QuasiRandomNumberGenera
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
-    if (dimension < 0)
-      throw new IllegalArgumentException("Dimension must be greater than zero");
+    if (dimension < 2)
+      throw new IllegalArgumentException("Dimension must be greater than one");
     if (n < 0)
       throw new IllegalArgumentException("Number of values must be greater than zero");
     final Double[][] sequence = new Double[n][dimension];

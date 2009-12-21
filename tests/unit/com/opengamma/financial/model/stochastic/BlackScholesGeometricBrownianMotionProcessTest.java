@@ -8,7 +8,6 @@ package com.opengamma.financial.model.stochastic;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
@@ -20,7 +19,6 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.random.NormalRandomNumberGenerator;
 import com.opengamma.math.random.RandomNumberGenerator;
 import com.opengamma.util.time.DateUtil;
@@ -37,7 +35,7 @@ public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
   private static final double R = 0.4;
-  private static final double B = 0.2;
+  private static final double B = 0.1;
   private static final double S = 100;
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(R), B, new ConstantVolatilitySurface(0.), S, DATE);
   private static final double EPS = 1e-12;
@@ -61,17 +59,13 @@ public class BlackScholesGeometricBrownianMotionProcessTest {
   public void testWithZeroVol() {
     final int steps = 100;
     final int dimension = 100;
-    final Function1D<Double[], Double[]> generatingFunction = PROCESS.getPathGeneratingFunction(CALL, DATA, steps);
-    final List<Double[]> paths = new ArrayList<Double[]>();
     final List<Double[]> randomNumbers = GENERATOR.getVectors(dimension, steps);
-    for (final Double[] e : randomNumbers) {
-      paths.add(generatingFunction.evaluate(e));
-    }
+    final List<Double[]> paths = PROCESS.getPaths(CALL, DATA, randomNumbers);
     final Double[] zeroth = paths.get(0);
-    final double s1 = Math.log(S) + R - B;
+    final double s1 = Math.log(S) + B;
     assertEquals(zeroth[99], s1, EPS);
     Double[] array;
-    for (int i = 1; i < paths.size(); i++) {
+    for (int i = 0; i < paths.size(); i++) {
       array = paths.get(i);
       assertArrayEquals(array, zeroth);
       assertEquals(array[99], s1, EPS);

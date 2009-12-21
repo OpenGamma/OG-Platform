@@ -5,67 +5,59 @@
  */
 package com.opengamma.financial.model.stochastic;
 
-import java.util.List;
-
 import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function2D;
 
 /**
  * 
  * @author emcleod
  */
-public class BlackScholesArithmeticBrownianMotionProcess<T extends OptionDefinition, U extends StandardOptionDataBundle> implements StochasticProcess<T, U> {
+public class BlackScholesArithmeticBrownianMotionProcess<T extends OptionDefinition, U extends StandardOptionDataBundle> extends StochasticProcess<T, U> {
 
   @Override
-  public Function1D<Double[], Double[]> getPathGeneratingFunction(final T t, final U u, final int steps) {
+  public Function1D<Double, Double> getPathGeneratingFunction(final T t, final U u, final int steps) {
     if (t == null)
       throw new IllegalArgumentException("Option definition was null");
     if (u == null)
       throw new IllegalArgumentException("Data bundle was null");
     if (steps < 1)
       throw new IllegalArgumentException("Number of steps must be greater than zero");
-    final double s = u.getSpot();
     final double k = t.getStrike();
     final double m = t.getTimeToExpiry(u.getDate());
     final double sigma = u.getVolatility(m, k);
-    final double r = u.getInterestRate(m);
     final double b = u.getCostOfCarry();
     final double dt = m / steps;
     final double sigmaSq = sigma * sigma;
-    final double nu = dt * (r - b - 0.5 * sigmaSq);
+    final double nu = dt * (b - 0.5 * sigmaSq);
     final double sigmaDt = sigma * Math.sqrt(dt);
-    return new Function1D<Double[], Double[]>() {
+    return new Function1D<Double, Double>() {
 
       @Override
-      public Double[] evaluate(final Double[] e) {
-        final Double[] y = new Double[steps];
-        y[0] = s * Math.exp((nu + sigmaDt * e[0]));
-        for (int i = 1; i < steps; i++) {
-          y[i] = y[i - 1] * Math.exp(nu + sigmaDt * e[i]);
-        }
-        return y;
+      public Double evaluate(final Double e) {
+        return Math.exp(nu + sigmaDt * e);
       }
-
     };
   }
 
   @Override
-  public Function1D<List<Double[]>, Double> getValue(final OptionDefinition definition, final StandardOptionDataBundle data, final int n) {
-    final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction = definition.getPayoffFunction();
-    final double t = definition.getTimeToExpiry(data.getDate());
-    final double df = data.getDiscountCurve().getDiscountFactor(t);
-    return new Function1D<List<Double[]>, Double>() {
+  public Double getInitialValue(final T t, final U u) {
+    return u.getSpot();
+  }
+
+  @Override
+  public Double getFinalValue(final Double x) {
+    return x;
+  }
+
+  @Override
+  public Function2D<Double, Double> getPathAccumulationFunction() {
+    return new Function2D<Double, Double>() {
 
       @Override
-      public Double evaluate(final List<Double[]> paths) {
-        double sum = 0;
-        for (final Double[] path : paths) {
-          // TODO test for exercise for American options
-          sum += payoffFunction.getPayoff(data, path[n - 1]);
-        }
-        return df * sum / paths.size();
+      public Double evaluate(final Double x1, final Double x2) {
+        return x1 * x2;
       }
 
     };
