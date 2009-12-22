@@ -114,7 +114,7 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 
-	<target name="compile-tests" depends="resolve" description="--> compile the tests">
+	<target name="compile-tests" depends="compile-src" description="--> compile the tests">
 		<mkdir dir="${tests.classes.dir}" />
 		<path id="tests.build.classpath.id">
 			<path refid="lib.path.id" />
@@ -133,7 +133,7 @@
 	<target name="tests" depends="junit-batch,junit-report" description="--> run unit tests and generate report"/>
 
 	<target name="junit-batch" depends="compile-tests">
-		<mkdir dir="${tests.junit.output}/xml" />
+		<mkdir dir="${tests.junit.dir}/xml" />
 		<junit printSummary="true" fork="true" forkmode="once">
 			<classpath>
 	      <path refid="lib.path.id" />
