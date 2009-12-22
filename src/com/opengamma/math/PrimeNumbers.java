@@ -36,6 +36,8 @@ public class PrimeNumbers {
   }
 
   public static Integer getNextPrime(final double d) {
+    if (Math.abs(d - (int) d) < 1e-15 && PRIME_SET.contains((int) d))
+      return (int) d;
     return PRIME_SET.higher((int) Math.ceil(d));
   }
 

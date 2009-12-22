@@ -125,9 +125,9 @@ public class DoubleTimeSeriesOperations {
     long[] trimmedTimes = new long[pos];
     double[] trimmedValues = new double[pos];
     TimeZone[] trimmedZones = new TimeZone[pos];
-    System.arraycopy(times, 0, trimmedTimes, 0, pos - 1);
-    System.arraycopy(values, 0, trimmedValues, 0, pos - 1);
-    System.arraycopy(zones, 0, trimmedZones, 0, pos - 1);
+    System.arraycopy(times, 0, trimmedTimes, 0, pos);
+    System.arraycopy(values, 0, trimmedValues, 0, pos);
+    System.arraycopy(zones, 0, trimmedZones, 0, pos);
     return new ArrayDoubleTimeSeries(trimmedTimes, trimmedValues, trimmedZones);
   }
 

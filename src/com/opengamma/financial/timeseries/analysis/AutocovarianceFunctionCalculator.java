@@ -1,0 +1,47 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.timeseries.analysis;
+
+import java.util.Arrays;
+
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.timeseries.DoubleTimeSeries;
+
+/**
+ * 
+ * @author emcleod
+ */
+public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSeries, Double[]> {
+  private final Function1D<DoubleTimeSeries, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
+
+  @Override
+  public Double[] evaluate(final DoubleTimeSeries x) {
+    if (x == null)
+      throw new IllegalArgumentException("Time series was null");
+    if (x.isEmpty())
+      throw new IllegalArgumentException("Time series was empty");
+    final int h = x.size() - 1;
+    final Double[] result = new Double[h];
+    final double mean = _meanCalculator.evaluate(x);
+    Double[] x1 = null, x2 = null;
+    final int n = x.size();
+    double sum;
+    final Double[] x0 = x.getValues();
+    for (int i = 0; i < h; i++) {
+      x1 = Arrays.copyOfRange(x0, 0, n - i);
+      x2 = Arrays.copyOfRange(x0, i, n);
+      if (x1.length != x2.length)
+        throw new IllegalArgumentException("Series were not the same length; this should not happen");
+      sum = 0;
+      for (int j = 0; j < x1.length; j++) {
+        sum += (x1[j] - mean) * (x2[j] - mean);
+      }
+      result[i] = sum / n;
+    }
+    return result;
+  }
+}

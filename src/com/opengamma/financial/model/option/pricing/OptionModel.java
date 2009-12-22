@@ -20,6 +20,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
 public interface OptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 
-  public GreekResultCollection getGreeks(T definition, U vars, List<Greek> requiredGreeks);
+  public GreekResultCollection getGreeks(T definition, U data, List<Greek> requiredGreeks);
 
 }

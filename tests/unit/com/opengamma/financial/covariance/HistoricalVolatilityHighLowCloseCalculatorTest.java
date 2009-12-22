@@ -10,8 +10,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.opengamma.financial.covariance.HistoricalVolatilityCalculator;
-import com.opengamma.financial.covariance.HistoricalVolatilityHighLowCloseCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
 
