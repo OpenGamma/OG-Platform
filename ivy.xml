@@ -18,10 +18,9 @@
       <dependency org="ch.qos" name="logback" rev="0.9.17" conf="*->classic"/>
       <!--dependency org="org.springframework" name="spring" rev="2.5.6" conf="default->beans"/-->
       <dependency org="javax.time" name="jsr-310-ri" rev="20090901"/>
-      <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
       <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
       <dependency org="cern" name="colt" rev="1.2.0"/>
-	    <dependency org="latexlet" name="latexlet" rev="1.1"/>
+      <dependency org="latexlet" name="latexlet" rev="1.1"/>
     </dependencies>
 </ivy-module>
 
