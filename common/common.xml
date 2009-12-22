@@ -16,6 +16,8 @@
 	-->
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
 
+	<property environment="env" />
+
 	<property file="${common.dir}/build.properties" />
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
