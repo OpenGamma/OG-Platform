@@ -8,3 +8,5 @@ tests/classes/
 tests/output/
 .settings/org.eclipse.ltk.core.refactoring.prefs
 derby.log
+build/
+lib/
