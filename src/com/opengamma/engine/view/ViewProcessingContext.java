@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
@@ -21,7 +21,7 @@ import com.opengamma.transport.FudgeRequestSender;
 public class ViewProcessingContext {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
-  private final AnalyticFunctionRepository _analyticFunctionRepository;
+  private final FunctionRepository _analyticFunctionRepository;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
@@ -30,7 +30,7 @@ public class ViewProcessingContext {
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
-      AnalyticFunctionRepository analyticFunctionRepository,
+      FunctionRepository analyticFunctionRepository,
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
@@ -63,7 +63,7 @@ public class ViewProcessingContext {
   /**
    * @return the analyticFunctionRepository
    */
-  public AnalyticFunctionRepository getAnalyticFunctionRepository() {
+  public FunctionRepository getAnalyticFunctionRepository() {
     return _analyticFunctionRepository;
   }
 

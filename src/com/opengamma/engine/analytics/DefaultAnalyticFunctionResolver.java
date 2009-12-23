@@ -22,9 +22,9 @@ import com.opengamma.engine.security.Security;
 public class DefaultAnalyticFunctionResolver implements
     AnalyticFunctionResolver {
   private static final Logger s_logger = LoggerFactory.getLogger(DefaultAnalyticFunctionResolver.class);
-  private final AnalyticFunctionRepository _repository;
+  private final FunctionRepository _repository;
   
-  public DefaultAnalyticFunctionResolver(AnalyticFunctionRepository repository) {
+  public DefaultAnalyticFunctionResolver(FunctionRepository repository) {
     if(repository == null) {
       throw new NullPointerException("Must provide an Analytic Function Repository.");
     }
@@ -34,7 +34,7 @@ public class DefaultAnalyticFunctionResolver implements
   /**
    * @return the repository
    */
-  public AnalyticFunctionRepository getRepository() {
+  public FunctionRepository getRepository() {
     return _repository;
   }
   

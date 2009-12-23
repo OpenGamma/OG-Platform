@@ -15,7 +15,7 @@ import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionInvoker;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.FunctionInvoker;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
@@ -43,14 +43,14 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   private final Position _position;
   private final Collection<Position> _positions;
   private final ViewComputationCache _computationCache;
-  private final AnalyticFunctionRepository _functionRepository;
+  private final FunctionRepository _functionRepository;
   
   // Primitive function constructor
   public AnalyticFunctionInvocationJob(
       String functionUniqueIdentifier,
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       ViewComputationCache computationCache,
-      AnalyticFunctionRepository functionRepository) {
+      FunctionRepository functionRepository) {
     assert functionUniqueIdentifier != null;
     assert resolvedInputs != null;
     assert computationCache != null;
@@ -70,7 +70,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Security security,
       ViewComputationCache computationCache,
-      AnalyticFunctionRepository functionRepository) {
+      FunctionRepository functionRepository) {
     assert functionUniqueIdentifier != null;
     assert resolvedInputs != null;
     assert security != null;
@@ -91,7 +91,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Position position,
       ViewComputationCache computationCache,
-      AnalyticFunctionRepository functionRepository) {
+      FunctionRepository functionRepository) {
     assert functionUniqueIdentifier != null;
     assert resolvedInputs != null;
     assert position != null;
@@ -112,7 +112,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Collection<Position> positions,
       ViewComputationCache computationCache,
-      AnalyticFunctionRepository functionRepository) {
+      FunctionRepository functionRepository) {
     assert functionUniqueIdentifier != null;
     assert resolvedInputs != null;
     assert computationCache != null;
@@ -202,7 +202,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   /**
    * @return the functionRepository
    */
-  public AnalyticFunctionRepository getFunctionRepository() {
+  public FunctionRepository getFunctionRepository() {
     return _functionRepository;
   }
 

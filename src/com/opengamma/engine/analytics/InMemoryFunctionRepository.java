@@ -16,18 +16,18 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
- * An in-memory implementation of {@link AnalyticFunctionRepository}.
+ * An in-memory implementation of {@link FunctionRepository}.
  * This can either be used as-is through a factory which scans available functions,
  * or it can be used as a cache on top of a more costly function repository. 
  *
  * @author kirk
  */
-public class InMemoryAnalyticFunctionRepository implements AnalyticFunctionRepository {
+public class InMemoryFunctionRepository implements FunctionRepository {
   private final Map<String, FunctionInvoker> _invokersByUniqueIdentifier =
     new HashMap<String, FunctionInvoker>();
   private final Set<FunctionDefinition> _functions = new HashSet<FunctionDefinition>();
   
-  public InMemoryAnalyticFunctionRepository() {
+  public InMemoryFunctionRepository() {
   }
   
   public synchronized void addFunction(AbstractAnalyticFunction function, FunctionInvoker invoker) {

@@ -12,7 +12,7 @@ import com.opengamma.engine.security.Security;
 
 /**
  * A system through which individual {@link FunctionDefinition} values
- * can be obtained, ultimately from one or more {@link AnalyticFunctionRepository} instances.
+ * can be obtained, ultimately from one or more {@link FunctionRepository} instances.
  *
  * @author kirk
  */

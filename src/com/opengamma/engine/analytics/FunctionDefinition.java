@@ -18,7 +18,7 @@ public interface FunctionDefinition {
   /**
    * The unique identifier for an {@code AnalyticFunction} is the handle
    * through which its {@link FunctionInvoker} can be identified
-   * from the {@link AnalyticFunctionRepository} which sourced the function.
+   * from the {@link FunctionRepository} which sourced the function.
    * In general, functions will not specify this themselves, but the repository
    * will provide a unique identifier for them.
    * 

@@ -20,7 +20,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
@@ -46,7 +46,7 @@ public class DependencyGraphModel {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
   // Injected Inputs:
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private AnalyticFunctionRepository _analyticFunctionRepository;
+  private FunctionRepository _analyticFunctionRepository;
   // Result Holders:
   private final RevisedDependencyGraph _primitiveGraph = new RevisedDependencyGraph(ComputationTargetType.PRIMITIVE, null);
   private final Map<Security, RevisedDependencyGraph> _graphForSecurity =
@@ -76,7 +76,7 @@ public class DependencyGraphModel {
   /**
    * @return the analyticFunctionRepository
    */
-  public AnalyticFunctionRepository getAnalyticFunctionRepository() {
+  public FunctionRepository getAnalyticFunctionRepository() {
     return _analyticFunctionRepository;
   }
 
@@ -84,7 +84,7 @@ public class DependencyGraphModel {
    * @param analyticFunctionRepository the analyticFunctionRepository to set
    */
   public void setAnalyticFunctionRepository(
-      AnalyticFunctionRepository analyticFunctionRepository) {
+      FunctionRepository analyticFunctionRepository) {
     _analyticFunctionRepository = analyticFunctionRepository;
   }
   

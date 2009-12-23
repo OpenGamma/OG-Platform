@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
@@ -177,7 +177,7 @@ public class DependencyGraph {
   }
 
   public void buildDependencyGraph(
-      AnalyticFunctionRepository functionRepository,
+      FunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     ArgumentChecker.checkNotNull(functionRepository, "Analytic Function Repository");
     ArgumentChecker.checkNotNull(liveDataAvailabilityProvider, "Live Data Availability Provider");
@@ -186,7 +186,7 @@ public class DependencyGraph {
   
   // TODO kirk 2009-09-04 -- Determine how to specify all the various failed dependencies.
   protected void buildDependencyGraphImpl(
-      AnalyticFunctionRepository functionRepository,
+      FunctionRepository functionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     assert functionRepository != null;
     assert liveDataAvailabilityProvider != null;

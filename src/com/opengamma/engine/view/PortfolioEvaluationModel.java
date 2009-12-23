@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
@@ -108,7 +108,7 @@ public class PortfolioEvaluationModel {
 
   public void init(
       SecurityMaster secMaster,
-      AnalyticFunctionRepository analyticFunctionRepository,
+      FunctionRepository analyticFunctionRepository,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       ViewDefinition viewDefinition) {
@@ -177,7 +177,7 @@ public class PortfolioEvaluationModel {
     }
   }
   
-  public void buildDependencyGraphs(AnalyticFunctionRepository analyticFunctionRepository, LiveDataAvailabilityProvider liveDataAvailabilityProvider, ViewDefinition viewDefinition) {
+  public void buildDependencyGraphs(FunctionRepository analyticFunctionRepository, LiveDataAvailabilityProvider liveDataAvailabilityProvider, ViewDefinition viewDefinition) {
     DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
     dependencyGraphModel.setAnalyticFunctionRepository(analyticFunctionRepository);
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
@@ -195,7 +195,7 @@ public class PortfolioEvaluationModel {
   
   public Set<String> buildDependencyGraphs(PortfolioNode node,
       DependencyGraphModel dependencyGraphModel,
-      AnalyticFunctionRepository analyticFunctionRepository, 
+      FunctionRepository analyticFunctionRepository, 
       LiveDataAvailabilityProvider liveDataAvailabilityProvider, 
       ViewDefinition viewDefinition) {
       Set<String> securityTypesUnder = new TreeSet<String>();

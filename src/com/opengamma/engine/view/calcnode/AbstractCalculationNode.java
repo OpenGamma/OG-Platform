@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticFunctionRepository;
+import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionReference;
@@ -29,12 +29,12 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 public abstract class AbstractCalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
-  private final AnalyticFunctionRepository _functionRepository;
+  private final FunctionRepository _functionRepository;
   private final SecurityMaster _securityMaster;
 
   protected AbstractCalculationNode(
       ViewComputationCacheSource cacheSource,
-      AnalyticFunctionRepository functionRepository,
+      FunctionRepository functionRepository,
       SecurityMaster securityMaster) {
     // TODO kirk 2009-09-25 -- Check inputs
     _cacheSource = cacheSource;
@@ -52,7 +52,7 @@ public abstract class AbstractCalculationNode {
   /**
    * @return the functionRepository
    */
-  public AnalyticFunctionRepository getFunctionRepository() {
+  public FunctionRepository getFunctionRepository() {
     return _functionRepository;
   }
 
