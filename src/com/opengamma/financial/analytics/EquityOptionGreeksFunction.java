@@ -16,15 +16,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractSecurityFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
 import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.MarketDataAnalyticValueDefinitionFactory;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.SecurityFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityFunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -49,8 +49,8 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class GreeksAnalyticFunction extends AbstractSecurityAnalyticFunction
-implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
+public class EquityOptionGreeksFunction extends AbstractSecurityFunction
+implements SecurityFunctionDefinition, SecurityFunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
 

@@ -21,15 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AbstractSecurityAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractSecurityFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
 import com.opengamma.engine.analytics.MarketDataAnalyticValue;
 import com.opengamma.engine.analytics.MarketDataAnalyticValueDefinitionFactory;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.SecurityFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityFunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -54,15 +54,15 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction
-extends AbstractSecurityAnalyticFunction
-implements SecurityAnalyticFunctionDefinition, SecurityAnalyticFunctionInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction.class);
+public class HardCodedBSMEquityOptionVolatilitySurfaceFunction
+extends AbstractSecurityFunction
+implements SecurityFunctionDefinition, SecurityFunctionInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(HardCodedBSMEquityOptionVolatilitySurfaceFunction.class);
   public static final String PRICE_FIELD_NAME = "PRICE";
   
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
     
-  public HardCodedBSMEquityOptionVolatilitySurfaceAnalyticFunction() {
+  public HardCodedBSMEquityOptionVolatilitySurfaceFunction() {
     _volatilitySurfaceModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
   }
 

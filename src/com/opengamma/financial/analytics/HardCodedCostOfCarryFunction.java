@@ -8,15 +8,15 @@ package com.opengamma.financial.analytics;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.opengamma.engine.analytics.AbstractPrimitiveAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractPrimitiveFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.analytics.DoubleAnalyticValue;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
+import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.util.KeyValuePair;
 
@@ -27,9 +27,9 @@ import com.opengamma.util.KeyValuePair;
  */
 
 
-public class HardCodedCostOfCarryAnalyticFunction<T extends OptionDefinition>
-extends AbstractPrimitiveAnalyticFunction
-implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
+public class HardCodedCostOfCarryFunction<T extends OptionDefinition>
+extends AbstractPrimitiveFunction
+implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   
   private final double _costOfCarry;
   
@@ -37,11 +37,11 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
   private static final AnalyticValueDefinition<Double> s_resultDefinition = 
     new AnalyticValueDefinitionImpl<Double>(new KeyValuePair<String, Object>("TYPE", "COST_OF_CARRY"));
 
-  public HardCodedCostOfCarryAnalyticFunction(double costOfCarry) {
+  public HardCodedCostOfCarryFunction(double costOfCarry) {
     _costOfCarry = costOfCarry;
   }
   
-  public HardCodedCostOfCarryAnalyticFunction() {
+  public HardCodedCostOfCarryFunction() {
     _costOfCarry = 0.01;
   }
   

@@ -13,14 +13,14 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractPrimitiveAnalyticFunction;
+import com.opengamma.engine.analytics.AbstractPrimitiveFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
 import com.opengamma.engine.analytics.MarketDataAnalyticValue;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
+import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.DiscountCurveAnalyticValue;
 import com.opengamma.financial.analytics.DiscountCurveValueDefinition;
@@ -34,8 +34,8 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
  *
  * @author kirk
  */
-public class DiscountCurveAnalyticFunction extends AbstractPrimitiveAnalyticFunction
-implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
+public class DiscountCurveFunction extends AbstractPrimitiveFunction
+implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   public static final String PRICE_FIELD_NAME = "PRICE";
   private static final Interpolator1D s_interpolator = new LinearInterpolator1D(); 
   
@@ -43,7 +43,7 @@ implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker
   private final AnalyticValueDefinition<DiscountCurve> _discountCurveDefinition;
   private final Set<AnalyticValueDefinition<?>> _inputs;
   
-  public DiscountCurveAnalyticFunction(DiscountCurveDefinition definition) {
+  public DiscountCurveFunction(DiscountCurveDefinition definition) {
     _definition = definition;
     _discountCurveDefinition = constructDiscountCurveValueDefinition(definition.getCurrency());
     _inputs = definition.getRequiredInputs();
