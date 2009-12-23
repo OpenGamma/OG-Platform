@@ -30,7 +30,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
   public InMemoryFunctionRepository() {
   }
   
-  public synchronized void addFunction(AbstractAnalyticFunction function, FunctionInvoker invoker) {
+  public synchronized void addFunction(AbstractFunction function, FunctionInvoker invoker) {
     validateFunction(function, invoker);
     _functions.add(function);
     function.setUniqueIdentifier(Integer.toString(_functions.size()));
@@ -41,7 +41,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    * @param function
    * @param invoker
    */
-  private void validateFunction(AbstractAnalyticFunction function,
+  private void validateFunction(AbstractFunction function,
       FunctionInvoker invoker) {
     if(function == null) {
       throw new NullPointerException("Must provide a function.");
@@ -49,20 +49,20 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     if(invoker == null) {
       throw new NullPointerException("Must provide an invoker.");
     }
-    if(function instanceof PrimitiveAnalyticFunctionDefinition) {
-      if(!(invoker instanceof PrimitiveAnalyticFunctionInvoker)) {
+    if(function instanceof PrimitiveFunctionDefinition) {
+      if(!(invoker instanceof PrimitiveFunctionInvoker)) {
         throw new IllegalArgumentException("Must provide primitive invoker for primitive definition.");
       }
-    } else if(function instanceof SecurityAnalyticFunctionDefinition) {
-      if(!(invoker instanceof SecurityAnalyticFunctionInvoker)) {
+    } else if(function instanceof SecurityFunctionDefinition) {
+      if(!(invoker instanceof SecurityFunctionInvoker)) {
         throw new IllegalArgumentException("Must provide security invoker for security definition.");
       }
-    } else if(function instanceof PositionAnalyticFunctionDefinition) {
-      if(!(invoker instanceof PositionAnalyticFunctionInvoker)) {
+    } else if(function instanceof PositionFunctionDefinition) {
+      if(!(invoker instanceof PositionFunctionInvoker)) {
         throw new IllegalArgumentException("Must provide position invoker for position definition.");
       }
-    } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
-      if(!(invoker instanceof AggregatePositionAnalyticFunctionInvoker)) {
+    } else if(function instanceof AggregatePositionFunctionDefinition) {
+      if(!(invoker instanceof AggregatePositionFunctionInvoker)) {
         throw new IllegalArgumentException("Must provide aggregate position invoker for aggregate position definition.");
       }
     } else {
@@ -81,12 +81,12 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     Set<FunctionDefinition> result = new HashSet<FunctionDefinition>();
     for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
-      if(!(function instanceof PrimitiveAnalyticFunctionDefinition)) {
+      if(!(function instanceof PrimitiveFunctionDefinition)) {
         // Can't work with it because it requires execution inside of a
         // security or position context.
         continue;
       }
-      PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      PrimitiveFunctionDefinition primitiveFunction = (PrimitiveFunctionDefinition) function;
       // Might be applicable even if we're in a position-specific context.
       possibleResults = primitiveFunction.getPossibleResults();
       if(allValuesSatisfied(outputs, possibleResults)) {
@@ -103,13 +103,13 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
-      if(function instanceof PrimitiveAnalyticFunctionDefinition) {
-        PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      if(function instanceof PrimitiveFunctionDefinition) {
+        PrimitiveFunctionDefinition primitiveFunction = (PrimitiveFunctionDefinition) function;
         // Might be applicable even if we're in a security-specific context.
         applicable = true;
         possibleResults = primitiveFunction.getPossibleResults();
-      } else if(function instanceof SecurityAnalyticFunctionDefinition) {
-        SecurityAnalyticFunctionDefinition secDefinition = (SecurityAnalyticFunctionDefinition) function;
+      } else if(function instanceof SecurityFunctionDefinition) {
+        SecurityFunctionDefinition secDefinition = (SecurityFunctionDefinition) function;
         if(security != null) {
           applicable = secDefinition.isApplicableTo(security.getSecurityType());
         } else {
@@ -134,14 +134,14 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
-      if(function instanceof PrimitiveAnalyticFunctionDefinition) {
-        PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      if(function instanceof PrimitiveFunctionDefinition) {
+        PrimitiveFunctionDefinition primitiveFunction = (PrimitiveFunctionDefinition) function;
         // Might be applicable even if we're in a position-specific context.
         applicable = true;
         possibleResults = primitiveFunction.getPossibleResults();
-      } else if(function instanceof SecurityAnalyticFunctionDefinition) {
+      } else if(function instanceof SecurityFunctionDefinition) {
         // Might be applicable as we've got a security resolved.
-        SecurityAnalyticFunctionDefinition secDefinition = (SecurityAnalyticFunctionDefinition) function;
+        SecurityFunctionDefinition secDefinition = (SecurityFunctionDefinition) function;
         Security security = position.getSecurity();
         if(security != null) {
           applicable = secDefinition.isApplicableTo(security.getSecurityType());
@@ -151,8 +151,8 @@ public class InMemoryFunctionRepository implements FunctionRepository {
         if(applicable) {
           possibleResults = secDefinition.getPossibleResults(security);
         }
-      } else if(function instanceof PositionAnalyticFunctionDefinition) {
-        PositionAnalyticFunctionDefinition posDefinition = (PositionAnalyticFunctionDefinition) function;
+      } else if(function instanceof PositionFunctionDefinition) {
+        PositionFunctionDefinition posDefinition = (PositionFunctionDefinition) function;
         applicable = posDefinition.isApplicableTo(position);
         if(applicable) {
           possibleResults = posDefinition.getPossibleResults(position);
@@ -173,13 +173,13 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     for(FunctionDefinition function : _functions) {
       Collection<AnalyticValueDefinition<?>> possibleResults = null;
       boolean applicable = false;
-      if(function instanceof PrimitiveAnalyticFunctionDefinition) {
-        PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      if(function instanceof PrimitiveFunctionDefinition) {
+        PrimitiveFunctionDefinition primitiveFunction = (PrimitiveFunctionDefinition) function;
         // Might be applicable even if we're in an aggregate context.
         applicable = true;
         possibleResults = primitiveFunction.getPossibleResults();
-      } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
-        AggregatePositionAnalyticFunctionDefinition aggDefinition = (AggregatePositionAnalyticFunctionDefinition) function;
+      } else if(function instanceof AggregatePositionFunctionDefinition) {
+        AggregatePositionFunctionDefinition aggDefinition = (AggregatePositionFunctionDefinition) function;
         applicable = aggDefinition.isApplicableTo(positions);
         if(applicable) {
           possibleResults = aggDefinition.getPossibleResults(positions);

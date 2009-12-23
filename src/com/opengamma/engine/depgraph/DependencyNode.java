@@ -13,13 +13,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
-import com.opengamma.engine.analytics.PositionAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.PositionFunctionDefinition;
+import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityFunctionDefinition;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.util.ArgumentChecker;
@@ -53,22 +53,22 @@ public class DependencyNode {
     }
     switch(_computationTargetType) {
     case PRIMITIVE:
-      PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      PrimitiveFunctionDefinition primitiveFunction = (PrimitiveFunctionDefinition) function;
       _inputValues.addAll(primitiveFunction.getInputs());
       _outputValues.addAll(primitiveFunction.getPossibleResults());
       break;
     case SECURITY:
-      SecurityAnalyticFunctionDefinition securityFunction = (SecurityAnalyticFunctionDefinition) function;
+      SecurityFunctionDefinition securityFunction = (SecurityFunctionDefinition) function;
       _inputValues.addAll(securityFunction.getInputs((Security) computationTarget));
       _outputValues.addAll(securityFunction.getPossibleResults((Security) computationTarget));
       break;
     case POSITION:
-      PositionAnalyticFunctionDefinition positionFunction = (PositionAnalyticFunctionDefinition) function;
+      PositionFunctionDefinition positionFunction = (PositionFunctionDefinition) function;
       _inputValues.addAll(positionFunction.getInputs((Position) computationTarget));
       _outputValues.addAll(positionFunction.getPossibleResults((Position) computationTarget));
       break;
     case MULTIPLE_POSITIONS:
-      AggregatePositionAnalyticFunctionDefinition aggFunction = (AggregatePositionAnalyticFunctionDefinition) function;
+      AggregatePositionFunctionDefinition aggFunction = (AggregatePositionFunctionDefinition) function;
       _inputValues.addAll(aggFunction.getInputs((Collection) computationTarget));
       _outputValues.addAll(aggFunction.getPossibleResults((Collection) computationTarget));
       break;

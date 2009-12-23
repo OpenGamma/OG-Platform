@@ -8,18 +8,15 @@ package com.opengamma.engine.analytics;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
-import com.opengamma.engine.security.Security;
 
 /**
- * The base class from which most {@link FunctionDefinition} implementations
- * should inherit.
+ * 
  *
  * @author kirk
  */
-public abstract class AbstractSecurityAnalyticFunction extends AbstractAnalyticFunction implements SecurityAnalyticFunctionDefinition {
+public abstract class AbstractPrimitiveFunction extends AbstractFunction implements PrimitiveFunctionDefinition {
   @Override
   public DependencyNode buildSubGraph(
-      Security security,
       AnalyticFunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
@@ -27,7 +24,7 @@ public abstract class AbstractSecurityAnalyticFunction extends AbstractAnalyticF
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return ComputationTargetType.PRIMITIVE;
   }
 
 }

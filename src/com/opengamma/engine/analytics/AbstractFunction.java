@@ -12,7 +12,7 @@ package com.opengamma.engine.analytics;
  *
  * @author kirk
  */
-public abstract class AbstractAnalyticFunction implements FunctionDefinition {
+public abstract class AbstractFunction implements FunctionDefinition {
   private String _uniqueIdentifier;
 
   /**

@@ -21,8 +21,8 @@ import com.opengamma.engine.viewer.VisitableValueDefinition;
  *
  * @author kirk
  */
-public class LiveDataSourcingFunction extends AbstractPrimitiveAnalyticFunction
-implements PrimitiveAnalyticFunctionDefinition, PrimitiveAnalyticFunctionInvoker {
+public class LiveDataSourcingFunction extends AbstractPrimitiveFunction
+implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   private final AnalyticValueDefinition<?> _specifiedResult;
   private final String _shortName;
   private final ValueDefinitionRenderingVisitor _renderingVisitor = new ValueDefinitionRenderingVisitor();

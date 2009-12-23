@@ -16,7 +16,7 @@ import com.opengamma.engine.security.Security;
  *
  * @author kirk
  */
-public interface SecurityAnalyticFunctionDefinition
+public interface SecurityFunctionDefinition
 extends FunctionDefinition {
 
   /**

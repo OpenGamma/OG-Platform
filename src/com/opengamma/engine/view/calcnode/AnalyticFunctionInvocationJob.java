@@ -11,7 +11,7 @@ import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.AggregatePositionFunctionInvoker;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.FunctionInvoker;
@@ -19,9 +19,9 @@ import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.PositionAnalyticFunctionInvoker;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionInvoker;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionInvoker;
+import com.opengamma.engine.analytics.PositionFunctionInvoker;
+import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
+import com.opengamma.engine.analytics.SecurityFunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.AnalyticFunctionInputsImpl;
@@ -230,17 +230,17 @@ public class AnalyticFunctionInvocationJob implements Runnable {
     FunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
     
     Collection<AnalyticValue<?>> outputs = null;
-    if(invoker instanceof PrimitiveAnalyticFunctionInvoker) {
-      outputs = ((PrimitiveAnalyticFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs);
-    } else if(invoker instanceof SecurityAnalyticFunctionInvoker) {
+    if(invoker instanceof PrimitiveFunctionInvoker) {
+      outputs = ((PrimitiveFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs);
+    } else if(invoker instanceof SecurityFunctionInvoker) {
       assert getComputationTargetType() == ComputationTarget.SECURITY;
-      outputs = ((SecurityAnalyticFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getSecurity());
-    } else if(invoker instanceof PositionAnalyticFunctionInvoker) {
+      outputs = ((SecurityFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getSecurity());
+    } else if(invoker instanceof PositionFunctionInvoker) {
       assert getComputationTargetType() == ComputationTarget.POSITION;
-      outputs = ((PositionAnalyticFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getPosition());
-    } else if(invoker instanceof AggregatePositionAnalyticFunctionInvoker) {
+      outputs = ((PositionFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getPosition());
+    } else if(invoker instanceof AggregatePositionFunctionInvoker) {
       assert getComputationTargetType() == ComputationTarget.MULTIPLE_POSITIONS;
-      outputs = ((AggregatePositionAnalyticFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getPositions());
+      outputs = ((AggregatePositionFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getPositions());
     } else {
       throw new UnsupportedOperationException("Only primitive and security invokers supported now.");
     }

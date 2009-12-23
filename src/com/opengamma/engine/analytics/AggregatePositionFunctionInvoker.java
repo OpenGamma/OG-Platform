@@ -14,7 +14,7 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public interface AggregatePositionAnalyticFunctionInvoker
+public interface AggregatePositionFunctionInvoker
 extends FunctionInvoker {
 
   Collection<AnalyticValue<?>> execute(

@@ -16,7 +16,7 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public interface AggregatePositionAnalyticFunctionDefinition extends FunctionDefinition {
+public interface AggregatePositionFunctionDefinition extends FunctionDefinition {
 
   /**
    * Determine whether this function is applicable to the collection of 

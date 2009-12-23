@@ -15,16 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
-import com.opengamma.engine.analytics.PositionAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.PositionFunctionDefinition;
+import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityFunctionDefinition;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
@@ -257,39 +257,39 @@ public class DependencyGraph {
     }
 
     if(function.buildsOwnSubGraph()) {
-      if(function instanceof PrimitiveAnalyticFunctionDefinition) {
+      if(function instanceof PrimitiveFunctionDefinition) {
         assert getComputationTargetType() == ComputationTarget.PRIMITIVE;
-        node = ((PrimitiveAnalyticFunctionDefinition) function).buildSubGraph(functionResolver, nodeResolver);
-      } else if (function instanceof SecurityAnalyticFunctionDefinition) {
+        node = ((PrimitiveFunctionDefinition) function).buildSubGraph(functionResolver, nodeResolver);
+      } else if (function instanceof SecurityFunctionDefinition) {
         _position = null;
         assert getComputationTargetType() == ComputationTarget.SECURITY;
-        node = ((SecurityAnalyticFunctionDefinition) function).buildSubGraph(getSecurity(), functionResolver, nodeResolver);
-      } else if (function instanceof PositionAnalyticFunctionDefinition) {
+        node = ((SecurityFunctionDefinition) function).buildSubGraph(getSecurity(), functionResolver, nodeResolver);
+      } else if (function instanceof PositionFunctionDefinition) {
         _security = null;
         assert getComputationTargetType() == ComputationTarget.POSITION;
-        node = ((PositionAnalyticFunctionDefinition) function).buildSubGraph(getPosition(), functionResolver, nodeResolver);
-      } else if (function instanceof AggregatePositionAnalyticFunctionDefinition) {
+        node = ((PositionFunctionDefinition) function).buildSubGraph(getPosition(), functionResolver, nodeResolver);
+      } else if (function instanceof AggregatePositionFunctionDefinition) {
         assert getComputationTargetType() == ComputationTarget.MULTIPLE_POSITIONS;
-        node = ((AggregatePositionAnalyticFunctionDefinition) function).buildSubGraph(getPositions(), functionResolver, nodeResolver);
+        node = ((AggregatePositionFunctionDefinition) function).buildSubGraph(getPositions(), functionResolver, nodeResolver);
       } else {
         throw new IllegalStateException("Cannot handle anything other than Primitive, Security, Position or Aggregate Position function");
       }
       nodeResolver.addSubGraph(node);
     } else {
-      if(function instanceof PrimitiveAnalyticFunctionDefinition) {
+      if(function instanceof PrimitiveFunctionDefinition) {
         assert getComputationTargetType() == ComputationTarget.PRIMITIVE;
-        node = new DependencyNode((PrimitiveAnalyticFunctionDefinition) function, null);
-      } else if(function instanceof SecurityAnalyticFunctionDefinition) {
+        node = new DependencyNode((PrimitiveFunctionDefinition) function, null);
+      } else if(function instanceof SecurityFunctionDefinition) {
         _position = null;
         assert getComputationTargetType() == ComputationTarget.SECURITY;
-        node = new DependencyNode((SecurityAnalyticFunctionDefinition) function, getSecurity());        
-      } else if(function instanceof PositionAnalyticFunctionDefinition) {
+        node = new DependencyNode((SecurityFunctionDefinition) function, getSecurity());        
+      } else if(function instanceof PositionFunctionDefinition) {
         _security = null;
         assert getComputationTargetType() == ComputationTarget.POSITION;
-        node = new DependencyNode((PositionAnalyticFunctionDefinition) function, getPosition());
-      } else if(function instanceof AggregatePositionAnalyticFunctionDefinition) {
+        node = new DependencyNode((PositionFunctionDefinition) function, getPosition());
+      } else if(function instanceof AggregatePositionFunctionDefinition) {
         assert getComputationTargetType() == ComputationTarget.MULTIPLE_POSITIONS;
-        node = new DependencyNode((AggregatePositionAnalyticFunctionDefinition) function, getPositions());
+        node = new DependencyNode((AggregatePositionFunctionDefinition) function, getPositions());
       } else {
         throw new IllegalStateException("Cannot handle anything other than Primitive, Security, Position or Aggregate Position functions.");
       }

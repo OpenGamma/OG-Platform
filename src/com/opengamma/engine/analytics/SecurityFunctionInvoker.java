@@ -14,7 +14,7 @@ import com.opengamma.engine.security.Security;
  *
  * @author kirk
  */
-public interface SecurityAnalyticFunctionInvoker
+public interface SecurityFunctionInvoker
 extends FunctionInvoker {
 
   Collection<AnalyticValue<?>> execute(

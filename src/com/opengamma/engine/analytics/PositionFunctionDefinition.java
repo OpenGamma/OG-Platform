@@ -17,7 +17,7 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public interface PositionAnalyticFunctionDefinition
+public interface PositionFunctionDefinition
 extends FunctionDefinition {
 
   /**

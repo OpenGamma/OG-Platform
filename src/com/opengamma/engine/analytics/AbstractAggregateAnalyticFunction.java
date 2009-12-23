@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.analytics;
 
+import java.util.Collection;
+
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeResolver;
@@ -16,10 +18,10 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public abstract class AbstractPositionAnalyticFunction extends AbstractAnalyticFunction implements PositionAnalyticFunctionDefinition {
+public abstract class AbstractAggregateAnalyticFunction extends AbstractFunction implements AggregatePositionFunctionDefinition {
   @Override
   public DependencyNode buildSubGraph(
-      Position position,
+      Collection<Position> positions,
       AnalyticFunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
@@ -27,7 +29,7 @@ public abstract class AbstractPositionAnalyticFunction extends AbstractAnalyticF
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.MULTIPLE_POSITIONS;
   }
 
 }

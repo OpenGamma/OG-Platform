@@ -18,16 +18,16 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AggregatePositionAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionRepository;
 import com.opengamma.engine.analytics.AnalyticFunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
-import com.opengamma.engine.analytics.PositionAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveAnalyticFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityAnalyticFunctionDefinition;
+import com.opengamma.engine.analytics.PositionFunctionDefinition;
+import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
+import com.opengamma.engine.analytics.SecurityFunctionDefinition;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -136,8 +136,8 @@ public class DependencyGraphModel {
     switch(function.getTargetType()) {
     case PRIMITIVE:
     {
-      assert function instanceof PrimitiveAnalyticFunctionDefinition;
-      PrimitiveAnalyticFunctionDefinition primitiveFunction = (PrimitiveAnalyticFunctionDefinition) function;
+      assert function instanceof PrimitiveFunctionDefinition;
+      PrimitiveFunctionDefinition primitiveFunction = (PrimitiveFunctionDefinition) function;
       node = new DependencyNode(primitiveFunction, null);
       nodeInputs = primitiveFunction.getInputs();
       depGraph = _primitiveGraph;
@@ -145,14 +145,14 @@ public class DependencyGraphModel {
     }
     case SECURITY:
     {
-      assert function instanceof SecurityAnalyticFunctionDefinition;
+      assert function instanceof SecurityFunctionDefinition;
       Security securityTarget = null;
       switch(computationTargetType) {
       case SECURITY: securityTarget = (Security) computationTarget; break;
       case POSITION: securityTarget = ((Position) computationTarget).getSecurity(); break;
       default: assert false : "Should not have been able to get a SecurityAnalyticFunctionDefinition on input type " + computationTargetType;
       }
-      SecurityAnalyticFunctionDefinition securityFunction = (SecurityAnalyticFunctionDefinition) function;
+      SecurityFunctionDefinition securityFunction = (SecurityFunctionDefinition) function;
       node = new DependencyNode(securityFunction, securityTarget);
       nodeInputs = securityFunction.getInputs(securityTarget);
       depGraph = _graphForSecurity.get(securityTarget);
@@ -164,13 +164,13 @@ public class DependencyGraphModel {
     }
     case POSITION:
     {
-      assert function instanceof PositionAnalyticFunctionDefinition;
+      assert function instanceof PositionFunctionDefinition;
       Position positionTarget = null;
       switch(computationTargetType) {
       case POSITION: positionTarget = (Position) computationTarget; break;
       default: assert false : "Should not have been able to get a PositionAnalyticFunctionDefinition on input type " + computationTargetType;
       }
-      PositionAnalyticFunctionDefinition positionFunction = (PositionAnalyticFunctionDefinition) function;
+      PositionFunctionDefinition positionFunction = (PositionFunctionDefinition) function;
       node = new DependencyNode(positionFunction, positionTarget);
       nodeInputs = positionFunction.getInputs(positionTarget);
       depGraph = _graphForPosition.get(positionTarget);
@@ -182,13 +182,13 @@ public class DependencyGraphModel {
     }
     case MULTIPLE_POSITIONS:
     {
-      assert function instanceof AggregatePositionAnalyticFunctionDefinition;
+      assert function instanceof AggregatePositionFunctionDefinition;
       if(computationTargetType != ComputationTargetType.MULTIPLE_POSITIONS) {
         assert false : "Should not have been able to get an AggregatePositionAnalyticFunctionDefinition on input type " + computationTargetType;
       }
       @SuppressWarnings("unchecked")
       Collection<Position> aggTarget = (Collection<Position>) computationTarget;
-      AggregatePositionAnalyticFunctionDefinition aggFunction = (AggregatePositionAnalyticFunctionDefinition) function;
+      AggregatePositionFunctionDefinition aggFunction = (AggregatePositionFunctionDefinition) function;
       node = new DependencyNode(aggFunction, aggTarget);
       nodeInputs = aggFunction.getInputs(aggTarget);
       depGraph = _graphForAggregatePosition.get(aggTarget);

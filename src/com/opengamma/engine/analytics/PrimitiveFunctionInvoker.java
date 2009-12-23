@@ -15,7 +15,7 @@ import java.util.Collection;
  *
  * @author kirk
  */
-public interface PrimitiveAnalyticFunctionInvoker
+public interface PrimitiveFunctionInvoker
 extends FunctionInvoker {
 
   Collection<AnalyticValue<?>> execute(
