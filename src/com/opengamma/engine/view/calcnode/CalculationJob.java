@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionEncoder;
 import com.opengamma.engine.position.PositionReference;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinitionEncoder;
 
 /**
  * The definition of a particular job that must be performed by

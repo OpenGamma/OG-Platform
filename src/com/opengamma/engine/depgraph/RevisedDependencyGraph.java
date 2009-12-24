@@ -14,7 +14,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2009-11-02 -- This will eventually replace DependencyGraph.

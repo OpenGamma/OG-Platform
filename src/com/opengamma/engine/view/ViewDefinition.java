@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 
 /**
  * A definition for a particular {@link View} to be managed

@@ -1,0 +1,41 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.function;
+
+import java.util.Collection;
+
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeResolver;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+
+/**
+ * 
+ *
+ * @author kirk
+ */
+public interface SecurityFunctionDefinition
+extends FunctionDefinition {
+
+  /**
+   * Determine whether this function is applicable to the specified security type
+   * in general.
+   * 
+   * @param securityType The name of the security type to check.
+   * @return {@code true} iff this function is potentially applicable to a position
+   *         in a security with the specified type.
+   */
+  boolean isApplicableTo(String securityType);
+
+  Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security);
+  
+  Collection<AnalyticValueDefinition<?>> getInputs(Security security);
+  
+  DependencyNode buildSubGraph(
+      Security security,
+      FunctionResolver functionResolver,
+      DependencyNodeResolver dependencyNodeResolver);
+}

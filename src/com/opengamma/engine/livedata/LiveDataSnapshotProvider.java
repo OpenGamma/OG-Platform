@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.livedata;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 
 /**
  * Allows a view to snapshot and then query the state of financial data.

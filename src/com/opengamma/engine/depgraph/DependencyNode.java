@@ -13,15 +13,15 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
-import com.opengamma.engine.analytics.FunctionDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
-import com.opengamma.engine.analytics.PositionFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityFunctionDefinition;
+import com.opengamma.engine.function.AggregatePositionFunctionDefinition;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.PositionFunctionDefinition;
+import com.opengamma.engine.function.PrimitiveFunctionDefinition;
+import com.opengamma.engine.function.SecurityFunctionDefinition;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinitionComparator;
 import com.opengamma.util.ArgumentChecker;
 
 /**

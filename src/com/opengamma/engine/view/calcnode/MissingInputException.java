@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import java.text.MessageFormat;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 
 /**
  * 

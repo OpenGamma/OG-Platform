@@ -18,20 +18,20 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
-import com.opengamma.engine.analytics.FunctionDefinition;
-import com.opengamma.engine.analytics.FunctionRepository;
-import com.opengamma.engine.analytics.FunctionResolver;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.DefaultFunctionResolver;
-import com.opengamma.engine.analytics.LiveDataSourcingFunction;
-import com.opengamma.engine.analytics.PositionFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityFunctionDefinition;
+import com.opengamma.engine.function.AggregatePositionFunctionDefinition;
+import com.opengamma.engine.function.DefaultFunctionResolver;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.FunctionResolver;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.function.PositionFunctionDefinition;
+import com.opengamma.engine.function.PrimitiveFunctionDefinition;
+import com.opengamma.engine.function.SecurityFunctionDefinition;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 // TODO kirk 2009-11-03 -- Something better than this Collection<Position> crap for aggregates.

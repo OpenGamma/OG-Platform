@@ -13,11 +13,11 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.engine.analytics.FunctionDefinition;
-import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.value.ComputedValue;
 
 /**
  * A wrapper for the instances of {@link ComputedValue}

@@ -8,13 +8,13 @@ package com.opengamma.engine.view;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**

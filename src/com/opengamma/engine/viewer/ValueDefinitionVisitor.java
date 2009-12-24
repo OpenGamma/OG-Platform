@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.viewer;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
+import com.opengamma.engine.value.AnalyticValueDefinitionImpl;
 
 /**
  * 

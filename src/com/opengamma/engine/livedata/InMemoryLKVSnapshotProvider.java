@@ -11,8 +11,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
 
 /**
  * An implementation of {@link LiveDataSnapshotProvider} which maintains an LKV

@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.ComputedValueImpl;
 import com.opengamma.engine.depgraph.RevisedDependencyGraph;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueImpl;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**

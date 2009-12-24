@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /**

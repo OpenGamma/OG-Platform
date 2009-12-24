@@ -13,10 +13,10 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.value.ComputedValue;
 
 /**
  * The model of results for a particular {@link Position} within a

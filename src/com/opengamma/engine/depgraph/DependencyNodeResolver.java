@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 
 /**
  * Allows code to query a set of {@link DependencyNode}s to identify

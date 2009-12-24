@@ -10,11 +10,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinitionComparator;
+import com.opengamma.engine.value.ComputedValue;
 
 /**
  * The model of results for a particular {@link Position} within a

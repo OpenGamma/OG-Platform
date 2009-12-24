@@ -8,7 +8,7 @@ package com.opengamma.engine.livedata;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 
 /**
  * An implementation of {@link LiveDataAvailabilityProvider} where the

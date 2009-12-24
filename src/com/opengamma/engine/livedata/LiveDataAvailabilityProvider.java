@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.livedata;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 
 /**
  * Allows code to determine whether particular pieces of data are

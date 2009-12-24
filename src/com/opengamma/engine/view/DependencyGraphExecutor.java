@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.RevisedDependencyGraph;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;

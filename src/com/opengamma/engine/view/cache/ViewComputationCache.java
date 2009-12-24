@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.cache;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
 
 /**
  * The shared cache through which various elements in view recalculation will
