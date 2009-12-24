@@ -18,9 +18,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionRepository;
-import com.opengamma.engine.analytics.AnalyticFunctionResolver;
+import com.opengamma.engine.analytics.FunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
+import com.opengamma.engine.analytics.DefaultFunctionResolver;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.analytics.PositionFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
@@ -191,7 +191,7 @@ public class DependencyGraph {
     assert functionRepository != null;
     assert liveDataAvailabilityProvider != null;
     
-    DefaultAnalyticFunctionResolver functionResolver = new DefaultAnalyticFunctionResolver(functionRepository);
+    DefaultFunctionResolver functionResolver = new DefaultFunctionResolver(functionRepository);
 
     DefaultDependencyNodeResolver nodeResolver = new DefaultDependencyNodeResolver();
     Set<DependencyNode> topLevelNodes = new HashSet<DependencyNode>();
@@ -213,7 +213,7 @@ public class DependencyGraph {
       AnalyticValueDefinition<?> outputValue,
       DefaultDependencyNodeResolver nodeResolver,
       Set<AnalyticValueDefinition<?>> requiredLiveData,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     DependencyNode node = null;
     node = nodeResolver.resolve(outputValue);

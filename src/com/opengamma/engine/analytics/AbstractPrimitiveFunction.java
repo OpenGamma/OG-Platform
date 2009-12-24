@@ -17,7 +17,7 @@ import com.opengamma.engine.depgraph.DependencyNodeResolver;
 public abstract class AbstractPrimitiveFunction extends AbstractFunction implements PrimitiveFunctionDefinition {
   @Override
   public DependencyNode buildSubGraph(
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
   }

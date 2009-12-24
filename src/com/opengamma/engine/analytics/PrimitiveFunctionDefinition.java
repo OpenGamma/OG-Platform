@@ -23,6 +23,6 @@ public interface PrimitiveFunctionDefinition extends
   Collection<AnalyticValueDefinition<?>> getInputs();
   
   DependencyNode buildSubGraph(
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver);
 }

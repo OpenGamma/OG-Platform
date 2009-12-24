@@ -40,7 +40,7 @@ extends FunctionDefinition {
   
   DependencyNode buildSubGraph(
       Position position,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver);
   
 }

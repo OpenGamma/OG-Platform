@@ -67,7 +67,7 @@ implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   }
 
   @Override
-  public DependencyNode buildSubGraph(AnalyticFunctionResolver functionResolver,
+  public DependencyNode buildSubGraph(FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     throw new UnsupportedOperationException("Does not build own sub graph");
   }

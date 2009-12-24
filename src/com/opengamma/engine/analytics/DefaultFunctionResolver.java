@@ -15,16 +15,16 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
 /**
- * A trivial implementation of {@link AnalyticFunctionResolver}.
+ * A trivial implementation of {@link FunctionResolver}.
  *
  * @author kirk
  */
-public class DefaultAnalyticFunctionResolver implements
-    AnalyticFunctionResolver {
-  private static final Logger s_logger = LoggerFactory.getLogger(DefaultAnalyticFunctionResolver.class);
+public class DefaultFunctionResolver implements
+    FunctionResolver {
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultFunctionResolver.class);
   private final FunctionRepository _repository;
   
-  public DefaultAnalyticFunctionResolver(FunctionRepository repository) {
+  public DefaultFunctionResolver(FunctionRepository repository) {
     if(repository == null) {
       throw new NullPointerException("Must provide an Analytic Function Repository.");
     }

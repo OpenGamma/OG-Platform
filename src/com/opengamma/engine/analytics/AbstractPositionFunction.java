@@ -20,7 +20,7 @@ public abstract class AbstractPositionFunction extends AbstractFunction implemen
   @Override
   public DependencyNode buildSubGraph(
       Position position,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
   }

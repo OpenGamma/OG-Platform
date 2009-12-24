@@ -35,6 +35,6 @@ extends FunctionDefinition {
   
   DependencyNode buildSubGraph(
       Security security,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver);
 }

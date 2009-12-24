@@ -20,7 +20,7 @@ public abstract class AbstractSecurityFunction extends AbstractFunction implemen
   @Override
   public DependencyNode buildSubGraph(
       Security security,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
   }

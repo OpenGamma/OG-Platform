@@ -21,9 +21,9 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.analytics.AggregatePositionFunctionDefinition;
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionRepository;
-import com.opengamma.engine.analytics.AnalyticFunctionResolver;
+import com.opengamma.engine.analytics.FunctionResolver;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.DefaultAnalyticFunctionResolver;
+import com.opengamma.engine.analytics.DefaultFunctionResolver;
 import com.opengamma.engine.analytics.LiveDataSourcingFunction;
 import com.opengamma.engine.analytics.PositionFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
@@ -97,7 +97,7 @@ public class DependencyGraphModel {
 
   public DependencyNode satisfyDependency(
       AnalyticValueDefinition<?> outputValue,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       Object computationTarget
       ) {
@@ -219,7 +219,7 @@ public class DependencyGraphModel {
   @SuppressWarnings("unchecked")
   protected FunctionDefinition resolveFunctionForTarget(
       AnalyticValueDefinition<?> outputValue,
-      AnalyticFunctionResolver functionResolver, Object computationTarget,
+      FunctionResolver functionResolver, Object computationTarget,
       ComputationTargetType computationTargetType) {
     FunctionDefinition function = null;
     switch(computationTargetType) {
@@ -367,7 +367,7 @@ public class DependencyGraphModel {
         || (getAnalyticFunctionRepository() == null)) {
       throw new IllegalStateException("Must have provided a data availability provider and analytic function repository.");
     }
-    AnalyticFunctionResolver functionResolver = new DefaultAnalyticFunctionResolver(getAnalyticFunctionRepository());
+    FunctionResolver functionResolver = new DefaultFunctionResolver(getAnalyticFunctionRepository());
     RevisedDependencyGraph positionDepGraph = new RevisedDependencyGraph(ComputationTargetType.POSITION, position);
     _graphForPosition.put(position, positionDepGraph);
     for(AnalyticValueDefinition requiredOutputValue : requiredOutputValues) {
@@ -394,7 +394,7 @@ public class DependencyGraphModel {
     Collection<Position> positions = flattenPortfolio(node);
     RevisedDependencyGraph aggDepGraph = new RevisedDependencyGraph(ComputationTargetType.MULTIPLE_POSITIONS, positions);
     _graphForAggregatePosition.put(positions, aggDepGraph);
-    AnalyticFunctionResolver functionResolver = new DefaultAnalyticFunctionResolver(getAnalyticFunctionRepository());
+    FunctionResolver functionResolver = new DefaultFunctionResolver(getAnalyticFunctionRepository());
     for(AnalyticValueDefinition requiredOutputValue : requiredOutputValues) {
       DependencyNode depNode = satisfyDependency(requiredOutputValue, functionResolver, getLiveDataAvailabilityProvider(), positions);
       assert depNode != null;

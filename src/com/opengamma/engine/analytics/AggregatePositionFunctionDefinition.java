@@ -29,5 +29,5 @@ public interface AggregatePositionFunctionDefinition extends FunctionDefinition 
   boolean isApplicableTo(Collection<Position> positions);
   Collection<AnalyticValueDefinition<?>> getPossibleResults(Collection<Position> positions);
   Collection<AnalyticValueDefinition<?>> getInputs(Collection<Position> positions);
-  DependencyNode buildSubGraph(Collection<Position> positions, AnalyticFunctionResolver functionResolver, DependencyNodeResolver dependencyNodeResolver);
+  DependencyNode buildSubGraph(Collection<Position> positions, FunctionResolver functionResolver, DependencyNodeResolver dependencyNodeResolver);
 }

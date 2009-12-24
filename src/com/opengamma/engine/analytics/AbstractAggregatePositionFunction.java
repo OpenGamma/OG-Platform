@@ -22,7 +22,7 @@ public abstract class AbstractAggregatePositionFunction extends AbstractFunction
   @Override
   public DependencyNode buildSubGraph(
       Collection<Position> positions,
-      AnalyticFunctionResolver functionResolver,
+      FunctionResolver functionResolver,
       DependencyNodeResolver dependencyNodeResolver) {
     return null;
   }
