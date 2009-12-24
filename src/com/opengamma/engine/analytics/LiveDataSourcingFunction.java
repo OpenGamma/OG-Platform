@@ -46,7 +46,7 @@ implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValue<?>> execute(
+  public Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }

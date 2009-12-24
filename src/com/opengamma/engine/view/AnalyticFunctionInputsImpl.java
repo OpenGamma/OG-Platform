@@ -15,12 +15,12 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 
 /**
- * A wrapper for the instances of {@link AnalyticValue}
+ * A wrapper for the instances of {@link ComputedValue}
  * that are passed to an {@link FunctionDefinition}'s {@code execute} methods.
  *
  * @author kirk
@@ -29,20 +29,20 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
   // TODO kirk 2009-09-18 -- This is horrifically inefficient, but I'm not 100%
   // sure that that needs fixing; linear searches may actually be better than
   // building up a lot of indices. Needs to be investigated.
-  private final Collection<AnalyticValue<?>> _values = new ArrayList<AnalyticValue<?>>();
+  private final Collection<ComputedValue<?>> _values = new ArrayList<ComputedValue<?>>();
   
   // REVIEW kirk 2009-09-18 -- Should we have a non-copying constructor? We usually
   // build up a list already, so I'm not sure why we're copying here except
   // as generic style.
-  public AnalyticFunctionInputsImpl(Collection<AnalyticValue<?>> values) {
-    for(AnalyticValue<?> analyticValue : values) {
+  public AnalyticFunctionInputsImpl(Collection<ComputedValue<?>> values) {
+    for(ComputedValue<?> analyticValue : values) {
       if(analyticValue != null) {
         _values.add(analyticValue);
       }
     }
   }
   
-  public Collection<AnalyticValue<?>> getAllValues() {
+  public Collection<ComputedValue<?>> getAllValues() {
     return Collections.unmodifiableCollection(_values);
   }
 
@@ -51,7 +51,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
     if(valueObjectClass == null) {
       return null;
     }
-    for(AnalyticValue value : _values) {
+    for(ComputedValue value : _values) {
       if(valueObjectClass.isAssignableFrom(value.getValue().getClass())) {
         return (T)value.getValue();
       }
@@ -65,7 +65,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
       return Collections.emptySet();
     }
     List<T> result = new ArrayList<T>();
-    for(AnalyticValue value : _values) {
+    for(ComputedValue value : _values) {
       if(valueObjectClass.isAssignableFrom(value.getValue().getClass())) {
         result.add((T)value.getValue());
       }
@@ -77,7 +77,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
     if(definitionKey == null) {
       return null;
     }
-    for(AnalyticValue<?> value : _values) {
+    for(ComputedValue<?> value : _values) {
       if(ObjectUtils.equals(value.getDefinition().getValue(definitionKey), definitionValue)) {
         return value.getValue();
       }
@@ -90,7 +90,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
     if(definitionKey == null || params.length % 2 != 0) {
       return null;
     }
-    for(AnalyticValue<?> value : _values) {
+    for(ComputedValue<?> value : _values) {
       outer:
       if(ObjectUtils.equals(value.getDefinition().getValue(definitionKey), definitionValue)) {
         for (int i=0; i<params.length; i+=2) {
@@ -111,7 +111,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
       return null;
     }
     List<Object> result = new ArrayList<Object>();
-    for(AnalyticValue<?> value : _values) {
+    for(ComputedValue<?> value : _values) {
       if(ObjectUtils.equals(value.getDefinition().getValue(definitionKey), definitionValue)) {
         result.add(value.getValue());
       }
@@ -125,7 +125,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
       return null;
     }
     List<Object> result = new ArrayList<Object>();
-    for(AnalyticValue<?> value : _values) {
+    for(ComputedValue<?> value : _values) {
       outer:
       if(ObjectUtils.equals(value.getDefinition().getValue(definitionKey), definitionValue)) {
         for (int i=0; i<params.length; i+=2) {
@@ -145,7 +145,7 @@ public class AnalyticFunctionInputsImpl implements Serializable, FunctionInputs 
     if(definition == null) {
       return null;
     }
-    for(AnalyticValue<?> value : _values) {
+    for(ComputedValue<?> value : _values) {
       if(AnalyticValueDefinitionComparator.matches(definition, value.getDefinition())) {
         return value.getValue();
       }

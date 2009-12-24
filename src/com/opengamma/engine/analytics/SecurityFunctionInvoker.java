@@ -17,7 +17,7 @@ import com.opengamma.engine.security.Security;
 public interface SecurityFunctionInvoker
 extends FunctionInvoker {
 
-  Collection<AnalyticValue<?>> execute(
+  Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
       Security security);

@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Position;
 
@@ -67,5 +67,5 @@ public interface ViewDeltaResultModel {
    * @param position
    * @return
    */
-  Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getDeltaValues(Position position);
+  Map<AnalyticValueDefinition<?>, ComputedValue<?>> getDeltaValues(Position position);
 }

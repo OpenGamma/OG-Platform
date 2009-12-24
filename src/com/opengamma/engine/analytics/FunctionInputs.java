@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface FunctionInputs {
 
-  Collection<AnalyticValue<?>> getAllValues();
+  Collection<ComputedValue<?>> getAllValues();
 
   <T> T getValue(Class<T> valueObjectClass);
 

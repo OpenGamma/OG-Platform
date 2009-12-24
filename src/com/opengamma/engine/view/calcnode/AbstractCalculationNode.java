@@ -67,19 +67,19 @@ public abstract class AbstractCalculationNode {
     CalculationJobSpecification spec = job.getSpecification();
     assert spec != null;
     ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
-    AnalyticFunctionInvocationJob invocationJob;
+    FunctionInvocationJob invocationJob;
     switch(job.getComputationTargetType()) {
     case SECURITY:
       {
         Security security = getSecurityMaster().getSecurity(job.getSecurityKey());
-        invocationJob = new AnalyticFunctionInvocationJob(
+        invocationJob = new FunctionInvocationJob(
             job.getFunctionUniqueIdentifier(), job.getInputs(), security, cache, getFunctionRepository());
       }
       break;
     case POSITION:
       {
         Position position = constructPosition(job.getPositionReference());
-        invocationJob = new AnalyticFunctionInvocationJob(job.getFunctionUniqueIdentifier(),
+        invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(),
               job.getInputs(), position, cache, getFunctionRepository());
       }
       break;
@@ -89,12 +89,12 @@ public abstract class AbstractCalculationNode {
         for(PositionReference positionReference : job.getPositionReferences()) {
           positions.add(constructPosition(positionReference));
         }
-        invocationJob = new AnalyticFunctionInvocationJob(job.getFunctionUniqueIdentifier(),
+        invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(),
                                                           job.getInputs(), positions, cache, getFunctionRepository());
       }
       break;
     case PRIMITIVE:
-      invocationJob = new AnalyticFunctionInvocationJob(
+      invocationJob = new FunctionInvocationJob(
           job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository());
       break;
     default:

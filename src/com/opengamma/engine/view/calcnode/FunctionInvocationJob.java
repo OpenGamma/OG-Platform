@@ -16,7 +16,7 @@ import com.opengamma.engine.analytics.FunctionDefinition;
 import com.opengamma.engine.analytics.FunctionInputs;
 import com.opengamma.engine.analytics.FunctionInvoker;
 import com.opengamma.engine.analytics.FunctionRepository;
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
 import com.opengamma.engine.analytics.PositionFunctionInvoker;
@@ -33,8 +33,8 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
  *
  * @author kirk
  */
-public class AnalyticFunctionInvocationJob implements Runnable {
-  private static final Logger s_logger = LoggerFactory.getLogger(AnalyticFunctionInvocationJob.class);
+public class FunctionInvocationJob implements Runnable {
+  private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationJob.class);
   private static final FunctionExecutionContext EXECUTION_CONTEXT = new FunctionExecutionContext() {
   };
   private final String _functionUniqueIdentifier;
@@ -46,7 +46,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   private final FunctionRepository _functionRepository;
   
   // Primitive function constructor
-  public AnalyticFunctionInvocationJob(
+  public FunctionInvocationJob(
       String functionUniqueIdentifier,
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       ViewComputationCache computationCache,
@@ -65,7 +65,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   }
   
   // Security specific function constructor
-  public AnalyticFunctionInvocationJob(
+  public FunctionInvocationJob(
       String functionUniqueIdentifier,
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Security security,
@@ -86,7 +86,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   }
   
   // Position specific function constructor
-  public AnalyticFunctionInvocationJob(
+  public FunctionInvocationJob(
       String functionUniqueIdentifier,
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Position position,
@@ -107,7 +107,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
   }
   
   // Aggregate position function constructor
-  public AnalyticFunctionInvocationJob(
+  public FunctionInvocationJob(
       String functionUniqueIdentifier,
       Collection<AnalyticValueDefinition<?>> resolvedInputs,
       Collection<Position> positions,
@@ -218,9 +218,9 @@ public class AnalyticFunctionInvocationJob implements Runnable {
       s_logger.info("Invoking on multiple positions.");
     }
     
-    Collection<AnalyticValue<?>> inputs = new HashSet<AnalyticValue<?>>();
+    Collection<ComputedValue<?>> inputs = new HashSet<ComputedValue<?>>();
     for(AnalyticValueDefinition<?> inputDefinition : getResolvedInputs()) {
-      AnalyticValue<?> input = getComputationCache().getValue(inputDefinition);
+      ComputedValue<?> input = getComputationCache().getValue(inputDefinition);
       if(input == null) {
         s_logger.info("Not able to execute as missing input {}", inputDefinition);
         throw new MissingInputException(inputDefinition, getFunctionUniqueIdentifier());
@@ -229,7 +229,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
     }
     FunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
     
-    Collection<AnalyticValue<?>> outputs = null;
+    Collection<ComputedValue<?>> outputs = null;
     if(invoker instanceof PrimitiveFunctionInvoker) {
       outputs = ((PrimitiveFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs);
     } else if(invoker instanceof SecurityFunctionInvoker) {
@@ -244,7 +244,7 @@ public class AnalyticFunctionInvocationJob implements Runnable {
     } else {
       throw new UnsupportedOperationException("Only primitive and security invokers supported now.");
     }
-    for(AnalyticValue<?> outputValue : outputs) {
+    for(ComputedValue<?> outputValue : outputs) {
       getComputationCache().putValue(outputValue);
     }
   }

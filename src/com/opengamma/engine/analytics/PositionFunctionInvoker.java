@@ -17,7 +17,7 @@ import com.opengamma.engine.position.Position;
 public interface PositionFunctionInvoker
 extends FunctionInvoker {
 
-  Collection<AnalyticValue<?>> execute(
+  Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
       Position position);

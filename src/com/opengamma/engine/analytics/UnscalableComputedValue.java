@@ -12,18 +12,18 @@ import java.math.BigDecimal;
  *
  * @author jim
  */
-public class UnscalableAnalyticValue<T> extends AnalyticValueImpl<T> {
+public class UnscalableComputedValue<T> extends ComputedValueImpl<T> {
 
   /**
    * @param definition
    * @param value
    */
-  protected UnscalableAnalyticValue(AnalyticValueDefinition<T> definition, T value) {
+  protected UnscalableComputedValue(AnalyticValueDefinition<T> definition, T value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue<T> scaleForPosition(BigDecimal quantity) {
+  public ComputedValue<T> scaleForPosition(BigDecimal quantity) {
     throw new UnsupportedOperationException("Cannot scale an UnscalableAnalyticValue");
   }
 

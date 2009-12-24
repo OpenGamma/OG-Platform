@@ -6,12 +6,12 @@
 package com.opengamma.engine.analytics;
 
 /**
- * A set of values that can be returned by {@link AnalyticValue#getValue()}
+ * A set of values that can be returned by {@link ComputedValue#getValue()}
  * for certain common states of operation.
  *
  * @author kirk
  */
-public enum SpecialAnalyticResults {
+public enum SpecialComputationResults {
   /**
    * The value simply wasn't computed during this pass.
    * This can be used to clear a value that was previously computed, but wasn't this time.

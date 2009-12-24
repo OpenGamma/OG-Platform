@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -231,11 +231,11 @@ public class ViewImpl implements View, Lifecycle {
     }
     for(Position currentPosition : currentPositions) {
       deltaModel.addPosition(currentPosition);
-      Map<AnalyticValueDefinition<?>, AnalyticValue<?>> previousValueMap = previousResult.getValues(currentPosition);
-      for(Map.Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> currentValuesEntry : result.getValues(currentPosition).entrySet()) {
+      Map<AnalyticValueDefinition<?>, ComputedValue<?>> previousValueMap = previousResult.getValues(currentPosition);
+      for(Map.Entry<AnalyticValueDefinition<?>, ComputedValue<?>> currentValuesEntry : result.getValues(currentPosition).entrySet()) {
         AnalyticValueDefinition<?> definition = currentValuesEntry.getKey();
-        AnalyticValue<?> currentValue = currentValuesEntry.getValue();
-        AnalyticValue<?> previousValue = previousValueMap.get(definition);
+        ComputedValue<?> currentValue = currentValuesEntry.getValue();
+        ComputedValue<?> previousValue = previousValueMap.get(definition);
         if(previousValue == null) {
           // Not there before; new value. Add it.
           deltaModel.addValue(currentPosition, currentValue);

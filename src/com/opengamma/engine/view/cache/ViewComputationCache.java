@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.cache;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
 /**
@@ -16,7 +16,7 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  */
 public interface ViewComputationCache {
 
-  <T> AnalyticValue<T> getValue(AnalyticValueDefinition<T> definition);
+  <T> ComputedValue<T> getValue(AnalyticValueDefinition<T> definition);
   
-  <T> void putValue(AnalyticValue<T> value);
+  <T> void putValue(ComputedValue<T> value);
 }

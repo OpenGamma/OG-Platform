@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
@@ -42,9 +42,9 @@ public interface ViewComputationResultModel {
    */
   Collection<Position> getPositions();
   
-  Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(Position position);
+  Map<AnalyticValueDefinition<?>, ComputedValue<?>> getValues(Position position);
   
-  AnalyticValue<?> getValue(Position position, AnalyticValueDefinition<?> valueDefinition);
+  ComputedValue<?> getValue(Position position, AnalyticValueDefinition<?> valueDefinition);
   
   DependencyGraphModel getDependencyGraphModel();
   
@@ -59,7 +59,7 @@ public interface ViewComputationResultModel {
   @Deprecated
   SecurityMaster getSecurityMaster();
 
-  AnalyticValue<?> getValue(PortfolioNode node, AnalyticValueDefinition<?> valueDefinition);
+  ComputedValue<?> getValue(PortfolioNode node, AnalyticValueDefinition<?> valueDefinition);
 
-  Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(PortfolioNode node);
+  Map<AnalyticValueDefinition<?>, ComputedValue<?>> getValues(PortfolioNode node);
 }

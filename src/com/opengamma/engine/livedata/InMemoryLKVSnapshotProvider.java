@@ -11,7 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
 /**
@@ -23,10 +23,10 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  */
 public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
-  private final Map<AnalyticValueDefinition<?>, AnalyticValue<?>> _lastKnownValues =
-    new HashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>();
-  private final Map<Long, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>> _snapshots =
-    new HashMap<Long, Map<AnalyticValueDefinition<?>, AnalyticValue<?>>>();
+  private final Map<AnalyticValueDefinition<?>, ComputedValue<?>> _lastKnownValues =
+    new HashMap<AnalyticValueDefinition<?>, ComputedValue<?>>();
+  private final Map<Long, Map<AnalyticValueDefinition<?>, ComputedValue<?>>> _snapshots =
+    new HashMap<Long, Map<AnalyticValueDefinition<?>, ComputedValue<?>>>();
 
   @Override
   public void addSubscription(AnalyticValueDefinition<?> definition) {
@@ -36,12 +36,12 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
 
   @Override
   public synchronized Object querySnapshot(long snapshot, AnalyticValueDefinition<?> definition) {
-    Map<AnalyticValueDefinition<?>, AnalyticValue<?>> snapshotValues =
+    Map<AnalyticValueDefinition<?>, ComputedValue<?>> snapshotValues =
       _snapshots.get(snapshot);
     if(snapshotValues == null) {
       return null;
     }
-    AnalyticValue<?> value = snapshotValues.get(definition);
+    ComputedValue<?> value = snapshotValues.get(definition);
     if(value == null) {
       return null;
     }
@@ -51,8 +51,8 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   @Override
   public synchronized long snapshot() {
     long snapshotTime = System.currentTimeMillis();
-    Map<AnalyticValueDefinition<?>, AnalyticValue<?>> snapshotValues =
-      new HashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>(_lastKnownValues);
+    Map<AnalyticValueDefinition<?>, ComputedValue<?>> snapshotValues =
+      new HashMap<AnalyticValueDefinition<?>, ComputedValue<?>>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);
     return snapshotTime;
   }
@@ -62,7 +62,7 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
     _snapshots.remove(snapshot);
   }
   
-  public synchronized void addValue(AnalyticValue<?> value) {
+  public synchronized void addValue(ComputedValue<?> value) {
     _lastKnownValues.put(value.getDefinition(), value);
   }
 

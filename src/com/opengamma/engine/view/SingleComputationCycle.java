@@ -15,9 +15,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueImpl;
+import com.opengamma.engine.analytics.ComputedValueImpl;
 import com.opengamma.engine.depgraph.RevisedDependencyGraph;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -164,7 +164,7 @@ public class SingleComputationCycle {
         missingData = true;
       } else {
         @SuppressWarnings("unchecked")
-        AnalyticValue<Object> dataAsValue = new AnalyticValueImpl(requiredDataDefinition, data);
+        ComputedValue<Object> dataAsValue = new ComputedValueImpl(requiredDataDefinition, data);
         getComputationCache().putValue(dataAsValue);
       }
     }
@@ -276,11 +276,11 @@ public class SingleComputationCycle {
       assert depGraph != null;
       for(AnalyticValueDefinition<?> analyticValueDefinition : secTypeValueDefs) {
         AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedRequirement(analyticValueDefinition);
-        AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
+        ComputedValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
         if(unscaledValue != null) {
           // REVIEW kirk 2009-11-03 -- When we put scaling as function nodes at the Position
           // level, we won't scale here. It doesn't work for Position-specific values from a Position-based function.
-          AnalyticValue<?> scaledValue = unscaledValue.scaleForPosition(position.getQuantity());
+          ComputedValue<?> scaledValue = unscaledValue.scaleForPosition(position.getQuantity());
           getResultModel().addValue(position, scaledValue);
         }
       }      
@@ -295,7 +295,7 @@ public class SingleComputationCycle {
     RevisedDependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraph(node);
     for(AnalyticValueDefinition<?> analyticValueDefinition : commonValueDefsForPositionsUnder) {
       AnalyticValueDefinition<?> resolvedDefinition = depGraph.getResolvedRequirement(analyticValueDefinition);
-      AnalyticValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
+      ComputedValue<?> unscaledValue = getComputationCache().getValue(resolvedDefinition);
       if(unscaledValue != null) {
         getResultModel().addValue(node, unscaledValue);
       }

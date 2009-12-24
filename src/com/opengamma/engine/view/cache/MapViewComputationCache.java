@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 
 /**
@@ -18,20 +18,20 @@ import com.opengamma.engine.analytics.AnalyticValueDefinition;
  * @author kirk
  */
 public class MapViewComputationCache implements ViewComputationCache {
-  private final ConcurrentMap<AnalyticValueDefinition<?>, AnalyticValue<?>> _values =
-    new ConcurrentHashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>();
+  private final ConcurrentMap<AnalyticValueDefinition<?>, ComputedValue<?>> _values =
+    new ConcurrentHashMap<AnalyticValueDefinition<?>, ComputedValue<?>>();
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> AnalyticValue<T> getValue(AnalyticValueDefinition<T> definition) {
+  public <T> ComputedValue<T> getValue(AnalyticValueDefinition<T> definition) {
     if(definition == null) {
       return null;
     }
-    return (AnalyticValue<T>) _values.get(definition);
+    return (ComputedValue<T>) _values.get(definition);
   }
 
   @Override
-  public <T> void putValue(AnalyticValue<T> value) {
+  public <T> void putValue(ComputedValue<T> value) {
     if(value == null) {
       throw new NullPointerException("Must provide a value to store.");
     }
@@ -50,7 +50,7 @@ public class MapViewComputationCache implements ViewComputationCache {
   
   // for debugging.
   public void dump() {
-    for (Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> entry : _values.entrySet()) {
+    for (Entry<AnalyticValueDefinition<?>, ComputedValue<?>> entry : _values.entrySet()) {
       System.err.println(entry.getKey()+" => "+entry.getValue());
     }
   }

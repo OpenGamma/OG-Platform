@@ -18,7 +18,7 @@ import java.util.Collection;
 public interface PrimitiveFunctionInvoker
 extends FunctionInvoker {
 
-  Collection<AnalyticValue<?>> execute(
+  Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs);
 }

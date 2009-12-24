@@ -14,16 +14,16 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 
 /**
- * A base class for other implementations of {@link AnalyticValue} that
+ * A base class for other implementations of {@link ComputedValue} that
  * stores the definition and value.
  *
  * @author kirk
  */
-public class AnalyticValueImpl<T> implements AnalyticValue<T>, Serializable, Cloneable {
+public class ComputedValueImpl<T> implements ComputedValue<T>, Serializable, Cloneable {
   private final AnalyticValueDefinition<T> _definition;
   private final T _value;
   
-  public AnalyticValueImpl(AnalyticValueDefinition<T> definition, T value) {
+  public ComputedValueImpl(AnalyticValueDefinition<T> definition, T value) {
     if(definition == null) {
       throw new NullPointerException("Must specify an Analytic Value Definition");
     }
@@ -46,9 +46,9 @@ public class AnalyticValueImpl<T> implements AnalyticValue<T>, Serializable, Clo
 
   @SuppressWarnings("unchecked")
   @Override
-  public AnalyticValueImpl<T> clone() {
+  public ComputedValueImpl<T> clone() {
     try {
-      return (AnalyticValueImpl<T>) super.clone();
+      return (ComputedValueImpl<T>) super.clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException("Yes, it is supported.");
     }
@@ -65,7 +65,7 @@ public class AnalyticValueImpl<T> implements AnalyticValue<T>, Serializable, Clo
     if(!getClass().equals(obj.getClass())) {
       return false;
     }
-    AnalyticValueImpl<?> other = (AnalyticValueImpl<?>) obj;
+    ComputedValueImpl<?> other = (ComputedValueImpl<?>) obj;
     if(!ObjectUtils.equals(getValue(), other.getValue())) {
       return false;
     }
@@ -90,7 +90,7 @@ public class AnalyticValueImpl<T> implements AnalyticValue<T>, Serializable, Clo
   }
 
   @Override
-  public AnalyticValue<T> scaleForPosition(BigDecimal quantity) {
+  public ComputedValue<T> scaleForPosition(BigDecimal quantity) {
     return this;
   }
 

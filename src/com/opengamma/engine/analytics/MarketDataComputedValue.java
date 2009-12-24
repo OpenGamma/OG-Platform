@@ -15,22 +15,22 @@ import org.fudgemsg.FudgeMsg;
  *
  * @author kirk
  */
-public class MarketDataAnalyticValue extends
-    AnalyticValueImpl<FudgeMsg> {
+public class MarketDataComputedValue extends
+    ComputedValueImpl<FudgeMsg> {
   public static final String INDICATIVE_VALUE_NAME = "IndicativeValue";
 
   /**
    * @param definition
    * @param value
    */
-  public MarketDataAnalyticValue(
+  public MarketDataComputedValue(
       AnalyticValueDefinition<FudgeMsg> definition,
       FudgeMsg value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue<FudgeMsg> scaleForPosition(BigDecimal quantity) {
+  public ComputedValue<FudgeMsg> scaleForPosition(BigDecimal quantity) {
     // We can't be scaled.
     return this;
   }

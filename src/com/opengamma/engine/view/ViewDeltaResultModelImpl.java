@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.position.Position;
 
@@ -99,7 +99,7 @@ public class ViewDeltaResultModelImpl implements ViewDeltaResultModel,
   }
 
   @Override
-  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getDeltaValues(
+  public Map<AnalyticValueDefinition<?>, ComputedValue<?>> getDeltaValues(
       Position position) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
@@ -119,7 +119,7 @@ public class ViewDeltaResultModelImpl implements ViewDeltaResultModel,
     return Collections.unmodifiableCollection(_removedPositions);
   }
 
-  public void addValue(Position position, AnalyticValue<?> value) {
+  public void addValue(Position position, ComputedValue<?> value) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       perPositionModel = new PositionResultModel(position);

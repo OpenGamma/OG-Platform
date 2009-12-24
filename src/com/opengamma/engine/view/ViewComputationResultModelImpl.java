@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
@@ -72,7 +72,7 @@ public class ViewComputationResultModelImpl implements
   }
 
   @Override
-  public AnalyticValue<?> getValue(Position position,
+  public ComputedValue<?> getValue(Position position,
       AnalyticValueDefinition<?> valueDefinition) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
@@ -83,7 +83,7 @@ public class ViewComputationResultModelImpl implements
   }
   
   @Override 
-  public AnalyticValue<?> getValue(PortfolioNode node, AnalyticValueDefinition<?> valueDefinition) {
+  public ComputedValue<?> getValue(PortfolioNode node, AnalyticValueDefinition<?> valueDefinition) {
     AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
     if(perAggregatePositionModel == null) {
       return null;
@@ -93,7 +93,7 @@ public class ViewComputationResultModelImpl implements
   }
 
   @Override
-  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(Position position) {
+  public Map<AnalyticValueDefinition<?>, ComputedValue<?>> getValues(Position position) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     if(perPositionModel == null) {
       return Collections.emptyMap();
@@ -103,7 +103,7 @@ public class ViewComputationResultModelImpl implements
   }
   
   @Override
-  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getValues(PortfolioNode node) {
+  public Map<AnalyticValueDefinition<?>, ComputedValue<?>> getValues(PortfolioNode node) {
     AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
     if(perAggregatePositionModel == null) {
       return Collections.emptyMap();
@@ -112,7 +112,7 @@ public class ViewComputationResultModelImpl implements
     }
   }
   
-  public void addValue(Position position, AnalyticValue<?> value) {
+  public void addValue(Position position, ComputedValue<?> value) {
     PositionResultModel perPositionModel = _perPositionResults.get(position);
     assert perPositionModel != null;
     perPositionModel.add(value);
@@ -126,7 +126,7 @@ public class ViewComputationResultModelImpl implements
     }
   }
   
-  public void addValue(PortfolioNode node, AnalyticValue<?> value) {
+  public void addValue(PortfolioNode node, ComputedValue<?> value) {
     AggregatePositionResultModel perAggregatePositionModel = _perNodeResults.get(node);
     assert perAggregatePositionModel != null;
     perAggregatePositionModel.add(value);

@@ -17,7 +17,7 @@ import java.math.BigDecimal;
  *
  * @author jim
  */
-public interface AnalyticValue<T> {
+public interface ComputedValue<T> {
   AnalyticValueDefinition<T> getDefinition();
   T getValue();
   /**
@@ -28,5 +28,5 @@ public interface AnalyticValue<T> {
    * @param quantity The scaling of the underlying in question.
    * @return A copy of this value, scaled by the according precision.
    */
-  AnalyticValue<T> scaleForPosition(BigDecimal quantity);
+  ComputedValue<T> scaleForPosition(BigDecimal quantity);
 }

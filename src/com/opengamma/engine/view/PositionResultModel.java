@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionComparator;
 import com.opengamma.engine.position.Position;
@@ -26,7 +26,7 @@ import com.opengamma.engine.position.Position;
  */
 public class PositionResultModel implements Serializable {
   private final Position _position;
-  private final Map<AnalyticValueDefinition<?>, AnalyticValue<?>> _results = new HashMap<AnalyticValueDefinition<?>, AnalyticValue<?>>();
+  private final Map<AnalyticValueDefinition<?>, ComputedValue<?>> _results = new HashMap<AnalyticValueDefinition<?>, ComputedValue<?>>();
   
   public PositionResultModel(Position position) {
     if(position == null) {
@@ -42,11 +42,11 @@ public class PositionResultModel implements Serializable {
     return _position;
   }
   
-  public Map<AnalyticValueDefinition<?>, AnalyticValue<?>> getAllResults() {
-    return Collections.<AnalyticValueDefinition<?>, AnalyticValue<?>>unmodifiableMap(_results);
+  public Map<AnalyticValueDefinition<?>, ComputedValue<?>> getAllResults() {
+    return Collections.<AnalyticValueDefinition<?>, ComputedValue<?>>unmodifiableMap(_results);
   }
   
-  public void add(AnalyticValue<?> value) {
+  public void add(ComputedValue<?> value) {
     if(value == null) {
       throw new NullPointerException("Cannot add a null value.");
     }
@@ -56,11 +56,11 @@ public class PositionResultModel implements Serializable {
     _results.put(value.getDefinition(), value);
   }
   
-  public AnalyticValue<?> get(AnalyticValueDefinition<?> definition) {
+  public ComputedValue<?> get(AnalyticValueDefinition<?> definition) {
     if(definition == null) {
       return null;
     }
-    for(Map.Entry<AnalyticValueDefinition<?>, AnalyticValue<?>> entry : _results.entrySet()) {
+    for(Map.Entry<AnalyticValueDefinition<?>, ComputedValue<?>> entry : _results.entrySet()) {
       if(AnalyticValueDefinitionComparator.matches(definition, entry.getKey())) {
         return entry.getValue();
       }
