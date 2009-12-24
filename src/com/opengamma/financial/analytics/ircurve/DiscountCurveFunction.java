@@ -15,14 +15,14 @@ import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.analytics.AbstractPrimitiveFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.MarketDataAnalyticValue;
+import com.opengamma.engine.analytics.MarketDataComputedValue;
 import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.analytics.DiscountCurveAnalyticValue;
+import com.opengamma.financial.analytics.DiscountCurveComputedValue;
 import com.opengamma.financial.analytics.DiscountCurveValueDefinition;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
@@ -78,17 +78,17 @@ implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValue<?>> execute(
+  public Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs) {
     Map<Double, Double> timeInYearsToRates = new HashMap<Double, Double>();
     for(FixedIncomeStrip strip : getDefinition().getStrips()) {
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer)inputs.getValue(strip.getStripValueDefinition());
-      Double price = fieldContainer.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
+      Double price = fieldContainer.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
     DiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, s_interpolator);
 
-    return Collections.<AnalyticValue<?>>singleton(new DiscountCurveAnalyticValue(getDiscountCurveValueDefinition(), discountCurve));
+    return Collections.<ComputedValue<?>>singleton(new DiscountCurveComputedValue(getDiscountCurveValueDefinition(), discountCurve));
   }
 
   @Override

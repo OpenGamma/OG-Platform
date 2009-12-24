@@ -7,24 +7,24 @@ package com.opengamma.financial.analytics;
 
 import java.math.BigDecimal;
 
-import com.opengamma.engine.analytics.AnalyticValue;
-import com.opengamma.engine.analytics.AnalyticValueImpl;
+import com.opengamma.engine.analytics.ComputedValue;
+import com.opengamma.engine.analytics.ComputedValueImpl;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.render.RenderVisitor;
 import com.opengamma.financial.render.Renderable;
 
 /**
- * An {@link AnalyticValue} for a single double-precision floating point value.
+ * An {@link ComputedValue} for a single double-precision floating point value.
  *
  * @author kirk
  */
-public class GreeksResultAnalyticValue extends AnalyticValueImpl<GreekResultCollection> implements Renderable {
-  public GreeksResultAnalyticValue(GreeksResultValueDefinition definition, GreekResultCollection value) {
+public class GreeksComputedValue extends ComputedValueImpl<GreekResultCollection> implements Renderable {
+  public GreeksComputedValue(GreeksResultValueDefinition definition, GreekResultCollection value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue<GreekResultCollection> scaleForPosition(BigDecimal quantity) {
+  public ComputedValue<GreekResultCollection> scaleForPosition(BigDecimal quantity) {
     return this;
   }
 

@@ -10,10 +10,10 @@ import java.util.Collections;
 
 import com.opengamma.engine.analytics.AbstractPrimitiveFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
-import com.opengamma.engine.analytics.DoubleAnalyticValue;
+import com.opengamma.engine.analytics.DoubleComputedValue;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
 import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
 import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
@@ -56,10 +56,10 @@ implements PrimitiveFunctionDefinition, PrimitiveFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValue<?>> execute(
+  public Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs) {
-    return Collections.<AnalyticValue<?>>singleton(
-        new DoubleAnalyticValue(
+    return Collections.<ComputedValue<?>>singleton(
+        new DoubleComputedValue(
             s_resultDefinition, _costOfCarry)
     );
   }

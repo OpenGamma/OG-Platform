@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.analytics.AbstractSecurityFunction;
 import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.AnalyticValue;
+import com.opengamma.engine.analytics.ComputedValue;
 import com.opengamma.engine.analytics.AnalyticValueDefinition;
 import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.MarketDataAnalyticValue;
+import com.opengamma.engine.analytics.MarketDataComputedValue;
 import com.opengamma.engine.analytics.MarketDataAnalyticValueDefinitionFactory;
 import com.opengamma.engine.analytics.SecurityFunctionDefinition;
 import com.opengamma.engine.analytics.SecurityFunctionInvoker;
@@ -67,7 +67,7 @@ implements SecurityFunctionDefinition, SecurityFunctionInvoker {
   }
 
   @Override
-  public Collection<AnalyticValue<?>> execute(
+  public Collection<ComputedValue<?>> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
       Security security) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
@@ -81,7 +81,7 @@ implements SecurityFunctionDefinition, SecurityFunctionInvoker {
       if(optionDataFields == null) {
         throw new NullPointerException("No market data available for " + justThisOptionHeader);
       }
-      Double priceObj = optionDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
+      Double priceObj = optionDataFields.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);
       if(priceObj == null) {
         throw new NullPointerException("Got a market data container, but no indicative value.");
       }
@@ -90,7 +90,7 @@ implements SecurityFunctionDefinition, SecurityFunctionInvoker {
       if(underlyingDataFields == null) {
         throw new OpenGammaRuntimeException("No data available for underlying header " + underlyingHeader);
       }
-      final double spot = underlyingDataFields.getDouble(MarketDataAnalyticValue.INDICATIVE_VALUE_NAME);
+      final double spot = underlyingDataFields.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);
       final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveForCurrency);
       final VolatilitySurface volSurface = equityOptionSec.accept(new OptionVisitor<VolatilitySurface>() {
         private VolatilitySurface visitOption(Option option) {
@@ -121,8 +121,8 @@ implements SecurityFunctionDefinition, SecurityFunctionInvoker {
           return visitOption(option);
         }
       });
-      return Collections.<AnalyticValue<?>>singleton(
-          new VolatilitySurfaceAnalyticValue(
+      return Collections.<ComputedValue<?>>singleton(
+          new VolatilitySurfaceComputedValue(
             new VolatilitySurfaceValueDefinition(security.getIdentityKey()), 
             volSurface
           )

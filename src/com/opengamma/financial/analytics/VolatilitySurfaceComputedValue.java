@@ -7,24 +7,24 @@ package com.opengamma.financial.analytics;
 
 import java.math.BigDecimal;
 
-import com.opengamma.engine.analytics.AnalyticValue;
-import com.opengamma.engine.analytics.AnalyticValueImpl;
+import com.opengamma.engine.analytics.ComputedValue;
+import com.opengamma.engine.analytics.ComputedValueImpl;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.render.RenderVisitor;
 import com.opengamma.financial.render.Renderable;
 
 /**
- * An {@link AnalyticValue} for a single double-precision floating point value.
+ * An {@link ComputedValue} for a single double-precision floating point value.
  *
  * @author kirk
  */
-public class VolatilitySurfaceAnalyticValue extends AnalyticValueImpl<VolatilitySurface> implements Renderable {
-  public VolatilitySurfaceAnalyticValue(VolatilitySurfaceValueDefinition definition, VolatilitySurface value) {
+public class VolatilitySurfaceComputedValue extends ComputedValueImpl<VolatilitySurface> implements Renderable {
+  public VolatilitySurfaceComputedValue(VolatilitySurfaceValueDefinition definition, VolatilitySurface value) {
     super(definition, value);
   }
 
   @Override
-  public AnalyticValue<VolatilitySurface> scaleForPosition(BigDecimal quantity) {
+  public ComputedValue<VolatilitySurface> scaleForPosition(BigDecimal quantity) {
     return this;
   }
 
