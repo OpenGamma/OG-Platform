@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics;
 
 import java.math.BigDecimal;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.ComputedValueImpl;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueImpl;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.financial.render.RenderVisitor;

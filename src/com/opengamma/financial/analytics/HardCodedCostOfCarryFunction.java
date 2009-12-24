@@ -8,15 +8,15 @@ package com.opengamma.financial.analytics;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.opengamma.engine.analytics.AbstractPrimitiveFunction;
-import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
-import com.opengamma.engine.analytics.DoubleComputedValue;
-import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
+import com.opengamma.engine.function.AbstractPrimitiveFunction;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.PrimitiveFunctionDefinition;
+import com.opengamma.engine.function.PrimitiveFunctionInvoker;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinitionImpl;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.DoubleComputedValue;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.util.KeyValuePair;
 

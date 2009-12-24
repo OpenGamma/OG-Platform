@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinitionImpl;
+import com.opengamma.engine.value.AnalyticValueDefinitionImpl;
 import com.opengamma.engine.viewer.VisitableValueDefinition;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.KeyValuePair;

@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.value.AnalyticValueDefinition;
 import com.opengamma.financial.Currency;
 
 /**

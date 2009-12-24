@@ -13,14 +13,14 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractPrimitiveFunction;
-import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.MarketDataComputedValue;
-import com.opengamma.engine.analytics.PrimitiveFunctionDefinition;
-import com.opengamma.engine.analytics.PrimitiveFunctionInvoker;
+import com.opengamma.engine.function.AbstractPrimitiveFunction;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.PrimitiveFunctionDefinition;
+import com.opengamma.engine.function.PrimitiveFunctionInvoker;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.MarketDataComputedValue;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.analytics.DiscountCurveComputedValue;
 import com.opengamma.financial.analytics.DiscountCurveValueDefinition;

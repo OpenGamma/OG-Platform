@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics;
 
 import java.math.BigDecimal;
 
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.ComputedValueImpl;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueImpl;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.render.RenderVisitor;
 import com.opengamma.financial.render.Renderable;

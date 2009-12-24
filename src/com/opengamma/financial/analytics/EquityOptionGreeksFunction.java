@@ -16,16 +16,16 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.engine.analytics.AbstractSecurityFunction;
-import com.opengamma.engine.analytics.FunctionInputs;
-import com.opengamma.engine.analytics.ComputedValue;
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
-import com.opengamma.engine.analytics.FunctionExecutionContext;
-import com.opengamma.engine.analytics.MarketDataComputedValue;
-import com.opengamma.engine.analytics.MarketDataAnalyticValueDefinitionFactory;
-import com.opengamma.engine.analytics.SecurityFunctionDefinition;
-import com.opengamma.engine.analytics.SecurityFunctionInvoker;
+import com.opengamma.engine.function.AbstractSecurityFunction;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.SecurityFunctionDefinition;
+import com.opengamma.engine.function.SecurityFunctionInvoker;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.MarketDataAnalyticValueDefinitionFactory;
+import com.opengamma.engine.value.MarketDataComputedValue;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
