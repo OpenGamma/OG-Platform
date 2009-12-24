@@ -18,7 +18,7 @@ import com.opengamma.engine.position.Position;
  *
  * @author kirk
  */
-public abstract class AbstractAggregateAnalyticFunction extends AbstractFunction implements AggregatePositionFunctionDefinition {
+public abstract class AbstractAggregatePositionFunction extends AbstractFunction implements AggregatePositionFunctionDefinition {
   @Override
   public DependencyNode buildSubGraph(
       Collection<Position> positions,
