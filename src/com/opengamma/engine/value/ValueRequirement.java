@@ -11,6 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,16 +22,17 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ValueRequirement implements Serializable, Cloneable {
   private final String _valueName;
-  private final ComputationTargetType _targetType;
-  private final String _targetKey;
+  private final ComputationTargetSpecification _targetSpecification;
   
   public ValueRequirement(String valueName, ComputationTargetType targetType, String targetKey) {
+    this(valueName, new ComputationTargetSpecification(targetType, targetKey));
+  }
+  
+  public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification) {
     ArgumentChecker.checkNotNull(valueName, "Value name");
-    ArgumentChecker.checkNotNull(targetType, "Computation target type");
-    // Target key may be null.
+    ArgumentChecker.checkNotNull(targetSpecification, "Computation target specification");
     _valueName = valueName.intern();
-    _targetType = targetType;
-    _targetKey = targetKey;
+    _targetSpecification = targetSpecification;
   }
   
   /**
@@ -41,17 +43,10 @@ public class ValueRequirement implements Serializable, Cloneable {
   }
   
   /**
-   * @return the targetType
+   * @return the targetSpecification
    */
-  public ComputationTargetType getTargetType() {
-    return _targetType;
-  }
-
-  /**
-   * @return the targetKey
-   */
-  public String getTargetKey() {
-    return _targetKey;
+  public ComputationTargetSpecification getTargetSpecification() {
+    return _targetSpecification;
   }
 
   @Override
@@ -79,11 +74,7 @@ public class ValueRequirement implements Serializable, Cloneable {
     if(_valueName != other._valueName) {
       return false;
     }
-    if(_targetType != other._targetType) {
-      return false;
-    }
-    // Always do this one last because it's the slowest comparison.
-    if(!ObjectUtils.equals(_targetKey, other._targetKey)) {
+    if(!ObjectUtils.equals(_targetSpecification, other._targetSpecification)) {
       return false;
     }
     return true;
@@ -94,10 +85,7 @@ public class ValueRequirement implements Serializable, Cloneable {
     final int prime = 31;
     int result = 1;
     result = prime * result + _valueName.hashCode();
-    result = prime * result + _targetType.hashCode();
-    if(_targetKey != null) {
-      result = prime * result + _targetKey.hashCode();
-    }
+    result = prime * result + _targetSpecification.hashCode();
     return result;
   }
 
