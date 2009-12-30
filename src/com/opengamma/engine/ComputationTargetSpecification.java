@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class ComputationTargetSpecification implements Serializable, Cloneable {
+public class ComputationTargetSpecification implements Serializable {
   private final ComputationTargetType _type;
   private final String _identifier;
 
@@ -51,15 +51,6 @@ public class ComputationTargetSpecification implements Serializable, Cloneable {
    */
   public String getIdentifier() {
     return _identifier;
-  }
-
-  @Override
-  protected ComputationTargetSpecification clone() {
-    try {
-      return (ComputationTargetSpecification) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("Yes, it is supported.", e);
-    }
   }
 
   @Override

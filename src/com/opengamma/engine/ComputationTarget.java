@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class ComputationTarget implements Serializable, Cloneable{
+public class ComputationTarget implements Serializable {
   private final ComputationTargetType _type;
   private final Object _value;
   
@@ -119,15 +119,6 @@ public class ComputationTarget implements Serializable, Cloneable{
       throw new IllegalStateException("Requested a PortfolioNode for a target of type " + getType());
     }
     return (PortfolioNode)getValue();
-  }
-
-  @Override
-  protected ComputationTarget clone() {
-    try {
-      return (ComputationTarget) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("Yes, it is supported", e);
-    }
   }
 
   @Override

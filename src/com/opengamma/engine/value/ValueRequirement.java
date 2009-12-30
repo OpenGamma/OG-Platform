@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class ValueRequirement implements Serializable, Cloneable {
+public class ValueRequirement implements Serializable {
   private final String _valueName;
   private final ComputationTargetSpecification _targetSpecification;
   
@@ -47,15 +47,6 @@ public class ValueRequirement implements Serializable, Cloneable {
    */
   public ComputationTargetSpecification getTargetSpecification() {
     return _targetSpecification;
-  }
-
-  @Override
-  protected ValueRequirement clone() {
-    try {
-      return (ValueRequirement)super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("Yes, it is supported", e);
-    }
   }
 
   @Override
