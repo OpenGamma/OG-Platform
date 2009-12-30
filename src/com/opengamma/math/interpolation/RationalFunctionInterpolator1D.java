@@ -25,10 +25,14 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
+    // REVIEW kirk 2009-12-30 -- If the inputs are already sorted, we shouldn't double-sort it.
     final TreeMap<Double, Double> sorted = initData(data);
     final int m = _degree + 1;
     if (data.size() < m)
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform this interpolation");
+    // REVIEW kirk 2009-12-30 -- It may make sense to convert these early on
+    // to double[] and take the conversion hit once, rather than on every loop
+    // through the arrays.
     final Double[] xArray = sorted.keySet().toArray(new Double[0]);
     final Double[] yArray = sorted.values().toArray(new Double[0]);
     double diff = Math.abs(value - xArray[0]);
