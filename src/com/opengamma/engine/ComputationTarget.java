@@ -100,6 +100,22 @@ public class ComputationTarget implements Serializable {
     return _value;
   }
   
+  public String getUniqueIdentifier() {
+    switch(getType()) {
+    case PRIMITIVE:
+      // TODO kirk 2009-12-30 -- Have to have some way to deal with this better.
+      return getValue() == null ? null : getValue().toString();
+    case SECURITY:
+      return ((Security)getValue()).getIdentityKey();
+    case POSITION:
+      return null;
+    case MULTIPLE_POSITIONS:
+      return null;
+    default:
+      throw new IllegalStateException("Unhandled ComputationTargetType");
+    }
+  }
+  
   public Security getSecurity() {
     if(getType() != ComputationTargetType.SECURITY) {
       throw new IllegalStateException("Requested a Security for a target of type " + getType());
