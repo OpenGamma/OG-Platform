@@ -7,6 +7,7 @@ package com.opengamma.engine.function;
 
 import java.util.Set;
 
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.NewComputedValue;
 
 /**
@@ -14,11 +15,10 @@ import com.opengamma.engine.value.NewComputedValue;
  *
  * @author kirk
  */
-public interface NewPrimitiveFunctionInvoker extends FunctionInvoker {
-  
+public interface NewFunctionInvoker extends FunctionInvoker {
+
   Set<NewComputedValue> execute(
       FunctionExecutionContext executionContext,
       NewFunctionInputs inputs,
-      Object target);
-
+      ComputationTarget target);
 }
