@@ -14,12 +14,13 @@ import java.util.TreeMap;
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeFieldContainer;
 
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.NewFunctionDefinition;
 import com.opengamma.engine.function.NewFunctionInputs;
-import com.opengamma.engine.function.NewPrimitiveFunctionDefinition;
-import com.opengamma.engine.function.NewPrimitiveFunctionInvoker;
+import com.opengamma.engine.function.NewFunctionInvoker;
 import com.opengamma.engine.value.MarketDataComputedValue;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -39,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class NewDiscountCurveFunction
 extends AbstractFunction 
-implements NewPrimitiveFunctionDefinition, NewPrimitiveFunctionInvoker {
+implements NewFunctionDefinition, NewFunctionInvoker {
   private final Interpolator1D _interpolator; 
   private final NewDiscountCurveDefinition _definition;
   private final Set<ValueRequirement> _requirements;
@@ -77,25 +78,28 @@ implements NewPrimitiveFunctionDefinition, NewPrimitiveFunctionInvoker {
   }
 
   @Override
-  public boolean canApplyTo(Object primitiveKey) {
-    if(primitiveKey instanceof Currency) {
-      Currency currencyKey = (Currency) primitiveKey;
+  public boolean canApplyTo(ComputationTarget target) {
+    if(target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    if(target.getValue() instanceof Currency) {
+      Currency currencyKey = (Currency) target.getValue();
       return ObjectUtils.equals(currencyKey, getDefinition().getCurrency());
     }
     return false;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(Object primitiveKey) {
-    if(canApplyTo(primitiveKey)) {
+  public Set<ValueRequirement> getRequirements(ComputationTarget target) {
+    if(canApplyTo(target)) {
       return _requirements;
     }
     return null;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(Object primitiveKey) {
-    if(canApplyTo(primitiveKey)) {
+  public Set<ValueSpecification> getResults(ComputationTarget target) {
+    if(canApplyTo(target)) {
       return _results;
     }
     return null;
@@ -120,7 +124,7 @@ implements NewPrimitiveFunctionDefinition, NewPrimitiveFunctionInvoker {
   public Set<NewComputedValue> execute(
       FunctionExecutionContext executionContext,
       NewFunctionInputs inputs,
-      Object target) {
+      ComputationTarget target) {
     // Gather market data rates
     // Note that this assumes that all strips are priced in decimal percent. We need to resolve
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than

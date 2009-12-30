@@ -15,7 +15,9 @@ import java.util.TreeSet;
 
 import org.junit.Test;
 
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.Currency;
@@ -43,7 +45,7 @@ public class NewDiscountCurveFunctionTest {
     NewDiscountCurveDefinition definition = constructDefinition();
     NewDiscountCurveFunction function = new NewDiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
-    requirements = function.getRequirements(Currency.getInstance("USD"));
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
     Set<String> foundKeys = new TreeSet<String>();
@@ -67,10 +69,13 @@ public class NewDiscountCurveFunctionTest {
     NewDiscountCurveFunction function = new NewDiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
     
-    requirements = function.getRequirements("USD");
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
     assertNull(requirements);
     
-    requirements = function.getRequirements(Currency.getInstance("EUR"));
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
+    assertNull(requirements);
+
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
 
