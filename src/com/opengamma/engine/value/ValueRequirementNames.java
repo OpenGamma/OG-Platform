@@ -19,6 +19,9 @@ public interface ValueRequirementNames {
   public static final String DISCOUNT_CURVE = "DiscountCurve";
   public static final String VOLATILITY_SURFACE = "VolatilitySurface";
   
+  //
+  public static final String FAIR_VALUE = "FairValue";
+  
   // Greeks Names:
   public static final String DELTA = "Delta";
   public static final String VEGA = "Vega";
