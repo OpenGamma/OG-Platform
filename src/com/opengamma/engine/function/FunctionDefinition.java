@@ -7,6 +7,10 @@ package com.opengamma.engine.function;
 
 import com.opengamma.engine.ComputationTargetType;
 
+// REVIEW kirk 2009-12-30 -- When we're done with the great refactor, we can actually
+// collapse everything down to this interface and FunctionInvoker since we have a
+// singularity in terms of ComputationTarget and ComputationTargetSpecification.
+// We no longer need different interfaces.
 
 /**
  * A single unit of work capable of operating on inputs to produce results. 
