@@ -26,17 +26,20 @@ import com.opengamma.util.ArgumentChecker;
 public class NewDiscountCurveDefinition implements Serializable {
   private final Currency _currency;
   private final String _name;
+  private final String _interpolatorName;
   private final SortedSet<NewFixedIncomeStrip> _strips = new TreeSet<NewFixedIncomeStrip>();
   
-  public NewDiscountCurveDefinition(Currency currency, String name) {
-    this(currency, name, null);
+  public NewDiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
+    this(currency, name, interpolatorName, null);
   }
   
-  public NewDiscountCurveDefinition(Currency currency, String name, Collection<? extends NewFixedIncomeStrip> strips) {
+  public NewDiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends NewFixedIncomeStrip> strips) {
     ArgumentChecker.checkNotNull(currency, "Currency");
+    ArgumentChecker.checkNotNull(interpolatorName, "Interpolator name");
     // Name can be null.
     _currency = currency;
     _name = name;
+    _interpolatorName = interpolatorName;
     if(strips != null) {
       for(NewFixedIncomeStrip strip : strips) {
         addStrip(strip);
@@ -64,6 +67,13 @@ public class NewDiscountCurveDefinition implements Serializable {
   }
 
   /**
+   * @return the interpolatorName
+   */
+  public String getInterpolatorName() {
+    return _interpolatorName;
+  }
+
+  /**
    * @return the strips
    */
   public SortedSet<NewFixedIncomeStrip> getStrips() {
@@ -88,6 +98,9 @@ public class NewDiscountCurveDefinition implements Serializable {
     if(!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
+    if(!ObjectUtils.equals(_interpolatorName, other._interpolatorName)) {
+      return false;
+    }
     if(!ObjectUtils.equals(_strips, other._strips)) {
       return false;
     }
@@ -101,6 +114,9 @@ public class NewDiscountCurveDefinition implements Serializable {
     result = (result * prime) + _currency.hashCode();
     if(_name != null) {
       result = (result * prime) + _name.hashCode(); 
+    }
+    if(_interpolatorName != null) {
+      result = (result * prime) + _interpolatorName.hashCode(); 
     }
     for(NewFixedIncomeStrip strip : _strips) {
       result = (result * prime) + strip.hashCode();

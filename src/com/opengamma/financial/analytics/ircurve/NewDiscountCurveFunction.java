@@ -7,17 +7,29 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.NewFunctionInputs;
 import com.opengamma.engine.function.NewPrimitiveFunctionDefinition;
+import com.opengamma.engine.function.NewPrimitiveFunctionInvoker;
+import com.opengamma.engine.value.MarketDataComputedValue;
+import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,18 +39,21 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class NewDiscountCurveFunction
 extends AbstractFunction 
-implements NewPrimitiveFunctionDefinition {
+implements NewPrimitiveFunctionDefinition, NewPrimitiveFunctionInvoker {
+  private final Interpolator1D _interpolator; 
   private final NewDiscountCurveDefinition _definition;
   private final Set<ValueRequirement> _requirements;
+  private final ValueSpecification _result;
   private final Set<ValueSpecification> _results;
   
   public NewDiscountCurveFunction(NewDiscountCurveDefinition definition) {
     ArgumentChecker.checkNotNull(definition, "Discount Curve Definition");
     _definition = definition;
     
+    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    ValueSpecification result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
-    _results = Collections.singleton(result);
+    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
+    _results = Collections.singleton(_result);
   }
 
   /**
@@ -99,6 +114,29 @@ implements NewPrimitiveFunctionDefinition {
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.PRIMITIVE;
+  }
+
+  @Override
+  public Set<NewComputedValue> execute(
+      FunctionExecutionContext executionContext,
+      NewFunctionInputs inputs,
+      Object target) {
+    // Gather market data rates
+    // Note that this assumes that all strips are priced in decimal percent. We need to resolve
+    // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
+    // the crazy IndicativeValue name.
+    Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
+    for(NewFixedIncomeStrip strip : getDefinition().getStrips()) {
+      ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
+      FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
+      Double price = fieldContainer.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);
+      timeInYearsToRates.put(strip.getNumYears(), price);
+    }
+    // Bootstrap the discount curve
+    DiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
+    // Prepare results
+    NewComputedValue resultValue = new NewComputedValue(_result, discountCurve);
+    return Collections.singleton(resultValue);
   }
 
 }

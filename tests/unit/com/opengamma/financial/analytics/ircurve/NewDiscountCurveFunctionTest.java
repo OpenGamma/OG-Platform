@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.Currency;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
  * 
@@ -30,7 +31,7 @@ public class NewDiscountCurveFunctionTest {
   protected static NewDiscountCurveDefinition constructDefinition() {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
-    NewDiscountCurveDefinition definition = new NewDiscountCurveDefinition(currency, name);
+    NewDiscountCurveDefinition definition = new NewDiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
     definition.addStrip(new NewFixedIncomeStrip(1, "USSW1 Curncy"));
     definition.addStrip(new NewFixedIncomeStrip(2, "USSW2 Curncy"));
     definition.addStrip(new NewFixedIncomeStrip(3, "USSW3 Curncy"));
