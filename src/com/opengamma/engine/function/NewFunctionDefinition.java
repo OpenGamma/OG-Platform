@@ -22,5 +22,5 @@ public interface NewFunctionDefinition extends FunctionDefinition {
   
   Set<ValueRequirement> getRequirements(ComputationTarget target);
   
-  Set<ValueSpecification> getResults(ComputationTarget target);
+  Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements);
 }

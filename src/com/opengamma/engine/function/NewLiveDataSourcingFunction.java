@@ -57,7 +57,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target) {
+  public Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements) {
     return Collections.singleton(_result);
   }
 

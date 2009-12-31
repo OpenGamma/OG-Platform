@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 
@@ -17,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InMemoryPositionMaster implements PositionMaster {
   private final Map<String, Portfolio> _portfoliosByName = new ConcurrentHashMap<String, Portfolio>();
+  private final Map<String, Position> _positionsByIdentityKey = new ConcurrentHashMap<String, Position>();
+  private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
 
   @Override
   public Portfolio getRootPortfolio(String portfolioName) {
@@ -30,6 +33,30 @@ public class InMemoryPositionMaster implements PositionMaster {
   
   public void addPortfolio(String portfolioName, Portfolio rootPortfolio) {
     _portfoliosByName.put(portfolioName, rootPortfolio);
+    addPortfolioNode(portfolioName, rootPortfolio);
+  }
+
+  /**
+   * @param portfolioName
+   * @param rootPortfolio
+   */
+  private void addPortfolioNode(String portfolioName, PortfolioNode node) {
+    for(Position position : node.getPositions()) {
+      if(position instanceof PositionBean) {
+        PositionBean positionBean = (PositionBean) position;
+        String identityKey = portfolioName + "-" + _nextIdentityKey.getAndIncrement();
+        positionBean.setIdentityKey(identityKey);
+      }
+      _positionsByIdentityKey.put(position.getIdentityKey(), position);
+    }
+    for(PortfolioNode subNode : node.getSubNodes()) {
+      addPortfolioNode(portfolioName, subNode);
+    }
+  }
+
+  @Override
+  public Position getPosition(String identityKey) {
+    return _positionsByIdentityKey.get(identityKey);
   }
 
 }

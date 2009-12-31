@@ -34,4 +34,6 @@ public interface Position {
    * @return the security
    */
   Security getSecurity(); 
+  
+  String getIdentityKey();
 }

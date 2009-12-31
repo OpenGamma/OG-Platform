@@ -3,18 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine.view;
+package com.opengamma.engine;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.view.ViewProcessingContext;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,13 +22,16 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class ViewComputationTargetResolver implements ComputationTargetResolver {
-  private static final Logger s_logger = LoggerFactory.getLogger(ViewComputationTargetResolver.class);
+public class DefaultComputationTargetResolver implements ComputationTargetResolver {
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultComputationTargetResolver.class);
   private final SecurityMaster _securityMaster;
+  private final PositionMaster _positionMaster;
   
-  public ViewComputationTargetResolver(SecurityMaster securityMaster) {
+  public DefaultComputationTargetResolver(SecurityMaster securityMaster, PositionMaster positionMaster) {
     ArgumentChecker.checkNotNull(securityMaster, "Security Master");
+    ArgumentChecker.checkNotNull(positionMaster, "Position master");
     _securityMaster = securityMaster;
+    _positionMaster = positionMaster;
   }
 
   /**
@@ -37,6 +39,13 @@ public class ViewComputationTargetResolver implements ComputationTargetResolver 
    */
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
+  }
+
+  /**
+   * @return the positionMaster
+   */
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
   }
 
   @Override
@@ -52,6 +61,14 @@ public class ViewComputationTargetResolver implements ComputationTargetResolver 
         return null;
       } else {
         return new ComputationTarget(ComputationTargetType.SECURITY, security);
+      }
+    case POSITION:
+      Position position = getPositionMaster().getPosition(targetSpecification.getIdentifier());
+      s_logger.info("Resolved position ID {} to security {}", targetSpecification.getIdentifier(), position);
+      if(position == null) {
+        return null;
+      } else {
+        return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
     default:
       throw new NotImplementedException("Unable to handle more than primitive and security lookups yet.");

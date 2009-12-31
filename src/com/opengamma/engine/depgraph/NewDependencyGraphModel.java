@@ -161,7 +161,7 @@ public class NewDependencyGraphModel {
         if(!newFunction.canApplyTo(target)) {
           continue;
         }
-        Set<ValueSpecification> resultSpecs = newFunction.getResults(target);
+        Set<ValueSpecification> resultSpecs = newFunction.getResults(target, Collections.singleton(requirement));
         for(ValueSpecification resultSpec : resultSpecs) {
           if(ObjectUtils.equals(resultSpec, requirement)) {
             return new Pair<NewFunctionDefinition, ValueSpecification>(newFunction, resultSpec);

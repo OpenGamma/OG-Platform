@@ -50,7 +50,7 @@ public class NewDependencyNode {
     _functionDefinition = functionDefinition;
     _computationTarget = target;
     _inputRequirements.addAll(_functionDefinition.getRequirements(_computationTarget));
-    _outputValues.addAll(_functionDefinition.getResults(_computationTarget));
+    _outputValues.addAll(_functionDefinition.getResults(_computationTarget, _inputRequirements));
   }
   
   public void addInputNode(NewDependencyNode inputNode) {

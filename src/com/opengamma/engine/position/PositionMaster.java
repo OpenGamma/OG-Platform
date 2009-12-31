@@ -22,4 +22,6 @@ public interface PositionMaster {
   Collection<String> getRootPortfolioNames();
   
   Portfolio getRootPortfolio(String portfolioName);
+  
+  Position getPosition(String identityKey);
 }

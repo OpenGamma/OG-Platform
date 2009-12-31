@@ -21,10 +21,11 @@ import com.opengamma.util.CompareUtils;
  *
  * @author kirk
  */
-public class PositionBean implements Position, Serializable, Cloneable {
+public class PositionBean implements Position, Serializable {
   private final BigDecimal _quantity;
   private final SecurityKey _securityKey;
   private Security _security;
+  private String _identityKey;
   
   public PositionBean(BigDecimal quantity, SecurityKey securityKey) {
     _quantity = quantity;
@@ -64,13 +65,18 @@ public class PositionBean implements Position, Serializable, Cloneable {
     _security = security;
   }
 
-  @Override
-  public PositionBean clone() {
-    try {
-      return (PositionBean)super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new RuntimeException("Yes, it is supported.");
-    }
+  /**
+   * @return the identityKey
+   */
+  public String getIdentityKey() {
+    return _identityKey;
+  }
+
+  /**
+   * @param identityKey the identityKey to set
+   */
+  public void setIdentityKey(String identityKey) {
+    _identityKey = identityKey;
   }
 
   @Override

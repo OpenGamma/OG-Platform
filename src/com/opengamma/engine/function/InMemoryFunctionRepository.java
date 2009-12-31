@@ -45,6 +45,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    */
   private void validateFunction(AbstractFunction function,
       FunctionInvoker invoker) {
+    // REVIEW kirk 2009-12-31 -- After the rewrite is done this is meaningless.
     if(function == null) {
       throw new NullPointerException("Must provide a function.");
     }
@@ -66,6 +67,10 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     } else if(function instanceof AggregatePositionFunctionDefinition) {
       if(!(invoker instanceof AggregatePositionFunctionInvoker)) {
         throw new IllegalArgumentException("Must provide aggregate position invoker for aggregate position definition.");
+      }
+    } else if(function instanceof NewFunctionDefinition) {
+      if(!(invoker instanceof NewFunctionInvoker)) {
+        throw new IllegalArgumentException("Must provide new style invoker for aggregate position definition.");
       }
     } else {
       throw new IllegalArgumentException("Unexpected analytic function definition " + function.getClass());

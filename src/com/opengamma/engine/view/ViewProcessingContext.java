@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
@@ -26,7 +27,7 @@ public class ViewProcessingContext {
   private final SecurityMaster _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
   private final FudgeRequestSender _computationJobRequestSender;
-  private final ViewComputationTargetResolver _computationTargetResolver;
+  private final DefaultComputationTargetResolver _computationTargetResolver;
 
   public ViewProcessingContext(
       NewLiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -46,7 +47,7 @@ public class ViewProcessingContext {
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
     
-    _computationTargetResolver = new ViewComputationTargetResolver(securityMaster);
+    _computationTargetResolver = new DefaultComputationTargetResolver(securityMaster, positionMaster);
   }
 
   /**
@@ -101,7 +102,7 @@ public class ViewProcessingContext {
   /**
    * @return the computationTargetResolver
    */
-  public ViewComputationTargetResolver getComputationTargetResolver() {
+  public DefaultComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 

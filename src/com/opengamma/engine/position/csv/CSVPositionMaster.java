@@ -43,6 +43,7 @@ public class CSVPositionMaster implements PositionMaster {
   private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionMaster.class);
   private final File _baseDirectory;
   private final Map<String, File> _portfolioFilesByName = new TreeMap<String, File>();
+  private final Map<String, Position> _positionsByIdentityKey = new TreeMap<String, Position>();
   
   public CSVPositionMaster(String baseDirectoryName) {
     this(new File(baseDirectoryName));
@@ -130,14 +131,19 @@ public class CSVPositionMaster implements PositionMaster {
     }
   }
   
-  public static Portfolio loadPortfolio(String portfolioName, InputStream portfolioStream) throws IOException {
+  public Portfolio loadPortfolio(String portfolioName, InputStream portfolioStream) throws IOException {
+    int currPosition = 0;
     PortfolioImpl portfolio = new PortfolioImpl(portfolioName);
     BufferedReader br = new BufferedReader(new InputStreamReader(portfolioStream));
     String line = null;
     while((line = br.readLine()) != null) {
-      Position position = parseLine(line);
+      currPosition++;
+      PositionBean position = parseLine(line);
       if(position != null) {
+        String identityKey = portfolioName + "-" + currPosition;
+        position.setIdentityKey(identityKey);
         portfolio.addPosition(position);
+        _positionsByIdentityKey.put(identityKey, position);
       }
     }
     s_logger.info("{} parsed stream with {} positions", portfolioName, portfolio.getPositions().size());
@@ -148,7 +154,7 @@ public class CSVPositionMaster implements PositionMaster {
    * @param line
    * @return
    */
-  protected static Position parseLine(String line) {
+  protected static PositionBean parseLine(String line) {
     if(line == null) {
       return null;
     }
@@ -172,6 +178,11 @@ public class CSVPositionMaster implements PositionMaster {
     
     PositionBean position = new PositionBean(quantity, securityKey);
     return position;
+  }
+
+  @Override
+  public Position getPosition(String identityKey) {
+    return _positionsByIdentityKey.get(identityKey);
   }
   
 }
