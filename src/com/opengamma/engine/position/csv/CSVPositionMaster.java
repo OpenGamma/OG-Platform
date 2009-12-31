@@ -47,6 +47,10 @@ public class CSVPositionMaster implements PositionMaster {
   private final Map<String, Position> _positionsByIdentityKey = new TreeMap<String, Position>();
   private final Map<String, PortfolioNode> _nodesByIdentityKey = new TreeMap<String, PortfolioNode>();
   
+  public CSVPositionMaster() {
+    _baseDirectory = null;
+  }
+  
   public CSVPositionMaster(String baseDirectoryName) {
     this(new File(baseDirectoryName));
   }

@@ -118,5 +118,16 @@ public class NewDependencyNode {
     }
     return null;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("DependencyNode[");
+    sb.append(getFunctionDefinition().getShortName());
+    sb.append(" on ");
+    sb.append(getComputationTarget().getSpecification());
+    sb.append("]");
+    return sb.toString();
+  }
   
 }

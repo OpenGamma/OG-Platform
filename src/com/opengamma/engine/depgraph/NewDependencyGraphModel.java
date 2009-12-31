@@ -104,7 +104,7 @@ public class NewDependencyGraphModel {
       ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", target, requirement);
     Pair<NewDependencyNode, ValueSpecification> existingNode = resolveRequirement(target, requirement);
-    if(existingNode == null) {
+    if(existingNode != null) {
       s_logger.debug("Satisfied requirement for {} on {} via existing node", target, requirement);
       return existingNode;
     }
@@ -163,7 +163,7 @@ public class NewDependencyGraphModel {
         }
         Set<ValueSpecification> resultSpecs = newFunction.getResults(target, Collections.singleton(requirement));
         for(ValueSpecification resultSpec : resultSpecs) {
-          if(ObjectUtils.equals(resultSpec, requirement)) {
+          if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
             return new Pair<NewFunctionDefinition, ValueSpecification>(newFunction, resultSpec);
           }
         }
