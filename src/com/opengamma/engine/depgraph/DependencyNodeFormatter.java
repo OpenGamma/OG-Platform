@@ -54,21 +54,21 @@ public class DependencyNodeFormatter {
     return _indentText;
   }
   
-  public void format(PrintStream ps, NewDependencyNode node) {
+  public void format(PrintStream ps, DependencyNode node) {
     PrintWriter pw = new PrintWriter(ps);
     format(pw, node);
   }
   
-  public void format(Writer w, NewDependencyNode node) {
+  public void format(Writer w, DependencyNode node) {
     PrintWriter pw = new PrintWriter(w);
     format(pw, node);
   }
   
-  public void format(PrintWriter pw, NewDependencyNode node) {
+  public void format(PrintWriter pw, DependencyNode node) {
     format(pw, node, 0);
   }
   
-  protected void format(PrintWriter pw, NewDependencyNode node, int indentLevel) {
+  protected void format(PrintWriter pw, DependencyNode node, int indentLevel) {
     if(node == null) {
       return;
     }
@@ -76,12 +76,12 @@ public class DependencyNodeFormatter {
       pw.print(getIndentText());
     }
     pw.println(node.toString());
-    for(NewDependencyNode subNode : node.getInputNodes()) {
+    for(DependencyNode subNode : node.getInputNodes()) {
       format(pw, subNode, indentLevel + 1);
     }
   }
   
-  public static String toString(NewDependencyNode node) {
+  public static String toString(DependencyNode node) {
     DependencyNodeFormatter formatter = new DependencyNodeFormatter();
     StringWriter sw = new StringWriter();
     PrintWriter pw = new PrintWriter(sw);

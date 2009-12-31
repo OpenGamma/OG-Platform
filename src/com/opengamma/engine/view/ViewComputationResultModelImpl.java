@@ -15,7 +15,7 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.NewDependencyGraphModel;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -33,7 +33,7 @@ public class ViewComputationResultModelImpl implements
   private long _inputDataTimestamp;
   private long _resultTimestamp;
   private ViewComputationCache _cache;
-  private NewDependencyGraphModel _dependencyGraphModel;
+  private DependencyGraphModel _dependencyGraphModel;
   private Portfolio _portfolio;
   
   @Override
@@ -96,11 +96,11 @@ public class ViewComputationResultModelImpl implements
   /**
    * @param dependencyGraphModel
    */
-  public void setDependencyGraphModel(NewDependencyGraphModel dependencyGraphModel) {
+  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
     _dependencyGraphModel = dependencyGraphModel;
   }
   
-  public NewDependencyGraphModel getDependencyGraphModel() {
+  public DependencyGraphModel getDependencyGraphModel() {
     return _dependencyGraphModel;
   }
 

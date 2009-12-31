@@ -27,16 +27,16 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewDependencyNode {
+public class DependencyNode {
   private final FunctionDefinition _functionDefinition;
   private final ComputationTarget _computationTarget;
   private final Set<ValueRequirement> _inputRequirements = new HashSet<ValueRequirement>();
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
-  private final Set<NewDependencyNode> _inputNodes = new HashSet<NewDependencyNode>();
+  private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
   private final Map<ValueRequirement, ValueSpecification> _requirementMapping =
     new HashMap<ValueRequirement, ValueSpecification>();
   
-  public NewDependencyNode(
+  public DependencyNode(
       FunctionDefinition functionDefinition,
       ComputationTarget target) {
     ArgumentChecker.checkNotNull(functionDefinition, "Function Definition");
@@ -53,12 +53,12 @@ public class NewDependencyNode {
     _outputValues.addAll(_functionDefinition.getResults(_computationTarget, _inputRequirements));
   }
   
-  public void addInputNode(NewDependencyNode inputNode) {
+  public void addInputNode(DependencyNode inputNode) {
     ArgumentChecker.checkNotNull(inputNode, "Input Node");
     _inputNodes.add(inputNode);
   }
   
-  public Set<NewDependencyNode> getInputNodes() {
+  public Set<DependencyNode> getInputNodes() {
     return Collections.unmodifiableSet(_inputNodes);
   }
   
@@ -96,7 +96,7 @@ public class NewDependencyNode {
   }
   
   protected boolean inputNodeProduces(ValueSpecification value) {
-    for(NewDependencyNode inputNode : _inputNodes) {
+    for(DependencyNode inputNode : _inputNodes) {
       if(inputNode.getOutputValues().contains(value)) {
         return true;
       }

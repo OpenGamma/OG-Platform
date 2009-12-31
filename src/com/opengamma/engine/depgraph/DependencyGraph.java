@@ -23,12 +23,12 @@ import com.opengamma.util.Pair;
  *
  * @author kirk
  */
-public class NewDependencyGraph {
+public class DependencyGraph {
   private final ComputationTarget _computationTarget;
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
-  private final List<NewDependencyNode> _dependencyNodes = new ArrayList<NewDependencyNode>();
+  private final List<DependencyNode> _dependencyNodes = new ArrayList<DependencyNode>();
   
-  public NewDependencyGraph(ComputationTarget computationTarget) {
+  public DependencyGraph(ComputationTarget computationTarget) {
     ArgumentChecker.checkNotNull(computationTarget, "Computation target");
     _computationTarget = computationTarget;
   }
@@ -44,26 +44,26 @@ public class NewDependencyGraph {
     return Collections.unmodifiableSet(_outputValues);
   }
   
-  public Collection<NewDependencyNode> getDependencyNodes() {
+  public Collection<DependencyNode> getDependencyNodes() {
     return Collections.unmodifiableList(_dependencyNodes);
   }
   
-  public Pair<NewDependencyNode, ValueSpecification> getNodeProducing(ValueRequirement requirement) {
-    for(NewDependencyNode depNode : _dependencyNodes) {
+  public Pair<DependencyNode, ValueSpecification> getNodeProducing(ValueRequirement requirement) {
+    for(DependencyNode depNode : _dependencyNodes) {
       ValueSpecification satisfyingSpec = depNode.satisfiesRequirement(requirement);
       if(satisfyingSpec != null) {
-        return new Pair<NewDependencyNode, ValueSpecification>(depNode, satisfyingSpec);
+        return new Pair<DependencyNode, ValueSpecification>(depNode, satisfyingSpec);
       }
     }
     return null;
   }
   
-  public void addDependencyNode(NewDependencyNode node) {
+  public void addDependencyNode(DependencyNode node) {
     _dependencyNodes.add(node);
     _outputValues.addAll(node.getOutputValues());
   }
   
-  public Collection<NewDependencyNode> getNodes() {
+  public Collection<DependencyNode> getNodes() {
     return Collections.unmodifiableCollection(_dependencyNodes);
   }
 

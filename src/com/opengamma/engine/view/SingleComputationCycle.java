@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.NewDependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -180,8 +180,8 @@ public class SingleComputationCycle {
    * @param primitive
    */
   protected void executePlans(ComputationTargetType targetType) {
-    Collection<NewDependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(targetType);
-    for(NewDependencyGraph depGraph : depGraphs) {
+    Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(targetType);
+    for(DependencyGraph depGraph : depGraphs) {
       s_logger.info("Executing dependency graph for {}", depGraph.getComputationTarget());
       DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
@@ -194,8 +194,8 @@ public class SingleComputationCycle {
   
   public void populateResultModel() {
     // Just do it for positions at the moment.
-    Collection<NewDependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(ComputationTargetType.POSITION);
-    for(NewDependencyGraph depGraph : depGraphs) {
+    Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(ComputationTargetType.POSITION);
+    for(DependencyGraph depGraph : depGraphs) {
       for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
         NewComputedValue value = getComputationCache().getValue(outputSpec);
         if(value != null) {

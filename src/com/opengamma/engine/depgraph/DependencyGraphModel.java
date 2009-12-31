@@ -35,15 +35,15 @@ import com.opengamma.util.Pair;
  *
  * @author kirk
  */
-public class NewDependencyGraphModel {
-  private static final Logger s_logger = LoggerFactory.getLogger(NewDependencyGraphModel.class);
+public class DependencyGraphModel {
+  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
   // Injected Inputs:
   private NewLiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private FunctionRepository _functionRepository;
   private ComputationTargetResolver _targetResolver;
   // State:
-  private final Map<ComputationTarget, NewDependencyGraph> _graphsByTarget =
-    new HashMap<ComputationTarget, NewDependencyGraph>();
+  private final Map<ComputationTarget, DependencyGraph> _graphsByTarget =
+    new HashMap<ComputationTarget, DependencyGraph>();
   private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
     
   
@@ -101,24 +101,24 @@ public class NewDependencyGraphModel {
     }
   }
   
-  protected Pair<NewDependencyNode, ValueSpecification> addTargetRequirement(
+  protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(
       ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", target, requirement);
-    Pair<NewDependencyNode, ValueSpecification> existingNode = resolveRequirement(target, requirement);
+    Pair<DependencyNode, ValueSpecification> existingNode = resolveRequirement(target, requirement);
     if(existingNode != null) {
       s_logger.debug("Satisfied requirement for {} on {} via existing node", target, requirement);
       return existingNode;
     }
     
-    NewDependencyGraph depGraph = getDependencyGraph(target);
+    DependencyGraph depGraph = getDependencyGraph(target);
     
     if(getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       s_logger.debug("Satisfied requirement for {} on {} via live data", target, requirement);
       _allRequiredLiveData.add(requirement);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
-      NewDependencyNode node = new NewDependencyNode(function, target);
+      DependencyNode node = new DependencyNode(function, target);
       depGraph.addDependencyNode(node);
-      return new Pair<NewDependencyNode, ValueSpecification>(node, function.getResult());
+      return new Pair<DependencyNode, ValueSpecification>(node, function.getResult());
     }
     
     Pair<FunctionDefinition, ValueSpecification> resolvedFunction = resolveFunction(target, requirement);
@@ -127,7 +127,7 @@ public class NewDependencyGraphModel {
       // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
       throw new UnsatisfiableDependencyGraphException("Could not satisfy requirement " + requirement + " for target " + target);
     }
-    NewDependencyNode node = new NewDependencyNode(resolvedFunction.getFirst(), target);
+    DependencyNode node = new DependencyNode(resolvedFunction.getFirst(), target);
     depGraph.addDependencyNode(node);
     
     for(ValueRequirement inputRequirement : node.getInputRequirements()) {
@@ -135,18 +135,18 @@ public class NewDependencyGraphModel {
       if(inputTarget == null) {
         throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + inputRequirement);
       }
-      Pair<NewDependencyNode, ValueSpecification> resolvedInput = addTargetRequirement(inputTarget, inputRequirement);
+      Pair<DependencyNode, ValueSpecification> resolvedInput = addTargetRequirement(inputTarget, inputRequirement);
       node.addInputNode(resolvedInput.getFirst());
       node.addRequirementMapping(inputRequirement, resolvedInput.getSecond());
     }
     
-    return new Pair<NewDependencyNode, ValueSpecification>(node, resolvedFunction.getSecond());
+    return new Pair<DependencyNode, ValueSpecification>(node, resolvedFunction.getSecond());
   }
   
-  protected NewDependencyGraph getDependencyGraph(ComputationTarget target) {
-    NewDependencyGraph depGraph = _graphsByTarget.get(target);
+  protected DependencyGraph getDependencyGraph(ComputationTarget target) {
+    DependencyGraph depGraph = _graphsByTarget.get(target);
     if(depGraph == null) {
-      depGraph = new NewDependencyGraph(target);
+      depGraph = new DependencyGraph(target);
       _graphsByTarget.put(target, depGraph);
     }
     return depGraph;
@@ -174,9 +174,9 @@ public class NewDependencyGraphModel {
     return null;
   }
   
-  protected Pair<NewDependencyNode, ValueSpecification> resolveRequirement(ComputationTarget target, ValueRequirement requirement) {
-    for(NewDependencyGraph depGraph : _graphsByTarget.values()) {
-      Pair<NewDependencyNode, ValueSpecification> satisfiedRequirement = depGraph.getNodeProducing(requirement);
+  protected Pair<DependencyNode, ValueSpecification> resolveRequirement(ComputationTarget target, ValueRequirement requirement) {
+    for(DependencyGraph depGraph : _graphsByTarget.values()) {
+      Pair<DependencyNode, ValueSpecification> satisfiedRequirement = depGraph.getNodeProducing(requirement);
       if(satisfiedRequirement != null) {
         return satisfiedRequirement;
       }
@@ -184,13 +184,13 @@ public class NewDependencyGraphModel {
     return null;
   }
   
-  public Collection<NewDependencyGraph> getAllDependencyGraphs() {
-    return new ArrayList<NewDependencyGraph>(_graphsByTarget.values());
+  public Collection<DependencyGraph> getAllDependencyGraphs() {
+    return new ArrayList<DependencyGraph>(_graphsByTarget.values());
   }
   
-  public Collection<NewDependencyGraph> getDependencyGraphs(ComputationTargetType targetType) {
-    List<NewDependencyGraph> graphs = new ArrayList<NewDependencyGraph>();
-    for(Map.Entry<ComputationTarget, NewDependencyGraph> entry : _graphsByTarget.entrySet()) {
+  public Collection<DependencyGraph> getDependencyGraphs(ComputationTargetType targetType) {
+    List<DependencyGraph> graphs = new ArrayList<DependencyGraph>();
+    for(Map.Entry<ComputationTarget, DependencyGraph> entry : _graphsByTarget.entrySet()) {
       if(entry.getKey().getType() == targetType) {
         graphs.add(entry.getValue());
       }

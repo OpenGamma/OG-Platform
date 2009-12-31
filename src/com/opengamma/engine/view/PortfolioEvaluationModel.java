@@ -16,7 +16,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.NewDependencyGraphModel;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
@@ -49,7 +49,7 @@ public class PortfolioEvaluationModel {
   private final Portfolio _portfolio;
 
   private PortfolioNode _populatedRootNode;
-  private NewDependencyGraphModel _dependencyGraphModel;
+  private DependencyGraphModel _dependencyGraphModel;
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
@@ -97,14 +97,14 @@ public class PortfolioEvaluationModel {
   /**
    * @return the dependencyGraphModel
    */
-  public NewDependencyGraphModel getDependencyGraphModel() {
+  public DependencyGraphModel getDependencyGraphModel() {
     return _dependencyGraphModel;
   }
 
   /**
    * @param dependencyGraphModel the dependencyGraphModel to set
    */
-  public void setDependencyGraphModel(NewDependencyGraphModel dependencyGraphModel) {
+  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
     _dependencyGraphModel = dependencyGraphModel;
   }
 
@@ -187,7 +187,7 @@ public class PortfolioEvaluationModel {
       NewLiveDataAvailabilityProvider liveDataAvailabilityProvider,
       ComputationTargetResolver computationTargetResolver,
       ViewDefinition viewDefinition) {
-    NewDependencyGraphModel dependencyGraphModel = new NewDependencyGraphModel();
+    DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
     dependencyGraphModel.setFunctionRepository(analyticFunctionRepository);
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
     dependencyGraphModel.setTargetResolver(computationTargetResolver);
