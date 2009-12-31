@@ -22,7 +22,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.MarketDataFieldNames;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -129,7 +129,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<NewComputedValue> execute(
+  public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target) {
     if(!canApplyTo(target)) {
@@ -163,12 +163,12 @@ implements FunctionInvoker {
     ValueSpecification gammaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.GAMMA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
     ValueSpecification rhoSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.RHO, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
     
-    NewComputedValue priceValue = new NewComputedValue(priceSpecification, priceResult.getResult());
-    NewComputedValue deltaValue = new NewComputedValue(deltaSpecification, deltaResult.getResult());
-    NewComputedValue gammaValue = new NewComputedValue(gammaSpecification, gammaResult.getResult());
-    NewComputedValue rhoValue = new NewComputedValue(rhoSpecification, rhoResult.getResult());
+    ComputedValue priceValue = new ComputedValue(priceSpecification, priceResult.getResult());
+    ComputedValue deltaValue = new ComputedValue(deltaSpecification, deltaResult.getResult());
+    ComputedValue gammaValue = new ComputedValue(gammaSpecification, gammaResult.getResult());
+    ComputedValue rhoValue = new ComputedValue(rhoSpecification, rhoResult.getResult());
     
-    Set<NewComputedValue> results = new HashSet<NewComputedValue>();
+    Set<ComputedValue> results = new HashSet<ComputedValue>();
     results.add(priceValue);
     results.add(deltaValue);
     results.add(gammaValue);

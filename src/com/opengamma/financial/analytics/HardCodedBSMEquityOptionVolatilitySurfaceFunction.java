@@ -27,7 +27,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.MarketDataFieldNames;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -126,7 +126,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<NewComputedValue> execute(
+  public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
       ComputationTarget target) {
@@ -158,7 +158,7 @@ implements FunctionInvoker {
     
     // Package the result
     ValueSpecification resultSpec = createResultSpecification(equityOptionSec);
-    NewComputedValue resultValue = new NewComputedValue(resultSpec, volatilitySurface);
+    ComputedValue resultValue = new ComputedValue(resultSpec, volatilitySurface);
     return Collections.singleton(resultValue);
   }
   

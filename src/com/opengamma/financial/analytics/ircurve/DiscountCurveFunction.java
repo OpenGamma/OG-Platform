@@ -21,7 +21,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.MarketDataFieldNames;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -119,7 +119,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<NewComputedValue> execute(
+  public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
       ComputationTarget target) {
@@ -137,7 +137,7 @@ implements FunctionInvoker {
     // Bootstrap the discount curve
     DiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
     // Prepare results
-    NewComputedValue resultValue = new NewComputedValue(_result, discountCurve);
+    ComputedValue resultValue = new ComputedValue(_result, discountCurve);
     return Collections.singleton(resultValue);
   }
 

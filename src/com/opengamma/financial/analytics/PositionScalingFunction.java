@@ -16,7 +16,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -68,20 +68,20 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<NewComputedValue> execute(
+  public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target) {
     Object value = inputs.getValue(_requirementName);
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.getSpecification());
     ValueSpecification specification = new ValueSpecification(requirement);
-    NewComputedValue scaledValue = null;
+    ComputedValue scaledValue = null;
     if(value instanceof Double) {
       Double doubleValue = (Double) value;
       double quantity = target.getPosition().getQuantity().doubleValue();
       doubleValue *= quantity;
-      scaledValue = new NewComputedValue(specification, doubleValue);
+      scaledValue = new ComputedValue(specification, doubleValue);
     } else {
-      scaledValue = new NewComputedValue(specification, value);
+      scaledValue = new ComputedValue(specification, value);
     }
     return Collections.singleton(scaledValue);
   }
