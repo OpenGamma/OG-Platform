@@ -15,7 +15,7 @@ import com.opengamma.engine.value.ValueRequirement;
  *
  * @author kirk
  */
-public interface NewFunctionInputs {
+public interface FunctionInputs {
   Collection<NewComputedValue> getAllValues();
   
   Object getValue(ValueRequirement requirement);

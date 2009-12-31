@@ -5,7 +5,12 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Set;
+
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 
 // REVIEW kirk 2009-12-30 -- When we're done with the great refactor, we can actually
 // collapse everything down to this interface and FunctionInvoker since we have a
@@ -42,6 +47,9 @@ public interface FunctionDefinition {
    */
   ComputationTargetType getTargetType();
   
-
+  boolean canApplyTo(ComputationTarget target);
   
+  Set<ValueRequirement> getRequirements(ComputationTarget target);
+  
+  Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements);
 }

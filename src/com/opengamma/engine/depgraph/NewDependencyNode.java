@@ -14,7 +14,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.NewFunctionDefinition;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class NewDependencyNode {
-  private final NewFunctionDefinition _functionDefinition;
+  private final FunctionDefinition _functionDefinition;
   private final ComputationTarget _computationTarget;
   private final Set<ValueRequirement> _inputRequirements = new HashSet<ValueRequirement>();
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
@@ -37,7 +37,7 @@ public class NewDependencyNode {
     new HashMap<ValueRequirement, ValueSpecification>();
   
   public NewDependencyNode(
-      NewFunctionDefinition functionDefinition,
+      FunctionDefinition functionDefinition,
       ComputationTarget target) {
     ArgumentChecker.checkNotNull(functionDefinition, "Function Definition");
     ArgumentChecker.checkNotNull(target, "Computation Target");
@@ -73,7 +73,7 @@ public class NewDependencyNode {
   /**
    * @return the functionDefinition
    */
-  public NewFunctionDefinition getFunctionDefinition() {
+  public FunctionDefinition getFunctionDefinition() {
     return _functionDefinition;
   }
 

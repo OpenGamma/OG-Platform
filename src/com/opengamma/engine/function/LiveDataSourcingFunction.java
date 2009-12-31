@@ -22,12 +22,12 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewLiveDataSourcingFunction extends AbstractFunction
-implements NewFunctionDefinition, NewFunctionInvoker {
+public class LiveDataSourcingFunction extends AbstractFunction
+implements FunctionInvoker {
   private final ValueRequirement _requirement;
   private final ValueSpecification _result;
   
-  public NewLiveDataSourcingFunction(ValueRequirement requirement) {
+  public LiveDataSourcingFunction(ValueRequirement requirement) {
     ArgumentChecker.checkNotNull(requirement, "Value Requirement");
     _requirement = requirement;
     _result = new ValueSpecification(requirement);
@@ -73,7 +73,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
 
   @Override
   public Set<NewComputedValue> execute(
-      FunctionExecutionContext executionContext, NewFunctionInputs inputs,
+      FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }

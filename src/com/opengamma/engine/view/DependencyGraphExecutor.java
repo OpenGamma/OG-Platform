@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.NewDependencyGraph;
 import com.opengamma.engine.depgraph.NewDependencyNode;
-import com.opengamma.engine.function.NewLiveDataSourcingFunction;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.security.Security;
@@ -263,7 +263,7 @@ public class DependencyGraphExecutor {
     Iterator<NewDependencyNode> depNodeIter = _nodesToExecute.iterator();
     while(depNodeIter.hasNext()) {
       NewDependencyNode depNode = depNodeIter.next();
-      if(depNode.getFunctionDefinition() instanceof NewLiveDataSourcingFunction) {
+      if(depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
         depNodeIter.remove();
         _executedNodes.add(depNode);
       }
@@ -322,7 +322,7 @@ public class DependencyGraphExecutor {
       long iterationTimestamp,
       AtomicLong jobIdSource,
       NewDependencyNode depNode) {
-    assert !(depNode.getFunctionDefinition() instanceof NewLiveDataSourcingFunction);
+    assert !(depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction);
     
     long jobId = jobIdSource.addAndGet(1l);
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);

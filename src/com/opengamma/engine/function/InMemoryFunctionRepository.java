@@ -47,13 +47,6 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     if(invoker == null) {
       throw new NullPointerException("Must provide an invoker.");
     }
-    if(function instanceof NewFunctionDefinition) {
-      if(!(invoker instanceof NewFunctionInvoker)) {
-        throw new IllegalArgumentException("Must provide new style invoker for aggregate position definition.");
-      }
-    } else {
-      throw new IllegalArgumentException("Unexpected analytic function definition " + function.getClass());
-    }
   }
 
   @Override

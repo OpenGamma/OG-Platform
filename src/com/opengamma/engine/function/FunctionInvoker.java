@@ -5,6 +5,11 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Set;
+
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.value.NewComputedValue;
+
 
 /**
  * The interface through which an Analytic Function can actually be invoked.
@@ -13,4 +18,8 @@ package com.opengamma.engine.function;
  */
 public interface FunctionInvoker {
 
+  Set<NewComputedValue> execute(
+      FunctionExecutionContext executionContext,
+      FunctionInputs inputs,
+      ComputationTarget target);
 }

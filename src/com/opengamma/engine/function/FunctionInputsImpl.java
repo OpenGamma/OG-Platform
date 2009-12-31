@@ -24,14 +24,14 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewFunctionInputsImpl implements NewFunctionInputs, Serializable {
+public class FunctionInputsImpl implements FunctionInputs, Serializable {
   private final Set<NewComputedValue> _values;
   
-  public NewFunctionInputsImpl() {
+  public FunctionInputsImpl() {
     _values = new HashSet<NewComputedValue>();
   }
   
-  public NewFunctionInputsImpl(Collection<? extends NewComputedValue> values) {
+  public FunctionInputsImpl(Collection<? extends NewComputedValue> values) {
     _values = new HashSet<NewComputedValue>(values);
   }
   

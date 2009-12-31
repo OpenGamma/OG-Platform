@@ -15,11 +15,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.function.NewFunctionInputs;
-import com.opengamma.engine.function.NewFunctionInputsImpl;
-import com.opengamma.engine.function.NewFunctionInvoker;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
@@ -96,10 +95,6 @@ public class FunctionInvocationJob implements Runnable {
     if(invoker == null) {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
-    if(!(invoker instanceof NewFunctionInvoker)) {
-      throw new IllegalArgumentException("We only support NewFunctionInvoker now.");
-    }
-    NewFunctionInvoker newInvoker = (NewFunctionInvoker) invoker;
     
     Collection<NewComputedValue> inputs = new HashSet<NewComputedValue>();
     for(ValueSpecification inputSpec : getResolvedInputs()) {
@@ -110,9 +105,9 @@ public class FunctionInvocationJob implements Runnable {
       }
       inputs.add(getComputationCache().getValue(inputSpec));
     }
-    NewFunctionInputs functionInputs = new NewFunctionInputsImpl(inputs);
+    FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
     
-    Set<NewComputedValue> results = newInvoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
+    Set<NewComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
     for(NewComputedValue resultValue : results) {
       getComputationCache().putValue(resultValue);
     }

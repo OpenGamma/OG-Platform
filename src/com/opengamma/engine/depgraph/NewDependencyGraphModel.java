@@ -23,8 +23,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.function.NewFunctionDefinition;
-import com.opengamma.engine.function.NewLiveDataSourcingFunction;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -116,13 +115,13 @@ public class NewDependencyGraphModel {
     if(getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       s_logger.debug("Satisfied requirement for {} on {} via live data", target, requirement);
       _allRequiredLiveData.add(requirement);
-      NewLiveDataSourcingFunction function = new NewLiveDataSourcingFunction(requirement);
+      LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
       NewDependencyNode node = new NewDependencyNode(function, target);
       depGraph.addDependencyNode(node);
       return new Pair<NewDependencyNode, ValueSpecification>(node, function.getResult());
     }
     
-    Pair<NewFunctionDefinition, ValueSpecification> resolvedFunction = resolveFunction(target, requirement);
+    Pair<FunctionDefinition, ValueSpecification> resolvedFunction = resolveFunction(target, requirement);
     if(resolvedFunction == null) {
       // Couldn't resolve.
       // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
@@ -156,17 +155,17 @@ public class NewDependencyGraphModel {
   // TODO kirk 2009-12-30 -- This belongs elsewhere.
   // TODO kirk 2009-12-30 -- This also needs better indexing on the function repository when
   // we get past the current time.
-  protected Pair<NewFunctionDefinition, ValueSpecification> resolveFunction(ComputationTarget target, ValueRequirement requirement) {
+  protected Pair<FunctionDefinition, ValueSpecification> resolveFunction(ComputationTarget target, ValueRequirement requirement) {
     for(FunctionDefinition function : getFunctionRepository().getAllFunctions()) {
-      if(function instanceof NewFunctionDefinition) {
-        NewFunctionDefinition newFunction = (NewFunctionDefinition) function;
+      if(function instanceof FunctionDefinition) {
+        FunctionDefinition newFunction = (FunctionDefinition) function;
         if(!newFunction.canApplyTo(target)) {
           continue;
         }
         Set<ValueSpecification> resultSpecs = newFunction.getResults(target, Collections.singleton(requirement));
         for(ValueSpecification resultSpec : resultSpecs) {
           if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
-            return new Pair<NewFunctionDefinition, ValueSpecification>(newFunction, resultSpec);
+            return new Pair<FunctionDefinition, ValueSpecification>(newFunction, resultSpec);
           }
         }
       }
