@@ -19,7 +19,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
@@ -96,9 +96,9 @@ public class FunctionInvocationJob implements Runnable {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
     
-    Collection<NewComputedValue> inputs = new HashSet<NewComputedValue>();
+    Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
     for(ValueSpecification inputSpec : getResolvedInputs()) {
-      NewComputedValue input = getComputationCache().getValue(inputSpec);
+      ComputedValue input = getComputationCache().getValue(inputSpec);
       if(input == null) {
         s_logger.info("Not able to execute as missing input {}", inputSpec);
         throw new MissingInputException(inputSpec, getFunctionUniqueIdentifier());
@@ -107,8 +107,8 @@ public class FunctionInvocationJob implements Runnable {
     }
     FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
     
-    Set<NewComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
-    for(NewComputedValue resultValue : results) {
+    Set<ComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
+    for(ComputedValue resultValue : results) {
       getComputationCache().putValue(resultValue);
     }
   }

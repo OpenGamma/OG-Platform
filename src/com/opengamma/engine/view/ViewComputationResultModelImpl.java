@@ -19,7 +19,7 @@ import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
@@ -28,8 +28,8 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
-  private final Map<ComputationTargetSpecification, Set<NewComputedValue>> _values =
-    new HashMap<ComputationTargetSpecification, Set<NewComputedValue>>();
+  private final Map<ComputationTargetSpecification, Set<ComputedValue>> _values =
+    new HashMap<ComputationTargetSpecification, Set<ComputedValue>>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
   private ViewComputationCache _cache;
@@ -73,12 +73,12 @@ public class ViewComputationResultModelImpl implements
     for (Position position : node.getPositions()) {
       ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getIdentityKey());
       if(!_values.containsKey(targetSpec)) {
-        _values.put(targetSpec, new HashSet<NewComputedValue>());
+        _values.put(targetSpec, new HashSet<ComputedValue>());
       }
     }
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey());
     if(!_values.containsKey(targetSpec)) {
-      _values.put(targetSpec, new HashSet<NewComputedValue>());
+      _values.put(targetSpec, new HashSet<ComputedValue>());
     }
     for (PortfolioNode subNode : node.getSubNodes()) {
       recursiveAddPortfolio(subNode);
@@ -110,12 +110,12 @@ public class ViewComputationResultModelImpl implements
   }
 
   @Override
-  public Collection<NewComputedValue> getValues(
+  public Collection<ComputedValue> getValues(
       ComputationTargetSpecification target) {
-    return new ArrayList<NewComputedValue>(_values.get(target));
+    return new ArrayList<ComputedValue>(_values.get(target));
   }
   
-  public void addValue(NewComputedValue value) {
+  public void addValue(ComputedValue value) {
     ComputationTargetSpecification targetSpec = value.getSpecification().getRequirementSpecification().getTargetSpecification();
     _values.get(targetSpec).add(value);
   }

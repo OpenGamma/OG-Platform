@@ -24,7 +24,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -38,7 +38,7 @@ import com.opengamma.util.Pair;
 public class DependencyGraphModel {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
   // Injected Inputs:
-  private NewLiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private FunctionRepository _functionRepository;
   private ComputationTargetResolver _targetResolver;
   // State:
@@ -50,14 +50,14 @@ public class DependencyGraphModel {
   /**
    * @return the liveDataAvailabilityProvider
    */
-  public NewLiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
   /**
    * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
    */
   public void setLiveDataAvailabilityProvider(
-      NewLiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
   }
   /**

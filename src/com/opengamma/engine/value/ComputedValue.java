@@ -27,11 +27,11 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewComputedValue implements Serializable {
+public class ComputedValue implements Serializable {
   private final ValueSpecification _specification;
   private final Object _value;
   
-  public NewComputedValue(ValueSpecification specification, Object value) {
+  public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.checkNotNull(specification, "Value Specification");
     ArgumentChecker.checkNotNull(value, "Value; for uncomputed values use a standard nonce value.");
     _specification = specification;
@@ -60,10 +60,10 @@ public class NewComputedValue implements Serializable {
     if(obj == null) {
       return false;
     }
-    if(!(obj instanceof NewComputedValue)) {
+    if(!(obj instanceof ComputedValue)) {
       return false;
     }
-    NewComputedValue other = (NewComputedValue) obj;
+    ComputedValue other = (ComputedValue) obj;
     if(!ObjectUtils.equals(_specification, other._specification)) {
       return false;
     }

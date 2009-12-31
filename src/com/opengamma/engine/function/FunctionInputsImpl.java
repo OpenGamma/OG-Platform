@@ -13,7 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,29 +25,29 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
-  private final Set<NewComputedValue> _values;
+  private final Set<ComputedValue> _values;
   
   public FunctionInputsImpl() {
-    _values = new HashSet<NewComputedValue>();
+    _values = new HashSet<ComputedValue>();
   }
   
-  public FunctionInputsImpl(Collection<? extends NewComputedValue> values) {
-    _values = new HashSet<NewComputedValue>(values);
+  public FunctionInputsImpl(Collection<? extends ComputedValue> values) {
+    _values = new HashSet<ComputedValue>(values);
   }
   
-  public void addValue(NewComputedValue value) {
+  public void addValue(ComputedValue value) {
     ArgumentChecker.checkNotNull(value, "Computed Value");
     _values.add(value);
   }
 
   @Override
-  public Collection<NewComputedValue> getAllValues() {
+  public Collection<ComputedValue> getAllValues() {
     return Collections.unmodifiableSet(_values);
   }
 
   @Override
   public Object getValue(ValueRequirement requirement) {
-    for(NewComputedValue value : _values) {
+    for(ComputedValue value : _values) {
       if(ObjectUtils.equals(requirement, value.getSpecification().getRequirementSpecification())) {
         return value.getValue();
       }
@@ -57,7 +57,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public Object getValue(String requirementName) {
-    for(NewComputedValue value : _values) {
+    for(ComputedValue value : _values) {
       if(ObjectUtils.equals(requirementName, value.getSpecification().getRequirementSpecification().getValueName())) {
         return value.getValue();
       }

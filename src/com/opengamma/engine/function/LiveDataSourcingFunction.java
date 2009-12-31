@@ -12,7 +12,7 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -72,7 +72,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<NewComputedValue> execute(
+  public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");

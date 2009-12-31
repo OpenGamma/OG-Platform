@@ -19,7 +19,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
@@ -184,7 +184,7 @@ public class PortfolioEvaluationModel {
   
   public void buildDependencyGraphs(
       FunctionRepository analyticFunctionRepository,
-      NewLiveDataAvailabilityProvider liveDataAvailabilityProvider,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       ComputationTargetResolver computationTargetResolver,
       ViewDefinition viewDefinition) {
     DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();

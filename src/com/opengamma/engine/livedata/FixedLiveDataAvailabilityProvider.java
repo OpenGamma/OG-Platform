@@ -16,8 +16,8 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewFixedLiveDataAvailabilityProvider implements
-    NewLiveDataAvailabilityProvider {
+public class FixedLiveDataAvailabilityProvider implements
+    LiveDataAvailabilityProvider {
   private final Set<ValueRequirement> _availableRequirements = new HashSet<ValueRequirement>();
 
   @Override

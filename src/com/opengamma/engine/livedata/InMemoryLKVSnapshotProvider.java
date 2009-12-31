@@ -13,7 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -25,10 +25,10 @@ import com.opengamma.engine.value.ValueRequirement;
  */
 public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
-  private final Map<ValueRequirement, NewComputedValue> _lastKnownValues =
-    new HashMap<ValueRequirement, NewComputedValue>();
-  private final Map<Long, Map<ValueRequirement, NewComputedValue>> _snapshots =
-    new HashMap<Long, Map<ValueRequirement, NewComputedValue>>();
+  private final Map<ValueRequirement, ComputedValue> _lastKnownValues =
+    new HashMap<ValueRequirement, ComputedValue>();
+  private final Map<Long, Map<ValueRequirement, ComputedValue>> _snapshots =
+    new HashMap<Long, Map<ValueRequirement, ComputedValue>>();
 
   @Override
   public void addSubscription(ValueRequirement valueRequirement) {
@@ -38,12 +38,12 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
 
   @Override
   public synchronized Object querySnapshot(long snapshot, ValueRequirement requirement) {
-    Map<ValueRequirement, NewComputedValue> snapshotValues =
+    Map<ValueRequirement, ComputedValue> snapshotValues =
       _snapshots.get(snapshot);
     if(snapshotValues == null) {
       return null;
     }
-    NewComputedValue value = snapshotValues.get(requirement);
+    ComputedValue value = snapshotValues.get(requirement);
     if(value == null) {
       return null;
     }
@@ -53,8 +53,8 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   @Override
   public synchronized long snapshot() {
     long snapshotTime = System.currentTimeMillis();
-    Map<ValueRequirement, NewComputedValue> snapshotValues =
-      new HashMap<ValueRequirement, NewComputedValue>(_lastKnownValues);
+    Map<ValueRequirement, ComputedValue> snapshotValues =
+      new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);
     return snapshotTime;
   }
@@ -64,7 +64,7 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
     _snapshots.remove(snapshot);
   }
   
-  public synchronized void addValue(NewComputedValue value) {
+  public synchronized void addValue(ComputedValue value) {
     _lastKnownValues.put(value.getSpecification().getRequirementSpecification(), value);
   }
   
@@ -72,7 +72,7 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
     return new ArrayList<ValueRequirement>(_lastKnownValues.keySet());
   }
   
-  public synchronized NewComputedValue getCurrentValue(ValueRequirement valueRequirement) {
+  public synchronized ComputedValue getCurrentValue(ValueRequirement valueRequirement) {
     return _lastKnownValues.get(valueRequirement);
   }
 

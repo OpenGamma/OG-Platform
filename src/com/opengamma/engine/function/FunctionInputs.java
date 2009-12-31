@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import java.util.Collection;
 
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ValueRequirement;
  * @author kirk
  */
 public interface FunctionInputs {
-  Collection<NewComputedValue> getAllValues();
+  Collection<ComputedValue> getAllValues();
   
   Object getValue(ValueRequirement requirement);
   

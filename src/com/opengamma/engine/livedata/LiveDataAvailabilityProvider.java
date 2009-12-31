@@ -12,7 +12,7 @@ import com.opengamma.engine.value.ValueRequirement;
  *
  * @author kirk
  */
-public interface NewLiveDataAvailabilityProvider {
+public interface LiveDataAvailabilityProvider {
 
   boolean isAvailable(ValueRequirement requirement);
 }

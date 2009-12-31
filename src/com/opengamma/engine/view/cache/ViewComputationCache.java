@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.cache;
 
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface ViewComputationCache {
 
-  NewComputedValue getValue(ValueSpecification specification);
+  ComputedValue getValue(ValueSpecification specification);
   
-  void putValue(NewComputedValue value);
+  void putValue(ComputedValue value);
 }

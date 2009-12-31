@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
@@ -158,7 +158,7 @@ public class SingleComputationCycle {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getSnapshotTime());
         missingData = true;
       } else {
-        NewComputedValue dataAsValue = new NewComputedValue(new ValueSpecification(liveDataRequirement), data);
+        ComputedValue dataAsValue = new ComputedValue(new ValueSpecification(liveDataRequirement), data);
         getComputationCache().putValue(dataAsValue);
       }
     }
@@ -197,7 +197,7 @@ public class SingleComputationCycle {
     Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(ComputationTargetType.POSITION);
     for(DependencyGraph depGraph : depGraphs) {
       for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
-        NewComputedValue value = getComputationCache().getValue(outputSpec);
+        ComputedValue value = getComputationCache().getValue(outputSpec);
         if(value != null) {
           getResultModel().addValue(value);
         }

@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
-import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -20,7 +20,7 @@ import com.opengamma.transport.FudgeRequestSender;
  * @author kirk
  */
 public class ViewProcessingContext {
-  private final NewLiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final FunctionRepository _analyticFunctionRepository;
   private final PositionMaster _positionMaster;
@@ -30,7 +30,7 @@ public class ViewProcessingContext {
   private final DefaultComputationTargetResolver _computationTargetResolver;
 
   public ViewProcessingContext(
-      NewLiveDataAvailabilityProvider liveDataAvailabilityProvider,
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       FunctionRepository analyticFunctionRepository,
       PositionMaster positionMaster,
@@ -53,7 +53,7 @@ public class ViewProcessingContext {
   /**
    * @return the liveDataAvailabilityProvider
    */
-  public NewLiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
 
