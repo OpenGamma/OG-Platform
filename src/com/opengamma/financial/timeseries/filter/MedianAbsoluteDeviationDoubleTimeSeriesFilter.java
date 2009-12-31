@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.math.statistics.descriptive.SampleMedianAbsoluteDeviationCalculator;
+import com.opengamma.math.statistics.descriptive.robust.SampleMedianAbsoluteDeviationCalculator;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
