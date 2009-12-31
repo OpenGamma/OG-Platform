@@ -18,9 +18,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.NewFunctionDefinition;
-import com.opengamma.engine.function.NewFunctionInputs;
-import com.opengamma.engine.function.NewFunctionInvoker;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -37,16 +36,16 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewDiscountCurveFunction
+public class DiscountCurveFunction
 extends AbstractFunction 
-implements NewFunctionDefinition, NewFunctionInvoker {
+implements FunctionInvoker {
   private final Interpolator1D _interpolator; 
-  private final NewDiscountCurveDefinition _definition;
+  private final DiscountCurveDefinition _definition;
   private final Set<ValueRequirement> _requirements;
   private final ValueSpecification _result;
   private final Set<ValueSpecification> _results;
   
-  public NewDiscountCurveFunction(NewDiscountCurveDefinition definition) {
+  public DiscountCurveFunction(DiscountCurveDefinition definition) {
     ArgumentChecker.checkNotNull(definition, "Discount Curve Definition");
     _definition = definition;
     
@@ -60,9 +59,9 @@ implements NewFunctionDefinition, NewFunctionInvoker {
    * @param definition
    * @return
    */
-  public static Set<ValueRequirement> buildRequirements(NewDiscountCurveDefinition definition) {
+  public static Set<ValueRequirement> buildRequirements(DiscountCurveDefinition definition) {
     Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for(NewFixedIncomeStrip strip : definition.getStrips()) {
+    for(FixedIncomeStrip strip : definition.getStrips()) {
       ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       result.add(requirement);
     }
@@ -72,7 +71,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
   /**
    * @return the definition
    */
-  public NewDiscountCurveDefinition getDefinition() {
+  public DiscountCurveDefinition getDefinition() {
     return _definition;
   }
 
@@ -122,14 +121,14 @@ implements NewFunctionDefinition, NewFunctionInvoker {
   @Override
   public Set<NewComputedValue> execute(
       FunctionExecutionContext executionContext,
-      NewFunctionInputs inputs,
+      FunctionInputs inputs,
       ComputationTarget target) {
     // Gather market data rates
     // Note that this assumes that all strips are priced in decimal percent. We need to resolve
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
     // the crazy IndicativeValue name.
     Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
-    for(NewFixedIncomeStrip strip : getDefinition().getStrips()) {
+    for(FixedIncomeStrip strip : getDefinition().getStrips()) {
       ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
       Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);

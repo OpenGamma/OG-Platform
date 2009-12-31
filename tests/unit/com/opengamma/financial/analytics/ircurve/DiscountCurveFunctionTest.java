@@ -28,22 +28,22 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  *
  * @author kirk
  */
-public class NewDiscountCurveFunctionTest {
+public class DiscountCurveFunctionTest {
   
-  protected static NewDiscountCurveDefinition constructDefinition() {
+  protected static DiscountCurveDefinition constructDefinition() {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
-    NewDiscountCurveDefinition definition = new NewDiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
-    definition.addStrip(new NewFixedIncomeStrip(1, "USSW1 Curncy"));
-    definition.addStrip(new NewFixedIncomeStrip(2, "USSW2 Curncy"));
-    definition.addStrip(new NewFixedIncomeStrip(3, "USSW3 Curncy"));
+    DiscountCurveDefinition definition = new DiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
+    definition.addStrip(new FixedIncomeStrip(1, "USSW1 Curncy"));
+    definition.addStrip(new FixedIncomeStrip(2, "USSW2 Curncy"));
+    definition.addStrip(new FixedIncomeStrip(3, "USSW3 Curncy"));
     return definition;
   }
   
   @Test
   public void requirements() {
-    NewDiscountCurveDefinition definition = constructDefinition();
-    NewDiscountCurveFunction function = new NewDiscountCurveFunction(definition);
+    DiscountCurveDefinition definition = constructDefinition();
+    DiscountCurveFunction function = new DiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
     requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNotNull(requirements);
@@ -58,15 +58,15 @@ public class NewDiscountCurveFunctionTest {
     }
     assertEquals(3, foundKeys.size());
     
-    for(NewFixedIncomeStrip strip : definition.getStrips()) {
+    for(FixedIncomeStrip strip : definition.getStrips()) {
       assertTrue(foundKeys.contains(strip.getMarketDataKey()));
     }
   }
   
   @Test
   public void notMatchingRequirements() {
-    NewDiscountCurveDefinition definition = constructDefinition();
-    NewDiscountCurveFunction function = new NewDiscountCurveFunction(definition);
+    DiscountCurveDefinition definition = constructDefinition();
+    DiscountCurveFunction function = new DiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
     
     requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));

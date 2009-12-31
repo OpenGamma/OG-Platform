@@ -12,11 +12,11 @@ import org.junit.Test;
  *
  * @author kirk
  */
-public class NewFixedIncomeStripTest {
+public class FixedIncomeStripTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void negativeYears() {
-    new NewFixedIncomeStrip(-5, "");
+    new FixedIncomeStrip(-5, "");
   }
   
   // TODO kirk 2009-12-30 -- Test everything else.

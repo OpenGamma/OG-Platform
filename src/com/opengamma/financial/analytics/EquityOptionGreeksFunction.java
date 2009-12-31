@@ -19,9 +19,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.NewFunctionDefinition;
-import com.opengamma.engine.function.NewFunctionInputs;
-import com.opengamma.engine.function.NewFunctionInvoker;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -52,7 +51,7 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public class EquityOptionGreeksFunction extends AbstractFunction
-implements NewFunctionDefinition, NewFunctionInvoker {
+implements FunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
 
@@ -131,7 +130,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
 
   @Override
   public Set<NewComputedValue> execute(
-      FunctionExecutionContext executionContext, NewFunctionInputs inputs,
+      FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target) {
     if(!canApplyTo(target)) {
       return null;

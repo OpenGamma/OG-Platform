@@ -12,9 +12,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.NewFunctionDefinition;
-import com.opengamma.engine.function.NewFunctionInputs;
-import com.opengamma.engine.function.NewFunctionInvoker;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.NewComputedValue;
@@ -29,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PositionScalingFunction
 extends AbstractFunction
-implements NewFunctionDefinition, NewFunctionInvoker {
+implements FunctionInvoker {
   private final String _requirementName;
   
   public PositionScalingFunction(String requirementName) {
@@ -70,7 +69,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
 
   @Override
   public Set<NewComputedValue> execute(
-      FunctionExecutionContext executionContext, NewFunctionInputs inputs,
+      FunctionExecutionContext executionContext, FunctionInputs inputs,
       ComputationTarget target) {
     Object value = inputs.getValue(_requirementName);
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.getSpecification());

@@ -21,11 +21,11 @@ import com.opengamma.util.CompareUtils;
  *
  * @author kirk
  */
-public class NewFixedIncomeStrip implements Serializable, Comparable<NewFixedIncomeStrip> {
+public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
   private final double _numYears;
   private final String _marketDataKey;
   
-  public NewFixedIncomeStrip(double numYears, String marketDataKey) {
+  public FixedIncomeStrip(double numYears, String marketDataKey) {
     if(numYears < 0) {
       throw new IllegalArgumentException("Fixed income strips cannot be in the future.");
     }
@@ -54,7 +54,7 @@ public class NewFixedIncomeStrip implements Serializable, Comparable<NewFixedInc
   }
 
   @Override
-  public int compareTo(NewFixedIncomeStrip o) {
+  public int compareTo(FixedIncomeStrip o) {
     if(getNumYears() < o.getNumYears()) {
       return -1;
     } else if (getNumYears() > o.getNumYears()) {
@@ -71,10 +71,10 @@ public class NewFixedIncomeStrip implements Serializable, Comparable<NewFixedInc
     if(obj == null) {
       return false;
     }
-    if(!(obj instanceof NewFixedIncomeStrip)) {
+    if(!(obj instanceof FixedIncomeStrip)) {
       return false;
     }
-    NewFixedIncomeStrip other = (NewFixedIncomeStrip) obj;
+    FixedIncomeStrip other = (FixedIncomeStrip) obj;
     if(!CompareUtils.closeEquals(_numYears, other._numYears)) {
       return false;
     }

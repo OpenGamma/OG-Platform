@@ -23,17 +23,17 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class NewDiscountCurveDefinition implements Serializable {
+public class DiscountCurveDefinition implements Serializable {
   private final Currency _currency;
   private final String _name;
   private final String _interpolatorName;
-  private final SortedSet<NewFixedIncomeStrip> _strips = new TreeSet<NewFixedIncomeStrip>();
+  private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
   
-  public NewDiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
+  public DiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
     this(currency, name, interpolatorName, null);
   }
   
-  public NewDiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends NewFixedIncomeStrip> strips) {
+  public DiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.checkNotNull(currency, "Currency");
     ArgumentChecker.checkNotNull(interpolatorName, "Interpolator name");
     // Name can be null.
@@ -41,13 +41,13 @@ public class NewDiscountCurveDefinition implements Serializable {
     _name = name;
     _interpolatorName = interpolatorName;
     if(strips != null) {
-      for(NewFixedIncomeStrip strip : strips) {
+      for(FixedIncomeStrip strip : strips) {
         addStrip(strip);
       }
     }
   }
   
-  public void addStrip(NewFixedIncomeStrip strip) {
+  public void addStrip(FixedIncomeStrip strip) {
     ArgumentChecker.checkNotNull(strip, "Strip");
     _strips.add(strip);
   }
@@ -76,7 +76,7 @@ public class NewDiscountCurveDefinition implements Serializable {
   /**
    * @return the strips
    */
-  public SortedSet<NewFixedIncomeStrip> getStrips() {
+  public SortedSet<FixedIncomeStrip> getStrips() {
     return Collections.unmodifiableSortedSet(_strips);
   }
 
@@ -88,10 +88,10 @@ public class NewDiscountCurveDefinition implements Serializable {
     if(obj == null) {
       return false;
     }
-    if(!(obj instanceof NewDiscountCurveDefinition)) {
+    if(!(obj instanceof DiscountCurveDefinition)) {
       return false;
     }
-    NewDiscountCurveDefinition other = (NewDiscountCurveDefinition) obj;
+    DiscountCurveDefinition other = (DiscountCurveDefinition) obj;
     if(!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
@@ -118,7 +118,7 @@ public class NewDiscountCurveDefinition implements Serializable {
     if(_interpolatorName != null) {
       result = (result * prime) + _interpolatorName.hashCode(); 
     }
-    for(NewFixedIncomeStrip strip : _strips) {
+    for(FixedIncomeStrip strip : _strips) {
       result = (result * prime) + strip.hashCode();
     }
     return result;
