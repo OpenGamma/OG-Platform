@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -12,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.NewDependencyGraph;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.NewComputedValue;
@@ -170,17 +172,27 @@ public class SingleComputationCycle {
   
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {
-    PortfolioNode populatedRootNode = getPortfolioEvaluationModel().getPopulatedRootNode();
-    
-    for(NewDependencyGraph depGraph : getPortfolioEvaluationModel().getDependencyGraphModel().getAllDependencyGraphs()) {
-      s_logger.info("Executing dependency graph for {}", depGraph.getComputationTarget());
-    }
-    
-    //executePrimitivePlan();
-    //executeSecuritySpecificPlans();
-    //executeAggregateAndPositionDependentPlans(populatedRootNode);
+    executePlans(ComputationTargetType.PRIMITIVE);
+    executePlans(ComputationTargetType.SECURITY);
+    executePlans(ComputationTargetType.POSITION);
+    executePlans(ComputationTargetType.MULTIPLE_POSITIONS);
   }
   
+  /**
+   * @param primitive
+   */
+  protected void executePlans(ComputationTargetType targetType) {
+    Collection<NewDependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(targetType);
+    for(NewDependencyGraph depGraph : depGraphs) {
+      s_logger.info("Executing dependency graph for {}", depGraph.getComputationTarget());
+      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
+          getViewName(),
+          depGraph,
+          getProcessingContext());
+      depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
+    }
+  }
+
   /**
    * 
   private void executePrimitivePlan() {

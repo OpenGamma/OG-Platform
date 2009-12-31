@@ -10,6 +10,9 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -63,6 +66,16 @@ public class ValueSpecification implements Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
+    FudgeMsg msg = fudgeContext.newMessage();
+    _requirementSpecification.writeFields(msg);
+    return msg;
+  }
+  
+  public static ValueSpecification fromFudgeMsg(FudgeFieldContainer msg) {
+    return new ValueSpecification(ValueRequirement.fromFudge(msg));
   }
 
 }

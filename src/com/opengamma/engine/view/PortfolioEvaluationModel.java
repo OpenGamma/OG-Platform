@@ -143,11 +143,15 @@ public class PortfolioEvaluationModel {
     // - Build the node tree from the resolved Securities
     PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
     for(Position position : node.getPositions()) {
-      Security security = secMaster.getSecurity(position.getSecurityKey());
+      Security security = position.getSecurity();
+      if(position.getSecurity() == null) {
+        security = secMaster.getSecurity(position.getSecurityKey());
+      }
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      Position populatedPosition = new PositionBean(position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
+      PositionBean populatedPosition = new PositionBean(position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
+      populatedPosition.setIdentityKey(position.getIdentityKey());
       populatedNode.addPosition(populatedPosition);
     }
     for(PortfolioNode subNode : node.getSubNodes()) {
@@ -194,12 +198,10 @@ public class PortfolioEvaluationModel {
       Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
       Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for(String requirementName : requiredOutputValues) {
-        ValueRequirement requirement = new ValueRequirement(requirementName, ComputationTargetType.SECURITY, position.getSecurity().getIdentityKey());
+        ValueRequirement requirement = new ValueRequirement(requirementName, ComputationTargetType.POSITION, position.getIdentityKey());
         requirements.add(requirement);
       }
-      // TODO kirk 2009-12-30 -- Go back to supporting positions. For now we just support securities.
-      //dependencyGraphModel.addPosition(position, requiredOutputValues);
-      dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.SECURITY, position.getSecurity()), requirements);
+      dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
     }
     //buildDependencyGraphs(getPopulatedRootNode(), dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
     setDependencyGraphModel(dependencyGraphModel);

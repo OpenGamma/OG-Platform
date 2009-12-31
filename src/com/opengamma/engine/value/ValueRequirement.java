@@ -10,6 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -21,6 +23,10 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class ValueRequirement implements Serializable {
+  public static final String VALUE_NAME_FIELD_NAME = "valueName";
+  public static final String TARGET_TYPE_FIELD_NAME = "targetType";
+  public static final String TARGET_ID_FIELD_NAME = "targetIdentifier";
+  
   private final String _valueName;
   private final ComputationTargetSpecification _targetSpecification;
   
@@ -83,6 +89,19 @@ public class ValueRequirement implements Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  public void writeFields(FudgeMsg msg) {
+    msg.add(VALUE_NAME_FIELD_NAME, _valueName);
+    msg.add(TARGET_TYPE_FIELD_NAME, _targetSpecification.getType().name());
+    msg.add(TARGET_ID_FIELD_NAME, _targetSpecification.getIdentifier());
+  }
+  
+  public static ValueRequirement fromFudge(FudgeFieldContainer msg) {
+    String valueName = msg.getString(VALUE_NAME_FIELD_NAME);
+    ComputationTargetType targetType = ComputationTargetType.valueOf(msg.getString(TARGET_TYPE_FIELD_NAME));
+    String targetIdentifier = msg.getString(TARGET_ID_FIELD_NAME);
+    return new ValueRequirement(valueName, targetType, targetIdentifier);
   }
   
 }

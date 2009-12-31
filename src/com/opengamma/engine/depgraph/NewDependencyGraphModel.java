@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.NewFunctionDefinition;
@@ -185,6 +187,16 @@ public class NewDependencyGraphModel {
   
   public Collection<NewDependencyGraph> getAllDependencyGraphs() {
     return new ArrayList<NewDependencyGraph>(_graphsByTarget.values());
+  }
+  
+  public Collection<NewDependencyGraph> getDependencyGraphs(ComputationTargetType targetType) {
+    List<NewDependencyGraph> graphs = new ArrayList<NewDependencyGraph>();
+    for(Map.Entry<ComputationTarget, NewDependencyGraph> entry : _graphsByTarget.entrySet()) {
+      if(entry.getKey().getType() == targetType) {
+        graphs.add(entry.getValue());
+      }
+    }
+    return graphs;
   }
 
 }

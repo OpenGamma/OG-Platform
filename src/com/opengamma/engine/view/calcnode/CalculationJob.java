@@ -16,17 +16,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.position.PositionReference;
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.AnalyticValueDefinitionEncoder;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -39,6 +35,7 @@ public class CalculationJob implements Serializable {
   public static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
   public static final String INPUT_FIELD_NAME = "valueInput";
   
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
   
   private final CalculationJobSpecification _specification;
@@ -111,7 +108,7 @@ public class CalculationJob implements Serializable {
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     
     for(ValueSpecification inputSpecification : getInputs()) {
-      //msg.add(INPUT_FIELD_NAME, AnalyticValueDefinitionEncoder.toFudgeMsg(inputSpecification, fudgeContext));
+      msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
     }
     
     return msg;
@@ -129,8 +126,8 @@ public class CalculationJob implements Serializable {
     
     List<ValueSpecification> inputs = new ArrayList<ValueSpecification>();
     for(FudgeField field : msg.getAllByName(INPUT_FIELD_NAME)) {
-      //AnalyticValueDefinition<?> input = AnalyticValueDefinitionEncoder.fromFudgeMsg(new FudgeMsgEnvelope((FudgeMsg) field.getValue()));
-      //inputs.add(input);
+      ValueSpecification inputSpecification = ValueSpecification.fromFudgeMsg((FudgeFieldContainer)field.getValue());
+      inputs.add(inputSpecification);
     }
     
     return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, computationTargetSpecification, inputs);
