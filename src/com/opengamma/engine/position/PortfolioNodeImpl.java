@@ -20,6 +20,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   private final List<Position> _positions = new ArrayList<Position>();
   private final List<PortfolioNode> _subNodes = new ArrayList<PortfolioNode>();
   private final String _name;
+  private String _identityKey;
   
   public PortfolioNodeImpl() {
     _name = null;
@@ -29,6 +30,20 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
     _name = name;
   }
   
+  /**
+   * @return the identityKey
+   */
+  public String getIdentityKey() {
+    return _identityKey;
+  }
+
+  /**
+   * @param identityKey the identityKey to set
+   */
+  public void setIdentityKey(String identityKey) {
+    _identityKey = identityKey;
+  }
+
   @Override
   public Collection<Position> getPositions() {
     return Collections.unmodifiableList(_positions);

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionMaster;
@@ -44,6 +45,7 @@ public class CSVPositionMaster implements PositionMaster {
   private final File _baseDirectory;
   private final Map<String, File> _portfolioFilesByName = new TreeMap<String, File>();
   private final Map<String, Position> _positionsByIdentityKey = new TreeMap<String, Position>();
+  private final Map<String, PortfolioNode> _nodesByIdentityKey = new TreeMap<String, PortfolioNode>();
   
   public CSVPositionMaster(String baseDirectoryName) {
     this(new File(baseDirectoryName));
@@ -134,6 +136,9 @@ public class CSVPositionMaster implements PositionMaster {
   public Portfolio loadPortfolio(String portfolioName, InputStream portfolioStream) throws IOException {
     int currPosition = 0;
     PortfolioImpl portfolio = new PortfolioImpl(portfolioName);
+    portfolio.setIdentityKey(portfolioName);
+    _nodesByIdentityKey.put(portfolioName, portfolio);
+    
     BufferedReader br = new BufferedReader(new InputStreamReader(portfolioStream));
     String line = null;
     while((line = br.readLine()) != null) {
@@ -183,6 +188,11 @@ public class CSVPositionMaster implements PositionMaster {
   @Override
   public Position getPosition(String identityKey) {
     return _positionsByIdentityKey.get(identityKey);
+  }
+
+  @Override
+  public PortfolioNode getPortfolioNode(String identityKey) {
+    return _nodesByIdentityKey.get(identityKey);
   }
   
 }

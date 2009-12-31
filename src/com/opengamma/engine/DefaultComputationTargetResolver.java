@@ -9,6 +9,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
@@ -70,8 +71,16 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       } else {
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
+    case MULTIPLE_POSITIONS:
+      PortfolioNode portfolioNode = getPositionMaster().getPortfolioNode(targetSpecification.getIdentifier());
+      s_logger.info("Resolved portfolio node ID {} to security {}", targetSpecification.getIdentifier(), portfolioNode);
+      if(portfolioNode == null) {
+        return null;
+      } else {
+        return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode);
+      }
     default:
-      throw new NotImplementedException("Unable to handle more than primitive and security lookups yet.");
+      throw new NotImplementedException("Unhandled computation target type " + targetSpecification.getType());
     }
   }
 

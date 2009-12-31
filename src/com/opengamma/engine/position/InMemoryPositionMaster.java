@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class InMemoryPositionMaster implements PositionMaster {
   private final Map<String, Portfolio> _portfoliosByName = new ConcurrentHashMap<String, Portfolio>();
   private final Map<String, Position> _positionsByIdentityKey = new ConcurrentHashMap<String, Position>();
+  private final Map<String, PortfolioNode> _portfolioNodesByIdentityKey = new ConcurrentHashMap<String, PortfolioNode>();
   private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
 
   @Override
@@ -41,6 +42,12 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param rootPortfolio
    */
   private void addPortfolioNode(String portfolioName, PortfolioNode node) {
+    if(node instanceof PortfolioNodeImpl) {
+      PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl)node;
+      String identityKey = portfolioName + "-" + _nextIdentityKey.getAndIncrement();
+      nodeImpl.setIdentityKey(identityKey);
+    }
+    _portfolioNodesByIdentityKey.put(node.getIdentityKey(), node);
     for(Position position : node.getPositions()) {
       if(position instanceof PositionBean) {
         PositionBean positionBean = (PositionBean) position;
@@ -57,6 +64,11 @@ public class InMemoryPositionMaster implements PositionMaster {
   @Override
   public Position getPosition(String identityKey) {
     return _positionsByIdentityKey.get(identityKey);
+  }
+
+  @Override
+  public PortfolioNode getPortfolioNode(String identityKey) {
+    return _portfolioNodesByIdentityKey.get(identityKey);
   }
 
 }

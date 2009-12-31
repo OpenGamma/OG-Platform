@@ -108,9 +108,9 @@ public class ComputationTarget implements Serializable {
     case SECURITY:
       return ((Security)getValue()).getIdentityKey();
     case POSITION:
-      return null;
+      return ((Position)getValue()).getIdentityKey();
     case MULTIPLE_POSITIONS:
-      return null;
+      return ((PortfolioNode)getValue()).getIdentityKey();
     default:
       throw new IllegalStateException("Unhandled ComputationTargetType");
     }
