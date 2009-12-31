@@ -21,7 +21,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.NewFunctionDefinition;
 import com.opengamma.engine.function.NewFunctionInputs;
 import com.opengamma.engine.function.NewFunctionInvoker;
-import com.opengamma.engine.value.MarketDataComputedValue;
+import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -132,7 +132,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
     for(NewFixedIncomeStrip strip : getDefinition().getStrips()) {
       ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
-      Double price = fieldContainer.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);
+      Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
     // Bootstrap the discount curve

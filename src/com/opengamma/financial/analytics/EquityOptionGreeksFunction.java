@@ -5,10 +5,7 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,19 +17,12 @@ import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractSecurityFunction;
+import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.NewFunctionDefinition;
 import com.opengamma.engine.function.NewFunctionInputs;
 import com.opengamma.engine.function.NewFunctionInvoker;
-import com.opengamma.engine.function.SecurityFunctionDefinition;
-import com.opengamma.engine.function.SecurityFunctionInvoker;
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.MarketDataAnalyticValueDefinitionFactory;
-import com.opengamma.engine.value.MarketDataComputedValue;
+import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -61,86 +51,14 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class EquityOptionGreeksFunction extends AbstractSecurityFunction
-implements SecurityFunctionDefinition, SecurityFunctionInvoker,
-NewFunctionDefinition, NewFunctionInvoker {
+public class EquityOptionGreeksFunction extends AbstractFunction
+implements NewFunctionDefinition, NewFunctionInvoker {
   
   public static final String PRICE_FIELD_NAME = "PRICE";
 
   @Override
-  public Collection<ComputedValue<?>> execute(
-      FunctionExecutionContext executionContext, FunctionInputs inputs,
-      Security security) {
-    if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
-      final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
-      final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(new DiscountCurveValueDefinition(equityOption.getCurrency()));
-      // TODO: The following line .toString() is a quick hack just to make it compile.
-      final VolatilitySurface volSurface = (VolatilitySurface) inputs.getValue(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey().toString()));
-      FudgeFieldContainer underlyingDataFields = (FudgeFieldContainer) inputs.getValue(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlyingIdentityKey()));
-      final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
-      final Expiry expiry = equityOption.getExpiry();
-      final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant()));
-      final double spot = underlyingDataFields.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);       
-      StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volSurface, spot, today);
-      EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOption.getStrike(), expiry, equityOption.getOptionType() == OptionType.CALL);
-      AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
-      GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
-      return Collections.<ComputedValue<?>>singleton(new GreeksComputedValue(new GreeksResultValueDefinition(security.getIdentityKey()), greeks));
-    } else {
-      throw new IllegalStateException("Illegal security type "+security.getSecurityType());
-    }
-  }
-
-  @Override
-  public Collection<AnalyticValueDefinition<?>> getInputs(Security security) {
-    if (security.getSecurityType().equals(EquityOptionSecurity.EQUITY_OPTION_TYPE)) {
-      final EquityOptionSecurity equityOption = (EquityOptionSecurity) security;
-      final Collection<AnalyticValueDefinition<?>> inputs = new ArrayList<AnalyticValueDefinition<?>>();
-      inputs.add(new DiscountCurveValueDefinition(equityOption.getCurrency()));
-      inputs.add(new VolatilitySurfaceValueDefinition(equityOption.getIdentityKey()));
-      // we do this in two lists so we can separate out what MIGHT be specific to the option type in some cases.
-      final Collection<AnalyticValueDefinition<?>> justThisOption = new ArrayList<AnalyticValueDefinition<?>>();
-      justThisOption.add(MarketDataAnalyticValueDefinitionFactory.constructHeaderDefinition(equityOption.getUnderlyingIdentityKey()));
-      
-      Collection<AnalyticValueDefinition<?>> result = equityOption.accept(new OptionVisitor<Collection<AnalyticValueDefinition<?>>>() {
-        @Override
-        public Collection<AnalyticValueDefinition<?>> visitAmericanVanillaOption(
-            AmericanVanillaOption option) {
-          return justThisOption;
-        }
-
-        @Override
-        public Collection<AnalyticValueDefinition<?>> visitEuropeanVanillaOption(
-            EuropeanVanillaOption option) {
-          return justThisOption;
-        }
-
-        @Override
-        public Collection<AnalyticValueDefinition<?>> visitPoweredOption(PoweredOption option) {
-          return justThisOption;
-        }
-      });
-      inputs.addAll(result);
-      return inputs;  
-    } else {
-      throw new IllegalStateException("illegal security type "+security.getSecurityType());
-    }
-    
-  }
-
-  @Override
-  public Collection<AnalyticValueDefinition<?>> getPossibleResults(Security security) {
-    return Collections.<AnalyticValueDefinition<?>>singleton(new GreeksResultValueDefinition(security.getIdentityKey()));
-  }
-
-  @Override
   public String getShortName() {
     return "Greeks Analytic Function";
-  }
-
-  @Override
-  public boolean isApplicableTo(String securityType) {
-    return securityType.equals("EQUITY_OPTION");
   }
 
   // NewFunction* Methods:
@@ -229,7 +147,7 @@ NewFunctionDefinition, NewFunctionInvoker {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     final Expiry expiry = equityOptionSec.getExpiry();
     final double costOfCarry_b = discountCurve.getInterestRate(DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant()));
-    final double spot = underlyingMarketData.getDouble(MarketDataComputedValue.INDICATIVE_VALUE_NAME);       
+    final double spot = underlyingMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);       
     StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volatilitySurface, spot, today);
     EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOptionSec.getStrike(), expiry, equityOptionSec.getOptionType() == OptionType.CALL);
     AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
@@ -257,6 +175,11 @@ NewFunctionDefinition, NewFunctionInvoker {
     results.add(gammaValue);
     results.add(rhoValue);
     return results;
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.SECURITY;
   }
   
 }
