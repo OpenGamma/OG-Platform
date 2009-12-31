@@ -10,9 +10,7 @@ import java.util.Collection;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMsg;
 
-import com.opengamma.engine.value.AnalyticValueDefinition;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiersImpl;
 
@@ -24,7 +22,7 @@ import com.opengamma.id.DomainSpecificIdentifiersImpl;
 public class DefaultSecurity implements Security, Serializable {
   private DomainSpecificIdentifiersImpl _identifiers;
   private String _securityType;
-  private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
+  //private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
   private String _identityKey;
   
   public DefaultSecurity() {
@@ -70,19 +68,6 @@ public class DefaultSecurity implements Security, Serializable {
    */
   public void setSecurityType(String securityType) {
     _securityType = securityType;
-  }
-
-  @Override
-  public AnalyticValueDefinition<FudgeMsg> getMarketDataDefinition() {
-    return _marketDataDefinition;
-  }
-
-  /**
-   * @param marketDataDefinition the marketDataDefinition to set
-   */
-  public void setMarketDataDefinition(
-      AnalyticValueDefinition<FudgeMsg> marketDataDefinition) {
-    _marketDataDefinition = marketDataDefinition;
   }
 
   @Override

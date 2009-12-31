@@ -5,12 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
-import java.util.Map;
-
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.ComputedValue;
 
 /**
  * Contains just the individual pieces of data that are modified during
@@ -46,6 +40,7 @@ public interface ViewDeltaResultModel {
    * @return
    */
   long getPreviousResultTimestamp();
+  /*
   
   Collection<Position> getRemovedPositions();
   
@@ -66,6 +61,6 @@ public interface ViewDeltaResultModel {
    * </ul> 
    * @param position
    * @return
-   */
   Map<AnalyticValueDefinition<?>, ComputedValue<?>> getDeltaValues(Position position);
+  */
 }
