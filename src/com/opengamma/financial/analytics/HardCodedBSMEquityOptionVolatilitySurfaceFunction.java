@@ -243,7 +243,7 @@ NewFunctionDefinition, NewFunctionInvoker {
   }
   
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target) {
+  public Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements) {
     if(!canApplyTo(target)) {
       return null;
     }

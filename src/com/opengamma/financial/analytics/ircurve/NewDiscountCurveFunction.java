@@ -26,7 +26,6 @@ import com.opengamma.engine.value.NewComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.Currency;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -82,9 +81,9 @@ implements NewFunctionDefinition, NewFunctionInvoker {
     if(target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if(target.getValue() instanceof Currency) {
-      Currency currencyKey = (Currency) target.getValue();
-      return ObjectUtils.equals(currencyKey, getDefinition().getCurrency());
+    if(target.getValue() instanceof String) {
+      String currencyKey = (String) target.getValue();
+      return ObjectUtils.equals(currencyKey, getDefinition().getCurrency().getISOCode());
     }
     return false;
   }
@@ -98,7 +97,7 @@ implements NewFunctionDefinition, NewFunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target) {
+  public Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements) {
     if(canApplyTo(target)) {
       return _results;
     }
