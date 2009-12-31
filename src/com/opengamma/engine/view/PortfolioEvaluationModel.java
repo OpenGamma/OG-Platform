@@ -5,20 +5,21 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.NewDependencyGraphModel;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
@@ -26,7 +27,8 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.util.ArgumentChecker;
 
 
 // REVIEW kirk 2009-09-16 -- The design goal here is that the portfolio
@@ -47,7 +49,7 @@ public class PortfolioEvaluationModel {
   private final Portfolio _portfolio;
 
   private PortfolioNode _populatedRootNode;
-  private DependencyGraphModel _dependencyGraphModel;
+  private NewDependencyGraphModel _dependencyGraphModel;
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
@@ -95,37 +97,35 @@ public class PortfolioEvaluationModel {
   /**
    * @return the dependencyGraphModel
    */
-  public DependencyGraphModel getDependencyGraphModel() {
+  public NewDependencyGraphModel getDependencyGraphModel() {
     return _dependencyGraphModel;
   }
 
   /**
    * @param dependencyGraphModel the dependencyGraphModel to set
    */
-  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
+  public void setDependencyGraphModel(NewDependencyGraphModel dependencyGraphModel) {
     _dependencyGraphModel = dependencyGraphModel;
   }
 
   public void init(
-      SecurityMaster secMaster,
-      FunctionRepository analyticFunctionRepository,
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
-      LiveDataSnapshotProvider liveDataSnapshotProvider,
+      ViewProcessingContext viewProcessingContext,
       ViewDefinition viewDefinition) {
-    assert secMaster != null;
-    assert analyticFunctionRepository != null;
-    assert liveDataAvailabilityProvider != null;
-    assert liveDataSnapshotProvider != null;
-    assert viewDefinition != null;
+    ArgumentChecker.checkNotNull(viewProcessingContext, "View Processing Context");
+    ArgumentChecker.checkNotNull(viewDefinition, "View Definition");
     
-    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio(), secMaster);
+    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio(), viewProcessingContext.getSecurityMaster());
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     
     loadPositions();
     loadSecurities();
-    buildDependencyGraphs(analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
-    addLiveDataSubscriptions(liveDataSnapshotProvider);
+    buildDependencyGraphs(
+        viewProcessingContext.getAnalyticFunctionRepository(),
+        viewProcessingContext.getLiveDataAvailabilityProvider(),
+        viewProcessingContext.getComputationTargetResolver(),
+        viewDefinition);
+    addLiveDataSubscriptions(viewProcessingContext.getLiveDataSnapshotProvider());
   }
 
   /**
@@ -177,22 +177,35 @@ public class PortfolioEvaluationModel {
     }
   }
   
-  public void buildDependencyGraphs(FunctionRepository analyticFunctionRepository, LiveDataAvailabilityProvider liveDataAvailabilityProvider, ViewDefinition viewDefinition) {
-    DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
-    dependencyGraphModel.setAnalyticFunctionRepository(analyticFunctionRepository);
+  public void buildDependencyGraphs(
+      FunctionRepository analyticFunctionRepository,
+      NewLiveDataAvailabilityProvider liveDataAvailabilityProvider,
+      ComputationTargetResolver computationTargetResolver,
+      ViewDefinition viewDefinition) {
+    NewDependencyGraphModel dependencyGraphModel = new NewDependencyGraphModel();
+    dependencyGraphModel.setFunctionRepository(analyticFunctionRepository);
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
+    dependencyGraphModel.setTargetResolver(computationTargetResolver);
 
-    Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
+    Map<String, Set<String>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
     for(Position position : getPopulatedPositions()) {
       // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
       // operation. We could/should do them in parallel.
-      Collection<AnalyticValueDefinition<?>> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
-      dependencyGraphModel.addPosition(position, requiredOutputValues);
+      Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
+      Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+      for(String requirementName : requiredOutputValues) {
+        ValueRequirement requirement = new ValueRequirement(requirementName, ComputationTargetType.SECURITY, position.getSecurity().getIdentityKey());
+        requirements.add(requirement);
+      }
+      // TODO kirk 2009-12-30 -- Go back to supporting positions. For now we just support securities.
+      //dependencyGraphModel.addPosition(position, requiredOutputValues);
+      dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.SECURITY, position.getSecurity()), requirements);
     }
-    buildDependencyGraphs(getPopulatedRootNode(), dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
+    //buildDependencyGraphs(getPopulatedRootNode(), dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
     setDependencyGraphModel(dependencyGraphModel);
   }
   
+  /*
   public Set<String> buildDependencyGraphs(PortfolioNode node,
       DependencyGraphModel dependencyGraphModel,
       FunctionRepository analyticFunctionRepository, 
@@ -218,13 +231,14 @@ public class PortfolioEvaluationModel {
       dependencyGraphModel.addAggregatePosition(node, requiredOutputs);
       return securityTypesUnder;
   }
+  */
   
   public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {
     assert liveDataSnapshotProvider != null;
-    Set<AnalyticValueDefinition<?>> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
+    Set<ValueRequirement> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
-    for(AnalyticValueDefinition<?> liveDataDefinition : requiredLiveData) {
-      liveDataSnapshotProvider.addSubscription(liveDataDefinition);
+    for(ValueRequirement liveDataRequirement : requiredLiveData) {
+      liveDataSnapshotProvider.addSubscription(liveDataRequirement);
     }
   }
 

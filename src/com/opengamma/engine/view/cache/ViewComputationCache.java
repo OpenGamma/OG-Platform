@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.view.cache;
 
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * The shared cache through which various elements in view recalculation will
@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
  */
 public interface ViewComputationCache {
 
-  <T> ComputedValue<T> getValue(AnalyticValueDefinition<T> definition);
+  NewComputedValue getValue(ValueSpecification specification);
   
-  <T> void putValue(ComputedValue<T> value);
+  void putValue(NewComputedValue value);
 }

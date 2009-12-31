@@ -5,23 +5,18 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.depgraph.RevisedDependencyGraph;
+import com.opengamma.engine.depgraph.NewDependencyGraph;
 import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ComputedValueImpl;
+import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
@@ -153,18 +148,17 @@ public class SingleComputationCycle {
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     getResultModel().setRootPopulatedNode(getPortfolioEvaluationModel().getPopulatedRootNode());
     
-    Set<AnalyticValueDefinition<?>> requiredLiveData = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
-    s_logger.debug("Populating {} market data items for snapshot {}", requiredLiveData.size(), getSnapshotTime());
+    Set<ValueRequirement> allLiveDataRequirements = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
+    s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getSnapshotTime());
     
     boolean missingData = false;
-    for(AnalyticValueDefinition<?> requiredDataDefinition : requiredLiveData) {
-      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), requiredDataDefinition);
+    for(ValueRequirement liveDataRequirement : allLiveDataRequirements) {
+      Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), liveDataRequirement);
       if(data == null) {
-        s_logger.debug("Unable to load live data value for {} at snapshot {}.", requiredDataDefinition, getSnapshotTime());
+        s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getSnapshotTime());
         missingData = true;
       } else {
-        @SuppressWarnings("unchecked")
-        ComputedValue<Object> dataAsValue = new ComputedValueImpl(requiredDataDefinition, data);
+        NewComputedValue dataAsValue = new NewComputedValue(new ValueSpecification(liveDataRequirement), data);
         getComputationCache().putValue(dataAsValue);
       }
     }
@@ -174,16 +168,21 @@ public class SingleComputationCycle {
     return true;
   }
   
+  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {
     PortfolioNode populatedRootNode = getPortfolioEvaluationModel().getPopulatedRootNode();
-    executePrimitivePlan();
-    executeSecuritySpecificPlans();
-    executeAggregateAndPositionDependentPlans(populatedRootNode);
+    
+    for(NewDependencyGraph depGraph : getPortfolioEvaluationModel().getDependencyGraphModel().getAllDependencyGraphs()) {
+      s_logger.info("Executing dependency graph for {}", depGraph.getComputationTarget());
+    }
+    
+    //executePrimitivePlan();
+    //executeSecuritySpecificPlans();
+    //executeAggregateAndPositionDependentPlans(populatedRootNode);
   }
   
   /**
    * 
-   */
   private void executePrimitivePlan() {
     s_logger.debug("{} - Executing primitive plan", getSnapshotTime());
     RevisedDependencyGraph primitiveDepGraph = getPortfolioEvaluationModel().getDependencyGraphModel().getPrimitiveGraph();
@@ -194,8 +193,9 @@ public class SingleComputationCycle {
         getProcessingContext());
     depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
   }
+   */
 
-  // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
+  /*
   public void executeSecuritySpecificPlans() {
     // REVIEW kirk 2009-11-02 -- These can actually run in parallel.
     for(Security security : getPortfolioEvaluationModel().getSecurities()) {
@@ -213,7 +213,9 @@ public class SingleComputationCycle {
       depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
     }
   }
+  */
 
+  /*
   public void executeAggregateAndPositionDependentPlans(PortfolioNode node) {
     // REVIEW kirk 2009-11-02 -- These can actually run in parallel.
     for(Position position : node.getPositions()) {
@@ -244,6 +246,7 @@ public class SingleComputationCycle {
       executeAggregateAndPositionDependentPlans(subNode);
     }
   }
+  */
   
   @SuppressWarnings("deprecation")
   public void populateResultModel() {
@@ -256,6 +259,7 @@ public class SingleComputationCycle {
   }
   
   public Set<String> populateResultModel(PortfolioNode node) {
+    /*
     Map<String, Collection<AnalyticValueDefinition<?>>> valueDefsBySecTypes = getViewDefinition().getValueDefinitionsBySecurityTypes();
     Set<String> allSecurityTypesRecursive = new HashSet<String>();
     for (Position position : node.getPositions()) {
@@ -301,6 +305,8 @@ public class SingleComputationCycle {
       }
     }
     return allSecurityTypesRecursive;
+    */
+    return Collections.emptySet();
   }
   
   public void releaseResources() {

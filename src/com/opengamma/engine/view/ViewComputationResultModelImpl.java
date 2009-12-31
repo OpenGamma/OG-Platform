@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.depgraph.NewDependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -34,7 +34,7 @@ public class ViewComputationResultModelImpl implements
   private long _inputDataTimestamp;
   private long _resultTimestamp;
   private ViewComputationCache _cache;
-  private DependencyGraphModel _dependencyGraphModel;
+  private NewDependencyGraphModel _dependencyGraphModel;
   private SecurityMaster _securityMaster;
   private Portfolio _portfolio;
   private PortfolioNode _rootPopulatedNode;
@@ -182,11 +182,11 @@ public class ViewComputationResultModelImpl implements
   /**
    * @param dependencyGraphModel
    */
-  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
+  public void setDependencyGraphModel(NewDependencyGraphModel dependencyGraphModel) {
     _dependencyGraphModel = dependencyGraphModel;
   }
   
-  public DependencyGraphModel getDependencyGraphModel() {
+  public NewDependencyGraphModel getDependencyGraphModel() {
     return _dependencyGraphModel;
   }
 

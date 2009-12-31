@@ -5,12 +5,15 @@
  */
 package com.opengamma.engine.view.cache;
 
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.ComputedValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * An implementation of {@link ViewComputationCache} backed by a {@link ConcurrentHashMap}.
@@ -18,27 +21,28 @@ import com.opengamma.engine.value.ComputedValue;
  * @author kirk
  */
 public class MapViewComputationCache implements ViewComputationCache {
-  private final ConcurrentMap<AnalyticValueDefinition<?>, ComputedValue<?>> _values =
-    new ConcurrentHashMap<AnalyticValueDefinition<?>, ComputedValue<?>>();
+  private static final Logger s_logger = LoggerFactory.getLogger(MapViewComputationCache.class);
+  
+  private final ConcurrentMap<ValueSpecification, NewComputedValue> _values =
+    new ConcurrentHashMap<ValueSpecification, NewComputedValue>();
 
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> ComputedValue<T> getValue(AnalyticValueDefinition<T> definition) {
-    if(definition == null) {
+  public NewComputedValue getValue(ValueSpecification specification) {
+    if(specification == null) {
       return null;
     }
-    return (ComputedValue<T>) _values.get(definition);
+    return _values.get(specification);
   }
 
   @Override
-  public <T> void putValue(ComputedValue<T> value) {
+  public void putValue(NewComputedValue value) {
     if(value == null) {
       throw new NullPointerException("Must provide a value to store.");
     }
-    if(value.getDefinition() == null) {
-      throw new NullPointerException("Value provided must have a definition.");
+    if(value.getSpecification() == null) {
+      throw new NullPointerException("Value provided must have a specification.");
     }
-    _values.put(value.getDefinition(), value);
+    _values.put(value.getSpecification(), value);
   }
   
   public MapViewComputationCache clone() {
@@ -50,8 +54,8 @@ public class MapViewComputationCache implements ViewComputationCache {
   
   // for debugging.
   public void dump() {
-    for (Entry<AnalyticValueDefinition<?>, ComputedValue<?>> entry : _values.entrySet()) {
-      System.err.println(entry.getKey()+" => "+entry.getValue());
+    for(Map.Entry<ValueSpecification, NewComputedValue> entry : _values.entrySet()) {
+      s_logger.info("{} => {}", entry.getKey(), entry.getValue());
     }
   }
 

@@ -10,6 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -20,6 +22,9 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class ComputationTargetSpecification implements Serializable {
+  public static final String TYPE_FIELD_NAME = "computationTargetType";
+  public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
+  
   private final ComputationTargetType _type;
   private final String _identifier;
 
@@ -88,5 +93,18 @@ public class ComputationTargetSpecification implements Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  public void writeFields(FudgeMsg msg) {
+    msg.add(TYPE_FIELD_NAME, _type.name());
+    msg.add(IDENTIFIER_FIELD_NAME, _identifier);
+  }
+  
+  public static ComputationTargetSpecification fromFudgeMsg(FudgeFieldContainer msg) {
+    if(msg == null) {
+      return null;
+    }
+    ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
+    return new ComputationTargetSpecification(type, msg.getString(IDENTIFIER_FIELD_NAME));
   }
 }

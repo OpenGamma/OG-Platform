@@ -5,7 +5,11 @@
  */
 package com.opengamma.engine.depgraph;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +43,7 @@ public class NewDependencyGraphModel {
   // State:
   private final Map<ComputationTarget, NewDependencyGraph> _graphsByTarget =
     new HashMap<ComputationTarget, NewDependencyGraph>();
+  private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
     
   
   /**
@@ -81,6 +86,10 @@ public class NewDependencyGraphModel {
     _targetResolver = targetResolver;
   }
   
+  public Set<ValueRequirement> getAllRequiredLiveData() {
+    return Collections.unmodifiableSet(_allRequiredLiveData);
+  }
+  
   public void addTarget(ComputationTarget target, Set<ValueRequirement> requirements) {
     ArgumentChecker.checkNotNull(target, "Computation Target");
     ArgumentChecker.checkNotNull(requirements, "Value requirements");
@@ -104,6 +113,7 @@ public class NewDependencyGraphModel {
     
     if(getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       s_logger.debug("Satisfied requirement for {} on {} via live data", target, requirement);
+      _allRequiredLiveData.add(requirement);
       NewLiveDataSourcingFunction function = new NewLiveDataSourcingFunction(requirement);
       NewDependencyNode node = new NewDependencyNode(function, target);
       depGraph.addDependencyNode(node);
@@ -171,6 +181,10 @@ public class NewDependencyGraphModel {
       }
     }
     return null;
+  }
+  
+  public Collection<NewDependencyGraph> getAllDependencyGraphs() {
+    return new ArrayList<NewDependencyGraph>(_graphsByTarget.values());
   }
 
 }

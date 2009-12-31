@@ -5,10 +5,8 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
 import java.util.Map;
-
-import com.opengamma.engine.value.AnalyticValueDefinition;
+import java.util.Set;
 
 /**
  * A definition for a particular {@link View} to be managed
@@ -22,7 +20,7 @@ public interface ViewDefinition {
   
   String getRootPortfolioName();
   
-  Collection<AnalyticValueDefinition<?>> getAllValueDefinitions();
+  Set<String> getAllValueDefinitions();
   
-  Map<String, Collection<AnalyticValueDefinition<?>>> getValueDefinitionsBySecurityTypes();
+  Map<String, Set<String>> getValueDefinitionsBySecurityTypes();
 }

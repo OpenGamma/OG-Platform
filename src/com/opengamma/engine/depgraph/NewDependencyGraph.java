@@ -62,5 +62,9 @@ public class NewDependencyGraph {
     _dependencyNodes.add(node);
     _outputValues.addAll(node.getOutputValues());
   }
+  
+  public Collection<NewDependencyNode> getNodes() {
+    return Collections.unmodifiableCollection(_dependencyNodes);
+  }
 
 }

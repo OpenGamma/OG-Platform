@@ -91,6 +91,10 @@ public class NewDependencyNode {
     _requirementMapping.put(inputRequirement, actualValue);
   }
   
+  public ValueSpecification getMappedRequirement(ValueRequirement inputRequirement) {
+    return _requirementMapping.get(inputRequirement);
+  }
+  
   protected boolean inputNodeProduces(ValueSpecification value) {
     for(NewDependencyNode inputNode : _inputNodes) {
       if(inputNode.getOutputValues().contains(value)) {

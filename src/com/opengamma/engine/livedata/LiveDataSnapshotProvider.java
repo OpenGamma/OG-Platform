@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.livedata;
 
-import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ValueRequirement;
 
 /**
  * Allows a view to snapshot and then query the state of financial data.
@@ -14,11 +14,11 @@ import com.opengamma.engine.value.AnalyticValueDefinition;
  */
 public interface LiveDataSnapshotProvider {
 
-  void addSubscription(AnalyticValueDefinition<?> definition);
+  void addSubscription(ValueRequirement valueRequirement);
   
   long snapshot();
 
-  Object querySnapshot(long snapshot, AnalyticValueDefinition<?> definition); 
+  Object querySnapshot(long snapshot, ValueRequirement requirement); 
   
   void releaseSnapshot(long snapshot);
 }

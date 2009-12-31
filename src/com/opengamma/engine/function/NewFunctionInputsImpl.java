@@ -31,6 +31,10 @@ public class NewFunctionInputsImpl implements NewFunctionInputs, Serializable {
     _values = new HashSet<NewComputedValue>();
   }
   
+  public NewFunctionInputsImpl(Collection<? extends NewComputedValue> values) {
+    _values = new HashSet<NewComputedValue>(values);
+  }
+  
   public void addValue(NewComputedValue value) {
     ArgumentChecker.checkNotNull(value, "Computed Value");
     _values.add(value);

@@ -8,7 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Collection;
 import java.util.Map;
 
-import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.depgraph.NewDependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -46,7 +46,7 @@ public interface ViewComputationResultModel {
   
   ComputedValue<?> getValue(Position position, AnalyticValueDefinition<?> valueDefinition);
   
-  DependencyGraphModel getDependencyGraphModel();
+  NewDependencyGraphModel getDependencyGraphModel();
   
   ViewComputationCache getComputationCache();
   

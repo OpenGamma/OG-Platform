@@ -23,15 +23,15 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.RevisedDependencyGraph;
-import com.opengamma.engine.function.LiveDataSourcingFunction;
+import com.opengamma.engine.depgraph.NewDependencyGraph;
+import com.opengamma.engine.depgraph.NewDependencyNode;
+import com.opengamma.engine.function.NewLiveDataSourcingFunction;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
@@ -53,21 +53,21 @@ public class DependencyGraphExecutor {
   private Position _position;
   private Collection<Position> _positions;
   private ComputationTargetType _computationTargetType;
-  private final RevisedDependencyGraph _dependencyGraph;
+  private final NewDependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
   // Running State:
-  private final Set<DependencyNode> _nodesToExecute = new HashSet<DependencyNode>();
-  private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
-  private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
-    new HashMap<CalculationJobSpecification, DependencyNode>();
-  private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
-  private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
+  private final Set<NewDependencyNode> _nodesToExecute = new HashSet<NewDependencyNode>();
+  private final Set<NewDependencyNode> _executingNodes = new HashSet<NewDependencyNode>();
+  private final Map<CalculationJobSpecification, NewDependencyNode> _executingSpecifications =
+    new HashMap<CalculationJobSpecification, NewDependencyNode>();
+  private final Set<NewDependencyNode> _executedNodes = new HashSet<NewDependencyNode>();
+  private final Set<NewDependencyNode> _failedNodes = new HashSet<NewDependencyNode>();
   private final BlockingQueue<CalculationJobResult> _pendingResults = new ArrayBlockingQueue<CalculationJobResult>(100);
   
   public DependencyGraphExecutor(
       String viewName,
       Security security,
-      RevisedDependencyGraph dependencyGraph,
+      NewDependencyGraph dependencyGraph,
       ViewProcessingContext processingContext) {
     this(viewName, dependencyGraph, processingContext);
     ArgumentChecker.checkNotNull(security, "Security");
@@ -80,7 +80,7 @@ public class DependencyGraphExecutor {
   public DependencyGraphExecutor(
       String viewName,
       Position position,
-      RevisedDependencyGraph dependencyGraph,
+      NewDependencyGraph dependencyGraph,
       ViewProcessingContext processingContext) {
     this(viewName, dependencyGraph, processingContext);
     ArgumentChecker.checkNotNull(position, "Position");
@@ -93,7 +93,7 @@ public class DependencyGraphExecutor {
   public DependencyGraphExecutor(
       String viewName,
       Collection<Position> positions,
-      RevisedDependencyGraph dependencyGraph,
+      NewDependencyGraph dependencyGraph,
       ViewProcessingContext processingContext) {
     this(viewName, dependencyGraph, processingContext);
     ArgumentChecker.checkNotNull(positions, "Positions");
@@ -105,7 +105,7 @@ public class DependencyGraphExecutor {
   
   public DependencyGraphExecutor(
       String viewName,
-      RevisedDependencyGraph dependencyGraph,
+      NewDependencyGraph dependencyGraph,
       ViewProcessingContext processingContext) {
     ArgumentChecker.checkNotNull(viewName, "View Name");
     ArgumentChecker.checkNotNull(dependencyGraph, "Dependency Graph");
@@ -147,7 +147,7 @@ public class DependencyGraphExecutor {
   /**
    * @return the dependencyGraph
    */
-  public RevisedDependencyGraph getDependencyGraph() {
+  public NewDependencyGraph getDependencyGraph() {
     return _dependencyGraph;
   }
 
@@ -191,7 +191,7 @@ public class DependencyGraphExecutor {
         // REVIEW kirk 2009-11-04 -- Anything else here to do?
       }
       while(jobResult != null) {
-        DependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
+        NewDependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
         assert completedNode != null : "Got result " + jobResult.getSpecification() + " for job we didn't enqueue. No node to remove.";
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
@@ -207,16 +207,16 @@ public class DependencyGraphExecutor {
   /**
    * @param nodes
    */
-  protected void addAllNodesToExecute(Set<DependencyNode> nodes) {
-    for(DependencyNode node : nodes) {
+  protected void addAllNodesToExecute(Collection<NewDependencyNode> nodes) {
+    for(NewDependencyNode node : nodes) {
       addAllNodesToExecute(node);
     }
   }
   
-  protected void addAllNodesToExecute(DependencyNode node) {
+  protected void addAllNodesToExecute(NewDependencyNode node) {
     // TODO kirk 2009-11-02 -- Handle optimization for where computation
     // targets don't match. We don't have to enqueue the node at all.
-    for(DependencyNode inputNode : node.getInputNodes()) {
+    for(NewDependencyNode inputNode : node.getInputNodes()) {
       addAllNodesToExecute(inputNode);
     }
     _nodesToExecute.add(node);
@@ -225,7 +225,7 @@ public class DependencyGraphExecutor {
   /**
    * @param completedNode
    */
-  protected void failNodesAbove(DependencyNode failedNode) {
+  protected void failNodesAbove(NewDependencyNode failedNode) {
     // TODO kirk 2009-11-02 -- Have to figure out how to do this now.
     /*
     for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
@@ -238,12 +238,12 @@ public class DependencyGraphExecutor {
    * @param failedNode
    * @param node
    */
-  protected boolean failNodesAbove(DependencyNode failedNode, DependencyNode node) {
+  protected boolean failNodesAbove(NewDependencyNode failedNode, NewDependencyNode node) {
     if(node == failedNode) {
       return true;
     }
     boolean wasFailing = false;
-    for(DependencyNode inputNode : node.getInputNodes()) {
+    for(NewDependencyNode inputNode : node.getInputNodes()) {
       if(failNodesAbove(failedNode, inputNode)) {
         _executedNodes.add(node);
         _failedNodes.add(node);
@@ -260,10 +260,10 @@ public class DependencyGraphExecutor {
    * 
    */
   protected void markLiveDataSourcingFunctionsCompleted() {
-    Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
+    Iterator<NewDependencyNode> depNodeIter = _nodesToExecute.iterator();
     while(depNodeIter.hasNext()) {
-      DependencyNode depNode = depNodeIter.next();
-      if(depNode.getFunction() instanceof LiveDataSourcingFunction) {
+      NewDependencyNode depNode = depNodeIter.next();
+      if(depNode.getFunctionDefinition() instanceof NewLiveDataSourcingFunction) {
         depNodeIter.remove();
         _executedNodes.add(depNode);
       }
@@ -276,9 +276,9 @@ public class DependencyGraphExecutor {
   protected synchronized void enqueueAllAvailableNodes(
       long iterationTimestamp,
       AtomicLong jobIdSource) {
-    Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
+    Iterator<NewDependencyNode> depNodeIter = _nodesToExecute.iterator();
     while(depNodeIter.hasNext()) {
-      DependencyNode depNode = depNodeIter.next();
+      NewDependencyNode depNode = depNodeIter.next();
       if(canExecute(depNode)) {
         depNodeIter.remove();
         _executingNodes.add(depNode);
@@ -292,13 +292,13 @@ public class DependencyGraphExecutor {
    * @param depNode
    * @return
    */
-  private boolean canExecute(DependencyNode node) {
+  private boolean canExecute(NewDependencyNode node) {
     assert !_executingNodes.contains(node);
     assert !_executedNodes.contains(node);
     
     // Are all inputs done?
     boolean allInputsExecuted = true;
-    for(DependencyNode inputNode : node.getInputNodes()) {
+    for(NewDependencyNode inputNode : node.getInputNodes()) {
       if(!_executedNodes.contains(inputNode)) {
         allInputsExecuted = false;
         break;
@@ -318,71 +318,31 @@ public class DependencyGraphExecutor {
   /**
    * @param depNode
    */
-  @SuppressWarnings("unchecked")
   protected CalculationJobSpecification submitNodeInvocationJob(
       long iterationTimestamp,
       AtomicLong jobIdSource,
-      DependencyNode depNode) {
-    assert !(depNode.getFunction() instanceof LiveDataSourcingFunction);
-    Collection<AnalyticValueDefinition<?>> resolvedInputs = new HashSet<AnalyticValueDefinition<?>>();
-    for(AnalyticValueDefinition<?> input : depNode.getInputValues()) {
-      resolvedInputs.add(depNode.getResolvedInput(input));
-    }
-    long jobId = jobIdSource.addAndGet(1l);
+      NewDependencyNode depNode) {
+    assert !(depNode.getFunctionDefinition() instanceof NewLiveDataSourcingFunction);
     
+    long jobId = jobIdSource.addAndGet(1l);
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
-    CalculationJob job;
-    switch (depNode.getComputationTargetType()) {
-    case PRIMITIVE:
-      s_logger.debug("Enqueuing job {} to invoke {} on primative function",
-          new Object[] {jobId, depNode.getFunction().getShortName()});
-      job = new CalculationJob(
-          getViewName(),
-          iterationTimestamp,
-          jobId,
-          depNode.getFunction().getUniqueIdentifier(),
-          resolvedInputs);
-      break;
-    case SECURITY:
-      Security security = (Security)depNode.getComputationTarget();
-      s_logger.debug("Enqueuing job {} to invoke {} on security {}",
-          new Object[] {jobId, depNode.getFunction().getShortName(), security.getIdentityKey()});
-      job = new CalculationJob(
-          getViewName(),
-          iterationTimestamp,
-          jobId,
-          depNode.getFunction().getUniqueIdentifier(),
-          security.getIdentityKey(),
-          resolvedInputs);
-      break;
-    case POSITION:
-      Position position = (Position)depNode.getComputationTarget();
-      s_logger.debug("Enqueuing job {} to invoke {} on position {}",
-          new Object[] {jobId, depNode.getFunction().getShortName(), position});
-      job = new CalculationJob(
-          getViewName(),
-          iterationTimestamp,
-          jobId,
-          depNode.getFunction().getUniqueIdentifier(),
-          new PositionReference(position),
-          resolvedInputs);
-      break;
-    case MULTIPLE_POSITIONS:
-      Collection<Position> positions = (Collection<Position>)depNode.getComputationTarget();
-      s_logger.debug("Enqueuing job {} to invoke {} on list of positions {}",
-          new Object[] {jobId, depNode.getFunction().getShortName(), positions});
-      job = new CalculationJob(
-          getViewName(),
-          iterationTimestamp,
-          jobId,
-          depNode.getFunction().getUniqueIdentifier(),
-          convertToPositionReferences(positions),
-          resolvedInputs);
-      break;
-    default:
-      throw new OpenGammaRuntimeException("Unhandled case in switch");
+    s_logger.info("Enqueuing job {} to invoke {} on {}",
+        new Object[]{jobId, depNode.getFunctionDefinition().getShortName(), depNode.getComputationTarget()});
+    
+    // Have to package up the required data
+    Set<ValueSpecification> resolvedInputs = new HashSet<ValueSpecification>();
+    for(ValueRequirement requirement : depNode.getInputRequirements()) {
+      resolvedInputs.add(depNode.getMappedRequirement(requirement));
     }
 
+    CalculationJob job = new CalculationJob(
+        getViewName(),
+        iterationTimestamp,
+        jobId,
+        depNode.getFunctionDefinition().getUniqueIdentifier(),
+        depNode.getComputationTarget().getSpecification(),
+        resolvedInputs);
+    
     s_logger.debug("Enqueuing job with specification {}", jobSpec);
     invokeJob(job);
     return jobSpec;

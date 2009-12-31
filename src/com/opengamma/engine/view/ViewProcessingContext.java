@@ -6,8 +6,8 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.livedata.NewLiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -19,16 +19,17 @@ import com.opengamma.transport.FudgeRequestSender;
  * @author kirk
  */
 public class ViewProcessingContext {
-  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private final NewLiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final FunctionRepository _analyticFunctionRepository;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
   private final FudgeRequestSender _computationJobRequestSender;
+  private final ViewComputationTargetResolver _computationTargetResolver;
 
   public ViewProcessingContext(
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
+      NewLiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       FunctionRepository analyticFunctionRepository,
       PositionMaster positionMaster,
@@ -44,12 +45,14 @@ public class ViewProcessingContext {
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
+    
+    _computationTargetResolver = new ViewComputationTargetResolver(securityMaster);
   }
 
   /**
    * @return the liveDataAvailabilityProvider
    */
-  public LiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
+  public NewLiveDataAvailabilityProvider getLiveDataAvailabilityProvider() {
     return _liveDataAvailabilityProvider;
   }
 
@@ -93,6 +96,13 @@ public class ViewProcessingContext {
    */
   public FudgeRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
+  }
+
+  /**
+   * @return the computationTargetResolver
+   */
+  public ViewComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
   }
 
 }

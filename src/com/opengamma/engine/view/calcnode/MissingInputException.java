@@ -8,7 +8,7 @@ package com.opengamma.engine.view.calcnode;
 import java.text.MessageFormat;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.value.AnalyticValueDefinition;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
@@ -19,8 +19,8 @@ public class MissingInputException extends OpenGammaRuntimeException {
   private static final String MESSAGE_FORMAT =
     "Unable to load input {0} for invocation on function {1}";
   
-  public MissingInputException(AnalyticValueDefinition<?> definition, String functionUniqueIdentifier) {
-    super(MessageFormat.format(MESSAGE_FORMAT, definition, functionUniqueIdentifier));
+  public MissingInputException(ValueSpecification specification, String functionUniqueIdentifier) {
+    super(MessageFormat.format(MESSAGE_FORMAT, specification, functionUniqueIdentifier));
   }
 
 }

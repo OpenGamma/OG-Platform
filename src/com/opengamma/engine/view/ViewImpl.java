@@ -157,10 +157,7 @@ public class ViewImpl implements View, Lifecycle {
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
-        getProcessingContext().getSecurityMaster(),
-        getProcessingContext().getAnalyticFunctionRepository(),
-        getProcessingContext().getLiveDataAvailabilityProvider(),
-        getProcessingContext().getLiveDataSnapshotProvider(),
+        getProcessingContext(),
         getDefinition());
     setPortfolioEvaluationModel(portfolioEvaluationModel);
   }

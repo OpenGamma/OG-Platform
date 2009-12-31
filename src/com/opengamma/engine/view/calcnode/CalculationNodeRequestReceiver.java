@@ -10,8 +10,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.transport.FudgeRequestReceiver;
 
@@ -35,8 +35,8 @@ implements FudgeRequestReceiver {
   public CalculationNodeRequestReceiver(
       ViewComputationCacheSource cacheSource,
       FunctionRepository functionRepository,
-      SecurityMaster securityMaster) {
-    super(cacheSource, functionRepository, securityMaster);
+      ComputationTargetResolver targetResolver) {
+    super(cacheSource, functionRepository, targetResolver);
   }
 
   @Override

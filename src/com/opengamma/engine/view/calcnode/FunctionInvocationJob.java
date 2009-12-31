@@ -7,24 +7,21 @@ package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.function.AggregatePositionFunctionInvoker;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.function.PositionFunctionInvoker;
-import com.opengamma.engine.function.PrimitiveFunctionInvoker;
-import com.opengamma.engine.function.SecurityFunctionInvoker;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
-import com.opengamma.engine.value.AnalyticValueDefinition;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.AnalyticFunctionInputsImpl;
+import com.opengamma.engine.function.NewFunctionInputs;
+import com.opengamma.engine.function.NewFunctionInputsImpl;
+import com.opengamma.engine.function.NewFunctionInvoker;
+import com.opengamma.engine.value.NewComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
@@ -38,92 +35,23 @@ public class FunctionInvocationJob implements Runnable {
   private static final FunctionExecutionContext EXECUTION_CONTEXT = new FunctionExecutionContext() {
   };
   private final String _functionUniqueIdentifier;
-  private final Collection<AnalyticValueDefinition<?>> _resolvedInputs;
-  private final Security _security;
-  private final Position _position;
-  private final Collection<Position> _positions;
+  private final Collection<ValueSpecification> _resolvedInputs;
   private final ViewComputationCache _computationCache;
   private final FunctionRepository _functionRepository;
+  private final ComputationTarget _target;
   
-  // Primitive function constructor
   public FunctionInvocationJob(
       String functionUniqueIdentifier,
-      Collection<AnalyticValueDefinition<?>> resolvedInputs,
+      Collection<ValueSpecification> resolvedInputs,
       ViewComputationCache computationCache,
-      FunctionRepository functionRepository) {
-    assert functionUniqueIdentifier != null;
-    assert resolvedInputs != null;
-    assert computationCache != null;
-    assert functionRepository != null;
+      FunctionRepository functionRepository,
+      ComputationTarget computationTarget) {
+    // TODO kirk 2009-12-30 -- Check Inputs
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _resolvedInputs = resolvedInputs;
-    _security = null;
-    _position = null;
-    _positions = null;
     _computationCache = computationCache;
     _functionRepository = functionRepository;
-  }
-  
-  // Security specific function constructor
-  public FunctionInvocationJob(
-      String functionUniqueIdentifier,
-      Collection<AnalyticValueDefinition<?>> resolvedInputs,
-      Security security,
-      ViewComputationCache computationCache,
-      FunctionRepository functionRepository) {
-    assert functionUniqueIdentifier != null;
-    assert resolvedInputs != null;
-    assert security != null;
-    assert computationCache != null;
-    assert functionRepository != null;
-    _functionUniqueIdentifier = functionUniqueIdentifier;
-    _resolvedInputs = resolvedInputs;
-    _security = security;
-    _position = null;
-    _positions = null;
-    _computationCache = computationCache;
-    _functionRepository = functionRepository;
-  }
-  
-  // Position specific function constructor
-  public FunctionInvocationJob(
-      String functionUniqueIdentifier,
-      Collection<AnalyticValueDefinition<?>> resolvedInputs,
-      Position position,
-      ViewComputationCache computationCache,
-      FunctionRepository functionRepository) {
-    assert functionUniqueIdentifier != null;
-    assert resolvedInputs != null;
-    assert position != null;
-    assert computationCache != null;
-    assert functionRepository != null;
-    _functionUniqueIdentifier = functionUniqueIdentifier;
-    _resolvedInputs = resolvedInputs;
-    _security = null;
-    _position = position;
-    _positions = null;
-    _computationCache = computationCache;
-    _functionRepository = functionRepository;
-  }
-  
-  // Aggregate position function constructor
-  public FunctionInvocationJob(
-      String functionUniqueIdentifier,
-      Collection<AnalyticValueDefinition<?>> resolvedInputs,
-      Collection<Position> positions,
-      ViewComputationCache computationCache,
-      FunctionRepository functionRepository) {
-    assert functionUniqueIdentifier != null;
-    assert resolvedInputs != null;
-    assert computationCache != null;
-    assert functionRepository != null;
-    _functionUniqueIdentifier = functionUniqueIdentifier;
-    _resolvedInputs = resolvedInputs;
-    _security = null;
-    _position = null;
-    _positions = positions;
-    _computationCache = computationCache;
-    _functionRepository = functionRepository;
+    _target = computationTarget;
   }
   
   /**
@@ -136,7 +64,7 @@ public class FunctionInvocationJob implements Runnable {
   /**
    * @return the resolvedInputs
    */
-  public Collection<AnalyticValueDefinition<?>> getResolvedInputs() {
+  public Collection<ValueSpecification> getResolvedInputs() {
     return _resolvedInputs;
   }
 
@@ -146,59 +74,7 @@ public class FunctionInvocationJob implements Runnable {
   public ViewComputationCache getComputationCache() {
     return _computationCache;
   }
-
-  /**
-   * This should only be called if getComputationTargetType() returns SECURITY_KEY
-   * @return the securityKey
-   */
-  public Security getSecurity() {
-    if (_security == null) {
-      s_logger.warn("getSecurityKey() called when job is "+toString());
-    }
-    return _security;
-  }
   
-  /**
-   * This should only be called if getComputationTargetType() returns POSITION
-   * @return the position
-   */
-  public Position getPosition() {
-    if (_position == null) {
-      s_logger.warn("getPosition() called when job is "+toString());
-    }
-    return _position;
-  }
-  
-  /**
-   * This should only be called if getPositions() returns AGGREGATE_POSITION
-   * @return the positions
-   */
-  public Collection<Position> getPositions() {
-    if (_positions == null) {
-      s_logger.warn("getPositions() called when job is "+toString());
-    }
-    return _positions;
-  }
-  
-  public ComputationTarget getComputationTargetType() {
-    if (_security != null) {
-      assert _position == null;
-      assert _positions == null;
-      return ComputationTarget.SECURITY;
-    } else if (_position != null) {
-      assert _positions == null; // already checked _securityKey
-      return ComputationTarget.POSITION;
-    } else if (_positions != null) { // already checked the others.
-      return ComputationTarget.MULTIPLE_POSITIONS;
-    } else {
-      return ComputationTarget.PRIMITIVE;
-    }
-  }
-  
-  public enum ComputationTarget {
-    PRIMITIVE, SECURITY, POSITION, MULTIPLE_POSITIONS
-  }
-
   /**
    * @return the functionRepository
    */
@@ -206,46 +82,39 @@ public class FunctionInvocationJob implements Runnable {
     return _functionRepository;
   }
 
+  /**
+   * @return the target
+   */
+  public ComputationTarget getTarget() {
+    return _target;
+  }
+
   @Override
   public void run() {
-    s_logger.debug("Invoking {} on security {}", getFunctionUniqueIdentifier(), getSecurity());
+    s_logger.debug("Invoking {} on target {}", getFunctionUniqueIdentifier(), getTarget());
     FunctionInvoker invoker = getFunctionRepository().getInvoker(getFunctionUniqueIdentifier());
     if(invoker == null) {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
-    
-    if(getComputationTargetType() == ComputationTarget.MULTIPLE_POSITIONS) {
-      s_logger.info("Invoking on multiple positions.");
+    if(!(invoker instanceof NewFunctionInvoker)) {
+      throw new IllegalArgumentException("We only support NewFunctionInvoker now.");
     }
+    NewFunctionInvoker newInvoker = (NewFunctionInvoker) invoker;
     
-    Collection<ComputedValue<?>> inputs = new HashSet<ComputedValue<?>>();
-    for(AnalyticValueDefinition<?> inputDefinition : getResolvedInputs()) {
-      ComputedValue<?> input = getComputationCache().getValue(inputDefinition);
+    Collection<NewComputedValue> inputs = new HashSet<NewComputedValue>();
+    for(ValueSpecification inputSpec : getResolvedInputs()) {
+      NewComputedValue input = getComputationCache().getValue(inputSpec);
       if(input == null) {
-        s_logger.info("Not able to execute as missing input {}", inputDefinition);
-        throw new MissingInputException(inputDefinition, getFunctionUniqueIdentifier());
+        s_logger.info("Not able to execute as missing input {}", inputSpec);
+        throw new MissingInputException(inputSpec, getFunctionUniqueIdentifier());
       }
-      inputs.add(getComputationCache().getValue(inputDefinition));
+      inputs.add(getComputationCache().getValue(inputSpec));
     }
-    FunctionInputs functionInputs = new AnalyticFunctionInputsImpl(inputs);
+    NewFunctionInputs functionInputs = new NewFunctionInputsImpl(inputs);
     
-    Collection<ComputedValue<?>> outputs = null;
-    if(invoker instanceof PrimitiveFunctionInvoker) {
-      outputs = ((PrimitiveFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs);
-    } else if(invoker instanceof SecurityFunctionInvoker) {
-      assert getComputationTargetType() == ComputationTarget.SECURITY;
-      outputs = ((SecurityFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getSecurity());
-    } else if(invoker instanceof PositionFunctionInvoker) {
-      assert getComputationTargetType() == ComputationTarget.POSITION;
-      outputs = ((PositionFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getPosition());
-    } else if(invoker instanceof AggregatePositionFunctionInvoker) {
-      assert getComputationTargetType() == ComputationTarget.MULTIPLE_POSITIONS;
-      outputs = ((AggregatePositionFunctionInvoker) invoker).execute(EXECUTION_CONTEXT, functionInputs, getPositions());
-    } else {
-      throw new UnsupportedOperationException("Only primitive and security invokers supported now.");
-    }
-    for(ComputedValue<?> outputValue : outputs) {
-      getComputationCache().putValue(outputValue);
+    Set<NewComputedValue> results = newInvoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
+    for(NewComputedValue resultValue : results) {
+      getComputationCache().putValue(resultValue);
     }
   }
 
