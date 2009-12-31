@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.livedata;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,6 +66,14 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   
   public synchronized void addValue(NewComputedValue value) {
     _lastKnownValues.put(value.getSpecification().getRequirementSpecification(), value);
+  }
+  
+  public synchronized Collection<ValueRequirement> getAllValueKeys() {
+    return new ArrayList<ValueRequirement>(_lastKnownValues.keySet());
+  }
+  
+  public synchronized NewComputedValue getCurrentValue(ValueRequirement valueRequirement) {
+    return _lastKnownValues.get(valueRequirement);
   }
 
 }

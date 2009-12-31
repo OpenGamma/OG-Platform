@@ -142,6 +142,7 @@ public class PortfolioEvaluationModel {
     // - Scatter/gather to resolve all Securities
     // - Build the node tree from the resolved Securities
     PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
+    populatedNode.setIdentityKey(node.getIdentityKey());
     for(Position position : node.getPositions()) {
       Security security = position.getSecurity();
       if(position.getSecurity() == null) {
