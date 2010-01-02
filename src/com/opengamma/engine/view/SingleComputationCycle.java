@@ -193,8 +193,12 @@ public class SingleComputationCycle {
 
   
   public void populateResultModel() {
-    // Just do it for positions at the moment.
-    Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(ComputationTargetType.POSITION);
+    populateResultModel(ComputationTargetType.POSITION);
+    populateResultModel(ComputationTargetType.MULTIPLE_POSITIONS);
+  }
+  
+  protected void populateResultModel(ComputationTargetType targetType) {
+    Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(targetType);
     for(DependencyGraph depGraph : depGraphs) {
       for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
         ComputedValue value = getComputationCache().getValue(outputSpec);

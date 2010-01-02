@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,13 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
+import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
@@ -204,37 +207,10 @@ public class PortfolioEvaluationModel {
       }
       dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
     }
-    //buildDependencyGraphs(getPopulatedRootNode(), dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition);
+    PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, viewDefinition);
+    new PortfolioNodeTraverser(compiler).traverse(getPopulatedRootNode());
     setDependencyGraphModel(dependencyGraphModel);
   }
-  
-  /*
-  public Set<String> buildDependencyGraphs(PortfolioNode node,
-      DependencyGraphModel dependencyGraphModel,
-      FunctionRepository analyticFunctionRepository, 
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider, 
-      ViewDefinition viewDefinition) {
-      Set<String> securityTypesUnder = new TreeSet<String>();
-      // find out the security types for all the positions we have right here.
-      for(Position position : node.getPositions()) {
-        securityTypesUnder.add(position.getSecurity().getSecurityType());
-      }
-      // recursively find the security types for the positions under this node.
-      for (PortfolioNode subNode : node.getSubNodes()) {
-        securityTypesUnder.addAll(buildDependencyGraphs(subNode, dependencyGraphModel, analyticFunctionRepository, liveDataAvailabilityProvider, viewDefinition));
-      }
-      // now we work out the intersection of all the value definitions for those securities.
-      Map<String, Collection<AnalyticValueDefinition<?>>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
-      Set<AnalyticValueDefinition<?>> requiredOutputs = new HashSet<AnalyticValueDefinition<?>>();
-      // calculate the UNION
-      for(String type : securityTypesUnder) {
-        requiredOutputs.addAll(outputsBySecurityType.get(type));
-      }
-      // add this node to the dependency model.
-      dependencyGraphModel.addAggregatePosition(node, requiredOutputs);
-      return securityTypesUnder;
-  }
-  */
   
   public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {
     assert liveDataSnapshotProvider != null;
@@ -243,6 +219,67 @@ public class PortfolioEvaluationModel {
     for(ValueRequirement liveDataRequirement : requiredLiveData) {
       liveDataSnapshotProvider.addSubscription(liveDataRequirement);
     }
+  }
+  
+  protected static class SubNodeSecurityTypeAccumulator
+  extends AbstractPortfolioNodeTraversalCallback {
+    private final Set<String> _subNodeSecurityTypes = new TreeSet<String>();
+
+    /**
+     * @return the subNodeSecurityTypes
+     */
+    public Set<String> getSubNodeSecurityTypes() {
+      return _subNodeSecurityTypes;
+    }
+
+    @Override
+    public void preOrderOperation(Position position) {
+      _subNodeSecurityTypes.add(position.getSecurity().getSecurityType());
+    }
+  }
+  
+  protected static class PortfolioNodeCompiler
+  extends AbstractPortfolioNodeTraversalCallback {
+    private final DependencyGraphModel _dependencyGraphModel;
+    private final ViewDefinition _viewDefinition;
+    
+    public PortfolioNodeCompiler(
+        DependencyGraphModel dependencyGraphModel,
+        ViewDefinition viewDefinition) {
+      _dependencyGraphModel = dependencyGraphModel;
+      _viewDefinition = viewDefinition;
+    }
+
+    @Override
+    public void postOrderOperation(PortfolioNode portfolioNode) {
+      // Yes, we could in theory do this outside the loop by implementing more
+      // callbacks, but it might have gotten hairy, so for the first pass I just
+      // did it this way.
+      Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
+      Map<String, Set<String>> outputsBySecurityType = _viewDefinition.getValueDefinitionsBySecurityTypes();
+      for(String secType : subNodeSecurityTypes) {
+        Set<String> requiredOutputs = outputsBySecurityType.get(secType);
+        if((requiredOutputs == null) || requiredOutputs.isEmpty()) {
+          continue;
+        }
+        Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+        for(String requiredOutput : requiredOutputs) {
+          requirements.add(new ValueRequirement(requiredOutput, ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode.getIdentityKey()));
+        }
+        _dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode), requirements);
+      }
+    }
+        
+  }
+
+  /**
+   * @param portfolioNode
+   * @return
+   */
+  private static Set<String> getSubNodeSecurityTypes(PortfolioNode portfolioNode) {
+    SubNodeSecurityTypeAccumulator accumulator = new SubNodeSecurityTypeAccumulator();
+    new PortfolioNodeTraverser(accumulator).traverse(portfolioNode);
+    return accumulator.getSubNodeSecurityTypes();
   }
 
 }
