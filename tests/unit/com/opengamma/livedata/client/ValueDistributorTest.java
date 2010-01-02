@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -28,6 +28,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
  * @author kirk
  */
 public class ValueDistributorTest {
+  private final FudgeContext _fudgeContext = new FudgeContext();
   
   @Test
   public void activeSpecificationsOneSpec() {
@@ -94,7 +95,7 @@ public class ValueDistributorTest {
     distributor.addListener(spec1, listener1);
     
     long timestamp = System.currentTimeMillis();
-    distributor.notifyListeners(timestamp, spec1, new FudgeMsg());
+    distributor.notifyListeners(timestamp, spec1, _fudgeContext.newMessage());
     
     List<LiveDataValueUpdate> updates = listener1.getValueUpdates();
     assertEquals(1, updates.size());
