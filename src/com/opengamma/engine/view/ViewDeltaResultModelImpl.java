@@ -7,9 +7,15 @@ package com.opengamma.engine.view;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import com.opengamma.engine.position.Position;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -18,12 +24,12 @@ import com.opengamma.engine.position.Position;
  */
 public class ViewDeltaResultModelImpl implements ViewDeltaResultModel,
     Serializable {
-  private final Collection<Position> _newPositions = new HashSet<Position>();
-  private final Collection<Position> _removedPositions = new HashSet<Position>();
-  private final Collection<Position> _allPositions = new HashSet<Position>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
   private long _previousResultTimestamp;
+  private final Set<ComputationTargetSpecification> _allTargets = new HashSet<ComputationTargetSpecification>();
+  private final Map<ComputationTargetSpecification, Set<ComputedValue>> _values =
+    new HashMap<ComputationTargetSpecification, Set<ComputedValue>>();
 
   /**
    * @return the inputDataTimestamp
@@ -67,19 +73,32 @@ public class ViewDeltaResultModelImpl implements ViewDeltaResultModel,
     _previousResultTimestamp = previousResultTimestamp;
   }
   
-  public void addNewPosition(Position position) {
-    assert position != null;
-    _newPositions.add(position);
+  public void addTarget(ComputationTargetSpecification targetSpecification) {
+    ArgumentChecker.checkNotNull(targetSpecification, "Target Specification");
+    _allTargets.add(targetSpecification);
+    _values.put(targetSpecification, new HashSet<ComputedValue>());
   }
   
-  public void addRemovedPosition(Position position) {
-    assert position != null;
-    _removedPositions.add(position);
+  public void addValue(ComputedValue value) {
+    ComputationTargetSpecification targetSpecification = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+    addTarget(targetSpecification);
+    Set<ComputedValue> values = _values.get(targetSpecification);
+    assert values != null;
+    values.add(value);
   }
   
-  public void addPosition(Position position) {
-    assert position != null;
-    _allPositions.add(position);
+  @Override
+  public Collection<ComputationTargetSpecification> getAllTargets() {
+    return Collections.unmodifiableSet(_allTargets);
   }
-  
+
+  @Override
+  public Collection<ComputedValue> getDeltaValues(
+      ComputationTargetSpecification target) {
+    Set<ComputedValue> result = _values.get(target);
+    if(result == null) {
+      return Collections.emptySet();
+    }
+    return Collections.unmodifiableSet(result);
+  }
 }

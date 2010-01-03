@@ -5,16 +5,23 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ThreadUtil;
 
 /**
@@ -207,38 +214,25 @@ public class ViewImpl implements View, Lifecycle {
     deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    // TODO kirk 2009-12-31 -- Redo this.
-    /*
     
-    Collection<Position> previousPositions = previousResult.getPositions();
-    Collection<Position> currentPositions = result.getPositions();
-    for(Position previousPosition : previousPositions) {
-      if(!currentPositions.contains(previousPosition)) {
-        deltaModel.addRemovedPosition(previousPosition);
+    for(ComputationTargetSpecification targetSpec : result.getAllTargets()) {
+      deltaModel.addTarget(targetSpec);
+      
+      Collection<ComputedValue> resultValues = result.getValues(targetSpec);
+      Collection<ComputedValue> previousValues = previousResult.getValues(targetSpec);
+      Map<ValueSpecification, ComputedValue> previousValueMap = new HashMap<ValueSpecification, ComputedValue>();
+      for(ComputedValue previousValue : previousValues) {
+        previousValueMap.put(previousValue.getSpecification(), previousValue);
       }
-    }
-    for(Position currentPosition : currentPositions) {
-      if(!previousPositions.contains(currentPosition)) {
-        deltaModel.addNewPosition(currentPosition);
-      }
-    }
-    for(Position currentPosition : currentPositions) {
-      deltaModel.addPosition(currentPosition);
-      Map<AnalyticValueDefinition<?>, ComputedValue<?>> previousValueMap = previousResult.getValues(currentPosition);
-      for(Map.Entry<AnalyticValueDefinition<?>, ComputedValue<?>> currentValuesEntry : result.getValues(currentPosition).entrySet()) {
-        AnalyticValueDefinition<?> definition = currentValuesEntry.getKey();
-        ComputedValue<?> currentValue = currentValuesEntry.getValue();
-        ComputedValue<?> previousValue = previousValueMap.get(definition);
+      for(ComputedValue resultValue : resultValues) {
+        ComputedValue previousValue = previousValueMap.get(resultValue.getSpecification());
         if(previousValue == null) {
-          // Not there before; new value. Add it.
-          deltaModel.addValue(currentPosition, currentValue);
-        } else if(!ObjectUtils.equals(currentValue.getValue(), previousValue.getValue())) {
-          // Changed. Add it.
-          deltaModel.addValue(currentPosition, currentValue);
+          deltaModel.addValue(resultValue);
+        } else if(!ObjectUtils.equals(previousValue.getValue(), resultValue.getValue())) {
+          deltaModel.addValue(resultValue);
         }
       }
     }
-    */
     return deltaModel;
   }
 

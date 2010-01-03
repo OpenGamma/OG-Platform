@@ -5,6 +5,11 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
+
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
+
 
 /**
  * Contains just the individual pieces of data that are modified during
@@ -40,27 +45,8 @@ public interface ViewDeltaResultModel {
    * @return
    */
   long getPreviousResultTimestamp();
-  /*
+
+  Collection<ComputationTargetSpecification> getAllTargets();
   
-  Collection<Position> getRemovedPositions();
-  
-  Collection<Position> getNewPositions();
-  
-  Collection<Position> getAllPositions();
-  
-  Collection<Position> getPositionsWithDeltas();
-  
-  /**
-   * Obtain the values that are relevant for this delta model.
-   * This will include:
-   * <ul>
-   *   <li>All values for positions in the {@link #getNewPositions()} collection</li>
-   *   <li>Values for all positions where new result columns are availbale</li>
-   *   <li>Values that have changed since the last computation cycle for
-   *       all positions which haven't changed.</li>
-   * </ul> 
-   * @param position
-   * @return
-  Map<AnalyticValueDefinition<?>, ComputedValue<?>> getDeltaValues(Position position);
-  */
+  Collection<ComputedValue> getDeltaValues(ComputationTargetSpecification target);
 }
