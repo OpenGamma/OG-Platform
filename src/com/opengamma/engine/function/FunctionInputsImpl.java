@@ -8,16 +8,14 @@ package com.opengamma.engine.function;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
-
-// REVIEW kirk 2009-12-30 -- Should have indexing possibilities.
 
 /**
  * 
@@ -25,19 +23,24 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
-  private final Set<ComputedValue> _values;
+  private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
+  private final Map<String, Object> _valuesByRequirementName = new HashMap<String, Object>();
+  private final Map<ValueRequirement, Object> _valuesByRequirement = new HashMap<ValueRequirement, Object>();
   
   public FunctionInputsImpl() {
-    _values = new HashSet<ComputedValue>();
   }
   
   public FunctionInputsImpl(Collection<? extends ComputedValue> values) {
-    _values = new HashSet<ComputedValue>(values);
+    for(ComputedValue value : values) {
+      addValue(value);
+    }
   }
   
   public void addValue(ComputedValue value) {
     ArgumentChecker.checkNotNull(value, "Computed Value");
     _values.add(value);
+    _valuesByRequirementName.put(value.getSpecification().getRequirementSpecification().getValueName(), value.getValue());
+    _valuesByRequirement.put(value.getSpecification().getRequirementSpecification(), value.getValue());
   }
 
   @Override
@@ -47,22 +50,12 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public Object getValue(ValueRequirement requirement) {
-    for(ComputedValue value : _values) {
-      if(ObjectUtils.equals(requirement, value.getSpecification().getRequirementSpecification())) {
-        return value.getValue();
-      }
-    }
-    return null;
+    return _valuesByRequirement.get(requirement);
   }
 
   @Override
   public Object getValue(String requirementName) {
-    for(ComputedValue value : _values) {
-      if(ObjectUtils.equals(requirementName, value.getSpecification().getRequirementSpecification().getValueName())) {
-        return value.getValue();
-      }
-    }
-    return null;
+    return _valuesByRequirementName.get(requirementName);
   }
 
 }

@@ -103,17 +103,17 @@ public class DependencyGraphModel {
   
   protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(
       ComputationTarget target, ValueRequirement requirement) {
-    s_logger.info("Adding target requirement for {} on {}", target, requirement);
+    s_logger.info("Adding target requirement for {} on {}", requirement, target);
     Pair<DependencyNode, ValueSpecification> existingNode = resolveRequirement(target, requirement);
     if(existingNode != null) {
-      s_logger.debug("Satisfied requirement for {} on {} via existing node", target, requirement);
+      s_logger.debug("Existing Node : {} on {}", requirement, target);
       return existingNode;
     }
     
     DependencyGraph depGraph = getDependencyGraph(target);
     
     if(getLiveDataAvailabilityProvider().isAvailable(requirement)) {
-      s_logger.debug("Satisfied requirement for {} on {} via live data", target, requirement);
+      s_logger.debug("Live Data : {} on {}", requirement, target);
       _allRequiredLiveData.add(requirement);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
       DependencyNode node = new DependencyNode(function, target);

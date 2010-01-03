@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * An in-memory implementation of {@link FunctionRepository}.
  * This can either be used as-is through a factory which scans available functions,
@@ -28,25 +30,11 @@ public class InMemoryFunctionRepository implements FunctionRepository {
   }
   
   public synchronized void addFunction(AbstractFunction function, FunctionInvoker invoker) {
-    validateFunction(function, invoker);
+    ArgumentChecker.checkNotNull(function, "Function definition");
+    ArgumentChecker.checkNotNull(invoker, "Function invoker");
     _functions.add(function);
     function.setUniqueIdentifier(Integer.toString(_functions.size()));
     _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), invoker);
-  }
-
-  /**
-   * @param function
-   * @param invoker
-   */
-  private void validateFunction(AbstractFunction function,
-      FunctionInvoker invoker) {
-    // REVIEW kirk 2009-12-31 -- After the rewrite is done this is meaningless.
-    if(function == null) {
-      throw new NullPointerException("Must provide a function.");
-    }
-    if(invoker == null) {
-      throw new NullPointerException("Must provide an invoker.");
-    }
   }
 
   @Override

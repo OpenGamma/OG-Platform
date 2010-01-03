@@ -22,6 +22,7 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * The job that will actually invoke a {@link FunctionDefinition} as part
@@ -45,7 +46,11 @@ public class FunctionInvocationJob implements Runnable {
       ViewComputationCache computationCache,
       FunctionRepository functionRepository,
       ComputationTarget computationTarget) {
-    // TODO kirk 2009-12-30 -- Check Inputs
+    ArgumentChecker.checkNotNull(functionUniqueIdentifier, "Function identifier");
+    ArgumentChecker.checkNotNull(resolvedInputs, "Resolved inputs");
+    ArgumentChecker.checkNotNull(computationCache, "Computation Cache");
+    ArgumentChecker.checkNotNull(functionRepository, "Function repository");
+    ArgumentChecker.checkNotNull(computationTarget, "Computation target");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _resolvedInputs = resolvedInputs;
     _computationCache = computationCache;
@@ -96,6 +101,22 @@ public class FunctionInvocationJob implements Runnable {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
     
+    FunctionInputs functionInputs = assembleInputs();
+    
+    Set<ComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
+    cacheResults(results);
+  }
+
+  /**
+   * @param results
+   */
+  protected void cacheResults(Set<ComputedValue> results) {
+    for(ComputedValue resultValue : results) {
+      getComputationCache().putValue(resultValue);
+    }
+  }
+  
+  protected FunctionInputs assembleInputs() {
     Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
     for(ValueSpecification inputSpec : getResolvedInputs()) {
       ComputedValue input = getComputationCache().getValue(inputSpec);
@@ -106,11 +127,7 @@ public class FunctionInvocationJob implements Runnable {
       inputs.add(getComputationCache().getValue(inputSpec));
     }
     FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
-    
-    Set<ComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
-    for(ComputedValue resultValue : results) {
-      getComputationCache().putValue(resultValue);
-    }
+    return functionInputs;
   }
 
 }
