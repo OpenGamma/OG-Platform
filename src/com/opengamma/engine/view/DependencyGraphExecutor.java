@@ -12,8 +12,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -62,7 +62,7 @@ public class DependencyGraphExecutor {
     new HashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
-  private final BlockingQueue<CalculationJobResult> _pendingResults = new ArrayBlockingQueue<CalculationJobResult>(100);
+  private final BlockingQueue<CalculationJobResult> _pendingResults = new LinkedBlockingQueue<CalculationJobResult>();
   
   public DependencyGraphExecutor(
       String viewName,
