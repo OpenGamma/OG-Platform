@@ -23,13 +23,11 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionReference;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -49,12 +47,9 @@ public class DependencyGraphExecutor {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
   private final String _viewName; 
-  private Security _security; // compiler too stupid to let us make these final.
-  private Position _position;
-  private Collection<Position> _positions;
-  private ComputationTargetType _computationTargetType;
   private final DependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
+  private final SingleComputationCycle _cycleState;
   // Running State:
   private final Set<DependencyNode> _nodesToExecute = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
@@ -66,54 +61,17 @@ public class DependencyGraphExecutor {
   
   public DependencyGraphExecutor(
       String viewName,
-      Security security,
       DependencyGraph dependencyGraph,
-      ViewProcessingContext processingContext) {
-    this(viewName, dependencyGraph, processingContext);
-    ArgumentChecker.checkNotNull(security, "Security");
-    _computationTargetType = ComputationTargetType.SECURITY;
-    _security = security;
-    _position = null;
-    _positions = null;
-  }
-  
-  public DependencyGraphExecutor(
-      String viewName,
-      Position position,
-      DependencyGraph dependencyGraph,
-      ViewProcessingContext processingContext) {
-    this(viewName, dependencyGraph, processingContext);
-    ArgumentChecker.checkNotNull(position, "Position");
-    _computationTargetType = ComputationTargetType.POSITION;
-    _security = null;
-    _position = position;
-    _positions = null;
-  }
-  
-  public DependencyGraphExecutor(
-      String viewName,
-      Collection<Position> positions,
-      DependencyGraph dependencyGraph,
-      ViewProcessingContext processingContext) {
-    this(viewName, dependencyGraph, processingContext);
-    ArgumentChecker.checkNotNull(positions, "Positions");
-    _computationTargetType = ComputationTargetType.MULTIPLE_POSITIONS;
-    _security = null;
-    _position = null;
-    _positions = positions;
-  }
-  
-  public DependencyGraphExecutor(
-      String viewName,
-      DependencyGraph dependencyGraph,
-      ViewProcessingContext processingContext) {
+      ViewProcessingContext processingContext,
+      SingleComputationCycle cycle) {
     ArgumentChecker.checkNotNull(viewName, "View Name");
     ArgumentChecker.checkNotNull(dependencyGraph, "Dependency Graph");
     ArgumentChecker.checkNotNull(processingContext, "View Processing Context");
-    _computationTargetType = ComputationTargetType.PRIMITIVE;
+    ArgumentChecker.checkNotNull(cycle, "Computation cycle");
     _viewName = viewName;
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
+    _cycleState = cycle;
   }
   
   /**
@@ -121,27 +79,6 @@ public class DependencyGraphExecutor {
    */
   public String getViewName() {
     return _viewName;
-  }
-
-  /**
-   * @return the security
-   */
-  public Security getSecurity() {
-    return _security;
-  }
-
-  /**
-   * @return the position
-   */
-  public Position getPosition() {
-    return _position;
-  }
-
-  /**
-   * @return the positions
-   */
-  public Collection<Position> getPositions() {
-    return _positions;
   }
 
   /**
@@ -159,10 +96,10 @@ public class DependencyGraphExecutor {
   }
 
   /**
-   * @return the computationTargetType
+   * @return the cycleState
    */
-  public ComputationTargetType getComputationTargetType() {
-    return _computationTargetType;
+  public SingleComputationCycle getCycleState() {
+    return _cycleState;
   }
 
   public synchronized void executeGraph(long iterationTimestamp, AtomicLong jobIdSource) {
@@ -170,7 +107,7 @@ public class DependencyGraphExecutor {
     markLiveDataSourcingFunctionsCompleted();
     
     while(!_nodesToExecute.isEmpty()) {
-      enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
+      boolean enqueued = enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
       // REVIEW kirk 2009-10-20 -- I'm not happy with this check here.
       // The rationale is that if we get a failed node, the next time we attempt to enqueue we may
       // mark everything above it as done, and then we'll be done, but we'll wait for the timeout
@@ -179,7 +116,10 @@ public class DependencyGraphExecutor {
       /*if(_executedNodes.size() >= getDependencyGraph().getNodeCount()) {
         break;
       }*/
-      assert !_executingSpecifications.isEmpty() : "Graph problem found. Nodes available, but none enqueued. Breaks execution contract";
+      assert !(_executingSpecifications.isEmpty() && !_nodesToExecute.isEmpty()) : "Graph problem found. Nodes available, but none enqueued. Breaks execution contract";
+      if(!enqueued) {
+        continue;
+      }
       // Suck everything available off the retrieval source.
       // First time we're willing to wait for some period, but after that we pull
       // off as fast as we can.
@@ -195,6 +135,7 @@ public class DependencyGraphExecutor {
         assert completedNode != null : "Got result " + jobResult.getSpecification() + " for job we didn't enqueue. No node to remove.";
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
+        getCycleState().markExecuted(completedNode);
         if(jobResult.getResult() != InvocationResult.SUCCESS) {
           _failedNodes.add(completedNode);
           failNodesAbove(completedNode);
@@ -214,8 +155,9 @@ public class DependencyGraphExecutor {
   }
   
   protected void addAllNodesToExecute(DependencyNode node) {
-    // TODO kirk 2009-11-02 -- Handle optimization for where computation
-    // targets don't match. We don't have to enqueue the node at all.
+    // REVIEW kirk 2010-01-03 -- Should we have an optimization here that checks
+    // before enqueuing? It makes the logic a little more complex but MIGHT help
+    // some cycles. MIGHT being the operative word.
     for(DependencyNode inputNode : node.getInputNodes()) {
       addAllNodesToExecute(inputNode);
     }
@@ -273,19 +215,28 @@ public class DependencyGraphExecutor {
   /**
    * @param completionService
    */
-  protected synchronized void enqueueAllAvailableNodes(
+  protected synchronized boolean enqueueAllAvailableNodes(
       long iterationTimestamp,
       AtomicLong jobIdSource) {
+    boolean enqueued = false;
     Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
     while(depNodeIter.hasNext()) {
       DependencyNode depNode = depNodeIter.next();
+      if(getCycleState().isExecuted(depNode)) {
+        s_logger.debug("Skipping node as already executed, probably by another executor.");
+        depNodeIter.remove();
+        _executedNodes.add(depNode);
+        continue;
+      }
       if(canExecute(depNode)) {
         depNodeIter.remove();
+        enqueued = true;
         _executingNodes.add(depNode);
         CalculationJobSpecification jobSpec = submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
         _executingSpecifications.put(jobSpec, depNode);
       }
     }
+    return enqueued;
   }
   
   /**

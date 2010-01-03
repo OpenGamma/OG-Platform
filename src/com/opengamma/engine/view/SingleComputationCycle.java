@@ -6,14 +6,17 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -46,6 +49,8 @@ public class SingleComputationCycle {
   private final long _startTime;
   private ViewComputationCache _computationCache;
   private final AtomicLong _jobIdSource = new AtomicLong(0l);
+  private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
+  private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   
   // Outputs:
   private long _snapshotTime;
@@ -186,7 +191,8 @@ public class SingleComputationCycle {
       DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
           depGraph,
-          getProcessingContext());
+          getProcessingContext(),
+          this);
       depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
     }
   }
@@ -212,6 +218,31 @@ public class SingleComputationCycle {
   public void releaseResources() {
     getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getSnapshotTime());
     getProcessingContext().getComputationCacheSource().releaseCache(getViewName(), getSnapshotTime());
+  }
+  
+  // Dependency Node Maintenance:
+  public boolean isExecuted(DependencyNode node) {
+    if(node == null) {
+      return true;
+    }
+    _nodeExecutionLock.readLock().lock();
+    try {
+      return _executedNodes.contains(node);
+    } finally {
+      _nodeExecutionLock.readLock().unlock();
+    }
+  }
+  
+  public void markExecuted(DependencyNode node) {
+    if(node == null) {
+      return;
+    }
+    _nodeExecutionLock.writeLock().lock();
+    try {
+      _executedNodes.add(node);
+    } finally {
+      _nodeExecutionLock.writeLock().unlock();
+    }
   }
 
 }
