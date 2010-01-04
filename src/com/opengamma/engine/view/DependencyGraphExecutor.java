@@ -56,7 +56,6 @@ public class DependencyGraphExecutor {
   private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
     new HashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
-  private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   private final BlockingQueue<CalculationJobResult> _pendingResults = new LinkedBlockingQueue<CalculationJobResult>();
   
   public DependencyGraphExecutor(
@@ -108,15 +107,6 @@ public class DependencyGraphExecutor {
     
     while(!_nodesToExecute.isEmpty()) {
       boolean enqueued = enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
-      // REVIEW kirk 2009-10-20 -- I'm not happy with this check here.
-      // The rationale is that if we get a failed node, the next time we attempt to enqueue we may
-      // mark everything above it as done, and then we'll be done, but we'll wait for the timeout
-      // before determining that. There's almost certainly a better way to do this, but I needed
-      // to resolve this one quickly.
-      /*if(_executedNodes.size() >= getDependencyGraph().getNodeCount()) {
-        break;
-      }*/
-      assert !(_executingSpecifications.isEmpty() && !_nodesToExecute.isEmpty()) : "Graph problem found. Nodes available, but none enqueued. Breaks execution contract";
       if(!enqueued) {
         continue;
       }
@@ -137,8 +127,7 @@ public class DependencyGraphExecutor {
         _executedNodes.add(completedNode);
         getCycleState().markExecuted(completedNode);
         if(jobResult.getResult() != InvocationResult.SUCCESS) {
-          _failedNodes.add(completedNode);
-          failNodesAbove(completedNode);
+          getCycleState().markFailed(completedNode);
         }
         jobResult = _pendingResults.poll();
       }
@@ -162,40 +151,6 @@ public class DependencyGraphExecutor {
       addAllNodesToExecute(inputNode);
     }
     _nodesToExecute.add(node);
-  }
-
-  /**
-   * @param completedNode
-   */
-  protected void failNodesAbove(DependencyNode failedNode) {
-    // TODO kirk 2009-11-02 -- Have to figure out how to do this now.
-    /*
-    for(DependencyNode node : getDependencyGraph().getTopLevelNodes()) {
-      failNodesAbove(failedNode, node);
-    }
-    */
-  }
-
-  /**
-   * @param failedNode
-   * @param node
-   */
-  protected boolean failNodesAbove(DependencyNode failedNode, DependencyNode node) {
-    if(node == failedNode) {
-      return true;
-    }
-    boolean wasFailing = false;
-    for(DependencyNode inputNode : node.getInputNodes()) {
-      if(failNodesAbove(failedNode, inputNode)) {
-        _executedNodes.add(node);
-        _failedNodes.add(node);
-        // NOTE kirk 2009-10-20 -- Because of the diamond nature of the DAG,
-        // DO NOT just break or return early here. You have to evaluate all the siblings under
-        // this node because multiple might reach the failed node independently.
-        wasFailing = true;
-      }
-    }
-    return wasFailing;
   }
 
   /**
@@ -228,6 +183,19 @@ public class DependencyGraphExecutor {
         _executedNodes.add(depNode);
         continue;
       }
+      if(getCycleState().isFailed(depNode)) {
+        s_logger.debug("Skipping node as it failed.");
+        depNodeIter.remove();
+        _executedNodes.add(depNode);
+        continue;
+      }
+      if(anyInputsFailed(depNode)) {
+        s_logger.debug("Failing without executing as all inputs failed.");
+        depNodeIter.remove();
+        _executedNodes.add(depNode);
+        getCycleState().markFailed(depNode);
+        continue;
+      }
       if(canExecute(depNode)) {
         depNodeIter.remove();
         enqueued = true;
@@ -239,6 +207,19 @@ public class DependencyGraphExecutor {
     return enqueued;
   }
   
+  /**
+   * @param depNode
+   * @return
+   */
+  private boolean anyInputsFailed(DependencyNode depNode) {
+    for(DependencyNode subNode : depNode.getInputNodes()) {
+      if(getCycleState().isFailed(subNode)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * @param depNode
    * @return

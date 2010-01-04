@@ -51,6 +51,7 @@ public class SingleComputationCycle {
   private final AtomicLong _jobIdSource = new AtomicLong(0l);
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
+  private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   
   // Outputs:
   private long _snapshotTime;
@@ -156,19 +157,19 @@ public class SingleComputationCycle {
     Set<ValueRequirement> allLiveDataRequirements = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getSnapshotTime());
     
-    boolean missingData = false;
+    Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
     for(ValueRequirement liveDataRequirement : allLiveDataRequirements) {
       Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), liveDataRequirement);
       if(data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getSnapshotTime());
-        missingData = true;
+        missingLiveData.add(liveDataRequirement);
       } else {
         ComputedValue dataAsValue = new ComputedValue(new ValueSpecification(liveDataRequirement), data);
         getComputationCache().putValue(dataAsValue);
       }
     }
-    if(missingData) {
-      s_logger.warn("Unable to load some input market data. Expect that nodes will fail to compute.");
+    if(!missingLiveData.isEmpty()) {
+      s_logger.warn("Missing live data: {}", missingLiveData);
     }
     return true;
   }
@@ -245,4 +246,27 @@ public class SingleComputationCycle {
     }
   }
 
+  public boolean isFailed(DependencyNode node) {
+    if(node == null) {
+      return true;
+    }
+    _nodeExecutionLock.readLock().lock();
+    try {
+      return _failedNodes.contains(node);
+    } finally {
+      _nodeExecutionLock.readLock().unlock();
+    }
+  }
+  
+  public void markFailed(DependencyNode node) {
+    if(node == null) {
+      return;
+    }
+    _nodeExecutionLock.writeLock().lock();
+    try {
+      _failedNodes.add(node);
+    } finally {
+      _nodeExecutionLock.writeLock().unlock();
+    }
+  }
 }
