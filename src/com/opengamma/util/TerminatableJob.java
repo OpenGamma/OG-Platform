@@ -30,12 +30,16 @@ public abstract class TerminatableJob implements Runnable {
     while(!_terminated.get()) {
       runOneCycle();
     }
+    postRunCycle();
   }
 
   /**
    * Will be invoked by {@link #run()} immediately before the cycle.
    */
   protected void preStart() {
+  }
+  
+  protected void postRunCycle() {
   }
   
   protected abstract void runOneCycle();
