@@ -57,6 +57,6 @@ public class HistoricalCornishFisherVaRCalculator extends HistoricalVaRCalculato
     final double k = _kurtosis.evaluate(ts);
     final double x = z + t * (zSq - 1) / 6. + k * z * (zSq - 3) / 24. - t * t * z * (2 * zSq - 5) / 36.;
     final double mult = horizon / periods;
-    return x * mu * mult + Math.sqrt(mult * variance);
+    return x * Math.sqrt(variance * mult) + mu * mult;
   }
 }
