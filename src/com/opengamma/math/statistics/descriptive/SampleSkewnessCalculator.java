@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.descriptive;
@@ -27,8 +27,8 @@ public class SampleSkewnessCalculator extends Function1D<Double[], Double> {
     for (final Double d : x) {
       sum += Math.pow(d - mean, 3);
     }
-    int n = x.length;
-    return Math.sqrt(n * (n - 1)) * sum / (Math.pow(variance, 1.5)) / (n - 2);
+    final int n = x.length;
+    return Math.sqrt(n * (n - 1.)) * sum / (Math.pow(variance, 1.5) * n * (n - 2));
   }
 
 }
