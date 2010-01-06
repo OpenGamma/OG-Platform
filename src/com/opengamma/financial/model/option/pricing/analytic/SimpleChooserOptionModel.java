@@ -8,7 +8,7 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import com.opengamma.financial.model.option.definition.SimpleChooserOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.time.DateUtil;
 
@@ -19,7 +19,7 @@ import com.opengamma.util.time.DateUtil;
  * @author emcleod
  */
 public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> {
-  final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalProbabilityDistribution(0, 1);
+  final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final SimpleChooserOptionDefinition definition) {

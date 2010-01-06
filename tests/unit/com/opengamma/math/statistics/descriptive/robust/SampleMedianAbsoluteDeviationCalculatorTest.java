@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.math.statistics.descriptive.robust.SampleMedianAbsoluteDeviationCalculator;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -24,7 +24,7 @@ public class SampleMedianAbsoluteDeviationCalculatorTest {
   private static final double STD = 0.2;
   private static final Function1D<Double[], Double> MAD_CALC = new SampleMedianAbsoluteDeviationCalculator();
   private static final Function1D<Double[], Double> STD_CALC = new SampleStandardDeviationCalculator();
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(MEAN, STD);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(MEAN, STD);
   private static final Double[] NORMAL_DATA = new Double[50000];
   private static final double EPS = 1e-2;
   static {

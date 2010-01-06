@@ -10,7 +10,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.InterpolationException;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -19,7 +19,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> {
-  final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final CappedPowerOptionDefinition definition) {

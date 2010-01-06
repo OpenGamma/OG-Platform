@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing;
@@ -18,7 +18,6 @@ import com.opengamma.financial.model.option.definition.EdgeworthSkewKurtosisBino
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.option.pricing.analytic.ModifiedCorradoSuSkewnessKurtosisModel;
 import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -45,8 +44,9 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
     final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model1 = new ModifiedCorradoSuSkewnessKurtosisModel();
     final OptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> model2 = new BinomialOptionModel<SkewKurtosisOptionDataBundle>(10,
         new EdgeworthSkewKurtosisBinomialOptionModelDefinition());
-    System.out.println(model1.getGreeks(call, DATA, REQUIRED_GREEKS));
-    System.out.println(model2.getGreeks(call, DATA, REQUIRED_GREEKS));
-    System.out.println(new BlackScholesMertonModel().getGreeks(call, DATA, REQUIRED_GREEKS));
+    // System.out.println(model1.getGreeks(call, DATA, REQUIRED_GREEKS));
+    // System.out.println(model2.getGreeks(call, DATA, REQUIRED_GREEKS));
+    // System.out.println(new BlackScholesMertonModel().getGreeks(call, DATA,
+    // REQUIRED_GREEKS));
   }
 }

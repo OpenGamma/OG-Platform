@@ -14,7 +14,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.BivariateNormalDistribution;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -24,7 +24,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   private final ProbabilityDistribution<Double[]> _bivariateNormal = new BivariateNormalDistribution();
-  private final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
 
   @Override

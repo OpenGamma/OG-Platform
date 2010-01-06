@@ -6,7 +6,7 @@
 package com.opengamma.financial.var.historical;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -15,7 +15,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class HistoricalCornishFisherVaRCalculator extends HistoricalVaRCalculator {
-  private final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   private final DoubleTimeSeriesStatisticsCalculator _mean;
   private final DoubleTimeSeriesStatisticsCalculator _variance;
   private final DoubleTimeSeriesStatisticsCalculator _skewness;

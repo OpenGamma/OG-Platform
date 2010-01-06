@@ -17,7 +17,7 @@ import cern.jet.random.engine.RandomEngine;
  */
 public class StudentTDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private final RandomEngine _randomEngine = new MersenneTwister(0);
+  private final RandomEngine _randomEngine = new MersenneTwister(1);
   private final double _degFreedom;
   private final StudentT _dist;
 

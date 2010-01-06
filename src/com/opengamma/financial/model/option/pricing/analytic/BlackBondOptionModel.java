@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.model.option.definition.BondOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -18,7 +18,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * @author emcleod
  */
 public class BlackBondOptionModel extends AnalyticOptionModel<BondOptionDefinition, StandardOptionDataBundle> {
-  protected final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  protected final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final BondOptionDefinition definition) {

@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -33,7 +33,7 @@ public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
       s_Log.warn("Maximum lag was less than zero; using absolute value");
     }
     _level = level;
-    final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(0, 1);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
     _criticalValue = normal.getInverseCDF(1 - level / 2.);
     _h = maxLag;
   }

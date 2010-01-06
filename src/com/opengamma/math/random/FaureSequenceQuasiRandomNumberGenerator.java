@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.random;
@@ -31,7 +31,6 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
       for (int j = i; j <= base; j++) {
         sum += a[j][0] * coeff[i][j];
       }
-      System.out.println(a[i][0] + " " + i + " " + sum);
       a[i][1] = sum % base;
     }
     for (int i = 0; i < n; i++) {

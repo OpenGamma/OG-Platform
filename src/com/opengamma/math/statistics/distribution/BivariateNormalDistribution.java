@@ -12,7 +12,7 @@ import org.apache.commons.lang.NotImplementedException;
  * @author emcleod
  */
 public class BivariateNormalDistribution implements ProbabilityDistribution<Double[]> {
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(0, 1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double TWO_PI = 2 * Math.PI;
   private static final double[] X = new double[] { 0.04691008, 0.23076534, 0.5, 0.76923466, 0.95308992 };
   private static final double[] Y = new double[] { 0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042 };

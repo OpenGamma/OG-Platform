@@ -18,7 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -62,7 +62,7 @@ public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
     final Double[] result = CORRELATION.evaluate(new ArrayDoubleTimeSeries(dates, data));
     assertEquals(result[0], 1, 1e-16);
     final double level = 0.05;
-    final double criticalValue = new NormalProbabilityDistribution(0, 1).getInverseCDF(1 - level / 2.) / Math.sqrt(n);
+    final double criticalValue = new NormalDistribution(0, 1).getInverseCDF(1 - level / 2.) / Math.sqrt(n);
     final int m = 500;
     final double expectedViolations = level * m;
     int sum = 0;

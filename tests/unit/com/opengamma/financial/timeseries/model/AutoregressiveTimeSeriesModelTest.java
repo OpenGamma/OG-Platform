@@ -20,7 +20,7 @@ import org.junit.Test;
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -30,7 +30,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class AutoregressiveTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.25;
-  private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalProbabilityDistribution(MEAN, STD));
+  private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(MEAN, STD));
   private static final int ORDER = 2;
   private static final DoubleTimeSeries MA;
   private static final Double[] PHI;

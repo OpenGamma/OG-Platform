@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -9,7 +9,7 @@ import static org.junit.Assert.fail;
 
 import javax.time.calendar.TimeZone;
 
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -23,13 +23,13 @@ public class IIDHypothesisTest {
   protected static final DoubleTimeSeries SIGNAL;
   protected static final DoubleTimeSeries INCREASING;
   static {
-    final int n = 10000;
+    final int n = 5000;
     final long[] dates = new long[n];
     final double[] random = new double[n];
     final double[] signal = new double[n];
     final double[] increasing = new double[n];
     final TimeZone[] zones = new TimeZone[n];
-    final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(0, 0.5);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 0.5);
     for (int i = 0; i < n; i++) {
       dates[i] = i;
       random[i] = normal.nextRandom();

@@ -18,7 +18,7 @@ import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private final RandomEngine _engine = new MersenneTwister(0);
+  private final RandomEngine _engine = new MersenneTwister(1);
   private final Function2D<Double, Double> _inverseFunction = new InverseIncompleteGammaFunction();
   private final ChiSquare _chiSquare;
   private final double _degrees;

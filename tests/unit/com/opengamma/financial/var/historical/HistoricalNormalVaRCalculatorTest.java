@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -23,7 +23,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class HistoricalNormalVaRCalculatorTest {
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(0.05, 0.1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0.05, 0.1);
   private static final DoubleTimeSeries RETURNS;
   private static final HistoricalVaRCalculator CALCULATOR = new HistoricalNormalVaRCalculator(new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator()));
 

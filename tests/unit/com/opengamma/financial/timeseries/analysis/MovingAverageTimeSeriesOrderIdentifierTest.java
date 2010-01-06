@@ -18,7 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.model.MovingAverageTimeSeriesModel;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -29,14 +29,14 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class MovingAverageTimeSeriesOrderIdentifierTest {
   private static final MovingAverageTimeSeriesOrderIdentifier MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier(10, 0.01);
-  private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(new NormalProbabilityDistribution(0, 1));
+  private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1));
   private static final DoubleTimeSeries RANDOM;
   private static final DoubleTimeSeries MA3;
 
   static {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final List<Double> random = new ArrayList<Double>();
-    final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(0, 1);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
     final int n = 20000;
     for (int i = 0; i < n; i++) {
       dates.add(ZonedDateTime.fromInstant(Instant.instant(i), TimeZone.UTC));

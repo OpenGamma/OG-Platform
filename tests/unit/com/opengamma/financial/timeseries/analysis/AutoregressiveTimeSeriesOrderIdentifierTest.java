@@ -18,7 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.model.AutoregressiveTimeSeriesModel;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -29,7 +29,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class AutoregressiveTimeSeriesOrderIdentifierTest {
   private static final AutoregressiveTimeSeriesPACFOrderIdentifier PACF_IDENTIFIER = new AutoregressiveTimeSeriesPACFOrderIdentifier(10, 0.01);
-  private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(new NormalProbabilityDistribution(0, 1));
+  private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(0, 1));
   private static final DoubleTimeSeries RANDOM;
   private static final DoubleTimeSeries AR3;
   private static final DoubleTimeSeries AR5;
@@ -37,7 +37,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
   static {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final List<Double> random = new ArrayList<Double>();
-    final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(2, 1);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(2, 1);
     final int n = 20000;
     for (int i = 0; i < n; i++) {
       dates.add(ZonedDateTime.fromInstant(Instant.instant(i), TimeZone.UTC));

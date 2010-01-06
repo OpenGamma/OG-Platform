@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing;
@@ -25,7 +25,7 @@ import com.opengamma.util.time.DateUtil;
  */
 @SuppressWarnings("unchecked")
 public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements GreekVisitor<GreekResult<?>> {
-  private static final double EPS = 1e-6;
+  private static final double EPS = 1e-4;
   private final Function1D<S, Double> _pricingFunction;
   private final S _data;
   private final T _definition;
@@ -386,7 +386,7 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
   }
 
   private double getThirdDerivative(final S dataUpUp, final S dataUp, final S data, final S dataDown) {
-    return (_pricingFunction.evaluate(dataUpUp) - 3 * _pricingFunction.evaluate(dataUp) + 3 * _pricingFunction.evaluate(data) - _pricingFunction.evaluate(dataDown))
+    return (_pricingFunction.evaluate(dataUpUp) + 3 * _pricingFunction.evaluate(data) - 3 * _pricingFunction.evaluate(dataUp) - _pricingFunction.evaluate(dataDown))
         / (EPS * EPS * EPS);
   }
 

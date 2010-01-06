@@ -17,7 +17,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.FiniteDifferenceGreekVisitor;
 import com.opengamma.financial.model.option.pricing.OptionModel;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -61,7 +61,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
     private static final double EPS = 1e-3;
     private final S _data;
     private final R _definition;
-    private final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+    private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
     public AnalyticOptionModelFiniteDifferenceGreekVisitor(final Function1D<S, Double> pricingFunction, final S data, final R definition) {
       super(pricingFunction, data, definition);

@@ -6,7 +6,7 @@
 package com.opengamma.financial.timeseries.analysis;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -24,7 +24,7 @@ public class MovingAverageTimeSeriesOrderIdentifier {
     if (level <= 0 || level > 1)
       throw new IllegalArgumentException("Level must be between 0 and 1");
     _maxOrder = maxOrder;
-    _criticalValue = new NormalProbabilityDistribution(0, 1).getInverseCDF(1 - level / 2.);
+    _criticalValue = new NormalDistribution(0, 1).getInverseCDF(1 - level / 2.);
   }
 
   public int getOrder(final DoubleTimeSeries ts) {

@@ -18,7 +18,7 @@ import com.opengamma.math.statistics.descriptive.SampleSkewnessCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.math.statistics.distribution.GammaDistribution;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -30,7 +30,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class HistoricalCornishFisherVaRCalculatorTest {
   private static final double MU = 0.05;
   private static final double SIGMA = 0.1;
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(MU, SIGMA);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(MU, SIGMA);
   private static final ProbabilityDistribution<Double> GAMMA = new GammaDistribution(1, 1);
   private static final DoubleTimeSeries NORMAL_RETURNS;
   private static final DoubleTimeSeries RETURNS;
@@ -43,7 +43,7 @@ public class HistoricalCornishFisherVaRCalculatorTest {
   private static final HistoricalVaRCalculator CF_VAR = new HistoricalCornishFisherVaRCalculator(MEAN, VARIANCE, SKEW, KURTOSIS);
 
   static {
-    final int n = 500000;
+    final int n = 50000;
     final long[] times = new long[n];
     final double[] normal = new double[n];
     final double[] data = new double[n];

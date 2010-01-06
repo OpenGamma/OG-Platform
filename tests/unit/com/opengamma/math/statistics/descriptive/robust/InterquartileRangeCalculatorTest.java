@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -19,7 +19,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class InterquartileRangeCalculatorTest {
   private static final Function1D<Double[], Double> IQR = new InterquartileRangeCalculator();
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(0, 1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final Double[] UNIFORM_DATA;
   private static final Double[] NORMAL_DATA;
   private static final double EPS = 1e-2;

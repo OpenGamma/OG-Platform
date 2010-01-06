@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.StudentTDistribution;
 
@@ -32,15 +32,15 @@ public class MomentCalculatorTest {
   private static final Function1D<Double[], Double> SAMPLE_PEARSON_KURTOSIS = new SamplePearsonKurtosisCalculator();
   private static final Function1D<Double[], Double> SAMPLE_FISHER_KURTOSIS = new SampleFisherKurtosisCalculator();
   private static final Function1D<Double[], Double> SAMPLE_CENTRAL_MOMENT = new SampleCentralMomentCalculator(1);
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(0, STD);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD);
   private static final ProbabilityDistribution<Double> STUDENT_T = new StudentTDistribution(DOF);
   private static final ProbabilityDistribution<Double> CHI_SQ = new ChiSquareDistribution(DOF);
-  private static final Double[] NORMAL_DATA = new Double[50000];
-  private static final Double[] STUDENT_T_DATA = new Double[50000];
-  private static final Double[] CHI_SQ_DATA = new Double[50000];
+  private static final Double[] NORMAL_DATA = new Double[500000];
+  private static final Double[] STUDENT_T_DATA = new Double[500000];
+  private static final Double[] CHI_SQ_DATA = new Double[500000];
   private static final double EPS = 0.1;
   static {
-    for (int i = 0; i < 50000; i++) {
+    for (int i = 0; i < 500000; i++) {
       NORMAL_DATA[i] = NORMAL.nextRandom();
       STUDENT_T_DATA[i] = STUDENT_T.nextRandom();
       CHI_SQ_DATA[i] = CHI_SQ.nextRandom();

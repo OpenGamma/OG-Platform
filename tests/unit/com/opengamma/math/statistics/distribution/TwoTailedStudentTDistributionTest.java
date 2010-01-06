@@ -24,7 +24,7 @@ public class TwoTailedStudentTDistributionTest {
       // Expected
     }
     final ProbabilityDistribution<Double> dist = new TwoTailedStudentTDistribution(10000);
-    final ProbabilityDistribution<Double> normal = new NormalProbabilityDistribution(0, 1);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
     try {
       dist.getCDF(-3.);
       fail();

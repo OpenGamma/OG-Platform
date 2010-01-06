@@ -15,14 +15,14 @@ import cern.jet.stat.Probability;
  * @author emcleod
  */
 
-public class NormalProbabilityDistribution implements ProbabilityDistribution<Double> {
+public class NormalDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private final RandomEngine _randomEngine = new MersenneTwister(0);
+  private final RandomEngine _randomEngine = new MersenneTwister(101);
   private final double _mean;
   private final double _standardDeviation;
   private final Normal _normal;
 
-  public NormalProbabilityDistribution(final double mean, final double standardDeviation) {
+  public NormalDistribution(final double mean, final double standardDeviation) {
     if (standardDeviation < 0)
       throw new IllegalArgumentException("Standard deviation cannot be less than zero");
     _mean = mean;
@@ -30,7 +30,7 @@ public class NormalProbabilityDistribution implements ProbabilityDistribution<Do
     _normal = new Normal(mean, standardDeviation, _randomEngine);
   }
 
-  public NormalProbabilityDistribution(final double mean, final double standardDeviation, final RandomEngine randomEngine) {
+  public NormalDistribution(final double mean, final double standardDeviation, final RandomEngine randomEngine) {
     if (standardDeviation < 0)
       throw new IllegalArgumentException("Standard deviation cannot be less than zero");
     if (randomEngine == null)

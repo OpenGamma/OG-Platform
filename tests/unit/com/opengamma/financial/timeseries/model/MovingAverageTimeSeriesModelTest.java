@@ -22,7 +22,7 @@ import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalcul
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -32,7 +32,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class MovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.25;
-  private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalProbabilityDistribution(MEAN, STD));
+  private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(MEAN, STD));
   private static final int ORDER = 2;
   private static final DoubleTimeSeries MA;
   private static final Double[] THETA;

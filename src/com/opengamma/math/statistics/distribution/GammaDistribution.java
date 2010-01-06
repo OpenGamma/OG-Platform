@@ -24,7 +24,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     if (theta <= 0)
       throw new IllegalArgumentException("Theta must be positive");
     // TODO better seed
-    _gamma = new Gamma(k, theta, new MersenneTwister(0));
+    _gamma = new Gamma(k, theta, new MersenneTwister(1));
   }
 
   public GammaDistribution(final double alpha, final double lambda, final RandomEngine engine) {

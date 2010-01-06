@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
 import com.opengamma.financial.timeseries.analysis.AutocovarianceFunctionCalculator;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -29,7 +29,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.1;
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalProbabilityDistribution(MEAN, STD);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(MEAN, STD);
   private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(NORMAL);
   private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(NORMAL);
   private static final AutoregressiveMovingAverageTimeSeriesModel MODEL = new AutoregressiveMovingAverageTimeSeriesModel(NORMAL);
