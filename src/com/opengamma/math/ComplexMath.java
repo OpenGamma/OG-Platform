@@ -13,7 +13,6 @@ import com.opengamma.math.number.ComplexNumber;
  */
 
 public class ComplexMath {
-
   public static double PI = Math.PI;
   public static double E = Math.E;
   private static ComplexNumber I = new ComplexNumber(0, 1);

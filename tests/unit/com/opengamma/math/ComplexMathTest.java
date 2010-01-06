@@ -22,21 +22,21 @@ public class ComplexMathTest {
   private static final ComplexNumber COMPLEX_X = new ComplexNumber(X, 0);
   private static final ComplexNumber A = new ComplexNumber(0.46, -0.3);
   private static final ComplexNumber B = new ComplexNumber(-3.5, -1.4);
-  private static final double EPS = 1e-12;
+  private static final double EPS = 1e-9;
 
   @Test
   public void testWrapping() throws Exception {
-    Class<java.lang.Math> javaMathClass = java.lang.Math.class;
-    Class<com.opengamma.math.ComplexMath> mathClass = com.opengamma.math.ComplexMath.class;
-    List<Method> javaMathClassMethods = Arrays.asList(javaMathClass.getDeclaredMethods());
-    Class<?>[] oneParameter = new Class<?>[] { Number.class };
-    Class<?>[] twoParameters = new Class<?>[] { Number.class, Number.class };
+    final Class<java.lang.Math> javaMathClass = java.lang.Math.class;
+    final Class<com.opengamma.math.ComplexMath> mathClass = com.opengamma.math.ComplexMath.class;
+    final List<Method> javaMathClassMethods = Arrays.asList(javaMathClass.getDeclaredMethods());
+    final Class<?>[] oneParameter = new Class<?>[] { Number.class };
+    final Class<?>[] twoParameters = new Class<?>[] { Number.class, Number.class };
     Method mathMethod;
     int length;
     Object primitive1, primitive2, javaMathResult, mathResult;
-    for (Method method : javaMathClassMethods) {
+    for (final Method method : javaMathClassMethods) {
       if (method.isAccessible()) {
-        Class<?>[] parameters = method.getParameterTypes();
+        final Class<?>[] parameters = method.getParameterTypes();
         length = parameters.length;
         if (length == 1) {
           mathMethod = mathClass.getMethod(method.getName(), oneParameter);
@@ -69,6 +69,7 @@ public class ComplexMathTest {
 
   @Test
   public void testArithmetic() {
+    assertEquals(ComplexMath.asinh(ComplexMath.sinh(X)).doubleValue(), X, EPS);
     assertEquals(ComplexMath.acosh(ComplexMath.cosh(X)).doubleValue(), X, EPS);
     assertEquals(ComplexMath.acosh(ComplexMath.cosh(Y)).doubleValue(), ComplexMath.abs(Y).doubleValue(), EPS);
     assertEquals(ComplexMath.subtract(ComplexMath.add(X, Y), Y).doubleValue(), X, EPS);
@@ -77,25 +78,28 @@ public class ComplexMathTest {
 
   @Test
   public void testComplexArithmetic() {
-//    assertComplexEquals((ComplexNumber) Math.cos(Math.acos(A)), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.cosh(Math.acosh(A)), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.subtract(Math.add(X, A), A), COMPLEX_X, EPS);
-//    assertComplexEquals((ComplexNumber) Math.subtract(Math.add(A, X), X), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.subtract(Math.add(A, B), B), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.sin(Math.asin(A)), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.sinh(Math.asinh(A)), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.tan(Math.atan(A)), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.tanh(Math.atanh(A)), A, EPS);
-//    assertComplexEquals((ComplexNumber) Math.cbrt(Math.pow(A, 3)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.cos(Math.acos(A)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.cosh(Math.acosh(A)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.subtract(Math.add(X, A), A),
+    // COMPLEX_X, EPS);
+    // assertComplexEquals((ComplexNumber) Math.subtract(Math.add(A, X), X), A,
+    // EPS);
+    // assertComplexEquals((ComplexNumber) Math.subtract(Math.add(A, B), B), A,
+    // EPS);
+    // assertComplexEquals((ComplexNumber) Math.sin(Math.asin(A)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.sinh(Math.asinh(A)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.tan(Math.atan(A)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.tanh(Math.atanh(A)), A, EPS);
+    // assertComplexEquals((ComplexNumber) Math.cbrt(Math.pow(A, 3)), A, EPS);
   }
 
-  private void assertComplexEquals(ComplexNumber actual, ComplexNumber expected, double eps) {
+  private void assertComplexEquals(final ComplexNumber actual, final ComplexNumber expected, final double eps) {
     assertEquals(actual.getReal(), expected.getReal(), eps);
     assertEquals(actual.getImaginary(), expected.getImaginary(), eps);
   }
 
-  private Object getAppropriatePrimitive(Class<?> type, Double x) {
-    String name = type.getName();
+  private Object getAppropriatePrimitive(final Class<?> type, final Double x) {
+    final String name = type.getName();
     if (name.equals("double"))
       return x.doubleValue();
     if (name.equals("float"))
@@ -107,8 +111,8 @@ public class ComplexMathTest {
     throw new IllegalArgumentException("Not a primitive number type");
   }
 
-  private Number getAppropriateNumber(Object primitive, Double x) {
-    String name = primitive.getClass().getName();
+  private Number getAppropriateNumber(final Object primitive, final Double x) {
+    final String name = primitive.getClass().getName();
     if (name.equals("java.lang.Double"))
       return x;
     if (name.equals("java.lang.Float"))
