@@ -46,7 +46,7 @@ public class PearsonSkewnessCoeffiecientCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptySecond() {
-    FIRST.evaluate(new Double[0]);
+    SECOND.evaluate(new Double[0]);
   }
 
   @Test

@@ -24,7 +24,7 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTest {
   private static final double B = 5;
   private static final ProbabilityDistribution<Double> LAPLACE = new LaplaceDistribution(MU, B);
   private static final Double[] DATA;
-  private static final double EPS = 0.05;
+  private static final double EPS1 = 0.05;
   static {
     final int n = 500000;
     DATA = new Double[n];
@@ -63,10 +63,10 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTest {
     final double variance = new SampleVarianceCalculator().evaluate(DATA);
     final double skew = new SampleSkewnessCalculator().evaluate(DATA);
     final double kurtosis = new SampleFisherKurtosisCalculator().evaluate(DATA);
-    assertEquals(mean, MU, EPS);
-    assertEquals(median, MU, EPS);
-    assertEquals(variance, 2 * B * B, EPS);
-    assertEquals(skew, 0, EPS);
-    assertEquals(kurtosis, 3, EPS);
+    assertEquals(mean, MU, EPS1);
+    assertEquals(median, MU, EPS1);
+    assertEquals(variance, 2 * B * B, EPS1);
+    assertEquals(skew, 0, EPS1);
+    assertEquals(kurtosis, 3, EPS1);
   }
 }
