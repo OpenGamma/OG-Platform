@@ -22,25 +22,25 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class HistoricalJohnsonVaRCalculator extends HistoricalVaRCalculator {
   private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
+  private final RealSingleRootFinder _rootFinder = new BisectionSingleRootFinder();
   private final DoubleTimeSeriesStatisticsCalculator _mean;
   private final DoubleTimeSeriesStatisticsCalculator _stdDev;
-  private final DoubleTimeSeriesStatisticsCalculator _skewness;
+  private final DoubleTimeSeriesStatisticsCalculator _skew;
   private final DoubleTimeSeriesStatisticsCalculator _kurtosis;
-  private final RealSingleRootFinder _rootFinder = new BisectionSingleRootFinder();
 
   public HistoricalJohnsonVaRCalculator(final DoubleTimeSeriesStatisticsCalculator mean, final DoubleTimeSeriesStatisticsCalculator stdDev,
-      final DoubleTimeSeriesStatisticsCalculator skewness, final DoubleTimeSeriesStatisticsCalculator kurtosis) {
+      final DoubleTimeSeriesStatisticsCalculator skew, final DoubleTimeSeriesStatisticsCalculator kurtosis) {
     if (mean == null)
       throw new IllegalArgumentException("Mean calculator was null");
     if (stdDev == null)
-      throw new IllegalArgumentException("Variance calculator was null");
-    if (skewness == null)
-      throw new IllegalArgumentException("Skewness calculator was null");
+      throw new IllegalArgumentException("Standard deviation calculator was null");
+    if (skew == null)
+      throw new IllegalArgumentException("Skew calculator was null");
     if (kurtosis == null)
       throw new IllegalArgumentException("Kurtosis calculator was null");
     _mean = mean;
     _stdDev = stdDev;
-    _skewness = skewness;
+    _skew = skew;
     _kurtosis = kurtosis;
   }
 
@@ -56,32 +56,26 @@ public class HistoricalJohnsonVaRCalculator extends HistoricalVaRCalculator {
       throw new IllegalArgumentException("Horizon must be greater than zero");
     if (quantile <= 0 || quantile >= 1)
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    final double z = _normal.getInverseCDF(quantile);
-    final double mult = horizon / periods;
-    final double mu = _mean.evaluate(ts) * mult;
-    final double sigma = _stdDev.evaluate(ts) * Math.sqrt(mult);
-    final double t = _skewness.evaluate(ts);
+    final double scale = horizon / periods;
+    final double mu = _mean.evaluate(ts) * scale;
+    final double sigma = _stdDev.evaluate(ts) * Math.sqrt(scale);
+    final double t = _skew.evaluate(ts);
     final double k = _kurtosis.evaluate(ts);
-    final double wUpper = Math.sqrt(Math.sqrt(2 * (k - 1)) - 1);
-    final double wLower = Math.max(getW0(t), getW1(k));
+    final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
+    final double wLower = Math.max(getW0(t), getW1(k + 3));
     final double w = _rootFinder.getRoot(getFunction(t, k), wLower, wUpper);
     final double w2 = w * w;
-    final double m = -2 + Math.sqrt(4 + 2 * (w2 - (k + 3) / (w2 + 2 * w + 3)));
+    final double m = -2 + Math.sqrt(4 + 2 * (w2 - (k + 6) / (w2 + 2 * w + 3)));
     final double sign = Math.signum(t);
-    final double u = Math.sqrt(2 * m / (w + 1));
-    final double v = Math.sqrt((w + 1.) * (w - 1 - m) / (2 * m * w));
+    final double u = Math.sqrt(Math.log(w));
+    final double v = Math.sqrt((w + 1) * (w - 1 - m) / (2 * w * m));
     final double omega = -sign * ComplexMath.asinh(v).doubleValue();
-    final double sqrtLnW = Math.sqrt(Math.log(w));
-    final double delta = 1. / sqrtLnW;
-    final double gamma = omega / sqrtLnW;
-    final double mu1 = sign * v * Math.sqrt(w);
-    final double sigma1 = (w - 1) * 1. / u;
-    final double lambda = sigma * u / (w - 1.);
+    final double delta = 1. / u;
+    final double gamma = omega / u;
+    final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));
     final double ksi = mu - sign * sigma * Math.sqrt(w - 1 - m) / (w - 1);
-    System.out.println(w + " " + m + " " + omega);// mu1 + " " + sigma1 + " " +
-    // lambda + " " +
-    // ksi);
-    throw new IllegalArgumentException("Could not find fit to Johnson distribution");
+    final double z = _normal.getInverseCDF(quantile);
+    return -lambda * Math.sinh((-z - gamma) / delta) - ksi;
   }
 
   protected double getW0(final double t) {
@@ -115,8 +109,8 @@ public class HistoricalJohnsonVaRCalculator extends HistoricalVaRCalculator {
       @Override
       public Double evaluate(final Double w) {
         final double w2 = w * w;
-        final double m = -2 + Math.sqrt(4 + 2 * (w2 - (k + 3) / (w2 + 2 * w + 3)));
-        return (w - 1 - m) * Math.pow(w + 2 + m / 2., 2) - t;
+        final double m = -2 + Math.sqrt(4 + 2 * (w2 - (k + 6) / (w2 + 2 * w + 3)));
+        return (w - 1 - m) * Math.pow(w + 2 + m / 2., 2) - t * t;
       }
 
     };
