@@ -3,6 +3,8 @@ package com.opengamma.timeseries;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.time.calendar.TimeZone;
@@ -12,7 +14,7 @@ import com.opengamma.OpenGammaRuntimeException;
 
 @SuppressWarnings("synthetic-access")
 public class DoubleTimeSeriesOperations {
-  private interface BinaryOperator {
+  public interface BinaryOperator {
     public double operate(double a, double b);
   }
 
@@ -57,36 +59,54 @@ public class DoubleTimeSeriesOperations {
       return Math.max(a, b);
     }
   }
+  
+  private static class AverageOperator implements BinaryOperator {
+    public double operate(double a, double b) {
+      return (a + b) / 2;
+    }
+  }
+  
+  private static class FirstOperator implements BinaryOperator {
+    public double operate(double a, double b) {
+      return a;
+    }
+  }
 
-  private interface UnaryOperator {
+  private static class SecondOperator implements BinaryOperator {
+    public double operate(double a, double b) {
+      return b;
+    }
+  }
+  
+  public interface UnaryOperator {
     public double operate(double a);
   }
 
-  public static class ReciprocalOperator implements UnaryOperator {
+  private static class ReciprocalOperator implements UnaryOperator {
     public double operate(double a) {
       return 1 / a;
     }
   }
 
-  public static class NegateOperator implements UnaryOperator {
+  private static class NegateOperator implements UnaryOperator {
     public double operate(double a) {
       return -a;
     }
   }
 
-  public static class LogOperator implements UnaryOperator {
+  private static class LogOperator implements UnaryOperator {
     public double operate(double a) {
       return Math.log(a);
     }
   }
 
-  public static class Log10Operator implements UnaryOperator {
+  private static class Log10Operator implements UnaryOperator {
     public double operate(double a) {
       return Math.log10(a);
     }
   }
 
-  public static class AbsOperator implements UnaryOperator {
+  private static class AbsOperator implements UnaryOperator {
     public double operate(double a) {
       return Math.abs(a);
     }
@@ -99,6 +119,9 @@ public class DoubleTimeSeriesOperations {
   private static final PowerOperator s_powerOperator = new PowerOperator();
   private static final MinimumOperator s_minimumOperator = new MinimumOperator();
   private static final MaximumOperator s_maximumOperator = new MaximumOperator();
+  private static final AverageOperator s_averageOperator = new AverageOperator();
+  private static final FirstOperator s_firstOperator = new FirstOperator();
+  private static final SecondOperator s_secondOperator = new SecondOperator();
 
   private static final ReciprocalOperator s_reciprocalOperator = new ReciprocalOperator();
   private static final NegateOperator s_negateOperator = new NegateOperator();
@@ -106,7 +129,34 @@ public class DoubleTimeSeriesOperations {
   private static final Log10Operator s_log10Operator = new Log10Operator();
   private static final AbsOperator s_absOperator = new AbsOperator();
 
-  private static DoubleTimeSeries operate(DoubleTimeSeries a, DoubleTimeSeries b, BinaryOperator operator) {
+  public static DoubleTimeSeries unionOperate(DoubleTimeSeries a, DoubleTimeSeries b, BinaryOperator operator) {
+    Set<ZonedDateTime> unionTimes = new TreeSet<ZonedDateTime>(a.times());
+    unionTimes.addAll(b.times());
+    int max = unionTimes.size();
+    long[] times = new long[max];
+    double[] values = new double[max];
+    TimeZone[] zones = new TimeZone[max];
+    int pos=0;
+    for (ZonedDateTime dateTime : unionTimes) {
+      Double valueA = a.getDataPoint(dateTime);
+      Double valueB = b.getDataPoint(dateTime);
+      times[pos] = dateTime.toInstant().toEpochMillis();
+      zones[pos] = dateTime.getZone();
+      if (valueB != null && valueA != null) {
+        double newValue = operator.operate(valueA, valueB);
+        values[pos] = newValue;
+      } else if (valueA != null) {
+        values[pos] = valueA;
+      } else { // valueB must be non-null.
+        assert valueB != null;
+        values[pos] = valueB;
+      }
+      pos++;
+    }
+    return new ArrayDoubleTimeSeries(times, values, zones);
+  }
+  
+  public static DoubleTimeSeries operate(DoubleTimeSeries a, DoubleTimeSeries b, BinaryOperator operator) {
     int max = Math.max(a.size(), b.size());
     long[] times = new long[max];
     double[] values = new double[max];
@@ -125,13 +175,13 @@ public class DoubleTimeSeriesOperations {
     long[] trimmedTimes = new long[pos];
     double[] trimmedValues = new double[pos];
     TimeZone[] trimmedZones = new TimeZone[pos];
-    System.arraycopy(times, 0, trimmedTimes, 0, pos - 1);
-    System.arraycopy(values, 0, trimmedValues, 0, pos - 1);
-    System.arraycopy(zones, 0, trimmedZones, 0, pos - 1);
+    System.arraycopy(times, 0, trimmedTimes, 0, pos);
+    System.arraycopy(values, 0, trimmedValues, 0, pos);
+    System.arraycopy(zones, 0, trimmedZones, 0, pos);
     return new ArrayDoubleTimeSeries(trimmedTimes, trimmedValues, trimmedZones);
   }
 
-  private static DoubleTimeSeries operate(DoubleTimeSeries a, UnaryOperator operator) {
+  public  static DoubleTimeSeries operate(DoubleTimeSeries a, UnaryOperator operator) {
     final int size = a.size();
     long[] times = new long[size];
     double[] values = new double[size];
@@ -144,8 +194,8 @@ public class DoubleTimeSeriesOperations {
     }
     return new ArrayDoubleTimeSeries(times, values, zones);
   }
-
-  private static DoubleTimeSeries operate(DoubleTimeSeries a, double b, BinaryOperator operator) {
+  
+  public static DoubleTimeSeries operate(DoubleTimeSeries a, double b, BinaryOperator operator) {
     final int size = a.size();
     long[] times = new long[size];
     double[] values = new double[size];
@@ -158,6 +208,10 @@ public class DoubleTimeSeriesOperations {
     }
     return new ArrayDoubleTimeSeries(times, values, zones);
   }
+  
+  public static DoubleTimeSeries unionAdd(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_addOperator);
+  }
 
   public static DoubleTimeSeries add(DoubleTimeSeries a, DoubleTimeSeries b) {
     return operate(a, b, s_addOperator);
@@ -165,6 +219,10 @@ public class DoubleTimeSeriesOperations {
 
   public static DoubleTimeSeries add(DoubleTimeSeries a, double b) {
     return operate(a, b, s_addOperator);
+  }
+  
+  public static DoubleTimeSeries unionSubtract(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_subtractOperator);
   }
 
   public static DoubleTimeSeries subtract(DoubleTimeSeries a, DoubleTimeSeries b) {
@@ -175,6 +233,10 @@ public class DoubleTimeSeriesOperations {
     return operate(a, b, s_subtractOperator);
   }
 
+  public static DoubleTimeSeries unionMultiply(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_addOperator);
+  }
+  
   public static DoubleTimeSeries multiply(DoubleTimeSeries a, DoubleTimeSeries b) {
     return operate(a, b, s_multiplyOperator);
   }
@@ -183,6 +245,10 @@ public class DoubleTimeSeriesOperations {
     return operate(a, b, s_multiplyOperator);
   }
 
+  public static DoubleTimeSeries unionDivide(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_divideOperator);
+  }
+  
   public static DoubleTimeSeries divide(DoubleTimeSeries a, DoubleTimeSeries b) {
     return operate(a, b, s_divideOperator);
   }
@@ -191,12 +257,20 @@ public class DoubleTimeSeriesOperations {
     return operate(a, b, s_divideOperator);
   }
 
+  public static DoubleTimeSeries unionPow(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_powerOperator);
+  }
+  
   public static DoubleTimeSeries pow(DoubleTimeSeries a, DoubleTimeSeries b) {
     return operate(a, b, s_powerOperator);
   }
 
   public static DoubleTimeSeries pow(DoubleTimeSeries a, double b) {
     return operate(a, b, s_powerOperator);
+  }
+  
+  public static DoubleTimeSeries unionMin(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_minimumOperator);
   }
 
   public static DoubleTimeSeries min(DoubleTimeSeries a, DoubleTimeSeries b) {
@@ -206,6 +280,10 @@ public class DoubleTimeSeriesOperations {
   public static DoubleTimeSeries min(DoubleTimeSeries a, double b) {
     return operate(a, b, s_minimumOperator);
   }
+  
+  public static DoubleTimeSeries unionMax(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_maximumOperator);
+  }
 
   public static DoubleTimeSeries max(DoubleTimeSeries a, DoubleTimeSeries b) {
     return operate(a, b, s_maximumOperator);
@@ -213,6 +291,22 @@ public class DoubleTimeSeriesOperations {
 
   public static DoubleTimeSeries max(DoubleTimeSeries a, double b) {
     return operate(a, b, s_maximumOperator);
+  }
+  
+  public static DoubleTimeSeries unionAverage(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return unionOperate(a, b, s_averageOperator);
+  }
+  
+  public static DoubleTimeSeries average(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return operate(a, b, s_averageOperator);
+  }
+  
+  public static DoubleTimeSeries intersectionFirstValues(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return operate(a, b, s_firstOperator);
+  }
+  
+  public static DoubleTimeSeries intersectionSecondValues(DoubleTimeSeries a, DoubleTimeSeries b) {
+    return operate(a, b, s_secondOperator);
   }
 
   public static DoubleTimeSeries negate(DoubleTimeSeries a) {
