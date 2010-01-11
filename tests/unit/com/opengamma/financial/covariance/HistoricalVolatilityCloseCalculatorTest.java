@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.covariance.HistoricalVolatilityCalculator;
-import com.opengamma.financial.covariance.HistoricalVolatilityCloseCalculator;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**

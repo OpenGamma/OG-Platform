@@ -8,7 +8,7 @@ package com.opengamma.math.random;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -21,7 +21,7 @@ public class NormalRandomNumberGenerator implements RandomNumberGenerator {
   public NormalRandomNumberGenerator(final double mean, final double sigma) {
     if (sigma <= 0)
       throw new IllegalArgumentException("Cannot have a negative standard deviation");
-    _normal = new NormalProbabilityDistribution(mean, sigma);
+    _normal = new NormalDistribution(mean, sigma);
   }
 
   @Override

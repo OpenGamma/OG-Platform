@@ -17,7 +17,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -25,7 +25,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * @author emcleod
  */
 public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
-  protected final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  protected final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   protected final List<Greek> PRICE = Arrays.asList(Greek.PRICE);
   protected final RealSingleRootFinder FINDER = new BisectionSingleRootFinder();

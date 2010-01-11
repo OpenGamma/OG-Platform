@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.descriptive;
@@ -12,8 +12,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  */
 public class SamplePearsonKurtosisCalculator extends Function1D<Double[], Double> {
-  private final Function1D<Double[], Double> _mean = new MeanCalculator();
-  private final Function1D<Double[], Double> _variance = new SampleVarianceCalculator();
+  private final Function1D<Double[], Double> _kurtosis = new SampleFisherKurtosisCalculator();
 
   @Override
   public Double evaluate(final Double[] x) {
@@ -21,12 +20,6 @@ public class SamplePearsonKurtosisCalculator extends Function1D<Double[], Double
       throw new IllegalArgumentException("Array was null");
     if (x.length < 2)
       throw new IllegalArgumentException("Need at least two points to calculate kurtosis");
-    double sum = 0;
-    final double mean = _mean.evaluate(x);
-    final double variance = _variance.evaluate(x);
-    for (final Double d : x) {
-      sum += Math.pow(d - mean, 4);
-    }
-    return sum / (Math.pow(variance, 2) * (x.length - 1));
+    return _kurtosis.evaluate(x) + 3;
   }
 }

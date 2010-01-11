@@ -5,59 +5,61 @@
  */
 package com.opengamma.financial.model.stochastic;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.math.random.RandomNumberGenerator;
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.Function2D;
 
 /**
  * 
  * @author emcleod
  */
-public class BlackScholesGeometricBrownianMotionProcess<T extends OptionDefinition, U extends StandardOptionDataBundle> implements StochasticProcess<T, U> {
-  private final RandomNumberGenerator _generator;
-
-  public BlackScholesGeometricBrownianMotionProcess(final RandomNumberGenerator generator) {
-    if (generator == null)
-      throw new IllegalArgumentException("Generator was null");
-    _generator = generator;
-  }
+public class BlackScholesGeometricBrownianMotionProcess<T extends OptionDefinition, U extends StandardOptionDataBundle> extends StochasticProcess<T, U> {
 
   @Override
-  public List<Double[]> getPath(final T t, final U u, final int n, final int steps) {
+  public Function1D<Double, Double> getPathGeneratingFunction(final T t, final U u, final int steps) {
     if (t == null)
       throw new IllegalArgumentException("Option definition was null");
     if (u == null)
       throw new IllegalArgumentException("Data bundle was null");
-    if (n < 1)
-      throw new IllegalArgumentException("Asked for " + n + " paths; one is the minimum");
     if (steps < 1)
-      throw new IllegalArgumentException("Asked for " + steps + " steps; one is the minimum");
-    final double x = Math.log(u.getSpot());
+      throw new IllegalArgumentException("Number of steps must be greater than zero");
     final double k = t.getStrike();
     final double m = t.getTimeToExpiry(u.getDate());
     final double sigma = u.getVolatility(m, k);
-    final double r = u.getInterestRate(m);
     final double b = u.getCostOfCarry();
-    final double dt = m / n;
-    final double sigmaSq = sigma * sigma * Math.sqrt(m);
-    final double nu = dt * (r - b) - 0.5 * sigmaSq;
-    final List<Double[]> randomNumbers = _generator.getVectors(steps, n);
-    final List<Double[]> result = new ArrayList<Double[]>();
-    Double[] y, random;
-    final Iterator<Double[]> iter = randomNumbers.iterator();
-    for (int i = 0; i < n; i++) {
-      y = new Double[steps];
-      random = iter.next();
-      y[0] = x + nu + sigmaSq * random[0];
-      for (int j = 1; j < steps; j++) {
-        y[j] = y[j - 1] + nu + sigmaSq * random[j];
+    final double dt = m / steps;
+    final double sigmaSq = sigma * sigma;
+    final double nu = dt * (b - 0.5 * sigmaSq);
+    final double sigmaDt = sigma * Math.sqrt(dt);
+    return new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double e) {
+        return nu + sigmaDt * e;
       }
-      result.add(y);
-    }
-    return result;
+    };
+  }
+
+  @Override
+  public Double getInitialValue(final T t, final U u) {
+    return Math.log(u.getSpot());
+  }
+
+  @Override
+  public Double getFinalValue(final Double x) {
+    return Math.exp(x);
+  }
+
+  @Override
+  public Function2D<Double, Double> getPathAccumulationFunction() {
+    return new Function2D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double x1, final Double x2) {
+        return x1 + x2;
+      }
+
+    };
   }
 }

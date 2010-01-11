@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.random;
@@ -17,29 +17,51 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
-    // TODO check dimension
+    if (dimension < 2)
+      throw new IllegalArgumentException("Dimension must be greater than one");
+    if (n < 0)
+      throw new IllegalArgumentException("Number of values must be greater than zero");
     final int base = PrimeNumbers.getNextPrime(dimension);
-    final QuasiRandomNumberGenerator vanDerCorput = new VanDerCorputQuasiRandomNumberGenerator(base);
-    final Double[] x = new Double[n];
-    for (int i = 1; i < n + 1; i++) {
-      final int m = (int) Math.floor(Math.log(i) / Math.log(base));
-      final int[] a = new int[m + 1];
-      final double[] power = new double[m + 2];
-      double number = i;
-      power[m + 1] = Math.pow(base, m + 1);
-      power[m] = power[m + 1] / base;
-      for (int j = m; j >= 0; j--) {
-        a[j] = (int) (number / power[j]);
-        number = number % power[j];
-        if (j > 0) {
-          power[j - 1] = power[j] / base;
-        }
+    final int[][] a = getFirstDimension(n, dimension, base);
+    final int m = (int) Math.floor(Math.log(dimension) / Math.log(base));
+    final double[][] coeff = getBinomialCoefficientMatrix(base + 1, base);
+    int sum;
+    for (int i = 0; i < n; i++) {
+      sum = 0;
+      for (int j = i; j <= base; j++) {
+        sum += a[j][0] * coeff[i][j];
       }
-      x[i - 1] = 0.;
-      for (int j = m; j >= 0; j--) {
-        x[i - 1] += a[j] / power[j + 1];
+      a[i][1] = sum % base;
+    }
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < dimension; j++) {
+        System.out.print(a[i][j] + " ");
       }
+      System.out.println();
     }
     return null;
+  }
+
+  protected int[][] getFirstDimension(final int n, final int dimension, final int base) {
+    final int[][] result = new int[n][dimension];
+    for (int i = 1; i < n + 1; i++) {
+      result[i - 1][0] = i % base;
+    }
+    return result;
+  }
+
+  protected double[][] getBinomialCoefficientMatrix(final int n, final int m) {
+    final double[][] result = new double[n][n];
+    result[0][0] = 1;
+    for (int i = 1; i < n; i++) {
+      result[i][i] = 1;
+      result[0][i] = 1;
+    }
+    for (int i = 1; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        result[i][j] = (result[i - 1][j - 1] + result[i][j - 1]) % m;
+      }
+    }
+    return result;
   }
 }

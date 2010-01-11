@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.descriptive;
@@ -13,7 +13,7 @@ import com.opengamma.math.function.Function1D;
  */
 public class SampleSkewnessCalculator extends Function1D<Double[], Double> {
   private final Function1D<Double[], Double> _mean = new MeanCalculator();
-  private final Function1D<Double[], Double> _variance = new SampleVarianceCalculator();
+  private final Function1D<Double[], Double> _variance = new PopulationVarianceCalculator();
 
   @Override
   public Double evaluate(final Double[] x) {
@@ -27,7 +27,8 @@ public class SampleSkewnessCalculator extends Function1D<Double[], Double> {
     for (final Double d : x) {
       sum += Math.pow(d - mean, 3);
     }
-    return sum / (Math.pow(variance, 1.5) * (x.length - 1));
+    final int n = x.length;
+    return Math.sqrt(n * (n - 1.)) * sum / (Math.pow(variance, 1.5) * n * (n - 2));
   }
 
 }

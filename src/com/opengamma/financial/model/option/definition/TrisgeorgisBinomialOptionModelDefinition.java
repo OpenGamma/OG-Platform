@@ -36,7 +36,8 @@ public class TrisgeorgisBinomialOptionModelDefinition extends BinomialOptionMode
     final double r = data.getInterestRate(t);
     final double sigma = data.getVolatility(t, option.getStrike());
     final double dt = t / n;
-    final double nu = r - 0.5 * sigma * sigma;
+    final double b = data.getCostOfCarry();
+    final double nu = r - b - 0.5 * sigma * sigma;
     return Math.exp(Math.sqrt(sigma * sigma * dt + nu * nu * dt * dt));
   }
 

@@ -30,50 +30,42 @@ import com.opengamma.util.time.Expiry;
  */
 public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
-  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(
-      GENERATOR);
+  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);
   private static final double R = 0.4;
-  private static final double B = 0.2;
+  private static final double B = 0.1;
   private static final double S = 100;
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(R), B, new ConstantVolatilitySurface(0.), S, DATE);
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
-  public void testConstructor() {
-    new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {
-    PROCESS.getPath(null, DATA, 100, 100);
+    PROCESS.getPathGeneratingFunction(null, DATA, 1000);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    PROCESS.getPath(CALL, null, 100, 100);
+    PROCESS.getPathGeneratingFunction(CALL, null, 1000);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientPaths() {
-    PROCESS.getPath(CALL, DATA, 0, 100);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInsufficientSteps() {
-    PROCESS.getPath(CALL, DATA, 100, 0);
+    PROCESS.getPathGeneratingFunction(CALL, DATA, -1);
   }
 
   @Test
   public void testWithZeroVol() {
-    final List<Double[]> paths = PROCESS.getPath(CALL, DATA, 100, 100);
+    final int steps = 100;
+    final int dimension = 100;
+    final List<Double[]> randomNumbers = GENERATOR.getVectors(dimension, steps);
+    final List<Double[]> paths = PROCESS.getPaths(CALL, DATA, randomNumbers);
     final Double[] zeroth = paths.get(0);
-    final double s1 = Math.log(S) + R - B;
+    final double s1 = Math.log(S) + B;
     assertEquals(zeroth[99], s1, EPS);
     Double[] array;
-    for (int i = 1; i < paths.size(); i++) {
+    for (int i = 0; i < paths.size(); i++) {
       array = paths.get(i);
       assertArrayEquals(array, zeroth);
       assertEquals(array[99], s1, EPS);

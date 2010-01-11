@@ -13,7 +13,7 @@ import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -31,7 +31,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  *         foreign risk-free rate <em>r<sub>f</sub></em>
  */
 public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> {
-  ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
   @Override
   public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle vars,

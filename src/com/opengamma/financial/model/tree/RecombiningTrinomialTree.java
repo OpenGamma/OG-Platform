@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.tree;
 
+import com.opengamma.math.function.Function1D;
+
 /**
  * 
  * @author emcleod
@@ -12,14 +14,22 @@ package com.opengamma.financial.model.tree;
  */
 
 public class RecombiningTrinomialTree<T> extends RecombiningTree<T> {
+  public static final Function1D<Integer, Integer> NODES = new Function1D<Integer, Integer>() {
 
-  public RecombiningTrinomialTree(final T[][] tree) {
-    super(tree);
+    @Override
+    public Integer evaluate(final Integer i) {
+      return 2 * i + 1;
+    }
+
+  };
+
+  public RecombiningTrinomialTree(final T[][] data) {
+    super(data);
   }
 
   @Override
   protected int getMaxNodesForStep(final int step) {
-    return 2 * step + 1;
+    return NODES.evaluate(step);
   }
 
 }

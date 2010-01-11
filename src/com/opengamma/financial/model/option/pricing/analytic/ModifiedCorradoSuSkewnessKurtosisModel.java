@@ -10,7 +10,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
@@ -21,7 +21,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
   final BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
-  final ProbabilityDistribution<Double> _normal = new NormalProbabilityDistribution(0, 1);
+  final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {

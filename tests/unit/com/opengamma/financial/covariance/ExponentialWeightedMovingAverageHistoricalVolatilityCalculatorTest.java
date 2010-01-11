@@ -9,9 +9,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.financial.covariance.ExponentialWeightedMovingAverageHistoricalVolatilityCalculator;
-import com.opengamma.financial.covariance.HistoricalVolatilityCalculator;
-
 /**
  * 
  * @author emcleod

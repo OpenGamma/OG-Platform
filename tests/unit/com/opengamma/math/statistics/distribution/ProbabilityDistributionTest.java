@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.distribution;
@@ -16,7 +16,7 @@ import cern.jet.random.engine.RandomEngine;
  */
 public class ProbabilityDistributionTest {
   protected static final double EPS = 1e-5;
-  protected static final RandomEngine ENGINE = new MersenneTwister(0);
+  protected static final RandomEngine ENGINE = new MersenneTwister(1);
 
   public void testCDF(final double[] p, final double[] x, final ProbabilityDistribution<Double> dist) {
     testCDFWithNull(dist);
