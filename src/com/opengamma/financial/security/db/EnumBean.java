@@ -35,8 +35,8 @@ public abstract class EnumBean {
       return false;
     }
     EnumBean other = (EnumBean) o;
-    if (ObjectUtils.equals(other.getId(), getId())) {
-      return true;
+    if (getId() != -1 && other.getId() != -1) {
+      return getId().longValue() == other.getId().longValue();
     }
     return ObjectUtils.equals(other.getName(), getName());
   }

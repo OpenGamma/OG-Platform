@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -118,6 +120,10 @@ public class EquitySecurity extends FinancialSecurity {
    */
   public void setCurrency(Currency currency) {
     _currency = currency;
+  }
+  
+  public boolean equals(Object o) {
+    return EqualsBuilder.reflectionEquals(this, o);
   }
 
   @Override

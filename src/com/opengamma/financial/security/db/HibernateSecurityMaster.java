@@ -1,206 +1,223 @@
 package com.opengamma.financial.security.db;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import com.mchange.v2.lang.ObjectUtils;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 //import com.opengamma.engine.security.Security;
 //import com.opengamma.engine.security.SecurityKey;
 //import com.opengamma.engine.security.SecurityMaster;
 
-public class HibernateSecurityMaster {//implements SecurityMaster {
-
+public class HibernateSecurityMaster implements SecurityMaster {
+  private static final IdentificationDomain DEFAULT_DOMAIN = new IdentificationDomain("BLOOMBERG");
+  private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
+  protected static final String MODIFIED_BY = "";
+  static {
+    SUPPORTED_SECURITY_TYPES.add("EQUITY");
+  }
+  private Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private HibernateTemplate _hibernateTemplate = null;
   
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
   
-  public Object getSingleResult(List<?> list) {
-    if (list.size() == 1) {
-      return list.get(0);
-    } else if (list.size() == 0) {
-      return null;
-    } else {
-      throw new OpenGammaRuntimeException("Expecting single row results, got "+list);
-    }
+  // for unit testing
+  /*package*/ HibernateTemplate getHibernateTemplate() {
+    return _hibernateTemplate;
   }
   
-  public ExchangeBean getOrCreateExchangeBean(String name, String description) {
-    List<?> results = _hibernateTemplate.find("from ExchangeBean as e where e.name=?", name);
-    ExchangeBean exchange = (ExchangeBean) getSingleResult(results);
-    if (exchange == null) {
-      exchange = new ExchangeBean(name, description);
-      _hibernateTemplate.save(exchange);
-    }
-    return exchange;
-  }
+  // UTILITY METHODS
   
-  @SuppressWarnings("unchecked")
-  public List<ExchangeBean> getExchangeBeans() {
-    return _hibernateTemplate.find("from ExchangeBean");
-  }
-  
-  public List<String> getExchanges() {
-    List<ExchangeBean> exchangeBeans = getExchangeBeans();
-    List<String> exchanges = new ArrayList<String>();
-    if (exchangeBeans != null) {
-      for (ExchangeBean exchangeBean : exchangeBeans) {
-        exchanges.add(exchangeBean.getName());
-      }
-    }
-    return exchanges;
-  }
-  
-  public CurrencyBean getOrCreateCurrencyBean(String name) {
-    List<?> results = _hibernateTemplate.find("from CurrencyBean as c where c.name=?", name);
-    CurrencyBean currency = (CurrencyBean) getSingleResult(results);
-    if (currency == null) {
-      currency = new CurrencyBean(name);
-      _hibernateTemplate.save(currency);
-    }
-    return currency;
-  }
-  
-  @SuppressWarnings("unchecked")
-  public List<CurrencyBean> getCurrencyBeans() {
-    return _hibernateTemplate.find("from CurrencyBean");
-  }
-  
-  public Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
+  // implicit assumption here that either the session to which the currency bean is attached is still open or it is fully initialized.
+  private Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
     return Currency.getInstance(currencyBean.getName());
   }
-  
-  
-  public List<Currency> getCurrencies() {
-    List<CurrencyBean> currencyBeans = getCurrencyBeans();
-    List<Currency> currencies = new ArrayList<Currency>();
-    if (currencyBeans != null) {
-      for (CurrencyBean currencyBean : currencyBeans) {
-        currencies.add(currencyBeanToCurrency(currencyBean));
-      }
-    }
-    return currencies;
-  }
-  
-  // the parameter beans here must be already persisted.
-  public EquitySecurityBean getOrCreateEquitySecurityBean(ExchangeBean exchange, String companyName, CurrencyBean currency) {
-    List<?> results = _hibernateTemplate.find("from EquitySecurityBean as e where e.exchange=? and e.companyName=? and e.currency=?", new Object[] { exchange, companyName, currency });
-    EquitySecurityBean equity = (EquitySecurityBean) getSingleResult(results);
-    if (equity == null) {
-      equity = new EquitySecurityBean(exchange, companyName, currency);
-      _hibernateTemplate.save(equity);
-    }
-    return equity;
-  }
-  
-  public EquitySecurityBean persistEquitySecurityBean(EquitySecurity equitySecurity) {
-    ExchangeBean exchange = getOrCreateExchangeBean(equitySecurity.getExchange(), null);
-    CurrencyBean currency = getOrCreateCurrencyBean(equitySecurity.getCurrency().getISOCode());
-    EquitySecurityBean equity = getOrCreateEquitySecurityBean(exchange, equitySecurity.getCompanyName(), currency);
-    return equity;
-  }
-  
-  public DomainSpecificIdentifierAssociationBean getOrCreateDomainSpecificIdentifierAssociationBean(String domain, String identifier, SecurityBean security) {
-    List<?> results = _hibernateTemplate.find("from DomainSpecificIdentifierAssociationBean as a where "+
-                                                   "a.domainSpecificIdentifier.domain = ? and "+
-                                                   "a.domainSpecificIdentifier.identifier = ? and "+
-                                                   "security = ?", new Object[] {domain, identifier, security});
-    DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) getSingleResult(results);
-    if (association == null) {
-      association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean(domain, identifier));
-      _hibernateTemplate.save(association);
-    }
-    return association;
-  }
-  
-  public void associateDomainSpecificIdentifierWithSecurity(DomainSpecificIdentifier identifier, SecurityBean security) {
-    getOrCreateDomainSpecificIdentifierAssociationBean(identifier.getDomain().getDomainName(), identifier.getValue(), security);
-  }
-  
-  public void persistEquitySecurity(EquitySecurity equitySecurity) {
-    EquitySecurityBean equity = persistEquitySecurityBean(equitySecurity);
-    Collection<DomainSpecificIdentifier> identifiers = equitySecurity.getIdentifiers();
-    for (DomainSpecificIdentifier identifier : identifiers) {
-      associateDomainSpecificIdentifierWithSecurity(identifier, equity);
-    }
-  }
-  
-  public DomainSpecificIdentifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
+  // same again
+  private DomainSpecificIdentifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
     return new DomainSpecificIdentifier(domainSpecificIdentifierBean.getDomain(), domainSpecificIdentifierBean.getIdentifier());
   }
 
+  
+  // PUBLIC API
+  
   @SuppressWarnings("unchecked")
-  public Security getSecurity(final DomainSpecificIdentifier identifier, boolean populateWithOtherIdentifiers) {
-    List<?> results = _hibernateTemplate.find("from DomainSpecificIdentifierAssociationBean as a where "+
-                                                   "a.domainSpecificIdentifier.domain = ? and "+
-                                                   "a.domainSpecificIdentifier.identifier = ?", 
-                                                   new Object[] {identifier.getDomain().getDomainName(), 
-                                                                 identifier.getValue()});
-
-    DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) getSingleResult(results);
-    if (association != null) {
-      SecurityBean security = association.getSecurity();
-      final List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
-      if (populateWithOtherIdentifiers) {
-        List<DomainSpecificIdentifierAssociationBean> otherIdentifiers = _hibernateTemplate.find("from DomainSpecificIdentifierAssociationBean as a where a.security = ?", security);
-        for (DomainSpecificIdentifierAssociationBean associationBean : otherIdentifiers) {
-          identifiers.add(domainSpecificIdentifierBeanToDomainSpecificIdentifier(associationBean.getDomainSpecificIdentifier()));
-        }
-      } else {
-        identifiers.add(identifier);
-      }
-      security.accept(new SecurityBeanVisitor<Security>() {
-        @Override
-        public Security visitEquitySecurityBean(EquitySecurityBean security) {
-          EquitySecurity result = new EquitySecurity();
-          result.setCompanyName(security.getCompanyName());
-          result.setCurrency(currencyBeanToCurrency(security.getCurrency()));
-          result.setExchange(security.getExchange().getName());
-          result.setTicker(identifier.getValue());
+  public Security getSecurity(final Date now, final DomainSpecificIdentifier identifier, final boolean populateWithOtherIdentifiers) {
+    return (Security)_hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        SecurityBean security = secMasterSession.getSecurityBean(now, identifier);
+        // we use the DefaultSecurity interface because we need access to setIdentifiers
+        if (security != null) {
+          DefaultSecurity result = security.accept(new SecurityBeanVisitor<DefaultSecurity>() {
+            @Override
+            public DefaultSecurity visitEquitySecurityBean(EquitySecurityBean security) {
+              EquitySecurity result = new EquitySecurity();
+              result.setCompanyName(security.getCompanyName());
+              result.setCurrency(currencyBeanToCurrency(security.getCurrency()));
+              result.setExchange(security.getExchange().getName());
+              result.setTicker(identifier.getValue());
+              result.setIdentityKey(identifier.getValue());
+              return result;
+            }
+          });
+          final List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
+          if (populateWithOtherIdentifiers) {
+            System.err.println("First version security id = "+security.getFirstVersion().getId());
+            Query identifierQuery = session.getNamedQuery("DomainSpecificIdentifierAssociationBean.many.bySecurity");
+            identifierQuery.setParameter("security", security.getFirstVersion());
+            List<DomainSpecificIdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
+            for (DomainSpecificIdentifierAssociationBean associationBean : otherIdentifiers) {
+              identifiers.add(domainSpecificIdentifierBeanToDomainSpecificIdentifier(associationBean.getDomainSpecificIdentifier()));
+            }
+          } else {
+            identifiers.add(identifier);
+          }
           result.setIdentifiers(identifiers);
           return result;
         }
-      });
+        return null;
+      }
+    });
+  }
+  
+  public void persistEquitySecurity(final Date now, final EquitySecurity equitySecurity) {
+    _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
+        System.err.println(allAssociations);
+        SecurityBean security = secMasterSession.getSecurityBean(now, equitySecurity.getIdentifiers());
+        if (security == null) {
+          // try and minimize the number of queries by grouping DSIDs into domain sets that are passed in as lists.
+          EquitySecurityBean equity = secMasterSession.persistEquitySecurityBean(now, equitySecurity);
+          Collection<DomainSpecificIdentifier> identifiers = equitySecurity.getIdentifiers();
+          for (DomainSpecificIdentifier identifier : identifiers) {
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(identifier, equity.getFirstVersion()); //associate all the identifiers with the first version.
+          }
+        } else if (security instanceof EquitySecurityBean) {
+          EquitySecurityBean equity = (EquitySecurityBean) security;
+          if (ObjectUtils.eqOrBothNull(equity.getCompanyName(), equitySecurity.getCompanyName()) &&
+              ObjectUtils.eqOrBothNull(currencyBeanToCurrency(equity.getCurrency()), equitySecurity.getCurrency()) &&
+              ObjectUtils.eqOrBothNull(equity.getExchange(), equitySecurity.getExchange())) {
+            // they're the same, so we don't need to do anything except check the associations are up to date.
+          } else {
+            secMasterSession.createEquitySecurityBean(now, false, now, MODIFIED_BY, equity, 
+                                                      secMasterSession.getOrCreateExchangeBean(equitySecurity.getExchange(), ""), 
+                                                      equitySecurity.getCompanyName(), 
+                                                      secMasterSession.getOrCreateCurrencyBean(equitySecurity.getCurrency().getISOCode()));
+          }
+        } else {
+          throw new OpenGammaRuntimeException("SecurityBean of unexpected type:"+security);
+        }
+        return null;
+      }
+    });
+  }
+  
+  @SuppressWarnings("unchecked")
+  public List<String> getExchanges() {
+    return (List<String>) _hibernateTemplate.executeFind(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        List<ExchangeBean> exchangeBeans = secMasterSession.getExchangeBeans();
+        List<String> exchanges = new ArrayList<String>();
+        if (exchangeBeans != null) {
+          for (ExchangeBean exchangeBean : exchangeBeans) {
+            exchanges.add(exchangeBean.getName());
+          }
+        }
+        return exchanges;
+      } 
+    });
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<Currency> getCurrencies() {
+    return (List<Currency>) _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        List<CurrencyBean> currencyBeans = secMasterSession.getCurrencyBeans();
+        List<Currency> currencies = new ArrayList<Currency>();
+        if (currencyBeans != null) {
+          for (CurrencyBean currencyBean : currencyBeans) {
+            currencies.add(currencyBeanToCurrency(currencyBean));
+          }
+        }
+        return currencies;      
+      }
+    });
+
+  }
+  
+  @Override
+  public Set<String> getAllSecurityTypes() {
+    return SUPPORTED_SECURITY_TYPES;
+  }
+
+  // TODO: consider if this needs to take a date
+  @Override
+  public Collection<Security> getSecurities(SecurityKey secKey) {
+    Collection<DomainSpecificIdentifier> identifiers = secKey.getIdentifiers();
+    Collection<Security> results = new HashSet<Security>();
+    for (DomainSpecificIdentifier dsi : identifiers) {
+      Security security = getSecurity(new Date(), dsi, true);
+      if (security != null) {
+        results.add(security);
+      }
+    }
+    return results;
+  }
+
+  // TODO: consider if this needs to take a date
+  @Override
+  public Security getSecurity(SecurityKey secKey) {
+    Collection<DomainSpecificIdentifier> identifiers = secKey.getIdentifiers();
+    for (DomainSpecificIdentifier dsi : identifiers) {
+      Security security = getSecurity(new Date(), dsi, true);
+      if (security != null) {
+        return security;
+      }
     }
     return null;
   }
-
   
-//  @Override
-//  public Set<String> getAllSecurityTypes() {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public Collection<Security> getSecurities(SecurityKey secKey) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public Security getSecurity(SecurityKey secKey) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
-//
-//  @Override
-//  public Security getSecurity(String identityKey) {
-//    // TODO Auto-generated method stub
-//    return null;
-//  }
+  // TODO: remove this once we've got rid of the string Bloomberg only identities floating around.
+  @Override
+  public Security getSecurity(String identityKey) {
+    return getSecurity(new Date(), new DomainSpecificIdentifier(DEFAULT_DOMAIN, identityKey), true);
+  }
 }
  

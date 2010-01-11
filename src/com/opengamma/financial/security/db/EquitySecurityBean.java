@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.security.db;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
  *
@@ -14,7 +18,7 @@ package com.opengamma.financial.security.db;
 public class EquitySecurityBean extends SecurityBean {
   private ExchangeBean _exchange;
   private String _companyName;
-  private CurrencyBean _currency; 
+  private CurrencyBean _currency;
   
   // Identifiers that might be valid for equities:
   // - Bloomberg ticker (in BbgId)
@@ -84,8 +88,36 @@ public class EquitySecurityBean extends SecurityBean {
     _currency = currency;
   }
 
+  public boolean equals(Object other) {
+    if (!(other instanceof EquitySecurityBean)) {
+      return false;
+    }
+    EquitySecurityBean equity = (EquitySecurityBean) other;
+    if (getId() != -1 && equity.getId() != -1) {
+      return getId().longValue() == equity.getId().longValue();
+    }
+    return new EqualsBuilder().append(getExchange(), equity.getExchange())
+                              .append(getCompanyName(), equity.getCompanyName())
+                              .append(getCurrency(), equity.getCurrency())
+                              .append(getEffectiveDateTime(), equity.getEffectiveDateTime())
+                              .append(isDeleted(), equity.isDeleted()).isEquals(); 
+  }
+  
+  public int hashCode() {
+    return new HashCodeBuilder().append(getExchange())
+                                .append(getCompanyName())
+                                .append(getCurrency())
+                                .append(getEffectiveDateTime())
+                                .append(isDeleted())
+                                .toHashCode(); 
+  }
+  
   @Override
   public <T> T accept(SecurityBeanVisitor<T> visitor) {
     return visitor.visitEquitySecurityBean(this);
+  }
+  
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 }

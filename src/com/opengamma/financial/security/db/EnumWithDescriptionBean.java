@@ -2,6 +2,9 @@ package com.opengamma.financial.security.db;
 
 import javax.persistence.Entity;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 @Entity
 public class EnumWithDescriptionBean extends EnumBean {
   private String _description;
@@ -27,9 +30,20 @@ public class EnumWithDescriptionBean extends EnumBean {
   
   public boolean equals(Object o) {
     if (!(o instanceof EnumWithDescriptionBean)) {
+      System.err.println("not EnumWithDescriptionBean");
       return false;
     }
-    return super.equals(o);
+    EnumWithDescriptionBean ewd = (EnumWithDescriptionBean) o;
+    if (getId() != -1 && ewd.getId() != -1) {
+      System.err.println("both have valid id's:"+getId()+" other:"+ewd.getId()+" value="+(getId() == ewd.getId()));
+      return getId().longValue() == ewd.getId().longValue();
+    }
+    System.err.println("using equals builder");
+    return new EqualsBuilder().append(getName(), ewd.getName()).append(getDescription(), ewd.getDescription()).isEquals();
+  }
+  
+  public int hashCode() {
+    return new HashCodeBuilder().append(getName()).append(getDescription()).toHashCode();
   }
   
   // should replace this with on-the-fly generated ones (can't remember class name!)

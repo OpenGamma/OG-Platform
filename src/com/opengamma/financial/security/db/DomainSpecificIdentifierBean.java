@@ -6,6 +6,7 @@
 package com.opengamma.financial.security.db;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
  * 
@@ -17,6 +18,9 @@ public class DomainSpecificIdentifierBean {
   // component of DomainSpecificIndentifierAssociationBean so it doesn't need one
   private String _identifier;
   private String _domain;
+  
+  public DomainSpecificIdentifierBean() {
+  }
 
   public DomainSpecificIdentifierBean(String domain, String identifier) {
     _domain = domain;
@@ -50,5 +54,9 @@ public class DomainSpecificIdentifierBean {
       return true;
     }
     return false;
+  }
+  
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
   }
 }

@@ -1,5 +1,23 @@
 <project name="og-financial" default="compile">
-  <property file="build.properties"/>
+	<property file="build.properties" />
 
-  <import file="${common.dir}/common.xml"/>
+	<import file="${common.dir}/common.xml" />
+	
+	<target name="create-derby-db" depends="load-ivy,compile"
+		description="--> Generate Derby schema from mapping files and create database">
+		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
+			classpathref="lib.path.id" />
+		<delete dir="${test.blank.db.dir}"/>
+		<delete dir="${test.db.dir}"/>
+		<hibernatetool destdir="${basedir}/generated">
+			<classpath>
+				<path location="${classes.dir}" />
+				<path location="${tests.classes.dir}" />
+			</classpath>
+			<configuration configurationfile="hibernate.cfg.xml" />
+			<hbm2ddl export="true" format="true" outputfilename="sql.ddl" />
+		</hibernatetool>
+	</target>
+	
+	<target name="tests" depends="create-derby-db,common.tests"/>
 </project>

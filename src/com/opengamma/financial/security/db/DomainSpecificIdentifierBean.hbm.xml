@@ -30,4 +30,67 @@
       <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
     </component>
   </class>
+  <!-- queries on this entity -->
+  <query name="SecurityBean.one.byDomainIdentifier">
+    select 
+      s
+    from 
+      DomainSpecificIdentifierAssociationBean as a,
+      SecurityBean as s
+    where
+      a.security = s.firstVersion and
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier = :identifier and
+      s.effectiveDateTime &lt;= :now and
+      not exists (select 
+                    latest.id
+                  from 
+                    SecurityBean as latest
+                  where
+                    latest.effectiveDateTime &lt; :now and
+                    latest.effectiveDateTime &gt; s.effectiveDateTime and
+                    latest.id &lt;&gt; s.id)
+  </query>
+  <!-- note the s, and the 'in (:identifiers)' part of the where -->
+  <query name="SecurityBean.one.byDomainIdentifiers"> 
+    select 
+      s
+    from 
+      DomainSpecificIdentifierAssociationBean as a,
+      SecurityBean as s
+    where
+      a.security = s.firstVersion and
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier in (:identifiers) and
+      s.effectiveDateTime &lt; :now and
+      not exists (select 
+                    latest.id
+                  from 
+                    SecurityBean as latest
+                  where
+                    latest.effectiveDateTime &lt; :now and
+                    latest.effectiveDateTime &gt; s.effectiveDateTime and
+                    latest.id &lt;&gt; s.id)
+  </query>
+  <query name="DomainSpecificIdentifierAssociationBean.one">
+    from 
+      DomainSpecificIdentifierAssociationBean as a 
+    where
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier = :identifier
+  </query>
+  <query name="DomainSpecificIdentifierAssociationBean.one.byDomainIdentifierSecurity">
+    from 
+      DomainSpecificIdentifierAssociationBean as a 
+    where
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier = :identifier and
+      a.security = :security
+  </query>
+  <query name="DomainSpecificIdentifierAssociationBean.many.bySecurity">
+    from 
+      DomainSpecificIdentifierAssociationBean as a 
+    where
+      a.security = :security
+  </query>
 </hibernate-mapping>

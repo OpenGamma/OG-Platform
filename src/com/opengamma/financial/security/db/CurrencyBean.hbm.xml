@@ -9,11 +9,10 @@
     </id>
     <property name="name" unique="true" type="string" not-null="true"/>
   </class>
-  <class name="ExchangeBean" table="exchanges">
-    <id name="id" column="exchange_id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
-    </id>
-    <property name="name" unique="true" type="string" not-null="true"/>
-    <property name="description" type="string"/>
-  </class>
+  <query name="CurrencyBean.all">
+    from CurrencyBean
+  </query>
+  <query name="CurrencyBean.one">
+    from CurrencyBean as c where c.name=:name
+  </query>
 </hibernate-mapping>
