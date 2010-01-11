@@ -8,14 +8,15 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.opengamma.financial.Currency;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -25,34 +26,30 @@ import com.opengamma.financial.Currency;
 public class DiscountCurveDefinition implements Serializable {
   private final Currency _currency;
   private final String _name;
-  private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>(new Comparator<FixedIncomeStrip>() {
-    @Override
-    public int compare(FixedIncomeStrip o1, FixedIncomeStrip o2) {
-      double n1 = o1.getNumYears();
-      double n2 = o2.getNumYears();
-      if(n1 < n2) {
-        return -1;
-      } else if (n1 > n2) {
-        return 1;
-      }
-      return 0;
-    }
-  });
+  private final String _interpolatorName;
+  private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
   
-  public DiscountCurveDefinition(Currency currency, String name) {
-    this(currency, name, Collections.<FixedIncomeStrip>emptySet());
+  public DiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
+    this(currency, name, interpolatorName, null);
   }
-
-  public DiscountCurveDefinition(String isoCode, String name, Collection<FixedIncomeStrip> strips) {
-    this(Currency.getInstance(isoCode), name, strips);
-  }
-
-  public DiscountCurveDefinition(Currency currency, String name, Collection<FixedIncomeStrip> strips) {
+  
+  public DiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
+    ArgumentChecker.checkNotNull(currency, "Currency");
+    ArgumentChecker.checkNotNull(interpolatorName, "Interpolator name");
+    // Name can be null.
     _currency = currency;
     _name = name;
-    for(FixedIncomeStrip strip : strips) {
-      addStrip(strip);
+    _interpolatorName = interpolatorName;
+    if(strips != null) {
+      for(FixedIncomeStrip strip : strips) {
+        addStrip(strip);
+      }
     }
+  }
+  
+  public void addStrip(FixedIncomeStrip strip) {
+    ArgumentChecker.checkNotNull(strip, "Strip");
+    _strips.add(strip);
   }
 
   /**
@@ -68,21 +65,68 @@ public class DiscountCurveDefinition implements Serializable {
   public String getName() {
     return _name;
   }
-  
-  public void addStrip(FixedIncomeStrip strip) {
-    _strips.add(strip);
+
+  /**
+   * @return the interpolatorName
+   */
+  public String getInterpolatorName() {
+    return _interpolatorName;
   }
-  
-  public Collection<FixedIncomeStrip> getStrips() {
-    return Collections.unmodifiableSet(_strips);
+
+  /**
+   * @return the strips
+   */
+  public SortedSet<FixedIncomeStrip> getStrips() {
+    return Collections.unmodifiableSortedSet(_strips);
   }
-  
-  public Set<AnalyticValueDefinition<?>> getRequiredInputs() {
-    Set<AnalyticValueDefinition<?>> requiredInputs = new HashSet<AnalyticValueDefinition<?>>();
-    for(FixedIncomeStrip strip : _strips) {
-      requiredInputs.add(strip.getStripValueDefinition());
+
+  @Override
+  public boolean equals(Object obj) {
+    if(this == obj) {
+      return true;
     }
-    return requiredInputs;
+    if(obj == null) {
+      return false;
+    }
+    if(!(obj instanceof DiscountCurveDefinition)) {
+      return false;
+    }
+    DiscountCurveDefinition other = (DiscountCurveDefinition) obj;
+    if(!ObjectUtils.equals(_currency, other._currency)) {
+      return false;
+    }
+    if(!ObjectUtils.equals(_name, other._name)) {
+      return false;
+    }
+    if(!ObjectUtils.equals(_interpolatorName, other._interpolatorName)) {
+      return false;
+    }
+    if(!ObjectUtils.equals(_strips, other._strips)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int prime = 37;
+    int result = 1;
+    result = (result * prime) + _currency.hashCode();
+    if(_name != null) {
+      result = (result * prime) + _name.hashCode(); 
+    }
+    if(_interpolatorName != null) {
+      result = (result * prime) + _interpolatorName.hashCode(); 
+    }
+    for(FixedIncomeStrip strip : _strips) {
+      result = (result * prime) + strip.hashCode();
+    }
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

@@ -11,21 +11,27 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.engine.analytics.AnalyticValueDefinition;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
- * Represents a particular strip used to bootstrap a discount curve.
+ * 
  *
  * @author kirk
  */
-public class FixedIncomeStrip implements Serializable {
+public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
   private final double _numYears;
-  private final AnalyticValueDefinition<?> _stripValueDefinition;
+  private final String _marketDataKey;
   
-  public FixedIncomeStrip(double numYears, AnalyticValueDefinition<?> stripValueDefinition) {
+  public FixedIncomeStrip(double numYears, String marketDataKey) {
+    if(numYears < 0) {
+      throw new IllegalArgumentException("Fixed income strips cannot be in the future.");
+    }
+    ArgumentChecker.checkNotNull(marketDataKey, "Market data key");
     _numYears = numYears;
-    _stripValueDefinition = stripValueDefinition;
+    _marketDataKey = marketDataKey;
   }
 
   /**
@@ -36,10 +42,25 @@ public class FixedIncomeStrip implements Serializable {
   }
 
   /**
-   * @return the stripValueDefinition
+   * @return the marketDataKey
    */
-  public AnalyticValueDefinition<?> getStripValueDefinition() {
-    return _stripValueDefinition;
+  public String getMarketDataKey() {
+    return _marketDataKey;
+  }
+  
+  public ComputationTargetSpecification getMarketDataSpecification() {
+    // REVIEW kirk 2009-12-30 -- We might want to cache this on construction if it's called a lot.
+    return new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, getMarketDataKey());
+  }
+
+  @Override
+  public int compareTo(FixedIncomeStrip o) {
+    if(getNumYears() < o.getNumYears()) {
+      return -1;
+    } else if (getNumYears() > o.getNumYears()) {
+      return 1;
+    }
+    return getMarketDataKey().compareTo(o.getMarketDataKey());
   }
 
   @Override
@@ -54,10 +75,10 @@ public class FixedIncomeStrip implements Serializable {
       return false;
     }
     FixedIncomeStrip other = (FixedIncomeStrip) obj;
-    if(!CompareUtils.closeEquals(getNumYears(), other.getNumYears())) {
+    if(!CompareUtils.closeEquals(_numYears, other._numYears)) {
       return false;
     }
-    if(!ObjectUtils.equals(getStripValueDefinition(), other.getStripValueDefinition())) {
+    if(!ObjectUtils.equals(_marketDataKey, other._marketDataKey)) {
       return false;
     }
     return true;
@@ -69,7 +90,7 @@ public class FixedIncomeStrip implements Serializable {
     int result = 1;
     long numYearsBits = Double.doubleToLongBits(getNumYears());
     result = (result * prime) + ((int)(numYearsBits ^ (numYearsBits >>> 32)));
-    result = (result * prime) + getStripValueDefinition().hashCode();
+    result = (result * prime) + getMarketDataKey().hashCode();
     return result;
   }
 

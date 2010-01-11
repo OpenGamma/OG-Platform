@@ -12,3 +12,4 @@ derby.log
 blank/
 derby-db/
 generated/
+build/
