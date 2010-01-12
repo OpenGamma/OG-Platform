@@ -16,7 +16,10 @@
 	-->
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
 
+	<!-- Load the environment variables first -->
 	<property environment="env" />
+	<!-- if that didn't work, try a property file because some JVMs don't support env properly -->
+	<property file="${user.home}/.OG-Build-common.properties" />
 
 	<property file="${common.dir}/build.properties" />
 
