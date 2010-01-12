@@ -68,6 +68,7 @@
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
 				<include name="**/build.xml" />
+				<exclude name="fudgemsg-dist/**" />
 				<exclude name="Hermit/**" />
 				<exclude name="jsr-310-ri-20090901/**" />
 				<exclude name="OG-PrivateIvy/**" />
@@ -118,6 +119,7 @@
 
 	<target name="clone-or-pull" description="clone or pull all projects from git">
         <mkdir dir="projects"/>
+        <git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Engine.git" dest="projects/OG-Engine" />
