@@ -247,6 +247,13 @@
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
 		<ivy:retrieve
 			pattern="${dist.dir}/${dist.name}/lib/[artifact]-[revision].[ext]" />
+		<copy todir="${dist.dir}/${dist.name}" failonerror="false">
+			<fileset dir="scripts"/>	
+		</copy>
+		<mkdir dir="${dist.dir}/${dist.name}/config" />
+		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
+			<fileset dir="config"/>	
+		</copy>
 	</target>
 
 	<target name="tarball" depends="dist" description="--> generate a tarball for distribution">
