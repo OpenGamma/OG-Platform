@@ -154,6 +154,7 @@
 
 	<target name="junit-report" depends="junit-batch">
 		<mkdir dir="${tests.junit.dir}/html" />
+		<mkdir dir="${tests.junit.dir}/xml" />
 		<junitreport todir="${tests.junit.dir}/xml">
 			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
 			<report todir="${tests.junit.dir}/html" />
