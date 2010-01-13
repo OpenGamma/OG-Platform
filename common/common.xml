@@ -99,6 +99,17 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
+	<target name="fudge-proto" depends="resolve"
+		description="--> compile any Fudge .proto files">
+		<path id="fudge.proto.path.id">
+			<path location="/usr/share/java/fudge-proto.jar" />
+			<path location="/usr/share/java/fudge-java.jar" />
+			<path location="/usr/share/java/antlr3.jar" />
+		</path>
+		<taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="fudge.proto.path.id" />
+		<fudgeproto srcdir="${src.dir}" destdir="${src.dir}" verbose="${build.verbose}" />
+	</target>
+
 	<target name="compile-src" depends="resolve"
 		description="--> compile the main project files">
 		<mkdir dir="${classes.dir}" />
