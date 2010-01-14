@@ -137,7 +137,7 @@
 		<junit printSummary="true" fork="true" forkmode="once">
 			<classpath>
 	      <path refid="lib.path.id" />
-	      <pathelement path="${classes.dir}" />
+	      	<pathelement path="${classes.dir}" />
 				<pathelement path="${tests.classes.dir}" />
 			</classpath>
 			<assertions>
