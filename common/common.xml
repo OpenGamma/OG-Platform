@@ -16,12 +16,16 @@
 	-->
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<!-- Load the environment variables first -->
-	<property environment="env" />
-	<!-- if that didn't work, try a property file because some JVMs don't support env properly -->
-	<property file="${user.home}/.OG-Build-common.properties" />
+        <!-- Load the environment variables first -->
+        <property environment="env" />
+        <!-- also, try a property file because some JVMs don't support env properly -->
+        <property file="${user.home}/.OG-Build-common.properties" />
 
-	<property file="${common.dir}/build.properties" />
+        <!-- project detaults -->
+        <property file="${common.dir}/build.properties" />
+
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="{$env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
@@ -102,12 +106,17 @@
 	<target name="fudge-proto" depends="resolve"
 		description="--> compile any Fudge .proto files">
 		<path id="fudge.proto.path.id">
-			<path location="/usr/share/java/fudge-proto.jar" />
-			<path location="/usr/share/java/fudge-java.jar" />
-			<path location="/usr/share/java/antlr3.jar" />
+			<pathelement path="/usr/share/java/fudge-proto.jar" />
+			<pathelement path="/usr/share/java/fudge-java.jar" />
+			<pathelement path="/usr/share/java/antlr3.jar" />
+		</path>
+		<path id="fudge.proto.project.path">
+			<dirset dir="${projects.dir}">
+				<include name="**/src" />
+			</dirset>
 		</path>
 		<taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="fudge.proto.path.id" />
-		<fudgeproto srcdir="${src.dir}" destdir="${src.dir}" verbose="${build.verbose}" />
+		<fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
 	</target>
 
 	<target name="compile-src" depends="resolve"
@@ -131,7 +140,7 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 
-	<target name="compile-tests" depends="compile-src" description="--> compile the tests">
+	<target name="compile-tests" depends="resolve" description="--> compile the tests">
 		<mkdir dir="${tests.classes.dir}" />
 		<path id="tests.build.classpath.id">
 			<path refid="lib.path.id" />
