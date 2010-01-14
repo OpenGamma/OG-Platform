@@ -134,7 +134,13 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   @Override
   public Double getDataPoint(final ZonedDateTime instant) {
-    return _values[Arrays.binarySearch(_times, instant.toInstant().toEpochMillis())];
+    long time = instant.toInstant().toEpochMillis();
+    int index = Arrays.binarySearch(_times, time);
+    if (index >= 0) {
+      return _values[index];
+    } else {
+      return null;
+    }
   }
 
   @Override
@@ -362,7 +368,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public List<ZonedDateTime> times() {
     final ZonedDateTime[] times = new ZonedDateTime[_times.length];
     for (int i = 0; i < _times.length; i++) {
-      times[i] = ZonedDateTime.fromInstant(Instant.instant(_times[i]), _zones[i]);
+      times[i] = ZonedDateTime.fromInstant(Instant.millisInstant(_times[i]), _zones[i]);
     }
     return Arrays.asList(times);
   }

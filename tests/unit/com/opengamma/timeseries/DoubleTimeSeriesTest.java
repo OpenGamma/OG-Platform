@@ -93,6 +93,13 @@ public abstract class DoubleTimeSeriesTest {
     return createTimeSeries(times, values, zones);
   }
   
+  public DoubleTimeSeries createStandardTimeSeries2() {
+    long[] times = {4, 5, 6, 7, 8, 9};
+    double[] values = {4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+    TimeZone[] zones = {TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC};
+    return createTimeSeries(times, values, zones);
+  }
+  
   @Test
   public void testHead() {
     DoubleTimeSeries dts = createStandardTimeSeries();
@@ -302,6 +309,45 @@ public abstract class DoubleTimeSeriesTest {
     assertFalse(createStandardTimeSeries().equals(createEmptyTimeSeries()));
     assertFalse(createEmptyTimeSeries().equals(createStandardTimeSeries()));
     assertEquals(createEmptyTimeSeries(), createEmptyTimeSeries());
+  }
+  
+  @Test
+  public void testOperators() {
+    DoubleTimeSeries dts = createStandardTimeSeries();
+    DoubleTimeSeries dts2 = createStandardTimeSeries2();
+    DoubleTimeSeries ets = createEmptyTimeSeries();
+    assertEquals(ets, DoubleTimeSeriesOperations.add(dts, ets));
+    assertEquals(ets, DoubleTimeSeriesOperations.add(ets, dts));
+    assertEquals(dts, DoubleTimeSeriesOperations.unionAdd(dts, ets));
+    assertEquals(dts, DoubleTimeSeriesOperations.unionAdd(ets, dts));
+    DoubleTimeSeries result = DoubleTimeSeriesOperations.add(dts, dts2);
+    assertEquals(3, result.size());
+    assertEquals(Double.valueOf(8.0), result.getValue(0));
+    assertEquals(Double.valueOf(10.0), result.getValue(1));
+    assertEquals(Double.valueOf(12.0), result.getValue(2));
+    assertEquals(dts.getTime(3), result.getTime(0));
+    assertEquals(dts.getTime(4), result.getTime(1));
+    assertEquals(dts.getTime(5), result.getTime(2));
+    DoubleTimeSeries unionResult = DoubleTimeSeriesOperations.unionAdd(dts, dts2);
+    assertEquals(9, unionResult.size());
+    assertEquals(Double.valueOf(1.0), unionResult.getValue(0));
+    assertEquals(Double.valueOf(2.0), unionResult.getValue(1));
+    assertEquals(Double.valueOf(3.0), unionResult.getValue(2));
+    assertEquals(Double.valueOf(8.0), unionResult.getValue(3));
+    assertEquals(Double.valueOf(10.0), unionResult.getValue(4));
+    assertEquals(Double.valueOf(12.0), unionResult.getValue(5));
+    assertEquals(Double.valueOf(7.0), unionResult.getValue(6));
+    assertEquals(Double.valueOf(8.0), unionResult.getValue(7));
+    assertEquals(Double.valueOf(9.0), unionResult.getValue(8));
+    assertEquals(dts.getTime(0), unionResult.getTime(0));
+    assertEquals(dts.getTime(1), unionResult.getTime(1));
+    assertEquals(dts.getTime(2), unionResult.getTime(2));
+    assertEquals(dts.getTime(3), unionResult.getTime(3));
+    assertEquals(dts.getTime(4), unionResult.getTime(4));
+    assertEquals(dts.getTime(5), unionResult.getTime(5));
+    assertEquals(dts2.getTime(3), unionResult.getTime(6));
+    assertEquals(dts2.getTime(4), unionResult.getTime(7));
+    assertEquals(dts2.getTime(5), unionResult.getTime(8));
   }
 
 }
