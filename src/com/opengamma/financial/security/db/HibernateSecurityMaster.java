@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -17,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.mchange.v2.lang.ObjectUtils;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
@@ -125,9 +125,9 @@ public class HibernateSecurityMaster implements SecurityMaster {
           }
         } else if (security instanceof EquitySecurityBean) {
           EquitySecurityBean equity = (EquitySecurityBean) security;
-          if (ObjectUtils.eqOrBothNull(equity.getCompanyName(), equitySecurity.getCompanyName()) &&
-              ObjectUtils.eqOrBothNull(currencyBeanToCurrency(equity.getCurrency()), equitySecurity.getCurrency()) &&
-              ObjectUtils.eqOrBothNull(equity.getExchange(), equitySecurity.getExchange())) {
+          if (ObjectUtils.equals(equity.getCompanyName(), equitySecurity.getCompanyName()) &&
+              ObjectUtils.equals(currencyBeanToCurrency(equity.getCurrency()), equitySecurity.getCurrency()) &&
+              ObjectUtils.equals(equity.getExchange(), equitySecurity.getExchange())) {
             // they're the same, so we don't need to do anything except check the associations are up to date.
           } else {
             secMasterSession.createEquitySecurityBean(now, false, now, MODIFIED_BY, equity, 
