@@ -15,17 +15,23 @@
 		License.
 	-->
 <project name="all" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+        <!-- Load the environment variables first -->
+        <property environment="env" />
+        <!-- if that didn't work, try a property file because some JVMs don't support env properly -->
+        <property file="${user.home}/.OG-Build-common.properties" />
+
 	<property file="build.properties" />
 	<property file="${common.dir}/build.properties" />
+
+        <condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="{$env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+        <condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 	<property name="ivy.install.version" value="2.1.0" />
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
-	
-	<condition property="ivy.shared.default.root" value="${ivy.shared.default.root.windows}" else="${ivy.shared.default.root.unix}">
-	  <os family="windows"/>
-	</condition>	
 	
 	<import file="git-macros.xml" />
 
@@ -61,6 +67,7 @@
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
 			classpathref="ivy.lib.path" />
+                <echo file="${common.dir}/.ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 
