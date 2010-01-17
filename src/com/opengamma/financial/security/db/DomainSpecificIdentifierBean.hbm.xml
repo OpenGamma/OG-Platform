@@ -19,7 +19,7 @@
       <meta-value value="EQUITY" class="EquitySecurityBean"/>
       <!--  insert more subclasses of SecurityBean here -->
       <!--  note the order is important here -->
-      <column name="security_descriminator"/>
+      <column name="security_discriminator"/>
       <column name="security_id"/>
     </any>
     <!-- component means that it's 'part of' the object, although Java models it as a reference, I wanted
