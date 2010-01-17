@@ -18,7 +18,7 @@
         <dependency org="cern" name="colt" rev="1.2.0"/>
         <dependency org="org.hibernate" name="hibernate" rev="3.3.2.GA" conf="*->default"/>
         <dependency org="org.hibernate" name="hibernate-annotations" rev="3.4.0.GA"/>
-        <!-- <dependency org="org.hibernate" name="hibernate-tools" rev="3.2.4"/>-->
+        <dependency org="org.hibernate" name="hibernate-tools" rev="3.2.4"/>
         <dependency org="org.apache.derby" name="derby" rev="10.5.1.1"/>
         <dependency org="org.springframework" name="spring" rev="2.5.6" conf="*->orm"/>
     </dependencies>
