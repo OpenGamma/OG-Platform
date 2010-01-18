@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.interestrate.bond;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +69,6 @@ public class PresentValueCalculatorTest {
 
   @Test
   public void test() {
-    System.out.println(CALCULATOR.calculate(TS, RATES, DATE));
+    assertEquals(CALCULATOR.calculate(TS, RATES, DATE), 1.2559, 1e-4);
   }
 }
