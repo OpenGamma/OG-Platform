@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.bond;
+package com.opengamma.financial.model.cashflow;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,7 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.bond.PresentValueCalculator;
+import com.opengamma.financial.model.cashflow.PresentValueCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.StepInterpolator1D;

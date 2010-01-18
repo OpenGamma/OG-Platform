@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.bond;
+package com.opengamma.financial.model.cashflow;
 
 import java.util.Iterator;
 
