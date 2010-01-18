@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.interestrate.bond;
+package com.opengamma.financial.model.bond;
 
 import java.util.Iterator;
 

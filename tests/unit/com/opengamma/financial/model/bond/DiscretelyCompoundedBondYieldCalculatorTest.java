@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.interestrate.bond;
+package com.opengamma.financial.model.bond;
 
 import static org.junit.Assert.assertEquals;
 
@@ -14,6 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.model.bond.DiscretelyCompoundedBondYieldCalculator;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.DateUtil;

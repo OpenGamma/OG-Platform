@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.interestrate.bond;
+package com.opengamma.financial.model.bond;
 
 import java.util.Arrays;
 
@@ -11,6 +11,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.opengamma.financial.model.bond.BondYieldCalculator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
