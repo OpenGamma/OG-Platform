@@ -24,7 +24,7 @@ public abstract class BondYieldCalculator {
       throw new IllegalArgumentException("Cash flow time series was null");
     if (cashFlows.isEmpty())
       throw new IllegalArgumentException("Cash flow time series was empty");
-    if (price < 0)
+    if (price <= 0)
       throw new IllegalArgumentException("Price must be positive");
     if (date == null)
       throw new IllegalArgumentException("Date was null");
