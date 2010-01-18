@@ -51,6 +51,10 @@ public class StepInterpolator1DTest {
     test(INTERPOLATOR.interpolate(DATA, value), 4.5);
     value = 2 - EPS / 10;
     test(INTERPOLATOR.interpolate(DATA, value), 4.3);
+    value = 2;
+    test(INTERPOLATOR.interpolate(DATA, value), 4.3);
+    value = 3;
+    test(INTERPOLATOR.interpolate(DATA, value), 6.7);
   }
 
   private void test(final InterpolationResult<Double> result, final double expected) {

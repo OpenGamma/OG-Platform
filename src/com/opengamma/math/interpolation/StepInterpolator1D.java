@@ -41,6 +41,8 @@ public class StepInterpolator1D extends Interpolator1D {
       return new InterpolationResult<Double>(sorted.firstEntry().getValue(), 0.);
     if (value > sorted.lastKey() || CompareUtils.closeEquals(value, sorted.lastKey(), _eps))
       return new InterpolationResult<Double>(sorted.lastEntry().getValue(), 0.);
+    if (sorted.containsKey(value))
+      return new InterpolationResult<Double>(sorted.get(value), 0.);
     if (CompareUtils.closeEquals(sorted.higherKey(value), value, _eps))
       return new InterpolationResult<Double>(sorted.higherEntry(value).getValue(), 0.);
     return new InterpolationResult<Double>(sorted.lowerEntry(value).getValue(), 0.);
