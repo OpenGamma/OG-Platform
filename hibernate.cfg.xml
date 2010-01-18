@@ -13,5 +13,8 @@
         <mapping resource="com/opengamma/financial/security/db/ExchangeBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/db/CurrencyBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/db/EquitySecurityBean.hbm.xml"/>     
+        <mapping resource="com/opengamma/financial/user/User.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/user/UserGroup.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/user/Authority.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

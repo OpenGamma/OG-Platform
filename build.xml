@@ -9,6 +9,7 @@
 			classpathref="lib.path.id" />
 		<delete dir="${test.blank.db.dir}"/>
 		<delete dir="${test.db.dir}"/>
+		<mkdir dir="${basedir}/generated" />  
 		<hibernatetool destdir="${basedir}/generated">
 			<classpath>
 				<path location="${classes.dir}" />

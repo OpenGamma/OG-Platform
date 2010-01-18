@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
@@ -28,11 +29,10 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 
-public class HibernateTest {
+public abstract class HibernateTest {
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateTest.class);
   private static final String PROPS_FILE_NAME = "tests.properties";
-  private ApplicationContext _context;
-  protected HibernateSecurityMaster _secMaster;
+  protected ApplicationContext _context;
   private static Properties _props; 
   private static int testCount = 0;
   
@@ -69,6 +69,7 @@ public class HibernateTest {
     }
   }
   
+  @BeforeClass
   public static void setUpClass() throws Exception {
     recursiveDelete(new File("derby-db"));
     Properties props = new Properties();
@@ -79,6 +80,8 @@ public class HibernateTest {
     Class.forName((String) _props.get("jdbc.driver.classname")).newInstance(); // load driver.
   }
   
+  public abstract String getConfigLocation();
+  
   public void setUp() throws Exception {
     String createFromUrl = _props.getProperty("jdbc.url") + getDBUrl(true);
     System.err.println("Connecting with data source URL "+createFromUrl);
@@ -88,13 +91,14 @@ public class HibernateTest {
     System.err.println("closed connection, starting App Context");
     System.setProperty("jdbc.url", _props.getProperty("jdbc.url") + getDBUrl(false)); 
     System.setProperty("jdbc.driver.classname", _props.getProperty("jdbc.driver.classname"));
+    
     // the idea is that this SYSTEM property (the others above are not system props) is picked up by the PropertyPlaceholderConfigurer during startup
     // and injected into the 
-    _context = new ClassPathXmlApplicationContext("com/opengamma/financial/security/db/security-master-testing-context.xml");
+    _context = new ClassPathXmlApplicationContext(getConfigLocation());
+
     BasicDataSource dataSource = (BasicDataSource) _context.getBean("myDataSource");
     System.err.println(ToStringBuilder.reflectionToString(dataSource));
-    _secMaster = (HibernateSecurityMaster) _context.getBean("myHibernateSecurityMaster");
-    System.err.println("Sec Master initialization complete:" + _secMaster);
+    
     testCount++;
   }
 }

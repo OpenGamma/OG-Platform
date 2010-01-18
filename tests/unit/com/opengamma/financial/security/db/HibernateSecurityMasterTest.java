@@ -33,17 +33,21 @@ import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 public class HibernateSecurityMasterTest extends HibernateTest {
+  private HibernateSecurityMaster _secMaster;
+  
+  @Override
+  public String getConfigLocation() {
+    return "com/opengamma/financial/security/db/security-master-testing-context.xml";
+  }
+  
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterTest.class);
-  
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    HibernateTest.setUpClass();
-  }
   
   @Before
   public void setUp() throws Exception {
     super.setUp();
+    _secMaster = (HibernateSecurityMaster) _context.getBean("myHibernateSecurityMaster");
+    System.err.println("Sec Master initialization complete:" + _secMaster);
   }
 
   @Test
