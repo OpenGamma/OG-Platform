@@ -1,0 +1,27 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-financial" status="integration"/>
+    <configurations>
+      <conf name="core"/>
+      <conf name="opengamma" extends="core"/>
+    </configurations>
+    
+    <publications>
+      <artifact name="og-financial" type="jar"/>
+    </publications>
+    <dependencies>
+        <dependency name="og-analytics" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-engine" rev="latest.integration" conf="opengamma->*"/>
+        <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
+        
+        <dependency org="org.apache.commons" name="commons-dbcp" rev="1.2.2"/>
+        <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2+"/>
+        <dependency org="cern" name="colt" rev="1.2.0"/>
+        <dependency org="org.hibernate" name="hibernate" rev="3.3.2.GA" conf="*->default"/>
+        <dependency org="org.hibernate" name="hibernate-annotations" rev="3.4.0.GA"/>
+        <dependency org="org.hibernate" name="hibernate-tools" rev="3.2.4"/>
+        <dependency org="org.apache.derby" name="derby" rev="10.5.1.1"/>
+        <dependency org="org.springframework" name="spring" rev="2.5.6" conf="*->orm"/>
+        <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>
+    </dependencies>
+</ivy-module>
+

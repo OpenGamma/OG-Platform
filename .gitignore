@@ -1,0 +1,16 @@
+*~
+foo~
+*.class
+classes/
+dist/
+ivy/
+lib/
+tests/classes/
+tests/output/
+.settings/org.eclipse.ltk.core.refactoring.prefs
+derby.log
+blank/
+derby-db/
+generated/
+build/
+doc/
