@@ -5,23 +5,19 @@
  */
 package com.opengamma.financial.user;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.opengamma.financial.security.db.HibernateSecurityMaster;
-import com.opengamma.financial.security.db.HibernateTest;
-import com.opengamma.financial.user.UserManager;
-import org.junit.Assert;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+
+import com.opengamma.util.test.HibernateTest;
 
 /**
  * 

@@ -6,8 +6,6 @@
 package com.opengamma.financial.user;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -19,8 +17,6 @@ import org.springframework.security.userdetails.UserDetailsService;
 import org.springframework.security.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.security.Security;
 import com.opengamma.util.ArgumentChecker;
 
 /**
