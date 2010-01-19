@@ -16,7 +16,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.cashflow.PresentValueCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.StepInterpolator1D;
@@ -29,9 +28,11 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class PresentValueCalculatorTest {
-  private static final PresentValueCalculator CALCULATOR = new PresentValueCalculator();
+  private static final PresentValueCalculator DISCRETE = new DiscreteCompoundingPresentValueCalculator();
+  private static final PresentValueCalculator CONTINUOUS = new ContinuousCompoundingPresentValueCalculator();
   private static final DoubleTimeSeries TS;
   private static final InterestRateModel<Double> RATES;
+  private static final InterestRateModel<Double> LN_RATES;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
 
   static {
@@ -44,32 +45,40 @@ public class PresentValueCalculatorTest {
     rates.put(3., 0.045);
     rates.put(4., 0.0425);
     rates.put(5., 0.042);
+    final Map<Double, Double> lnRates = new HashMap<Double, Double>();
+    lnRates.put(1., Math.log(1.04));
+    lnRates.put(2., Math.log(1.0425));
+    lnRates.put(3., Math.log(1.045));
+    lnRates.put(4., Math.log(1.0425));
+    lnRates.put(5., Math.log(1.042));
     RATES = new InterpolatedDiscountCurve(rates, new StepInterpolator1D());
+    LN_RATES = new InterpolatedDiscountCurve(lnRates, new StepInterpolator1D());
     TS = new ArrayDoubleTimeSeries(times, cf);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCF() {
-    CALCULATOR.calculate(null, RATES, DATE);
+    DISCRETE.calculate(null, RATES, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyCF() {
-    CALCULATOR.calculate(ArrayDoubleTimeSeries.EMPTY_SERIES, RATES, DATE);
+    DISCRETE.calculate(ArrayDoubleTimeSeries.EMPTY_SERIES, RATES, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testModel() {
-    CALCULATOR.calculate(TS, null, DATE);
+    DISCRETE.calculate(TS, null, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testDate() {
-    CALCULATOR.calculate(TS, RATES, null);
+    DISCRETE.calculate(TS, RATES, null);
   }
 
   @Test
   public void test() {
-    assertEquals(CALCULATOR.calculate(TS, RATES, DATE), 1.2559, 1e-4);
+    assertEquals(DISCRETE.calculate(TS, RATES, DATE), 1.2559, 1e-4);
+    assertEquals(CONTINUOUS.calculate(TS, LN_RATES, DATE), 1.2559, 1e-4);
   }
 }

@@ -17,7 +17,9 @@ import com.opengamma.util.time.DateUtil;
  * 
  * @author emcleod
  */
-public class PresentValueCalculator {
+public abstract class PresentValueCalculator {
+
+  public abstract double calculate(final double t, final double c, final InterestRateModel<Double> rates);
 
   public double calculate(final DoubleTimeSeries cashFlows, final InterestRateModel<Double> rates, final ZonedDateTime date) {
     if (cashFlows == null)
@@ -30,13 +32,12 @@ public class PresentValueCalculator {
       throw new IllegalArgumentException("Date was null");
     final Iterator<ZonedDateTime> iter = cashFlows.timeIterator();
     ZonedDateTime d;
-    double sum = 0, r, c, t;
+    double sum = 0, c, t;
     while (iter.hasNext()) {
       d = iter.next();
       t = DateUtil.getDifferenceInYears(date, d);
-      r = rates.getInterestRate(t);
       c = cashFlows.getDataPoint(d);
-      sum += c * Math.pow(1 + r, -t);
+      sum += calculate(t, c, rates);
     }
     return sum;
   }
