@@ -74,10 +74,8 @@ public class User implements UserDetails {
   @Override
   public GrantedAuthority[] getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-    for (UserGroup group : _userGroups) {
-      for (Authority authority : group.getAuthorities()) {
+    for (Authority authority : getAuthoritySet()) {
         authorities.add(new GrantedAuthorityImpl(authority.getAuthority()));        
-      }
     }
     return authorities.toArray(new GrantedAuthority[0]);
   }
@@ -100,6 +98,31 @@ public class User implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+  
+  public Set<Authority> getAuthoritySet() {
+    Set<Authority> authorities = new HashSet<Authority>();
+    for (UserGroup group : _userGroups) {
+      authorities.addAll(group.getAuthorities());
+    }
+    return authorities;
+  }
+  
+  /**
+   * Returns whether this <code>User</code> has the given permission.
+   * This will be the case if and only if the permission matches at least one of this user's <code>Authorities</code>.
+   * 
+   * @param permission Permission to check, for example /MarketData/Bloomberg/AAPL/View
+   * @return true if this <code>User</code> has the given permission, false otherwise
+   * @see Authority#matches
+   */
+  public boolean hasPermission(String permission) {
+    for (Authority authority : getAuthoritySet()) {
+      if (authority.matches(permission)) {
+        return true;
+      }
+    }
+    return false;
   }
   
   @Override

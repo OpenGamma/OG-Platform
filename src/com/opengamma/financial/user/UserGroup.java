@@ -24,7 +24,7 @@ public class UserGroup {
 
   protected UserGroup() {
   }
-
+  
   public Long getId() {
     return _id;
   }
