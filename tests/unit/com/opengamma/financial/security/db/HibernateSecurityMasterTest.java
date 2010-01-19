@@ -31,6 +31,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.util.test.HibernateTest;
 
 public class HibernateSecurityMasterTest extends HibernateTest {
   private HibernateSecurityMaster _secMaster;
