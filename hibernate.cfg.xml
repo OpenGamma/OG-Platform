@@ -9,10 +9,6 @@
         <property name="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
         <property name="hibernate.connection.url">jdbc:derby:blank;create=true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.DerbyDialect</property>
-        <mapping resource="com/opengamma/financial/security/db/DomainSpecificIdentifierBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/ExchangeBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/CurrencyBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/EquitySecurityBean.hbm.xml"/>     
         <mapping resource="com/opengamma/financial/user/User.hbm.xml"/>
         <mapping resource="com/opengamma/financial/user/UserGroup.hbm.xml"/>
         <mapping resource="com/opengamma/financial/user/Authority.hbm.xml"/>
