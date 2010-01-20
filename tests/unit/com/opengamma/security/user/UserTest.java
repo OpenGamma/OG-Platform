@@ -3,10 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.user;
+package com.opengamma.security.user;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.opengamma.security.user.Authority;
+import com.opengamma.security.user.User;
+import com.opengamma.security.user.UserGroup;
 
 /**
  * 
@@ -19,10 +23,10 @@ public class UserTest {
   public void testPermissioning() {
     User user = new User();
     
-    UserGroup group1 = new UserGroup();
+    UserGroup group1 = new UserGroup("group1");
     group1.getAuthorities().add(new Authority("/Portfolio/123456/*"));
     
-    UserGroup group2 = new UserGroup();
+    UserGroup group2 = new UserGroup("group2");
     group2.getAuthorities().add(new Authority("/Portfolio/7890/Read"));
     
     user.getUserGroups().add(group1);

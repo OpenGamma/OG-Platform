@@ -3,10 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.user;
+package com.opengamma.security.user;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.opengamma.security.user.PathMatcher;
 
 /**
  * 

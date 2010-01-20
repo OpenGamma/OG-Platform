@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.user;
+package com.opengamma.security.user;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,6 +21,10 @@ public class UserGroup {
   private Set<Authority> _authorities = new HashSet<Authority>();
 
   protected UserGroup() {
+  }
+  
+  protected UserGroup(String name) {
+    _name = name;
   }
   
   public Long getId() {

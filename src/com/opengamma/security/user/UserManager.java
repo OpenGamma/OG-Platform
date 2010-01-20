@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.user;
+package com.opengamma.security.user;
 
 /**
  * None of the update operations on this interface 'cascade' the update.

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.user;
+package com.opengamma.security.user;
 
 /**
  * An <code>Authority</code> represents a permission granted to users.

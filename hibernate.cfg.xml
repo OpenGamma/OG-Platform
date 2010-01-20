@@ -9,8 +9,8 @@
         <property name="hibernate.connection.driver_class">org.apache.derby.jdbc.EmbeddedDriver</property>
         <property name="hibernate.connection.url">jdbc:derby:blank;create=true</property>
         <property name="hibernate.dialect">org.hibernate.dialect.DerbyDialect</property>
-        <mapping resource="com/opengamma/financial/user/User.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/user/UserGroup.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/user/Authority.hbm.xml"/>
+        <mapping resource="com/opengamma/security/user/User.hbm.xml"/>
+        <mapping resource="com/opengamma/security/user/UserGroup.hbm.xml"/>
+        <mapping resource="com/opengamma/security/user/Authority.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>

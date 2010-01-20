@@ -19,9 +19,9 @@
     <property name="dataSource" ref="myDataSource"/>
     <property name="mappingResources">
       <list>
-        <value>com/opengamma/financial/user/User.hbm.xml</value>
-        <value>com/opengamma/financial/user/UserGroup.hbm.xml</value>
-        <value>com/opengamma/financial/user/Authority.hbm.xml</value>
+        <value>com/opengamma/security/user/User.hbm.xml</value>
+        <value>com/opengamma/security/user/UserGroup.hbm.xml</value>
+        <value>com/opengamma/security/user/Authority.hbm.xml</value>
       </list>
     </property>
     <property name="hibernateProperties">
@@ -38,7 +38,7 @@
   
   <tx:annotation-driven transaction-manager="txManager"/>
   
-  <bean id="myHibernateUserManager" class="com.opengamma.financial.user.HibernateUserManager" >
+  <bean id="myHibernateUserManager" class="com.opengamma.security.user.HibernateUserManager" >
     <property name="sessionFactory" ref="mySessionFactory"/>  
   </bean>
 </beans>

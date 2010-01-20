@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.user;
+package com.opengamma.security.user;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -17,6 +17,10 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import com.opengamma.security.user.Authority;
+import com.opengamma.security.user.User;
+import com.opengamma.security.user.UserGroup;
+import com.opengamma.security.user.UserManager;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -32,7 +36,7 @@ public class HibernateUserManagerTest extends HibernateTest {
 
   @Override
   public String getConfigLocation() {
-    return "com/opengamma/financial/user/user-testing-context.xml";
+    return "com/opengamma/security/user/user-testing-context.xml";
   }
   
   @Before
