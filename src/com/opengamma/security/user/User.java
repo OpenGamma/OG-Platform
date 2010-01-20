@@ -27,6 +27,18 @@ public class User implements UserDetails {
   private String _password;
   private Set<UserGroup> _userGroups = new HashSet<UserGroup>();
   private Date _lastLogin;
+  
+  public User(Long id,
+      String username,
+      String password,
+      Set<UserGroup> userGroups,
+      Date lastLogin) {
+    _id = id;
+    _username = username;
+    _password = password;
+    _userGroups = userGroups;
+    _lastLogin = lastLogin;
+  }
 
   protected User() {
   }

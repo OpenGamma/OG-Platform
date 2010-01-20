@@ -23,7 +23,7 @@ public class UserGroup {
   protected UserGroup() {
   }
   
-  protected UserGroup(String name) {
+  public UserGroup(String name) {
     _name = name;
   }
   

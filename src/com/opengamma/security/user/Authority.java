@@ -27,7 +27,7 @@ public class Authority {
   /** A regular expression in Ant format **/
   private String _authority;
 
-  protected Authority(String authority) {
+  public Authority(String authority) {
     _authority = authority;
   }
   
