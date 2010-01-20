@@ -14,6 +14,7 @@
     	
       <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
       <dependency org="cern" name="colt" rev="1.2.0"/>
+      <dependency org="cern" name="parallelcolt" rev="0.9.1"/>
       <dependency org="latexlet" name="latexlet" rev="1.1"/>
     </dependencies>
 </ivy-module>
