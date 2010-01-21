@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ public abstract class HibernateTest {
   
   public abstract String getConfigLocation();
   
+  @Before
   public void setUp() throws Exception {
     String createFromUrl = _props.getProperty("jdbc.url") + getDBUrl(true);
     System.err.println("Connecting with data source URL "+createFromUrl);
