@@ -16,8 +16,8 @@ import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * An <code>AuditLogger</code> that sends log messages
- * to a remote destination as Fudge messages. 
+ * An {@code AuditLogger} that sends log messages
+ * to a remote destination via Fudge. 
  *
  * @author pietari
  */
