@@ -5,7 +5,6 @@
  */
 package com.opengamma.security.auditlog;
 
-import java.util.Date;
 
 /**
  *  

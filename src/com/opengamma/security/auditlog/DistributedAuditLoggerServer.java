@@ -1,0 +1,39 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.security.auditlog;
+
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
+
+import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.util.ArgumentChecker;
+
+/**
+ * A Fudge message receiver that parses audit log messages from {@link DistributedAuditLogger}
+ * and passes them onto a delegate audit logger for persisting into a database.  
+ *
+ * @author pietari
+ */
+public class DistributedAuditLoggerServer implements FudgeMessageReceiver {
+  
+  private final AuditLogger _delegate;
+  
+  public DistributedAuditLoggerServer(AuditLogger delegate) {
+    ArgumentChecker.checkNotNull(delegate, "Delegate audit logger");
+    _delegate = delegate;
+  }
+
+  @Override
+  public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+    // Note - this means that the timestamp in the log will be a server timestamp...
+    AuditLogEntry auditLogEntry = AuditLogEntry.fromFudgeMsg(msgEnvelope.getMessage());
+    _delegate.log(auditLogEntry.getUser(), 
+        auditLogEntry.getObject(), 
+        auditLogEntry.getOperation(), 
+        auditLogEntry.getDescription(),
+        auditLogEntry.isSuccess());
+  }
+}

@@ -5,7 +5,17 @@
  */
 package com.opengamma.security.auditlog;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsg;
+
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An audit log entry describes an operation a user attempted on an object. 
@@ -29,6 +39,11 @@ public class AuditLogEntry {
       String description,
       boolean success,
       Date timestamp) {
+    ArgumentChecker.checkNotNull(user, "User name");    
+    ArgumentChecker.checkNotNull(object, "Object name");
+    ArgumentChecker.checkNotNull(operation, "Operation name");
+    ArgumentChecker.checkNotNull(timestamp, "timestamp");
+    
     _id = null;
     _user = user;
     _object = object;
@@ -96,4 +111,47 @@ public class AuditLogEntry {
   public void setTimestamp(Date timestamp) {
     _timestamp = timestamp;
   }
+  
+  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
+    FudgeMsg msg = fudgeContext.newMessage();
+    msg.add("user", getUser());
+    msg.add("object", getObject());
+    msg.add("operation", getOperation());
+    if (getDescription() != null) {
+      msg.add("description", getDescription());
+    }
+    msg.add("success", isSuccess());
+    String yyyymmdd = new SimpleDateFormat("yyyyMMddHHmmssZ").format(getTimestamp());
+    msg.add("timestamp", yyyymmdd); // change as soon as Fudge supports Date natively
+    return msg;
+  }
+  
+  public static AuditLogEntry fromFudgeMsg(FudgeMsg msg) {
+    String user = msg.getString("user");
+    String object = msg.getString("object");
+    String operation = msg.getString("operation");
+    String description = msg.getString("description");
+    Boolean success = msg.getBoolean("success");
+    String yyyymmdd = msg.getString("timestamp"); // change as soon as Fudge supports Date natively
+    Date timestamp;
+    try {
+      timestamp = new SimpleDateFormat("yyyyMMddHHmmssZ").parse(yyyymmdd);
+    } catch (ParseException e) {
+      throw new OpenGammaRuntimeException("Invalid Fudge message", e);
+    }
+    
+    AuditLogEntry logEntry;
+    try {
+      logEntry = new AuditLogEntry(user, object, operation, description, success, timestamp);
+    } catch (NullPointerException e) {
+      throw new OpenGammaRuntimeException("Invalid Fudge message", e);            
+    }
+    return logEntry;
+  }
+  
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
 }

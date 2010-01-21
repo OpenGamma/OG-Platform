@@ -10,6 +10,7 @@
     </publications>
     <dependencies>
         <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
+        <dependency org="org.fudgemsg" name="fudge" rev="latest.integration" conf="opengamma->core"/>
         <dependency org="org.apache.commons" name="commons-dbcp" rev="1.2.2"/>
         <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2+"/>
         <dependency org="cern" name="colt" rev="1.2.0"/>
