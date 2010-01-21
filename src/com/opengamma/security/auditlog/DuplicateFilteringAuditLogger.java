@@ -7,6 +7,8 @@ package com.opengamma.security.auditlog;
 
 import java.util.Date;
 
+import com.opengamma.util.ArgumentChecker;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
@@ -26,6 +28,8 @@ public class DuplicateFilteringAuditLogger implements AuditLogger {
   private final Date _creationTime;
   
   public DuplicateFilteringAuditLogger(AuditLogger delegate, int maxElementsInMemory, int secondsToKeepInMemory) {
+    ArgumentChecker.checkNotNull(delegate, "Delegate logger");
+    
     _delegate = delegate;    
     _cache = new Cache("audit_log_entry_cache", maxElementsInMemory, false, false, secondsToKeepInMemory, secondsToKeepInMemory);
     _cache.initialise();
