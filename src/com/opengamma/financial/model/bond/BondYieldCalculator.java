@@ -9,6 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.cashflow.PresentValueCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
+import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
@@ -36,18 +37,11 @@ public class BondYieldCalculator {
 
       @Override
       public Double evaluate(final Double y) {
-        final InterestRateModel<Double> rate = new InterestRateModel<Double>() {
-
-          @Override
-          public double getInterestRate(final Double x) {
-            return y;
-          }
-
-        };
+        final InterestRateModel<Double> rate = new ConstantInterestRateModel(y);
         return pvCalculator.calculate(cashFlows, rate, date) - price;
       }
 
     };
-    return _root.getRoot(f, 0., 10000.);
+    return _root.getRoot(f, 0., 100000.);
   }
 }

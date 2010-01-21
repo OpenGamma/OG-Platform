@@ -5,22 +5,20 @@
  */
 package com.opengamma.financial.model.cashflow;
 
-import java.util.Iterator;
-
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.bond.BondYieldCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
 import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * @author emcleod
  * 
  */
-public class MacaulayDurationCalculator {
+public class EffectiveDurationCalculator {
   private final BondYieldCalculator _yield = new BondYieldCalculator();
+  private final double _eps = 1e-3;
 
   public double calculate(final DoubleTimeSeries cashFlows, final double price, final ZonedDateTime date, final PresentValueCalculator pvCalculator) {
     if (cashFlows == null)
@@ -33,15 +31,10 @@ public class MacaulayDurationCalculator {
       throw new IllegalArgumentException("Date was null");
     if (pvCalculator == null)
       throw new IllegalArgumentException("Present value calculator was null");
-    final Iterator<ZonedDateTime> iter = cashFlows.timeIterator();
-    double sum = 0, t;
-    ZonedDateTime d;
-    final InterestRateModel<Double> yield = new ConstantInterestRateModel(_yield.calculate(cashFlows, price, date, pvCalculator));
-    while (iter.hasNext()) {
-      d = iter.next();
-      t = DateUtil.getDifferenceInYears(date, d);
-      sum += t * pvCalculator.calculate(t, cashFlows.getDataPoint(d), yield);
-    }
-    return sum / price;
+    final double yield = _yield.calculate(cashFlows, price, date, pvCalculator);
+    final InterestRateModel<Double> yCurve = new ConstantInterestRateModel(yield);
+    final InterestRateModel<Double> yCurveUp = new ConstantInterestRateModel(yield + _eps);
+    final InterestRateModel<Double> yCurveDown = new ConstantInterestRateModel(yield - _eps);
+    return (pvCalculator.calculate(cashFlows, yCurveDown, date) - pvCalculator.calculate(cashFlows, yCurveUp, date)) / (2 * pvCalculator.calculate(cashFlows, yCurve, date) * _eps);
   }
 }
