@@ -12,5 +12,6 @@
         <mapping resource="com/opengamma/security/user/User.hbm.xml"/>
         <mapping resource="com/opengamma/security/user/UserGroup.hbm.xml"/>
         <mapping resource="com/opengamma/security/user/Authority.hbm.xml"/>
+        <mapping resource="com/opengamma/security/auditlog/AuditLogEntry.hbm.xml"/>
     </session-factory>
 </hibernate-configuration>
