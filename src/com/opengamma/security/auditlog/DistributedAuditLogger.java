@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * An {@code AuditLogger} that sends log messages
- * to a remote destination via Fudge. 
+ * to a remote destination via Fudge. The messages are consumed by {@link DistributedAuditLoggerServer}.
  *
  * @author pietari
  */

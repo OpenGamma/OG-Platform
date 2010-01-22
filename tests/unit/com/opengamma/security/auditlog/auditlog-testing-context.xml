@@ -26,11 +26,14 @@
       <value>
         hibernate.dialect=org.hibernate.dialect.DerbyDialect
         hibernate.show_sql=true
+        hibernate.jdbc.batch_size=50
       </value>
     </property>
   </bean>
   
   <bean id="myAuditLogger" class="com.opengamma.security.auditlog.HibernateAuditLogger">
+  	<constructor-arg index="0" value="5"/>  
+  	<constructor-arg index="1" value="1"/>
     <property name="sessionFactory" ref="mySessionFactory"/>  
   </bean>
 </beans>

@@ -31,16 +31,21 @@ public class HibernateAuditLoggerTest extends HibernateTest {
   }  
   
   @Test
-  public void testLogging() {
+  public void testLogging() throws Exception {
     HibernateAuditLogger logger = (HibernateAuditLogger) _context.getBean("myAuditLogger");
     logger.log("jake", "/Portfolio/XYZ123", "View", true);
     logger.log("jake", "/Portfolio/XYZ345", "Modify", "User has no Modify permission on this portfolio", false);
     
-    Collection<AuditLogEntry> logEntries = logger.findLogEntry("jake", 
-        new GregorianCalendar(2000, 0, 1).getTime(),
-        new GregorianCalendar(9999, 0, 1).getTime());
+    // not flushed yet
+    Collection<AuditLogEntry> logEntries = logger.findAll();
+    assertEquals(0, logEntries.size()); 
     
-    assertEquals(2, logEntries.size());
+    Thread.sleep(2000);
+    
+    // flushed
+    logEntries = logger.findAll();
+    assertEquals(2, logEntries.size()); 
+    
     for (AuditLogEntry entry : logEntries) {
       assertEquals("jake", entry.getUser());
 
@@ -58,5 +63,6 @@ public class HibernateAuditLoggerTest extends HibernateTest {
         fail("Unexpected object ID");
       }
     }
+    
   }
 }
