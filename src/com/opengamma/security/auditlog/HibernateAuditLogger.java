@@ -12,10 +12,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,10 +29,12 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class HibernateAuditLogger extends HibernateDaoSupport implements AuditLogger {
+public class HibernateAuditLogger extends AbstractAuditLogger {
   
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateAuditLogger.class);
   
+  private HibernateTemplate _hibernateTemplate = null;
+
   private final int _batchSize;
   
   /** Keeps track of audit log entries to flush */ 
@@ -39,10 +43,20 @@ public class HibernateAuditLogger extends HibernateDaoSupport implements AuditLo
   private final Timer _timer;
   
   public HibernateAuditLogger() {
-    this(50, 5);
+    this(getDefaultOriginatingSystem());
+  }
+  
+  public HibernateAuditLogger(String originatingSystem) {
+    this(originatingSystem, 50, 5);
   }
   
   public HibernateAuditLogger(int batchSize, int maxSecondsToKeepInMemory) {
+    this(getDefaultOriginatingSystem(), batchSize, maxSecondsToKeepInMemory);
+  }
+  
+  public HibernateAuditLogger(String originatingSystem, int batchSize, int maxSecondsToKeepInMemory) {
+    super(originatingSystem);
+    
     if (batchSize <= 0) {
       throw new IllegalArgumentException("Please give positive batch size");
     }
@@ -58,6 +72,17 @@ public class HibernateAuditLogger extends HibernateDaoSupport implements AuditLo
     _timer.schedule(flusher, 1000 * maxSecondsToKeepInMemory, 1000 * maxSecondsToKeepInMemory);
   }
   
+  public void setSessionFactory(SessionFactory sessionFactory) {
+    _hibernateTemplate = new HibernateTemplate(sessionFactory);
+  }
+  
+  private Session getSession() {
+    return SessionFactoryUtils.getSession(
+            _hibernateTemplate.getSessionFactory(),
+            _hibernateTemplate.getEntityInterceptor(),
+            _hibernateTemplate.getJdbcExceptionTranslator());
+  }
+  
   /**
    * The <code>Flusher</code> background thread ensures that all log entries are written into 
    * the DB in a timely fashion, even if the flow of new log entries from clients stops abruptly.  
@@ -70,12 +95,13 @@ public class HibernateAuditLogger extends HibernateDaoSupport implements AuditLo
   }
   
   @Override
-  public void log(String user, String object, String operation, String description, boolean success) {
+  public void log(String user, String originatingSystem, String object, String operation, String description, boolean success) {
     ArgumentChecker.checkNotNull(user, "User ID");
+    ArgumentChecker.checkNotNull(user, "Originating system name");
     ArgumentChecker.checkNotNull(object, "Object ID");
     ArgumentChecker.checkNotNull(operation, "Operation name");
     
-    AuditLogEntry auditLogEntry = new AuditLogEntry(user, object, operation, description, success, new Date());
+    AuditLogEntry auditLogEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, new Date());
     boolean flushCache = false;
     synchronized (this) {
       _auditLogCache.add(auditLogEntry);
@@ -126,19 +152,14 @@ public class HibernateAuditLogger extends HibernateDaoSupport implements AuditLo
     }
   }
 
-  @Override
-  public void log(String user, String object, String operation, boolean success) {
-    log(user, object, operation, null, success);     
-  }
-  
   @SuppressWarnings("unchecked")
   List<AuditLogEntry> findAll() {
-    return (List<AuditLogEntry>) getHibernateTemplate().loadAll(AuditLogEntry.class);
+    return (List<AuditLogEntry>) _hibernateTemplate.loadAll(AuditLogEntry.class);
   }
   
   @SuppressWarnings("unchecked")
   List<AuditLogEntry> findLogEntries(String user, Date start, Date end) {
-    return (List<AuditLogEntry>) getHibernateTemplate().find(
+    return (List<AuditLogEntry>) _hibernateTemplate.find(
         "from AuditLogEntry where user = ? and timestamp >= ? and timestamp < ?", 
         new Object[] { user, start, end });
   }

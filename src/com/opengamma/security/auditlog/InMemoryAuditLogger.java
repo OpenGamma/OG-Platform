@@ -15,19 +15,14 @@ import java.util.List;
  *
  * @author pietari
  */
-public class InMemoryAuditLogger implements AuditLogger {
+public class InMemoryAuditLogger extends AbstractAuditLogger {
   
   private final List<AuditLogEntry> logMessages = new ArrayList<AuditLogEntry>();
 
   @Override
-  public void log(String user, String object, String operation, boolean success) {
-    log(user, object, operation, null, success); 
-  }
-
-  @Override
-  public void log(String user, String object, String operation,
+  public void log(String user, String originatingSystem, String object, String operation,
       String description, boolean success) {
-    AuditLogEntry auditLogEntry = new AuditLogEntry(user, object, operation, description, success, new Date());
+    AuditLogEntry auditLogEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, new Date());
     logMessages.add(auditLogEntry);
   }
   

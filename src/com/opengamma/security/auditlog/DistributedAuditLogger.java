@@ -21,17 +21,22 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class DistributedAuditLogger implements AuditLogger {
+public class DistributedAuditLogger extends AbstractAuditLogger {
   
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedAuditLogger.class);
   private final FudgeMessageSender _msgSender;
   private final FudgeContext _fudgeContext;
   
   public DistributedAuditLogger(FudgeMessageSender msgSender) {
-    this(msgSender, new FudgeContext());
+    this(getDefaultOriginatingSystem(), msgSender);    
   }
   
-  public DistributedAuditLogger(FudgeMessageSender msgSender, FudgeContext fudgeContext) {
+  public DistributedAuditLogger(String originatingSystem, FudgeMessageSender msgSender) {
+    this(originatingSystem, msgSender, new FudgeContext());
+  }
+  
+  public DistributedAuditLogger(String originatingSystem, FudgeMessageSender msgSender, FudgeContext fudgeContext) {
+    super(originatingSystem);
     ArgumentChecker.checkNotNull(msgSender, "Message Sender");
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _msgSender = msgSender;
@@ -39,13 +44,8 @@ public class DistributedAuditLogger implements AuditLogger {
   }
 
   @Override
-  public void log(String user, String object, String operation, boolean success) {
-    log(user, object, operation, null, success);    
-  }
-
-  @Override
-  public void log(String user, String object, String operation, String description, boolean success) {
-    AuditLogEntry auditLogEntry = new AuditLogEntry(user, object, operation, description, success, new Date());
+  public void log(String user, String originatingSystem, String object, String operation, String description, boolean success) {
+    AuditLogEntry auditLogEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, new Date());
     s_logger.info("Sending message: " + auditLogEntry.toString());
     FudgeMsg logMessage = auditLogEntry.toFudgeMsg(_fudgeContext);
     _msgSender.send(logMessage);

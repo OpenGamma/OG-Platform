@@ -19,9 +19,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DistributedAuditLoggerServer implements FudgeMessageReceiver {
   
-  private final AuditLogger _delegate;
+  private final AbstractAuditLogger _delegate;
   
-  public DistributedAuditLoggerServer(AuditLogger delegate) {
+  public DistributedAuditLoggerServer(AbstractAuditLogger delegate) {
     ArgumentChecker.checkNotNull(delegate, "Delegate audit logger");
     _delegate = delegate;
   }
@@ -30,7 +30,8 @@ public class DistributedAuditLoggerServer implements FudgeMessageReceiver {
   public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
     // Note - this means that the timestamp in the log will be a server timestamp...
     AuditLogEntry auditLogEntry = AuditLogEntry.fromFudgeMsg(msgEnvelope.getMessage());
-    _delegate.log(auditLogEntry.getUser(), 
+    _delegate.log(auditLogEntry.getUser(),
+        auditLogEntry.getOriginatingSystem(),
         auditLogEntry.getObject(), 
         auditLogEntry.getOperation(), 
         auditLogEntry.getDescription(),

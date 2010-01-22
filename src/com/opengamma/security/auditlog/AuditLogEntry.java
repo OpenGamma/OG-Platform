@@ -27,6 +27,7 @@ public class AuditLogEntry {
   
   private Long _id;
   private String _user;
+  private String _originatingSystem;
   private String _object;
   private String _operation;
   private String _description;
@@ -34,18 +35,21 @@ public class AuditLogEntry {
   private Date _timestamp;
   
   public AuditLogEntry(String user,
+      String originatingSystem,
       String object,
       String operation,
       String description,
       boolean success,
       Date timestamp) {
     ArgumentChecker.checkNotNull(user, "User name");    
+    ArgumentChecker.checkNotNull(originatingSystem, "Originating system");
     ArgumentChecker.checkNotNull(object, "Object name");
     ArgumentChecker.checkNotNull(operation, "Operation name");
     ArgumentChecker.checkNotNull(timestamp, "timestamp");
     
     _id = null;
     _user = user;
+    _originatingSystem = originatingSystem;
     _object = object;
     _operation = operation;
     _description = description;
@@ -70,6 +74,14 @@ public class AuditLogEntry {
 
   public void setUser(String user) {
     _user = user;
+  }
+  
+  public String getOriginatingSystem() {
+    return _originatingSystem;
+  }
+
+  public void setOriginatingSystem(String originatingSystem) {
+    _originatingSystem = originatingSystem;
   }
 
   public String getObject() {
@@ -115,6 +127,7 @@ public class AuditLogEntry {
   public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
     FudgeMsg msg = fudgeContext.newMessage();
     msg.add("user", getUser());
+    msg.add("originatingSystem", getOriginatingSystem());
     msg.add("object", getObject());
     msg.add("operation", getOperation());
     if (getDescription() != null) {
@@ -128,6 +141,7 @@ public class AuditLogEntry {
   
   public static AuditLogEntry fromFudgeMsg(FudgeMsg msg) {
     String user = msg.getString("user");
+    String originatingSystem = msg.getString("originatingSystem");
     String object = msg.getString("object");
     String operation = msg.getString("operation");
     String description = msg.getString("description");
@@ -142,7 +156,7 @@ public class AuditLogEntry {
     
     AuditLogEntry logEntry;
     try {
-      logEntry = new AuditLogEntry(user, object, operation, description, success, timestamp);
+      logEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, timestamp);
     } catch (NullPointerException e) {
       throw new OpenGammaRuntimeException("Invalid Fudge message", e);            
     }
@@ -164,6 +178,8 @@ public class AuditLogEntry {
     result = prime * result + ((_object == null) ? 0 : _object.hashCode());
     result = prime * result
         + ((_operation == null) ? 0 : _operation.hashCode());
+    result = prime * result
+        + ((_originatingSystem == null) ? 0 : _originatingSystem.hashCode());
     result = prime * result + (_success ? 1231 : 1237);
     result = prime * result
         + ((_timestamp == null) ? 0 : _timestamp.hashCode());
@@ -199,6 +215,11 @@ public class AuditLogEntry {
       if (other._operation != null)
         return false;
     } else if (!_operation.equals(other._operation))
+      return false;
+    if (_originatingSystem == null) {
+      if (other._originatingSystem != null)
+        return false;
+    } else if (!_originatingSystem.equals(other._originatingSystem))
       return false;
     if (_success != other._success)
       return false;
