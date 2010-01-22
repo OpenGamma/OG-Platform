@@ -28,7 +28,7 @@ public class DistributedAuditLoggerTest {
     CollectingByteArrayMessageSender msgStore = new CollectingByteArrayMessageSender();
     assertEquals(0, msgStore.getMessages().size());
     
-    DistributedAuditLogger client = new DistributedAuditLogger(new ByteArrayFudgeMessageSender(msgStore));
+    DistributedAuditLogger client = new DistributedAuditLogger("testoriginatingsystem", new ByteArrayFudgeMessageSender(msgStore));
     client.log("lisa", "testobject", "testop", "testdescription", true);
     assertEquals(1, msgStore.getMessages().size());
     
@@ -43,6 +43,7 @@ public class DistributedAuditLoggerTest {
     
     AuditLogEntry entry = memoryAuditLogger.getMessages().get(0);
     assertEquals("lisa", entry.getUser());
+    assertEquals("testoriginatingsystem", entry.getOriginatingSystem());
     assertEquals("testobject", entry.getObject());
     assertEquals("testop", entry.getOperation());
     assertEquals("testdescription", entry.getDescription());

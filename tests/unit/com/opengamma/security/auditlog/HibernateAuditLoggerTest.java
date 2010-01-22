@@ -11,6 +11,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.Collection;
 
 import org.junit.Test;
@@ -47,6 +48,7 @@ public class HibernateAuditLoggerTest extends HibernateTest {
     
     for (AuditLogEntry entry : logEntries) {
       assertEquals("jake", entry.getUser());
+      assertEquals(InetAddress.getLocalHost().getHostName(), entry.getOriginatingSystem());
 
       if (entry.getObject().equals("/Portfolio/XYZ123")) {
         assertEquals("View", entry.getOperation());
