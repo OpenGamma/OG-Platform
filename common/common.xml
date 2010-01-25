@@ -103,7 +103,7 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
-	<target name="fudge-proto" depends="resolve"
+	<target name="fudge-proto" depends=""
 		description="--> compile any Fudge .proto files">
 		<path id="fudge.proto.path.id">
 			<pathelement path="/usr/share/java/fudge-proto.jar" />
@@ -119,7 +119,7 @@
 		<fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
 	</target>
 
-	<target name="compile-src" depends="resolve"
+	<target name="compile-src" depends="resolve,fudge-proto"
 		description="--> compile the main project files">
 		<mkdir dir="${classes.dir}" />
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
