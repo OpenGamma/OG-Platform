@@ -103,18 +103,21 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
-	<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
-
-	<target name="fudge-proto" depends="resolve"
-		if="fudge.proto.present"
+	<!-- Fudge proto compiler; reduces to a null-op if fudge-proto is not in the ivy dependencies -->
+	<target name="fudge-proto-present" depends="resolve">
+		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+	</target>
+	<target name="fudge-proto-compile" if="fudge.proto.present">
+                <path id="fudge.proto.project.path">
+                        <dirset dir="${projects.dir}">
+                                <include name="**/src" />
+                        </dirset>
+                </path>
+                <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
+                <fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
+	</target>
+	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
-		<path id="fudge.proto.project.path">
-			<dirset dir="${projects.dir}">
-				<include name="**/src" />
-			</dirset>
-		</path>
-		<taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-		<fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
 	</target>
 
 	<target name="compile-src" depends="fudge-proto"
