@@ -26,13 +26,15 @@ import com.opengamma.util.test.HibernateTest;
 public class HibernateAuditLoggerTest extends HibernateTest {
   
   @Override
-  public String getConfigLocation() {
-    return "com/opengamma/security/auditlog/auditlog-testing-context.xml";
+  public Class<?>[] getHibernateMappingClasses() {
+    return new Class[] { AuditLogEntry.class };
   }  
   
   @Test
   public void testLogging() throws Exception {
-    HibernateAuditLogger logger = (HibernateAuditLogger) _context.getBean("myAuditLogger");
+    HibernateAuditLogger logger = new HibernateAuditLogger(5, 1);
+    logger.setSessionFactory(getSessionFactory());
+    
     logger.log("jake", "/Portfolio/XYZ123", "View", true);
     logger.log("jake", "/Portfolio/XYZ345", "Modify", "User has no Modify permission on this portfolio", false);
     
