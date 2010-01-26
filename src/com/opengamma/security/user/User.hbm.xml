@@ -17,4 +17,6 @@
     <property name="lastLogin" type="date" not-null="true"/>
   </class>
   
+  <query name="User.one.byUsername">from User as a where a.username = :username</query>  
+  
 </hibernate-mapping>

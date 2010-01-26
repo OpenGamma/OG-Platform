@@ -8,6 +8,7 @@ package com.opengamma.security.user;
 import java.sql.SQLException;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -51,9 +52,9 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
-        return (User) session.createQuery(
-            "from User as a where a.username = :username").setParameter("username",
-            username).uniqueResult();
+        Query query = session.getNamedQuery("User.one.byUsername");
+        query.setString("username", username);
+        return query.uniqueResult();
       }
     });
   }
@@ -66,10 +67,9 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
-        UserGroup userGroup = (UserGroup) session.createQuery(
-            "from UserGroup as a where a.name = :name").setParameter("name",
-                name).uniqueResult();
-        return userGroup;
+        Query query = session.getNamedQuery("UserGroup.one.byName");
+        query.setString("name", name);
+        return query.uniqueResult();
       }
     });
   }
@@ -82,9 +82,9 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
-        return (Authority) session.createQuery(
-            "from Authority as a where a.authority = :authority").setParameter("authority",
-                authority).uniqueResult();
+        Query query = session.getNamedQuery("Authority.one.byAuthorityName");
+        query.setString("authority", authority);
+        return query.uniqueResult();
       }
     });
   }
