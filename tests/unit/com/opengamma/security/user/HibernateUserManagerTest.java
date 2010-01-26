@@ -146,7 +146,7 @@ public class HibernateUserManagerTest extends HibernateTest {
     _userManager.updateUserGroup(userGroup);
     userGroup = _userManager.getUserGroup("testusergroup");
     Assert.assertNotNull(userGroup);
-    Assert.assertTrue(userGroup.getAuthorities().contains(new Authority("additionalauthority")));
+    Assert.assertTrue(userGroup.getAuthorities().contains(additionalAuthority));
     
     // Delete
     _userManager.deleteUserGroup(userGroup);
