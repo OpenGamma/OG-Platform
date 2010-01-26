@@ -20,7 +20,9 @@ public abstract class HibernateTest {
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateTest.class);
   private static final String PROPS_FILE_NAME = "tests.properties";
   protected ApplicationContext _context;
-  private static Properties _props; 
+  private static Properties _props;
+  private static String _jdbcDriverClass;
+  private static boolean _isDerby;
   private static int testCount = 0;
   
   private static void recursiveDelete(File file) {
@@ -47,24 +49,36 @@ public abstract class HibernateTest {
   }
   
   private String getDBUrl(boolean createFrom) {
-    File blankDbDir = new File("blank");
-    String core = "derby-db/"+this.getClass().getSimpleName()+"-test-"+testCount;
-    if (createFrom) {
-      return core + ";createFrom="+blankDbDir.getAbsolutePath();
+    if (_isDerby) {
+      File blankDbDir = new File("blank");
+      String core = "/"+this.getClass().getSimpleName()+"-test-"+testCount;
+      if (createFrom) {
+        return core + ";createFrom="+blankDbDir.getAbsolutePath();
+      } else {
+        return core;
+      }
+    
     } else {
-      return core;
+      return "/OpenGammaTests"; 
     }
   }
   
   @BeforeClass
   public static void setUpClass() throws Exception {
-    recursiveDelete(new File("derby-db"));
     Properties props = new Properties();
     File file = new File(PROPS_FILE_NAME);
     System.err.println(file.getAbsoluteFile());
     props.load(new FileInputStream(file)); 
     _props = props;
-    Class.forName((String) _props.get("jdbc.driver.classname")).newInstance(); // load driver.
+    
+    _jdbcDriverClass = ((String) _props.get("jdbc.driver.classname")).trim();
+    _isDerby = _jdbcDriverClass.equals("org.apache.derby.jdbc.EmbeddedDriver");
+    
+    if (_isDerby) {
+      recursiveDelete(new File("derby-db"));
+    }
+    
+    Class.forName(_jdbcDriverClass).newInstance(); // load driver.
   }
   
   public abstract String getConfigLocation();
@@ -73,12 +87,22 @@ public abstract class HibernateTest {
   public void setUp() throws Exception {
     String createFromUrl = _props.getProperty("jdbc.url") + getDBUrl(true);
     System.err.println("Connecting with data source URL "+createFromUrl);
-    Connection conn = DriverManager.getConnection(createFromUrl);
-    // this will create a copy of the blank database, using
-    conn.close(); // that should do the copy...  we do it like this because I'm unsure if we can be sure the App Context will release the resources if we used that.
-    System.err.println("closed connection, starting App Context");
+    
+    String user = _props.getProperty("jdbc.username");
+    String password =  _props.getProperty("jdbc.password");
+
+    if (_isDerby) {
+      Connection conn = DriverManager.getConnection(createFromUrl, user, password);
+      // this will create a copy of the blank database, using
+      conn.close(); // that should do the copy...  we do it like this because I'm unsure if we can be sure the App Context will release the resources if we used that.
+      System.err.println("closed connection, starting App Context");
+    }
+    
     System.setProperty("jdbc.url", _props.getProperty("jdbc.url") + getDBUrl(false)); 
     System.setProperty("jdbc.driver.classname", _props.getProperty("jdbc.driver.classname"));
+    System.setProperty("jdbc.username", _props.getProperty("jdbc.username"));
+    System.setProperty("jdbc.password", _props.getProperty("jdbc.password"));
+    System.setProperty("hibernate.dialect", _props.getProperty("hibernate.dialect"));
     
     // the idea is that this SYSTEM property (the others above are not system props) is picked up by the PropertyPlaceholderConfigurer during startup
     // and injected into the 
