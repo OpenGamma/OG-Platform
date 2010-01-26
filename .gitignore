@@ -9,3 +9,4 @@ tests/output/
 .settings/org.eclipse.ltk.core.refactoring.prefs
 lib/
 build/
+docs/
