@@ -127,6 +127,7 @@
 	<target name="clone-or-pull" description="clone or pull all projects from git">
         <mkdir dir="projects"/>
         <git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
+        <git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Engine.git" dest="projects/OG-Engine" />
