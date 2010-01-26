@@ -159,9 +159,9 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
   
   @SuppressWarnings("unchecked")
   List<AuditLogEntry> findLogEntries(String user, Date start, Date end) {
-    return (List<AuditLogEntry>) _hibernateTemplate.find(
-        "from AuditLogEntry where user = ? and timestamp >= ? and timestamp < ?", 
-        new Object[] { user, start, end });
+    return (List<AuditLogEntry>) _hibernateTemplate.findByNamedQueryAndNamedParam(
+        "from AuditLogEntry where user = :user and timestamp >= :start and timestamp < :end", 
+        new String[] { "user", "start", "end" }, new Object[] { user, start, end });
   }
 
 }

@@ -52,7 +52,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         return (User) session.createQuery(
-            "from User as a where a.username = ?").setParameter(0,
+            "from User as a where a.username = :username").setParameter("username",
             username).uniqueResult();
       }
     });
@@ -67,7 +67,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         UserGroup userGroup = (UserGroup) session.createQuery(
-            "from UserGroup as a where a.name = ?").setParameter(0,
+            "from UserGroup as a where a.name = :name").setParameter("name",
                 name).uniqueResult();
         return userGroup;
       }
@@ -83,7 +83,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         return (Authority) session.createQuery(
-            "from Authority as a where a.authority = ?").setParameter(0,
+            "from Authority as a where a.authority = :authority").setParameter("authority",
                 authority).uniqueResult();
       }
     });
