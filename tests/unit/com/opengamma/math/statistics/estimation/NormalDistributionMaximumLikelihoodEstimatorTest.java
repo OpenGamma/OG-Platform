@@ -17,7 +17,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class NormalDistributionMaximumLikelihoodEstimatorTest {
-  private static final DistributionMaximumLikelihoodEstimator<Double> ESTIMATOR = new NormalDistributionMaximumLikelihoodEstimator();
+  private static final DistributionParameterEstimator<Double> ESTIMATOR = new NormalDistributionMaximumLikelihoodEstimator();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {

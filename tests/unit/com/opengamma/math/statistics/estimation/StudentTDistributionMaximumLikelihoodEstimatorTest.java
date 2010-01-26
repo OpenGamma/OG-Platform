@@ -17,7 +17,7 @@ import com.opengamma.math.statistics.distribution.StudentTDistribution;
  * 
  */
 public class StudentTDistributionMaximumLikelihoodEstimatorTest {
-  private static final DistributionMaximumLikelihoodEstimator<Double> ESTIMATOR = new StudentTDistributionMaximumLikelihoodEstimator();
+  private static final DistributionParameterEstimator<Double> ESTIMATOR = new StudentTDistributionMaximumLikelihoodEstimator();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {

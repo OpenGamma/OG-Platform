@@ -6,8 +6,7 @@
 package com.opengamma.math.statistics.estimation;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.math.statistics.descriptive.PopulationStandardDeviationCalculator;
+import com.opengamma.math.statistics.descriptive.SampleMomentCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -15,10 +14,9 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * @author emcleod
  * 
  */
-public class NormalDistributionMaximumLikelihoodEstimator extends DistributionParameterEstimator<Double> {
-  // TODO add error estimates
-  private final Function1D<Double[], Double> _mean = new MeanCalculator();
-  private final Function1D<Double[], Double> _std = new PopulationStandardDeviationCalculator();
+public class NormalDistributionMomentEstimator extends DistributionParameterEstimator<Double> {
+  private final Function1D<Double[], Double> _first = new SampleMomentCalculator(1);
+  private final Function1D<Double[], Double> _second = new SampleMomentCalculator(2);
 
   /*
    * (non-Javadoc)
@@ -31,7 +29,8 @@ public class NormalDistributionMaximumLikelihoodEstimator extends DistributionPa
       throw new IllegalArgumentException("Array was null");
     if (x.length == 0)
       throw new IllegalArgumentException("Array was empty");
-    return new NormalDistribution(_mean.evaluate(x), _std.evaluate(x));
+    final double mu = _first.evaluate(x);
+    return new NormalDistribution(mu, Math.sqrt(_second.evaluate(x) - mu * mu));
   }
 
 }

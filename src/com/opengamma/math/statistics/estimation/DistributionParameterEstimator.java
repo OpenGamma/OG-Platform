@@ -12,6 +12,6 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * @author emcleod
  * 
  */
-public abstract class DistributionMaximumLikelihoodEstimator<T> extends Function1D<Double[], ProbabilityDistribution<T>> {
+public abstract class DistributionParameterEstimator<T> extends Function1D<Double[], ProbabilityDistribution<T>> {
 
 }

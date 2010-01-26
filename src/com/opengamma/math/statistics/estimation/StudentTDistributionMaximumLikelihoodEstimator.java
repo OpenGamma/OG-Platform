@@ -18,7 +18,8 @@ import com.opengamma.math.statistics.distribution.StudentTDistribution;
  * @author emcleod
  * 
  */
-public class StudentTDistributionMaximumLikelihoodEstimator extends DistributionMaximumLikelihoodEstimator<Double> {
+public class StudentTDistributionMaximumLikelihoodEstimator extends DistributionParameterEstimator<Double> {
+  // TODO add error estimates
   private final Minimizer1D _minimizer = new GoldenSectionMinimizer1D();
   protected final Function1D<Double, Double> _gamma = new GammaFunction();
   private final Function1D<Double[], Double> _mean = new MeanCalculator();

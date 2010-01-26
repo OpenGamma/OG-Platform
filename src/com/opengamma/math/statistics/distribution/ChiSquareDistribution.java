@@ -24,15 +24,15 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   private final double _degrees;
 
   public ChiSquareDistribution(final double degrees) {
-    if (degrees < 0)
-      throw new IllegalArgumentException("Degrees of freedom must be greater than zero");
+    if (degrees < 1)
+      throw new IllegalArgumentException("Degrees of freedom must be greater than or equal to one");
     _chiSquare = new ChiSquare(degrees, _engine);
     _degrees = degrees;
   }
 
   public ChiSquareDistribution(final double degrees, final RandomEngine engine) {
-    if (degrees < 0)
-      throw new IllegalArgumentException("Degrees of freedom must be greater than zero");
+    if (degrees < 1)
+      throw new IllegalArgumentException("Degrees of freedom must be greater than or equal to one");
     if (engine == null)
       throw new IllegalArgumentException("Engine was null");
     _chiSquare = new ChiSquare(degrees, engine);
@@ -65,5 +65,9 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   @Override
   public double nextRandom() {
     return _chiSquare.nextDouble();
+  }
+
+  public double getDegreesOfFreedom() {
+    return _degrees;
   }
 }
