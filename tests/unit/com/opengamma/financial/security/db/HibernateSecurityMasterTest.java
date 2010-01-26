@@ -27,17 +27,18 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   private HibernateSecurityMaster _secMaster;
   
   @Override
-  public String getConfigLocation() {
-    return "com/opengamma/financial/security/db/security-master-testing-context.xml";
+  public Class<?>[] getHibernateMappingClasses() {
+    return new Class<?>[] { DomainSpecificIdentifierBean.class, ExchangeBean.class, CurrencyBean.class, EquitySecurityBean.class };
   }
-  
+
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterTest.class);
   
   @Before
   public void setUp() throws Exception {
     super.setUp();
-    _secMaster = (HibernateSecurityMaster) _context.getBean("myHibernateSecurityMaster");
+    _secMaster = new HibernateSecurityMaster();
+    _secMaster.setSessionFactory(getSessionFactory());
     System.err.println("Sec Master initialization complete:" + _secMaster);
   }
 
