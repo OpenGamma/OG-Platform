@@ -29,6 +29,8 @@
 	
 	<import file="git-macros.xml" />
 
+        <available file="${ivy.jar.file}" property="skip.download"/>
+
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
 		<!--
