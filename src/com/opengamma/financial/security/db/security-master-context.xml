@@ -5,20 +5,20 @@
   <bean id="myCopyingDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
     <property name="url" value="jdbc:derby:test;restoreFrom=blank"/>
-    <property name="username" value=""/>
-    <property name="password" value=""/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
   </bean>
   <bean id="myShutdownDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
     <property name="url" value="jdbc:derby:test;shutdown=true"/>
-    <property name="username" value=""/>
-    <property name="password" value=""/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
   </bean>
   <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="org.apache.derby.jdbc.EmbeddedDriver"/>
     <property name="url" value="jdbc:derby:test"/>
-    <property name="username" value=""/>
-    <property name="password" value=""/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
   </bean>
   <bean id="mySessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <property name="dataSource" ref="myDataSource"/>
@@ -32,7 +32,7 @@
     </property>
     <property name="hibernateProperties">
       <value>
-        hibernate.dialect=org.hibernate.dialect.DerbyDialect
+        hibernate.dialect=${hibernate.dialect}
         hibernate.show_sql=true
       </value>
     </property>

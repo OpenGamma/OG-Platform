@@ -20,8 +20,8 @@
   <bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName" value="${jdbc.driver.classname}"/> <!-- see the tests.properties file for these settings -->
     <property name="url" value="${jdbc.url}"/>
-    <property name="username" value=""/>
-    <property name="password" value=""/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
   </bean>
   <bean id="mySessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
     <property name="dataSource" ref="myDataSource"/>
@@ -35,7 +35,8 @@
     </property>
     <property name="hibernateProperties">
       <value>
-        hibernate.dialect=org.hibernate.dialect.DerbyDialect
+      	hibernate.hbm2ddl.auto=create-drop
+        hibernate.dialect=${hibernate.dialect}
         hibernate.show_sql=true
       </value>
     </property>
