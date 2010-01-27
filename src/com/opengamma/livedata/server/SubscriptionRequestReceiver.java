@@ -7,7 +7,6 @@ package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +41,11 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   public FudgeFieldContainer requestReceived(
       FudgeContext fudgeContext,
       FudgeMsgEnvelope requestEnvelope) {
-    FudgeMsg requestFudgeMsg = requestEnvelope.getMessage();
+    FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
     SubscriptionRequestMessage subscriptionRequest = SubscriptionRequestMessage.fromFudgeMsg(requestFudgeMsg);
     s_logger.debug("Received subscription request for {} on behalf of {}", subscriptionRequest.getSpecification(), subscriptionRequest.getUserName());
     SubscriptionResponseMessage subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
-    FudgeMsg responseFudgeMsg = subscriptionResponse.toFudgeMsg(fudgeContext);
+    FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(fudgeContext);
     return responseFudgeMsg;
   }
 

@@ -8,7 +8,8 @@ package com.opengamma.livedata.client;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class DistributedEntitlementChecker implements
   public boolean isEntitled(String userName,
       LiveDataSpecification fullyQualifiedSpecification) {
     s_logger.info("Sending message to qualify {} on {}", userName, fullyQualifiedSpecification);
-    FudgeMsg requestMessage = composeRequestMessage(userName, fullyQualifiedSpecification);
+    FudgeFieldContainer requestMessage = composeRequestMessage(userName, fullyQualifiedSpecification);
     byte[] requestBytes = getFudgeContext().toByteArray(requestMessage);
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicBoolean isEntitled = new AtomicBoolean(false);
@@ -95,9 +96,9 @@ public class DistributedEntitlementChecker implements
    * @param fullyQualifiedSpecification
    * @return
    */
-  protected FudgeMsg composeRequestMessage(String userName,
+  protected FudgeFieldContainer composeRequestMessage(String userName,
       LiveDataSpecification fullyQualifiedSpecification) {
-    FudgeMsg msg = getFudgeContext().newMessage();
+    MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
     msg.add(USER_NAME_FUDGE_FIELD_NAME, userName);
     msg.add(DATA_SPEC_FUDGE_FIELD_NAME, fullyQualifiedSpecification.toFudgeMsg(getFudgeContext()));
     return msg;
@@ -109,7 +110,7 @@ public class DistributedEntitlementChecker implements
       s_logger.warn("Recieved response message with no envelope. Not allowing access.");
       return false;
     }
-    FudgeMsg msg = msgEnvelope.getMessage();
+    FudgeFieldContainer msg = msgEnvelope.getMessage();
     Boolean responseValue = msg.getBoolean(IS_ENTITLED_FUDGE_FIELD_NAME);
     if(responseValue == null) {
       s_logger.warn("Received response message with no field named {}. Not allowing access.", IS_ENTITLED_FUDGE_FIELD_NAME);

@@ -10,7 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.livedata.LiveDataSubscriptionResult;
 
@@ -82,8 +83,8 @@ public class SubscriptionResponseMessage implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeMsg toFudgeMsg(FudgeContext context) {
-    FudgeMsg msg = context.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
     if(getSubscriptionResult() != null) {
       msg.add(RESULT_FIELD_NAME, getSubscriptionResult().name());
     }
@@ -96,7 +97,7 @@ public class SubscriptionResponseMessage implements Serializable {
     return msg;
   }
 
-  public static SubscriptionResponseMessage fromFudgeMsg(FudgeMsg msg) {
+  public static SubscriptionResponseMessage fromFudgeMsg(FudgeFieldContainer msg) {
     SubscriptionResponseMessage result = new SubscriptionResponseMessage();
     String subResultText = msg.getString(RESULT_FIELD_NAME);
     if(subResultText != null) {

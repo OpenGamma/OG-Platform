@@ -11,8 +11,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
-
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
  * A simple JavaBean-based implementation of {@link LiveDataValueUpdate}.
@@ -50,8 +49,8 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return _specification;
   }
   
-  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     msg.add(RELEVANT_TIMESTAMP_FIELD_NAME, getRelevantTimestamp());
     if(getSpecification() != null) {
       msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeContext));
@@ -62,7 +61,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return msg;
   }
   
-  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeMsg msg) {
+  public static LiveDataValueUpdateBean fromFudgeMsg(FudgeFieldContainer msg) {
     Long relevantTimestamp = msg.getLong(RELEVANT_TIMESTAMP_FIELD_NAME);
     FudgeFieldContainer specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
     FudgeFieldContainer fields = msg.getMessage(FIELDS_FIELD_NAME);

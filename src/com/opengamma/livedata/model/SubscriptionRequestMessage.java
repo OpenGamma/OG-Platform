@@ -12,7 +12,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
@@ -57,8 +57,8 @@ public class SubscriptionRequestMessage implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public FudgeMsg toFudgeMsg(FudgeContext context) {
-    FudgeMsg msg = context.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
     if(getUserName() != null) {
       msg.add(USER_NAME_FIELD_NAME, getUserName());
     }
@@ -68,7 +68,7 @@ public class SubscriptionRequestMessage implements Serializable {
     return msg;
   }
 
-  public static SubscriptionRequestMessage fromFudgeMsg(FudgeMsg msg) {
+  public static SubscriptionRequestMessage fromFudgeMsg(FudgeFieldContainer msg) {
     SubscriptionRequestMessage request = new SubscriptionRequestMessage();
     request.setUserName(msg.getString(USER_NAME_FIELD_NAME));
     FudgeFieldContainer specMessage = null;

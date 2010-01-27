@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class HeartbeatSender {
         return;
       }
       s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
-      FudgeMsg heartbeatMsg = getFudgeContext().newMessage();
+      MutableFudgeFieldContainer heartbeatMsg = getFudgeContext().newMessage();
       for(LiveDataSpecification liveDataSpecification : liveDataSpecs) {
         FudgeFieldContainer specMsg = liveDataSpecification.toFudgeMsg(getFudgeContext());
         heartbeatMsg.add(null, null, specMsg);

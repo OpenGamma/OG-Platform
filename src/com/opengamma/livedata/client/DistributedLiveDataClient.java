@@ -6,7 +6,7 @@
 package com.opengamma.livedata.client;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +84,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       if((envelope == null) || (envelope.getMessage() == null)) {
         s_logger.warn("Got a message that can't be deserialized from a Fudge message.");
       }
-      FudgeMsg msg = envelope.getMessage();
+      FudgeFieldContainer msg = envelope.getMessage();
       SubscriptionResponseMessage responseMessage = SubscriptionResponseMessage.fromFudgeMsg(msg);
       switch(responseMessage.getSubscriptionResult()) {
       case NOT_AUTHORIZED:
@@ -108,7 +108,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
    */
   protected byte[] composeRequestMessage(SubscriptionHandle subHandle) {
     SubscriptionRequestMessage subReqMessage = composeSubscriptionRequestMessage(subHandle);
-    FudgeMsg requestMessage = subReqMessage.toFudgeMsg(getFudgeContext());
+    FudgeFieldContainer requestMessage = subReqMessage.toFudgeMsg(getFudgeContext());
     byte[] bytes = getFudgeContext().toByteArray(requestMessage);
     return bytes;
   }
@@ -132,7 +132,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   @Override
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {
-    FudgeMsg fudgeMsg = msgEnvelope.getMessage();
+    FudgeFieldContainer fudgeMsg = msgEnvelope.getMessage();
     LiveDataValueUpdateBean update = LiveDataValueUpdateBean.fromFudgeMsg(fudgeMsg);
     getValueDistributor().notifyListeners(update.getRelevantTimestamp(), update.getSpecification(), update.getFields());
   }

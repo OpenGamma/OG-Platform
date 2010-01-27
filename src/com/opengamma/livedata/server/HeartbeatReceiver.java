@@ -8,7 +8,6 @@ package com.opengamma.livedata.server;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +55,7 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   @Override
   public void messageReceived(byte[] message) {
     FudgeMsgEnvelope heartbeatEnvelope = getFudgeContext().deserialize(message);
-    FudgeMsg heartbeatMsg = heartbeatEnvelope.getMessage();
+    FudgeFieldContainer heartbeatMsg = heartbeatEnvelope.getMessage();
     messageReceived(heartbeatMsg);
   }
   

@@ -12,7 +12,6 @@ import javax.jms.Session;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
@@ -76,7 +75,7 @@ public class MarketDataFudgeJmsSender implements MarketDataFieldReceiver {
   public void marketDataReceived(LiveDataSpecification specification,
       FudgeFieldContainer fields) {
     LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), specification, fields);
-    FudgeMsg fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
+    FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
     String destinationName = getDistributionSpecificationResolver().getDistributionSpecification(specification);
     final byte[] bytes = getFudgeContext().toByteArray(fudgeMsg);
     getJmsTemplate().send(destinationName, new MessageCreator() {

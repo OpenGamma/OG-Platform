@@ -17,7 +17,6 @@ import java.util.Timer;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +69,7 @@ public class HeartbeatSenderTest {
     
     for(byte[] message : messages) {
       FudgeMsgEnvelope fudgeMsgEnvelope = fudgeContext.deserialize(message);
-      FudgeMsg fudgeMsg = fudgeMsgEnvelope.getMessage();
+      FudgeFieldContainer fudgeMsg = fudgeMsgEnvelope.getMessage();
       assertNotNull(fudgeMsg);
       assertEquals(2, fudgeMsg.getNumFields());
       for(FudgeField field : fudgeMsg.getAllFields()) {
