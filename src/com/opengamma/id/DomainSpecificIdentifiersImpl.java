@@ -18,10 +18,9 @@ import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
-
 
 /**
  * 
@@ -95,7 +94,7 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
   @Override
   public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
-    FudgeMsg msg = fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     for(DomainSpecificIdentifier identifier: getIdentifiers()) {
       msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeContext));
     }

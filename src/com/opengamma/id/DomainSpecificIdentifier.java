@@ -13,11 +13,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
-
-
 
 /**
  * A particular identifier, within a particular domain, which can be used
@@ -104,7 +102,7 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
   
   public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
-    FudgeMsg msg = fudgeContext.newMessage();
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     msg.add(DOMAIN_FUDGE_FIELD_NAME, getDomain().getDomainName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
