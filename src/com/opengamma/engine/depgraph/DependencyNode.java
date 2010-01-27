@@ -35,6 +35,7 @@ public class DependencyNode {
   private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
   private final Map<ValueRequirement, ValueSpecification> _requirementMapping =
     new HashMap<ValueRequirement, ValueSpecification>();
+  private final Set<DependencyNode> _dependentNodes = new HashSet<DependencyNode>();
   
   public DependencyNode(
       FunctionDefinition functionDefinition,
@@ -56,6 +57,16 @@ public class DependencyNode {
   public void addInputNode(DependencyNode inputNode) {
     ArgumentChecker.checkNotNull(inputNode, "Input Node");
     _inputNodes.add(inputNode);
+    inputNode.addDependentNode(this); // note how we rely on the yucky class-scope encapsulation of private
+  }
+ 
+  private void addDependentNode(DependencyNode dependentNode) {
+    ArgumentChecker.checkNotNull(dependentNode, "Dependent Node");
+    _dependentNodes.add(dependentNode);
+  }
+  
+  public Set<DependencyNode> getDependentNodes() {
+    return Collections.unmodifiableSet(_dependentNodes);
   }
   
   public Set<DependencyNode> getInputNodes() {

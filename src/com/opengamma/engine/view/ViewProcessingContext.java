@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.PositionMaster;
@@ -22,7 +23,8 @@ import com.opengamma.transport.FudgeRequestSender;
 public class ViewProcessingContext {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
-  private final FunctionRepository _analyticFunctionRepository;
+  private final FunctionRepository _functionRepository;
+  private final FunctionResolver _functionResolver;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
   private final ViewComputationCacheSource _computationCacheSource;
@@ -32,7 +34,8 @@ public class ViewProcessingContext {
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
-      FunctionRepository analyticFunctionRepository,
+      FunctionRepository functionRepository,
+      FunctionResolver functionResolver,
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
@@ -41,7 +44,8 @@ public class ViewProcessingContext {
     // TODO kirk 2009-09-25 -- Check Inputs
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
-    _analyticFunctionRepository = analyticFunctionRepository;
+    _functionRepository = functionRepository;
+    _functionResolver = functionResolver;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
@@ -67,8 +71,15 @@ public class ViewProcessingContext {
   /**
    * @return the analyticFunctionRepository
    */
-  public FunctionRepository getAnalyticFunctionRepository() {
-    return _analyticFunctionRepository;
+  public FunctionRepository getFunctionRepository() {
+    return _functionRepository;
+  }
+  
+  /**
+   * @return the functionResolver
+   */
+  public FunctionResolver getFunctionResolver() {
+    return _functionResolver;
   }
 
   /**

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +22,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
@@ -41,12 +41,12 @@ public class DependencyGraphModel {
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private FunctionRepository _functionRepository;
   private ComputationTargetResolver _targetResolver;
+  private FunctionResolver _functionResolver;
   // State:
   private final Map<ComputationTarget, DependencyGraph> _graphsByTarget =
     new HashMap<ComputationTarget, DependencyGraph>();
   private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
     
-  
   /**
    * @return the liveDataAvailabilityProvider
    */
@@ -74,6 +74,18 @@ public class DependencyGraphModel {
     _functionRepository = functionRepository;
   }
   
+  /**
+   * @return the functionResolver
+   */
+  public FunctionResolver getFunctionResolver() {
+    return _functionResolver;
+  }
+  /**
+   * @param functionReolver the functionResolver to set
+   */
+  public void setFunctionResolver(FunctionResolver functionResolver) {
+    _functionResolver = functionResolver;
+  }
   /**
    * @return the targetResolver
    */
@@ -121,7 +133,7 @@ public class DependencyGraphModel {
       return new Pair<DependencyNode, ValueSpecification>(node, function.getResult());
     }
     
-    Pair<FunctionDefinition, ValueSpecification> resolvedFunction = resolveFunction(target, requirement);
+    Pair<FunctionDefinition, ValueSpecification> resolvedFunction = getFunctionResolver().resolveFunction(target, requirement);
     if(resolvedFunction == null) {
       // Couldn't resolve.
       // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
@@ -150,28 +162,6 @@ public class DependencyGraphModel {
       _graphsByTarget.put(target, depGraph);
     }
     return depGraph;
-  }
-  
-  // TODO kirk 2009-12-30 -- This belongs elsewhere.
-  // TODO kirk 2009-12-30 -- This also needs better indexing on the function repository when
-  // we get past the current time.
-  protected Pair<FunctionDefinition, ValueSpecification> resolveFunction(ComputationTarget target, ValueRequirement requirement) {
-    for(FunctionDefinition function : getFunctionRepository().getAllFunctions()) {
-      if(function instanceof FunctionDefinition) {
-        FunctionDefinition newFunction = (FunctionDefinition) function;
-        if(!newFunction.canApplyTo(target)) {
-          continue;
-        }
-        Set<ValueSpecification> resultSpecs = newFunction.getResults(target, Collections.singleton(requirement));
-        for(ValueSpecification resultSpec : resultSpecs) {
-          if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
-            return new Pair<FunctionDefinition, ValueSpecification>(newFunction, resultSpec);
-          }
-        }
-      }
-      
-    }
-    return null;
   }
   
   protected Pair<DependencyNode, ValueSpecification> resolveRequirement(ComputationTarget target, ValueRequirement requirement) {
