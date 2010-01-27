@@ -10,8 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -91,7 +91,7 @@ public class ValueRequirement implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void writeFields(FudgeMsg msg) {
+  public void writeFields(MutableFudgeFieldContainer msg) {
     msg.add(VALUE_NAME_FIELD_NAME, _valueName);
     msg.add(TARGET_TYPE_FIELD_NAME, _targetSpecification.getType().name());
     msg.add(TARGET_ID_FIELD_NAME, _targetSpecification.getIdentifier());

@@ -45,8 +45,7 @@ implements FudgeRequestReceiver {
       FudgeMsgEnvelope requestEnvelope) {
     CalculationJob job = CalculationJob.fromFudgeMsg(requestEnvelope);
     CalculationJobResult jobResult = executeJob(job);
-    FudgeMsg resultMsg = jobResult.toFudgeMsg(fudgeContext);
-    return resultMsg;
+    return jobResult.toFudgeMsg(fudgeContext);
   }
 
 }

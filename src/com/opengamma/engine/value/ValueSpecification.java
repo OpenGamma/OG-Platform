@@ -12,7 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -68,8 +68,8 @@ public class ValueSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     _requirementSpecification.writeFields(msg);
     return msg;
   }

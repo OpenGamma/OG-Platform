@@ -11,7 +11,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -95,7 +95,7 @@ public class ComputationTargetSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void writeFields(FudgeMsg msg) {
+  public void writeFields(MutableFudgeFieldContainer msg) {
     msg.add(TYPE_FIELD_NAME, _type.name());
     msg.add(IDENTIFIER_FIELD_NAME, _identifier);
   }
