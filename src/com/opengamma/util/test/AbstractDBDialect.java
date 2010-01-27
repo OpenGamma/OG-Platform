@@ -1,0 +1,208 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.util.test;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.hibernate.dialect.Dialect;
+import org.hibernate.id.enhanced.SequenceStructure;
+import org.hibernate.mapping.ForeignKey;
+import org.hibernate.mapping.Table;
+
+import com.opengamma.OpenGammaRuntimeException;
+
+/**
+ * 
+ *
+ * @author pietari
+ */
+abstract public class AbstractDBDialect implements DBDialect {
+  
+  private String _dbServerHost;
+  private String _user;
+  private String _password;
+
+  @Override
+  public void initialise(String dbServerHost, String user, String password) {
+    _dbServerHost = dbServerHost;
+    _user = user;
+    _password = password;
+    
+    try {
+        getJDBCDriverClass().newInstance(); // load driver.
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
+    }
+  }
+
+  public String getDbServerHost() {
+    return _dbServerHost;
+  }
+
+  public String getUser() {
+    return _user;
+  }
+
+  public String getPassword() {
+    return _password;
+  }
+  
+  public abstract Class<?> getJDBCDriverClass();
+  public abstract String getDefaultCatalog();
+  public abstract String getAllTablesSQL(String catalog, String schema);
+  public abstract String getAllSequencesSQL(String catalog, String schema);
+  public abstract String getAllConstraintsSQL(String catalog, String schema);
+  public abstract String getCreateCatalogSQL(String catalog);
+  public abstract String getCreateSchemaSQL(String schema);
+  
+  public abstract Dialect getDialect();
+  
+  protected Connection connect(String catalog) throws SQLException {
+    return DriverManager.getConnection(_dbServerHost + "/" + catalog, 
+        _user, _password);
+  }
+
+  @Override
+  public void clearTables(String catalog, String schema) {
+    // Does not take constraints into account as yet
+    ArrayList<String> script = new ArrayList<String>();
+    
+    Connection conn = null;
+    try {
+      conn = connect(catalog);
+      Statement statement = conn.createStatement();
+      
+      // Clear tables SQL
+      ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
+      while (rs.next()) {
+        String name = rs.getString("name");
+        Table table = new Table(name);
+        script.add("DELETE FROM " + table.getQualifiedName(getDialect(), catalog, schema));
+      }
+      rs.close();
+            
+      // Now execute it all
+      for (String sql : script) {
+        statement.executeUpdate(sql);
+      }
+      
+      statement.close();
+    
+    } catch (SQLException e) {
+      throw new OpenGammaRuntimeException("Failed to clear tables", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }           
+    
+  }
+
+  @Override
+  public void createSchema(String catalog, String schema) {
+    Connection conn = null;
+    try {
+      conn = connect(getDefaultCatalog());
+      Statement statement = conn.createStatement();
+      
+      String createCatalogSql = getCreateCatalogSQL(catalog);
+      statement.executeUpdate(createCatalogSql);
+      
+      String createSchemaSql = getCreateSchemaSQL(schema);
+      statement.executeUpdate(createSchemaSql);
+      
+      statement.close();
+      
+    } catch (SQLException e) {
+      throw new OpenGammaRuntimeException("Failed to clear tables", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }  
+    
+  }
+
+  @Override
+  public void dropSchema(String catalog, String schema) {
+    // Does not handle triggers or stored procedures yet
+    
+    ArrayList<String> script = new ArrayList<String>();
+    
+    Connection conn = null;
+    try {
+      conn = connect(catalog);
+      Statement statement = conn.createStatement();
+      
+      // Drop constraints SQL
+      if (getDialect().dropConstraints()) {
+        ResultSet rs = statement.executeQuery(getAllConstraintsSQL(catalog, schema));
+        while (rs.next()) {
+          String name = rs.getString("name");
+          String table = rs.getString("table");
+          ForeignKey fk = new ForeignKey();
+          fk.setName(name);
+          fk.setTable(new Table(table));
+          
+          String dropConstraintSql = fk.sqlDropString(getDialect(), catalog, schema);
+          script.add(dropConstraintSql);
+        }
+        rs.close();
+      }
+      
+      // Drop tables SQL
+      ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
+      while (rs.next()) {
+        String name = rs.getString("name");
+        Table table = new Table(name);
+        String dropTableStr = table.sqlDropString(getDialect(), catalog, schema);
+        script.add(dropTableStr);
+      }
+      rs.close();
+      
+      // Drop sequences SQL
+      if (getAllSequencesSQL(catalog, schema) != null) {
+        rs = statement.executeQuery(getAllSequencesSQL(catalog, schema));
+        while (rs.next()) {
+          String name = rs.getString("name");
+          final SequenceStructure sequenceStructure = new SequenceStructure(getDialect(), name, 0, 1);
+          String[] dropSequenceStrings = sequenceStructure.sqlDropStrings(getDialect());
+          script.addAll(Arrays.asList(dropSequenceStrings));
+        }
+        rs.close();
+      }
+      
+      // Now execute it all
+      for (String sql : script) {
+        statement.executeUpdate(sql);
+      }
+      
+      statement.close();
+    
+    } catch (SQLException e) {
+      throw new OpenGammaRuntimeException("Failed to drop schema", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }
+  }
+}
