@@ -83,7 +83,7 @@ public class HeartbeatSender {
         FudgeFieldContainer specMsg = liveDataSpecification.toFudgeMsg(getFudgeContext());
         heartbeatMsg.add(null, null, specMsg);
       }
-      byte[] bytes = heartbeatMsg.toByteArray();
+      byte[] bytes = getFudgeContext ().toByteArray (heartbeatMsg);
       getMessageSender().send(bytes);
     }
   }
