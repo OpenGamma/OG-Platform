@@ -7,14 +7,14 @@ package com.opengamma.math.statistics.estimation;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleMomentCalculator;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
+import com.opengamma.math.statistics.distribution.GammaDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * @author emcleod
  * 
  */
-public class NormalDistributionMomentEstimator extends DistributionParameterEstimator<Double> {
+public class GammaDistributionMomentEstimator extends DistributionParameterEstimator<Double> {
   private final Function1D<Double[], Double> _first = new SampleMomentCalculator(1);
   private final Function1D<Double[], Double> _second = new SampleMomentCalculator(2);
 
@@ -30,7 +30,11 @@ public class NormalDistributionMomentEstimator extends DistributionParameterEsti
     if (x.length == 0)
       throw new IllegalArgumentException("Array was empty");
     final double m1 = _first.evaluate(x);
-    return new NormalDistribution(m1, Math.sqrt(_second.evaluate(x) - m1 * m1));
+    final double m2 = _second.evaluate(x);
+    final double m1Sq = m1 * m1;
+    final double k = m1Sq / (m2 - m1Sq);
+    final double theta = m1 / k;
+    return new GammaDistribution(k, theta);
   }
 
 }

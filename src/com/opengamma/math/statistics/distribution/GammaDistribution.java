@@ -17,6 +17,8 @@ import cern.jet.random.engine.RandomEngine;
  */
 public class GammaDistribution implements ProbabilityDistribution<Double> {
   private final Gamma _gamma;
+  private final double _k;
+  private final double _theta;
 
   public GammaDistribution(final double k, final double theta) {
     if (k <= 0)
@@ -24,17 +26,21 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     if (theta <= 0)
       throw new IllegalArgumentException("Theta must be positive");
     // TODO better seed
-    _gamma = new Gamma(k, theta, new MersenneTwister(1));
+    _gamma = new Gamma(k, 1. / theta, new MersenneTwister(1));
+    _k = k;
+    _theta = theta;
   }
 
-  public GammaDistribution(final double alpha, final double lambda, final RandomEngine engine) {
-    if (alpha <= 0)
+  public GammaDistribution(final double k, final double theta, final RandomEngine engine) {
+    if (k <= 0)
       throw new IllegalArgumentException("k must be positive");
-    if (lambda <= 0)
+    if (theta <= 0)
       throw new IllegalArgumentException("Theta must be positive");
     if (engine == null)
       throw new IllegalArgumentException("Random engine was null");
-    _gamma = new Gamma(alpha, lambda, engine);
+    _gamma = new Gamma(k, 1. / theta, engine);
+    _k = k;
+    _theta = theta;
   }
 
   @Override
@@ -61,4 +67,11 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     return _gamma.nextDouble();
   }
 
+  public double getK() {
+    return _k;
+  }
+
+  public double getTheta() {
+    return _theta;
+  }
 }

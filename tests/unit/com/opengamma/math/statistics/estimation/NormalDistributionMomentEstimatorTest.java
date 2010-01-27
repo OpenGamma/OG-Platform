@@ -20,6 +20,16 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 public class NormalDistributionMomentEstimatorTest {
   private static final Function1D<Double[], ProbabilityDistribution<Double>> CALCULATOR = new NormalDistributionMomentEstimator();
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNull() {
+    CALCULATOR.evaluate((Double[]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmpty() {
+    CALCULATOR.evaluate(new Double[0]);
+  }
+
   @Test
   public void test() {
     final int n = 50000;
