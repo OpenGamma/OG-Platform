@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -92,11 +92,11 @@ public class DomainSpecificIdentifiersImpl implements Serializable, DomainSpecif
   }
   
   @Override
-  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    ArgumentChecker.checkNotNull(fudgeMessageFactory, "Fudge Context");
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     for(DomainSpecificIdentifier identifier: getIdentifiers()) {
-      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeContext));
+      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeMessageFactory));
     }
     return msg;
   }

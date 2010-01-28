@@ -11,7 +11,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
@@ -100,9 +100,9 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    ArgumentChecker.checkNotNull(fudgeMessageFactory, "Fudge Context");
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(DOMAIN_FUDGE_FIELD_NAME, getDomain().getDomainName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
