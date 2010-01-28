@@ -10,7 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
@@ -68,8 +68,8 @@ public class ValueSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     _requirementSpecification.writeFields(msg);
     return msg;
   }

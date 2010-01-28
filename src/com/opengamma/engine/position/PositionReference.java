@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -107,8 +107,8 @@ public class PositionReference implements Serializable, Cloneable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(QUANTITY_FIELD_NAME, getQuantity().toString());
     msg.add(SECURITY_IDENTITY_KEY_FIELD_NAME, getSecurityIdentityKey());
     return msg;

@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -101,14 +101,14 @@ public class CalculationJob implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     getSpecification().writeFields(msg);
     getComputationTargetSpecification().writeFields(msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     
     for(ValueSpecification inputSpecification : getInputs()) {
-      msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
+      msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeMessageFactory));
     }
     
     return msg;
