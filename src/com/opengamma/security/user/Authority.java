@@ -64,8 +64,7 @@ public class Authority {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((_authority == null) ? 0 : _authority.hashCode());
+    result = prime * result + ((_id == null) ? 0 : _id.hashCode());
     return result;
   }
 
@@ -78,10 +77,10 @@ public class Authority {
     if (getClass() != obj.getClass())
       return false;
     Authority other = (Authority) obj;
-    if (_authority == null) {
-      if (other._authority != null)
+    if (_id == null) {
+      if (other._id != null)
         return false;
-    } else if (!_authority.equals(other._authority))
+    } else if (!_id.equals(other._id))
       return false;
     return true;
   }

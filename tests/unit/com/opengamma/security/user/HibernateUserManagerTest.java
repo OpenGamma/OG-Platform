@@ -13,14 +13,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.orm.hibernate3.HibernateTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
-import com.opengamma.security.user.Authority;
-import com.opengamma.security.user.User;
-import com.opengamma.security.user.UserGroup;
-import com.opengamma.security.user.UserManager;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -32,21 +29,23 @@ public class HibernateUserManagerTest extends HibernateTest {
   
   private PlatformTransactionManager _transactionManager;
   private TransactionStatus _transaction;
-  private UserManager _userManager; 
-
-  @Override
-  public String getConfigLocation() {
-    return "com/opengamma/security/user/user-testing-context.xml";
-  }
+  private HibernateUserManager _userManager;
   
+  @Override
+  public Class<?>[] getHibernateMappingClasses() {
+    return new Class[] { User.class, UserGroup.class, Authority.class };
+  }
+
   @Before
   public void setUp() throws Exception {
     super.setUp();
     
-    _transactionManager = (PlatformTransactionManager) _context.getBean("txManager");
+    _transactionManager = new HibernateTransactionManager(getSessionFactory());
     _transaction = _transactionManager.getTransaction(new DefaultTransactionDefinition());
     
-    _userManager = (UserManager) _context.getBean("myHibernateUserManager");
+    _userManager = new HibernateUserManager();
+    _userManager.setSessionFactory(getSessionFactory());
+    
     System.err.println("User Manager initialization complete:" + _userManager);
   }
   
@@ -147,7 +146,7 @@ public class HibernateUserManagerTest extends HibernateTest {
     _userManager.updateUserGroup(userGroup);
     userGroup = _userManager.getUserGroup("testusergroup");
     Assert.assertNotNull(userGroup);
-    Assert.assertTrue(userGroup.getAuthorities().contains(new Authority("additionalauthority")));
+    Assert.assertTrue(userGroup.getAuthorities().contains(additionalAuthority));
     
     // Delete
     _userManager.deleteUserGroup(userGroup);

@@ -141,7 +141,7 @@ public class User implements UserDetails {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_username == null) ? 0 : _username.hashCode());
+    result = prime * result + ((_id == null) ? 0 : _id.hashCode());
     return result;
   }
 
@@ -154,10 +154,10 @@ public class User implements UserDetails {
     if (getClass() != obj.getClass())
       return false;
     User other = (User) obj;
-    if (_username == null) {
-      if (other._username != null)
+    if (_id == null) {
+      if (other._id != null)
         return false;
-    } else if (!_username.equals(other._username))
+    } else if (!_id.equals(other._id))
       return false;
     return true;
   }

@@ -10,5 +10,7 @@
     </id>
     <property name="authority" unique="true" not-null="true"/>
   </class>
+  
+  <query name="Authority.one.byAuthorityName">from Authority as a where a.authority = :authority</query>
 
 </hibernate-mapping>
