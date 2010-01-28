@@ -19,17 +19,21 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class DBTool {
   
-  private AbstractDBDialect _dialect;
+  private DBDialect _dialect;
+  private String _dbServerHost;
   
   public DBTool(String dbServerHost,
       String user,
       String password) {
     
-    Map<String, AbstractDBDialect> url2Dialect = new HashMap<String, AbstractDBDialect>();
+    _dbServerHost = dbServerHost;
+    
+    Map<String, DBDialect> url2Dialect = new HashMap<String, DBDialect>();
     url2Dialect.put("jdbc:postgresql", new PostgresDialect());  // add new supported DB types to this Map
+    url2Dialect.put("jdbc:derby", new DerbyDialect());  // add new supported DB types to this Map
     
     String dbUrlLowercase = dbServerHost.toLowerCase();
-    for (Map.Entry<String, AbstractDBDialect> entry : url2Dialect.entrySet()) {
+    for (Map.Entry<String, DBDialect> entry : url2Dialect.entrySet()) {
       if (dbUrlLowercase.indexOf(entry.getKey()) != -1) {
         _dialect = entry.getValue();        
         break;
@@ -74,21 +78,25 @@ public class DBTool {
   
   
   public String getTestCatalog() {
-    return "security_" + System.getProperty("user.name");    
+    return "test_" + System.getProperty("user.name");    
   }
   
   public String getTestSchema() {
     return null; // use default    
   }
   
-  public String getDefaultCatalog() {
-    return _dialect.getBlankCatalog();    
+  public String getTestDatabaseURL() {
+    return _dbServerHost + "/" + getTestCatalog();         
   }
   
-  Dialect getDialect() {
-    return _dialect.getDialect();
+  public Dialect getHibernateDialect() {
+    return _dialect.getHibernateDialect();
   }
   
+  public Class<?> getJDBCDriverClass() {
+    return _dialect.getJDBCDriverClass();
+  }
+ 
   
     
   public static void usage() {

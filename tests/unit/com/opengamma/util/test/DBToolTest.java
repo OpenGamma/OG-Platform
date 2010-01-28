@@ -26,6 +26,8 @@ import org.junit.Test;
  */
 public class DBToolTest {
 
+  private static final String TEST_TABLE = "db_tool_unit_test_table";
+  
   private DBTool _tool;
   private String _dbHost;
   private String _user;
@@ -55,7 +57,7 @@ public class DBToolTest {
     Connection connection = getConnection();
     Statement statement = connection.createStatement();
     try {
-      statement.execute("SELECT * FROM db_tool_unit_test_table");
+      statement.execute("SELECT * FROM " + TEST_TABLE);
       fail();
     } catch (SQLException e) {
       // Ok - no table should be there!
@@ -73,14 +75,14 @@ public class DBToolTest {
     Connection connection = getConnection();
     Statement statement = connection.createStatement();
     statement
-        .execute("INSERT INTO db_tool_unit_test_table (test_column) VALUES ('test')");
+        .execute("INSERT INTO " + TEST_TABLE + " (test_column) VALUES ('test')");
     statement.close();
 
     _tool.clearTestTables();
 
     statement = connection.createStatement();
     ResultSet rs = statement
-        .executeQuery("SELECT COUNT(*) FROM db_tool_unit_test_table");
+        .executeQuery("SELECT COUNT(*) FROM " + TEST_TABLE);
     if (rs.next()) {
       int count = rs.getInt(1);
       assertEquals(0, count);
@@ -103,16 +105,16 @@ public class DBToolTest {
   private void createTestTable() throws SQLException {
     Connection connection = getConnection();
     Statement statement = connection.createStatement();
-    Table table = new Table("db_tool_unit_test_table");
+    Table table = new Table(TEST_TABLE);
     try {
-      String dropSql = table.sqlDropString(_tool.getDialect(), null, _tool
+      String dropSql = table.sqlDropString(_tool.getHibernateDialect(), null, _tool
           .getTestSchema());
       statement.execute(dropSql);
     } catch (SQLException e) {
       // It might not exist, that's OK
     }
     String createSql = "CREATE TABLE "
-        + table.getQualifiedName(_tool.getDialect(), null, _tool
+        + table.getQualifiedName(_tool.getHibernateDialect(), null, _tool
             .getTestSchema()) + " (test_column char(50))";
     statement.execute(createSql);
     statement.close();

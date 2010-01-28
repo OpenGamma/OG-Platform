@@ -13,7 +13,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.hibernate.dialect.Dialect;
 import org.hibernate.id.enhanced.SequenceStructure;
 import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
@@ -56,21 +55,20 @@ abstract public class AbstractDBDialect implements DBDialect {
     return _password;
   }
   
-  public abstract Class<?> getJDBCDriverClass();
   public abstract String getBlankCatalog();
   public abstract String getAllCatalogsSQL();
   public abstract String getAllSchemasSQL(String catalog);
   public abstract String getAllTablesSQL(String catalog, String schema);
   public abstract String getAllSequencesSQL(String catalog, String schema);
-  public abstract String getAllConstraintsSQL(String catalog, String schema);
+  public abstract String getAllForeignKeyConstraintsSQL(String catalog, String schema);
   public abstract String getCreateCatalogSQL(String catalog);
   public abstract String getCreateSchemaSQL(String schema);
   
-  public abstract Dialect getDialect();
-  
   protected Connection connect(String catalog) throws SQLException {
-    return DriverManager.getConnection(_dbServerHost + "/" + catalog, 
+    Connection conn = DriverManager.getConnection(_dbServerHost + "/" + catalog, 
         _user, _password);
+    conn.setAutoCommit(true);
+    return conn;
   }
 
   @Override
@@ -80,6 +78,10 @@ abstract public class AbstractDBDialect implements DBDialect {
     
     Connection conn = null;
     try {
+      if (!catalogExists(catalog)) {
+        return; // nothing to clear
+      }
+      
       conn = connect(catalog);
       Statement statement = conn.createStatement();
       
@@ -88,7 +90,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       while (rs.next()) {
         String name = rs.getString("name");
         Table table = new Table(name);
-        script.add("DELETE FROM " + table.getQualifiedName(getDialect(), null, schema));
+        script.add("DELETE FROM " + table.getQualifiedName(getHibernateDialect(), null, schema));
       }
       rs.close();
             
@@ -111,39 +113,45 @@ abstract public class AbstractDBDialect implements DBDialect {
     }           
     
   }
-
+  
+  public boolean catalogExists(String catalog) throws SQLException {
+    Connection conn = connect(getBlankCatalog());
+    Statement statement = conn.createStatement();
+    ResultSet rs = statement.executeQuery(getAllCatalogsSQL());
+    
+    boolean catalogAlreadyExists = false;
+    while (rs.next()) {
+      String name = rs.getString("name");
+      if (name.equals(catalog)) {
+        catalogAlreadyExists = true;
+      }
+    }
+    
+    rs.close();
+    conn.close();
+    
+    return catalogAlreadyExists; 
+  }
+  
   @Override
   public void createSchema(String catalog, String schema) {
     Connection conn = null;
     try {
-      conn = connect(getBlankCatalog());
-      Statement statement = conn.createStatement();
-      
-      ResultSet rs = statement.executeQuery(getAllCatalogsSQL());
-      
-      boolean catalogAlreadyExists = false;
-      while (rs.next()) {
-        String name = rs.getString("name");
-        if (name.equals(catalog)) {
-          catalogAlreadyExists = true;
-        }
-      }
-      rs.close();
-      
-      if (!catalogAlreadyExists) {
+      if (!catalogExists(catalog)) {
+        conn = connect(getBlankCatalog());
         String createCatalogSql = getCreateCatalogSQL(catalog);
+        Statement statement = conn.createStatement();
         statement.executeUpdate(createCatalogSql);
+        statement.close();
+        conn.close();
       }
-      
-      statement.close();
       
       if (schema != null) {
         // Connect to the new catalog and create the schema
-        conn.close();
         conn = connect(catalog);
-        statement = conn.createStatement(); 
+        Statement statement = conn.createStatement(); 
       
-        rs = statement.executeQuery(getAllSchemasSQL(catalog));
+        ResultSet rs = statement.executeQuery(getAllSchemasSQL(catalog));
         boolean schemaAlreadyExists = false;
         while (rs.next()) {
           String name = rs.getString("name");
@@ -182,12 +190,16 @@ abstract public class AbstractDBDialect implements DBDialect {
     
     Connection conn = null;
     try {
+      if (!catalogExists(catalog)) {
+        return; // nothing to drop
+      }
+
       conn = connect(catalog);
       Statement statement = conn.createStatement();
       
       // Drop constraints SQL
-      if (getDialect().dropConstraints()) {
-        ResultSet rs = statement.executeQuery(getAllConstraintsSQL(catalog, schema));
+      if (getHibernateDialect().dropConstraints()) {
+        ResultSet rs = statement.executeQuery(getAllForeignKeyConstraintsSQL(catalog, schema));
         while (rs.next()) {
           String name = rs.getString("name");
           String table = rs.getString("table");
@@ -195,7 +207,7 @@ abstract public class AbstractDBDialect implements DBDialect {
           fk.setName(name);
           fk.setTable(new Table(table));
           
-          String dropConstraintSql = fk.sqlDropString(getDialect(), null, schema);
+          String dropConstraintSql = fk.sqlDropString(getHibernateDialect(), null, schema);
           script.add(dropConstraintSql);
         }
         rs.close();
@@ -206,7 +218,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       while (rs.next()) {
         String name = rs.getString("name");
         Table table = new Table(name);
-        String dropTableStr = table.sqlDropString(getDialect(), null, schema);
+        String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
         script.add(dropTableStr);
       }
       rs.close();
@@ -216,14 +228,16 @@ abstract public class AbstractDBDialect implements DBDialect {
         rs = statement.executeQuery(getAllSequencesSQL(catalog, schema));
         while (rs.next()) {
           String name = rs.getString("name");
-          final SequenceStructure sequenceStructure = new SequenceStructure(getDialect(), name, 0, 1);
-          String[] dropSequenceStrings = sequenceStructure.sqlDropStrings(getDialect());
+          final SequenceStructure sequenceStructure = new SequenceStructure(getHibernateDialect(), name, 0, 1);
+          String[] dropSequenceStrings = sequenceStructure.sqlDropStrings(getHibernateDialect());
           script.addAll(Arrays.asList(dropSequenceStrings));
         }
         rs.close();
       }
       
       // Now execute it all
+      statement.close();
+      statement = conn.createStatement();
       for (String sql : script) {
         statement.executeUpdate(sql);
       }

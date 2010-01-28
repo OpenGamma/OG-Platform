@@ -16,7 +16,8 @@ import org.hibernate.dialect.PostgreSQLDialect;
 public class PostgresDialect extends AbstractDBDialect {
   
   private static final String POSTGRES_DEFAULT_SCHEMA = "public";
-  private final static PostgreSQLDialect DIALECT = new PostgreSQLDialect();
+  
+  private PostgreSQLDialect _hibernateDialect = null;
   
   @Override
   public Class<?> getJDBCDriverClass() {
@@ -34,12 +35,12 @@ public class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getAllConstraintsSQL(String catalog, String schema) {
+  public String getAllForeignKeyConstraintsSQL(String catalog, String schema) {
     if (schema == null) {
       schema = POSTGRES_DEFAULT_SCHEMA;
     }
-    String sql = "SELECT constraint_name AS name FROM information_schema.table_constraints WHERE " +
-      "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + schema + "'";
+    String sql = "SELECT constraint_name AS name, table_name as table FROM information_schema.table_constraints WHERE " +
+      "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + schema + "'" + " AND constraint_type = 'FOREIGN KEY'";
     return sql;
   }
 
@@ -79,8 +80,12 @@ public class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
-  public Dialect getDialect() {
-    return DIALECT;
+  public synchronized Dialect getHibernateDialect() {
+    if (_hibernateDialect == null) {
+      // constructed lazily so we don't get log message about 'using dialect' if we're not actually using it
+      _hibernateDialect = new PostgreSQLDialect();
+    }
+    return _hibernateDialect;
   }
 
 }
