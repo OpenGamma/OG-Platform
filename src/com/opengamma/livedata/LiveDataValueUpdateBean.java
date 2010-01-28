@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
@@ -49,11 +49,11 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     return _specification;
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
-    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(RELEVANT_TIMESTAMP_FIELD_NAME, getRelevantTimestamp());
     if(getSpecification() != null) {
-      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeContext));
+      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeMessageFactory));
     }
     if(getFields() != null) {
       msg.add(FIELDS_FIELD_NAME, getFields());

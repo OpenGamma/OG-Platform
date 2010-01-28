@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -57,13 +57,13 @@ public class SubscriptionRequestMessage implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public FudgeFieldContainer toFudgeMsg(FudgeContext context) {
-    MutableFudgeFieldContainer msg = context.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory messageFactory) {
+    MutableFudgeFieldContainer msg = messageFactory.newMessage();
     if(getUserName() != null) {
       msg.add(USER_NAME_FIELD_NAME, getUserName());
     }
     if(getSpecification() != null) {
-      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(context));
+      msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(messageFactory));
     }
     return msg;
   }
