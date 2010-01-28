@@ -8,6 +8,8 @@ package com.opengamma.util.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.dialect.Dialect;
+
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
@@ -17,17 +19,17 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class DBTool {
   
-  private DBDialect _dialect;
+  private AbstractDBDialect _dialect;
   
   public DBTool(String dbServerHost,
       String user,
       String password) {
     
-    Map<String, DBDialect> url2Dialect = new HashMap<String, DBDialect>();
+    Map<String, AbstractDBDialect> url2Dialect = new HashMap<String, AbstractDBDialect>();
     url2Dialect.put("jdbc:postgresql", new PostgresDialect());  // add new supported DB types to this Map
     
     String dbUrlLowercase = dbServerHost.toLowerCase();
-    for (Map.Entry<String, DBDialect> entry : url2Dialect.entrySet()) {
+    for (Map.Entry<String, AbstractDBDialect> entry : url2Dialect.entrySet()) {
       if (dbUrlLowercase.indexOf(entry.getKey()) != -1) {
         _dialect = entry.getValue();        
         break;
@@ -40,8 +42,23 @@ public class DBTool {
     
     _dialect.initialise(dbServerHost, user, password);
   }
+
+
   
+  public void createTestSchema() {
+    createSchema(getTestCatalog(), getTestSchema());
+  }
   
+  public void dropTestSchema() {
+    dropSchema(getTestCatalog(), getTestSchema());
+  }
+  
+  public void clearTestTables() {
+    clearTables(getTestCatalog(), getTestSchema());
+  }
+
+
+ 
   public void createSchema(String catalog, String schema) {
     _dialect.createSchema(catalog, schema);
   }
@@ -54,6 +71,26 @@ public class DBTool {
     _dialect.clearTables(catalog, schema);    
   }
   
+  
+  
+  public String getTestCatalog() {
+    return "security_" + System.getProperty("user.name");    
+  }
+  
+  public String getTestSchema() {
+    return null; // use default    
+  }
+  
+  public String getDefaultCatalog() {
+    return _dialect.getBlankCatalog();    
+  }
+  
+  Dialect getDialect() {
+    return _dialect.getDialect();
+  }
+  
+  
+    
   public static void usage() {
     System.out.println();
     System.out.println("Usage:");    
@@ -107,6 +144,11 @@ public class DBTool {
       else if (arg.equals("--clear")) {
         clear = true;
       }
+      else {
+        System.out.println("Unrecognized option: " + arg);
+        usage();
+        System.exit(-1);
+      }
     }
     
     if (dbUrl == null) {
@@ -145,6 +187,7 @@ public class DBTool {
     }
     
     System.out.println("All tasks succeeded.");
+    System.exit(0);
   }
 
 }

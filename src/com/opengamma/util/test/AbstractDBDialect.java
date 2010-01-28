@@ -30,7 +30,7 @@ abstract public class AbstractDBDialect implements DBDialect {
   private String _dbServerHost;
   private String _user;
   private String _password;
-
+  
   @Override
   public void initialise(String dbServerHost, String user, String password) {
     _dbServerHost = dbServerHost;
@@ -57,7 +57,9 @@ abstract public class AbstractDBDialect implements DBDialect {
   }
   
   public abstract Class<?> getJDBCDriverClass();
-  public abstract String getDefaultCatalog();
+  public abstract String getBlankCatalog();
+  public abstract String getAllCatalogsSQL();
+  public abstract String getAllSchemasSQL(String catalog);
   public abstract String getAllTablesSQL(String catalog, String schema);
   public abstract String getAllSequencesSQL(String catalog, String schema);
   public abstract String getAllConstraintsSQL(String catalog, String schema);
@@ -86,7 +88,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       while (rs.next()) {
         String name = rs.getString("name");
         Table table = new Table(name);
-        script.add("DELETE FROM " + table.getQualifiedName(getDialect(), catalog, schema));
+        script.add("DELETE FROM " + table.getQualifiedName(getDialect(), null, schema));
       }
       rs.close();
             
@@ -114,16 +116,50 @@ abstract public class AbstractDBDialect implements DBDialect {
   public void createSchema(String catalog, String schema) {
     Connection conn = null;
     try {
-      conn = connect(getDefaultCatalog());
+      conn = connect(getBlankCatalog());
       Statement statement = conn.createStatement();
       
-      String createCatalogSql = getCreateCatalogSQL(catalog);
-      statement.executeUpdate(createCatalogSql);
+      ResultSet rs = statement.executeQuery(getAllCatalogsSQL());
       
-      String createSchemaSql = getCreateSchemaSQL(schema);
-      statement.executeUpdate(createSchemaSql);
+      boolean catalogAlreadyExists = false;
+      while (rs.next()) {
+        String name = rs.getString("name");
+        if (name.equals(catalog)) {
+          catalogAlreadyExists = true;
+        }
+      }
+      rs.close();
+      
+      if (!catalogAlreadyExists) {
+        String createCatalogSql = getCreateCatalogSQL(catalog);
+        statement.executeUpdate(createCatalogSql);
+      }
       
       statement.close();
+      
+      if (schema != null) {
+        // Connect to the new catalog and create the schema
+        conn.close();
+        conn = connect(catalog);
+        statement = conn.createStatement(); 
+      
+        rs = statement.executeQuery(getAllSchemasSQL(catalog));
+        boolean schemaAlreadyExists = false;
+        while (rs.next()) {
+          String name = rs.getString("name");
+          if (name.equals(schema)) {
+            schemaAlreadyExists = true;
+          }
+        }
+        rs.close();
+        
+        if (!schemaAlreadyExists) {
+          String createSchemaSql = getCreateSchemaSQL(schema);
+          statement.executeUpdate(createSchemaSql);
+        }
+        
+        statement.close();
+      }
       
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to clear tables", e);
@@ -159,7 +195,7 @@ abstract public class AbstractDBDialect implements DBDialect {
           fk.setName(name);
           fk.setTable(new Table(table));
           
-          String dropConstraintSql = fk.sqlDropString(getDialect(), catalog, schema);
+          String dropConstraintSql = fk.sqlDropString(getDialect(), null, schema);
           script.add(dropConstraintSql);
         }
         rs.close();
@@ -170,7 +206,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       while (rs.next()) {
         String name = rs.getString("name");
         Table table = new Table(name);
-        String dropTableStr = table.sqlDropString(getDialect(), catalog, schema);
+        String dropTableStr = table.sqlDropString(getDialect(), null, schema);
         script.add(dropTableStr);
       }
       rs.close();

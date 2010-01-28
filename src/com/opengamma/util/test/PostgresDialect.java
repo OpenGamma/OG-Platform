@@ -15,29 +15,52 @@ import org.hibernate.dialect.PostgreSQLDialect;
  */
 public class PostgresDialect extends AbstractDBDialect {
   
+  private static final String POSTGRES_DEFAULT_SCHEMA = "public";
   private final static PostgreSQLDialect DIALECT = new PostgreSQLDialect();
   
   @Override
   public Class<?> getJDBCDriverClass() {
     return org.postgresql.Driver.class;
   }
+  
+  @Override
+  public String getAllCatalogsSQL() {
+    return "SELECT datname AS name FROM pg_database";
+  }
+  
+  @Override
+  public String getAllSchemasSQL(String catalog) {
+    return "SELECT nspname AS name from pg_namespace";
+  }
 
   @Override
   public String getAllConstraintsSQL(String catalog, String schema) {
-    return "SELECT constraint_name AS name FROM information_schema.table_constraints WHERE " +
+    if (schema == null) {
+      schema = POSTGRES_DEFAULT_SCHEMA;
+    }
+    String sql = "SELECT constraint_name AS name FROM information_schema.table_constraints WHERE " +
       "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + schema + "'";
+    return sql;
   }
 
   @Override
   public String getAllSequencesSQL(String catalog, String schema) {
-    return "SELECT sequence_name AS name FROM information_schema.sequences WHERE " +
-      "sequence_catalog = '" + catalog + "' AND sequence_schema = '" + schema + "'";
+    if (schema == null) {
+      schema = POSTGRES_DEFAULT_SCHEMA;
+    }
+    String sql = "SELECT sequence_name AS name FROM information_schema.sequences WHERE " +
+      "sequence_catalog = '" + catalog + "'" + " AND sequence_schema = '" + schema + "'";
+    return sql;
   }
 
   @Override
   public String getAllTablesSQL(String catalog, String schema) {
-    return "SELECT table_name AS name FROM information_schema.tables WHERE " +
-      "table_catalog = '" + catalog + "' AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
+    if (schema == null) {
+      schema = POSTGRES_DEFAULT_SCHEMA;
+    }
+    String sql = "SELECT table_name AS name FROM information_schema.tables WHERE " +
+      "table_catalog = '" + catalog + "'" + " AND table_schema = '" + schema + "' AND table_type = 'BASE TABLE'";
+    return sql;
   }
 
   @Override
@@ -51,8 +74,8 @@ public class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getDefaultCatalog() {
-    return "template0";
+  public String getBlankCatalog() {
+    return "template1";
   }
 
   @Override
