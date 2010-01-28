@@ -173,18 +173,7 @@ public class AuditLogEntry {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((_description == null) ? 0 : _description.hashCode());
     result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-    result = prime * result + ((_object == null) ? 0 : _object.hashCode());
-    result = prime * result
-        + ((_operation == null) ? 0 : _operation.hashCode());
-    result = prime * result
-        + ((_originatingSystem == null) ? 0 : _originatingSystem.hashCode());
-    result = prime * result + (_success ? 1231 : 1237);
-    result = prime * result
-        + ((_timestamp == null) ? 0 : _timestamp.hashCode());
-    result = prime * result + ((_user == null) ? 0 : _user.hashCode());
     return result;
   }
 
@@ -197,42 +186,10 @@ public class AuditLogEntry {
     if (getClass() != obj.getClass())
       return false;
     AuditLogEntry other = (AuditLogEntry) obj;
-    if (_description == null) {
-      if (other._description != null)
-        return false;
-    } else if (!_description.equals(other._description))
-      return false;
     if (_id == null) {
       if (other._id != null)
         return false;
     } else if (!_id.equals(other._id))
-      return false;
-    if (_object == null) {
-      if (other._object != null)
-        return false;
-    } else if (!_object.equals(other._object))
-      return false;
-    if (_operation == null) {
-      if (other._operation != null)
-        return false;
-    } else if (!_operation.equals(other._operation))
-      return false;
-    if (_originatingSystem == null) {
-      if (other._originatingSystem != null)
-        return false;
-    } else if (!_originatingSystem.equals(other._originatingSystem))
-      return false;
-    if (_success != other._success)
-      return false;
-    if (_timestamp == null) {
-      if (other._timestamp != null)
-        return false;
-    } else if (!_timestamp.equals(other._timestamp))
-      return false;
-    if (_user == null) {
-      if (other._user != null)
-        return false;
-    } else if (!_user.equals(other._user))
       return false;
     return true;
   }

@@ -19,4 +19,6 @@
     </set>
   </class>
   
+  <query name="UserGroup.one.byName">from UserGroup as a where a.name = :name</query>
+  
 </hibernate-mapping>
