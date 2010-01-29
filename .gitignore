@@ -1,0 +1,10 @@
+*~
+foo~
+*.class
+classes/
+dist/
+ivy/
+tests/classes/
+tests/output/
+build/
+lib/
