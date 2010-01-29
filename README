@@ -13,8 +13,8 @@ To publish changes to the shared repository, use:
 
   ant publish-all
 
-although you should note that you must have //readynas.hq/ogdev mounted on /ogdev on non-Windows platforms and on 
-O:/ on Windows.
+The mount location of //readynas.hq should be O: on windows or /ogdev on Linux. If mounted elsewhere, this can be
+specified as the IVY_SHARED_DEFAULT_ROOT environment variable.
 
 ant -p will give you all the targets available and they're pretty self explainatory.
 

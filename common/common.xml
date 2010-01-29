@@ -16,7 +16,20 @@
 	-->
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
 
+<<<<<<< HEAD
 	<property file="${common.dir}/build.properties" />
+=======
+        <!-- Load the environment variables first -->
+        <property environment="env" />
+        <!-- also, try a property file because some JVMs don't support env properly -->
+        <property file="${user.home}/.OG-Build-common.properties" />
+
+        <!-- project detaults -->
+        <property file="${common.dir}/build.properties" />
+
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
@@ -53,6 +66,10 @@
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
 			classpathref="ivy.lib.path" />
+<<<<<<< HEAD
+=======
+		<echo file="${common.dir}/.ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 
@@ -94,12 +111,36 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
+<<<<<<< HEAD
 	<target name="compile-src" depends="resolve"
+=======
+	<!-- Fudge proto compiler; reduces to a null-op if fudge-proto is not in the ivy dependencies -->
+	<target name="fudge-proto-present" depends="resolve">
+		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+	</target>
+	<target name="fudge-proto-compile" if="fudge.proto.present">
+                <path id="fudge.proto.project.path">
+                        <dirset dir="${projects.dir}">
+                                <include name="**/src" />
+                        </dirset>
+                </path>
+                <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
+                <fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
+	</target>
+	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
+		description="--> compile any Fudge .proto files">
+	</target>
+
+	<target name="compile-src" depends="fudge-proto"
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 		description="--> compile the main project files">
 		<mkdir dir="${classes.dir}" />
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
 			classpathref="lib.path.id" debug="${build.debug}" optimize="${build.optimize}"
+<<<<<<< HEAD
                         memoryMaximumSize="512M" fork="true"
+=======
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 			verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${classes.dir}">
 			<fileset dir="${src.dir}">
@@ -124,7 +165,10 @@
 		</path>
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
 			classpathref="tests.build.classpath.id" debug="${build.debug}"
+<<<<<<< HEAD
                         memoryMaximumSize="512M" fork="true"
+=======
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${tests.classes.dir}">
 			<fileset dir="${tests.src.dir}">
@@ -137,10 +181,17 @@
 
 	<target name="junit-batch" depends="compile-tests">
 		<mkdir dir="${tests.junit.dir}/xml" />
+<<<<<<< HEAD
 		<junit printSummary="true" fork="true" forkmode="perTest" maxmemory="1024M">
 			<classpath>
 	      <path refid="lib.path.id" />
 	      	<pathelement path="${classes.dir}" />
+=======
+		<junit printSummary="true" fork="true" forkmode="once">
+			<classpath>
+	      <path refid="lib.path.id" />
+	      <pathelement path="${classes.dir}" />
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 				<pathelement path="${tests.classes.dir}" />
 			</classpath>
 			<assertions>
@@ -157,6 +208,10 @@
 
 	<target name="junit-report" depends="junit-batch">
 		<mkdir dir="${tests.junit.dir}/html" />
+<<<<<<< HEAD
+=======
+		<mkdir dir="${tests.junit.dir}/xml" />
+>>>>>>> 78e3dbfbacc5e5062a9e5589eef519bb18e98ace
 		<junitreport todir="${tests.junit.dir}/xml">
 			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
 			<report todir="${tests.junit.dir}/html" />
