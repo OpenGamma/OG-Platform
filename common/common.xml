@@ -312,5 +312,27 @@
 	
 	<target name="clean" depends="clean-build, clean-lib, clean-dist"
 		description="--> clean the project" />
+	
+	<target name="run-hbm2ddl" depends="load-ivy,compile"
+		description="--> Generate Hibernate schema from mapping files">
+		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
+			classpathref="lib.path.id" />
+		<mkdir dir="${dbscript.dir}" />  
+		<java classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" failonerror="true" fork="true">
+			<arg value="--server=${jdbc.url}"/>
+			<arg value="--user=${hibernate.connection.username}"/>
+			<arg value="--password=${hibernate.connection.password}"/>
+			<arg value="--create"/>
+			<arg value="--database=blank"/>
+		</java>
+		<hibernatetool destdir="${dbscript.dir}" >
+			<classpath>
+				<path location="${classes.dir}" />
+				<path location="${tests.classes.dir}" />
+			</classpath>
+			<configuration configurationfile="hibernate.cfg.xml"  propertyfile="build.properties"/>
+			<hbm2ddl format="true" outputfilename="hbm2ddl-create-db.sql" />
+		</hibernatetool>
+	</target>
 
 </project>
