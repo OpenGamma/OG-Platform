@@ -29,6 +29,7 @@
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+        <available file="${ivy.jar.file}" property="skip.download"/>
 
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
@@ -125,6 +126,7 @@
 		<mkdir dir="${classes.dir}" />
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
 			classpathref="lib.path.id" debug="${build.debug}" optimize="${build.optimize}"
+                        memoryMaximumSize="512M" fork="true"
 			verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${classes.dir}">
 			<fileset dir="${src.dir}">
@@ -149,6 +151,7 @@
 		</path>
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
 			classpathref="tests.build.classpath.id" debug="${build.debug}"
+                        memoryMaximumSize="512M" fork="true"
 			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${tests.classes.dir}">
 			<fileset dir="${tests.src.dir}">
@@ -161,11 +164,11 @@
 
 	<target name="junit-batch" depends="compile-tests">
 		<mkdir dir="${tests.junit.dir}/xml" />
-		<junit printSummary="true" fork="true" forkmode="once">
+		<junit printSummary="true" fork="true" forkmode="perTest" maxmemory="1024M">
 			<classpath>
 	      <path refid="lib.path.id" />
-	      <pathelement path="${classes.dir}" />
-				<pathelement path="${tests.classes.dir}" />
+	      	<pathelement path="${classes.dir}" />
+        	<pathelement path="${tests.classes.dir}" />
 			</classpath>
 			<assertions>
 				<enable />

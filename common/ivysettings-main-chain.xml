@@ -17,13 +17,10 @@
    under the License.    
 -->
 <ivysettings>
-	<property name="ivy.shared.default.root"             value="/ogdev/shared-repository" />
-	<property name="ivy.shared.default.ivy.pattern"      value="[organization]/[module]/[revision]/ivy.xml" />
-	<property name="ivy.shared.default.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
 	<resolvers>
-		<filesystem name="shared">
-		  <ivy pattern="${ivy.shared.default.root}/${ivy.shared.default.ivy.pattern}" />
-		  <artifact pattern="${ivy.shared.default.root}/${ivy.shared.default.artifact.pattern}" />
-		</filesystem>
+		<chain name="main" returnFirst="true">
+			<resolver ref="shared"/>
+			<resolver ref="public"/>
+		</chain>
 	</resolvers>
 </ivysettings>

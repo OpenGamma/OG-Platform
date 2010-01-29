@@ -33,7 +33,13 @@
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
 	
+	<condition property="ivy.shared.default.root" value="${ivy.shared.default.root.windows}" else="${ivy.shared.default.root.unix}">
+	  <os family="windows"/>
+	</condition>	
+	
 	<import file="git-macros.xml" />
+
+        <available file="${ivy.jar.file}" property="skip.download"/>
 
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
@@ -75,6 +81,7 @@
 		<ivy:buildlist reference="build-path">
 			<fileset dir="projects">
 				<include name="**/build.xml" />
+				<exclude name="Fudge-CSharp/**" />
 				<exclude name="fudgemsg-dist/**" />
 				<exclude name="Hermit/**" />
 				<exclude name="jsr-310-ri-20090901/**" />
@@ -109,9 +116,21 @@
 			<subant target="zipfile" buildpathref="build-path" />
 	</target>
 	
-	<target name="tests" depends="buildlist"
-		    description="run unit tests for all projects">
-			<subant target="tests" buildpathref="build-path" />
+	<target name="tests" depends="junit-batch,junit-report"
+		    description="run unit tests for all projects"/>
+
+	<target name="junit-batch" depends="buildlist">
+		<subant target="junit-batch" buildpathref="build-path">
+			<property name="tests.dir" value="${basedir}/tests"/>
+		</subant>
+        </target>
+
+	<target name="junit-report" depends="junit-batch">
+		<mkdir dir="${tests.junit.dir}/html" />
+		<junitreport todir="${tests.junit.dir}/xml">
+			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
+			<report todir="${tests.junit.dir}/html" />
+		</junitreport>
 	</target>
 	
 	<target name="clean-all" depends="buildlist" description="clean all projects">
@@ -126,7 +145,7 @@
 
 	<target name="clone-or-pull" description="clone or pull all projects from git">
         <mkdir dir="projects"/>
-        <git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
+      	<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
         <git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
