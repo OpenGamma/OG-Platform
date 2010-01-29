@@ -137,7 +137,7 @@
 
 	<target name="junit-batch" depends="compile-tests">
 		<mkdir dir="${tests.junit.dir}/xml" />
-		<junit printSummary="true" fork="true" forkmode="once">
+		<junit printSummary="true" fork="true" forkmode="perTest" maxmemory="1024M">
 			<classpath>
 	      <path refid="lib.path.id" />
 	      	<pathelement path="${classes.dir}" />
