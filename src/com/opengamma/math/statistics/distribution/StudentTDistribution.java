@@ -5,11 +5,12 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import cern.jet.random.StudentT;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
+
+import com.opengamma.math.function.Function1D;
+import com.opengamma.math.function.special.InverseIncompleteBetaFunction;
 
 /**
  * 
@@ -20,12 +21,14 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   private final RandomEngine _randomEngine = new MersenneTwister(1);
   private final double _degFreedom;
   private final StudentT _dist;
+  private final Function1D<Double, Double> _beta;
 
   public StudentTDistribution(final double degFreedom) {
     if (degFreedom < 0)
       throw new IllegalArgumentException("Degrees of freedom must be greater than zero");
     _degFreedom = degFreedom;
     _dist = new StudentT(degFreedom, _randomEngine);
+    _beta = new InverseIncompleteBetaFunction(degFreedom / 2., 0.5);
   }
 
   public StudentTDistribution(final double degFreedom, final RandomEngine engine) {
@@ -35,6 +38,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
       throw new IllegalArgumentException("Engine was null");
     _degFreedom = degFreedom;
     _dist = new StudentT(degFreedom, engine);
+    _beta = new InverseIncompleteBetaFunction(degFreedom / 2., 0.5);
   }
 
   @Override
@@ -58,7 +62,12 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
 
   @Override
   public double getInverseCDF(final Double p) {
-    throw new NotImplementedException();
+    if (p == null)
+      throw new IllegalArgumentException("Probability was null");
+    if (p < 0 || p > 1)
+      throw new IllegalArgumentException("Probability must be between 0 and 1");
+    final double x = _beta.evaluate(2 * Math.min(p, 1 - p));
+    return Math.signum(p - 0.5) * Math.sqrt(_degFreedom * (1. / x - 1));
   }
 
   public double getDegreesOfFreedom() {

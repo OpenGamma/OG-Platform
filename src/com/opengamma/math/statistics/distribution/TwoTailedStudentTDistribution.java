@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.statistics.distribution;
@@ -37,7 +37,7 @@ public class TwoTailedStudentTDistribution implements ProbabilityDistribution<Do
   public double getInverseCDF(final Double p) {
     if (p < 0 || p > 1)
       throw new IllegalArgumentException("p must lie in the range 0 to 1");
-    final Function1D<Double, Double> betaInverse = new InverseIncompleteBetaFunction(1 - p, 0.5 * _degreesOfFreedom);
+    final Function1D<Double, Double> betaInverse = new InverseIncompleteBetaFunction(p, 0.5 * _degreesOfFreedom);
     final double x = betaInverse.evaluate(0.5);
     return Math.sqrt(_degreesOfFreedom * (1 - x) / x);
   }
