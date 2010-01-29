@@ -19,6 +19,11 @@ public interface DBDialect {
   public Dialect getHibernateDialect();
   
   public Class<?> getJDBCDriverClass();
+  
+  /**
+   * @return Database name, all in lower case (derby, postgres, ...)
+   */
+  public String getDatabaseName();
 
   
   /**
@@ -50,6 +55,14 @@ public interface DBDialect {
    * @param Schema name. May be null, in which case database default schema is used.
    */
   public void clearTables(String catalog, String schema);
+  
+  /**
+   * Executes SQL against a database.
+   * 
+   * @param catalog Catalog (= database) name. Not null.
+   * @param sql SQL to execute. Not null.
+   */
+  public void executeSql(String catalog, String sql);
   
 
 }

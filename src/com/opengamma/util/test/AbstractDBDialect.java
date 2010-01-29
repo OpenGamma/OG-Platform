@@ -43,7 +43,7 @@ abstract public class AbstractDBDialect implements DBDialect {
     }
   }
 
-  public String getDbServerHost() {
+  public String getDbHost() {
     return _dbServerHost;
   }
 
@@ -55,14 +55,12 @@ abstract public class AbstractDBDialect implements DBDialect {
     return _password;
   }
   
-  public abstract String getBlankCatalog();
-  public abstract String getAllCatalogsSQL();
   public abstract String getAllSchemasSQL(String catalog);
   public abstract String getAllTablesSQL(String catalog, String schema);
   public abstract String getAllSequencesSQL(String catalog, String schema);
   public abstract String getAllForeignKeyConstraintsSQL(String catalog, String schema);
-  public abstract String getCreateCatalogSQL(String catalog);
   public abstract String getCreateSchemaSQL(String schema);
+  public abstract CatalogCreationStrategy getCatalogCreationStrategy();
   
   protected Connection connect(String catalog) throws SQLException {
     Connection conn = DriverManager.getConnection(_dbServerHost + "/" + catalog, 
@@ -70,7 +68,7 @@ abstract public class AbstractDBDialect implements DBDialect {
     conn.setAutoCommit(true);
     return conn;
   }
-
+  
   @Override
   public void clearTables(String catalog, String schema) {
     // Does not take constraints into account as yet
@@ -78,7 +76,7 @@ abstract public class AbstractDBDialect implements DBDialect {
     
     Connection conn = null;
     try {
-      if (!catalogExists(catalog)) {
+      if (!getCatalogCreationStrategy().catalogExists(catalog)) {
         return; // nothing to clear
       }
       
@@ -91,6 +89,10 @@ abstract public class AbstractDBDialect implements DBDialect {
         String name = rs.getString("name");
         Table table = new Table(name);
         script.add("DELETE FROM " + table.getQualifiedName(getHibernateDialect(), null, schema));
+        
+        if (table.getName().toLowerCase().indexOf("hibernate_sequence") != -1) { // if it's a sequence table, reset it 
+          script.add("INSERT INTO " + table.getQualifiedName(getHibernateDialect(), null, schema) + " values ( 1 )");
+        }
       }
       rs.close();
             
@@ -114,37 +116,11 @@ abstract public class AbstractDBDialect implements DBDialect {
     
   }
   
-  public boolean catalogExists(String catalog) throws SQLException {
-    Connection conn = connect(getBlankCatalog());
-    Statement statement = conn.createStatement();
-    ResultSet rs = statement.executeQuery(getAllCatalogsSQL());
-    
-    boolean catalogAlreadyExists = false;
-    while (rs.next()) {
-      String name = rs.getString("name");
-      if (name.equals(catalog)) {
-        catalogAlreadyExists = true;
-      }
-    }
-    
-    rs.close();
-    conn.close();
-    
-    return catalogAlreadyExists; 
-  }
-  
   @Override
   public void createSchema(String catalog, String schema) {
     Connection conn = null;
     try {
-      if (!catalogExists(catalog)) {
-        conn = connect(getBlankCatalog());
-        String createCatalogSql = getCreateCatalogSQL(catalog);
-        Statement statement = conn.createStatement();
-        statement.executeUpdate(createCatalogSql);
-        statement.close();
-        conn.close();
-      }
+      getCatalogCreationStrategy().create(catalog);
       
       if (schema != null) {
         // Connect to the new catalog and create the schema
@@ -190,7 +166,7 @@ abstract public class AbstractDBDialect implements DBDialect {
     
     Connection conn = null;
     try {
-      if (!catalogExists(catalog)) {
+      if (!getCatalogCreationStrategy().catalogExists(catalog)) {
         return; // nothing to drop
       }
 
@@ -202,7 +178,7 @@ abstract public class AbstractDBDialect implements DBDialect {
         ResultSet rs = statement.executeQuery(getAllForeignKeyConstraintsSQL(catalog, schema));
         while (rs.next()) {
           String name = rs.getString("name");
-          String table = rs.getString("table");
+          String table = rs.getString("table_name");
           ForeignKey fk = new ForeignKey();
           fk.setName(name);
           fk.setTable(new Table(table));
@@ -255,4 +231,50 @@ abstract public class AbstractDBDialect implements DBDialect {
       }
     }
   }
+
+  @Override
+  public void executeSql(String catalog, String sql) {
+    
+    ArrayList<String> sqlStatements = new ArrayList<String>();
+    
+    for (String statement : sql.split(";")) {
+      String[] lines = statement.split("\r\n|\r|\n");
+      StringBuffer fixedSql = new StringBuffer();
+      for (String line : lines) {
+        if (line.startsWith("//") || line.startsWith("--")) {
+          continue; // exclude comment lines
+        }
+        fixedSql.append(line + " ");        
+      }
+      
+      String fixedSqlStr = fixedSql.toString().trim();
+      
+      if (!fixedSqlStr.isEmpty()) {      
+        sqlStatements.add(fixedSqlStr);
+      }
+    }
+    
+    Connection conn = null;
+    try {
+      conn = connect(catalog);
+      
+      Statement statement = conn.createStatement();
+      for (String sqlStatement : sqlStatements) {
+        statement.execute(sqlStatement.toString());
+      }
+      statement.close();
+      
+    } catch (SQLException e) {
+      throw new OpenGammaRuntimeException("Failed to drop schema", e);
+    } finally {
+      try {
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+      }
+    }
+  }
+  
+  
 }

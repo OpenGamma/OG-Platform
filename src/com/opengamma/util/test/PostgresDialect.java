@@ -25,8 +25,8 @@ public class PostgresDialect extends AbstractDBDialect {
   }
   
   @Override
-  public String getAllCatalogsSQL() {
-    return "SELECT datname AS name FROM pg_database";
+  public String getDatabaseName() {
+    return "postgres";
   }
   
   @Override
@@ -39,7 +39,7 @@ public class PostgresDialect extends AbstractDBDialect {
     if (schema == null) {
       schema = POSTGRES_DEFAULT_SCHEMA;
     }
-    String sql = "SELECT constraint_name AS name, table_name as table FROM information_schema.table_constraints WHERE " +
+    String sql = "SELECT constraint_name AS name, table_name FROM information_schema.table_constraints WHERE " +
       "constraint_catalog = '" + catalog + "' AND constraint_schema = '" + schema + "'" + " AND constraint_type = 'FOREIGN KEY'";
     return sql;
   }
@@ -65,18 +65,8 @@ public class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getCreateCatalogSQL(String catalog) {
-    return "CREATE DATABASE " + catalog;
-  }
-
-  @Override
   public String getCreateSchemaSQL(String schema) {
     return "CREATE SCHEMA " + schema;
-  }
-
-  @Override
-  public String getBlankCatalog() {
-    return "template1";
   }
 
   @Override
@@ -87,5 +77,16 @@ public class PostgresDialect extends AbstractDBDialect {
     }
     return _hibernateDialect;
   }
+
+  @Override
+  public CatalogCreationStrategy getCatalogCreationStrategy() {
+    return new SQLCatalogCreationStrategy(
+        getDbHost(), 
+        getUser(), 
+        getPassword(), 
+        "SELECT datname AS name FROM pg_database",
+        "template1");
+  }
+  
 
 }

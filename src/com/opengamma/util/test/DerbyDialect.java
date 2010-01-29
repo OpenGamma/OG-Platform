@@ -7,13 +7,9 @@ package com.opengamma.util.test;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.PostgreSQLDialect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -22,16 +18,9 @@ import com.opengamma.OpenGammaRuntimeException;
  * 
  * @author pietari
  */
-public class DerbyDialect implements DBDialect {
+public class DerbyDialect extends AbstractDBDialect {
 
-  private static final Logger s_logger = LoggerFactory
-      .getLogger(DerbyDialect.class);
-  
   private org.hibernate.dialect.DerbyDialect _hibernateDialect;
-  
-  private String _dbServerHost;
-  private String _user;
-  private String _password;
   
   @Override
   public Class<?> getJDBCDriverClass() {
@@ -39,42 +28,46 @@ public class DerbyDialect implements DBDialect {
   }
   
   @Override
-  public void clearTables(String catalog, String schema) {
-    dropSchema(catalog, schema); // not really correct, but as this dialect is used only for testing do this for now...
-  }
-
-  @Override
-  public void createSchema(String catalog, String schema) {
-    File blankDbDir = new File("blank");
-    try {
-      String connUrl = _dbServerHost + "/" + catalog + ";createFrom=" + blankDbDir.getAbsolutePath();
-      Connection conn = DriverManager.getConnection(connUrl, _user,
-          _password);
-      // this will create a copy of the blank database
-      conn.close();  
-    } catch (SQLException e) {
-      throw new OpenGammaRuntimeException("Cannot create database", e);
-    }
-  }
-
-  @Override
-  public void dropSchema(String catalog, String schema) {
-    recursiveDelete(new File("derby-db"));
-  }
-
-  @Override
-  public void initialise(String dbServerHost, String user, String password) {
-    _dbServerHost = dbServerHost;
-    _user = user;
-    _password = password;
-    
-    try {
-      org.apache.derby.jdbc.EmbeddedDriver.class.newInstance(); // load driver.
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
-    }
+  public String getDatabaseName() {
+    return "derby";
   }
   
+  @Override
+  public String getAllSchemasSQL(String catalog) {
+    return "SELECT schemaid AS name FROM SYS.SYSSCHEMAS";
+  }
+
+  @Override
+  public String getAllForeignKeyConstraintsSQL(String catalog, String schema) {
+    String sql = "SELECT constraintname AS name, " +
+    		"tablename AS table_name " +
+    		"FROM SYS.SYSCONSTRAINTS, SYS.SYSTABLES " +
+    		"WHERE SYS.SYSTABLES.tableid = SYS.SYSCONSTRAINTS.tableid AND type = 'F'";
+    if (schema != null) {
+      sql += " AND schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "'";      
+    }
+    return sql;
+  }
+
+  @Override
+  public String getAllSequencesSQL(String catalog, String schema) {
+    return null; // no sequences in Derby
+  }
+
+  @Override
+  public String getAllTablesSQL(String catalog, String schema) {
+    String sql = "SELECT tablename AS name FROM SYS.SYSTABLES WHERE tabletype = 'T'";
+    if (schema != null) {
+      sql += " AND schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "'";
+    }
+    return sql;
+  }
+
+  @Override
+  public String getCreateSchemaSQL(String schema) {
+    return "CREATE SCHEMA " + schema;
+  }
+
   @Override
   public synchronized Dialect getHibernateDialect() {
     if (_hibernateDialect == null) {
@@ -83,8 +76,42 @@ public class DerbyDialect implements DBDialect {
     }
     return _hibernateDialect;
   }
+  
+  @Override
+  public CatalogCreationStrategy getCatalogCreationStrategy() {
+    return new DerbyCatalogCreationStrategy();
+  }
 
-  private static void recursiveDelete(File file) {
+
+  private class DerbyCatalogCreationStrategy implements CatalogCreationStrategy {
+    
+    private File getFile() {
+      String dbHost = getDbHost().trim();
+      String filePart = dbHost.substring("jdbc:derby:".length());
+      return new File(filePart);
+    }
+
+    @Override
+    public boolean catalogExists(String catalog) {
+      File catalogDir = new File(getFile(), catalog);
+      return catalogDir.exists();
+    }
+
+    @Override
+    public void create(String catalog) {
+      if (!catalogExists(catalog)) {
+        try {
+          Connection conn = connect(catalog + ";create=true");
+          conn.close();
+        } catch (SQLException e) {
+          throw new OpenGammaRuntimeException("Cannot create Derby DB", e);
+        }
+      }
+    }
+    
+  }
+
+  /* private static void recursiveDelete(File file) {
     if (file.isDirectory()) {
       File[] list = file.listFiles();
       for (File entry : list) {
@@ -105,7 +132,6 @@ public class DerbyDialect implements DBDialect {
     } else {
       System.err.println("Deleted " + file.getAbsolutePath());
     }
-
-  }
+  } */
 
 }

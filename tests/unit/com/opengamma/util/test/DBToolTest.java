@@ -19,6 +19,8 @@ import org.hibernate.mapping.Table;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * 
  * 
@@ -54,16 +56,12 @@ public class DBToolTest {
     _tool.dropTestSchema();
 
     // The table should no longer be there
-    Connection connection = getConnection();
-    Statement statement = connection.createStatement();
     try {
-      statement.execute("SELECT * FROM " + TEST_TABLE);
+      _tool.executeSql(_tool.getTestCatalog(), "SELECT * FROM " + TEST_TABLE);
       fail();
-    } catch (SQLException e) {
+    } catch (OpenGammaRuntimeException e) {
       // Ok - no table should be there!
     }
-    statement.close();
-    connection.close();
   }
 
   @Test
@@ -71,16 +69,12 @@ public class DBToolTest {
 
     _tool.createTestSchema();
     createTestTable();
-
-    Connection connection = getConnection();
-    Statement statement = connection.createStatement();
-    statement
-        .execute("INSERT INTO " + TEST_TABLE + " (test_column) VALUES ('test')");
-    statement.close();
+    _tool.executeSql(_tool.getTestCatalog(), "INSERT INTO " + TEST_TABLE + " (test_column) VALUES ('test')");
 
     _tool.clearTestTables();
 
-    statement = connection.createStatement();
+    Connection connection = getConnection();
+    Statement statement = connection.createStatement();
     ResultSet rs = statement
         .executeQuery("SELECT COUNT(*) FROM " + TEST_TABLE);
     if (rs.next()) {
@@ -103,22 +97,18 @@ public class DBToolTest {
   }
 
   private void createTestTable() throws SQLException {
-    Connection connection = getConnection();
-    Statement statement = connection.createStatement();
     Table table = new Table(TEST_TABLE);
     try {
       String dropSql = table.sqlDropString(_tool.getHibernateDialect(), null, _tool
           .getTestSchema());
-      statement.execute(dropSql);
-    } catch (SQLException e) {
+      _tool.executeSql(_tool.getTestCatalog(), dropSql);
+    } catch (OpenGammaRuntimeException e) {
       // It might not exist, that's OK
     }
     String createSql = "CREATE TABLE "
         + table.getQualifiedName(_tool.getHibernateDialect(), null, _tool
             .getTestSchema()) + " (test_column char(50))";
-    statement.execute(createSql);
-    statement.close();
-    connection.close();
+    _tool.executeSql(_tool.getTestCatalog(), createSql);
   }
 
 }

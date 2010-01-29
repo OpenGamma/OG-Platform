@@ -5,9 +5,12 @@
  */
 package com.opengamma.util.test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -77,8 +80,12 @@ public class DBTool {
   
   
   
+  public static String getTestCatalogStatic() {
+    return "test_" + System.getProperty("user.name");
+  }
+  
   public String getTestCatalog() {
-    return "test_" + System.getProperty("user.name");    
+    return getTestCatalogStatic();    
   }
   
   public String getTestSchema() {
@@ -95,6 +102,27 @@ public class DBTool {
   
   public Class<?> getJDBCDriverClass() {
     return _dialect.getJDBCDriverClass();
+  }
+  
+  
+  
+  public void createTestTables() {
+    createTables(getTestCatalog());
+  }
+  
+  public void createTables(String catalog) {
+    File file = new File("db/" + _dialect.getDatabaseName() + "/create-db.sql");
+    String sql;
+    try {
+      sql = FileUtils.readFileToString(file);
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Cannot read file " + file.getAbsolutePath(), e);      
+    }
+    executeSql(catalog, sql);
+  }
+  
+  public void executeSql(String catalog, String sql) {
+    _dialect.executeSql(catalog, sql);    
   }
  
   
@@ -113,6 +141,7 @@ public class DBTool {
     System.out.println("--create Creates the given database/schema");
     System.out.println("--drop Drops all tables and sequences within the given database/schema");
     System.out.println("--clear Clears all tables within the given database/schema");
+    System.out.println("--createTestDatabase Equivalent to --create --database=test_<user.name>");
   }
   
   public static void main(String[] args) {
@@ -151,6 +180,10 @@ public class DBTool {
       }
       else if (arg.equals("--clear")) {
         clear = true;
+      }
+      else if (arg.equalsIgnoreCase("--createTestDatabase")) {
+        create = true;
+        catalog = getTestCatalogStatic(); 
       }
       else {
         System.out.println("Unrecognized option: " + arg);

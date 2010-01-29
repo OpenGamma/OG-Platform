@@ -41,6 +41,7 @@ public abstract class HibernateTest {
     DBTool dbtool = new DBTool(dbHost, user, password);
     dbtool.dropTestSchema(); // make sure it's empty if it already existed
     dbtool.createTestSchema();
+    dbtool.createTestTables();
   }
 
   public abstract Class<?>[] getHibernateMappingClasses();
@@ -61,7 +62,6 @@ public abstract class HibernateTest {
     configuration.setProperty(Environment.PASS, password);
     configuration.setProperty(Environment.DIALECT, dbtool.getHibernateDialect().getClass().getName());
     configuration.setProperty(Environment.SHOW_SQL, "true");
-    configuration.setProperty(Environment.HBM2DDL_AUTO, "create-drop");
     
     for (Class<?> clazz : getHibernateMappingClasses()) {
       configuration.addClass(clazz);
