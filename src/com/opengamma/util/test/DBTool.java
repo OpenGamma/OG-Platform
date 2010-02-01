@@ -141,7 +141,10 @@ public class DBTool {
     System.out.println("--create Creates the given database/schema");
     System.out.println("--drop Drops all tables and sequences within the given database/schema");
     System.out.println("--clear Clears all tables within the given database/schema");
-    System.out.println("--createTestDb Drops schema in database test_<user.name> and recreates it");
+    System.out.println("--createtestdb={dbtype} Drops schema in database test_<user.name> and recreates it.");
+    System.out.println("  {dbtype} should be one of derby, postgres, all.");
+    System.out.println("  Connection parameters are read from test.properties so you do not need");
+    System.out.println("  to specify --server, --user, or --password.");
   }
   
   public static void main(String[] args) {
@@ -151,6 +154,7 @@ public class DBTool {
     String password = null;
     String catalog = null;
     String schema = null;
+    String testDbType = null;
     
     boolean create = false;
     boolean drop = false;
@@ -182,8 +186,9 @@ public class DBTool {
       else if (arg.equals("--clear")) {
         clear = true;
       }
-      else if (arg.equalsIgnoreCase("--createTestDb")) {
+      else if (arg.startsWith("--createtestdb=")) {
         createTestDb = true;
+        testDbType = arg.substring("--createtestdb=".length());
       }
       else {
         System.out.println("Unrecognized option: " + arg);
@@ -192,16 +197,18 @@ public class DBTool {
       }
     }
     
-    if (dbUrl == null) {
-      System.out.println("No DB server specified.");
-      usage();
-      System.exit(-1);
-    }
-    
-    if (catalog == null && !createTestDb) {
-      System.out.println("No database on the DB server specified.");
-      usage();
-      System.exit(-1);
+    if (!createTestDb) {
+      if (dbUrl == null) {
+        System.out.println("No DB server specified.");
+        usage();
+        System.exit(-1);
+      }
+      
+      if (catalog == null) {
+        System.out.println("No database on the DB server specified.");
+        usage();
+        System.exit(-1);
+      }
     }
     
     if (!create && !drop && !clear && !createTestDb) {
@@ -210,28 +217,37 @@ public class DBTool {
       System.exit(-1);
     }
     
-    DBTool dbtool = new DBTool(dbUrl, user, password);
-    
     if (clear) {
       System.out.println("Clearing tables...");
+      DBTool dbtool = new DBTool(dbUrl, user, password);
       dbtool.clearTables(catalog, schema);
     }
     
     if (drop) {
       System.out.println("Dropping schema...");
+      DBTool dbtool = new DBTool(dbUrl, user, password);
       dbtool.dropSchema(catalog, schema);
     }
 
     if (create) {
       System.out.println("Creating schema...");
+      DBTool dbtool = new DBTool(dbUrl, user, password);
       dbtool.createSchema(catalog, schema);      
     }
     
     if (createTestDb) {
-      System.out.println("Creating test database...");
-      dbtool.dropTestSchema(); // make sure it's empty if it already existed
-      dbtool.createTestSchema();
-      dbtool.createTestTables();
+      for (String dbType : TestProperties.getDatabaseTypes(testDbType)) {
+        System.out.println("Creating " + dbType + " test database...");
+        
+        dbUrl = TestProperties.getDbHost(dbType);
+        user = TestProperties.getDbUsername(dbType);
+        password = TestProperties.getDbPassword(dbType);
+        
+        DBTool dbtool = new DBTool(dbUrl, user, password);
+        dbtool.dropTestSchema(); // make sure it's empty if it already existed
+        dbtool.createTestSchema();
+        dbtool.createTestTables();
+      }
     }
     
     System.out.println("All tasks succeeded.");

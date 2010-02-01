@@ -1,23 +1,52 @@
 package com.opengamma.util.test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+import com.opengamma.util.ArgumentChecker;
+
+@RunWith(Parameterized.class)
 public abstract class HibernateTest {
   
-  private static final String PROPS_FILE_NAME = "tests.properties";
-  protected SessionFactory _sessionFactory;
-  private static Properties _props;
+  private String _databaseType;
+  private SessionFactory _sessionFactory;
   private static int testCount = 0;
   
+  protected HibernateTest(String databaseType) {
+    ArgumentChecker.checkNotNull(databaseType, "Database type");
+    _databaseType = databaseType;                
+  }
+  
+  @Parameters
+  public static Collection<Object[]> getDatabaseTypes() {
+    String databaseType = System.getProperty("test.database.type");
+    if (databaseType == null) {
+      databaseType = "derby"; // If you run from Eclipse, use Derby only
+    }
+    
+    if (databaseType.trim().equalsIgnoreCase("all")) {
+      
+      ArrayList<Object[]> allDatabases = new ArrayList<Object[]>();
+      for (String db : TestProperties.getAllSupportedDatabaseTypes()) {
+        allDatabases.add(new Object[] { db });        
+      }
+      return allDatabases;
+
+    } else {
+      return Arrays.asList(new Object[][] { { databaseType } }); 
+    }
+  }
+
   public SessionFactory getSessionFactory() {
     return _sessionFactory;
   }
@@ -25,24 +54,15 @@ public abstract class HibernateTest {
   public void setSessionFactory(SessionFactory sessionFactory) {
     _sessionFactory = sessionFactory;
   }
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    Properties props = new Properties();
-    File file = new File(PROPS_FILE_NAME);
-    System.err.println(file.getAbsoluteFile());
-    props.load(new FileInputStream(file));
-    _props = props;
-  }
-
+  
   public abstract Class<?>[] getHibernateMappingClasses();
 
   @Before
   public void setUp() throws Exception {
-    String dbHost = _props.getProperty("jdbc.url");
-    String user = _props.getProperty("jdbc.username");
-    String password = _props.getProperty("jdbc.password");
-
+    String dbHost = TestProperties.getDbHost(_databaseType);
+    String user = TestProperties.getDbUsername(_databaseType);
+    String password = TestProperties.getDbPassword(_databaseType);
+    
     DBTool dbtool = new DBTool(dbHost, user, password);
     dbtool.clearTestTables();
     

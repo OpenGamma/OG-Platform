@@ -1,0 +1,93 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.util.test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Properties;
+
+import com.opengamma.OpenGammaRuntimeException;
+
+/**
+ * 
+ * 
+ * @author pietari
+ */
+public class TestProperties {
+
+  private static final String PROPS_FILE_NAME = "tests.properties";
+
+  private static Properties _props = null;
+
+  public static synchronized Properties getTestProperties() {
+    if (_props == null) {
+      _props = new Properties();
+      File file = new File(PROPS_FILE_NAME);
+      System.err.println(file.getAbsoluteFile());
+      try {
+        FileInputStream fis = new FileInputStream(file);
+        _props.load(fis);
+        fis.close();
+      } catch (IOException e) {
+        throw new OpenGammaRuntimeException("Could not read " + PROPS_FILE_NAME, e);
+      }
+    }
+    return _props;
+  }
+
+  public static Collection<String> getAllSupportedDatabaseTypes() {
+    return Arrays.asList(new String[] { "derby", "postgres" });
+  }
+
+  /**
+   * @return The command line db type, except if the type is ALL (case
+   *         insensitive), in which case all supported database types are returned.
+   */
+  public static Collection<String> getDatabaseTypes(String commandLineDbType) {
+    ArrayList<String> dbTypes = new ArrayList<String>();
+    if (commandLineDbType.trim().equalsIgnoreCase("all")) {
+      dbTypes.addAll(getAllSupportedDatabaseTypes());
+    } else {
+      dbTypes.add(commandLineDbType);
+    }
+    return dbTypes;
+  }
+
+  public static String getDbHost(String databaseType) {
+    String dbHostProperty = databaseType + ".jdbc.url";
+    String dbHost = getTestProperties().getProperty(dbHostProperty);
+    if (dbHost == null) {
+      throw new OpenGammaRuntimeException("Property " + dbHostProperty
+          + " not found");
+    }
+    return dbHost;
+  }
+
+  public static String getDbUsername(String databaseType) {
+    String userProperty = databaseType + ".jdbc.username";
+    String user = getTestProperties().getProperty(userProperty);
+    if (user == null) {
+      throw new OpenGammaRuntimeException("Property " + userProperty
+          + " not found");
+    }
+    return user;
+  }
+
+  public static String getDbPassword(String databaseType) {
+    String passwordProperty = databaseType + ".jdbc.password";
+    String password = getTestProperties().getProperty(passwordProperty);
+    if (password == null) {
+      throw new OpenGammaRuntimeException("Property " + passwordProperty
+          + " not found");
+    }
+    return password;
+  }
+
+}
