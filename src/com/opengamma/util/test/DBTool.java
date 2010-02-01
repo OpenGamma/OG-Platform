@@ -198,7 +198,7 @@ public class DBTool {
       System.exit(-1);
     }
     
-    if (catalog == null) {
+    if (catalog == null && !createTestDb) {
       System.out.println("No database on the DB server specified.");
       usage();
       System.exit(-1);
