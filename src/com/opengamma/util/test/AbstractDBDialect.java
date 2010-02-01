@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import org.hibernate.id.enhanced.SequenceStructure;
 import org.hibernate.mapping.ForeignKey;
@@ -72,7 +73,7 @@ abstract public class AbstractDBDialect implements DBDialect {
   @Override
   public void clearTables(String catalog, String schema) {
     // Does not take constraints into account as yet
-    ArrayList<String> script = new ArrayList<String>();
+    LinkedList<String> script = new LinkedList<String>();
     
     Connection conn = null;
     try {
@@ -97,12 +98,28 @@ abstract public class AbstractDBDialect implements DBDialect {
       rs.close();
             
       // Now execute it all
-      for (String sql : script) {
-        statement.executeUpdate(sql);
+      int i = 0;
+      int MAX_ATTEMPTS = script.size() * 3;
+      SQLException latestException = null;
+      while (i < MAX_ATTEMPTS && !script.isEmpty()) {
+        String sql = script.remove();
+        try {
+          statement.executeUpdate(sql);
+        } catch (SQLException e) {
+          // assume it failed because of a constraint violation
+          // try deleting other tables first - make this the new last statement
+          latestException = e;
+          script.add(sql);                              
+        }
+        i++;
+      }
+      statement.close();
+      
+      if (i == MAX_ATTEMPTS && !script.isEmpty()) {
+        throw new OpenGammaRuntimeException("Failed to clear tables - is there a circle in the table dependency graph?", latestException); 
       }
       
-      statement.close();
-    
+      
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to clear tables", e);
     } finally {

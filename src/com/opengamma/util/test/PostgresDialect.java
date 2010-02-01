@@ -15,9 +15,18 @@ import org.hibernate.dialect.PostgreSQLDialect;
  */
 public class PostgresDialect extends AbstractDBDialect {
   
+  private static final PostgresDialect INSTANCE = new PostgresDialect();
+  
   private static final String POSTGRES_DEFAULT_SCHEMA = "public";
   
   private PostgreSQLDialect _hibernateDialect = null;
+  
+  private PostgresDialect() {
+  }
+  
+  public static PostgresDialect getInstance() {
+    return INSTANCE;
+  }  
   
   @Override
   public Class<?> getJDBCDriverClass() {

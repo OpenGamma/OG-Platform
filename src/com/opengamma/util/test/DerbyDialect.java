@@ -7,6 +7,7 @@ package com.opengamma.util.test;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.hibernate.dialect.Dialect;
@@ -19,9 +20,41 @@ import com.opengamma.OpenGammaRuntimeException;
  * @author pietari
  */
 public class DerbyDialect extends AbstractDBDialect {
+  
+  private final static DerbyDialect INSTANCE = new DerbyDialect(); 
+  
+  private boolean needsShutdown = false;
 
   private org.hibernate.dialect.DerbyDialect _hibernateDialect;
   
+  private DerbyDialect() {
+  }
+  
+  public static DerbyDialect getInstance() {
+    return INSTANCE;
+  }
+  
+  @Override
+  public synchronized void initialise(String dbServerHost, String user, String password) {
+    // Have to do this, otherwise we get all kinds of nasty issues 
+    // with table locks when running multiple JUnit tests in sequence on the 
+    // same VM
+   if (needsShutdown) {
+      try {
+        DriverManager.getConnection("jdbc:derby:;shutdown=true");
+      } catch (SQLException e) {
+        if (e.getErrorCode() == 50000 && "XJ015".equals(e.getSQLState())) {
+          // OK
+        } else {
+          throw new OpenGammaRuntimeException("Could not shutdown Derby", e);        
+        }
+      }
+    }
+    
+    super.initialise(dbServerHost, user, password);
+    needsShutdown = true;
+  }
+
   @Override
   public Class<?> getJDBCDriverClass() {
     return org.apache.derby.jdbc.EmbeddedDriver.class;

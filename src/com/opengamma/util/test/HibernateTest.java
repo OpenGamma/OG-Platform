@@ -33,15 +33,6 @@ public abstract class HibernateTest {
     System.err.println(file.getAbsoluteFile());
     props.load(new FileInputStream(file));
     _props = props;
-    
-    String dbHost = _props.getProperty("jdbc.url");
-    String user = _props.getProperty("jdbc.username");
-    String password = _props.getProperty("jdbc.password");
-
-    DBTool dbtool = new DBTool(dbHost, user, password);
-    dbtool.dropTestSchema(); // make sure it's empty if it already existed
-    dbtool.createTestSchema();
-    dbtool.createTestTables();
   }
 
   public abstract Class<?>[] getHibernateMappingClasses();

@@ -32,8 +32,8 @@ public class DBTool {
     _dbServerHost = dbServerHost;
     
     Map<String, DBDialect> url2Dialect = new HashMap<String, DBDialect>();
-    url2Dialect.put("jdbc:postgresql", new PostgresDialect());  // add new supported DB types to this Map
-    url2Dialect.put("jdbc:derby", new DerbyDialect());  // add new supported DB types to this Map
+    url2Dialect.put("jdbc:postgresql", PostgresDialect.getInstance());  // add new supported DB types to this Map
+    url2Dialect.put("jdbc:derby", DerbyDialect.getInstance());  // add new supported DB types to this Map
     
     String dbUrlLowercase = dbServerHost.toLowerCase();
     for (Map.Entry<String, DBDialect> entry : url2Dialect.entrySet()) {
@@ -141,7 +141,7 @@ public class DBTool {
     System.out.println("--create Creates the given database/schema");
     System.out.println("--drop Drops all tables and sequences within the given database/schema");
     System.out.println("--clear Clears all tables within the given database/schema");
-    System.out.println("--createTestDatabase Equivalent to --create --database=test_<user.name>");
+    System.out.println("--createTestDb Drops schema in database test_<user.name> and recreates it");
   }
   
   public static void main(String[] args) {
@@ -155,6 +155,7 @@ public class DBTool {
     boolean create = false;
     boolean drop = false;
     boolean clear = false;
+    boolean createTestDb = false;
     
     for (String arg : args) {
       if (arg.startsWith("--server=")) {
@@ -181,9 +182,8 @@ public class DBTool {
       else if (arg.equals("--clear")) {
         clear = true;
       }
-      else if (arg.equalsIgnoreCase("--createTestDatabase")) {
-        create = true;
-        catalog = getTestCatalogStatic(); 
+      else if (arg.equalsIgnoreCase("--createTestDb")) {
+        createTestDb = true;
       }
       else {
         System.out.println("Unrecognized option: " + arg);
@@ -204,7 +204,7 @@ public class DBTool {
       System.exit(-1);
     }
     
-    if (!create && !drop && !clear) {
+    if (!create && !drop && !clear && !createTestDb) {
       System.out.println("Nothing to do.");
       usage();
       System.exit(-1);
@@ -225,6 +225,13 @@ public class DBTool {
     if (create) {
       System.out.println("Creating schema...");
       dbtool.createSchema(catalog, schema);      
+    }
+    
+    if (createTestDb) {
+      System.out.println("Creating test database...");
+      dbtool.dropTestSchema(); // make sure it's empty if it already existed
+      dbtool.createTestSchema();
+      dbtool.createTestTables();
     }
     
     System.out.println("All tasks succeeded.");
