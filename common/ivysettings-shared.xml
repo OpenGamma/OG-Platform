@@ -17,7 +17,7 @@
    under the License.    
 -->
 <ivysettings>
-	<property name="ivy.shared.default.root"             value="/ogdev/shared-repository" />
+	<property name="ivy.shared.default.root"             value="${env.IVY_SHARED_DEFAULT_ROOT}" />
 	<property name="ivy.shared.default.ivy.pattern"      value="[organization]/[module]/[revision]/ivy.xml" />
 	<property name="ivy.shared.default.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
 	<resolvers>
