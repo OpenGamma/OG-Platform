@@ -31,6 +31,10 @@ public class HibernateUserManagerTest extends HibernateTest {
   private TransactionStatus _transaction;
   private HibernateUserManager _userManager;
   
+  public HibernateUserManagerTest(String databaseType) {
+    super(databaseType);
+  }
+  
   @Override
   public Class<?>[] getHibernateMappingClasses() {
     return new Class[] { User.class, UserGroup.class, Authority.class };
