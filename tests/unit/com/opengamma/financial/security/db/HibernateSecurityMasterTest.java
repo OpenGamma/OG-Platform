@@ -24,7 +24,12 @@ import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.test.HibernateTest;
 
 public class HibernateSecurityMasterTest extends HibernateTest {
+  
   private HibernateSecurityMaster _secMaster;
+  
+  public HibernateSecurityMasterTest(String databaseType) {
+    super(databaseType);
+  }
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
