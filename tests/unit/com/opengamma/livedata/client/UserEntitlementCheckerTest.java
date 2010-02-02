@@ -35,12 +35,12 @@ public class UserEntitlementCheckerTest {
     
     Set<UserGroup> userGroups = new HashSet<UserGroup>();
 
-    UserGroup group1 = new UserGroup("group1");
-    group1.getAuthorities().add(new Authority("/MarketData/Bloomberg/EQ*"));
+    UserGroup group1 = new UserGroup(0L, "group1");
+    group1.getAuthorities().add(new Authority(0L, "/MarketData/Bloomberg/EQ*"));
     userGroups.add(group1);
     
-    UserGroup group2 = new UserGroup("group2");
-    group2.getAuthorities().add(new Authority("/MarketData/Reuters/EQ*"));
+    UserGroup group2 = new UserGroup(1L, "group2");
+    group2.getAuthorities().add(new Authority(1L, "/MarketData/Reuters/EQ*"));
     userGroups.add(group2);
     
     User user = new User(null,
