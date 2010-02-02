@@ -23,13 +23,17 @@ import com.opengamma.OpenGammaRuntimeException;
 public class DBTool {
   
   private DBDialect _dialect;
-  private String _dbServerHost;
+  private final String _dbServerHost;
+  private final String _user;
+  private final String _password;
   
   public DBTool(String dbServerHost,
       String user,
       String password) {
     
     _dbServerHost = dbServerHost;
+    _user = user;
+    _password = password;
     
     Map<String, DBDialect> url2Dialect = new HashMap<String, DBDialect>();
     url2Dialect.put("jdbc:postgresql", PostgresDialect.getInstance());  // add new supported DB types to this Map
@@ -49,9 +53,19 @@ public class DBTool {
     
     _dialect.initialise(dbServerHost, user, password);
   }
-
-
   
+  
+  
+  public String getUser() {
+    return _user;
+  }
+
+  public String getPassword() {
+    return _password;
+  }
+
+
+
   public void createTestSchema() {
     createSchema(getTestCatalog(), getTestSchema());
   }

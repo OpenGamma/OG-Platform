@@ -1,45 +1,20 @@
 package com.opengamma.util.test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
-import com.opengamma.util.ArgumentChecker;
-
-@RunWith(Parameterized.class)
-public abstract class HibernateTest {
+public abstract class HibernateTest extends DBTest {
   
-  private String _databaseType;
   private SessionFactory _sessionFactory;
   private static int testCount = 0;
   
   protected HibernateTest(String databaseType) {
-    ArgumentChecker.checkNotNull(databaseType, "Database type");
-    _databaseType = databaseType;                
+    super(databaseType);
   }
   
-  @Parameters
-  public static Collection<Object[]> getDatabaseTypes() {
-    String databaseType = System.getProperty("test.database.type");
-    if (databaseType == null) {
-      databaseType = "derby"; // If you run from Eclipse, use Derby only
-    }
-    
-    ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
-    for (String db : TestProperties.getDatabaseTypes(databaseType)) {
-      returnValue.add(new Object[] { db });      
-    }
-    return returnValue;
-  }
-
   public SessionFactory getSessionFactory() {
     return _sessionFactory;
   }
@@ -52,19 +27,14 @@ public abstract class HibernateTest {
 
   @Before
   public void setUp() throws Exception {
-    String dbHost = TestProperties.getDbHost(_databaseType);
-    String user = TestProperties.getDbUsername(_databaseType);
-    String password = TestProperties.getDbPassword(_databaseType);
-    
-    DBTool dbtool = new DBTool(dbHost, user, password);
-    dbtool.clearTestTables();
+    super.setUp();
     
     Configuration configuration = new Configuration();
-    configuration.setProperty(Environment.DRIVER, dbtool.getJDBCDriverClass().getName());
-    configuration.setProperty(Environment.URL, dbtool.getTestDatabaseURL());
-    configuration.setProperty(Environment.USER, user);
-    configuration.setProperty(Environment.PASS, password);
-    configuration.setProperty(Environment.DIALECT, dbtool.getHibernateDialect().getClass().getName());
+    configuration.setProperty(Environment.DRIVER, getDbTool().getJDBCDriverClass().getName());
+    configuration.setProperty(Environment.URL, getDbTool().getTestDatabaseURL());
+    configuration.setProperty(Environment.USER, getDbTool().getUser());
+    configuration.setProperty(Environment.PASS, getDbTool().getPassword());
+    configuration.setProperty(Environment.DIALECT, getDbTool().getHibernateDialect().getClass().getName());
     configuration.setProperty(Environment.SHOW_SQL, "true");
     
     for (Class<?> clazz : getHibernateMappingClasses()) {
