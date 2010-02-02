@@ -17,7 +17,7 @@
    under the License.    
 -->
 <ivysettings>
-	<include url=".ivy.shared.default.root" />
+	<include url="ivy.shared.default.root" />
 	<property name="ivy.shared.default.ivy.pattern"      value="[organization]/[module]/[revision]/ivy.xml" />
 	<property name="ivy.shared.default.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
 	<resolvers>
