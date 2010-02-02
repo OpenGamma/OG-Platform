@@ -46,6 +46,7 @@ public class DBToolTest {
     _password = props.getProperty("jdbc.password");
 
     _tool = new DBTool(_dbHost, _user, _password);
+    _tool.initialise();
   }
 
   @Test

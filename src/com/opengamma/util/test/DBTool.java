@@ -50,10 +50,13 @@ public class DBTool {
     if (_dialect == null) {
       throw new OpenGammaRuntimeException("Database " + dbServerHost + " not supported. The database URL must contain one of: " + url2Dialect.entrySet());
     }
-    
-    _dialect.initialise(dbServerHost, user, password);
   }
   
+  
+  
+  public void initialise() {
+    _dialect.initialise(_dbServerHost, _user, _password);
+  }
   
   
   public String getUser() {
@@ -234,18 +237,21 @@ public class DBTool {
     if (clear) {
       System.out.println("Clearing tables...");
       DBTool dbtool = new DBTool(dbUrl, user, password);
+      dbtool.initialise();
       dbtool.clearTables(catalog, schema);
     }
     
     if (drop) {
       System.out.println("Dropping schema...");
       DBTool dbtool = new DBTool(dbUrl, user, password);
+      dbtool.initialise();
       dbtool.dropSchema(catalog, schema);
     }
 
     if (create) {
       System.out.println("Creating schema...");
       DBTool dbtool = new DBTool(dbUrl, user, password);
+      dbtool.initialise();
       dbtool.createSchema(catalog, schema);      
     }
     
@@ -258,6 +264,7 @@ public class DBTool {
         password = TestProperties.getDbPassword(dbType);
         
         DBTool dbtool = new DBTool(dbUrl, user, password);
+        dbtool.initialise();
         dbtool.dropTestSchema(); // make sure it's empty if it already existed
         dbtool.createTestSchema();
         dbtool.createTestTables();

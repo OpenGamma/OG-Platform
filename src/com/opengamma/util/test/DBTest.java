@@ -53,6 +53,7 @@ abstract public class DBTest {
   
   @Before
   public void setUp() throws Exception {
+    _dbtool.initialise(); // avoids locking issues with Derby
     _dbtool.clearTestTables();
   }
 
