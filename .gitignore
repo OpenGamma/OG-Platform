@@ -8,3 +8,6 @@ tests/classes/
 tests/output/
 build/
 lib/
+derby.log
+db/
+!db/*/create-db.sql
