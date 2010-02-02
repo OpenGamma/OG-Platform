@@ -11,8 +11,9 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -124,8 +125,8 @@ public class AuditLogEntry {
     _timestamp = timestamp;
   }
   
-  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add("user", getUser());
     msg.add("originatingSystem", getOriginatingSystem());
     msg.add("object", getObject());
@@ -139,7 +140,7 @@ public class AuditLogEntry {
     return msg;
   }
   
-  public static AuditLogEntry fromFudgeMsg(FudgeMsg msg) {
+  public static AuditLogEntry fromFudgeMsg(FudgeFieldContainer msg) {
     String user = msg.getString("user");
     String originatingSystem = msg.getString("originatingSystem");
     String object = msg.getString("object");
