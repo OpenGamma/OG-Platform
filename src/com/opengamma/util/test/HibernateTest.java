@@ -1,32 +1,45 @@
 package com.opengamma.util.test;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+import com.opengamma.util.ArgumentChecker;
+
+@RunWith(Parameterized.class)
 public abstract class HibernateTest {
-  private static final Logger s_logger = LoggerFactory
-      .getLogger(HibernateTest.class);
-  private static final String PROPS_FILE_NAME = "tests.properties";
-  protected SessionFactory _sessionFactory;
-  private static Properties _props;
-  private static boolean _isDerby;
+  
+  private String _databaseType;
+  private SessionFactory _sessionFactory;
   private static int testCount = 0;
   
+  protected HibernateTest(String databaseType) {
+    ArgumentChecker.checkNotNull(databaseType, "Database type");
+    _databaseType = databaseType;                
+  }
+  
+  @Parameters
+  public static Collection<Object[]> getDatabaseTypes() {
+    String databaseType = System.getProperty("test.database.type");
+    if (databaseType == null) {
+      databaseType = "derby"; // If you run from Eclipse, use Derby only
+    }
+    
+    ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
+    for (String db : TestProperties.getDatabaseTypes(databaseType)) {
+      returnValue.add(new Object[] { db });      
+    }
+    return returnValue;
+  }
+
   public SessionFactory getSessionFactory() {
     return _sessionFactory;
   }
@@ -34,92 +47,25 @@ public abstract class HibernateTest {
   public void setSessionFactory(SessionFactory sessionFactory) {
     _sessionFactory = sessionFactory;
   }
-
-  private static void recursiveDelete(File file) {
-    if (file.isDirectory()) {
-      File[] list = file.listFiles();
-      for (File entry : list) {
-        if (entry.isDirectory()) {
-          recursiveDelete(entry);
-        }
-        if (!entry.delete()) {
-          s_logger.warn("Could not delete file:" + file.getAbsolutePath());
-          // throw new
-          // OpenGammaRuntimeException("Could not delete file:"+entry.getAbsolutePath());
-        } else {
-          System.err.println("Deleted " + entry.getAbsolutePath());
-        }
-      }
-    }
-    if (!file.delete()) {
-      s_logger.warn("Could not delete file:" + file.getAbsolutePath());
-    } else {
-      System.err.println("Deleted " + file.getAbsolutePath());
-    }
-
-  }
-
-  private String getDBUrl(boolean createFrom) {
-    if (_isDerby) {
-      File blankDbDir = new File("blank");
-      String core = "/" + this.getClass().getSimpleName() + "-test-"
-          + testCount;
-      if (createFrom) {
-        return core + ";createFrom=" + blankDbDir.getAbsolutePath();
-      } else {
-        return core;
-      }
-
-    } else {
-      return "/OpenGammaTests";
-    }
-  }
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    Properties props = new Properties();
-    File file = new File(PROPS_FILE_NAME);
-    System.err.println(file.getAbsoluteFile());
-    props.load(new FileInputStream(file));
-    _props = props;
-
-    String jdbcDriverClass = ((String) _props.get("jdbc.driver.classname")).trim();
-    _isDerby = jdbcDriverClass.equals("org.apache.derby.jdbc.EmbeddedDriver");
-
-    if (_isDerby) {
-      recursiveDelete(new File("derby-db"));
-    }
-
-    Class.forName(jdbcDriverClass).newInstance(); // load driver.
-  }
-
+  
   public abstract Class<?>[] getHibernateMappingClasses();
 
   @Before
   public void setUp() throws Exception {
-    String createFromUrl = _props.getProperty("jdbc.url") + getDBUrl(true);
-    System.err.println("Connecting with data source URL " + createFromUrl);
-
-    String user = _props.getProperty("jdbc.username");
-    String password = _props.getProperty("jdbc.password");
-
-    if (_isDerby) {
-      Connection conn = DriverManager.getConnection(createFromUrl, user,
-          password);
-      // this will create a copy of the blank database, using
-      conn.close(); // that should do the copy... we do it like this because I'm
-                    // unsure if we can be sure the App Context will release the
-                    // resources if we used that.
-      System.err.println("closed connection, starting App Context");
-    }
-
+    String dbHost = TestProperties.getDbHost(_databaseType);
+    String user = TestProperties.getDbUsername(_databaseType);
+    String password = TestProperties.getDbPassword(_databaseType);
+    
+    DBTool dbtool = new DBTool(dbHost, user, password);
+    dbtool.clearTestTables();
+    
     Configuration configuration = new Configuration();
-    configuration.setProperty(Environment.DRIVER, _props.getProperty("jdbc.driver.classname"));
-    configuration.setProperty(Environment.URL, _props.getProperty("jdbc.url") + getDBUrl(false));
-    configuration.setProperty(Environment.USER, _props.getProperty("jdbc.username"));
-    configuration.setProperty(Environment.DIALECT, _props.getProperty("hibernate.dialect"));
+    configuration.setProperty(Environment.DRIVER, dbtool.getJDBCDriverClass().getName());
+    configuration.setProperty(Environment.URL, dbtool.getTestDatabaseURL());
+    configuration.setProperty(Environment.USER, user);
+    configuration.setProperty(Environment.PASS, password);
+    configuration.setProperty(Environment.DIALECT, dbtool.getHibernateDialect().getClass().getName());
     configuration.setProperty(Environment.SHOW_SQL, "true");
-    configuration.setProperty(Environment.HBM2DDL_AUTO, "create-drop");
     
     for (Class<?> clazz : getHibernateMappingClasses()) {
       configuration.addClass(clazz);
@@ -129,5 +75,12 @@ public abstract class HibernateTest {
     setSessionFactory(sessionFactory);
 
     testCount++;
+  }
+  
+  @After
+  public void tearDown() throws Exception {
+    if (_sessionFactory != null) {
+      _sessionFactory.close();
+    }
   }
 }
