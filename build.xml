@@ -33,10 +33,6 @@
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
 	
-	<condition property="ivy.shared.default.root" value="${ivy.shared.default.root.windows}" else="${ivy.shared.default.root.unix}">
-	  <os family="windows"/>
-	</condition>	
-	
 	<import file="git-macros.xml" />
 
         <available file="${ivy.jar.file}" property="skip.download"/>
