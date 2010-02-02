@@ -1,81 +1,72 @@
-/**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
- * Please see distribution for license.
- */
+// automatically created - Mon Feb 01 16:44:12 GMT 2010
+// created from /home/andrew/OpenGamma/OG-Build/projects/OG-Engine/src/com/opengamma/engine/value/ValueSpecification.proto:9(10)
 package com.opengamma.engine.value;
-
-import java.io.Serializable;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-
-import com.opengamma.util.ArgumentChecker;
-
-/**
- * Encodes full metadata about a particular {@link ComputedValue}.
- *
- * @author kirk
- */
-public class ValueSpecification implements Serializable {
-  private final ValueRequirement _requirementSpecification;
-  // TODO kirk 2009-12-30 -- Add metadata.
-  
-  public ValueSpecification(ValueRequirement requirementSpecification) {
-    ArgumentChecker.checkNotNull(requirementSpecification, "Value requirement specification");
-    _requirementSpecification = requirementSpecification;
-  }
-
-  /**
-   * @return the requirementSpecification
-   */
-  public ValueRequirement getRequirementSpecification() {
-    return _requirementSpecification;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if(this == obj) {
-      return true;
+public class ValueSpecification implements Cloneable {
+  private final com.opengamma.engine.value.ValueRequirement _requirementSpecification;
+  public static final String REQUIREMENTSPECIFICATION_KEY = "requirementSpecification";
+  public ValueSpecification (com.opengamma.engine.value.ValueRequirement requirementSpecification) {
+    if (requirementSpecification == null) throw new NullPointerException ("'requirementSpecification' cannot be null");
+    else {
+      _requirementSpecification = requirementSpecification;
     }
-    if(obj == null) {
-      return false;
-    }
-    if(!(obj instanceof ValueSpecification)) {
-      return false;
-    }
-    ValueSpecification other = (ValueSpecification) obj;
-    if(!ObjectUtils.equals(_requirementSpecification, other._requirementSpecification)) {
-      return false;
-    }
-    return true;
   }
-
-  @Override
-  public int hashCode() {
-    int prime = 37;
-    int result = 1;
-    result = (result * prime) + getRequirementSpecification().hashCode();
-    return result;
+  protected ValueSpecification (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+    org.fudgemsg.FudgeField fudgeField;
+    Object fudge0;
+    fudgeField = fudgeMsg.getByName (REQUIREMENTSPECIFICATION_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a ValueSpecification - field 'requirementSpecification' is not present");
+    fudge0 = fudgeField.getValue ();
+    if (!(fudge0 instanceof org.fudgemsg.FudgeFieldContainer)) throw new IllegalArgumentException ("Fudge message is not a ValueSpecification - field 'requirementSpecification' is not ValueRequirement message");
+    try {
+      _requirementSpecification = fudgeContext.fudgeMsgToObject (com.opengamma.engine.value.ValueRequirement.class, (org.fudgemsg.FudgeFieldContainer)fudge0);
+    }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a ValueSpecification - field 'requirementSpecification' is not ValueRequirement message", e);
+    }
   }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  protected ValueSpecification (final ValueSpecification source) {
+    if (source == null) throw new NullPointerException ("'source' must not be null");
+    if (source._requirementSpecification == null) _requirementSpecification = null;
+    else {
+      _requirementSpecification = source._requirementSpecification;
+    }
   }
-  
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
-    _requirementSpecification.writeFields(msg);
+  public org.fudgemsg.FudgeFieldContainer toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext) {
+    if (fudgeContext == null) throw new NullPointerException ("fudgeContext must not be null");
+    final org.fudgemsg.MutableFudgeFieldContainer msg = fudgeContext.newMessage ();
+    toFudgeMsg (fudgeContext, msg);
     return msg;
   }
-  
-  public static ValueSpecification fromFudgeMsg(FudgeFieldContainer msg) {
-    return new ValueSpecification(ValueRequirement.fromFudge(msg));
+  public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializationContext fudgeContext, final org.fudgemsg.MutableFudgeFieldContainer msg) {
+    if (_requirementSpecification != null)  {
+      msg.add (REQUIREMENTSPECIFICATION_KEY, null, fudgeContext.objectToFudgeMsg (_requirementSpecification));
+    }
   }
-
+  public static ValueSpecification fromFudgeMsg (final org.fudgemsg.mapping.FudgeDeserializationContext fudgeContext, final org.fudgemsg.FudgeFieldContainer fudgeMsg) {
+    return new ValueSpecification (fudgeContext, fudgeMsg);
+  }
+  public com.opengamma.engine.value.ValueRequirement getRequirementSpecification () {
+    return _requirementSpecification;
+  }
+  public boolean equals (final Object o) {
+    if (o == null) return false;
+    if (!(o instanceof ValueSpecification)) return false;
+    final ValueSpecification msg = (ValueSpecification)o;
+    if (_requirementSpecification != null) if (msg._requirementSpecification != null)  {
+      if (!_requirementSpecification.equals (msg._requirementSpecification)) return false;
+    }
+    else return false;
+    else if (msg._requirementSpecification != null) return false;
+    return true;
+  }
+  public int hashCode () {
+    int hc;
+    hc = 1;
+    hc = hc * 31;
+    if (_requirementSpecification != null) hc = hc + _requirementSpecification.hashCode ();
+    return hc;
+  }
+  public ValueSpecification clone () {
+    return new ValueSpecification (this);
+  }
 }

@@ -17,6 +17,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
@@ -101,22 +103,22 @@ public class CalculationJob implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
+  //public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+  public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     getSpecification().writeFields(msg);
     getComputationTargetSpecification().writeFields(msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     
     for(ValueSpecification inputSpecification : getInputs()) {
-      msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeMessageFactory));
+      msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
     }
     
     return msg;
   }
 
-  public static CalculationJob fromFudgeMsg(FudgeMsgEnvelope envelope) {
-    FudgeFieldContainer msg = envelope.getMessage();
-    
+  //public static CalculationJob fromFudgeMsg(FudgeMsgEnvelope envelope) {
+  public static CalculationJob fromFudgeMsg (FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
     String viewName = msg.getString(CalculationJobSpecification.VIEW_NAME_FIELD_NAME);
     long iterationTimestamp = msg.getLong(CalculationJobSpecification.ITERATION_TIMESTAMP_FIELD_NAME);
     long jobId = msg.getLong(CalculationJobSpecification.JOB_ID_FIELD_NAME);
@@ -126,7 +128,7 @@ public class CalculationJob implements Serializable {
     
     List<ValueSpecification> inputs = new ArrayList<ValueSpecification>();
     for(FudgeField field : msg.getAllByName(INPUT_FIELD_NAME)) {
-      ValueSpecification inputSpecification = ValueSpecification.fromFudgeMsg((FudgeFieldContainer)field.getValue());
+      ValueSpecification inputSpecification = ValueSpecification.fromFudgeMsg(fudgeContext, (FudgeFieldContainer)field.getValue());
       inputs.add(inputSpecification);
     }
     
