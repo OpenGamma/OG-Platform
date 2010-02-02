@@ -26,9 +26,14 @@ public class Authority {
   
   /** A regular expression in Ant format **/
   private String _authority;
+  
+  public Authority(Long id, String authority) {
+    _id = id;
+    _authority = authority;
+  }
 
   public Authority(String authority) {
-    _authority = authority;
+    this(null, authority);
   }
   
   protected Authority() {

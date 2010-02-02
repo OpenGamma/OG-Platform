@@ -23,7 +23,8 @@ public class UserGroup {
   protected UserGroup() {
   }
   
-  public UserGroup(String name) {
+  public UserGroup(Long id, String name) {
+    _id = id;
     _name = name;
   }
   

@@ -25,6 +25,10 @@ import com.opengamma.util.test.HibernateTest;
  */
 public class HibernateAuditLoggerTest extends HibernateTest {
   
+  public HibernateAuditLoggerTest(String databaseType) {
+    super(databaseType);
+  }
+  
   @Override
   public Class<?>[] getHibernateMappingClasses() {
     return new Class[] { AuditLogEntry.class };

@@ -23,11 +23,11 @@ public class UserTest {
   public void testPermissioning() {
     User user = new User();
     
-    UserGroup group1 = new UserGroup("group1");
-    group1.getAuthorities().add(new Authority("/Portfolio/123456/*"));
+    UserGroup group1 = new UserGroup(0L, "group1");
+    group1.getAuthorities().add(new Authority(0L, "/Portfolio/123456/*"));
     
-    UserGroup group2 = new UserGroup("group2");
-    group2.getAuthorities().add(new Authority("/Portfolio/7890/Read"));
+    UserGroup group2 = new UserGroup(1L, "group2");
+    group2.getAuthorities().add(new Authority(1L, "/Portfolio/7890/Read"));
     
     user.getUserGroups().add(group1);
     user.getUserGroups().add(group2);
