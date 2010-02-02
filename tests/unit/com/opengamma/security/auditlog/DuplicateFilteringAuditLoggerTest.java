@@ -26,7 +26,7 @@ public class DuplicateFilteringAuditLoggerTest {
     log5Messages(filteringLogger);
     assertEquals(5, memoryLogger.getMessages().size());
     
-    Thread.sleep(1000);
+    Thread.sleep(1500);
     
     log5Messages(filteringLogger);
     assertEquals(10, memoryLogger.getMessages().size());
