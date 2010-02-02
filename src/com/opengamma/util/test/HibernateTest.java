@@ -1,7 +1,6 @@
 package com.opengamma.util.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.hibernate.SessionFactory;
@@ -34,17 +33,11 @@ public abstract class HibernateTest {
       databaseType = "derby"; // If you run from Eclipse, use Derby only
     }
     
-    if (databaseType.trim().equalsIgnoreCase("all")) {
-      
-      ArrayList<Object[]> allDatabases = new ArrayList<Object[]>();
-      for (String db : TestProperties.getAllSupportedDatabaseTypes()) {
-        allDatabases.add(new Object[] { db });        
-      }
-      return allDatabases;
-
-    } else {
-      return Arrays.asList(new Object[][] { { databaseType } }); 
+    ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
+    for (String db : TestProperties.getDatabaseTypes(databaseType)) {
+      returnValue.add(new Object[] { db });      
     }
+    return returnValue;
   }
 
   public SessionFactory getSessionFactory() {

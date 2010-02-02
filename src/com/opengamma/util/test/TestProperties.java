@@ -47,7 +47,7 @@ public class TestProperties {
   }
 
   /**
-   * @return The command line db type, except if the type is ALL (case
+   * @return A singleton collection containing the String passed in), except if the type is ALL (case
    *         insensitive), in which case all supported database types are returned.
    */
   public static Collection<String> getDatabaseTypes(String commandLineDbType) {
