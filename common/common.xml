@@ -115,7 +115,14 @@
                         </dirset>
                 </path>
                 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-                <fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
+                <fudgeproto
+                	srcdir="${src.dir}"
+                	destdir="${src.dir}"
+                	searchdir="${toString:fudge.proto.project.path}"
+                	equals="${fudge.proto.equals}"
+                	toString="${fudge.proto.toString}"
+                	hashCode="${fudge.proto.hashCode}"
+                	verbose="${build.verbose}" />
 	</target>
 	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
