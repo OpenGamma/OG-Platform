@@ -1,0 +1,108 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.livedata {
+
+  /**
+   * A code containing the ultimate result of a live data
+   * subscription request.
+   *
+   * @author kirk
+   */
+  enum LiveDataSubscriptionResult {
+    /**
+     * The subscription request was successful and data will begin
+     * flowing.
+     */
+    SUCCESS;
+    /**
+     * The requested piece of live data could not be found.
+     */
+    NOT_PRESENT;
+    /**
+     * The requested piece of live data was found, but the specified user
+     * was not entitled to receive it.
+     */
+    NOT_AUTHORIZED;
+    /**
+     * Request wasn't fully specified or malformed.
+     */
+    INVALID_REQUEST;
+  }
+
+  message LiveDataSubscriptionResponse {
+    required string requestingUserName;
+    required LiveDataSpecification requestedSpecification;
+    required LiveDataSpecification fullyQualifiedSpecification;
+    required LiveDataSubscriptionResult subscriptionResult;
+    required string userMessage;
+  }
+
+}
+
+/* ORIGINAL JAVA
+import java.io.Serializable;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+public class LiveDataSubscriptionResponse implements Serializable, Cloneable {
+  private final String _requestingUserName;
+  private final LiveDataSpecification _requestedSpecification;
+  private final LiveDataSpecification _fullyQualifiedSpecification;
+  private final LiveDataSubscriptionResult _subscriptionResult;
+  private final String _userMessage;
+  
+  public LiveDataSubscriptionResponse(
+      String requestingUserName,
+      LiveDataSpecification requestedSpecification,
+      LiveDataSpecification fullyQualifiedSpecification,
+      LiveDataSubscriptionResult subscriptionResult,
+      String userMessage) {
+    // TODO kirk 2009-09-29 -- Check inputs.
+    _requestingUserName = requestingUserName;
+    _requestedSpecification = requestedSpecification;
+    _fullyQualifiedSpecification = fullyQualifiedSpecification;
+    _subscriptionResult = subscriptionResult;
+    _userMessage = userMessage;
+  }
+
+  public String getRequestingUserName() {
+    return _requestingUserName;
+  }
+
+  public LiveDataSpecification getRequestedSpecification() {
+    return _requestedSpecification;
+  }
+
+  public LiveDataSpecification getFullyQualifiedSpecification() {
+    return _fullyQualifiedSpecification;
+  }
+
+  public LiveDataSubscriptionResult getSubscriptionResult() {
+    return _subscriptionResult;
+  }
+
+  public String getUserMessage() {
+    return _userMessage;
+  }
+
+  @Override
+  public LiveDataSubscriptionResponse clone() {
+    try {
+      return (LiveDataSubscriptionResponse) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException("Yes, it is supported.");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+}
+*/
