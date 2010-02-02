@@ -6,23 +6,19 @@
 package com.opengamma.math.statistics.distribution;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.special.GammaFunction;
+import com.opengamma.util.CompareUtils;
 
 /**
  * @author emcleod
  * 
  */
 public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double, Double> {
-  private final double _nu;
-  private final double _a;
+  private final ProbabilityDistribution<Double> _dist;
 
   public StudentTOneTailedCriticalValueCalculator(final double nu) {
     if (nu < 0)
       throw new IllegalArgumentException("Degrees of freedom must be positive");
-    _nu = nu;
-    final double halfNu = 0.5 * nu;
-    final Function1D<Double, Double> gamma = new GammaFunction();
-    _a = Math.sqrt(nu * Math.PI) * gamma.evaluate(halfNu) / gamma.evaluate(halfNu + 0.5);
+    _dist = new StudentTDistribution(nu);
   }
 
   /*
@@ -36,7 +32,8 @@ public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double,
       throw new IllegalArgumentException("x was null");
     if (x < 0)
       throw new IllegalArgumentException("x must be positive");
-    return Math.sqrt(_nu * (Math.pow(x * _a, -2. / (_nu + 1)) - 1));
+    if (CompareUtils.closeEquals(x, 0.5, 1e-14))
+      return 0.5;
+    return _dist.getInverseCDF(x);
   }
-
 }

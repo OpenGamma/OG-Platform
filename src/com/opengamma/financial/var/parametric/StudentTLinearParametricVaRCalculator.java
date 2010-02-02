@@ -11,6 +11,7 @@ import cern.colt.matrix.linalg.Algebra;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.StudentTDistribution;
+import com.opengamma.math.statistics.distribution.StudentTTwoTailedCriticalValueCalculator;
 
 /**
  * @author emcleod
@@ -51,6 +52,7 @@ public class StudentTLinearParametricVaRCalculator extends ParametricVaRCalculat
       throw new IllegalArgumentException("Horizon must be greater than zero");
     if (quantile <= 0 || quantile >= 1)
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
+    System.out.println((1 - quantile) + " " + new StudentTTwoTailedCriticalValueCalculator(_nu).evaluate(1 - quantile));
     return _studentT.getInverseCDF(1 - quantile) * Math.sqrt(_algebra.mult(v, _algebra.mult(m, v)) * (_nu - 2) / _nu);
   }
 

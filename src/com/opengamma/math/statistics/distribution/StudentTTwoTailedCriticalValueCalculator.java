@@ -12,12 +12,12 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class StudentTTwoTailedCriticalValueCalculator extends Function1D<Double, Double> {
-  private final Function1D<Double, Double> _inversePDF;
+  private final Function1D<Double, Double> _calc;
 
   public StudentTTwoTailedCriticalValueCalculator(final double nu) {
     if (nu < 0)
       throw new IllegalArgumentException("Degrees of freedom must be positive");
-    _inversePDF = new StudentTOneTailedCriticalValueCalculator(nu);
+    _calc = new StudentTOneTailedCriticalValueCalculator(nu);
   }
 
   /*
@@ -31,6 +31,6 @@ public class StudentTTwoTailedCriticalValueCalculator extends Function1D<Double,
       throw new IllegalArgumentException("x was null");
     if (x < 0)
       throw new IllegalArgumentException("x must be positive");
-    return 2 * _inversePDF.evaluate(x);
+    return _calc.evaluate(0.5 + 0.5 * x);
   }
 }

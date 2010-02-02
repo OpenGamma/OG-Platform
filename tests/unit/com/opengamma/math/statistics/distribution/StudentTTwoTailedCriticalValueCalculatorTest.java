@@ -16,7 +16,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class StudentTTwoTailedCriticalValueCalculatorTest {
-  private static final double NU = 10;
+  private static final double NU = 3;
   private static final Function1D<Double, Double> F = new StudentTTwoTailedCriticalValueCalculator(NU);
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);
 
@@ -37,11 +37,12 @@ public class StudentTTwoTailedCriticalValueCalculatorTest {
 
   @Test
   public void test() {
-    double x;
+    double x, y;
     final double eps = 1e-5;
     for (int i = 0; i < 100; i++) {
       x = Math.random();
-      assertEquals(x, F.evaluate(T.getPDF(x)) / 2, eps);
+      y = 0.5 * (1 + x);
+      assertEquals(y, T.getCDF(F.evaluate(x)), eps);
     }
   }
 }
