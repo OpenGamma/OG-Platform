@@ -90,7 +90,11 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
   private class Flusher extends TimerTask {
     @Override
     public void run() {
-      flushCache();
+      try {
+        flushCache();
+      } catch (RuntimeException e) {
+        // see http://manikandakumar.blogspot.com/2006/09/drawbacks-of-timertask.html
+      }
     }
   }
   
@@ -142,6 +146,9 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
       
       tx.commit();
     } catch (RuntimeException e) {
+      // If this happens, for now, assume that there was something wrong 
+      // with one of the log messages. Therefore do NOT re-insert 
+      // the messages into _auditLogCache.
       s_logger.error("Failed to commit batch to Hibernate", e);
       if (tx != null) {
         tx.rollback();
