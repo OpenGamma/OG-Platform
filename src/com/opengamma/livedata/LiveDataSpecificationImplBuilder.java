@@ -14,10 +14,10 @@ import org.fudgemsg.mapping.FudgeObjectBuilder;
  *
  * @author pietari
  */
-public class LiveDataSpecificationImplBuilder implements FudgeObjectBuilder<LiveDataSpecification> {
+public class LiveDataSpecificationImplBuilder implements FudgeObjectBuilder<LiveDataSpecificationImpl> {
 
   @Override
-  public LiveDataSpecification buildObject(
+  public LiveDataSpecificationImpl buildObject(
       FudgeDeserializationContext context, FudgeFieldContainer message) {
     return new LiveDataSpecificationImpl(message);
   }
