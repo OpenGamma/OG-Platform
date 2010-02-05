@@ -5,12 +5,10 @@
  */
 package com.opengamma.security.auditlog;
 
-import java.util.Date;
-
-import com.opengamma.util.ArgumentChecker;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A decorator <code>AuditLogger</code> that only sends the message

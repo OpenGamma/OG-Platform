@@ -5,7 +5,7 @@
 <hibernate-mapping package="com.opengamma.security.user">
 
   <class name="Authority" table="authorities">
-  	<id name="id" column="authority_id">
+  	<id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <property name="authority" unique="true" not-null="true"/>

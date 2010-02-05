@@ -5,7 +5,7 @@
 <hibernate-mapping package="com.opengamma.security.user">
 
   <class name="UserGroup" table="user_groups">
-  	<id name="id" column="group_id">
+  	<id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <property name="name" not-null="true" unique="true"/>
