@@ -4,7 +4,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
   <class name="DomainSpecificIdentifierAssociationBean" table="domain_specific_identifier_associations">
-    <id name="id" column="domain_specific_indentifier_id">
+    <id name="id" column="domain_specific_identifier_id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <!-- this is a special association that deals with the fact we've implemented
