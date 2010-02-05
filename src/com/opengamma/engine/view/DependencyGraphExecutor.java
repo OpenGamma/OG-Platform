@@ -127,10 +127,18 @@ public class DependencyGraphExecutor {
         _executedNodes.add(completedNode);
         getCycleState().markExecuted(completedNode);
         if(jobResult.getResult() != InvocationResult.SUCCESS) {
-          getCycleState().markFailed(completedNode);
+          markSubgraphAsFailed(completedNode);
         }
         jobResult = _pendingResults.poll();
       }
+    }
+  }
+  
+  protected void markSubgraphAsFailed(DependencyNode node) {
+    _nodesToExecute.remove(node); // we assume dispatched jobs are a lost cause.
+    getCycleState().markFailed(node);
+    for (DependencyNode subGraphNode : node.getDependentNodes()) {
+      markSubgraphAsFailed(subGraphNode);
     }
   }
 
