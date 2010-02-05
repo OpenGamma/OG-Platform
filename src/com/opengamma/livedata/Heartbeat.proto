@@ -1,0 +1,13 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.livedata {
+
+  message Heartbeat {
+    required repeated LiveDataSpecification liveDataSpecifications;
+  }
+  
+}

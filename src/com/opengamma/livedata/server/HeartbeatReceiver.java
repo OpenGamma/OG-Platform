@@ -6,14 +6,15 @@
 package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.Heartbeat;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecificationImplBuilder;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,13 +29,17 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   private final FudgeContext _fudgeContext;
   
   public HeartbeatReceiver(ActiveSecurityPublicationManager activeSecurityPublicationManager) {
-    this(activeSecurityPublicationManager, new FudgeContext());
+    this(activeSecurityPublicationManager, null);
   }
   
   public HeartbeatReceiver(ActiveSecurityPublicationManager activeSecurityPublicationManager, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(activeSecurityPublicationManager, "Active Security Publication Manager");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _activeSecurityPublicationManager = activeSecurityPublicationManager;
+    
+    if (fudgeContext == null) {
+      fudgeContext = new FudgeContext();
+      fudgeContext.getObjectDictionary().addObjectBuilder(LiveDataSpecification.class, new LiveDataSpecificationImplBuilder());
+    }
     _fudgeContext = fudgeContext;
   }
 
@@ -60,15 +65,10 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   }
   
   public void messageReceived(FudgeFieldContainer msg) {
-    for(FudgeField field : msg.getAllFields()) {
-      if(field.getValue() instanceof FudgeFieldContainer) {
-        LiveDataSpecification liveDataSpec = new LiveDataSpecificationImpl((FudgeFieldContainer) field.getValue());
-        s_logger.debug("Heartbeat received on live data specification {}", liveDataSpec);
-        getActiveSecurityPublicationManager().extendPublicationTimeout(liveDataSpec);
-      } else {
-        s_logger.warn("Got field {}:{} which had value {}, unexpected for a heartbeat message.",
-            new Object[] {field.getName(), field.getOrdinal(), field.getValue()});
-      }
+    Heartbeat heartbeat = Heartbeat.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
+    for (LiveDataSpecification liveDataSpec : heartbeat.getLiveDataSpecificationsList()) {
+      s_logger.debug("Heartbeat received on live data specification {}", liveDataSpec);
+      getActiveSecurityPublicationManager().extendPublicationTimeout(liveDataSpec);
     }
   }
 

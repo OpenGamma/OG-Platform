@@ -11,10 +11,11 @@ import java.util.TimerTask;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.Heartbeat;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
@@ -78,11 +79,8 @@ public class HeartbeatSender {
         return;
       }
       s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
-      MutableFudgeFieldContainer heartbeatMsg = getFudgeContext().newMessage();
-      for(LiveDataSpecification liveDataSpecification : liveDataSpecs) {
-        FudgeFieldContainer specMsg = liveDataSpecification.toFudgeMsg(getFudgeContext());
-        heartbeatMsg.add(null, null, specMsg);
-      }
+      Heartbeat heartbeat = new Heartbeat(liveDataSpecs);
+      FudgeFieldContainer heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
       byte[] bytes = getFudgeContext ().toByteArray (heartbeatMsg);
       getMessageSender().send(bytes);
     }

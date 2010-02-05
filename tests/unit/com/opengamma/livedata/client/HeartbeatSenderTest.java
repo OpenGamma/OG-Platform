@@ -73,7 +73,6 @@ public class HeartbeatSenderTest {
       assertNotNull(fudgeMsg);
       assertEquals(2, fudgeMsg.getNumFields());
       for(FudgeField field : fudgeMsg.getAllFields()) {
-        assertNull(field.getName());
         assertNull(field.getOrdinal());
         assertTrue(field.getValue() instanceof FudgeFieldContainer);
         LiveDataSpecificationImpl lsdi = new LiveDataSpecificationImpl((FudgeFieldContainer)field.getValue());
