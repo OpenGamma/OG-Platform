@@ -18,7 +18,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -292,7 +293,7 @@ public class DependencyGraphExecutor {
    * @param job
    */
   protected void invokeJob(CalculationJob job) {
-    FudgeMsg jobMsg = job.toFudgeMsg(getProcessingContext().getComputationJobRequestSender().getFudgeContext());
+    FudgeFieldContainer jobMsg = job.toFudgeMsg(new FudgeSerializationContext (getProcessingContext().getComputationJobRequestSender().getFudgeContext()));
     getProcessingContext().getComputationJobRequestSender().sendRequest(jobMsg, new FudgeMessageReceiver() {
       @Override
       public void messageReceived(

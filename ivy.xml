@@ -9,7 +9,7 @@
       <artifact name="og-engine" type="jar"/>
     </publications>
     <dependencies>
-    	<dependency org="org.fudgemsg" name="fudge" rev="latest.integration" conf="opengamma->core"/>
+    	<dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" conf="opengamma->core"/>
     	<dependency name="og-livedata" rev="latest.integration" conf="opengamma->*"/>
     	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
     	

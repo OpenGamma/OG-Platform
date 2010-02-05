@@ -3,6 +3,18 @@
  *
  * Please see distribution for license.
  */
+ 
+namespace com.opengamma.engine.value {
+
+  message ValueSpecification {
+  
+    required ValueRequirement requirementSpecification;
+  
+  }
+
+}
+ 
+/* ORIGINAL JAVA
 package com.opengamma.engine.value;
 
 import java.io.Serializable;
@@ -10,17 +22,12 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 
-/**
- * Encodes full metadata about a particular {@link ComputedValue}.
- *
- * @author kirk
- */
 public class ValueSpecification implements Serializable {
   private final ValueRequirement _requirementSpecification;
   // TODO kirk 2009-12-30 -- Add metadata.
@@ -30,9 +37,6 @@ public class ValueSpecification implements Serializable {
     _requirementSpecification = requirementSpecification;
   }
 
-  /**
-   * @return the requirementSpecification
-   */
   public ValueRequirement getRequirementSpecification() {
     return _requirementSpecification;
   }
@@ -68,8 +72,8 @@ public class ValueSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     _requirementSpecification.writeFields(msg);
     return msg;
   }
@@ -79,3 +83,4 @@ public class ValueSpecification implements Serializable {
   }
 
 }
+*/

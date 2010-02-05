@@ -11,8 +11,9 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -106,15 +107,15 @@ public class PositionReference implements Serializable, Cloneable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
+    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(QUANTITY_FIELD_NAME, getQuantity().toString());
     msg.add(SECURITY_IDENTITY_KEY_FIELD_NAME, getSecurityIdentityKey());
     return msg;
   }
 
   public static PositionReference fromFudgeMsg(FudgeMsgEnvelope envelope) {
-    FudgeMsg msg = envelope.getMessage();
+    FudgeFieldContainer msg = envelope.getMessage();
     BigDecimal quantity = new BigDecimal(msg.getString(QUANTITY_FIELD_NAME));
     String identityKey = msg.getString(SECURITY_IDENTITY_KEY_FIELD_NAME);
     return new PositionReference(quantity, identityKey);

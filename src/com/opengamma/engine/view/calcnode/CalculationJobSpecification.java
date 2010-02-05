@@ -10,7 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
@@ -99,14 +100,14 @@ public class CalculationJobSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void writeFields(FudgeMsg fudgeMsg) {
+  public void writeFields(MutableFudgeFieldContainer fudgeMsg) {
     fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
     fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
     fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
   }
   
   public static CalculationJobSpecification fromFudgeMsg(FudgeMsgEnvelope envelope) {
-    FudgeMsg msg = envelope.getMessage();
+    FudgeFieldContainer msg = envelope.getMessage();
     String viewName = msg.getString(VIEW_NAME_FIELD_NAME);
     long iterationTimestamp = msg.getLong(ITERATION_TIMESTAMP_FIELD_NAME);
     long jobId = msg.getLong(JOB_ID_FIELD_NAME);

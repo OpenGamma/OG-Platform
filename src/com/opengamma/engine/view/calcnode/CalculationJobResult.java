@@ -8,7 +8,8 @@ package com.opengamma.engine.view.calcnode;
 import java.io.Serializable;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
@@ -55,8 +56,8 @@ public class CalculationJobResult implements Serializable {
     return _duration;
   }
 
-  public FudgeMsg toFudgeMsg(FudgeContext fudgeContext) {
-    FudgeMsg msg = fudgeContext.newMessage();
+  public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {
+    MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     getSpecification().writeFields(msg);
     msg.add(INVOCATION_RESULT_FIELD_NAME, getResult().name());
     msg.add(DURATION_FIELD_NAME, getDuration());
@@ -64,7 +65,7 @@ public class CalculationJobResult implements Serializable {
   }
   
   public static CalculationJobResult fromFudgeMsg(FudgeMsgEnvelope envelope) {
-    FudgeMsg msg = envelope.getMessage();
+    FudgeFieldContainer msg = envelope.getMessage();
     CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(envelope);
     
     InvocationResult result = InvocationResult.valueOf(msg.getString(INVOCATION_RESULT_FIELD_NAME));
