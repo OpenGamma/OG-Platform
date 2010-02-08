@@ -5,7 +5,7 @@
 <hibernate-mapping package="com.opengamma.financial.security.db">
   <class name="SecurityBean" abstract="true">
     <!-- these are from SecurityBean -->
-    <id name="id" column="equities_id">
+    <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <property name="effectiveDateTime" type="date" not-null="true"/>
@@ -22,7 +22,7 @@
 	  <column name="first_version_descriminator"/> 
 	  <column name="first_version_id"/>
 	</any>
-    <union-subclass name="EquitySecurityBean" table="equities">
+    <union-subclass name="EquitySecurityBean" table="equity">
 	    <!--  we'll only ever keep references back to this table here, but we need this for the Hibernate type system so
 	          we can match against another security reference -->
 
