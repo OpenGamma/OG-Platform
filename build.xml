@@ -23,10 +23,6 @@
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
 	
-	<condition property="ivy.shared.default.root" value="${ivy.shared.default.root.windows}" else="${ivy.shared.default.root.unix}">
-	  <os family="windows"/>
-	</condition>	
-	
 	<import file="git-macros.xml" />
 
         <available file="${ivy.jar.file}" property="skip.download"/>
@@ -63,6 +59,10 @@
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
 			classpathref="ivy.lib.path" />
+<<<<<<< HEAD
+=======
+                <echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+>>>>>>> 0c5e1f34a822a617bf843b188a09741727e55298
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 

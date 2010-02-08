@@ -62,7 +62,7 @@
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
 			classpathref="ivy.lib.path" />
-		<echo file="${common.dir}/.ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 
@@ -115,7 +115,14 @@
                         </dirset>
                 </path>
                 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-                <fudgeproto srcdir="${src.dir}" destdir="${src.dir}" searchdir="${toString:fudge.proto.project.path}" verbose="${build.verbose}" />
+                <fudgeproto
+                	srcdir="${src.dir}"
+                	destdir="${src.dir}"
+                	searchdir="${toString:fudge.proto.project.path}"
+                	equals="${fudge.proto.equals}"
+                	toString="${fudge.proto.toString}"
+                	hashCode="${fudge.proto.hashCode}"
+                	verbose="${build.verbose}" />
 	</target>
 	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
@@ -160,15 +167,23 @@
 		</copy>
 	</target>
 	
-	<target name="tests" depends="junit-batch,junit-report" description="--> run unit tests and generate report"/>
+	<property name="test.database.type" value="all"/>  <!-- derby, postgres, all. -->
+	
+	<target name="tests" depends="create-test-db,junit-batch,junit-report" description="--> run unit tests and generate report"/>
+	
+	<target name="create-test-db" if="dbscript.dir"> <!-- Use dbscript.dir to deduce that there is a test database to be created -->
+		<java classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" failonerror="true" fork="true">
+			<arg value="--createtestdb=${test.database.type}"/>
+		</java>				
+	</target>
 
 	<target name="junit-batch" depends="compile-tests">
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<junit printSummary="true" fork="true" forkmode="perTest" maxmemory="1024M">
 			<classpath>
-	      <path refid="lib.path.id" />
-	      	<pathelement path="${classes.dir}" />
-        	<pathelement path="${tests.classes.dir}" />
+	      		<path refid="lib.path.id" />
+	      		<pathelement path="${classes.dir}" />
+	    		<pathelement path="${tests.classes.dir}" />
 			</classpath>
 			<assertions>
 				<enable />
@@ -179,6 +194,7 @@
 				<!-- TODO: deal with interop, integration, etc -->
 				<!--fileset dir="${tests.dir}/interop" includes="**/*Test.java" /-->
 			</batchtest>
+			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in HibernateTest.java -->
 		</junit>
 	</target>
 
@@ -315,5 +331,27 @@
 	
 	<target name="clean" depends="clean-build, clean-lib, clean-dist"
 		description="--> clean the project" />
+	
+	<target name="run-hbm2ddl" depends="load-ivy,compile"
+		description="--> Generate Hibernate schema from mapping files">
+		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
+			classpathref="lib.path.id" />
+		<mkdir dir="${dbscript.dir}" />  
+		<java classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" failonerror="true" fork="true">
+			<arg value="--server=${jdbc.url}"/>
+			<arg value="--user=${hibernate.connection.username}"/>
+			<arg value="--password=${hibernate.connection.password}"/>
+			<arg value="--create"/>
+			<arg value="--database=blank"/>
+		</java>
+		<hibernatetool destdir="${dbscript.dir}" >
+			<classpath>
+				<path location="${classes.dir}" />
+				<path location="${tests.classes.dir}" />
+			</classpath>
+			<configuration configurationfile="hibernate.cfg.xml"  propertyfile="build.properties"/>
+			<hbm2ddl format="true" outputfilename="hbm2ddl-create-db.sql" />
+		</hibernatetool>
+	</target>
 
 </project>

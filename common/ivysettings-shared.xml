@@ -17,11 +17,12 @@
    under the License.    
 -->
 <ivysettings>
-	<property name="ivy.shared.roundup.root"             value="/ogdev/roundup/modules" />
+	<include url="ivy.shared.default.root" />
+        <!-- wow, this is clean... -->
+	<property name="ivy.shared.roundup.root" value="${ivy.shared.default.root}/../roundup/modules" />
 	<property name="ivy.shared.roundup.jars.artifact.pattern" value="[organization]/[module]/[revision]/jars/[artifact]-[revision].[ext]" />
 	<property name="ivy.shared.roundup.sources.artifact.pattern" value="[organization]/[module]/[revision]/sources/[artifact]-[revision].[ext]" />
 	<property name="ivy.shared.roundup.javadocs.artifact.pattern" value="[organization]/[module]/[revision]/javadocs/[artifact]-[revision].[ext]" />
-	<property name="ivy.shared.default.root"             value="/ogdev/shared-repository" />
 	<property name="ivy.shared.default.ivy.pattern"      value="[organization]/[module]/[revision]/ivy.xml" />
 	<property name="ivy.shared.default.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
 	<resolvers>
