@@ -4,7 +4,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.security.user">
 
-  <class name="Authority" table="authorities">
+  <class name="Authority" table="authority">
   	<id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>

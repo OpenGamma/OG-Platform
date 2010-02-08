@@ -4,13 +4,13 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.security.user">
 
-  <class name="User" table="users">
+  <class name="User" table="og_user">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <property name="username" not-null="true" unique="true"/>
     <property name="password" not-null="true"/>
-    <set name="userGroups" table="users_to_user_groups">
+    <set name="userGroups" table="user_to_user_group">
     	<key column="user_id"/>
     	<many-to-many column="user_group_id" class="UserGroup"/>
     </set>
