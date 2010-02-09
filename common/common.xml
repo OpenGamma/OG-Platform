@@ -122,7 +122,8 @@
                 	equals="${fudge.proto.equals}"
                 	toString="${fudge.proto.toString}"
                 	hashCode="${fudge.proto.hashCode}"
-                	verbose="${build.verbose}" />
+                	verbose="${build.verbose}"
+                	fudgeContext="${fudge.proto.fudgeContext}" />
 	</target>
 	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
