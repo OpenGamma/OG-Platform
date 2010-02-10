@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata;
 
+import java.util.Collection;
+
 /**
  * The core interface through which clients are able to interact
  * with the rest of the OpenGamma Live Data system.
@@ -17,6 +19,8 @@ public interface LiveDataClient {
   // principals, this needs to be changed.
   
   void subscribe(String userName, LiveDataSpecification requestedSpecification, LiveDataListener listener);
+  void subscribe(String userName, Collection<LiveDataSpecification> requestedSpecifications, LiveDataListener listener);
+  
   
   // REVIEW kirk 2009-09-29 -- Once I figure out a cleaner way to implement these than the
   // original version, these will be re-added.
@@ -26,5 +30,6 @@ public interface LiveDataClient {
   void unsubscribeAll(String userName, LiveDataSpecification fullyQualifiedSpecification);
   */
   void unsubscribe(String userName, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener);
+  void unsubscribe(String userName, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener);
   
 }

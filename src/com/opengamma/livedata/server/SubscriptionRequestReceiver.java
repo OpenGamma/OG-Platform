@@ -5,14 +5,15 @@
  */
 package com.opengamma.livedata.server;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.model.SubscriptionRequestMessage;
-import com.opengamma.livedata.model.SubscriptionResponseMessage;
+import com.opengamma.livedata.LiveDataSubscriptionRequest;
+import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,13 +40,13 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
 
   @Override
   public FudgeFieldContainer requestReceived(
-      FudgeContext fudgeContext,
+      FudgeDeserializationContext context,
       FudgeMsgEnvelope requestEnvelope) {
     FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
-    SubscriptionRequestMessage subscriptionRequest = SubscriptionRequestMessage.fromFudgeMsg(requestFudgeMsg);
-    s_logger.debug("Received subscription request for {} on behalf of {}", subscriptionRequest.getSpecification(), subscriptionRequest.getUserName());
-    SubscriptionResponseMessage subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
-    FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(fudgeContext);
+    LiveDataSubscriptionRequest subscriptionRequest = LiveDataSubscriptionRequest.fromFudgeMsg(context, requestFudgeMsg);
+    s_logger.debug("Received subscription request on behalf of {}", subscriptionRequest.getUserName());
+    LiveDataSubscriptionResponseMsg subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
+    FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
     return responseFudgeMsg;
   }
 

@@ -5,8 +5,7 @@
  */
 package com.opengamma.livedata.server;
 
-import com.opengamma.livedata.model.SubscriptionRequestMessage;
-import com.opengamma.livedata.model.SubscriptionResponseMessage;
+import com.opengamma.livedata.LiveDataSpecification;
 
 /**
  * 
@@ -16,10 +15,7 @@ import com.opengamma.livedata.model.SubscriptionResponseMessage;
 public class MockLiveDataServer extends AbstractLiveDataServer {
 
   @Override
-  public SubscriptionResponseMessage subscriptionRequestMade(
-      SubscriptionRequestMessage subscriptionRequest) {
-    // TODO Auto-generated method stub
-    return null;
+  public void subscribe(LiveDataSpecification fullyQualifiedSpec) {
   }
 
 }

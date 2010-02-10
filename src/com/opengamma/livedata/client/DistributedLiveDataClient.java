@@ -5,16 +5,25 @@
  */
 package com.opengamma.livedata.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSubscriptionRequest;
+import com.opengamma.livedata.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.livedata.model.SubscriptionRequestMessage;
-import com.opengamma.livedata.model.SubscriptionResponseMessage;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -64,18 +73,20 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   }
 
   @Override
-  protected void handleSubscriptionRequest(SubscriptionHandle subHandle) {
-    ArgumentChecker.checkNotNull(subHandle, "Subscription Handle");
-    byte[] requestMessage = composeRequestMessage(subHandle);
-    s_logger.info("Sending request to {} on behalf of {}", subHandle.getFullyQualifiedSpecification(), subHandle.getUserName());
-    getSubscriptionRequestSender().sendRequest(requestMessage, new SubscriptionResponseReceiver(subHandle));
+  protected void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandles) {
+    ArgumentChecker.checkNotNull(subHandles, "Subscription Handles");
+    byte[] requestMessage = composeRequestMessage(subHandles);
+    getSubscriptionRequestSender().sendRequest(requestMessage, new SubscriptionResponseReceiver(subHandles));
   }
   
   private class SubscriptionResponseReceiver implements ByteArrayMessageReceiver {
-    private final SubscriptionHandle _subHandle;
+    private final Map<LiveDataSpecification, SubscriptionHandle> _spec2SubHandle;
     
-    public SubscriptionResponseReceiver(SubscriptionHandle subHandle) {
-      _subHandle = subHandle;
+    public SubscriptionResponseReceiver(Collection<SubscriptionHandle> subHandles) {
+      _spec2SubHandle = new HashMap<LiveDataSpecification, SubscriptionHandle>();
+      for (SubscriptionHandle subHandle : subHandles) {
+        _spec2SubHandle.put(subHandle.getRequestedSpecification(), subHandle);        
+      }
     }
 
     @Override
@@ -85,18 +96,28 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         s_logger.warn("Got a message that can't be deserialized from a Fudge message.");
       }
       FudgeFieldContainer msg = envelope.getMessage();
-      SubscriptionResponseMessage responseMessage = SubscriptionResponseMessage.fromFudgeMsg(msg);
-      switch(responseMessage.getSubscriptionResult()) {
-      case NOT_AUTHORIZED:
-      case NOT_PRESENT:
-        s_logger.info("Failed to establish subscription to {}. Result was {}", _subHandle.getFullyQualifiedSpecification(), responseMessage.getSubscriptionResult());
-        subscriptionRequestFailed(_subHandle, responseMessage.getSubscriptionResult(), responseMessage.getUserMessage());
-        break;
-      case SUCCESS:
-        s_logger.info("Established subscription to {}", _subHandle.getFullyQualifiedSpecification());
-        subscriptionRequestSatisfied(_subHandle);
-        startReceivingTicks(responseMessage.getTickDistributionSpecification());
-        break;
+      LiveDataSubscriptionResponseMsg responseMessage = LiveDataSubscriptionResponseMsg.fromFudgeMsg(new FudgeDeserializationContext(getFudgeContext()), msg);
+      
+      for (LiveDataSubscriptionResponse response : responseMessage.getResponsesList()) {
+        
+        SubscriptionHandle handle = _spec2SubHandle.get(response.getRequestedSpecification());
+        if (handle == null) {
+          s_logger.error("Could not find request corresponding to response {}", response.getRequestedSpecification());
+          continue;
+        }
+        
+        switch(response.getSubscriptionResult()) {
+        case NOT_AUTHORIZED:
+        case NOT_PRESENT:
+          s_logger.info("Failed to establish subscription to {}. Result was {}", handle.getRequestedSpecification(), response.getSubscriptionResult());
+          subscriptionRequestFailed(handle, response);
+          break;
+        case SUCCESS:
+          s_logger.info("Established subscription to {}", handle.getRequestedSpecification());
+          subscriptionRequestSatisfied(handle, response);
+          startReceivingTicks(response.getTickDistributionSpecification());
+          break;
+        }
       }
     }
     
@@ -106,9 +127,9 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
    * @param subHandle
    * @return
    */
-  protected byte[] composeRequestMessage(SubscriptionHandle subHandle) {
-    SubscriptionRequestMessage subReqMessage = composeSubscriptionRequestMessage(subHandle);
-    FudgeFieldContainer requestMessage = subReqMessage.toFudgeMsg(getFudgeContext());
+  protected byte[] composeRequestMessage(Collection<SubscriptionHandle> subHandles) {
+    LiveDataSubscriptionRequest subReqMessage = composeSubscriptionRequestMessage(subHandles);
+    FudgeFieldContainer requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
     byte[] bytes = getFudgeContext().toByteArray(requestMessage);
     return bytes;
   }
@@ -120,10 +141,21 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     // Default no-op.
   }
 
-  protected SubscriptionRequestMessage composeSubscriptionRequestMessage(SubscriptionHandle subHandle) {
-    SubscriptionRequestMessage request = new SubscriptionRequestMessage();
-    request.setUserName(subHandle.getUserName());
-    request.setSpecification(subHandle.getFullyQualifiedSpecification());
+  protected LiveDataSubscriptionRequest composeSubscriptionRequestMessage(Collection<SubscriptionHandle> subHandles) {
+    String username = null;
+    
+    ArrayList<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
+    for (SubscriptionHandle subHandle : subHandles) {
+      specs.add(subHandle.getRequestedSpecification());
+      
+      if (username == null) {
+        username = subHandle.getUserName();
+      } else if (!username.equals(subHandle.getUserName())) {
+        throw new OpenGammaRuntimeException("Not all usernames are equal");        
+      }
+    }
+    
+    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(username, specs);
     return request;
   }
 

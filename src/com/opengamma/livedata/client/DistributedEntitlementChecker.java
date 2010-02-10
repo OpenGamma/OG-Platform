@@ -9,12 +9,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.livedata.EntitlementRequest;
+import com.opengamma.livedata.EntitlementResponse;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.transport.ByteArrayRequestSender;
@@ -28,9 +30,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DistributedEntitlementChecker implements
     LiveDataEntitlementChecker {
-  public static final String USER_NAME_FUDGE_FIELD_NAME = "UserName";
-  public static final String DATA_SPEC_FUDGE_FIELD_NAME = "DataSpec";
-  public static final String IS_ENTITLED_FUDGE_FIELD_NAME = "IsEntitled";
   public static final long TIMEOUT_MS = 5 * 60 * 1000l;
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedEntitlementChecker.class);
   private final ByteArrayRequestSender _requestSender;
@@ -98,10 +97,8 @@ public class DistributedEntitlementChecker implements
    */
   protected FudgeFieldContainer composeRequestMessage(String userName,
       LiveDataSpecification fullyQualifiedSpecification) {
-    MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
-    msg.add(USER_NAME_FUDGE_FIELD_NAME, userName);
-    msg.add(DATA_SPEC_FUDGE_FIELD_NAME, fullyQualifiedSpecification.toFudgeMsg(getFudgeContext()));
-    return msg;
+    EntitlementRequest request = new EntitlementRequest(userName, fullyQualifiedSpecification);
+    return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
   }
 
   protected boolean parseResponseMessage(byte[] message) {
@@ -111,11 +108,7 @@ public class DistributedEntitlementChecker implements
       return false;
     }
     FudgeFieldContainer msg = msgEnvelope.getMessage();
-    Boolean responseValue = msg.getBoolean(IS_ENTITLED_FUDGE_FIELD_NAME);
-    if(responseValue == null) {
-      s_logger.warn("Received response message with no field named {}. Not allowing access.", IS_ENTITLED_FUDGE_FIELD_NAME);
-      return false;
-    }
-    return responseValue;
+    EntitlementResponse response = EntitlementResponse.fromFudgeMsg(msg);
+    return response.getIsEntitled();
   }
 }

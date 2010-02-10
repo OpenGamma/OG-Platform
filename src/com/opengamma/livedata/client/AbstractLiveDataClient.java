@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.client;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -19,7 +22,6 @@ import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.LiveDataSubscriptionResult;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,8 +34,6 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class AbstractLiveDataClient implements LiveDataClient {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataClient.class);
   // Injected Inputs:
-  private LiveDataSpecificationResolver _specificationResolver = new IdentitySpecificationResolver();
-  private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
   private long _heartbeatPeriod = HeartbeatSender.DEFAULT_PERIOD;
   private FudgeContext _fudgeContext = new FudgeContext();
   // Running State:
@@ -45,10 +45,6 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     new HashSet<SubscriptionHandle>();
   private final Set<LiveDataSpecification> _activeSubscriptionSpecifications =
     new HashSet<LiveDataSpecification>();
-  // TODO kirk 2009-09-29 -- Figure out a better way to handle active subscriptions.
-  // The data structures were getting too unwieldy for this pass.
-  private final Set<SubscriptionHandle> _activeSubscriptions =
-    new HashSet<SubscriptionHandle>();
   
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
     ArgumentChecker.checkNotNull(messageSender, "Message Sender");
@@ -81,36 +77,6 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
    */
   public void setHeartbeatPeriod(long heartbeatPeriod) {
     _heartbeatPeriod = heartbeatPeriod;
-  }
-
-  /**
-   * @return the specificationResolver
-   */
-  public LiveDataSpecificationResolver getSpecificationResolver() {
-    return _specificationResolver;
-  }
-
-  /**
-   * @param specificationResolver the specificationResolver to set
-   */
-  public void setSpecificationResolver(
-      LiveDataSpecificationResolver specificationResolver) {
-    assert specificationResolver != null;
-    _specificationResolver = specificationResolver;
-  }
-
-  /**
-   * @return the entitlementChecker
-   */
-  public LiveDataEntitlementChecker getEntitlementChecker() {
-    return _entitlementChecker;
-  }
-
-  /**
-   * @param entitlementChecker the entitlementChecker to set
-   */
-  public void setEntitlementChecker(LiveDataEntitlementChecker entitlementChecker) {
-    _entitlementChecker = entitlementChecker;
   }
 
   /**
@@ -148,66 +114,53 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       _subscriptionLock.unlock();
     }
   }
+  
+  
 
+  @Override
+  public void subscribe(String userName,
+      Collection<LiveDataSpecification> requestedSpecifications,
+      LiveDataListener listener) {
+    
+    ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
+    for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
+      SubscriptionHandle subHandle = new SubscriptionHandle(userName, requestedSpecification, listener);
+      if(addPendingSubscription(subHandle)) {
+        subscriptionHandles.add(subHandle);                      
+      }
+    }
+    
+    handleSubscriptionRequest(subscriptionHandles);
+  }
+  
   @Override
   public void subscribe(String userName, LiveDataSpecification requestedSpecification,
       LiveDataListener listener) {
-    // TODO kirk 2009-09-29 -- Check Inputs.
-    
-    // TODO kirk 2009-09-29 -- This should all happen in a background thread.
-    
-    LiveDataSpecification qualifiedSpecification = getSpecificationResolver().resolve(requestedSpecification);
-    if(qualifiedSpecification == null) {
-      s_logger.info("Unable to resolve requested specification {}", requestedSpecification);
-      listener.subscriptionResultReceived(new LiveDataSubscriptionResponse(userName, requestedSpecification, null, LiveDataSubscriptionResult.NOT_PRESENT, null));
-      return;
-    }
-    
-    if(!getEntitlementChecker().isEntitled(userName, qualifiedSpecification)) {
-      s_logger.info("User {} not entitled to specification {}", userName, qualifiedSpecification);
-      // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to get a user message.
-      listener.subscriptionResultReceived(new LiveDataSubscriptionResponse(userName, requestedSpecification, qualifiedSpecification, LiveDataSubscriptionResult.NOT_AUTHORIZED, null));
-      return;
-    }
-    
-    // Now we've got the fully qualified request, we can acquire the subscription
-    // lock and enqueue the pending subscription handle.
-    SubscriptionHandle subHandle = new SubscriptionHandle(userName, requestedSpecification, qualifiedSpecification, listener);
-    if(!addPendingSubscription(subHandle)) {
-      // Already enqueued. Do nothing, the original request will take
-      // care of it.
-      return;
-    }
-    
-    handleSubscriptionRequest(subHandle);
+    subscribe(userName, Collections.singleton(requestedSpecification), listener);
   }
   
-  protected abstract void handleSubscriptionRequest(SubscriptionHandle subHandle);
+  protected abstract void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandle);
   
-  protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle) {
+  protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
     _subscriptionLock.lock();
     try {
       removePendingSubscription(subHandle);
-      _activeSubscriptionSpecifications.add(subHandle.getFullyQualifiedSpecification());
-      getValueDistributor().addListener(subHandle.getFullyQualifiedSpecification(), subHandle.getListener());
+      _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
+      getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
     } finally {
       _subscriptionLock.unlock();
     }
-    subHandle.getListener().subscriptionResultReceived(
-        new LiveDataSubscriptionResponse(
-            subHandle.getUserName(), subHandle.getRequestedSpecification(), subHandle.getFullyQualifiedSpecification(), LiveDataSubscriptionResult.SUCCESS, null));
+    subHandle.getListener().subscriptionResultReceived(response);
   }
   
-  protected void subscriptionRequestFailed(SubscriptionHandle subHandle, LiveDataSubscriptionResult result, String userMessage) {
+  protected void subscriptionRequestFailed(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
     _subscriptionLock.lock();
     try {
       removePendingSubscription(subHandle);
     } finally {
       _subscriptionLock.unlock();
     }
-    subHandle.getListener().subscriptionResultReceived(
-        new LiveDataSubscriptionResponse(
-            subHandle.getUserName(), subHandle.getRequestedSpecification(), subHandle.getFullyQualifiedSpecification(), result, userMessage));
+    subHandle.getListener().subscriptionResultReceived(response);
   }
   
   protected boolean addPendingSubscription(SubscriptionHandle subHandle) {
@@ -231,33 +184,40 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       _subscriptionLock.unlock();
     }
   }
+  
+  @Override
+  public void unsubscribe(String userName,
+      Collection<LiveDataSpecification> fullyQualifiedSpecifications,
+      LiveDataListener listener) {
+    for (LiveDataSpecification fullyQualifiedSpecification : fullyQualifiedSpecifications) {
+      s_logger.info("Unsubscribing by {} to {} delivered to {}",
+          new Object[] {userName, fullyQualifiedSpecification, listener} );
+      boolean unsubscribeToSpec = false;
+      _subscriptionLock.lock();
+      try {
+        boolean stillActiveSubs = getValueDistributor().removeListener(fullyQualifiedSpecification, listener);
+        if(!stillActiveSubs) {
+          unsubscribeToSpec = true;
+          _activeSubscriptionSpecifications.remove(fullyQualifiedSpecification);
+        }
+      } finally {
+        _subscriptionLock.unlock();
+      }
+      
+      // REVIEW kirk 2009-09-29 -- Potential race condition with multiple
+      // subscribers and unsubscribers here.... do something about it?
+      if(unsubscribeToSpec) {
+        cancelPublication(fullyQualifiedSpecification);
+      }
+      listener.subscriptionStopped(fullyQualifiedSpecification);
+    }
+  }
 
   @Override
   public void unsubscribe(String userName,
       LiveDataSpecification fullyQualifiedSpecification,
       LiveDataListener listener) {
-    s_logger.info("Unsubscribing by {} to {} delivered to {}",
-        new Object[] {userName, fullyQualifiedSpecification, listener} );
-    SubscriptionHandle subHandle = new SubscriptionHandle(userName, null, fullyQualifiedSpecification, listener);
-    boolean unsubscribeToSpec = false;
-    _subscriptionLock.lock();
-    try {
-      _activeSubscriptions.remove(subHandle);
-      boolean stillActiveSubs = getValueDistributor().removeListener(fullyQualifiedSpecification, listener);
-      if(!stillActiveSubs) {
-        unsubscribeToSpec = true;
-        _activeSubscriptionSpecifications.remove(fullyQualifiedSpecification);
-      }
-    } finally {
-      _subscriptionLock.unlock();
-    }
-    
-    // REVIEW kirk 2009-09-29 -- Potential race condition with multiple
-    // subscribers and unsubscribers here.... do something about it?
-    if(unsubscribeToSpec) {
-      cancelPublication(fullyQualifiedSpecification);
-    }
-    listener.subscriptionStopped(fullyQualifiedSpecification);
+    unsubscribe(userName, Collections.singleton(fullyQualifiedSpecification), listener);
   }
 
   protected abstract void cancelPublication(LiveDataSpecification fullyQualifiedSpecification);
