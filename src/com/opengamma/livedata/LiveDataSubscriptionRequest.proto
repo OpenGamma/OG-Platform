@@ -8,7 +8,7 @@ namespace com.opengamma.livedata {
 
   message LiveDataSubscriptionRequest {
     required string userName;
-    required repeated LiveDataSpecification specifications;
+    required repeated LiveDataSpecificationImpl specifications;
     
     binding Java {
       methods "equals, hashCode";

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
@@ -102,26 +103,34 @@ public abstract class AbstractLiveDataServer {
   public LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
     
     ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
-    for (LiveDataSpecification requestedSpecification : subscriptionRequest.getSpecificationsList()) {
+    for (LiveDataSpecificationImpl requestedSpecification : subscriptionRequest.getSpecificationsList()) {
       
       try {
     
         LiveDataSpecification qualifiedSpecification = getSpecificationResolver().resolve(requestedSpecification);
         if(qualifiedSpecification == null) {
           s_logger.info("Unable to resolve requested specification {}", requestedSpecification);
-          responses.add(new LiveDataSubscriptionResponse(requestedSpecification, null, LiveDataSubscriptionResult.NOT_PRESENT, null, null));
+          responses.add(new LiveDataSubscriptionResponse(requestedSpecification, 
+              null, 
+              LiveDataSubscriptionResult.NOT_PRESENT, 
+              null, 
+              null));
         }
         
         if(!getEntitlementChecker().isEntitled(subscriptionRequest.getUserName(), qualifiedSpecification)) {
           s_logger.info("User {} not entitled to specification {}", subscriptionRequest.getUserName(), qualifiedSpecification);
           // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to get a user message.
-          responses.add(new LiveDataSubscriptionResponse(requestedSpecification, qualifiedSpecification, LiveDataSubscriptionResult.NOT_AUTHORIZED, null, null));
+          responses.add(new LiveDataSubscriptionResponse(requestedSpecification, 
+              new LiveDataSpecificationImpl(qualifiedSpecification), 
+              LiveDataSubscriptionResult.NOT_AUTHORIZED, 
+              null, 
+              null));
         }
       
         subscribe(qualifiedSpecification);
 
         String tickDistributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(qualifiedSpecification);
-        LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(requestedSpecification, qualifiedSpecification, LiveDataSubscriptionResult.SUCCESS, null, tickDistributionSpec);
+        LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(requestedSpecification, new LiveDataSpecificationImpl(qualifiedSpecification), LiveDataSubscriptionResult.SUCCESS, null, tickDistributionSpec);
         responses.add(response);
       
       } catch (Exception e) {

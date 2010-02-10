@@ -8,7 +8,7 @@ namespace com.opengamma.livedata {
 
   message EntitlementRequest {
     required string userName;
-    required LiveDataSpecification liveDataSpecification;
+    required LiveDataSpecificationImpl liveDataSpecification;
   }
   
 }

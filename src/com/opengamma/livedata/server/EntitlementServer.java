@@ -24,12 +24,12 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class EntitlementCheckerServer implements FudgeRequestReceiver {
+public class EntitlementServer implements FudgeRequestReceiver {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(EntitlementCheckerServer.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EntitlementServer.class);
   private final LiveDataEntitlementChecker _delegate;
   
-  public EntitlementCheckerServer(LiveDataEntitlementChecker delegate) {
+  public EntitlementServer(LiveDataEntitlementChecker delegate) {
     ArgumentChecker.checkNotNull(delegate, "Delegate entitlement checker");
     _delegate = delegate;
   }

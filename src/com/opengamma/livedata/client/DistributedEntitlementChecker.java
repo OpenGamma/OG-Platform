@@ -18,8 +18,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.EntitlementRequest;
 import com.opengamma.livedata.EntitlementResponse;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.transport.ByteArrayMessageReceiver;
-import com.opengamma.transport.ByteArrayRequestSender;
+import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,32 +33,18 @@ public class DistributedEntitlementChecker implements
     LiveDataEntitlementChecker {
   public static final long TIMEOUT_MS = 5 * 60 * 1000l;
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedEntitlementChecker.class);
-  private final ByteArrayRequestSender _requestSender;
+  private final FudgeRequestSender _requestSender;
   private final FudgeContext _fudgeContext;
   
-  public DistributedEntitlementChecker(ByteArrayRequestSender requestSender) {
+  public DistributedEntitlementChecker(FudgeRequestSender requestSender) {
     this(requestSender, new FudgeContext());
   }
   
-  public DistributedEntitlementChecker(ByteArrayRequestSender requestSender, FudgeContext fudgeContext) {
+  public DistributedEntitlementChecker(FudgeRequestSender requestSender, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(requestSender, "Request Sender");
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _requestSender = requestSender;
     _fudgeContext = fudgeContext;
-  }
-
-  /**
-   * @return the requestSender
-   */
-  public ByteArrayRequestSender getRequestSender() {
-    return _requestSender;
-  }
-
-  /**
-   * @return the fudgeContext
-   */
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
   }
 
   @Override
@@ -65,14 +52,19 @@ public class DistributedEntitlementChecker implements
       LiveDataSpecification fullyQualifiedSpecification) {
     s_logger.info("Sending message to qualify {} on {}", userName, fullyQualifiedSpecification);
     FudgeFieldContainer requestMessage = composeRequestMessage(userName, fullyQualifiedSpecification);
-    byte[] requestBytes = getFudgeContext().toByteArray(requestMessage);
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicBoolean isEntitled = new AtomicBoolean(false);
-    getRequestSender().sendRequest(requestBytes, new ByteArrayMessageReceiver() {
+    _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {
+      
       @Override
-      public void messageReceived(byte[] message) {
-        isEntitled.set(parseResponseMessage(message));
+      public void messageReceived(FudgeContext fudgeContext,
+          FudgeMsgEnvelope msgEnvelope) {
+        
+        FudgeFieldContainer msg = msgEnvelope.getMessage();
+        EntitlementResponse response = EntitlementResponse.fromFudgeMsg(msg);
+        isEntitled.set(response.getIsEntitled());
         responseReceived.set(true);
+        
       }
     });
     long start = System.currentTimeMillis();
@@ -97,18 +89,8 @@ public class DistributedEntitlementChecker implements
    */
   protected FudgeFieldContainer composeRequestMessage(String userName,
       LiveDataSpecification fullyQualifiedSpecification) {
-    EntitlementRequest request = new EntitlementRequest(userName, fullyQualifiedSpecification);
+    EntitlementRequest request = new EntitlementRequest(userName, new LiveDataSpecificationImpl(fullyQualifiedSpecification));
     return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
   }
 
-  protected boolean parseResponseMessage(byte[] message) {
-    FudgeMsgEnvelope msgEnvelope = getFudgeContext().deserialize(message);
-    if(msgEnvelope == null) {
-      s_logger.warn("Recieved response message with no envelope. Not allowing access.");
-      return false;
-    }
-    FudgeFieldContainer msg = msgEnvelope.getMessage();
-    EntitlementResponse response = EntitlementResponse.fromFudgeMsg(msg);
-    return response.getIsEntitled();
-  }
 }

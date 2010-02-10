@@ -18,7 +18,7 @@ import org.springframework.context.Lifecycle;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
-import com.opengamma.transport.ByteArrayRequestSender;
+import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
 
@@ -34,11 +34,11 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     new HashMap<String, DefaultMessageListenerContainer>();
   private AtomicBoolean _running = new AtomicBoolean(false);
 
-  public JmsLiveDataClient(ByteArrayRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory) {
+  public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory) {
     this(subscriptionRequestSender, connectionFactory, new FudgeContext());
   }
 
-  public JmsLiveDataClient(ByteArrayRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory, FudgeContext fudgeContext) {
+  public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory, FudgeContext fudgeContext) {
     super(subscriptionRequestSender, fudgeContext);
     ArgumentChecker.checkNotNull(connectionFactory, "JMS Connection Factory");
     _connectionFactory = connectionFactory;

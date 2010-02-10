@@ -7,7 +7,7 @@
 namespace com.opengamma.livedata {
 
   message ResolveResponse {
-    required LiveDataSpecification resolvedSpecification;
+    required LiveDataSpecificationImpl resolvedSpecification;
   }
   
 }

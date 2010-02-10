@@ -20,6 +20,11 @@ import com.opengamma.id.DomainSpecificIdentifiersImpl;
 public class LiveDataSpecificationImpl
 extends DomainSpecificIdentifiersImpl
 implements LiveDataSpecification {
+  
+  public LiveDataSpecificationImpl(LiveDataSpecification source) {
+    this(source.getIdentifiers());        
+  }
+  
   public LiveDataSpecificationImpl(DomainSpecificIdentifier... identifiers) {
     super(identifiers);
   }

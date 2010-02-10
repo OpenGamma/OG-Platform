@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.Heartbeat;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImplBuilder;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,17 +28,12 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   private final FudgeContext _fudgeContext;
   
   public HeartbeatReceiver(ActiveSecurityPublicationManager activeSecurityPublicationManager) {
-    this(activeSecurityPublicationManager, null);
+    this(activeSecurityPublicationManager, new FudgeContext());
   }
   
   public HeartbeatReceiver(ActiveSecurityPublicationManager activeSecurityPublicationManager, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(activeSecurityPublicationManager, "Active Security Publication Manager");
     _activeSecurityPublicationManager = activeSecurityPublicationManager;
-    
-    if (fudgeContext == null) {
-      fudgeContext = new FudgeContext();
-      fudgeContext.getObjectDictionary().addObjectBuilder(LiveDataSpecification.class, new LiveDataSpecificationImplBuilder());
-    }
     _fudgeContext = fudgeContext;
   }
 

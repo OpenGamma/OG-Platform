@@ -20,13 +20,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.transport.ByteArrayMessageReceiver;
-import com.opengamma.transport.ByteArrayRequestSender;
 import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,13 +38,13 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedLiveDataClient.class);
   // Injected Inputs:
   private final FudgeContext _fudgeContext;
-  private final ByteArrayRequestSender _subscriptionRequestSender;
+  private final FudgeRequestSender _subscriptionRequestSender;
   
-  public DistributedLiveDataClient(ByteArrayRequestSender subscriptionRequestSender) {
+  public DistributedLiveDataClient(FudgeRequestSender subscriptionRequestSender) {
     this(subscriptionRequestSender, new FudgeContext());
   }
 
-  public DistributedLiveDataClient(ByteArrayRequestSender subscriptionRequestSender, FudgeContext fudgeContext) {
+  public DistributedLiveDataClient(FudgeRequestSender subscriptionRequestSender, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(subscriptionRequestSender, "Subscription request sender");
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _subscriptionRequestSender = subscriptionRequestSender;
@@ -54,7 +54,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   /**
    * @return the subscriptionRequestSender
    */
-  public ByteArrayRequestSender getSubscriptionRequestSender() {
+  public FudgeRequestSender getSubscriptionRequestSender() {
     return _subscriptionRequestSender;
   }
 
@@ -75,11 +75,11 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   @Override
   protected void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandles) {
     ArgumentChecker.checkNotNull(subHandles, "Subscription Handles");
-    byte[] requestMessage = composeRequestMessage(subHandles);
+    FudgeFieldContainer requestMessage = composeRequestMessage(subHandles);
     getSubscriptionRequestSender().sendRequest(requestMessage, new SubscriptionResponseReceiver(subHandles));
   }
   
-  private class SubscriptionResponseReceiver implements ByteArrayMessageReceiver {
+  private class SubscriptionResponseReceiver implements FudgeMessageReceiver {
     private final Map<LiveDataSpecification, SubscriptionHandle> _spec2SubHandle;
     
     public SubscriptionResponseReceiver(Collection<SubscriptionHandle> subHandles) {
@@ -90,8 +90,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     }
 
     @Override
-    public void messageReceived(byte[] message) {
-      FudgeMsgEnvelope envelope = getFudgeContext().deserialize(message);
+    public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope envelope) {
       if((envelope == null) || (envelope.getMessage() == null)) {
         s_logger.warn("Got a message that can't be deserialized from a Fudge message.");
       }
@@ -127,11 +126,10 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
    * @param subHandle
    * @return
    */
-  protected byte[] composeRequestMessage(Collection<SubscriptionHandle> subHandles) {
+  protected FudgeFieldContainer composeRequestMessage(Collection<SubscriptionHandle> subHandles) {
     LiveDataSubscriptionRequest subReqMessage = composeSubscriptionRequestMessage(subHandles);
     FudgeFieldContainer requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
-    byte[] bytes = getFudgeContext().toByteArray(requestMessage);
-    return bytes;
+    return requestMessage;
   }
   
   /**
@@ -144,9 +142,9 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   protected LiveDataSubscriptionRequest composeSubscriptionRequestMessage(Collection<SubscriptionHandle> subHandles) {
     String username = null;
     
-    ArrayList<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
+    ArrayList<LiveDataSpecificationImpl> specs = new ArrayList<LiveDataSpecificationImpl>();
     for (SubscriptionHandle subHandle : subHandles) {
-      specs.add(subHandle.getRequestedSpecification());
+      specs.add(new LiveDataSpecificationImpl(subHandle.getRequestedSpecification()));
       
       if (username == null) {
         username = subHandle.getUserName();
