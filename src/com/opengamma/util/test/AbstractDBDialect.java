@@ -72,7 +72,6 @@ abstract public class AbstractDBDialect implements DBDialect {
   
   @Override
   public void clearTables(String catalog, String schema) {
-    // Does not take constraints into account as yet
     LinkedList<String> script = new LinkedList<String>();
     
     Connection conn = null;
@@ -97,9 +96,10 @@ abstract public class AbstractDBDialect implements DBDialect {
       }
       rs.close();
             
-      // Now execute it all
+      // Now execute it all. Constraints are taken into account by retrying the failed statement after all 
+      // dependent tables have been cleared first.
       int i = 0;
-      int MAX_ATTEMPTS = script.size() * 3;
+      int MAX_ATTEMPTS = script.size() * 3; // make sure the loop eventually terminates. Important if there's a cycle in the table dependency graph
       SQLException latestException = null;
       while (i < MAX_ATTEMPTS && !script.isEmpty()) {
         String sql = script.remove();
@@ -116,7 +116,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       statement.close();
       
       if (i == MAX_ATTEMPTS && !script.isEmpty()) {
-        throw new OpenGammaRuntimeException("Failed to clear tables - is there a circle in the table dependency graph?", latestException); 
+        throw new OpenGammaRuntimeException("Failed to clear tables - is there a cycle in the table dependency graph?", latestException); 
       }
       
       

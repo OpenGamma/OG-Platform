@@ -5,9 +5,9 @@
  */
 package com.opengamma.transport;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 /**
  * Similar to {@link ByteArrayRequestReceiver}, except that all messages are
@@ -17,6 +17,6 @@ import org.fudgemsg.FudgeMsgEnvelope;
  */
 public interface FudgeRequestReceiver {
   
-  FudgeFieldContainer requestReceived(FudgeContext fudgeContext, FudgeMsgEnvelope requestEnvelope);
+  FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope);
 
 }

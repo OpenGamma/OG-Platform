@@ -55,7 +55,7 @@ public class InMemoryByteArrayConduit implements ByteArrayMessageSender {
       try {
         receiver.messageReceived(message);
       } catch (Exception e) {
-        s_logger.warn("Unable to dispatch message to receiver {}", new Object[] {receiver}, e);
+        s_logger.warn("Unable to dispatch message to receiver " + receiver, e);
       }
     }
   }

@@ -9,6 +9,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -49,7 +50,8 @@ public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
   @Override
   public byte[] requestReceived(byte[] message) {
     FudgeMsgEnvelope requestEnvelope = getFudgeContext().deserialize(message);
-    FudgeFieldContainer responseContainer = getUnderlying().requestReceived(getFudgeContext(), requestEnvelope);
+    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext()); 
+    FudgeFieldContainer responseContainer = getUnderlying().requestReceived(deserializationContext, requestEnvelope);
     if(!(responseContainer instanceof FudgeMsg)) {
       throw new IllegalArgumentException("FudgeMsgRequestDispatcher can only currently handle FudgeMsg.");
     }
