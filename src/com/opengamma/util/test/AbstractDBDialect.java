@@ -216,7 +216,18 @@ abstract public class AbstractDBDialect implements DBDialect {
       }
       rs.close();
       
+      // Now execute it all
+      statement.close();
+      statement = conn.createStatement();
+      for (String sql : script) {
+        statement.executeUpdate(sql);
+      }
+      
+      statement.close();
+      statement = conn.createStatement();
+      
       // Drop sequences SQL
+      script.clear();
       if (getAllSequencesSQL(catalog, schema) != null) {
         rs = statement.executeQuery(getAllSequencesSQL(catalog, schema));
         while (rs.next()) {
@@ -228,7 +239,7 @@ abstract public class AbstractDBDialect implements DBDialect {
         rs.close();
       }
       
-      // Now execute it all
+      //now execute drop sequence
       statement.close();
       statement = conn.createStatement();
       for (String sql : script) {
@@ -236,6 +247,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       }
       
       statement.close();
+      
     
     } catch (SQLException e) {
       throw new OpenGammaRuntimeException("Failed to drop schema", e);
