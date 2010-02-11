@@ -93,12 +93,12 @@ public class HibernateSecurityMasterSession {
 
   
   // Domain specific ID / Security specific methods
-  /*package*/ DomainSpecificIdentifierAssociationBean getOrCreateDomainSpecificIdentifierAssociationBean(String domain, String identifier, SecurityBean security) {
-    Query query = getSession().getNamedQuery("DomainSpecificIdentifierAssociationBean.one.byDomainIdentifierSecurity");
+  /*package*/ DomainSpecificIdentifierAssociationBean getOrCreateDomainSpecificIdentifierAssociationBean(Date now, String domain, String identifier, SecurityBean security) {
+    Query query = getSession().getNamedQuery("DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifierSecurity");
     query.setString("domain", domain);
     query.setString("identifier", identifier);
     query.setParameter("security", security);
-   
+    query.setDate ("now", now);
     DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query.uniqueResult();
     if (association == null) {
       association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean(domain, identifier));
@@ -109,10 +109,11 @@ public class HibernateSecurityMasterSession {
     return association;
   }
   
-  /*package*/ DomainSpecificIdentifierAssociationBean getCreateOrUpdateDomainSpecificIdentifierAssociationBean(String domain, String identifier, SecurityBean security) {
-    Query query = getSession().getNamedQuery("DomainSpecificIdentifierAssociationBean.one");
+  /*package*/ DomainSpecificIdentifierAssociationBean getCreateOrUpdateDomainSpecificIdentifierAssociationBean(Date now, String domain, String identifier, SecurityBean security) {
+    Query query = getSession().getNamedQuery("DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier");
     query.setString("domain", domain);
     query.setString("identifier", identifier);
+    query.setDate ("now", now);
     DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query.uniqueResult();
     if (association == null) {
       association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean(domain, identifier));
@@ -137,14 +138,14 @@ public class HibernateSecurityMasterSession {
     return query.list();
   }
   
-  void associateOrUpdateDomainSpecificIdentifierWithSecurity(DomainSpecificIdentifier identifier, SecurityBean security) {
-    getCreateOrUpdateDomainSpecificIdentifierAssociationBean(identifier.getDomain().getDomainName(), identifier.getValue(), security.getFirstVersion());
+  void associateOrUpdateDomainSpecificIdentifierWithSecurity(Date now, DomainSpecificIdentifier identifier, SecurityBean security) {
+    getCreateOrUpdateDomainSpecificIdentifierAssociationBean(now, identifier.getDomain().getDomainName(), identifier.getValue(), security.getFirstVersion());
   }
   
   // Generic Securities
   
   /*package*/ SecurityBean getSecurityBean(Date now, final DomainSpecificIdentifier identifier) {
-    Query query = getSession().getNamedQuery("SecurityBean.one.byDomainIdentifier");
+    Query query = getSession().getNamedQuery("SecurityBean.one.byDateDomainIdentifier");
     query.setString("domain", identifier.getDomain().getDomainName());
     query.setString("identifier", identifier.getValue());
     query.setDate("now", now);
@@ -156,7 +157,7 @@ public class HibernateSecurityMasterSession {
     Set<String> domains = getListOfDomains(identifiers);
     for (String domain : domains) {
       final Set<String> ids = getListOfValuesForDomain(domain, identifiers);
-      Query query = getSession().getNamedQuery("SecurityBean.one.byDomainIdentifiers");
+      Query query = getSession().getNamedQuery("SecurityBean.one.byDateDomainIdentifiers");
       query.setString("domain", domain);
       query.setParameterList("identifiers", ids);
       query.setDate("now", now);

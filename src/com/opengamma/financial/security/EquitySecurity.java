@@ -13,6 +13,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.GICSCode;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 
@@ -27,7 +28,8 @@ public class EquitySecurity extends FinancialSecurity {
   private String _ticker;
   private String _exchange;
   private String _companyName;
-  private Currency _currency; 
+  private Currency _currency;
+  private GICSCode _gicsCode;
   
   // Identifiers that might be valid for equities:
   // - Bloomberg ticker (in BbgId)
@@ -122,6 +124,20 @@ public class EquitySecurity extends FinancialSecurity {
     _currency = currency;
   }
   
+  /**
+   * @return the gicsCode
+   */
+  public GICSCode getGicsCode() {
+    return _gicsCode;
+  }
+
+  /**
+   * @param gicsCode the gicsCode to set
+   */
+  public void setGicsCode(GICSCode gicsCode) {
+    _gicsCode = gicsCode;
+  }
+
   public boolean equals(Object o) {
     return EqualsBuilder.reflectionEquals(this, o);
   }

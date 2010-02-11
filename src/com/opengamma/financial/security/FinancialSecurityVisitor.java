@@ -12,7 +12,13 @@ package com.opengamma.financial.security;
  */
 public interface FinancialSecurityVisitor<T> {
   public T visitAmericanVanillaEquityOptionSecurity(AmericanVanillaEquityOptionSecurity security);
+  public T visitBondFutureSecurity(BondFutureSecurity security);
+  public T visitCorporateBondSecurity(CorporateBondSecurity security);
   public T visitEquitySecurity(EquitySecurity security);
   public T visitEuropeanVanillaEquityOptionSecurity(EuropeanVanillaEquityOptionSecurity security);
+  public T visitForwardExchangeFutureSecurity(ForwardExchangeFutureSecurity security);
+  public T visitGovernmentBondSecurity(GovernmentBondSecurity security);
+  public T visitMunicipalBondSecurity(MunicipalBondSecurity security);
   public T visitPoweredEquityOptionSecurity(PoweredEquityOptionSecurity security);
+  public T visitVanillaFutureSecurity(VanillaFutureSecurity security);
 }

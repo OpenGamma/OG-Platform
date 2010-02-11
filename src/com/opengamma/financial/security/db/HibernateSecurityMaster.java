@@ -86,12 +86,34 @@ public class HibernateSecurityMaster implements SecurityMaster {
               result.setIdentityKey(identifier.getValue());
               return result;
             }
+
+            @Override
+            public DefaultSecurity visitBondSecurityBean(
+                BondSecurityBean security) {
+              // TODO Auto-generated method stub
+              return null;
+            }
+
+            @Override
+            public DefaultSecurity visitEquityOptionSecurityBean(
+                EquityOptionSecurityBean security) {
+              // TODO Auto-generated method stub
+              return null;
+            }
+
+            @Override
+            public DefaultSecurity visitFutureSecurityBean(
+                FutureSecurityBean security) {
+              // TODO Auto-generated method stub
+              return null;
+            }
           });
           final List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
           if (populateWithOtherIdentifiers) {
             System.err.println("First version security id = "+security.getFirstVersion().getId());
-            Query identifierQuery = session.getNamedQuery("DomainSpecificIdentifierAssociationBean.many.bySecurity");
+            Query identifierQuery = session.getNamedQuery("DomainSpecificIdentifierAssociationBean.many.byDateSecurity");
             identifierQuery.setParameter("security", security.getFirstVersion());
+            identifierQuery.setDate("now", now);
             List<DomainSpecificIdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
             for (DomainSpecificIdentifierAssociationBean associationBean : otherIdentifiers) {
               identifiers.add(domainSpecificIdentifierBeanToDomainSpecificIdentifier(associationBean.getDomainSpecificIdentifier()));
@@ -121,7 +143,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
           EquitySecurityBean equity = secMasterSession.persistEquitySecurityBean(now, equitySecurity);
           Collection<DomainSpecificIdentifier> identifiers = equitySecurity.getIdentifiers();
           for (DomainSpecificIdentifier identifier : identifiers) {
-            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(identifier, equity.getFirstVersion()); //associate all the identifiers with the first version.
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, equity.getFirstVersion()); //associate all the identifiers with the first version.
           }
         } else if (security instanceof EquitySecurityBean) {
           EquitySecurityBean equity = (EquitySecurityBean) security;

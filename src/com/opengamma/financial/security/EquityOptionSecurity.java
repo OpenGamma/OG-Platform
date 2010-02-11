@@ -20,14 +20,16 @@ public abstract class EquityOptionSecurity extends FinancialSecurity implements 
   private final Expiry _expiry;
   private final String _underlyingIdentityKey;
   private final Currency _currency;
+  private final String _exchange;
   // TODO: jim 23-Sep-2009 -- Add support for regions/countries
 
-  public EquityOptionSecurity(OptionType optionType, double strike, Expiry expiry, String underlyingIdentityKey, Currency currency) {
+  public EquityOptionSecurity(OptionType optionType, double strike, Expiry expiry, String underlyingIdentityKey, Currency currency, final String exchange) {
     _optionType = optionType;
     _strike = strike;
     _expiry = expiry;
     _underlyingIdentityKey = underlyingIdentityKey;
     _currency = currency;
+    _exchange = exchange;
     setSecurityType(EQUITY_OPTION_TYPE);
   }
 
@@ -58,6 +60,10 @@ public abstract class EquityOptionSecurity extends FinancialSecurity implements 
   
   public Currency getCurrency() {
     return _currency;
+  }
+  
+  public String getExchange () {
+    return _exchange;
   }
   
   public abstract <T> T accept(OptionVisitor<T> visitor);

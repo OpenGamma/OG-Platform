@@ -7,6 +7,8 @@
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
+    <property name="validStartDate" type="date" not-null="false" />
+    <property name="validEndDate" type="date" not-null="false" />
     <!-- this is a special association that deals with the fact we've implemented
          securities with a table-per-concrete class model.  This means that whenever
          we have a polymorphic reference to the base class we need a discriminator to
@@ -31,7 +33,7 @@
     </component>
   </class>
   <!-- queries on this entity -->
-  <query name="SecurityBean.one.byDomainIdentifier">
+  <query name="SecurityBean.one.byDateDomainIdentifier">
     select 
       s
     from 
@@ -39,6 +41,8 @@
       SecurityBean as s
     where
       a.security = s.firstVersion and
+      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
+       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier and
       s.effectiveDateTime &lt;= :now and
@@ -52,7 +56,7 @@
                     latest.id &lt;&gt; s.id)
   </query>
   <!-- note the s, and the 'in (:identifiers)' part of the where -->
-  <query name="SecurityBean.one.byDomainIdentifiers"> 
+  <query name="SecurityBean.one.byDateDomainIdentifiers"> 
     select 
       s
     from 
@@ -60,6 +64,8 @@
       SecurityBean as s
     where
       a.security = s.firstVersion and
+      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
+       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier in (:identifiers) and
       s.effectiveDateTime &lt; :now and
@@ -72,25 +78,31 @@
                     latest.effectiveDateTime &gt; s.effectiveDateTime and
                     latest.id &lt;&gt; s.id)
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.one">
+  <query name="DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier">
     from 
       DomainSpecificIdentifierAssociationBean as a 
     where
+      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
+       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.one.byDomainIdentifierSecurity">
+  <query name="DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifierSecurity">
     from 
       DomainSpecificIdentifierAssociationBean as a 
     where
+      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
+       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier and
       a.security = :security
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.many.bySecurity">
+  <query name="DomainSpecificIdentifierAssociationBean.many.byDateSecurity">
     from 
       DomainSpecificIdentifierAssociationBean as a 
     where
+      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
+       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
       a.security = :security
   </query>
 </hibernate-mapping>

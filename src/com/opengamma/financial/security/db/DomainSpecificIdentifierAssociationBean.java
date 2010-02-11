@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security.db;
 
+import java.util.Date;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -17,6 +19,8 @@ public class DomainSpecificIdentifierAssociationBean {
   private Long _id = null;
   private SecurityBean _security = null;
   private DomainSpecificIdentifierBean _domainSpecificIdentifier = null;
+  private Date _validStartDate = null;
+  private Date _validEndDate = null;
 
   public DomainSpecificIdentifierAssociationBean() {
   }
@@ -50,6 +54,22 @@ public class DomainSpecificIdentifierAssociationBean {
     _security = security;
   }
   
+  public Date getValidStartDate () {
+    return _validStartDate;
+  }
+  
+  public void setValidStartDate (final Date validStartDate) {
+    _validStartDate = validStartDate;
+  }
+  
+  public Date getValidEndDate () {
+    return _validEndDate;
+  }
+  
+  public void setValidEndDate (final Date validEndDate) {
+    _validEndDate = validEndDate;
+  }
+  
   // note this will match objects with different id's as long as the domain and identifier are the same.
   public boolean equals(Object other) {
     if (!(other instanceof DomainSpecificIdentifierAssociationBean)) {
@@ -60,7 +80,9 @@ public class DomainSpecificIdentifierAssociationBean {
       return true;
     }
     if (ObjectUtils.equals(otherBean.getSecurity(), getSecurity()) &&
-        ObjectUtils.equals(otherBean.getDomainSpecificIdentifier(), getDomainSpecificIdentifier())) {
+        ObjectUtils.equals(otherBean.getDomainSpecificIdentifier(), getDomainSpecificIdentifier()) &&
+        ObjectUtils.equals(otherBean.getValidStartDate(), getValidStartDate()) &&
+        ObjectUtils.equals(otherBean.getValidStartDate(), getValidStartDate())) {
       return true;
     }
     return false;

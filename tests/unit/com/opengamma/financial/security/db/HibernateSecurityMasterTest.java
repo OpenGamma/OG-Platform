@@ -164,8 +164,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Assert.assertTrue(allEquitySecurities.contains(nomura));
         Assert.assertTrue(allEquitySecurities.contains(generalMotors));
         
-        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean("BLOOMBERG", "1311 Equity", nomura);
-        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean("BLOOMBERG", "GM Equity", generalMotors);
+        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "GM Equity", generalMotors);
         List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
         return null;
@@ -195,7 +195,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         System.err.println(allEquities);
         EquitySecurityBean nomura = secMasterSession.getCurrentEquitySecurityBean(now, tpxBean, "Nomura", jpyBean);
         Assert.assertNotNull(nomura);
-        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean("BLOOMBERG", "1311 JP Equity", nomura);
+        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(now, "BLOOMBERG", "1311 JP Equity", nomura);
         List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
         return null;

@@ -19,6 +19,7 @@ public class EquitySecurityBean extends SecurityBean {
   private ExchangeBean _exchange;
   private String _companyName;
   private CurrencyBean _currency;
+  private GICSCodeBean _gicsCode;
   
   // Identifiers that might be valid for equities:
   // - Bloomberg ticker (in BbgId)
@@ -39,11 +40,12 @@ public class EquitySecurityBean extends SecurityBean {
    * @param domain
    * @param domainIdentifier
    */
-  public EquitySecurityBean(ExchangeBean exchange, String companyName, CurrencyBean currency) {
+  public EquitySecurityBean(ExchangeBean exchange, String companyName, CurrencyBean currency, GICSCodeBean gicsCode) {
     this();
     _exchange = exchange;
     _companyName = companyName;
     _currency = currency;
+    _gicsCode = gicsCode;
   }
 
   /**
@@ -86,6 +88,20 @@ public class EquitySecurityBean extends SecurityBean {
    */
   public void setCurrency(CurrencyBean currency) {
     _currency = currency;
+  }
+
+  /**
+   * @return the gicsCode
+   */
+  public GICSCodeBean getGicsCode() {
+    return _gicsCode;
+  }
+
+  /**
+   * @param gicsCode the gicsCode to set
+   */
+  public void setGicsCode(GICSCodeBean gicsCode) {
+    _gicsCode = gicsCode;
   }
 
   public boolean equals(Object other) {
