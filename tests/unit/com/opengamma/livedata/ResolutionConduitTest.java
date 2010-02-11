@@ -5,17 +5,14 @@
  */
 package com.opengamma.livedata;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
-import com.opengamma.livedata.client.DistributedEntitlementChecker;
 import com.opengamma.livedata.client.DistributedSpecificationResolver;
 import com.opengamma.livedata.client.IdentitySpecificationResolver;
-import com.opengamma.livedata.client.PermissiveLiveDataEntitlementChecker;
-import com.opengamma.livedata.server.EntitlementServer;
 import com.opengamma.livedata.server.SpecificationResolverServer;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
