@@ -1,59 +1,60 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.livedata.client;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.livedata.EntitlementRequest;
-import com.opengamma.livedata.EntitlementResponse;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.ResolveRequest;
+import com.opengamma.livedata.ResolveResponse;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Uses the OpenGamma transport system to enable distributed request/response
- * for entitlement checking.
+ * 
  *
- * @author kirk
+ * @author pietari
  */
-public class DistributedEntitlementChecker implements
-    LiveDataEntitlementChecker {
+public class DistributedSpecificationResolver implements LiveDataSpecificationResolver {
+  
   public static final long TIMEOUT_MS = 5 * 60 * 100l;
-  private static final Logger s_logger = LoggerFactory.getLogger(DistributedEntitlementChecker.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DistributedSpecificationResolver.class);
   private final FudgeRequestSender _requestSender;
   private final FudgeContext _fudgeContext;
   
-  public DistributedEntitlementChecker(FudgeRequestSender requestSender) {
+  public DistributedSpecificationResolver(FudgeRequestSender requestSender) {
     this(requestSender, new FudgeContext());
   }
   
-  public DistributedEntitlementChecker(FudgeRequestSender requestSender, FudgeContext fudgeContext) {
+  public DistributedSpecificationResolver(FudgeRequestSender requestSender, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(requestSender, "Request Sender");
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _requestSender = requestSender;
     _fudgeContext = fudgeContext;
   }
-
+  
   @Override
-  public boolean isEntitled(String userName,
-      LiveDataSpecification fullyQualifiedSpecification) {
-    s_logger.info("Sending message to qualify {} on {}", userName, fullyQualifiedSpecification);
-    FudgeFieldContainer requestMessage = composeRequestMessage(userName, fullyQualifiedSpecification);
+  public LiveDataSpecification resolve(LiveDataSpecification requestedSpecification) {
+    s_logger.info("Sending message to resolve ", requestedSpecification);
+    ResolveRequest resolveRequest = new ResolveRequest(new LiveDataSpecificationImpl(requestedSpecification));
+    FudgeFieldContainer requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
-    final AtomicBoolean isEntitled = new AtomicBoolean(false);
+    final AtomicReference<LiveDataSpecification> resolved = new AtomicReference<LiveDataSpecification>();
     _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {
       
       @Override
@@ -61,8 +62,8 @@ public class DistributedEntitlementChecker implements
           FudgeMsgEnvelope msgEnvelope) {
         
         FudgeFieldContainer msg = msgEnvelope.getMessage();
-        EntitlementResponse response = EntitlementResponse.fromFudgeMsg(msg);
-        isEntitled.set(response.getIsEntitled());
+        ResolveResponse response = ResolveResponse.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
+        resolved.set(response.getResolvedSpecification());
         responseReceived.set(true);
         
       }
@@ -79,18 +80,7 @@ public class DistributedEntitlementChecker implements
       }
     }
     
-    return isEntitled.get();
-  }
-
-  /**
-   * @param userName
-   * @param fullyQualifiedSpecification
-   * @return
-   */
-  protected FudgeFieldContainer composeRequestMessage(String userName,
-      LiveDataSpecification fullyQualifiedSpecification) {
-    EntitlementRequest request = new EntitlementRequest(userName, new LiveDataSpecificationImpl(fullyQualifiedSpecification));
-    return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
+    return resolved.get();
   }
 
 }
