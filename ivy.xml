@@ -8,7 +8,7 @@
       <artifact name="og-util" type="jar"/>
     </publications>
     <dependencies>
-    	<dependency org="org.fudgemsg" name="fudge" rev="latest.integration" conf="opengamma->core"/>
+    	<dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" conf="opengamma->core"/>
     	
         <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
         <dependency org="org.apache.commons" name="commons-dbcp" rev="1.2.2"/>
