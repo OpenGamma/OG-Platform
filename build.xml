@@ -2,4 +2,55 @@
 	<property file="build.properties"/>
 	
 	<import file="${common.dir}/common.xml"/>
+	
+	<target name="create-derbydb" description="--> run scripts to create database schema for derby">
+		<sql
+		    driver="${derby.driver}"
+		    url="${derby.url}"
+		    userid="${derby.user}"
+		    password="${derby.pass}"
+		    src="db/derby/drop-db.sql"
+			onerror="continue">
+			<classpath>
+				<path refid="lib.path.id" />
+			</classpath>
+		</sql>
+		<sql
+			driver="${derby.driver}"
+			url="${derby.url}"
+			userid="${derby.user}"
+			password="${derby.pass}"
+			src="db/derby/create-db.sql"
+			onerror="stop">
+			<classpath>
+				<path refid="lib.path.id" />
+			</classpath>
+		</sql>
+	</target>
+	
+	<target name="create-postgresdb" description="--> run scripts to create database schema for postgres">
+			<sql
+			    driver="${postgres.driver}"
+			    url="${postgres.url}"
+			    userid="${postgres.user}"
+			    password="${postgres.pass}"
+			    src="db/postgres/drop-db.sql"
+				onerror="continue">
+				<classpath>
+					<path refid="lib.path.id" />
+				</classpath>
+			</sql>
+			<sql
+				driver="${postgres.driver}"
+				url="${postgres.url}"
+				userid="${postgres.user}"
+				password="${postgres.pass}"
+				src="db/postgres/create-db.sql"
+				onerror="stop">
+				<classpath>
+					<path refid="lib.path.id" />
+				</classpath>
+			</sql>
+	</target>
+
 </project>

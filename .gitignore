@@ -1,6 +1,7 @@
 *~
 foo~
 *.class
+*.log
 classes/
 dist/
 ivy/
@@ -8,3 +9,4 @@ tests/classes/
 tests/output/
 build/
 lib/
+db/derby/test_*

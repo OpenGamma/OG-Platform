@@ -5,8 +5,9 @@
  */
 package com.opengamma.historical.dao;
 
-import java.util.List;
+import java.util.Set;
 
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -16,33 +17,65 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public interface TimeSeriesDao {
   
-  public void createDataSource(String dataSource);
+  public int createDomain(String domain, String description);
   
-  public int getDataSourceID(String dataSource);
+  public String findDomainByID(int id);
   
-  public List<String> getAllDataSources();
+  public int getDomainID(String name);
   
-  public void createDataProvider(String dataProvider);
+  public Set<String> getAllDomains();
   
-  public int getDataProviderID(String dataProvider);
+  public int createDataSource(String dataSource, String description);
   
-  public List<String> getAllDataProviders();
+  public String findDataSourceByID(int id);
   
-  public void createTimeSeriesField(String field);
+  public int getDataSourceID(String name);
   
-  public int getFieldID(String field);
+  public Set<String> getAllDataSources();
   
-  public List<String> getAllTimeSeriesFields();
+  public int createDataProvider(String dataProvider, String description);
   
-  public void createObservationTime(String observationTime);
+  public String findDataProviderByID(int id);
   
-  public List<String> getAllObservationTimes();
+  public int getDataProviderID(String name);
+  
+  public Set<String> getAllDataProviders();
+  
+  public int createDataField(String field, String description);
+  
+  public String findDataFieldByID(int id);
+  
+  public int getDataFieldID(String name);
+  
+  public Set<String> getAllTimeSeriesFields();
+  
+  public int createObservationTime(String observationTime, String description);
+  
+  public int getObservationTimeID(String name);
+  
+  public String findObservationTimeByID(int id);
+  
+  public Set<String> getAllObservationTimes();
+  
+  public int createQuotedObject(String name, String description);
+  
+  public int getQuotedObjectID(String name);
+  
+  public String findQuotedObjectByID(int id);
+  
+  public Set<String> getAllQuotedObjects();
+  
+  public void createDomainSpecIdentifiers(Set<DomainSpecificIdentifier> domainIdentifiers, String quotedObj);
+  
+  public void createTimeSeriesKey(String quotedObject, String dataSource, String dataProvider, String dataField, String observationTime);
+  
+  public Set<DomainSpecificIdentifier> findDomainSpecIdentifiersByQuotedObject(String name);
 
-  public void addDataPoints(String secDes, String dataSource, String dataProvider, String field,  String observationTime, DoubleTimeSeries timeSeries);
+  public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, DoubleTimeSeries timeSeries);
   
-  //generic get timeseries call that allow nulls for unwanted fields
-  public List<DoubleTimeSeries> getTimeSeries(String secDes, String dataSource, String dataProvider, String field,  String observationTime);
-  
+  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
+
+  /*
   public List<DoubleTimeSeries> getTimeSeriesByDataSource(String secDes, String dataSource);
   
   public List<DoubleTimeSeries> getTimeSeriesByDataProvider(String secDes, String dataProvider);
@@ -50,5 +83,6 @@ public interface TimeSeriesDao {
   public List<DoubleTimeSeries> getTimeSeriesByField(String secDes, String field);
   
   public List<DoubleTimeSeries> getTimeSeriesByObservationTime(String secDes, String observationTime);
+  */
   
 }
