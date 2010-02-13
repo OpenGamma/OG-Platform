@@ -87,7 +87,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.checkNotNull(observationTime, "observationTime");
     ArgumentChecker.checkNotNull(timeSeries, "timeSeries");
 
-    s_logger.debug("adding timeseries for {} with dataSoruce={}, dataProvider={}, dataField={}, observationTime={}", 
+    s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime});
     String quotedObject = findQuotedObject(domainIdentifiers);
     if (quotedObject == null) {
@@ -97,7 +97,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     createDomainSpecIdentifiers(domainIdentifiers, quotedObject);
     createTimeSeriesKey(quotedObject, dataSource, dataProvider, field, observationTime);
     final int timeSeriesKeyID = getTimeSeriesKeyID(quotedObject, dataSource, dataProvider, field, observationTime);
-    String sql = "INSERT into time_series_data (id, ts_date, value) VALUES (?, ?, ?)";
+    String sql = "INSERT into time_series_data (time_series_id, ts_date, value) VALUES (?, ?, ?)";
 
     JdbcOperations jdbcOperations = _simpleJdbcTemplate.getJdbcOperations();
     jdbcOperations.batchUpdate(sql, new BatchPreparedStatementSetter() {
@@ -418,11 +418,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
     
     String sql = "SELECT ts_date, value FROM time_series_data " +
-    		" WHERE id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
+    		" WHERE time_series_id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
     		" domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
     		" WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
-    		" AND tsKey.qouted_obj_id = qo.id " +
-    		" AND tsKey.data_soure_id = ds.id " +
+    		" AND tsKey.quoted_obj_id = qo.id " +
+    		" AND tsKey.data_source_id = ds.id " +
     		" AND tsKey.data_provider_id = dp.id " +
     		" AND tsKey.data_field_id = df.id" +
     		" AND observation_time_id = ot.id " +
@@ -525,7 +525,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       createObservationTime(observationTime, null);
     }
     String sql = "INSERT into time_series_key " +
-    		" (qouted_obj_id, data_soure_id, data_provider_id, data_field_id, observation_time_id)" +
+    		" (quoted_obj_id, data_source_id, data_provider_id, data_field_id, observation_time_id)" +
     		" VALUES " +
     		"((SELECT id from quoted_object where name = ?)," +
     		" (SELECT id from data_source where name = ?)," +
@@ -554,8 +554,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     		" data_field df, " +
     		" observation_time ot" +
     		" WHERE " +
-    		" tskey.qouted_obj_id = qo.id " +
-    		" AND tskey.data_soure_id = ds.id " +
+    		" tskey.quoted_obj_id = qo.id " +
+    		" AND tskey.data_source_id = ds.id " +
     		" AND tskey.data_provider_id = dp.id " +
     		" AND tskey.data_field_id = df.id " +
     		" AND tskey.observation_time_id = ot.id " +
