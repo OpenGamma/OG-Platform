@@ -220,6 +220,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       statement.close();
       statement = conn.createStatement();
       for (String sql : script) {
+        System.out.println("Executing \"" + sql + "\"");
         statement.executeUpdate(sql);
       }
       
@@ -243,6 +244,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       statement.close();
       statement = conn.createStatement();
       for (String sql : script) {
+        System.out.println("Executing \"" + sql + "\"");
         statement.executeUpdate(sql);
       }
       
