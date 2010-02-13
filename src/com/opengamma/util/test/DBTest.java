@@ -60,5 +60,9 @@ abstract public class DBTest {
   public DBTool getDbTool() {
     return _dbtool;
   }
+  
+  public String getDatabaseType() {
+    return _databaseType;
+  }
 
 }
