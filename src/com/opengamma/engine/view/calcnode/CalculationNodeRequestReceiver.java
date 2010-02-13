@@ -5,10 +5,9 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
