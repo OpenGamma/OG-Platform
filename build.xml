@@ -141,6 +141,7 @@
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Util.git" dest="projects/OG-Util" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Integration.git" dest="projects/OG-Integration" />
     	<git-clone-pull repository="git@github.com:OpenGamma/OG-Security.git" dest="projects/OG-Security" />
+    	<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
    	</target>
 </project>
 
