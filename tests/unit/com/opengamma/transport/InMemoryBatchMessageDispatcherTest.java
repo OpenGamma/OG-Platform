@@ -53,7 +53,7 @@ public class InMemoryBatchMessageDispatcherTest {
     dispatcher.stop();
   }
   
-  protected static void assertBatchSize(List<Integer> batchSizes, Integer batchSize) throws InterruptedException {
+  public static void assertBatchSize(List<Integer> batchSizes, Integer batchSize) throws InterruptedException {
     long startTime = System.currentTimeMillis();
     while(batchSizes.isEmpty()) {
       Thread.sleep(100);
