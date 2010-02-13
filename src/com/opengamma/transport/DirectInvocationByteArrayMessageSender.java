@@ -23,18 +23,18 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class InMemoryByteArrayConduit implements ByteArrayMessageSender {
-  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryByteArrayConduit.class);
+public class DirectInvocationByteArrayMessageSender implements ByteArrayMessageSender {
+  private static final Logger s_logger = LoggerFactory.getLogger(DirectInvocationByteArrayMessageSender.class);
   private final List<ByteArrayMessageReceiver> _receivers = new ArrayList<ByteArrayMessageReceiver>();
   
-  public InMemoryByteArrayConduit() {
+  public DirectInvocationByteArrayMessageSender() {
   }
   
-  public InMemoryByteArrayConduit(ByteArrayMessageReceiver receiver) {
+  public DirectInvocationByteArrayMessageSender(ByteArrayMessageReceiver receiver) {
     addReceiver(receiver);
   }
 
-  public InMemoryByteArrayConduit(ByteArrayMessageReceiver... receivers) {
+  public DirectInvocationByteArrayMessageSender(ByteArrayMessageReceiver... receivers) {
     ArgumentChecker.checkNotNull(receivers, "Receivers");
     for(ByteArrayMessageReceiver receiver : receivers) {
       addReceiver(receiver);
