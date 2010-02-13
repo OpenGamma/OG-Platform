@@ -20,7 +20,7 @@ import com.opengamma.livedata.client.ValueDistributor;
 import com.opengamma.livedata.server.ActiveSecurityPublicationManager;
 import com.opengamma.livedata.server.HeartbeatReceiver;
 import com.opengamma.livedata.server.MockLiveDataServer;
-import com.opengamma.transport.InMemoryByteArrayConduit;
+import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 
 /**
  * Integration test between {@link HeartbeatSender} and {@link HeartbeatReceiver}.
@@ -34,7 +34,7 @@ public class HeartbeatConduitTest {
     MockLiveDataServer dataServer = new MockLiveDataServer();
     ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
-    InMemoryByteArrayConduit conduit = new InMemoryByteArrayConduit(receiver);
+    DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
     ValueDistributor valueDistributor = new ValueDistributor();
     Timer t = new Timer("HeartbeatConduitTest");
     /*HeartbeatSender sender = */new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 1000l);
