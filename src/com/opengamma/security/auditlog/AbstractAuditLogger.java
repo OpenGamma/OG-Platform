@@ -87,5 +87,12 @@ public abstract class AbstractAuditLogger implements AuditLogger {
    */
   public abstract void log(String user, String originatingSystem,
       String object, String operation, String description, boolean success);
+  
+  /** 
+   * Flushes log entries stored in memory into the database.
+   * Only relevant for loggers with an in-memory cache.
+   */
+  public void flushCache() {
+  }
 
 }

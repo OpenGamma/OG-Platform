@@ -5,9 +5,12 @@
  */
 package com.opengamma.security.auditlog;
 
+import java.util.List;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 
+import com.opengamma.transport.BatchFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -17,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class DistributedAuditLoggerServer implements FudgeMessageReceiver {
+public class DistributedAuditLoggerServer implements FudgeMessageReceiver, BatchFudgeMessageReceiver {
   
   private final AbstractAuditLogger _delegate;
   
@@ -37,4 +40,14 @@ public class DistributedAuditLoggerServer implements FudgeMessageReceiver {
         auditLogEntry.getDescription(),
         auditLogEntry.isSuccess());
   }
+
+  @Override
+  public void messagesReceived(FudgeContext fudgeContext, List<FudgeMsgEnvelope> msgEnvelopes) {
+    for (FudgeMsgEnvelope msgEnvelope : msgEnvelopes) {
+      messageReceived(fudgeContext, msgEnvelope);
+    }
+    
+    _delegate.flushCache();
+  }
+  
 }

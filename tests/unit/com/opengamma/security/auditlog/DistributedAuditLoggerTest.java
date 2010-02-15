@@ -7,6 +7,9 @@ package com.opengamma.security.auditlog;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -34,7 +37,7 @@ public class DistributedAuditLoggerTest {
     client.log("lisa", "testobject", "testop", "testdescription", true);
     assertEquals(1, msgStore.getMessages().size());
     
-    FudgeMsgEnvelope fudgeMsgEnvelope = s_fudgeContext.deserialize (msgStore.getMessages().get(0));
+    FudgeMsgEnvelope fudgeMsgEnvelope = s_fudgeContext.deserialize(msgStore.getMessages().get(0));
     
     InMemoryAuditLogger memoryAuditLogger = new InMemoryAuditLogger();
     assertEquals(0, memoryAuditLogger.getMessages().size());
@@ -50,6 +53,13 @@ public class DistributedAuditLoggerTest {
     assertEquals("testop", entry.getOperation());
     assertEquals("testdescription", entry.getDescription());
     assertTrue(entry.isSuccess());
+    
+    List<FudgeMsgEnvelope> msgEnvelopes = new ArrayList<FudgeMsgEnvelope>();
+    msgEnvelopes.add(fudgeMsgEnvelope);
+    msgEnvelopes.add(fudgeMsgEnvelope);
+    msgEnvelopes.add(fudgeMsgEnvelope);
+    server.messagesReceived(s_fudgeContext, msgEnvelopes);
+    assertEquals(4, memoryAuditLogger.getMessages().size()); // 1 from messageReceived() + 3 from messagesReceived()
   }
 
 }

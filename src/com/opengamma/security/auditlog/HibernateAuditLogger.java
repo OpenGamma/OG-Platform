@@ -119,9 +119,7 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
     }
   }
   
-  /** 
-   * Flushes the log entries stored in memory into the database.
-   */
+  @Override
   public void flushCache() {
     
     List<AuditLogEntry> auditLogCache;
