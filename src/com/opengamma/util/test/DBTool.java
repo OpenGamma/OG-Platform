@@ -10,6 +10,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 
@@ -144,93 +150,64 @@ public class DBTool {
  
   
     
-  public static void usage() {
-    System.out.println();
-    System.out.println("Usage:");    
-    System.out.println();
-    System.out.println("java com.opengamma.util.test.DBTool [args]");
-    System.out.println("where args are any of the following:");
-    System.out.println("--server={url} DB server URL (no database at the end) - for example, jdbc:postgresql://localhost:1234");
-    System.out.println("--user={user} User name to the DB");
-    System.out.println("--password={pw} Password to the DB");
-    System.out.println("--database={dbname} Name of database on the DB server - for example, OpenGammaTests");
-    System.out.println("--schema={schemaname} Name of schema within database. Optional. If not specified, the default schema for the database is used.");
-    System.out.println("--create Creates the given database/schema");
-    System.out.println("--drop Drops all tables and sequences within the given database/schema");
-    System.out.println("--clear Clears all tables within the given database/schema");
-    System.out.println("--createtestdb={dbtype} Drops schema in database test_<user.name> and recreates it.");
-    System.out.println("  {dbtype} should be one of derby, postgres, all.");
-    System.out.println("  Connection parameters are read from test.properties so you do not need");
-    System.out.println("  to specify --server, --user, or --password.");
+  public static void usage(Options options) {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.printHelp("java com.opengamma.util.test.DBTool [args]", options);
   }
   
   public static void main(String[] args) {
     
-    String dbUrl = null;
-    String user = null;
-    String password = null;
-    String catalog = null;
-    String schema = null;
-    String testDbType = null;
+    Options options = new Options();
+    options.addOption("server", "server", true, "DB server URL (no database at the end) - for example, jdbc:postgresql://localhost:1234");
+    options.addOption("user", "user", true, "User name to the DB");
+    options.addOption("password", "password", true, "Password to the DB");
+    options.addOption("database", "database", true, "Name of database on the DB server - for example, OpenGammaTests");
+    options.addOption("schema", "schema", true, "Name of schema within database. Optional. If not specified, the default schema for the database is used.");
+    options.addOption("create", "create", false, "Creates the given database/schema");
+    options.addOption("drop", "drop", false, "Drops all tables and sequences within the given database/schema");
+    options.addOption("clear", "clear", false, "Clears all tables within the given database/schema");
+    options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it. " +
+        "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
+        "to specify --server, --user, or --password.");
     
-    boolean create = false;
-    boolean drop = false;
-    boolean clear = false;
-    boolean createTestDb = false;
-    
-    for (String arg : args) {
-      if (arg.startsWith("--server=")) {
-        dbUrl = arg.substring("--server=".length());        
-      }
-      else if (arg.startsWith("--user=")) {
-        user = arg.substring("--user=".length());
-      }
-      else if (arg.startsWith("--password=")) {
-        password = arg.substring("--password=".length());
-      }
-      else if (arg.startsWith("--database=")) {
-        catalog = arg.substring("--database=".length());
-      }
-      else if (arg.startsWith("--schema=")) {
-        schema = arg.substring("--schema=".length());
-      }
-      else if (arg.equals("--create")) {
-        create = true;
-      }
-      else if (arg.equals("--drop")) {
-        drop = true;
-      }
-      else if (arg.equals("--clear")) {
-        clear = true;
-      }
-      else if (arg.startsWith("--createtestdb=")) {
-        createTestDb = true;
-        testDbType = arg.substring("--createtestdb=".length());
-      }
-      else {
-        System.out.println("Unrecognized option: " + arg);
-        usage();
-        System.exit(-1);
-      }
+    CommandLineParser parser = new PosixParser();
+    CommandLine line = null;
+    try {
+      line = parser.parse(options, args);
+    } catch (ParseException e) {
+      e.printStackTrace();
+      usage(options);
+      System.exit(-1);
     }
+    
+    String dbUrl = line.getOptionValue("server");
+    String user = line.getOptionValue("user");
+    String password = line.getOptionValue("password");
+    String catalog = line.getOptionValue("database");
+    String schema = line.getOptionValue("schema");
+    boolean create = line.hasOption("create");
+    boolean drop = line.hasOption("drop");
+    boolean clear = line.hasOption("clear");
+    boolean createTestDb = line.hasOption("createtestdb");
+    String testDbType = line.getOptionValue("createtestdb");
     
     if (!createTestDb) {
       if (dbUrl == null) {
         System.out.println("No DB server specified.");
-        usage();
+        usage(options);
         System.exit(-1);
       }
       
       if (catalog == null) {
         System.out.println("No database on the DB server specified.");
-        usage();
+        usage(options);
         System.exit(-1);
       }
     }
     
     if (!create && !drop && !clear && !createTestDb) {
       System.out.println("Nothing to do.");
-      usage();
+      usage(options);
       System.exit(-1);
     }
     
