@@ -75,15 +75,15 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   }
   
   @Override
-  public Authority getAuthority(final String authority) {
-    ArgumentChecker.checkNotNull(authority, "Authority");
+  public Authority getAuthority(final String regex) {
+    ArgumentChecker.checkNotNull(regex, "Authority");
     
     return (Authority) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
-        Query query = session.getNamedQuery("Authority.one.byAuthorityName");
-        query.setString("authority", authority);
+        Query query = session.getNamedQuery("Authority.one.byAuthorityRegex");
+        query.setString("regex", regex);
         return query.uniqueResult();
       }
     });

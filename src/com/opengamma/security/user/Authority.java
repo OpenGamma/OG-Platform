@@ -25,15 +25,15 @@ public class Authority {
   private Long _id;
   
   /** A regular expression in Ant format **/
-  private String _authority;
+  private String _regex;
   
-  public Authority(Long id, String authority) {
+  public Authority(Long id, String regex) {
     _id = id;
-    _authority = authority;
+    _regex = regex;
   }
 
-  public Authority(String authority) {
-    this(null, authority);
+  public Authority(String regex) {
+    this(null, regex);
   }
   
   protected Authority() {
@@ -47,12 +47,12 @@ public class Authority {
     _id = id;
   }
 
-  public String getAuthority() {
-    return _authority;
+  public String getRegex() {
+    return _regex;
   }
 
-  public void setAuthority(String authority) {
-    this._authority = authority;
+  public void setRegex(String regex) {
+    this._regex = regex;
   }
   
   /**
@@ -62,7 +62,7 @@ public class Authority {
    * for example <code>/MarketData/Bloomberg/&#42;/View</code>, matches the requested permission
    */
   public boolean matches(String requestedPermission) {
-    return PathMatcher.matches(requestedPermission, _authority);
+    return PathMatcher.matches(requestedPermission, _regex);
   }  
   
   @Override
@@ -92,7 +92,7 @@ public class Authority {
 
   @Override
   public String toString() {
-    return _authority;
+    return _regex;
   }
 
 }

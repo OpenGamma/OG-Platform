@@ -87,7 +87,7 @@ public class User implements UserDetails {
   public GrantedAuthority[] getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     for (Authority authority : getAuthoritySet()) {
-        authorities.add(new GrantedAuthorityImpl(authority.getAuthority()));        
+        authorities.add(new GrantedAuthorityImpl(authority.getRegex()));        
     }
     return authorities.toArray(new GrantedAuthority[0]);
   }

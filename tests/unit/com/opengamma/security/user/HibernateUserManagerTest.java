@@ -171,21 +171,21 @@ public class HibernateUserManagerTest extends HibernateTest {
     }
     
     // Add
-    authority = new Authority("authority");
+    authority = new Authority("regex");
     _userManager.addAuthority(authority);
     
     // Update
-    authority.setAuthority("newauthority");
+    authority.setRegex("newregex");
     _userManager.updateAuthority(authority);
-    authority = _userManager.getAuthority("authority");
+    authority = _userManager.getAuthority("regex");
     Assert.assertNull(authority);
-    authority = _userManager.getAuthority("newauthority");
+    authority = _userManager.getAuthority("newregex");
     Assert.assertNotNull(authority);
-    Assert.assertEquals("newauthority", authority.getAuthority());
+    Assert.assertEquals("newregex", authority.getRegex());
     
     // Delete
     _userManager.deleteAuthority(authority);
-    authority = _userManager.getAuthority("newauthority");
+    authority = _userManager.getAuthority("newregex");
     Assert.assertNull(authority);
   }
 }

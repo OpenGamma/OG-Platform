@@ -8,9 +8,9 @@
   	<id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
-    <property name="authority" unique="true" not-null="true"/>
+    <property name="regex" unique="true" not-null="true"/>
   </class>
   
-  <query name="Authority.one.byAuthorityName">from Authority as a where a.authority = :authority</query>
+  <query name="Authority.one.byAuthorityRegex">from Authority as a where a.regex = :regex</query>
 
 </hibernate-mapping>

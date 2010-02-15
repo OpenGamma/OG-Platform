@@ -13,7 +13,7 @@ create table audit_log (
 
 create table authority (
     id int8 not null,
-    authority varchar(255) not null unique,
+    regex varchar(255) not null unique,
     primary key (id)
 );
 
