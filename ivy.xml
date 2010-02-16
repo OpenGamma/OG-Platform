@@ -12,6 +12,8 @@
         <dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" conf="opengamma->core"/>
         <dependency name="og-security" rev="latest.integration" conf="opengamma->*"/>
       	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
+      	
+      	<dependency org="org.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
     	
     </dependencies>
 </ivy-module>
