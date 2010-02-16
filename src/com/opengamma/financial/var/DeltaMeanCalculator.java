@@ -31,13 +31,13 @@ public class DeltaMeanCalculator extends Function1D<ParametricVaRDataBundle, Dou
     final int s1 = delta.size();
     if (s1 == 0)
       throw new IllegalArgumentException("Value delta vector contained no data");
-    final DoubleMatrix1D mean = data.getMean();
+    final DoubleMatrix1D mean = data.getMean(ValueGreek.VALUE_DELTA);
     final int s2 = mean.size();
     if (s2 == 0)
       throw new IllegalArgumentException("Mean vector contained no data");
     if (s1 != s2)
       throw new IllegalArgumentException("Value delta and mean vectors were of different size");
-    return _algebra.mult(data.getValueGreek(ValueGreek.VALUE_DELTA), data.getMean());
+    return _algebra.mult(data.getValueGreek(ValueGreek.VALUE_DELTA), data.getMean(ValueGreek.VALUE_DELTA));
   }
 
 }
