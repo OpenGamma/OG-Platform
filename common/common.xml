@@ -175,7 +175,7 @@
 	
 	<target name="tests" depends="create-test-db,junit-batch,junit-report" description="--> run unit tests and generate report"/>
 	
-	<target name="create-test-db" if="dbscript.dir"> <!-- Use dbscript.dir to deduce that there is a test database to be created -->
+	<target name="create-test-db" if="dbscript.dir" depends="resolve"> <!-- Use dbscript.dir to deduce that there is a test database to be created -->
 		<java classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" failonerror="true" fork="true">
 			<arg value="--createtestdb=${test.database.type}"/>
 		</java>				
