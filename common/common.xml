@@ -67,7 +67,9 @@
 	</target>
 
 	<path id="lib.path.id">
-		<fileset dir="${lib.dir}" />
+		<fileset dir="${lib.dir}">
+			<exclude name="*/org.apache.ant/ant/*.jar" />
+		</fileset>
 	</path>
 	<path id="run.path.id">
 		<path refid="lib.path.id" />
@@ -123,7 +125,8 @@
                 	toString="${fudge.proto.toString}"
                 	hashCode="${fudge.proto.hashCode}"
                 	verbose="${build.verbose}"
-                	fudgeContext="${fudge.proto.fudgeContext}" />
+                	fudgeContext="${fudge.proto.fudgeContext}"
+                	rebuildAll="${fudge.proto.rebuildall}" />
 	</target>
 	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
 		description="--> compile any Fudge .proto files">
@@ -248,6 +251,7 @@
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Build-Version" value="${version}" />
+				<attribute name="Main-Class" value="${main.class.name}" />
 			</manifest>
 		</jar>
 	</target>
