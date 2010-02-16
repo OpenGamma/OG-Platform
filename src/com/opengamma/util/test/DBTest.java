@@ -8,6 +8,7 @@ package com.opengamma.util.test;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -35,6 +36,7 @@ abstract public class DBTest {
     String password = TestProperties.getDbPassword(_databaseType);
     
     _dbtool = new DBTool(dbHost, user, password);
+    _dbtool.initialise();
   }
   
   @Parameters
@@ -53,8 +55,12 @@ abstract public class DBTest {
   
   @Before
   public void setUp() throws Exception {
-    _dbtool.initialise(); // avoids locking issues with Derby
     _dbtool.clearTestTables();
+  }
+  
+  @After
+  public void tearDown() throws Exception {
+    _dbtool.shutdown(); // avoids locking issues with Derby
   }
 
   public DBTool getDbTool() {

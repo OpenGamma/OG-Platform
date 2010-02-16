@@ -52,5 +52,6 @@ public abstract class HibernateTest extends DBTest {
     if (_sessionFactory != null) {
       _sessionFactory.close();
     }
+    super.tearDown();
   }
 }

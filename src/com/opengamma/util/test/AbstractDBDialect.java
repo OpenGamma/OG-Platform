@@ -43,6 +43,13 @@ abstract public class AbstractDBDialect implements DBDialect {
       throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
     }
   }
+  
+  @Override
+  public void shutdown() {
+    // By default, do nothing
+  }
+
+
 
   public String getDbHost() {
     return _dbServerHost;
