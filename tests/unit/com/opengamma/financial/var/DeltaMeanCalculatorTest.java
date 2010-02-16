@@ -24,19 +24,19 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class DeltaMeanCalculatorTest {
-  private static final Function1D<ParametricVaRDataBundle, Double> F = new DeltaMeanCalculator();
+  private static final Function1D<ParametricWithMeanVaRDataBundle, Double> F = new DeltaMeanCalculator();
   private static final DoubleMatrix1D EMPTY_VECTOR = DoubleFactory1D.dense.make(0);
   private static final DoubleMatrix1D VECTOR = DoubleFactory1D.dense.make(new double[] { 3 });
   private static final DoubleMatrix2D EMPTY_MATRIX = DoubleFactory2D.dense.make(0, 0);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    F.evaluate((ParametricVaRDataBundle) null);
+    F.evaluate((ParametricWithMeanVaRDataBundle) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyValueDeltaVector() {
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
         .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA,
         EMPTY_MATRIX));
     F.evaluate(data);
@@ -44,7 +44,7 @@ public class DeltaMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyMeanVector() {
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections
         .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
     F.evaluate(data);
   }
@@ -52,14 +52,14 @@ public class DeltaMeanCalculatorTest {
   @Test(expected = IllegalArgumentException.class)
   public void testDifferentVectorSizes() {
     final DoubleMatrix1D v = DoubleFactory1D.dense.make(new double[] { 3., 4. });
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, v), Collections
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, v), Collections
         .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
     F.evaluate(data);
   }
 
   @Test
   public void test() {
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
         .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
     assertEquals(F.evaluate(data), 9, 1e-9);
   }

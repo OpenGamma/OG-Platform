@@ -28,7 +28,7 @@ public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D
   public Double evaluate(final ParametricVaRDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Data were null");
-    final DoubleMatrix1D delta = data.getValueGreek(ValueGreek.VALUE_DELTA);
+    final DoubleMatrix1D delta = data.getValueGreekVector(ValueGreek.VALUE_DELTA);
     final int s1 = delta.size();
     if (s1 == 0)
       throw new IllegalArgumentException("Value delta vector contained no data");

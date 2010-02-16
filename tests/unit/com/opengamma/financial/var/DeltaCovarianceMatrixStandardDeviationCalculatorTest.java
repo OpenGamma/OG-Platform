@@ -32,35 +32,38 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    F.evaluate((ParametricVaRDataBundle) null);
+    F.evaluate((ParametricWithMeanVaRDataBundle) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyValueDeltaVector() {
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR),
+        Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA,
+            MATRIX));
     F.evaluate(data);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyMatrix() {
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR),
+        Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA,
+            EMPTY_MATRIX));
     F.evaluate(data);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testRectangularMatrix() {
     final DoubleMatrix2D m = DoubleFactory2D.dense.make(new double[][] { new double[] { 3., 4. } });
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, m));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR),
+        Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, m));
     F.evaluate(data);
   }
 
   @Test
   public void test() {
-    final ParametricVaRDataBundle data = new ParametricVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR),
+        Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
+            .<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, MATRIX));
     assertEquals(F.evaluate(data), Math.sqrt(45), 1e-9);
   }
 }
