@@ -16,7 +16,7 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 
-import com.opengamma.financial.greeks.value.ValueGreek;
+import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -36,31 +36,34 @@ public class DeltaMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyValueDeltaVector() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA,
-        EMPTY_MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, VECTOR),
+        Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, EMPTY_VECTOR), Collections.<Sensitivity, DoubleMatrix2D> singletonMap(
+            Sensitivity.VALUE_DELTA, EMPTY_MATRIX));
     F.evaluate(data);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyMeanVector() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, EMPTY_VECTOR),
+        Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, VECTOR), Collections.<Sensitivity, DoubleMatrix2D> singletonMap(Sensitivity.VALUE_DELTA,
+            EMPTY_MATRIX));
     F.evaluate(data);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testDifferentVectorSizes() {
     final DoubleMatrix1D v = DoubleFactory1D.dense.make(new double[] { 3., 4. });
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, v), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, v),
+        Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, VECTOR), Collections.<Sensitivity, DoubleMatrix2D> singletonMap(Sensitivity.VALUE_DELTA,
+            EMPTY_MATRIX));
     F.evaluate(data);
   }
 
   @Test
   public void test() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections
-        .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, VECTOR), Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, EMPTY_MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, VECTOR),
+        Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, VECTOR), Collections.<Sensitivity, DoubleMatrix2D> singletonMap(Sensitivity.VALUE_DELTA,
+            EMPTY_MATRIX));
     assertEquals(F.evaluate(data), 9, 1e-9);
   }
 }

@@ -17,18 +17,18 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 
-import com.opengamma.financial.greeks.value.ValueGreek;
+import com.opengamma.financial.sensitivity.Sensitivity;
 
 /**
  * @author emcleod
  * 
  */
 public class ParametricWithMeanVaRDataBundleTest {
-  private final Map<ValueGreek, DoubleMatrix1D> MEAN = Collections
-      .<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, DoubleFactory1D.dense.make(new double[] { 2 }));
-  private final Map<ValueGreek, DoubleMatrix1D> VECTOR = Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, DoubleFactory1D.dense
+  private final Map<Sensitivity, DoubleMatrix1D> MEAN = Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, DoubleFactory1D.dense
+      .make(new double[] { 2 }));
+  private final Map<Sensitivity, DoubleMatrix1D> VECTOR = Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, DoubleFactory1D.dense
       .make(new double[] { 4 }));
-  private final Map<ValueGreek, DoubleMatrix2D> MATRIX = Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, DoubleFactory2D.dense
+  private final Map<Sensitivity, DoubleMatrix2D> MATRIX = Collections.<Sensitivity, DoubleMatrix2D> singletonMap(Sensitivity.VALUE_DELTA, DoubleFactory2D.dense
       .make(new double[][] { new double[] { 2 } }));
   private final ParametricWithMeanVaRDataBundle DATA = new ParametricWithMeanVaRDataBundle(MEAN, VECTOR, MATRIX);
 
@@ -38,12 +38,12 @@ public class ParametricWithMeanVaRDataBundleTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBadValueGreekMean() {
-    DATA.getMean(ValueGreek.VALUE_VEGA);
+  public void testBadSensitivityMean() {
+    DATA.getMean(Sensitivity.VALUE_VEGA);
   }
 
   @Test
   public void test() {
-    assertEquals(MEAN.get(ValueGreek.VALUE_DELTA), DATA.getMean(ValueGreek.VALUE_DELTA));
+    assertEquals(MEAN.get(Sensitivity.VALUE_DELTA), DATA.getMean(Sensitivity.VALUE_DELTA));
   }
 }

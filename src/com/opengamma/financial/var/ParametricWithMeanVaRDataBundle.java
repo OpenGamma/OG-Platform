@@ -10,24 +10,24 @@ import java.util.Map;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 
-import com.opengamma.financial.greeks.value.ValueGreek;
+import com.opengamma.financial.sensitivity.Sensitivity;
 
 /**
  * @author emcleod
  * 
  */
 public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
-  private final Map<ValueGreek, DoubleMatrix1D> _mean;
+  private final Map<Sensitivity, DoubleMatrix1D> _mean;
 
-  public ParametricWithMeanVaRDataBundle(final Map<ValueGreek, DoubleMatrix1D> mean, final Map<ValueGreek, DoubleMatrix1D> sensitivities,
-      final Map<ValueGreek, DoubleMatrix2D> covariances) {
+  public ParametricWithMeanVaRDataBundle(final Map<Sensitivity, DoubleMatrix1D> mean, final Map<Sensitivity, DoubleMatrix1D> sensitivities,
+      final Map<Sensitivity, DoubleMatrix2D> covariances) {
     super(sensitivities, covariances);
     if (mean == null)
       throw new IllegalArgumentException("Mean map was null");
     _mean = mean;
   }
 
-  public DoubleMatrix1D getMean(final ValueGreek greek) {
+  public DoubleMatrix1D getMean(final Sensitivity greek) {
     if (!_mean.containsKey(greek))
       throw new IllegalArgumentException("Map does not contain vector for " + greek);
     return _mean.get(greek);

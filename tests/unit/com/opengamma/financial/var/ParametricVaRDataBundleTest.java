@@ -17,16 +17,16 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 
-import com.opengamma.financial.greeks.value.ValueGreek;
+import com.opengamma.financial.sensitivity.Sensitivity;
 
 /**
  * @author emcleod
  * 
  */
 public class ParametricVaRDataBundleTest {
-  private final Map<ValueGreek, DoubleMatrix1D> VECTOR = Collections.<ValueGreek, DoubleMatrix1D> singletonMap(ValueGreek.VALUE_DELTA, DoubleFactory1D.dense
+  private final Map<Sensitivity, DoubleMatrix1D> VECTOR = Collections.<Sensitivity, DoubleMatrix1D> singletonMap(Sensitivity.VALUE_DELTA, DoubleFactory1D.dense
       .make(new double[] { 4 }));
-  private final Map<ValueGreek, DoubleMatrix2D> MATRIX = Collections.<ValueGreek, DoubleMatrix2D> singletonMap(ValueGreek.VALUE_DELTA, DoubleFactory2D.dense
+  private final Map<Sensitivity, DoubleMatrix2D> MATRIX = Collections.<Sensitivity, DoubleMatrix2D> singletonMap(Sensitivity.VALUE_DELTA, DoubleFactory2D.dense
       .make(new double[][] { new double[] { 2 } }));
   private final ParametricVaRDataBundle DATA = new ParametricVaRDataBundle(VECTOR, MATRIX);
 
@@ -41,18 +41,18 @@ public class ParametricVaRDataBundleTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBadValueGreekSensitivity() {
-    DATA.getValueGreekVector(ValueGreek.VALUE_VEGA);
+  public void testBadSensitivitySensitivity() {
+    DATA.getSensitivityVector(Sensitivity.VALUE_VEGA);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testBadValueGreekCovariance() {
-    DATA.getCovarianceMatrix(ValueGreek.VALUE_VEGA);
+  public void testBadSensitivityCovariance() {
+    DATA.getCovarianceMatrix(Sensitivity.VALUE_VEGA);
   }
 
   @Test
   public void test() {
-    assertEquals(VECTOR.get(ValueGreek.VALUE_DELTA), DATA.getValueGreekVector(ValueGreek.VALUE_DELTA));
-    assertEquals(MATRIX.get(ValueGreek.VALUE_DELTA), DATA.getCovarianceMatrix(ValueGreek.VALUE_DELTA));
+    assertEquals(VECTOR.get(Sensitivity.VALUE_DELTA), DATA.getSensitivityVector(Sensitivity.VALUE_DELTA));
+    assertEquals(MATRIX.get(Sensitivity.VALUE_DELTA), DATA.getCovarianceMatrix(Sensitivity.VALUE_DELTA));
   }
 }

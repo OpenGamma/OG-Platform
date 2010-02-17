@@ -9,7 +9,7 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
-import com.opengamma.financial.greeks.value.ValueGreek;
+import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -28,11 +28,11 @@ public class DeltaCovarianceMatrixStandardDeviationCalculator extends Function1D
   public Double evaluate(final ParametricVaRDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Data were null");
-    final DoubleMatrix1D delta = data.getValueGreekVector(ValueGreek.VALUE_DELTA);
+    final DoubleMatrix1D delta = data.getSensitivityVector(Sensitivity.VALUE_DELTA);
     final int s1 = delta.size();
     if (s1 == 0)
       throw new IllegalArgumentException("Value delta vector contained no data");
-    final DoubleMatrix2D covariance = data.getCovarianceMatrix(ValueGreek.VALUE_DELTA);
+    final DoubleMatrix2D covariance = data.getCovarianceMatrix(Sensitivity.VALUE_DELTA);
     final int rows = covariance.rows();
     if (covariance.columns() != rows)
       throw new IllegalArgumentException("Covariance matrix was not square");
