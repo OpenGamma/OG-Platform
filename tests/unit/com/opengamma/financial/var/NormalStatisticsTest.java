@@ -12,7 +12,10 @@ import javax.time.calendar.TimeZone;
 
 import org.junit.Test;
 
+import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -21,8 +24,9 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * 
  */
 public class NormalStatisticsTest {
-  private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PNLMeanCalculator();
-  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PNLStandardDeviationCalculator();
+  private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()));
+  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
+      new SampleStandardDeviationCalculator()));
   private static final double X = 3;
   private static final DoubleTimeSeries PNL = new ArrayDoubleTimeSeries(new long[] { 1, 2 }, new double[] { X, X }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC });
   private static final HistoricalVaRDataBundle DATA = new HistoricalVaRDataBundle(PNL);
