@@ -26,5 +26,9 @@ public class FollowingBusinessDayConvention extends BusinessDayConvention {
     }
     return adjusted;
   }
+  
+  public String getConventionName () {
+    return "following";
+  }
 
 }

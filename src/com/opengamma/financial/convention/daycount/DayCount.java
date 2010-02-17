@@ -40,4 +40,10 @@ public interface DayCount {
    * @return The fraction.
    */
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate);
+  
+  /**
+   * The standard name for this convention.
+   */
+  public String getConventionName ();
+  
 }

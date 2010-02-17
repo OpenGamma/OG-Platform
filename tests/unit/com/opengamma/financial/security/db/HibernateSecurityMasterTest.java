@@ -19,6 +19,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.GICSCode;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.test.HibernateTest;
@@ -33,7 +34,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return new Class<?>[] { DomainSpecificIdentifierBean.class, ExchangeBean.class, CurrencyBean.class, EquitySecurityBean.class };
+    return new Class<?>[] { DomainSpecificIdentifierBean.class, ExchangeBean.class, CurrencyBean.class, SecurityBean.class, GICSCodeBean.class };
   }
 
   @SuppressWarnings("unused")
@@ -128,6 +129,39 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   }
   
   @Test
+  public void testGICSCodeBeans () {
+    _secMaster.getHibernateTemplate ().execute (new HibernateCallback () {
+      @Override
+      public Object doInHibernate (final Session session) throws HibernateException, SQLException {
+        final HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession (session);
+        Assert.assertNotNull (secMasterSession.getGICSCodeBeans ());
+        Assert.assertEquals (0, secMasterSession.getGICSCodeBeans ().size ());
+        GICSCodeBean energyBean = secMasterSession.getOrCreateGICSCodeBean ("10", "Energy");
+        List<GICSCodeBean> gicsBeans = secMasterSession.getGICSCodeBeans ();
+        Assert.assertEquals (1, gicsBeans.size ());
+        GICSCodeBean gicsBean = gicsBeans.get (0);
+        Assert.assertEquals ("10", gicsBean.getName ());
+        Assert.assertEquals ("Energy", gicsBean.getDescription ());
+        Assert.assertEquals (energyBean.getId (), gicsBean.getId ());
+        Long energyId = gicsBean.getId ();
+        GICSCodeBean materialBean = secMasterSession.getOrCreateGICSCodeBean ("15", "Materials"); 
+        GICSCodeBean chemicalsBean = secMasterSession.getOrCreateGICSCodeBean ("151010", "Chemicals"); 
+        GICSCodeBean commodityChemsBean = secMasterSession.getOrCreateGICSCodeBean ("15101010", "Commodity Chemicals"); 
+        GICSCodeBean diversifiedChemsBean = secMasterSession.getOrCreateGICSCodeBean ("15101020", "Diversified Chemicals");
+        gicsBeans = secMasterSession.getGICSCodeBeans ();
+        Assert.assertEquals (5, gicsBeans.size ());
+        Assert.assertTrue (gicsBeans.contains (materialBean));
+        Assert.assertTrue (gicsBeans.contains (chemicalsBean));
+        Assert.assertTrue (gicsBeans.contains (commodityChemsBean));
+        Assert.assertTrue (gicsBeans.contains (diversifiedChemsBean));
+        gicsBean = secMasterSession.getOrCreateGICSCodeBean ("10", "Energy");
+        Assert.assertEquals (energyId, gicsBean.getId ());
+        return null;
+      }
+    });
+  }
+  
+  @Test
   public void testEquitySecurityBeans() {
     _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
       @Override
@@ -142,21 +176,28 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Assert.assertNotNull(usdBean);
         CurrencyBean jpyBean = secMasterSession.getOrCreateCurrencyBean("JPY");
         Assert.assertNotNull(jpyBean);
+        
+        GICSCodeBean carManuBean = secMasterSession.getOrCreateGICSCodeBean ("25102010", "Automobile Manufacturers");
+        Assert.assertNotNull (carManuBean);
+        GICSCodeBean banksBean = secMasterSession.getOrCreateGICSCodeBean ("4010", "Banks");
+        Assert.assertNotNull (banksBean);
 
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2000);
         
-        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean);
+        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
         Assert.assertNotNull(nomura);
         Assert.assertEquals(tpxBean, nomura.getExchange());
         Assert.assertEquals(jpyBean, nomura.getCurrency());
         Assert.assertEquals("Nomura", nomura.getCompanyName());
+        Assert.assertEquals(banksBean, nomura.getGICSCode ());
         
-        EquitySecurityBean generalMotors = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, djxBean,"General Motors", usdBean);
+        EquitySecurityBean generalMotors = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, djxBean,"General Motors", usdBean, carManuBean);
         Assert.assertNotNull(generalMotors);
         Assert.assertEquals(djxBean, generalMotors.getExchange());
         Assert.assertEquals(usdBean, generalMotors.getCurrency());
         Assert.assertEquals("General Motors", generalMotors.getCompanyName());
+        Assert.assertEquals(carManuBean, generalMotors.getGICSCode ());
         
         List<EquitySecurityBean> allEquitySecurities = secMasterSession.getEquitySecurityBeans();
         Assert.assertNotNull(allEquitySecurities);
@@ -218,6 +259,55 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   }
   
   @Test
+  public void testEquityOptionSecurityBeans() {
+    _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        // TODO ...
+        return null;
+      }
+    });
+    // TODO ...
+  }
+  
+  @Test
+  public void testBondSecurityBeans () {
+    _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        // TODO ...
+        return null;
+      }
+    });
+    // TODO ...
+  }
+        
+  @Test
+  public void testDomainSpecificIdentifierAssociationDateRanges () {
+    _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        ExchangeBean tpxBean = secMasterSession.getOrCreateExchangeBean("TPX", "Topix");
+        CurrencyBean jpyBean = secMasterSession.getOrCreateCurrencyBean("JPY");
+        GICSCodeBean banksBean = secMasterSession.getOrCreateGICSCodeBean ("4010", "Banks");
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2000);
+        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
+        DomainSpecificIdentifierAssociationBean dsiab = secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        // TODO 2010-02-17 Andrew -- create associations with bounded times; need to know the semantics first?
+        return null;
+      }
+    });
+    // TODO ...
+  }
+        
+  @Test
   public void testTopLevelFunctionality() {
     Calendar instance = Calendar.getInstance();
     Date now = instance.getTime();
@@ -236,6 +326,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     generalMotors.setExchange("NYSE");
     generalMotors.setIdentityKey("GM US Equity");
     generalMotors.setTicker("GM US Equity");
+    generalMotors.setGICSCode(GICSCode.getInstance (25102010));
     generalMotors.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity")));
     
     EquitySecurity nomura = new EquitySecurity();
@@ -244,6 +335,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     nomura.setExchange("TOPIX");
     nomura.setIdentityKey("1311 JP Equity");
     nomura.setTicker("1311 JP Equity");
+    nomura.setGICSCode(GICSCode.getInstance (4010));
     nomura.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity")));
     
     _secMaster.persistEquitySecurity(yesterYear2003, generalMotors);
@@ -260,6 +352,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     generalMotors2.setExchange("NYSE");
     generalMotors2.setIdentityKey("GM US Equity");
     generalMotors2.setTicker("GM US Equity");
+    generalMotors2.setGICSCode(GICSCode.getInstance (25102010));
     generalMotors2.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity")));
     _secMaster.persistEquitySecurity(yesterYear2005, generalMotors2);
     _secMaster.getHibernateTemplate().execute(new HibernateCallback() {

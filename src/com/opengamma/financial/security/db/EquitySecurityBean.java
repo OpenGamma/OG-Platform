@@ -93,14 +93,14 @@ public class EquitySecurityBean extends SecurityBean {
   /**
    * @return the gicsCode
    */
-  public GICSCodeBean getGicsCode() {
+  public GICSCodeBean getGICSCode() {
     return _gicsCode;
   }
 
   /**
    * @param gicsCode the gicsCode to set
    */
-  public void setGicsCode(GICSCodeBean gicsCode) {
+  public void setGICSCode(GICSCodeBean gicsCode) {
     _gicsCode = gicsCode;
   }
 

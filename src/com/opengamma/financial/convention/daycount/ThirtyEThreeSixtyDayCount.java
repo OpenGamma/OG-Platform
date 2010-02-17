@@ -48,5 +48,10 @@ public class ThirtyEThreeSixtyDayCount implements DayCount {
     secondDay = secondDay == 31 ? 30 : secondDay;
     return (360 * (secondYear - firstYear) + 30 * (secondMonth - firstMonth) + secondDay - firstDay) / 360.;
   }
+  
+  @Override
+  public String getConventionName () {
+    return "30E/360";
+  }
 
 }

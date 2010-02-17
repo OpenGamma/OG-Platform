@@ -63,4 +63,10 @@ public class ThirtyEThreeSixtyISDADayCount implements DayCount {
     }
     return day;
   }
+  
+  @Override
+  public String getConventionName () {
+    return "30E/360 (ISDA)";
+  }
+
 }

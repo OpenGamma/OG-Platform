@@ -23,7 +23,7 @@ import org.apache.commons.lang.NotImplementedException;
  */
 
 public class ActualActualICMADayCount implements DayCount {
-
+  
   @Override
   public double getBasis(final ZonedDateTime date) {
     throw new NotImplementedException();
@@ -32,6 +32,11 @@ public class ActualActualICMADayCount implements DayCount {
   @Override
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     throw new NotImplementedException();
+  }
+  
+  @Override
+  public String getConventionName () {
+    return "Actual/Actual (ICMA)";
   }
 
 }

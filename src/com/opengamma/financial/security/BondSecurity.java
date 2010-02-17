@@ -8,6 +8,7 @@ package com.opengamma.financial.security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -21,7 +22,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   
   private final Expiry _maturity;
   private final double _coupon;
-  private final BondFrequency _frequency;
+  private final Frequency _frequency;
   private final String _country;
   private final String _creditRating;
   private final Currency _currency;
@@ -29,7 +30,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   private final DayCount _dayCountConvention;
   private final BusinessDayConvention _businessDayConvention;
   
-  public BondSecurity (final Expiry maturity, final double coupon, final BondFrequency frequency, final String country, final String creditRating, final Currency currency, final String issuer, final DayCount dayCountConvention, final BusinessDayConvention businessDayConvention) {
+  public BondSecurity (final Expiry maturity, final double coupon, final Frequency frequency, final String country, final String creditRating, final Currency currency, final String issuer, final DayCount dayCountConvention, final BusinessDayConvention businessDayConvention) {
     _maturity = maturity;
     _coupon = coupon;
     _frequency = frequency;
@@ -39,7 +40,6 @@ public abstract class BondSecurity extends FinancialSecurity {
     _issuer = issuer;
     _dayCountConvention = dayCountConvention;
     _businessDayConvention = businessDayConvention;
-    setSecurityType(BOND_TYPE);
   }
 
   /**
@@ -59,7 +59,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   /**
    * @return the frequency
    */
-  public BondFrequency getFrequency() {
+  public Frequency getFrequency() {
     return _frequency;
   }
 

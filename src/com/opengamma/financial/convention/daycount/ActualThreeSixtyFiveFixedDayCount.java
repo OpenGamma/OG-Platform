@@ -33,4 +33,9 @@ public class ActualThreeSixtyFiveFixedDayCount implements DayCount {
     return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
   }
 
+  @Override
+  public String getConventionName () {
+    return "Actual/365 (Fixed)";
+  }
+
 }

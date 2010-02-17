@@ -29,5 +29,10 @@ public class ModifiedBusinessDayConvention extends BusinessDayConvention {
     }
     return followingDate;
   }
+  
+  @Override
+  public String getConventionName () {
+    return "modified";
+  }
 
 }

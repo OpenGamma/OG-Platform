@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.InstantProvider;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -24,9 +28,25 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.GICSCode;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.BondSecurity;
+import com.opengamma.financial.security.CorporateBondSecurity;
+import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
+import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
+import com.opengamma.util.time.Expiry;
+import com.opengamma.util.time.ExpiryAccuracy;
 
 //import com.opengamma.engine.security.Security;
 //import com.opengamma.engine.security.SecurityKey;
@@ -37,7 +57,9 @@ public class HibernateSecurityMaster implements SecurityMaster {
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
   protected static final String MODIFIED_BY = "";
   static {
+    SUPPORTED_SECURITY_TYPES.add("BOND");
     SUPPORTED_SECURITY_TYPES.add("EQUITY");
+    SUPPORTED_SECURITY_TYPES.add("EQUITYOPTION");
   }
   private Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private HibernateTemplate _hibernateTemplate = null;
@@ -61,7 +83,40 @@ public class HibernateSecurityMaster implements SecurityMaster {
   private DomainSpecificIdentifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
     return new DomainSpecificIdentifier(domainSpecificIdentifierBean.getDomain(), domainSpecificIdentifierBean.getIdentifier());
   }
-
+  
+  private Expiry dateToExpiry(Date date) {
+    return new Expiry (ZonedDateTime.fromInstant ((InstantProvider)date, TimeZone.UTC));
+  }
+  
+  private Date expiryToDate (Expiry expiry) {
+    // we're storing just as a date, so assert that the value we're storing isn't a vague month or year
+    if (expiry.getAccuracy () != null) {
+      if (expiry.getAccuracy () != ExpiryAccuracy.DAY_MONTH_YEAR) throw new OpenGammaRuntimeException ("Expiry is not to DAY_MONTH_YEAR precision");
+    }
+    return new Date (expiry.toInstant ().toEpochMillis ());
+  }
+  
+  private Frequency frequencyBeanToFrequency (final FrequencyBean frequencyBean) {
+    final Frequency f = FrequencyFactory.INSTANCE.getFrequency (frequencyBean.getName ());
+    if (f == null) throw new OpenGammaRuntimeException ("Bad value for frequencyBean (" + frequencyBean.getName () + ")");
+    return f;
+  }
+  
+  private DayCount dayCountBeanToDayCount (final DayCountBean dayCountBean) {
+    final DayCount dc = DayCountFactory.INSTANCE.getDayCount (dayCountBean.getName ());
+    if (dc == null) throw new OpenGammaRuntimeException ("Bad value for dayCountBean (" + dayCountBean.getName () + ")");
+    return dc;
+  }
+  
+  private BusinessDayConvention businessDayConventionBeanToBusinessDayConvention (final BusinessDayConventionBean businessDayConventionBean) {
+    final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention (businessDayConventionBean.getName ());
+    if (bdc == null) throw new OpenGammaRuntimeException ("Bad value for businessDayConventionBean (" + businessDayConventionBean.getName () + ")");
+    return bdc;
+  }
+  
+  private GICSCode gicsCodeBeanToGICSCode (final GICSCodeBean gicsCodeBean) {
+    return GICSCode.getInstance (gicsCodeBean.getName ());
+  }
   
   // PUBLIC API
   
@@ -84,21 +139,80 @@ public class HibernateSecurityMaster implements SecurityMaster {
               result.setExchange(security.getExchange().getName());
               result.setTicker(identifier.getValue());
               result.setIdentityKey(identifier.getValue());
+              result.setGICSCode(gicsCodeBeanToGICSCode (security.getGICSCode ()));
               return result;
             }
 
             @Override
             public DefaultSecurity visitBondSecurityBean(
                 BondSecurityBean security) {
-              // TODO Auto-generated method stub
-              return null;
+              switch (security.getBondType ()) {
+              case CORPORATE :
+                return new CorporateBondSecurity (
+                      dateToExpiry (security.getMaturity ()),
+                      security.getCoupon (),
+                      frequencyBeanToFrequency (security.getFrequency ()),
+                      security.getCountry (),
+                      security.getCreditRating (),
+                      currencyBeanToCurrency (security.getCurrency ()),
+                      security.getIssuer (),
+                      dayCountBeanToDayCount (security.getDayCountConvention ()),
+                      businessDayConventionBeanToBusinessDayConvention (security.getBusinessDayConvention ())
+                    );
+              case MUNICIPAL :
+                return new MunicipalBondSecurity (
+                    dateToExpiry (security.getMaturity ()),
+                    security.getCoupon (),
+                    frequencyBeanToFrequency (security.getFrequency ()),
+                    security.getCountry (),
+                    security.getCreditRating (),
+                    currencyBeanToCurrency (security.getCurrency ()),
+                    security.getIssuer (),
+                    dayCountBeanToDayCount (security.getDayCountConvention ()),
+                    businessDayConventionBeanToBusinessDayConvention (security.getBusinessDayConvention ())
+                  );
+              case GOVERNMENT :
+                return new GovernmentBondSecurity (
+                    dateToExpiry (security.getMaturity ()),
+                    security.getCoupon (),
+                    frequencyBeanToFrequency (security.getFrequency ()),
+                    security.getCountry (),
+                    security.getCreditRating (),
+                    currencyBeanToCurrency (security.getCurrency ()),
+                    security.getIssuer (),
+                    dayCountBeanToDayCount (security.getDayCountConvention ()),
+                    businessDayConventionBeanToBusinessDayConvention (security.getBusinessDayConvention ())
+                  );
+              default :
+                throw new OpenGammaRuntimeException ("Bad value for bondSecurityType (" + security.getBondType () + ")");
+              }
             }
 
             @Override
             public DefaultSecurity visitEquityOptionSecurityBean(
                 EquityOptionSecurityBean security) {
-              // TODO Auto-generated method stub
-              return null;
+              switch (security.getEquityOptionType ()) {
+              case AMERICAN :
+                return new AmericanVanillaEquityOptionSecurity (
+                    security.getOptionType (),
+                    security.getStrike (),
+                    dateToExpiry (security.getExpiry ()),
+                    security.getUnderlyingIdentityKey (),
+                    currencyBeanToCurrency (security.getCurrency ()),
+                    security.getExchange ().getName ()
+                    );
+              case EUROPEAN :
+                return new EuropeanVanillaEquityOptionSecurity (
+                    security.getOptionType (),
+                    security.getStrike (),
+                    dateToExpiry (security.getExpiry ()),
+                    security.getUnderlyingIdentityKey (),
+                    currencyBeanToCurrency (security.getCurrency ()),
+                    security.getExchange ().getName ()
+                    );
+              default :
+                throw new OpenGammaRuntimeException ("Bad value for equityOptionType (" + security.getEquityOptionType () + ")");
+              }
             }
 
             @Override
@@ -135,8 +249,6 @@ public class HibernateSecurityMaster implements SecurityMaster {
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
-        List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
-        System.err.println(allAssociations);
         SecurityBean security = secMasterSession.getSecurityBean(now, equitySecurity.getIdentifiers());
         if (security == null) {
           // try and minimize the number of queries by grouping DSIDs into domain sets that are passed in as lists.
@@ -149,13 +261,104 @@ public class HibernateSecurityMaster implements SecurityMaster {
           EquitySecurityBean equity = (EquitySecurityBean) security;
           if (ObjectUtils.equals(equity.getCompanyName(), equitySecurity.getCompanyName()) &&
               ObjectUtils.equals(currencyBeanToCurrency(equity.getCurrency()), equitySecurity.getCurrency()) &&
-              ObjectUtils.equals(equity.getExchange(), equitySecurity.getExchange())) {
+              ObjectUtils.equals(equity.getExchange().getName (), equitySecurity.getExchange()) &&
+              ObjectUtils.equals(gicsCodeBeanToGICSCode (equity.getGICSCode ()), equitySecurity.getGICSCode ())) {
             // they're the same, so we don't need to do anything except check the associations are up to date.
           } else {
             secMasterSession.createEquitySecurityBean(now, false, now, MODIFIED_BY, equity, 
                                                       secMasterSession.getOrCreateExchangeBean(equitySecurity.getExchange(), ""), 
                                                       equitySecurity.getCompanyName(), 
-                                                      secMasterSession.getOrCreateCurrencyBean(equitySecurity.getCurrency().getISOCode()));
+                                                      secMasterSession.getOrCreateCurrencyBean(equitySecurity.getCurrency().getISOCode()),
+                                                      secMasterSession.getOrCreateGICSCodeBean(equitySecurity.getGICSCode ().toString (), ""));
+          }
+        } else {
+          throw new OpenGammaRuntimeException("SecurityBean of unexpected type:"+security);
+        }
+        return null;
+      }
+    });
+  }
+  
+  public void persistEquityOptionSecurity (final Date now, final EquityOptionSecurity equityOptionSecurity) {
+    _hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException,
+          SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        SecurityBean security = secMasterSession.getSecurityBean(now, equityOptionSecurity.getIdentifiers());
+        if (security == null) {
+          // try and minimize the number of queries by grouping DSIDs into domain sets that are passed in as lists.
+          EquityOptionSecurityBean equity = secMasterSession.persistEquityOptionSecurityBean(now, equityOptionSecurity);
+          Collection<DomainSpecificIdentifier> identifiers = equityOptionSecurity.getIdentifiers();
+          for (DomainSpecificIdentifier identifier : identifiers) {
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, equity.getFirstVersion()); //associate all the identifiers with the first version.
+          }
+        } else if (security instanceof EquityOptionSecurityBean) {
+          EquityOptionSecurityBean equity = (EquityOptionSecurityBean) security;
+          if (ObjectUtils.equals(equity.getEquityOptionType (), EquityOptionType.identify (equityOptionSecurity)) &&
+              ObjectUtils.equals(equity.getOptionType (), equityOptionSecurity.getOptionType ()) &&
+              ObjectUtils.equals(equity.getStrike (), equityOptionSecurity.getStrike ()) &&
+              ObjectUtils.equals(dateToExpiry (equity.getExpiry ()), equityOptionSecurity.getExpiry ()) &&
+              ObjectUtils.equals(equity.getUnderlyingIdentityKey (), equityOptionSecurity.getUnderlyingIdentityKey ()) &&
+              ObjectUtils.equals(currencyBeanToCurrency (equity.getCurrency ()), equityOptionSecurity.getCurrency ()) &&
+              ObjectUtils.equals(equity.getExchange ().getName (), equityOptionSecurity.getExchange ())) {
+            // they're the same, so we don't need to do anything except check the associations are up to date.
+          } else {
+            secMasterSession.createEquityOptionSecurityBean(now, false, now, MODIFIED_BY, equity,
+                EquityOptionType.identify (equityOptionSecurity),
+                equityOptionSecurity.getOptionType (),
+                equityOptionSecurity.getStrike (),
+                expiryToDate (equityOptionSecurity.getExpiry ()),
+                equityOptionSecurity.getUnderlyingIdentityKey (),
+                secMasterSession.getOrCreateCurrencyBean (equityOptionSecurity.getCurrency ().getISOCode ()),
+                secMasterSession.getOrCreateExchangeBean (equityOptionSecurity.getExchange (), ""));
+          }
+        } else {
+          throw new OpenGammaRuntimeException("SecurityBean of unexpected type:"+security);
+        }
+        return null;
+      }
+    });
+  }
+  
+  public void persistBondSecurity (final Date now, final BondSecurity bondSecurity) {
+    _hibernateTemplate.execute (new HibernateCallback () {
+      @Override
+      public Object doInHibernate (final Session session) throws HibernateException, SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        SecurityBean security = secMasterSession.getSecurityBean(now, bondSecurity.getIdentifiers());
+        if (security == null) {
+          // try and minimize the number of queries by grouping DSIDs into domain sets that are passed in as lists.
+          BondSecurityBean bond = secMasterSession.persistBondSecurityBean(now, bondSecurity);
+          Collection<DomainSpecificIdentifier> identifiers = bondSecurity.getIdentifiers();
+          for (DomainSpecificIdentifier identifier : identifiers) {
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, bond.getFirstVersion()); //associate all the identifiers with the first version.
+          }
+        } else if (security instanceof BondSecurityBean) {
+          BondSecurityBean bond = (BondSecurityBean) security;
+          if (ObjectUtils.equals (bond.getBondType (), BondType.identify (bondSecurity)) &&
+              ObjectUtils.equals (dateToExpiry (bond.getMaturity ()), bondSecurity.getMaturity ()) &&
+              ObjectUtils.equals (bond.getCoupon (), bondSecurity.getCoupon ()) &&
+              ObjectUtils.equals (frequencyBeanToFrequency (bond.getFrequency ()), bondSecurity.getFrequency ()) &&
+              ObjectUtils.equals (bond.getCountry (), bondSecurity.getCountry ()) &&
+              ObjectUtils.equals (bond.getCreditRating (), bondSecurity.getCreditRating ()) &&
+              ObjectUtils.equals (currencyBeanToCurrency (bond.getCurrency ()), bondSecurity.getCurrency ()) &&
+              ObjectUtils.equals (bond.getIssuer (), bondSecurity.getIssuer ()) &&
+              ObjectUtils.equals (dayCountBeanToDayCount (bond.getDayCountConvention ()), bondSecurity.getDayCountConvention ()) &&
+              ObjectUtils.equals (businessDayConventionBeanToBusinessDayConvention (bond.getBusinessDayConvention ()), bondSecurity.getBusinessDayConvention ())) {
+            // they're the same, so we don't need to do anything except check the associations are up to date.
+          } else {
+            secMasterSession.createBondSecurityBean(now, false, now, MODIFIED_BY, bond,
+                BondType.identify (bondSecurity),
+                expiryToDate (bondSecurity.getMaturity ()),
+                bondSecurity.getCoupon (),
+                secMasterSession.getOrCreateFrequencyBean (bondSecurity.getFrequency ().getConventionName ()),
+                bondSecurity.getCountry (),
+                bondSecurity.getCreditRating (),
+                secMasterSession.getOrCreateCurrencyBean (bondSecurity.getCurrency ().getISOCode ()),
+                bondSecurity.getIssuer (),
+                secMasterSession.getOrCreateDayCountBean (bondSecurity.getDayCountConvention ().getConventionName ()),
+                secMasterSession.getOrCreateBusinessDayConventionBean (bondSecurity.getBusinessDayConvention ().getConventionName ()));
           }
         } else {
           throw new OpenGammaRuntimeException("SecurityBean of unexpected type:"+security);

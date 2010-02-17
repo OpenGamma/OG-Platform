@@ -33,5 +33,10 @@ public class OneOneDayCount implements DayCount {
   public double getBasis(final ZonedDateTime date) {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public String getConventionName () {
+    return "1/1";
+  }
 
 }

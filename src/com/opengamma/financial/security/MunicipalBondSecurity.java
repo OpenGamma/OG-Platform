@@ -8,6 +8,7 @@ package com.opengamma.financial.security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -29,7 +30,7 @@ public class MunicipalBondSecurity extends BondSecurity {
    * @param businessDayConvention
    */
   public MunicipalBondSecurity(Expiry maturity, double coupon,
-      BondFrequency frequency, String country, String creditRating,
+      Frequency frequency, String country, String creditRating,
       Currency currency, String issuer, DayCount dayCountConvention,
       BusinessDayConvention businessDayConvention) {
     super(maturity, coupon, frequency, country, creditRating, currency, issuer,

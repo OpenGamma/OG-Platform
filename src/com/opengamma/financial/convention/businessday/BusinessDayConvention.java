@@ -37,4 +37,7 @@ public abstract class BusinessDayConvention implements DateAdjuster {
   public boolean isWeekendOrHoliday(final ZonedDateTime date) {
     return isWeekendOrHoliday(date.toLocalDate());
   }
+  
+  public abstract String getConventionName ();
+  
 }

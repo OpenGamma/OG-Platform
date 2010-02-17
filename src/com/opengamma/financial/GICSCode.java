@@ -13,40 +13,76 @@ public class GICSCode {
     _code = code;
   }
   
-  public GICSCode getInstance (final int code) {
-    if ((code < 10000000) || (code > 99999999)) throw new IllegalArgumentException ("code out of range");
-    if (((code / 10000) % 100) == 0) {
-      // no industry group code, so check for a sector code only
-      if ((code % 10000) != 0) throw new IllegalArgumentException ("code out of range");
-    } else if (((code / 100) % 100) == 0) {
-      // no industry code, so check for industry group code only
-      if ((code % 100) != 0) throw new IllegalArgumentException ("code out of range");
+  public static GICSCode getInstance (final int code) {
+    if ((code < 1) || (code > 99999999)) throw new IllegalArgumentException ("code out of range " + code);
+    int c = code;
+    while (c >= 100) {
+      if ((c % 100) == 0) throw new IllegalArgumentException ("invalid code " + code);
+      c /= 100;
     }
     return new GICSCode (code);
   }
   
-  protected int getCode () {
+  public static GICSCode getInstance (final String code) {
+    try {
+      return getInstance (Integer.parseInt (code));
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException ("code is not valid", e);
+    }
+  }
+  
+  public int getCode () {
     return _code;
   }
   
   public int getSectorCode () {
-    return getCode () / 1000000;
+    int c = getCode ();
+    while (c >= 100) {
+      c /= 100;
+    }
+    return c;
   }
   
   public int getIndustryGroupCode () {
-    return getCode () / 10000; 
+    int c = getCode ();
+    if (c < 100) return -1;
+    while (c >= 10000) {
+      c /= 100;
+    }
+    return c % 100;
   }
   
   public int getIndustryCode () {
-    return getCode () / 100;
+    int c = getCode ();
+    if (c < 10000) return -1;
+    while (c >= 1000000) {
+      c /= 100;
+    }
+    return c % 100;
   }
   
   public int getSubIndustryCode () {
-    return getCode ();
+    int c = getCode ();
+    if (c < 1000000) return -1;
+    return c % 100;
   }
   
+  @Override
   public String toString () {
     return "" + getCode ();
+  }
+  
+  @Override
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (o == null) return false;
+    if (!(o instanceof GICSCode)) return false;
+    return ((GICSCode)o).getCode () == getCode ();
+  }
+  
+  @Override
+  public int hashCode () {
+    return getCode ();
   }
   
 }

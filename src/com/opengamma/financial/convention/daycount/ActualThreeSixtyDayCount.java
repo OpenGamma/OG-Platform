@@ -29,5 +29,10 @@ public class ActualThreeSixtyDayCount implements DayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
   }
+  
+  @Override
+  public String getConventionName () {
+    return "Actual/360";
+  }
 
 }

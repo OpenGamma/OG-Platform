@@ -127,14 +127,14 @@ public class EquitySecurity extends FinancialSecurity {
   /**
    * @return the gicsCode
    */
-  public GICSCode getGicsCode() {
+  public GICSCode getGICSCode() {
     return _gicsCode;
   }
 
   /**
    * @param gicsCode the gicsCode to set
    */
-  public void setGicsCode(GICSCode gicsCode) {
+  public void setGICSCode(GICSCode gicsCode) {
     _gicsCode = gicsCode;
   }
 

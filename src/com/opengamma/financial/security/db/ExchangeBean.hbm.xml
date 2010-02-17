@@ -14,6 +14,6 @@
     from ExchangeBean
   </query>
   <query name="ExchangeBean.one">
-    from ExchangeBean as e where e.name=:name and e.description=:description
+    from ExchangeBean as e where e.name=:name
   </query>
 </hibernate-mapping>

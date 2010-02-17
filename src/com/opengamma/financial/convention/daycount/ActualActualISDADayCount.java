@@ -46,4 +46,10 @@ public class ActualActualISDADayCount implements DayCount {
     }
     return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
   }
+
+  @Override
+  public String getConventionName () {
+    return "Actual/Actual";
+  }
+
 }

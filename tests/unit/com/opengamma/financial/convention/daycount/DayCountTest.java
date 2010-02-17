@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -15,7 +15,7 @@ import org.junit.Test;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ *
  * @author emcleod
  */
 
@@ -36,7 +36,7 @@ public class DayCountTest {
 
   @Test
   public void testThirtyThreeSixty() {
-    final DayCount convention = new ThirtyThreeSixtyDayCount();
+    final DayCount convention = DayCountFactory.INSTANCE.getDayCount ("30/360"); // new ThirtyThreeSixtyDayCount();
     final double basis = convention.getBasis(null);
     testOneYearNoLeapYears(convention);
     testOneYearOneLeapYear(convention);
@@ -49,7 +49,7 @@ public class DayCountTest {
 
   @Test
   public void testThirtyEThreeSixty() {
-    final DayCount convention = new ThirtyEThreeSixtyDayCount();
+    final DayCount convention = DayCountFactory.INSTANCE.getDayCount ("30E/360"); // new ThirtyEThreeSixtyDayCount();
     final double basis = convention.getBasis(null);
     testOneYearNoLeapYears(convention);
     testOneYearOneLeapYear(convention);
@@ -62,7 +62,7 @@ public class DayCountTest {
 
   @Test
   public void testThirtyEThreeSixtyISDA() {
-    final DayCount convention = new ThirtyEThreeSixtyISDADayCount();
+    final DayCount convention = DayCountFactory.INSTANCE.getDayCount ("30E/360 (ISDA)"); // new ThirtyEThreeSixtyISDADayCount();
     final double basis = convention.getBasis(null);
     testOneYearNoLeapYears(convention);
     testOneYearOneLeapYear(convention);
@@ -75,7 +75,7 @@ public class DayCountTest {
 
   @Test
   public void testActualThreeSixtyFiveFixed() {
-    final DayCount convention = new ActualThreeSixtyFiveFixedDayCount();
+    final DayCount convention = DayCountFactory.INSTANCE.getDayCount ("A/365F"); // new ActualThreeSixtyFiveFixedDayCount();
     final double basis = convention.getBasis(null);
     testOneYearNoLeapYears(convention);
     testOneYearOneLeapYear(convention, 1. / basis);
@@ -88,10 +88,10 @@ public class DayCountTest {
 
   @Test
   public void testActualThreeSixty() {
-    final DayCount convention = new ActualThreeSixtyFiveFixedDayCount();
+    final DayCount convention = DayCountFactory.INSTANCE.getDayCount ("A/360"); // new ActualThreeSixtyDayCount();
     final double basis = convention.getBasis(null);
-    testOneYearNoLeapYears(convention);
-    testOneYearOneLeapYear(convention, 1. / basis);
+    testOneYearNoLeapYears(convention, 5. / basis);
+    testOneYearOneLeapYear(convention, 6. / basis);
     testFourMonths(convention, 121. / basis);
     testOneDayNoLeapYear(convention);
     testOneDayLeapYear(convention, 1. / basis);
@@ -101,7 +101,7 @@ public class DayCountTest {
 
   @Test
   public void testActualActual() {
-    final DayCount convention = new ActualActualISDADayCount();
+    final DayCount convention = DayCountFactory.INSTANCE.getDayCount ("Act/Act (ISDA)"); // new ActualActualISDADayCount();
     final ZonedDateTime d1 = DateUtil.getUTCDate(2007, 12, 1);
     final ZonedDateTime d2 = DateUtil.getUTCDate(2008, 2, 1);
     final double basis = convention.getBasis(d1);
@@ -124,6 +124,12 @@ public class DayCountTest {
     final ZonedDateTime d1 = DateUtil.getUTCDate(2002, 1, 1);
     final ZonedDateTime d2 = DateUtil.getUTCDate(2003, 1, 1);
     assertFractionEquals(convention, d1, d2, 1);
+  }
+ 
+  private void testOneYearNoLeapYears(final DayCount convention, final double x) {
+    final ZonedDateTime d1 = DateUtil.getUTCDate(2002, 1, 1);
+    final ZonedDateTime d2 = DateUtil.getUTCDate(2003, 1, 1);
+    assertFractionEquals(convention, d1, d2, 1 + x);
   }
 
   private void testOneYearOneLeapYear(final DayCount convention) {

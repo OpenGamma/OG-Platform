@@ -26,4 +26,10 @@ public class PrecedingBusinessDayConvention extends BusinessDayConvention {
     }
     return adjusted;
   }
+  
+  @Override
+  public String getConventionName () {
+    return "preceding";
+  }
+  
 }
