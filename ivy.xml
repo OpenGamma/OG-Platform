@@ -9,6 +9,7 @@
     </publications>
     <dependencies>
     	<dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" conf="opengamma->core"/>
+        <dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" conf="opengamma->core" />
     	
         <dependency org="org.apache.commons" name="commons-lang" rev="2.4"/>
         <dependency org="org.apache.commons" name="commons-dbcp" rev="[1.4,2.0["/>
