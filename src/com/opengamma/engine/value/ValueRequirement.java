@@ -10,6 +10,7 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
 
@@ -91,13 +92,13 @@ public class ValueRequirement implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  public void writeFields(MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg (FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(VALUE_NAME_FIELD_NAME, _valueName);
     msg.add(TARGET_TYPE_FIELD_NAME, _targetSpecification.getType().name());
     msg.add(TARGET_ID_FIELD_NAME, _targetSpecification.getIdentifier());
   }
   
-  public static ValueRequirement fromFudge(FudgeFieldContainer msg) {
+  public static ValueRequirement fromFudgeMsg(FudgeFieldContainer msg) {
     String valueName = msg.getString(VALUE_NAME_FIELD_NAME);
     ComputationTargetType targetType = ComputationTargetType.valueOf(msg.getString(TARGET_TYPE_FIELD_NAME));
     String targetIdentifier = msg.getString(TARGET_ID_FIELD_NAME);

@@ -14,13 +14,11 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeSerializationContext;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +105,7 @@ public class CalculationJob implements Serializable {
   public FudgeFieldContainer toFudgeMsg(FudgeSerializationContext fudgeContext) {
     MutableFudgeFieldContainer msg = fudgeContext.newMessage();
     getSpecification().writeFields(msg);
-    getComputationTargetSpecification().writeFields(msg);
+    getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     
     for(ValueSpecification inputSpecification : getInputs()) {

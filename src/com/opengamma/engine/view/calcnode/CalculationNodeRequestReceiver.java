@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionRepository;
@@ -42,11 +40,11 @@ implements FudgeRequestReceiver {
 
   @Override
   public FudgeFieldContainer requestReceived(
-      FudgeContext fudgeContext,
+      FudgeDeserializationContext context,
       FudgeMsgEnvelope requestEnvelope) {
-    CalculationJob job = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext (fudgeContext), requestEnvelope.getMessage ());
+    CalculationJob job = CalculationJob.fromFudgeMsg(context, requestEnvelope.getMessage ());
     CalculationJobResult jobResult = executeJob(job);
-    return jobResult.toFudgeMsg(fudgeContext);
+    return jobResult.toFudgeMsg(context.getFudgeContext());
   }
 
 }
