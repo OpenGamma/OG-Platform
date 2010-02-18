@@ -10,7 +10,7 @@
     <dependencies>
     	<dependency org="org.fudgemsg" name="fudge" rev="latest.integration" conf="opengamma->core"/>
     	
-        <dependency org="commons-lang" name="commons-lang" rev="2.4"/>
+        <dependency org="org.apache.commons" name="commons-lang" rev="2.4"/>
         <dependency org="org.apache.commons" name="commons-dbcp" rev="1.2.2"/>
         <dependency org="org.apache.commons" name="commons-io" rev="1.4"/>
         <dependency org="org.junit" name="junit" rev="4.7"/>
