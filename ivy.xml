@@ -8,7 +8,6 @@
       <artifact name="og-timeseriesstorage" type="jar" />
     </publications>
     <dependencies>
-        <dependency org="org.fudgemsg" name="fudge" rev="latest.integration" conf="*->core"/>
         <dependency name="og-analytics" rev="latest.integration" conf="opengamma->*"/>
         <dependency name="og-engine" rev="latest.integration" conf="opengamma->*"/>
         <dependency name="og-financial" rev="latest.integration" conf="opengamma->*"/>
