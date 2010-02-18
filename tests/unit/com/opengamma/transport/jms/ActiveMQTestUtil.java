@@ -5,8 +5,6 @@
  */
 package com.opengamma.transport.jms;
 
-import javax.jms.ConnectionFactory;
-
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
@@ -17,7 +15,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public class ActiveMQTestUtil {
   
-  public static ConnectionFactory createTestConnectionFactory() {
+  public static ActiveMQConnectionFactory createTestConnectionFactory() {
     ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
     return cf;
   }
