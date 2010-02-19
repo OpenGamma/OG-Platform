@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.var;
+package com.opengamma.financial.var.historical;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.timeseries.DoubleTimeSeries;

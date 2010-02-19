@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.var;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -15,18 +12,19 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class NormalStatistics<T> {
-  private static final Logger s_Log = LoggerFactory.getLogger(NormalStatistics.class);
   private final Double _mean;
   private final double _standardDeviation;
 
+  // TODO data shouldn't go here - need to have ability to change and
+  // recalculate
   public NormalStatistics(final Function1D<T, Double> meanCalculator, final Function1D<T, Double> stdCalculator, final T data) {
     if (meanCalculator == null)
-      s_Log.info("Mean calculator not provided - assuming that portfolio return is at risk-free rate");
+      throw new IllegalArgumentException("Standard deviation calculator was null");
     if (stdCalculator == null)
       throw new IllegalArgumentException("Standard deviation calculator was null");
     if (data == null)
       throw new IllegalArgumentException("Data were null");
-    _mean = meanCalculator == null ? null : meanCalculator.evaluate(data);
+    _mean = meanCalculator.evaluate(data);
     _standardDeviation = stdCalculator.evaluate(data);
   }
 

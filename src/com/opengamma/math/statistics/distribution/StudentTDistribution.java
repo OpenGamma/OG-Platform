@@ -24,7 +24,7 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   private final Function1D<Double, Double> _beta;
 
   public StudentTDistribution(final double degFreedom) {
-    if (degFreedom < 0)
+    if (degFreedom <= 0)
       throw new IllegalArgumentException("Degrees of freedom must be greater than zero");
     _degFreedom = degFreedom;
     _dist = new StudentT(degFreedom, _randomEngine);

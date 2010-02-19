@@ -19,8 +19,8 @@ public class SampleSkewnessCalculator extends Function1D<Double[], Double> {
   public Double evaluate(final Double[] x) {
     if (x == null)
       throw new IllegalArgumentException("Array was null");
-    if (x.length < 2)
-      throw new IllegalArgumentException("Need at least two points to calculate skewness");
+    if (x.length < 3)
+      throw new IllegalArgumentException("Need at least three points to calculate skewness");
     double sum = 0;
     final double mean = _mean.evaluate(x);
     final double variance = _variance.evaluate(x);

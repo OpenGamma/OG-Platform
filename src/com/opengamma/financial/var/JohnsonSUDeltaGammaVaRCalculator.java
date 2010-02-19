@@ -1,13 +1,12 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.var.historical;
+package com.opengamma.financial.var;
 
 import java.util.Iterator;
 
-import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.ComplexMath;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
@@ -17,50 +16,64 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
- * 
  * @author emcleod
+ * 
  */
-public class HistoricalJohnsonVaRCalculator extends HistoricalVaRCalculator {
+public class JohnsonSUDeltaGammaVaRCalculator extends Function1D<SkewKurtosisStatistics<?>, Double> {
+  private double _horizon;
+  private double _periods;
+  private double _quantile;
   private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   private final RealSingleRootFinder _rootFinder = new BisectionSingleRootFinder();
-  private final DoubleTimeSeriesStatisticsCalculator _mean;
-  private final DoubleTimeSeriesStatisticsCalculator _stdDev;
-  private final DoubleTimeSeriesStatisticsCalculator _skew;
-  private final DoubleTimeSeriesStatisticsCalculator _kurtosis;
 
-  public HistoricalJohnsonVaRCalculator(final DoubleTimeSeriesStatisticsCalculator mean, final DoubleTimeSeriesStatisticsCalculator stdDev,
-      final DoubleTimeSeriesStatisticsCalculator skew, final DoubleTimeSeriesStatisticsCalculator kurtosis) {
-    if (mean == null)
-      throw new IllegalArgumentException("Mean calculator was null");
-    if (stdDev == null)
-      throw new IllegalArgumentException("Standard deviation calculator was null");
-    if (skew == null)
-      throw new IllegalArgumentException("Skew calculator was null");
-    if (kurtosis == null)
-      throw new IllegalArgumentException("Kurtosis calculator was null");
-    _mean = mean;
-    _stdDev = stdDev;
-    _skew = skew;
-    _kurtosis = kurtosis;
-  }
-
-  @Override
-  public Double evaluate(final DoubleTimeSeries ts, final double periods, final double horizon, final double quantile) {
-    if (ts == null)
-      throw new IllegalArgumentException("Time series was null");
-    if (ts.isEmpty())
-      throw new IllegalArgumentException("Time series was empty");
-    if (periods <= 0)
-      throw new IllegalArgumentException("Number of periods must be greater than zero");
-    if (horizon <= 0)
-      throw new IllegalArgumentException("Horizon must be greater than zero");
+  public JohnsonSUDeltaGammaVaRCalculator(final double horizon, final double periods, final double quantile) {
+    if (horizon < 0)
+      throw new IllegalArgumentException("Horizon cannot be negative");
+    if (periods < 0)
+      throw new IllegalArgumentException("Periods cannot be negative");
     if (quantile <= 0 || quantile >= 1)
       throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    final double scale = horizon / periods;
-    final double mu = _mean.evaluate(ts) * scale;
-    final double sigma = _stdDev.evaluate(ts) * Math.sqrt(scale);
-    final double t = _skew.evaluate(ts);
-    final double k = _kurtosis.evaluate(ts);
+    _horizon = horizon;
+    _periods = periods;
+    _quantile = quantile;
+  }
+
+  public void setHorizon(final double horizon) {
+    if (horizon < 0)
+      throw new IllegalArgumentException("Horizon cannot be negative");
+    _horizon = horizon;
+  }
+
+  public void setPeriods(final double periods) {
+    if (periods < 0)
+      throw new IllegalArgumentException("Periods cannot be negative");
+    _periods = periods;
+  }
+
+  public void setQuantile(final double quantile) {
+    if (quantile <= 0 || quantile >= 1)
+      throw new IllegalArgumentException("Quantile must be between 0 and 1");
+    _quantile = quantile;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
+   */
+  @Override
+  public Double evaluate(final SkewKurtosisStatistics<?> data) {
+    if (data == null)
+      throw new IllegalArgumentException("Data were null");
+    // TODO if skewness is positive then need to fit to -x and take from upper
+    // tail of distribution
+    final double t = data.getSkew();
+    final double k = data.getKurtosis();
+    if (k < 0)
+      throw new IllegalArgumentException("Johnson SU distribution cannot be used for data with negative excess kurtosis");
+    final double scale = _horizon / _periods;
+    final double mu = data.getMean() * scale;
+    final double sigma = data.getStandardDeviation() * Math.sqrt(scale);
     final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
     final double wLower = Math.max(getW0(t), getW1(k + 3));
     final double w = _rootFinder.getRoot(getFunction(t, k), wLower, wUpper);
@@ -74,7 +87,7 @@ public class HistoricalJohnsonVaRCalculator extends HistoricalVaRCalculator {
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));
     final double ksi = mu - sign * sigma * Math.sqrt(w - 1 - m) / (w - 1);
-    final double z = _normal.getInverseCDF(quantile);
+    final double z = _normal.getInverseCDF(_quantile);
     return -lambda * Math.sinh((-z - gamma) / delta) - ksi;
   }
 
@@ -115,4 +128,5 @@ public class HistoricalJohnsonVaRCalculator extends HistoricalVaRCalculator {
 
     };
   }
+
 }
