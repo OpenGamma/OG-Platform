@@ -6,6 +6,7 @@
 package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -61,6 +62,12 @@ public abstract class AbstractLiveDataServer {
   public void addMarketDataFieldReceiver(MarketDataFieldReceiver fieldReceiver) {
     ArgumentChecker.checkNotNull(fieldReceiver, "Market Data Field Receiver");
     _fieldReceivers.add(fieldReceiver);
+  }
+  
+  public void setMarketDataFieldReceivers(Collection<MarketDataFieldReceiver> fieldReceivers) {
+    for (MarketDataFieldReceiver receiver : fieldReceivers) {
+      addMarketDataFieldReceiver(receiver);      
+    }
   }
   
   /**
