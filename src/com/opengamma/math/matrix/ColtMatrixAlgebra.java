@@ -1,0 +1,134 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.math.matrix;
+
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import cern.colt.matrix.DoubleFactory1D;
+import cern.colt.matrix.DoubleFactory2D;
+import cern.colt.matrix.linalg.Algebra;
+
+/**
+ * @author emcleod
+ * 
+ */
+public class ColtMatrixAlgebra extends MatrixAlgebra {
+  private final Algebra _algebra = new Algebra();
+
+  @Override
+  public double getCondition(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix2D) {
+      return _algebra.cond(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
+    }
+    throw new IllegalArgumentException("Can only find condition of DoubleMatrix2D; have " + m.getClass());
+  }
+
+  @Override
+  public double getDeterminant(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix2D) {
+      return _algebra.det(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
+    }
+    throw new IllegalArgumentException("Can only find determinant of DoubleMatrix2D; have " + m.getClass());
+  }
+
+  @Override
+  public DoubleMatrix2D getInverse(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix2D) {
+      return new DoubleMatrix2D(_algebra.inverse(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray())).toArray());
+    }
+    throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());
+  }
+
+  @Override
+  public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
+      return _algebra
+          .mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getDataAsPrimitiveArray()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray()));
+    }
+    throw new IllegalArgumentException("Cannot find the inner product of a " + m1.getClass() + " and " + m2.getClass());
+  }
+
+  @Override
+  public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
+    if (m1 instanceof DoubleMatrix1D)
+      throw new IllegalArgumentException("Cannot have 1D matrix as first argument");
+    if (m1 instanceof DoubleMatrix2D) {
+      final DoubleMatrix2D x = (DoubleMatrix2D) m1;
+      if (m2 instanceof DoubleMatrix1D) {
+        return new DoubleMatrix1D(_algebra.mult(DoubleFactory2D.dense.make(x.getDataAsPrimitiveArray()),
+            DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray())).toArray());
+      } else if (m2 instanceof DoubleMatrix2D) {
+        return new DoubleMatrix2D(_algebra.mult(DoubleFactory2D.dense.make(x.getDataAsPrimitiveArray()),
+            DoubleFactory2D.dense.make(((DoubleMatrix2D) m2).getDataAsPrimitiveArray())).toArray());
+      }
+    }
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
+    if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
+      final cern.colt.matrix.DoubleMatrix2D x = DoubleFactory2D.dense.make(m1.getNumberOfElements(), m2.getNumberOfElements());
+      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getDataAsPrimitiveArray()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray()),
+          x);
+      return new DoubleMatrix2D(x.toArray());
+    }
+    throw new IllegalArgumentException("Cannot find the outer product of a " + m1.getClass() + " and " + m2.getClass());
+  }
+
+  @Override
+  public double getNorm1(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix1D) {
+      return _algebra.norm1(DoubleFactory1D.dense.make(((DoubleMatrix1D) m).getDataAsPrimitiveArray()));
+    } else if (m instanceof DoubleMatrix2D) {
+      return _algebra.norm1(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
+    }
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public double getNorm2(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix1D) {
+      return _algebra.norm2(DoubleFactory1D.dense.make(((DoubleMatrix1D) m).getDataAsPrimitiveArray()));
+    } else if (m instanceof DoubleMatrix2D) {
+      return _algebra.norm2(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
+    }
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public double getNormInfinity(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix1D) {
+      return _algebra.normInfinity(DoubleFactory1D.dense.make(((DoubleMatrix1D) m).getDataAsPrimitiveArray()));
+    } else if (m instanceof DoubleMatrix2D) {
+      return _algebra.normInfinity(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
+    }
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
+    if (m instanceof DoubleMatrix2D) {
+      return new DoubleMatrix2D(_algebra.pow(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()), p).toArray());
+    }
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public double getTrace(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix2D) {
+      return _algebra.trace(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
+    }
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public DoubleMatrix2D getTranspose(final Matrix<?> m) {
+    if (m instanceof DoubleMatrix2D) {
+      return new DoubleMatrix2D(_algebra.transpose(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray())).toArray());
+    }
+    throw new NotImplementedException();
+  }
+}
