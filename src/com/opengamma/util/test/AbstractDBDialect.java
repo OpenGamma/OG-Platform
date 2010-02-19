@@ -191,6 +191,7 @@ abstract public class AbstractDBDialect implements DBDialect {
     Connection conn = null;
     try {
       if (!getCatalogCreationStrategy().catalogExists(catalog)) {
+        System.out.println("Catalog " + catalog + " does not exist");
         return; // nothing to drop
       }
 
