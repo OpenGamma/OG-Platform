@@ -5,7 +5,8 @@
  */
 package com.opengamma.math.matrix;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.apache.commons.lang.NotImplementedException;
+
 import cern.colt.matrix.DoubleFactory1D;
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.linalg.Algebra;
