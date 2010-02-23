@@ -97,7 +97,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       FudgeFieldContainer msg = envelope.getMessage();
       LiveDataSubscriptionResponseMsg responseMessage = LiveDataSubscriptionResponseMsg.fromFudgeMsg(new FudgeDeserializationContext(getFudgeContext()), msg);
       
-      for (LiveDataSubscriptionResponse response : responseMessage.getResponsesList()) {
+      for (LiveDataSubscriptionResponse response : responseMessage.getResponses()) {
         
         SubscriptionHandle handle = _spec2SubHandle.get(response.getRequestedSpecification());
         if (handle == null) {

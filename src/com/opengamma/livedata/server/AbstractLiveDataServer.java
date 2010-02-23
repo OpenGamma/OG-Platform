@@ -110,7 +110,7 @@ public abstract class AbstractLiveDataServer {
   public LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
     
     ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
-    for (LiveDataSpecificationImpl requestedSpecification : subscriptionRequest.getSpecificationsList()) {
+    for (LiveDataSpecificationImpl requestedSpecification : subscriptionRequest.getSpecifications()) {
       
       try {
     
