@@ -37,10 +37,13 @@ public class DBTool extends Task {
   private boolean _drop = false;
   private boolean _clear = false;
   private boolean _createTestDb = false;
+  private boolean _createTables = false;
   private String _testDbType;
+  private String _basedir;
   
   // What to do it on - can change
   private DBDialect _dialect;
+  private String _jdbcUrl;
   private String _dbServerHost;
   private String _user;
   private String _password;
@@ -112,8 +115,16 @@ public class DBTool extends Task {
     return _password;
   }
   
+  public String getJdbcUrl() {
+    return _jdbcUrl;
+  }
+
+  public void setJdbcUrl(String jdbcUrl) {
+    _jdbcUrl = jdbcUrl;
+  }
   
   
+
   
   public String getCatalog() {
     return _catalog;
@@ -159,8 +170,25 @@ public class DBTool extends Task {
     _createTestDb = (testDbType != null);
     _testDbType = testDbType;
   }
+  
+  public String getBasedir() {
+    return _basedir;
+  }
 
-
+  public void setBasedir(String basedir) {
+    _basedir = basedir;
+  }
+  
+  public void setCreateTables(boolean create) {
+    _createTables = create;
+  }
+  
+  public void setCreateTables(String create) {
+    setCreateTables(create.equalsIgnoreCase("true"));
+  }
+  
+  
+  
   
 
   public void createTestSchema() {
@@ -222,7 +250,7 @@ public class DBTool extends Task {
   }
   
   public void createTables(String catalog) {
-    File file = new File("db/" + _dialect.getDatabaseName() + "/create-db.sql");
+    File file = new File(_basedir, "db/" + _dialect.getDatabaseName() + "/create-db.sql");
     String sql;
     try {
       sql = FileUtils.readFileToString(file);
@@ -242,8 +270,23 @@ public class DBTool extends Task {
   @Override
   public void execute() throws BuildException {
     if (!_createTestDb) {
+      
       if (_dbServerHost == null) {
-        throw new BuildException("No DB server specified.");
+        
+        // Parse the server host and catalog from a JDBC URL
+        if (_jdbcUrl != null) {
+      
+          int lastSlash = _jdbcUrl.lastIndexOf('/');
+          if (lastSlash == -1 || lastSlash == _jdbcUrl.length() - 1) {
+            throw new BuildException("JDBC URL must contain a slash separating the server host and the database name");
+          }
+          
+          _dbServerHost = _jdbcUrl.substring(0, lastSlash);
+          _catalog = _jdbcUrl.substring(lastSlash + 1);
+          
+        } else {
+          throw new BuildException("No DB server specified.");
+        }
       }
       
       if (_catalog == null) {
@@ -251,7 +294,7 @@ public class DBTool extends Task {
       }
     }
     
-    if (!_create && !_drop && !_clear && !_createTestDb) {
+    if (!_create && !_drop && !_clear && !_createTestDb && !_createTables) {
       throw new BuildException("Nothing to do.");
     }
     
@@ -273,6 +316,12 @@ public class DBTool extends Task {
       createSchema(_catalog, _schema);      
     }
     
+    if (_createTables) {
+      System.out.println("Creating tables...");
+      initialise();
+      createTables(_catalog);
+    }
+    
     if (_createTestDb) {
       for (String dbType : TestProperties.getDatabaseTypes(_testDbType)) {
         System.out.println("Creating " + dbType + " test database...");
@@ -292,6 +341,8 @@ public class DBTool extends Task {
         shutdown();
       }
     }
+    
+    System.out.println("All tasks succeeded.");
   }
   
   
@@ -304,17 +355,21 @@ public class DBTool extends Task {
   public static void main(String[] args) {
     
     Options options = new Options();
+    options.addOption("jdbcUrl", "jdbcUrl", true, "DB server URL + database - for example, jdbc:postgresql://localhost:1234/OpenGammaTests. You can use" +
+    		" either this option or specify server and database separately.");
     options.addOption("server", "server", true, "DB server URL (no database at the end) - for example, jdbc:postgresql://localhost:1234");
+    options.addOption("database", "database", true, "Name of database on the DB server - for example, OpenGammaTests");
     options.addOption("user", "user", true, "User name to the DB");
     options.addOption("password", "password", true, "Password to the DB");
-    options.addOption("database", "database", true, "Name of database on the DB server - for example, OpenGammaTests");
     options.addOption("schema", "schema", true, "Name of schema within database. Optional. If not specified, the default schema for the database is used.");
-    options.addOption("create", "create", false, "Creates the given database/schema");
+    options.addOption("create", "create", false, "Creates the given database/schema. The database will be empty.");
     options.addOption("drop", "drop", false, "Drops all tables and sequences within the given database/schema");
     options.addOption("clear", "clear", false, "Clears all tables within the given database/schema");
-    options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it. " +
+    options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it (including tables). " +
         "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
-        "to specify --server, --user, or --password.");
+        "to specify server, user, or password.");
+    options.addOption("createtables", "createtables", true, "Runs {basedir}/db/{dbtype}/create-db.sql.");
+    options.addOption("basedir", "basedir", true, "Base directory for reading create db scripts. Optional. If not specified, the working directory is used.");
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = null;
@@ -327,6 +382,7 @@ public class DBTool extends Task {
     }
     
     DBTool tool = new DBTool();
+    tool.setJdbcUrl(line.getOptionValue("jdbcUrl"));
     tool.setDbServerHost(line.getOptionValue("server"));
     tool.setUser(line.getOptionValue("user"));
     tool.setPassword(line.getOptionValue("password"));
@@ -336,6 +392,8 @@ public class DBTool extends Task {
     tool.setDrop(line.hasOption("drop"));
     tool.setClear(line.hasOption("clear"));
     tool.setCreateTestDb(line.getOptionValue("createtestdb"));
+    tool.setCreateTables(line.getOptionValue("createtables"));
+    tool.setBasedir(line.getOptionValue("basedir"));
     
     try {
       tool.execute();
@@ -344,8 +402,7 @@ public class DBTool extends Task {
       usage(options);
       System.exit(-1);
     }
-    
-    System.out.println("All tasks succeeded.");
+
     System.exit(0);
   }
 
