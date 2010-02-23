@@ -27,7 +27,7 @@ public class RepositoryFactory {
   public static InMemoryFunctionRepository constructRepository(RepositoryConfiguration configuration) {
     InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
     
-    for(FunctionConfiguration functionConfig : configuration.getFunctionsList()) {
+    for(FunctionConfiguration functionConfig : configuration.getFunctions()) {
       if(functionConfig instanceof ParameterizedFunctionConfiguration) {
         addParameterizedFunctionConfiguration(repository, (ParameterizedFunctionConfiguration) functionConfig);
       } else if(functionConfig instanceof StaticFunctionConfiguration) {
