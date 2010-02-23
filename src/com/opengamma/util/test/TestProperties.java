@@ -89,5 +89,15 @@ public class TestProperties {
     }
     return password;
   }
+  
+  public static DBTool getDbTool(String databaseType) {
+    String dbHost = getDbHost(databaseType);
+    String user = getDbUsername(databaseType);
+    String password = getDbPassword(databaseType);
+    
+    DBTool dbtool = new DBTool(dbHost, user, password);
+    dbtool.initialise();
+    return dbtool;
+  }
 
 }

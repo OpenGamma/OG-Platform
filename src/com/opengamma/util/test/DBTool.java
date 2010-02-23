@@ -19,6 +19,8 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -241,6 +243,17 @@ public class DBTool extends Task {
   
   public Class<?> getJDBCDriverClass() {
     return _dialect.getJDBCDriverClass();
+  }
+  
+  public Configuration getHibernateConfiguration(String jdbcUrl) {
+    Configuration configuration = new Configuration();
+    configuration.setProperty(Environment.DRIVER, getJDBCDriverClass().getName());
+    configuration.setProperty(Environment.URL, jdbcUrl);
+    configuration.setProperty(Environment.USER, getUser());
+    configuration.setProperty(Environment.PASS, getPassword());
+    configuration.setProperty(Environment.DIALECT, getHibernateDialect().getClass().getName());
+    configuration.setProperty(Environment.SHOW_SQL, "true");
+    return configuration;
   }
   
   
