@@ -24,8 +24,14 @@ public class UserGroup {
   }
   
   public UserGroup(Long id, String name) {
+    this(id, name, new HashSet<User>(), new HashSet<Authority>());    
+  }
+  
+  public UserGroup(Long id, String name, Set<User> users, Set<Authority> authorities) {
     _id = id;
     _name = name;
+    _users = users;
+    _authorities = authorities;
   }
   
   public Long getId() {

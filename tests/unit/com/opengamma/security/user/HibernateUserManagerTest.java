@@ -37,7 +37,7 @@ public class HibernateUserManagerTest extends HibernateTest {
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return new Class[] { User.class, UserGroup.class, Authority.class };
+    return HibernateUserManager.getHibernateMappingClasses();
   }
 
   @Before

@@ -142,4 +142,8 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
     ArgumentChecker.checkNotNull(authority, "Authority");
     _hibernateTemplate.update(authority);
   }
+  
+  public static Class<?>[] getHibernateMappingClasses() {
+    return new Class[] { User.class, UserGroup.class, Authority.class };
+  }
 }
