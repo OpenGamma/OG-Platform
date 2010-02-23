@@ -179,6 +179,7 @@ public class DBTool extends Task {
 
   public void setBasedir(String basedir) {
     _basedir = basedir;
+    TestProperties.setBaseDir(_basedir);
   }
   
   public void setCreateTables(boolean create) {
@@ -382,7 +383,7 @@ public class DBTool extends Task {
         "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
         "to specify server, user, or password.");
     options.addOption("createtables", "createtables", true, "Runs {basedir}/db/{dbtype}/create-db.sql.");
-    options.addOption("basedir", "basedir", true, "Base directory for reading create db scripts. Optional. If not specified, the working directory is used.");
+    options.addOption("basedir", "basedir", true, "Base directory for reading create db scripts and property files. Optional. If not specified, the working directory is used.");
     
     CommandLineParser parser = new PosixParser();
     CommandLine line = null;
