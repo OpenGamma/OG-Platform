@@ -50,10 +50,10 @@ public class RepositoryFactory {
     // TODO kirk 2010-02-17 -- This method needs to be WAY more robust.
     try {
       Class<?> definitionClass = Class.forName(functionConfig.getDefinitionClassName());
-      Object[] parameters = new Object[functionConfig.getParameterList().size()];
-      Class<?>[] parameterTypes = new Class<?>[functionConfig.getParameterList().size()];
+      Object[] parameters = new Object[functionConfig.getParameter().size()];
+      Class<?>[] parameterTypes = new Class<?>[functionConfig.getParameter().size()];
       for(int i = 0; i < parameters.length; i++) {
-        parameters[i] = functionConfig.getParameterList().get(i);
+        parameters[i] = functionConfig.getParameter().get(i);
         parameterTypes[i] = String.class;
       }
       Constructor<?> constructor = definitionClass.getConstructor(parameterTypes);
