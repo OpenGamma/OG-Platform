@@ -16,6 +16,7 @@
         <dependency org="org.apache.derby" name="derby" rev="10.5+"/>
         <dependency org="org.springframework" name="spring" rev="2.5.6" conf="*->orm"/>
         <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>
+        <dependency org="org.mongodb" name="java-driver" rev="1.0" conf="opengamma->*"/>
     </dependencies>
 </ivy-module>
 
