@@ -122,6 +122,7 @@ public abstract class AbstractLiveDataServer {
               LiveDataSubscriptionResult.NOT_PRESENT, 
               null, 
               null));
+          continue;
         }
         
         if(!getEntitlementChecker().isEntitled(subscriptionRequest.getUserName(), qualifiedSpecification)) {
@@ -132,6 +133,7 @@ public abstract class AbstractLiveDataServer {
               LiveDataSubscriptionResult.NOT_AUTHORIZED, 
               null, 
               null));
+          continue;
         }
       
         subscribe(qualifiedSpecification);

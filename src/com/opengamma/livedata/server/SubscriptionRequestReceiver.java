@@ -11,6 +11,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
@@ -39,6 +40,7 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   }
 
   @Override
+  @Transactional
   public FudgeFieldContainer requestReceived(
       FudgeDeserializationContext context,
       FudgeMsgEnvelope requestEnvelope) {
