@@ -29,5 +29,6 @@
         <dependency org="org.apache.derby" name="derby" rev="10.5.1.1"/>
         <dependency org="org.postgresql" name="postgresql-jdbc" rev="8.4-701"/>
         <dependency org="org.mockito" name="mockito" rev="1.6"/>
+        <dependency org="it.unimi.dsi" name="fastutil" rev="5.1.5"/>
     </dependencies>
 </ivy-module>
