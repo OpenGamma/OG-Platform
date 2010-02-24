@@ -20,7 +20,7 @@ import com.opengamma.math.statistics.descriptive.PopulationVarianceCalculator;
  * 
  */
 public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTestCase {
-  private static final double MU = 4;
+  private static final double MU = 0.4;
   private static final double SIGMA = 1.4;
   private static final double KSI = 0.2;
   private static final ProbabilityDistribution<Double> DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI);
@@ -67,7 +67,7 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
     final Function1D<Double[], Double> medianCalculator = new MedianCalculator();
     final Function1D<Double[], Double> varianceCalculator = new PopulationVarianceCalculator();
     final int n = 1000000;
-    final double eps = 5e-2;
+    final double eps = 0.1;
     final Double[] data = new Double[n];
     for (int i = 0; i < n; i++) {
       data[i] = DIST.nextRandom();
