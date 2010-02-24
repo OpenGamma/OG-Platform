@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class BrentMinimizer1DTest extends Minimizer1DTest {
+public class BrentMinimizer1DTest extends Minimizer1DTestCase {
   private static final Minimizer1D MINIMIZER = new BrentMinimizer1D();
 
   @Test

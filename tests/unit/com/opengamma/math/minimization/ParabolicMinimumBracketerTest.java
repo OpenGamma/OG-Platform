@@ -17,7 +17,7 @@ import com.opengamma.math.function.Function1D;
  * 
  * @author emcleod
  */
-public class ParabolicMinimumBracketerTest extends MinimumBracketerTest {
+public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();
   private static final Function1D<Double, Double> LINEAR = new Function1D<Double, Double>() {
 

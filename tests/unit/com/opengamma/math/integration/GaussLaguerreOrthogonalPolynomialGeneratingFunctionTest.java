@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class GaussLaguerreOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTest {
+public class GaussLaguerreOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTestCase {
   private static final double[] X2 = new double[] { 0.585786, 3.41421 };
   private static final double[] W2 = new double[] { 0.853553, 0.146447 };
   private static final double[] X3 = new double[] { 0.415775, 2.29428, 6.28995 };

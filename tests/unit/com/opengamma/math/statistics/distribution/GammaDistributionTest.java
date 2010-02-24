@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class GammaDistributionTest extends ProbabilityDistributionTest {
+public class GammaDistributionTest extends ProbabilityDistributionTestCase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeK1() {

@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class GoldenSectionMinimizer1DTest extends Minimizer1DTest {
+public class GoldenSectionMinimizer1DTest extends Minimizer1DTestCase {
   private static final Minimizer1D MINIMIZER = new GoldenSectionMinimizer1D();
 
   @Test

@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class VanWijngaardenDekkerBrentSingleRootFinderTest extends RealSingleRootFinderTest {
+public class VanWijngaardenDekkerBrentSingleRootFinderTest extends RealSingleRootFinderTestCase {
   private static final RealSingleRootFinder FINDER = new VanWijngaardenDekkerBrentSingleRootFinder();
 
   @Test

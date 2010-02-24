@@ -14,7 +14,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class PortmanteauIIDHypothesisTest extends IIDHypothesisTest {
+public class PortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis TEST = new PortmanteauIIDHypothesis(0.05, 20);
 
   @Test(expected = IllegalArgumentException.class)

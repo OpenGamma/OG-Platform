@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.model;
@@ -48,7 +48,7 @@ public class MovingAverageTimeSeriesModel {
     double sum;
     for (int i = 1; i < n; i++) {
       sum = theta[0] + z[i];
-      for (int j = 1; j < (i < q ? i : q); j++) {
+      for (int j = 1; j < (i < q ? i : q + 1); j++) {
         sum += z[i - j] * theta[j];
       }
       data.add(sum);

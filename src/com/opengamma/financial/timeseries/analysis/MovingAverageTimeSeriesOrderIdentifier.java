@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -39,7 +39,7 @@ public class MovingAverageTimeSeriesOrderIdentifier {
     final double bound = _criticalValue / Math.sqrt(n);
     for (int i = _maxOrder; i > 0; i--) {
       if (Math.abs(acf[i]) > bound)
-        return i + 1;
+        return i;
     }
     throw new IllegalArgumentException("Could not find order of series; no significant autocorrelations");
   }

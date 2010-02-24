@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.model;
@@ -45,7 +45,8 @@ public class MovingAverageTimeSeriesModelTest {
       dates.add(ZonedDateTime.fromInstant(Instant.instant(i), TimeZone.UTC));
     }
     THETA = new Double[ORDER + 1];
-    for (int i = 0; i <= ORDER; i++) {
+    THETA[0] = 0.;
+    for (int i = 1; i <= ORDER; i++) {
       THETA[i] = (i + 1) / 10.;
     }
     MA = MODEL.getSeries(THETA, ORDER, dates);

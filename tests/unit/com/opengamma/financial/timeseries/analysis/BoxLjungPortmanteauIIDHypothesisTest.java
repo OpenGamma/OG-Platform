@@ -14,7 +14,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class BoxLjungPortmanteauIIDHypothesisTest extends IIDHypothesisTest {
+public class BoxLjungPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis BOX_LJUNG = new BoxLjungPortmanteauIIDHypothesis(0.05, 20);
 
   @Test(expected = IllegalArgumentException.class)

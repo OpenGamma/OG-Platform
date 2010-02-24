@@ -15,7 +15,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class ShepardInterpolatorNDTest extends InterpolatorNDTest {
+public class ShepardInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final InterpolatorND INTERPOLATOR = new ShepardInterpolatorND(1.3);
 
   @Test

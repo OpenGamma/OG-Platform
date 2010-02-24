@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -14,7 +14,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class TurningPointIIDHypothesisTest extends IIDHypothesisTest {
+public class TurningPointIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis TURNING_POINT = new TurningPointIIDHypothesis(0.05);
 
   @Test(expected = IllegalArgumentException.class)
@@ -32,7 +32,7 @@ public class TurningPointIIDHypothesisTest extends IIDHypothesisTest {
     super.testNullTS(TURNING_POINT);
     super.testEmptyTS(TURNING_POINT);
     assertTrue(TURNING_POINT.evaluate(RANDOM));
-    assertTrue(TURNING_POINT.evaluate(SIGNAL));
+    assertFalse(TURNING_POINT.evaluate(SIGNAL));
     assertFalse(TURNING_POINT.evaluate(INCREASING));
   }
 }

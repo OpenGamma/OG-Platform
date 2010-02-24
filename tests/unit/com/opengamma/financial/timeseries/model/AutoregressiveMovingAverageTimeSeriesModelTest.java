@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.model;
@@ -55,12 +55,15 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
       PHI[i] = (i + 2.) / 15.;
     }
     THETA = new Double[Q];
+    final Double[] theta1 = new Double[Q + 1];
+    theta1[0] = 0.;
     for (int i = 0; i < Q; i++) {
       THETA[i] = (i % 2 == 0 ? -1 : 1) * (i + 1) / 10.;
+      theta1[i + 1] = THETA[i];
     }
     ARMA11 = MODEL.getSeries(PHI, 1, THETA, 1, DATES);
     ARMA = MODEL.getSeries(PHI, P, THETA, Q, DATES);
-    MA = MA_MODEL.getSeries(THETA, Q, DATES);
+    MA = MA_MODEL.getSeries(theta1, Q, DATES);
     AR = AR_MODEL.getSeries(PHI, P, DATES);
     LIMIT /= Math.sqrt(n);
   }
@@ -81,5 +84,9 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
     final Double[] rhoARMA11 = autocorrelation.evaluate(ARMA11);
     final Double[] gammaARMA11 = autocovariance.evaluate(ARMA11);
     assertEquals(PHI[1] - THETA[1] * STD * STD / gammaARMA11[0], rhoARMA11[1], eps);
+    final Double[] t = autocorrelation.evaluate(ARMA);
+    for (final Double d : t) {
+      System.out.println(d);
+    }
   }
 }

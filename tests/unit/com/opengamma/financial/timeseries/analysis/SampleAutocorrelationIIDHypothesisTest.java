@@ -14,7 +14,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTest {
+public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis SAMPLE_ACF = new SampleAutocorrelationIIDHypothesis(0.05, 100);
 
   @Test(expected = IllegalArgumentException.class)

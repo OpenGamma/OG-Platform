@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class DownhillSimplexMinimizerTest extends MultidimensionalMinimizerTest {
+public class DownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
   private static final MultidimensionalMinimizer MINIMIZER = new DownhillSimplexMinimizer();
 
   @Test

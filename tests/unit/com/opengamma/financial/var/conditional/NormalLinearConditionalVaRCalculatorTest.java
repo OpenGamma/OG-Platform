@@ -42,6 +42,11 @@ public class NormalLinearConditionalVaRCalculatorTest {
     new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, 1 + QUANTILE);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullStatistics() {
+    F.evaluate((NormalStatistics<?>) null);
+  }
+
   @Test
   public void test() {
     final Function1D<Double, Double> mean = new Function1D<Double, Double>() {

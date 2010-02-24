@@ -17,7 +17,7 @@ import com.opengamma.math.function.Function1D;
  * 
  * @author emcleod
  */
-public class GaussJacobiOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTest {
+public class GaussJacobiOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTestCase {
   private static final OrthogonalPolynomialGeneratingFunction GAUSS_LEGENDRE = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
   private static final OrthogonalPolynomialGeneratingFunction GAUSS_JACOBI_GL_EQUIV = new GaussJacobiOrthogonalPolynomialGeneratingFunction(0, 0);
   private static final OrthogonalPolynomialGeneratingFunction GAUSS_JACOBI_CHEBYSHEV_EQUIV = new GaussJacobiOrthogonalPolynomialGeneratingFunction(-0.5, -0.5);

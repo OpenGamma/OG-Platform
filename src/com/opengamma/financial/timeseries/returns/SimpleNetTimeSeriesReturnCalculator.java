@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -70,18 +69,18 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
     Map.Entry<ZonedDateTime, Double> previousEntry = iter.next();
     Map.Entry<ZonedDateTime, Double> entry;
     double dividend;
+    Double dividendTSData;
     while (iter.hasNext()) {
       entry = iter.next();
       if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
         times.add(entry.getKey());
-        try {
-          dividend = d == null ? 0 : d.getDataPoint(entry.getKey());
-          data.add((entry.getValue() + dividend) / previousEntry.getValue() - 1);
-        } catch (final ArrayIndexOutOfBoundsException e) {
-          data.add(entry.getValue() / previousEntry.getValue() - 1);
-        } catch (final NoSuchElementException e) {
-          data.add(entry.getValue() / previousEntry.getValue() - 1);
+        if (d == null) {
+          dividend = 0;
+        } else {
+          dividendTSData = d.getDataPoint(entry.getKey());
+          dividend = dividendTSData == null ? 0 : dividendTSData;
         }
+        data.add((entry.getValue() + dividend) / previousEntry.getValue() - 1);
       }
       previousEntry = entry;
     }

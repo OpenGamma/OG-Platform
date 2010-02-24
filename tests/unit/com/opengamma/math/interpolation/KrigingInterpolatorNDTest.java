@@ -16,7 +16,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class KrigingInterpolatorNDTest extends InterpolatorNDTest {
+public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final double EPS = 1e-4;
 
   @Test

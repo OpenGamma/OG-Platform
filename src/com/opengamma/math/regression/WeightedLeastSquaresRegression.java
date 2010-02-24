@@ -14,8 +14,8 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.StudentTTwoTailedCriticalValueCalculator;
+import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.math.statistics.distribution.StudentTDistribution;
 
 /**
  * 
@@ -87,11 +87,11 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     final Double rSquared = regressionSumOfSquares / totalSumOfSquares;
     final Double adjustedRSquared = 1. - (1 - rSquared) * (n - 1) / (n - k);
     final Double meanSquareError = errorSumOfSquares / (n - k);
-    final Function1D<Double, Double> studentT = new StudentTTwoTailedCriticalValueCalculator(n - k);
+    final ProbabilityDistribution<Double> studentT = new StudentTDistribution(n - k);
     for (int i = 0; i < k; i++) {
       standardErrorsOfBeta[i] = Math.sqrt(meanSquareError * covarianceBetas[i][i]);
       tStats[i] = betas[i] / standardErrorsOfBeta[i];
-      pValues[i] = 1 - studentT.evaluate(Math.abs(tStats[i]));
+      pValues[i] = 1 - studentT.getCDF(Math.abs(tStats[i]));
     }
     return new WeightedLeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorsOfBeta, rSquared, adjustedRSquared, tStats, pValues, useIntercept);
   }

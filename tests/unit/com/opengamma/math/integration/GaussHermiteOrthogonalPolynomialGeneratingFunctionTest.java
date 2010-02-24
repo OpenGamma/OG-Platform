@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTest {
+public class GaussHermiteOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTestCase {
   private static final double SQRT_PI = Math.sqrt(Math.PI);
   private static final double DENOM1 = 4 * (3 - Math.sqrt(6));
   private static final double DENOM2 = 4 * (3 + Math.sqrt(6));

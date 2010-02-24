@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.model;
@@ -45,10 +45,17 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
       throw new IllegalArgumentException("Dates list was null");
     if (dates.isEmpty())
       throw new IllegalArgumentException("Dates list was empty");
+    final Double[] theta1 = theta == null ? null : new Double[theta.length + 1];
+    if (theta != null) {
+      theta1[0] = 0.;
+      for (int i = 0; i < theta.length; i++) {
+        theta1[i + 1] = theta[i];
+      }
+    }
     if (p == 0)
-      return _maModel.getSeries(theta, q, dates);
+      return _maModel.getSeries(theta1, q, dates);
     if (q == 0)
       return _arModel.getSeries(phi, p, dates);
-    return DoubleTimeSeriesOperations.add(_arModel.getSeries(phi, p, dates), _maModel.getSeries(theta, q, dates));
+    return DoubleTimeSeriesOperations.add(_arModel.getSeries(phi, p, dates), _maModel.getSeries(theta1, q, dates));
   }
 }

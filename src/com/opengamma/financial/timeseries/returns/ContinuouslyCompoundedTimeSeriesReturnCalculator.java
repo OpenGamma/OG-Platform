@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -73,22 +72,21 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
     Map.Entry<ZonedDateTime, Double> previousEntry = iter.next();
     Map.Entry<ZonedDateTime, Double> entry;
     double dividend;
+    Double dividendTSData = null;
     while (iter.hasNext()) {
       entry = iter.next();
       if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
         times.add(entry.getKey());
-        try {
-          dividend = d == null ? 0 : d.getDataPoint(entry.getKey());
-          data.add(Math.log((entry.getValue() + dividend) / previousEntry.getValue()));
-        } catch (final ArrayIndexOutOfBoundsException e) {
-          data.add(Math.log(entry.getValue() / previousEntry.getValue()));
-        } catch (final NoSuchElementException e) {
-          data.add(Math.log(entry.getValue() / previousEntry.getValue()));
+        if (d == null) {
+          dividend = 0;
+        } else {
+          dividendTSData = d.getDataPoint(entry.getKey());
+          dividend = dividendTSData == null ? 0 : dividendTSData;
         }
+        data.add(Math.log((entry.getValue() + dividend) / previousEntry.getValue()));
       }
       previousEntry = entry;
     }
     return new ArrayDoubleTimeSeries(times, data);
   }
-
 }

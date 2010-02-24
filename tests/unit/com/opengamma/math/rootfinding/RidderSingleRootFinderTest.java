@@ -11,7 +11,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class RidderSingleRootFinderTest extends RealSingleRootFinderTest {
+public class RidderSingleRootFinderTest extends RealSingleRootFinderTestCase {
   private static final RealSingleRootFinder FINDER = new RidderSingleRootFinder();
 
   @Test

@@ -17,7 +17,7 @@ import com.opengamma.math.function.Function1D;
  * 
  * @author emcleod
  */
-public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTest {
+public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCase {
   private static final Function1D<Double, Double> UNIFORM_WEIGHT_FUNCTION = new MultiquadraticRadialBasisFunction();
 
   @Test

@@ -14,7 +14,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTest {
+public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis LI_MCLEOD = new LiMcLeodPortmanteauIIDHypothesis(0.05, 20);
 
   @Test(expected = IllegalArgumentException.class)

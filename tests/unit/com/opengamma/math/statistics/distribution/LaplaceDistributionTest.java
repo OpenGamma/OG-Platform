@@ -19,7 +19,7 @@ import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
  * @author emcleod
  * 
  */
-public class LaplaceDistributionTest extends ProbabilityDistributionTest {
+public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.7;
   private static final double B = 5;
   private static final ProbabilityDistribution<Double> LAPLACE = new LaplaceDistribution(MU, B);

@@ -11,6 +11,7 @@ import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefi
 import com.opengamma.financial.model.option.definition.HullWhiteStochasticVolatilityModelOptionDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -60,7 +61,7 @@ public class HullWhiteStochasticVolatilityModel extends AnalyticOptionModel<Opti
         final double d1 = getD(s, k, b, meanVariance, t);
         final double d2 = d1 - Math.sqrt(meanVariance * t);
         final double nD1 = _normal.getPDF(d1);
-        final double f0 = _bsm.getPricingFunction(call).evaluate(bsmData);
+        final double f0 = _bsm.getPricingFunction(call).evaluate(bsmData.withVolatilitySurface(new ConstantVolatilitySurface(Math.sqrt(meanVariance))));
         final double f1 = getF1(betaIsZero, variance, rho, alpha, t, beta, delta, eDelta, sDf, nD1, d1, meanVariance);
         final double f2 = getF2(betaIsZero, variance, rho, alpha, t, beta, delta, eDelta, sDf, nD1, d1, d2, meanVariance);
         final double callPrice = f0 + f1 * volOfSigma + f2 * volOfSigma * volOfSigma;

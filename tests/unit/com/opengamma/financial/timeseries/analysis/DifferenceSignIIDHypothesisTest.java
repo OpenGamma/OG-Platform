@@ -14,7 +14,7 @@ import org.junit.Test;
  * 
  * @author emcleod
  */
-public class DifferenceSignIIDHypothesisTest extends IIDHypothesisTest {
+public class DifferenceSignIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis DIFFERENCE_SIGN = new DifferenceSignIIDHypothesis(0.05);
 
   @Test(expected = IllegalArgumentException.class)

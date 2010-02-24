@@ -67,10 +67,8 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     while (iter.hasNext()) {
       final ZonedDateTime instant = iter.next();
       for (int i = 1; i < x.length; i++) {
-        try {
-          x[i].getDataPoint(instant);
-        } catch (final ArrayIndexOutOfBoundsException e) {
-          throw new TimeSeriesException("Time series did not all contain the same dates; " + e);
+        if (x[i].getDataPoint(instant) == null) {
+          throw new TimeSeriesException("Time series did not all contain the same dates");
         }
       }
     }
