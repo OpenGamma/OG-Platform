@@ -23,26 +23,6 @@ public class NormalLinearVaRCalculatorTest {
   private static final Function1D<NormalStatistics<?>, Double> CALCULATOR = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNegativeHorizon() {
-    new NormalLinearVaRCalculator(-HORIZON, PERIODS, QUANTILE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativePeriods() {
-    new NormalLinearVaRCalculator(HORIZON, -PERIODS, QUANTILE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testLowQuantile() {
-    new NormalLinearVaRCalculator(HORIZON, PERIODS, -0.99);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testHighQuantile() {
-    new NormalLinearVaRCalculator(HORIZON, PERIODS, 1.99);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
     CALCULATOR.evaluate((NormalStatistics<?>) null);
   }

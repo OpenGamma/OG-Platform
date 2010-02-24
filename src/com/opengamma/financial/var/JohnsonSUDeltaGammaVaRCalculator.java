@@ -19,41 +19,12 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  * 
  */
-public class JohnsonSUDeltaGammaVaRCalculator extends Function1D<SkewKurtosisStatistics<?>, Double> {
-  private double _horizon;
-  private double _periods;
-  private double _quantile;
+public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosisStatistics<?>> {
   private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   private final RealSingleRootFinder _rootFinder = new BisectionSingleRootFinder();
 
   public JohnsonSUDeltaGammaVaRCalculator(final double horizon, final double periods, final double quantile) {
-    if (horizon < 0)
-      throw new IllegalArgumentException("Horizon cannot be negative");
-    if (periods < 0)
-      throw new IllegalArgumentException("Periods cannot be negative");
-    if (quantile <= 0 || quantile >= 1)
-      throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    _horizon = horizon;
-    _periods = periods;
-    _quantile = quantile;
-  }
-
-  public void setHorizon(final double horizon) {
-    if (horizon < 0)
-      throw new IllegalArgumentException("Horizon cannot be negative");
-    _horizon = horizon;
-  }
-
-  public void setPeriods(final double periods) {
-    if (periods < 0)
-      throw new IllegalArgumentException("Periods cannot be negative");
-    _periods = periods;
-  }
-
-  public void setQuantile(final double quantile) {
-    if (quantile <= 0 || quantile >= 1)
-      throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    _quantile = quantile;
+    super(horizon, periods, quantile);
   }
 
   /*
@@ -71,7 +42,7 @@ public class JohnsonSUDeltaGammaVaRCalculator extends Function1D<SkewKurtosisSta
     final double k = data.getKurtosis();
     if (k < 0)
       throw new IllegalArgumentException("Johnson SU distribution cannot be used for data with negative excess kurtosis");
-    final double scale = _horizon / _periods;
+    final double scale = getHorizon() / getPeriods();
     final double mu = data.getMean() * scale;
     final double sigma = data.getStandardDeviation() * Math.sqrt(scale);
     final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
@@ -86,8 +57,10 @@ public class JohnsonSUDeltaGammaVaRCalculator extends Function1D<SkewKurtosisSta
     final double delta = 1. / u;
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));
+    // if (w == 1)
+    // return _normal.getInverseCDF(getQuantile()) * sigma;
     final double ksi = mu - sign * sigma * Math.sqrt(w - 1 - m) / (w - 1);
-    final double z = _normal.getInverseCDF(_quantile);
+    final double z = _normal.getInverseCDF(getQuantile());
     return -lambda * Math.sinh((-z - gamma) / delta) - ksi;
   }
 

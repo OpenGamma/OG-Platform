@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.var;
 
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.StudentTDistribution;
 
@@ -13,50 +12,35 @@ import com.opengamma.math.statistics.distribution.StudentTDistribution;
  * @author emcleod
  * 
  */
-public class StudentTLinearVaRCalculator extends Function1D<NormalStatistics<?>, Double> {
-  private double _horizon;
-  private double _periods;
-  private double _quantile;
+public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<?>> {
   private double _dof;
   private double _mult;
   private ProbabilityDistribution<Double> _studentT;
 
   public StudentTLinearVaRCalculator(final double horizon, final double periods, final double quantile, final double dof) {
-    if (horizon < 0)
-      throw new IllegalArgumentException("Horizon cannot be negative");
-    if (periods < 0)
-      throw new IllegalArgumentException("Periods cannot be negative");
-    if (quantile <= 0 || quantile >= 1)
-      throw new IllegalArgumentException("Quantile must be between 0 and 1");
+    super(horizon, periods, quantile);
     if (dof <= 0)
       throw new IllegalArgumentException("Degrees of freedom must be greater than 0");
-    _horizon = horizon;
-    _periods = periods;
-    _quantile = quantile;
     _dof = dof;
     _studentT = new StudentTDistribution(dof);
     setMultiplier();
-
   }
 
+  @Override
   public void setHorizon(final double horizon) {
-    if (horizon < 0)
-      throw new IllegalArgumentException("Horizon cannot be negative");
-    _horizon = horizon;
+    super.setHorizon(horizon);
     setMultiplier();
   }
 
+  @Override
   public void setPeriods(final double periods) {
-    if (periods < 0)
-      throw new IllegalArgumentException("Periods cannot be negative");
-    _periods = periods;
+    super.setPeriods(periods);
     setMultiplier();
   }
 
+  @Override
   public void setQuantile(final double quantile) {
-    if (quantile <= 0 || quantile >= 1)
-      throw new IllegalArgumentException("Quantile must be between 0 and 1");
-    _quantile = quantile;
+    super.setQuantile(quantile);
     setMultiplier();
   }
 
@@ -69,7 +53,7 @@ public class StudentTLinearVaRCalculator extends Function1D<NormalStatistics<?>,
   }
 
   private void setMultiplier() {
-    _mult = Math.sqrt((_dof - 2) * _horizon / _dof / _periods) * _studentT.getInverseCDF(_quantile);
+    _mult = Math.sqrt((_dof - 2) * getHorizon() / _dof / getPeriods()) * _studentT.getInverseCDF(getQuantile());
   }
 
   @Override

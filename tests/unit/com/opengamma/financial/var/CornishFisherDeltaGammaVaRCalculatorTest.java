@@ -25,23 +25,8 @@ public class CornishFisherDeltaGammaVaRCalculatorTest {
   private static final Function1D<SkewKurtosisStatistics<?>, Double> CF = new CornishFisherDeltaGammaVaRCalculator(HORIZON, PERIODS, QUANTILE);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNegativeHorizon() {
-    new CornishFisherDeltaGammaVaRCalculator(-HORIZON, PERIODS, QUANTILE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativePeriods() {
-    new CornishFisherDeltaGammaVaRCalculator(HORIZON, -PERIODS, QUANTILE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testLowQuantile() {
-    new CornishFisherDeltaGammaVaRCalculator(HORIZON, PERIODS, -1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testHighQuantile() {
-    new CornishFisherDeltaGammaVaRCalculator(-HORIZON, PERIODS, 2);
+  public void testNullData() {
+    CF.evaluate((SkewKurtosisStatistics<?>) null);
   }
 
   @Test

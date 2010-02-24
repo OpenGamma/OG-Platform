@@ -27,28 +27,13 @@ public class StudentTLinearVaRCalculatorTest {
   private static final Function1D<NormalStatistics<?>, Double> STUDENT_T = new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, DOF);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNegativeHorizon() {
-    new StudentTLinearVaRCalculator(-HORIZON, PERIODS, QUANTILE, DOF);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNegativePeriods() {
-    new StudentTLinearVaRCalculator(HORIZON, -PERIODS, QUANTILE, DOF);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testLowQuantile() {
-    new StudentTLinearVaRCalculator(HORIZON, PERIODS, -0.99, DOF);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testHighQuantile() {
-    new StudentTLinearVaRCalculator(HORIZON, PERIODS, 1.99, DOF);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNegativeDOF() {
     new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, -DOF);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetDOF() {
+    ((StudentTLinearVaRCalculator) STUDENT_T).setDegreesOfFreedom(-4);
   }
 
   @Test(expected = IllegalArgumentException.class)
