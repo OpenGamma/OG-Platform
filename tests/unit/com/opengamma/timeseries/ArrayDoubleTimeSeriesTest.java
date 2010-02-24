@@ -6,7 +6,7 @@ import java.util.SortedMap;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-public class ArrayDoubleTimeSeriesTest extends DoubleTimeSeriesTest {
+public class ArrayDoubleTimeSeriesTest extends DoubleTimeSeriesTestCase {
 
   @Override
   public DoubleTimeSeries createEmptyTimeSeries() {

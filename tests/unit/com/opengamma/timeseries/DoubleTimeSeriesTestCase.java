@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import com.opengamma.util.CompareUtils;
 
-public abstract class DoubleTimeSeriesTest {
+public abstract class DoubleTimeSeriesTestCase {
   
   public abstract DoubleTimeSeries createEmptyTimeSeries();
   public abstract DoubleTimeSeries createTimeSeries(long[] times, double[] values, TimeZone[] zones);
