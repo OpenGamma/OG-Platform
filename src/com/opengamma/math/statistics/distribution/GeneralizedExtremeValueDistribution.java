@@ -20,6 +20,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   private final boolean _ksiIsZero;
 
   public GeneralizedExtremeValueDistribution(final double mu, final double sigma, final double ksi) {
+    if (sigma < 0)
+      throw new IllegalArgumentException("Sigma must be positive");
     _mu = mu;
     _sigma = sigma;
     _ksi = ksi;
@@ -35,6 +37,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    */
   @Override
   public double getCDF(final Double x) {
+    if (x == null)
+      throw new IllegalArgumentException("Value was null");
     return Math.exp(-getT(x));
   }
 
@@ -59,6 +63,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    */
   @Override
   public double getPDF(final Double x) {
+    if (x == null)
+      throw new IllegalArgumentException("Value was null");
     final double t = getT(x);
     return Math.pow(t, _ksi + 1) * Math.exp(-t) / _sigma;
   }
@@ -67,6 +73,12 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * (non-Javadoc)
    * 
    * @see
+   * 
+   * 
+   * 
+   * 
+   * 
+   * 
    * 
    * 
    * 
@@ -91,7 +103,13 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   private double getT(final double x) {
-    return _ksiIsZero ? Math.exp(-(x - _mu) / _sigma) : Math.pow(1 + _ksi * (x - _mu) / _sigma, -1. / _ksi);
+    if (_ksiIsZero)
+      return Math.exp(-(x - _mu) / _sigma);
+    if (_ksi < 0 && x > _mu - _sigma / _ksi)
+      throw new IllegalArgumentException("Support for GEV is in the range -infinity -> mu - sigma / ksi when ksi < 0");
+    if (_ksi > 0 && x < _mu - _sigma / _ksi)
+      throw new IllegalArgumentException("Support for GEV is in the range mu - sigma / ksi -> +infinity when ksi > 0");
+    return Math.pow(1 + _ksi * (x - _mu) / _sigma, -1. / _ksi);
   }
 
 }
