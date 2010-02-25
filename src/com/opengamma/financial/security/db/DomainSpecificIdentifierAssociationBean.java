@@ -19,8 +19,8 @@ public class DomainSpecificIdentifierAssociationBean {
   private Long _id = null;
   private SecurityBean _security = null;
   private DomainSpecificIdentifierBean _domainSpecificIdentifier = null;
-  private Date _validStartDate = null;
-  private Date _validEndDate = null;
+  private Date _validStartDate = null; // inclusive
+  private Date _validEndDate = null; // not inclusive
 
   public DomainSpecificIdentifierAssociationBean() {
   }

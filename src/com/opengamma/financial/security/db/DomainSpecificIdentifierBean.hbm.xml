@@ -42,7 +42,7 @@
     where
       a.security = s.firstVersion and
       ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
+       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier and
       s.effectiveDateTime &lt;= :now and
@@ -65,7 +65,7 @@
     where
       a.security = s.firstVersion and
       ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
+       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier in (:identifiers) and
       s.effectiveDateTime &lt; :now and
@@ -83,7 +83,7 @@
       DomainSpecificIdentifierAssociationBean as a 
     where
       ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
+       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier
   </query>
@@ -92,7 +92,7 @@
       DomainSpecificIdentifierAssociationBean as a 
     where
       ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
+       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier and
       a.security = :security
@@ -102,7 +102,23 @@
       DomainSpecificIdentifierAssociationBean as a 
     where
       ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt;= :now)) and
+       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
       a.security = :security
+  </query>
+  <query name="DomainSpecificIdentifierAssociationBean.one.previousAssociation">
+    from
+      DomainSpecificIdentifierAssociationBean as a
+    where
+      a.domain = :domain and
+      a.security = :security and
+      a.validEndDate = (select max(b.validEndDate) from DomainSpecificIdentifierBean as b where b.domain = :domain and b.identifier = :identifier and b.validEndDate &lt;= now)
+  </query>
+  <query name="DomainSpecificIdentifierAssociationBean.one.nextAssociation">
+    from
+      DomainSpecificIdentifierAssociationBean as a
+    where
+      a.domain = :domain and 
+      a.security = :security and 
+      a.validStartDate = (select mind(b.validStartDate) from DomainSpecificIdentifierBean as b where b.domain = :domain and b.identifier = :identifier as b.validStartDate &gt; now)
   </query>
 </hibernate-mapping>

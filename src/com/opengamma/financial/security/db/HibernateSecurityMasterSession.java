@@ -192,7 +192,32 @@ public class HibernateSecurityMasterSession {
   }
 
   // Domain specific ID / Security specific methods
-  /* package */DomainSpecificIdentifierAssociationBean getOrCreateDomainSpecificIdentifierAssociationBean(
+  
+  private DomainSpecificIdentifierAssociationBean createDomainSpecificIdentifierAssociationBean (Date now, String domain, String identifier, SecurityBean security) {
+    DomainSpecificIdentifierAssociationBean association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean (domain, identifier));
+    Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.previousAssociation");
+    query.setString ("domain", domain);
+    query.setString ("identifier", identifier);
+    query.setDate ("now", now);
+    DomainSpecificIdentifierAssociationBean other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
+    if (other != null) {
+      association.setValidStartDate (other.getValidEndDate ());
+    }
+    query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.nextAssociation");
+    query.setString ("domain", domain);
+    query.setString ("identifier", identifier);
+    query.setDate ("now", now);
+    other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
+    if (other != null) {
+      association.setValidEndDate (other.getValidEndDate ());
+    }
+    Long id = (Long) getSession().save(association);
+    association.setId(id);
+    getSession().flush();
+    return association;
+  }
+  
+  /* package *//*DomainSpecificIdentifierAssociationBean getOrCreateDomainSpecificIdentifierAssociationBean(
       Date now, String domain, String identifier, SecurityBean security) {
     Query query = getSession()
         .getNamedQuery(
@@ -204,15 +229,10 @@ public class HibernateSecurityMasterSession {
     DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query
         .uniqueResult();
     if (association == null) {
-      // TODO 2010-02-17 Andrew -- check for any beans for this association outside of the timestamp. Do we create the new with null lower/upper bounds, or align to existing records?
-      association = new DomainSpecificIdentifierAssociationBean(security,
-          new DomainSpecificIdentifierBean(domain, identifier));
-      Long id = (Long) getSession().save(association);
-      association.setId(id);
-      getSession().flush();
+      association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
     }
     return association;
-  }
+  }*/
 
   /* package */DomainSpecificIdentifierAssociationBean getCreateOrUpdateDomainSpecificIdentifierAssociationBean(
       Date now, String domain, String identifier, SecurityBean security) {
@@ -224,16 +244,12 @@ public class HibernateSecurityMasterSession {
     DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query
         .uniqueResult();
     if (association == null) {
-      // TODO 2010-02-17 Andrew -- check for any beans for this association outside of the timestamp. Do we create the new with null lower/upper bounds, or align to existing records?
-      association = new DomainSpecificIdentifierAssociationBean(security,
-          new DomainSpecificIdentifierBean(domain, identifier));
-      Long id = (Long) getSession().save(association);
-      association.setId(id);
-      getSession().flush();
+      association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
     } else {
       if (association.getSecurity().getId().equals(security.getId())) {
         // we're okay, it's already there
       } else {
+        // TODO 2010-02-25 Andrew -- don't just update the security association; terminate the previous record, and create a new one
         association.setSecurity(security);
         getSession().saveOrUpdate(association);
         getSession().flush();

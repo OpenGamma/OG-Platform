@@ -205,8 +205,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Assert.assertTrue(allEquitySecurities.contains(nomura));
         Assert.assertTrue(allEquitySecurities.contains(generalMotors));
         
-        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
-        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "GM Equity", generalMotors);
+        secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "GM Equity", generalMotors);
         List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
         return null;
@@ -236,7 +236,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         System.err.println(allEquities);
         EquitySecurityBean nomura = secMasterSession.getCurrentEquitySecurityBean(now, tpxBean, "Nomura", jpyBean);
         Assert.assertNotNull(nomura);
-        secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(now, "BLOOMBERG", "1311 JP Equity", nomura);
+        secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(now, "BLOOMBERG", "1311 JP Equity", nomura);
         List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
         return null;
@@ -299,7 +299,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2000);
         EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
-        DomainSpecificIdentifierAssociationBean dsiab = secMasterSession.getOrCreateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        DomainSpecificIdentifierAssociationBean dsiab = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
         // TODO 2010-02-17 Andrew -- create associations with bounded times; need to know the semantics first?
         return null;
       }
