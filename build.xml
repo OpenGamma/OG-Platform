@@ -125,7 +125,7 @@
 
 	<target name="clean" depends="clean-all, load-ivy"
 		description="clean tutorial: delete repository, ivy cache, and all projects">
-		<delete dir="repository" />
+		<delete dir="${repository.dir}" />
 		<ivy:cleancache />
 	</target>
 
