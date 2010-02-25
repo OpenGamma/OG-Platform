@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.regression;
@@ -16,7 +16,7 @@ import org.junit.Test;
  */
 public class OrdinaryLeastSquaresRegressionTest {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
-  private static final double EPS = 1e-4;
+  private static final double EPS = 1e-2;
   private static final double FACTOR = 1. / EPS;
 
   @Test
