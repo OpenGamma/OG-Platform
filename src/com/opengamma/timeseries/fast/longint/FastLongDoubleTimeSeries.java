@@ -7,11 +7,14 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
+import java.util.Map.Entry;
+
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.FastTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
-public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long> {
+public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long>, Iterable<Entry<Long, Double>> {
   public abstract int size();
 
   public abstract boolean isEmpty();
@@ -57,4 +60,12 @@ public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long> {
   public abstract FastLongDoubleTimeSeries operate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
   
   public abstract FastLongDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastLongDoubleTimeSeries operate(final double other, final BinaryOperator operator);
+  
+  public abstract FastLongDoubleTimeSeries unionOperate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastLongDoubleTimeSeries unionOperate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastLongDoubleTimeSeries operate(final UnaryOperator operator);
 }

@@ -10,8 +10,9 @@ import java.util.List;
 
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.UnaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.timeseries.fast.AbstractFastTimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.DateTimeResolution;
 import com.opengamma.timeseries.fast.FastTimeSeries;
@@ -23,7 +24,7 @@ import com.opengamma.util.Primitives;
  *         Contains methods to make Primitive time series work with the normal
  *         non-primitive time series interface (where possible)
  */
-public abstract class AbstractFastLongDoubleTimeSeries implements FastLongDoubleTimeSeries {
+public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeSeries<Long> implements FastLongDoubleTimeSeries {
 
   private final DateTimeNumericEncoding _encoding;
 
@@ -68,7 +69,7 @@ public abstract class AbstractFastLongDoubleTimeSeries implements FastLongDouble
 
   @Override
   public TimeSeries<Long, Double> subSeries(final Long startTime, final Long endTime) {
-    return subSeriesFast(startTime, endTime);
+    return (TimeSeries<Long, Double>) subSeriesFast(startTime, endTime);
   }
 
   @Override
@@ -113,7 +114,7 @@ public abstract class AbstractFastLongDoubleTimeSeries implements FastLongDouble
 
   @Override
   public TimeSeries<Long, Double> newInstance(final Long[] times, final Double[] values) {
-    return newInstanceFast(Primitives.unbox(times), Primitives.unbox(values));
+    return (TimeSeries<Long, Double>) newInstanceFast(Primitives.unbox(times), Primitives.unbox(values));
   }
   
   public FastLongDoubleTimeSeries operate(final UnaryOperator operator) {

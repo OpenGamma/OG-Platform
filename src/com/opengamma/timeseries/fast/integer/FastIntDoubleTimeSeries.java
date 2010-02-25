@@ -7,7 +7,8 @@ import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.FastTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -57,5 +58,15 @@ public interface FastIntDoubleTimeSeries extends FastTimeSeries<Integer> {
   public abstract FastIntDoubleTimeSeries operate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
   
   public abstract FastIntDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastIntDoubleTimeSeries operate(final double other, final BinaryOperator operator);
+  
+  public abstract FastIntDoubleTimeSeries operate(final UnaryOperator operator);
+  
+  public abstract FastIntDoubleTimeSeries unionOperate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastIntDoubleTimeSeries unionOperate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastIntDoubleTimeSeries lag(final int days);
 
 }

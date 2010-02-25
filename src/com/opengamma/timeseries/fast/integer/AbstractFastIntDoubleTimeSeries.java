@@ -11,8 +11,9 @@ import java.util.Map;
 
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.UnaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.timeseries.fast.AbstractFastTimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.DateTimeResolution;
 import com.opengamma.timeseries.fast.FastTimeSeries;
@@ -24,7 +25,7 @@ import com.opengamma.util.Primitives;
  *         Contains methods to make Primitive time series work with the normal
  *         non-primitive time series interface (where possible)
  */
-public abstract class AbstractFastIntDoubleTimeSeries implements FastIntDoubleTimeSeries {
+public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSeries<Integer> implements FastIntDoubleTimeSeries {
 
   private final DateTimeNumericEncoding _encoding;
 
@@ -355,5 +356,25 @@ public abstract class AbstractFastIntDoubleTimeSeries implements FastIntDoubleTi
     System.arraycopy(resTimes, 0, trimmedTimes, 0, resCount);
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
+  }
+  
+  public FastIntDoubleTimeSeries lag(final int days) {
+    int[] times = timesArrayFast();
+    double[] values = valuesArrayFast();
+    if (days == 0) {
+      return newInstanceFast(times, values);
+    } else if (days < 0) {
+      int[] resultTimes = new int[times.length + days]; // remember days is -ve
+      System.arraycopy(times, 0, resultTimes, 0, times.length + days);
+      Double[] resultValues = new Double[times.length + days];
+      System.arraycopy(values, -days, resultValues, 0, times.length + days);
+      return newInstanceFast(times, values);
+    } else { // if (days > 0) {
+      int[] resultTimes = new int[times.length - days]; // remember days is +ve
+      System.arraycopy(times, days, resultTimes, 0, times.length - days);
+      Double[] resultValues = new Double[times.length - days];
+      System.arraycopy(values, 0, resultValues, 0, times.length - days);
+      return newInstanceFast(times, values);
+    }
   }
 }

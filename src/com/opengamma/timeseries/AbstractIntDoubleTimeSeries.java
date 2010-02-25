@@ -9,17 +9,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
-import com.opengamma.timeseries.DoubleTimeSeriesOperations.UnaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.FastTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
-
 /**
  * @author jim
  * 
  */
-public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> implements FastBackedDoubleTimeSeries<DATE_TYPE> {
+public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends FastBackedDoubleTimeSeries<DATE_TYPE> {
 
   final DateTimeConverter<DATE_TYPE> _converter;
   private final FastIntDoubleTimeSeries _timeSeries;
@@ -188,31 +187,46 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> implements FastBack
     return getFastSeries().valuesArray();
   }
   
-  public TimeSeries<DATE_TYPE, Double> operate(final UnaryOperator operator) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final UnaryOperator operator) {
     FastTimeSeries<Integer> fastResult = getFastSeries().operate(operator);
-    return getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);
+    return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);
   }
   
-  public TimeSeries<DATE_TYPE, Double> operate(final double other, final BinaryOperator operator) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final double other, final BinaryOperator operator) {
     FastTimeSeries<Integer> fastResult = getFastSeries().operate(other, operator);
-    return getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);
+    return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);
   }
 
-  public TimeSeries<DATE_TYPE, Double> operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     return operate(fastSeries, operator);
   }
+  
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
+    FastTimeSeries<?> fastSeries = other.getFastSeries();
+    return unionOperate(fastSeries, operator);
+  }
     
-  public TimeSeries<DATE_TYPE, Double> operate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
+  public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastIntDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
       intDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries)other, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
       intDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries)other, operator);
     }
-    return getConverter().convertFromInt(this, intDoubleTimeSeries);
+    return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, intDoubleTimeSeries);
   }
   
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
+    FastIntDoubleTimeSeries intDoubleTimeSeries;
+    if (other instanceof FastIntDoubleTimeSeries) {
+      intDoubleTimeSeries = getFastSeries().unionOperate((FastIntDoubleTimeSeries)other, operator);
+    } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
+      intDoubleTimeSeries = getFastSeries().unionOperate((FastLongDoubleTimeSeries)other, operator);
+    }
+    return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, intDoubleTimeSeries);
+  }
+
   @Override
   public boolean equals(final Object obj) {
     return getFastSeries().equals(obj);

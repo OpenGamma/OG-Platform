@@ -156,4 +156,5 @@ public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DA
   public VALUE_TYPE[] valuesArray();
 
   public TimeSeries<DATE_TYPE, VALUE_TYPE> newInstance(DATE_TYPE[] dateTimes, VALUE_TYPE[] values);
+  
 }
