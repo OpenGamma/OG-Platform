@@ -45,7 +45,7 @@ public class DiscountCurveFunctionTest {
     DiscountCurveDefinition definition = constructDefinition();
     DiscountCurveFunction function = new DiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
     Set<String> foundKeys = new TreeSet<String>();
@@ -69,10 +69,10 @@ public class DiscountCurveFunctionTest {
     DiscountCurveFunction function = new DiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
     
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNull(requirements);
     
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
+    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "EUR"));
     assertNull(requirements);
 
     requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
