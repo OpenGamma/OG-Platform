@@ -9,13 +9,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
+import com.opengamma.timeseries.DoubleTimeSeriesOperations.UnaryOperator;
+import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * @author jim
  * 
  */
-public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> implements DoubleTimeSeries<DATE_TYPE>, FastBackedDoubleTimeSeries<DATE_TYPE> {
+public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> implements FastBackedDoubleTimeSeries<DATE_TYPE> {
 
   final DateTimeConverter<DATE_TYPE> _converter;
   private final FastLongDoubleTimeSeries _timeSeries;
@@ -182,6 +186,27 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> implements DoubleT
   @Override
   public Double[] valuesArray() {
     return getFastSeries().valuesArray();
+  }
+  
+  public TimeSeries<DATE_TYPE, Double> operate(final UnaryOperator operator) {
+    FastTimeSeries<Long> fastResult = getFastSeries().operate(operator);
+    return getConverter().convertFromLong(this, (FastLongDoubleTimeSeries) fastResult);
+  }
+  
+  public TimeSeries<DATE_TYPE, Double> operate(final double other, final BinaryOperator operator) {
+    FastTimeSeries<Long> fastResult = getFastSeries().operate(other, operator);
+    return getConverter().convertFromLong(this, (FastLongDoubleTimeSeries) fastResult);
+  }
+  
+  public TimeSeries<DATE_TYPE, Double> operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
+    FastTimeSeries<?> fastSeries = other.getFastSeries();
+    FastLongDoubleTimeSeries longDoubleTimeSeries;
+    if (fastSeries instanceof FastIntDoubleTimeSeries) {
+      longDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries)fastSeries, operator);
+    } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
+      longDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries)fastSeries, operator);
+    }
+    return getConverter().convertFromLong(this, longDoubleTimeSeries);
   }
 
   @Override

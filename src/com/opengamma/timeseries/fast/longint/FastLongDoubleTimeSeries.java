@@ -7,7 +7,9 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
+import com.opengamma.timeseries.DoubleTimeSeriesOperations.BinaryOperator;
 import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
 public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long> {
   public abstract int size();
@@ -51,4 +53,8 @@ public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long> {
   public abstract long[] timesArrayFast();
 
   public abstract FastLongDoubleTimeSeries newInstanceFast(long[] times, double[] values);
+  
+  public abstract FastLongDoubleTimeSeries operate(final FastLongDoubleTimeSeries other, final BinaryOperator operator);
+  
+  public abstract FastLongDoubleTimeSeries operate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
 }

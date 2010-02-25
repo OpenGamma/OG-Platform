@@ -11,7 +11,7 @@ import com.opengamma.timeseries.fast.FastTimeSeries;
  * @author jim
  * 
  */
-public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
+public interface FastBackedDoubleTimeSeries<DATE_TYPE> extends DoubleTimeSeries<DATE_TYPE> {
   public DateTimeConverter<DATE_TYPE> getConverter();
 
   public FastTimeSeries<?> getFastSeries();
