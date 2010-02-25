@@ -43,6 +43,6 @@ public class NormalLinearVaRCalculatorTest {
       }
 
     }, 0.);
-    assertEquals(CALCULATOR.evaluate(stats), 3 * 0.2 - 0.4, 1e-9);
+    assertEquals(CALCULATOR.evaluate(stats), 3 * 0.2 - 0.016, 1e-9);
   }
 }

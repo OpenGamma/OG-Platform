@@ -14,6 +14,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class NormalLinearVaRCalculator extends VaRCalculator<NormalStatistics<?>> {
   private double _mult;
+  private double _z;
   private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
   public NormalLinearVaRCalculator(final double horizon, final double periods, final double quantile) {
@@ -40,13 +41,14 @@ public class NormalLinearVaRCalculator extends VaRCalculator<NormalStatistics<?>
   }
 
   private void setMultiplier() {
-    _mult = _normal.getInverseCDF(getQuantile()) * Math.sqrt(getHorizon() / getPeriods());
+    _mult = Math.sqrt(getHorizon() / getPeriods());
+    _z = _normal.getInverseCDF(getQuantile());
   }
 
   @Override
   public Double evaluate(final NormalStatistics<?> statistics) {
     if (statistics == null)
       throw new IllegalArgumentException("Statistics were null");
-    return _mult * statistics.getStandardDeviation() - statistics.getMean();
+    return _z * _mult * statistics.getStandardDeviation() - _mult * _mult * statistics.getMean();
   }
 }

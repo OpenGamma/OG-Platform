@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.historical.HistoricalVaRDataBundle;
-import com.opengamma.financial.var.historical.PNLStatisticsCalculator;
+import com.opengamma.financial.var.historical.PnLStatisticsCalculator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleFisherKurtosisCalculator;
@@ -24,11 +24,11 @@ import com.opengamma.timeseries.ArrayDoubleTimeSeries;
  * 
  */
 public class SkewKurtosisStatisticsTest {
-  private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()));
-  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
+  private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()));
+  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
       new SampleStandardDeviationCalculator()));
-  private static final Function1D<HistoricalVaRDataBundle, Double> SKEW = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new SampleSkewnessCalculator()));
-  private static final Function1D<HistoricalVaRDataBundle, Double> KURTOSIS = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
+  private static final Function1D<HistoricalVaRDataBundle, Double> SKEW = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new SampleSkewnessCalculator()));
+  private static final Function1D<HistoricalVaRDataBundle, Double> KURTOSIS = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
       new SampleFisherKurtosisCalculator()));
   private static final HistoricalVaRDataBundle DATA = new HistoricalVaRDataBundle(new ArrayDoubleTimeSeries(new long[] { 1, 2, 3, 4 }, new double[] { 3, 3, 3, 3 }, new TimeZone[] {
       TimeZone.UTC, TimeZone.UTC, TimeZone.UTC, TimeZone.UTC }));

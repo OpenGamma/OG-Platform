@@ -15,6 +15,7 @@ import com.opengamma.math.statistics.distribution.StudentTDistribution;
 public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<?>> {
   private double _dof;
   private double _mult;
+  private double _scale;
   private ProbabilityDistribution<Double> _studentT;
 
   public StudentTLinearVaRCalculator(final double horizon, final double periods, final double quantile, final double dof) {
@@ -54,12 +55,13 @@ public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<
 
   private void setMultiplier() {
     _mult = Math.sqrt((_dof - 2) * getHorizon() / _dof / getPeriods()) * _studentT.getInverseCDF(getQuantile());
+    _scale = getHorizon() / getPeriods();
   }
 
   @Override
   public Double evaluate(final NormalStatistics<?> statistics) {
     if (statistics == null)
       throw new IllegalArgumentException("Statistics were null");
-    return _mult * statistics.getStandardDeviation() - statistics.getMean();
+    return _mult * statistics.getStandardDeviation() - _scale * statistics.getMean();
   }
 }

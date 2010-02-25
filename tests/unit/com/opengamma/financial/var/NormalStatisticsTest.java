@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.historical.HistoricalVaRDataBundle;
-import com.opengamma.financial.var.historical.PNLStatisticsCalculator;
+import com.opengamma.financial.var.historical.PnLStatisticsCalculator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
@@ -25,8 +25,8 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * 
  */
 public class NormalStatisticsTest {
-  private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()));
-  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
+  private static final Function1D<HistoricalVaRDataBundle, Double> MEAN = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()));
+  private static final Function1D<HistoricalVaRDataBundle, Double> STD = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
       new SampleStandardDeviationCalculator()));
   private static final double X = 3;
   private static final DoubleTimeSeries PNL = new ArrayDoubleTimeSeries(new long[] { 1, 2 }, new double[] { X, X }, new TimeZone[] { TimeZone.UTC, TimeZone.UTC });

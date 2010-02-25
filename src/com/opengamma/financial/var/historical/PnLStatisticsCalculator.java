@@ -12,10 +12,10 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  * 
  */
-public class PNLStatisticsCalculator extends Function1D<HistoricalVaRDataBundle, Double> {
+public class PnLStatisticsCalculator extends Function1D<HistoricalVaRDataBundle, Double> {
   private final Function1D<DoubleTimeSeries, Double> _calculator;
 
-  public PNLStatisticsCalculator(final Function1D<DoubleTimeSeries, Double> calculator) {
+  public PnLStatisticsCalculator(final Function1D<DoubleTimeSeries, Double> calculator) {
     _calculator = calculator;
   }
 

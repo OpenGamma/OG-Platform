@@ -5,10 +5,11 @@
  */
 package com.opengamma.financial.var;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
  * @author emcleod
@@ -17,17 +18,9 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 public class JohnsonSUDeltaGammaVaRCalculatorTest {
   private static final double HORIZON = 10;
   private static final double PERIODS = 250;
-  private static final double QUANTILE = new NormalDistribution(0, 1).getCDF(3.);
+  private static final double QUANTILE = 0.99;
   private static final VaRCalculator<SkewKurtosisStatistics<?>> F = new JohnsonSUDeltaGammaVaRCalculator(HORIZON, PERIODS, QUANTILE);
-  private static final VaRCalculator<NormalStatistics<?>> NORMAL = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
-  private static final Function1D<Double, Double> ZERO = new Function1D<Double, Double>() {
-
-    @Override
-    public Double evaluate(final Double x) {
-      return 0.;
-    }
-
-  };
+  private static final Function1D<Double, Double> ZERO = new MyFunction1D(0);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
@@ -36,26 +29,46 @@ public class JohnsonSUDeltaGammaVaRCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeKurtosis() {
-    final SkewKurtosisStatistics<?> stats = new SkewKurtosisStatistics<Double>(ZERO, ZERO, ZERO, new Function1D<Double, Double>() {
-
-      @Override
-      public Double evaluate(final Double x) {
-        return -1.;
-      }
-
-    }, 0.);
+    final SkewKurtosisStatistics<?> stats = new SkewKurtosisStatistics<Double>(ZERO, ZERO, ZERO, new MyFunction1D(-1), 0.);
     F.evaluate(stats);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInvalidParameters() {
+    F.evaluate(new SkewKurtosisStatistics<Double>(ZERO, ZERO, new MyFunction1D(0.), new MyFunction1D(0.1), 0.));
   }
 
   @Test
   public void testNormal() {
-    final Function1D<Double, Double> SIGMA = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> mean = new MyFunction1D(0.5);
+    final Function1D<Double, Double> std = new MyFunction1D(0.65);
+    final VaRCalculator<NormalStatistics<?>> normal = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    final SkewKurtosisStatistics<Double> stats = new SkewKurtosisStatistics<Double>(mean, std, ZERO, ZERO, 0.);
+    assertEquals(normal.evaluate(stats), F.evaluate(stats), 1e-9);
+  }
 
-      @Override
-      public Double evaluate(final Double x) {
-        return 0.6;
-      }
+  @Test
+  public void test() {
+    final SkewKurtosisStatistics<Double> stats = new SkewKurtosisStatistics<Double>(ZERO, new MyFunction1D(0.25), new MyFunction1D(-0.2), new MyFunction1D(4), 0.);
+    assertEquals(F.evaluate(stats), 0.1376, 1e-4);
+  }
 
-    };
+  private static class MyFunction1D extends Function1D<Double, Double> {
+    private final double _x;
+
+    public MyFunction1D(final double x) {
+      _x = x;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
+     */
+    @Override
+    public Double evaluate(final Double x) {
+      return _x;
+    }
+
   }
 }

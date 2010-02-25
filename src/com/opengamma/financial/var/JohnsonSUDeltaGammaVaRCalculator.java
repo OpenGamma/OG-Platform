@@ -22,9 +22,17 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosisStatistics<?>> {
   private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   private final RealSingleRootFinder _rootFinder = new BisectionSingleRootFinder();
+  private double _z;
 
   public JohnsonSUDeltaGammaVaRCalculator(final double horizon, final double periods, final double quantile) {
     super(horizon, periods, quantile);
+    _z = _normal.getInverseCDF(quantile);
+  }
+
+  @Override
+  public void setQuantile(final double quantile) {
+    super.setQuantile(quantile);
+    _z = _normal.getInverseCDF(quantile);
   }
 
   /*
@@ -45,11 +53,18 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
     final double scale = getHorizon() / getPeriods();
     final double mu = data.getMean() * scale;
     final double sigma = data.getStandardDeviation() * Math.sqrt(scale);
+    if (t == 0 && k == 0)
+      return _z * sigma - mu;
     final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
     final double wLower = Math.max(getW0(t), getW1(k + 3));
     final double w = _rootFinder.getRoot(getFunction(t, k), wLower, wUpper);
     final double w2 = w * w;
-    final double m = -2 + Math.sqrt(4 + 2 * (w2 - (k + 6) / (w2 + 2 * w + 3)));
+    final double l = 4 + 2 * (w2 - (k + 6) / (w2 + 2 * w + 3));
+    if (l < 0)
+      throw new IllegalArgumentException("Tried to find the square root of a negative number");
+    final double m = -2 + Math.sqrt(l);
+    if (m == 0 || (m < 0 && w > -1) || (m > 0 && w < -1) || (w - 1 - m) < 0)
+      throw new IllegalArgumentException("Invalid parameters");
     final double sign = Math.signum(t);
     final double u = Math.sqrt(Math.log(w));
     final double v = Math.sqrt((w + 1) * (w - 1 - m) / (2 * w * m));
@@ -57,11 +72,8 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
     final double delta = 1. / u;
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));
-    // if (w == 1)
-    // return _normal.getInverseCDF(getQuantile()) * sigma;
     final double ksi = mu - sign * sigma * Math.sqrt(w - 1 - m) / (w - 1);
-    final double z = _normal.getInverseCDF(getQuantile());
-    return -lambda * Math.sinh((-z - gamma) / delta) - ksi;
+    return -lambda * Math.sinh((-_z - gamma) / delta) - ksi;
   }
 
   protected double getW0(final double t) {

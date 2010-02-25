@@ -9,17 +9,17 @@ import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.historical.HistoricalVaRDataBundle;
-import com.opengamma.financial.var.historical.PNLStatisticsCalculator;
+import com.opengamma.financial.var.historical.PnLStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 
 /**
  * @author emcleod
  * 
  */
-public class PNLStatisticsCalculatorTest {
+public class PnLStatisticsCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test() {
-    new PNLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator())).evaluate((HistoricalVaRDataBundle) null);
+    new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator())).evaluate((HistoricalVaRDataBundle) null);
   }
 }
