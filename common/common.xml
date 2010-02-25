@@ -207,20 +207,13 @@
 		</junit>
 	</target>
 
-	<target name="junit-report-slave">
+	<target name="junit-report" depends="junit-batch">
                 <mkdir dir="${tests.junit.dir}/html" />
                 <mkdir dir="${tests.junit.dir}/xml" />
                 <junitreport todir="${tests.junit.dir}/xml">
                         <fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
                         <report todir="${tests.junit.dir}/html" />
                 </junitreport>
-	</target>
-
-	<target name="junit-report" depends="junit-batch">
-		<exec executable="ant" dir="${basedir}">
-			<env key="ANT_OPTS" value="-Xmx1024M" />
-			<arg value="junit-report-slave" />
-		</exec>
 	</target>
 
 	<target name="run" depends="version, compile" description="--> compile and run the project">
