@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * The permission to check is built as a combination of two strings:
  * <ol>
- * <li>Namespace - for example: MarketData/Bloomberg(</li>
+ * <li>Prefix - for example: MarketData/Bloomberg(</li>
  * <li>Identification domain - for example: BbgUniqueId</li>
  * </ol>
  * Say {@link #isEntitled(String, LiveDataSpecification)} is then called with a
@@ -35,31 +35,35 @@ import com.opengamma.util.ArgumentChecker;
 public class UserEntitlementChecker implements LiveDataEntitlementChecker {
 
   private final UserManager _userManager;
-  private final String _namespace;
+  private final String _prefix;
   private final IdentificationDomain _identificationDomain;
+  
+  public UserEntitlementChecker(UserManager userManager, IdentificationDomain identificationDomain) {
+    this(userManager, null, identificationDomain);    
+  }
 
   /**
    * @param userManager
    *          Used to load users (their permissions really)
-   * @param namespace
+   * @param prefix
    *          First part of <code>Authority</code> name to check. Example: 
-   *          MarketData/Bloomberg
+   *          MarketData/Bloomberg. May be null, which is equivalent to having
+   *          an empty prefix.
    * @param identificationDomain
    *          Identifier of securities within the namespace. In the Bloomberg
    *          example, you might pass in com.opengamma.bbg.BloombergConstants.BBG_UNIQUE_SECURITY_ID_KEY_NAME.
    */
-  public UserEntitlementChecker(UserManager userManager, String namespace,
+  public UserEntitlementChecker(UserManager userManager, String prefix,
       IdentificationDomain identificationDomain) {
     ArgumentChecker.checkNotNull(userManager, "User manager");
-    ArgumentChecker.checkNotNull(namespace, "Authority namespace");
     ArgumentChecker.checkNotNull(identificationDomain, "Identification domain");
 
     _userManager = userManager;
 
-    _namespace = namespace;
-    if (_namespace.endsWith("/")) {
-      namespace = namespace.substring(0, namespace.length() - 1);
+    if (prefix != null && prefix.endsWith("/")) {
+      prefix = prefix.substring(0, prefix.length() - 1);
     }
+    _prefix = prefix;
 
     _identificationDomain = identificationDomain;
   }
@@ -74,8 +78,17 @@ public class UserEntitlementChecker implements LiveDataEntitlementChecker {
 
     String identifier = fullyQualifiedSpecification
         .getIdentifier(_identificationDomain);
+    if (identifier == null) {
+      throw new IllegalArgumentException("No ID " + _identificationDomain + " provided by: " + fullyQualifiedSpecification);
+    }
 
-    String permission = _namespace + "/" + identifier;
+    String permission;
+    if (_prefix != null) {
+      permission = _prefix + "/" + identifier;
+    } else {
+      permission = identifier;
+    }
+    
     return user.hasPermission(permission);
   }
 
