@@ -14,7 +14,7 @@ import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.ForwardExchangeFutureSecurity;
+import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.PoweredEquityOptionSecurity;
@@ -80,7 +80,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
 
         @Override
         public String visitForwardExchangeFutureSecurity(
-            ForwardExchangeFutureSecurity security) {
+            FXFutureSecurity security) {
           return FORWARD_EXCHANGE_FUTURES;
         }
 

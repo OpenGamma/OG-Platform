@@ -8,6 +8,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZoneOffset;
+import javax.time.calendar.ZonedDateTime;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.junit.Assert;
@@ -20,9 +25,24 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.BondSecurity;
+import com.opengamma.financial.security.CorporateBondSecurity;
+import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
+import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.OptionType;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.time.Expiry;
 
 public class HibernateSecurityMasterTest extends HibernateTest {
   
@@ -34,7 +54,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return new Class<?>[] { DomainSpecificIdentifierBean.class, ExchangeBean.class, CurrencyBean.class, SecurityBean.class, GICSCodeBean.class };
+    return new Class<?>[] { DomainSpecificIdentifierBean.class, ExchangeBean.class, CurrencyBean.class, SecurityBean.class, GICSCodeBean.class, FrequencyBean.class, DayCountBean.class, BusinessDayConventionBean.class };
   }
 
   @SuppressWarnings("unused")
@@ -260,30 +280,114 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   
   @Test
   public void testEquityOptionSecurityBeans() {
-    _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
-      @Override
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
-        // TODO ...
-        return null;
-      }
-    });
-    // TODO ...
+    Currency dollar = Currency.getInstance ("USD");
+    Currency sterling = Currency.getInstance ("GBP");
+    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.timeZone ("UTC")));
+    DomainSpecificIdentifier americanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "American equity option");
+    DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European equity option");
+    Date now = new Date ();
+    // create an American equity option
+    EquityOptionSecurity equityOption = new AmericanVanillaEquityOptionSecurity (OptionType.PUT, 1.23, expiry, "underlying american option id", dollar, "DJX");
+    equityOption.setIdentifiers (Collections.singleton (americanIdentifier));
+    _secMaster.persistEquityOptionSecurity (now, equityOption);
+    // create a European equity option
+    equityOption = new EuropeanVanillaEquityOptionSecurity (OptionType.CALL, 4.56, expiry, "underlying european option id", sterling, "UKX");
+    equityOption.setIdentifiers (Collections.singleton (europeanIdentifier));
+    _secMaster.persistEquityOptionSecurity (now, equityOption);
+    // retrieve the American option
+    Security security = _secMaster.getSecurity (now, americanIdentifier, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof AmericanVanillaEquityOptionSecurity);
+    AmericanVanillaEquityOptionSecurity american = (AmericanVanillaEquityOptionSecurity)security;
+    Assert.assertEquals (OptionType.PUT, american.getOptionType ());
+    Assert.assertEquals (1.23, american.getStrike (), 0);
+    Assert.assertEquals (expiry, american.getExpiry ());
+    Assert.assertEquals ("underlying american option id", american.getUnderlyingIdentityKey ());
+    Assert.assertEquals (dollar, american.getCurrency ());
+    Assert.assertEquals ("DJX", american.getExchange ());
+    // retrieve the European option
+    security = _secMaster.getSecurity (now, europeanIdentifier, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof EuropeanVanillaEquityOptionSecurity);
+    EuropeanVanillaEquityOptionSecurity european = (EuropeanVanillaEquityOptionSecurity)security;
+    Assert.assertEquals (OptionType.CALL, european.getOptionType ());
+    Assert.assertEquals (4.56, european.getStrike (), 0);
+    Assert.assertEquals (expiry, european.getExpiry ());
+    Assert.assertEquals ("underlying european option id", european.getUnderlyingIdentityKey ());
+    Assert.assertEquals (sterling, european.getCurrency ());
+    Assert.assertEquals ("UKX", european.getExchange ());
   }
   
   @Test
   public void testBondSecurityBeans () {
-    _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
-      @Override
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
-        // TODO ...
-        return null;
-      }
-    });
-    // TODO ...
+    final Date now = new Date ();
+    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.timeZone ("UTC")));
+    Currency dollar = Currency.getInstance ("USD");
+    Frequency annually = FrequencyFactory.INSTANCE.getFrequency ("annually");
+    Frequency monthly = FrequencyFactory.INSTANCE.getFrequency ("monthly");
+    Frequency quarterly = FrequencyFactory.INSTANCE.getFrequency ("quarterly");
+    DayCount act360 = DayCountFactory.INSTANCE.getDayCount ("Actual/360");
+    DayCount actact = DayCountFactory.INSTANCE.getDayCount ("Act/Act");
+    BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention ("following");
+    BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention ("modified");
+    BusinessDayConvention preceding = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention ("preceding");
+    DomainSpecificIdentifier corporateId = new DomainSpecificIdentifier ("BLOOMBERG", "corporate bond");
+    DomainSpecificIdentifier municipalId = new DomainSpecificIdentifier ("BLOOMBERG", "municipal bond");
+    DomainSpecificIdentifier governmentId = new DomainSpecificIdentifier ("BLOOMBERG", "government bond");
+    // create a Corporate bond
+    BondSecurity bond = new CorporateBondSecurity (expiry, 1.23, annually, "country 1", "credit rating 1", dollar, "issuer 1", act360, following);
+    bond.setIdentifiers (Collections.singleton (corporateId));
+    _secMaster.persistBondSecurity (now, bond);
+    // create a Municipal bond
+    bond = new MunicipalBondSecurity (expiry, 4.56, monthly, "country 2", "credit rating 2", dollar, "issuer 2", actact, modified);
+    bond.setIdentifiers (Collections.singleton (municipalId));
+    _secMaster.persistBondSecurity (now, bond);
+    // create a Government bond
+    bond = new GovernmentBondSecurity (expiry, 7.89, quarterly, "country 3", "credit rating 3", dollar, "issuer 3", act360, preceding);
+    bond.setIdentifiers (Collections.singleton (governmentId));
+    _secMaster.persistBondSecurity (now, bond);
+    // retrieve the Corporate bond
+    Security security = _secMaster.getSecurity (now, corporateId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof CorporateBondSecurity);
+    CorporateBondSecurity corporate = (CorporateBondSecurity)security;
+    Assert.assertEquals (expiry, corporate.getMaturity ());
+    Assert.assertEquals (1.23, corporate.getCoupon (), 0);
+    Assert.assertEquals (annually, corporate.getFrequency ());
+    Assert.assertEquals ("country 1", corporate.getCountry ());
+    Assert.assertEquals ("credit rating 1", corporate.getCreditRating ());
+    Assert.assertEquals (dollar, corporate.getCurrency ());
+    Assert.assertEquals ("issuer 1", corporate.getIssuer ());
+    Assert.assertEquals (act360, corporate.getDayCountConvention ());
+    Assert.assertEquals (following, corporate.getBusinessDayConvention ());
+    // retrieve the Municipal bond
+    security = _secMaster.getSecurity (now, municipalId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof MunicipalBondSecurity);
+    MunicipalBondSecurity municipal = (MunicipalBondSecurity)security;
+    Assert.assertEquals (expiry, municipal.getMaturity ());
+    Assert.assertEquals (4.56, municipal.getCoupon (), 0);
+    Assert.assertEquals (monthly, municipal.getFrequency ());
+    Assert.assertEquals ("country 2", municipal.getCountry ());
+    Assert.assertEquals ("credit rating 2", municipal.getCreditRating ());
+    Assert.assertEquals (dollar, municipal.getCurrency ());
+    Assert.assertEquals ("issuer 2", municipal.getIssuer ());
+    Assert.assertEquals (actact, municipal.getDayCountConvention ());
+    Assert.assertEquals (modified, municipal.getBusinessDayConvention ());
+    // retrieve the Government bond
+    security = _secMaster.getSecurity (now, governmentId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof GovernmentBondSecurity);
+    GovernmentBondSecurity government = (GovernmentBondSecurity)security;
+    Assert.assertEquals (expiry, government.getMaturity ());
+    Assert.assertEquals (7.89, government.getCoupon (), 0);
+    Assert.assertEquals (quarterly, government.getFrequency ());
+    Assert.assertEquals ("country 3", government.getCountry ());
+    Assert.assertEquals ("credit rating 3", government.getCreditRating ());
+    Assert.assertEquals (dollar, government.getCurrency ());
+    Assert.assertEquals ("issuer 3", government.getIssuer ());
+    Assert.assertEquals (act360, government.getDayCountConvention ());
+    Assert.assertEquals (preceding, government.getBusinessDayConvention ());
   }
         
   @Test
@@ -296,15 +400,46 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         ExchangeBean tpxBean = secMasterSession.getOrCreateExchangeBean("TPX", "Topix");
         CurrencyBean jpyBean = secMasterSession.getOrCreateCurrencyBean("JPY");
         GICSCodeBean banksBean = secMasterSession.getOrCreateGICSCodeBean ("4010", "Banks");
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, 2000);
-        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
-        DomainSpecificIdentifierAssociationBean dsiab = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
-        // TODO 2010-02-17 Andrew -- create associations with bounded times; need to know the semantics first?
+        Calendar cal2000 = Calendar.getInstance();
+        cal2000.set(Calendar.YEAR, 2000);
+        Calendar cal2001 = Calendar.getInstance();
+        cal2001.set(Calendar.YEAR, 2001);
+        Calendar cal2002 = Calendar.getInstance();
+        cal2002.set(Calendar.YEAR, 2002);
+        Calendar cal2003 = Calendar.getInstance();
+        cal2003.set(Calendar.YEAR, 2003);
+        Calendar cal2004 = Calendar.getInstance();
+        cal2004.set(Calendar.YEAR, 2004);
+        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal2000.getTime(), false, cal2000.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
+        EquitySecurityBean notNomura = secMasterSession.createEquitySecurityBean(cal2003.getTime(), false, cal2003.getTime(), null, null, tpxBean,"Not Nomura", jpyBean, banksBean);
+        DomainSpecificIdentifierAssociationBean dsiab1 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2001.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        DomainSpecificIdentifierAssociationBean dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
+        DomainSpecificIdentifierAssociationBean dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomura);
+        if (dsiab1.getId () == dsiab3.getId ()) Assert.fail ("different association should have been created");
+        Assert.assertNotNull (dsiab3.getValidStartDate ());
+        Assert.assertNull (dsiab3.getValidEndDate ());
+        DomainSpecificIdentifierAssociationBean dsiab4 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2004.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        if (dsiab1.getId () == dsiab4.getId ()) Assert.fail ("different association should have been created");
+        if (dsiab3.getId () == dsiab4.getId ()) Assert.fail ("different association should have been created");
+        Assert.assertNotNull (dsiab4.getValidStartDate ());
+        Assert.assertNull (dsiab4.getValidEndDate ());
+        
+        dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomura);
+        Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
+        Assert.assertNull (dsiab2.getValidStartDate ());
+        Assert.assertNotNull (dsiab2.getValidEndDate ());
+        Assert.assertNotNull (dsiab3.getValidStartDate ());
+        Assert.assertNotNull (dsiab3.getValidEndDate ());
+        Assert.assertNotNull (dsiab4.getValidStartDate ());
+        Assert.assertNull (dsiab4.getValidEndDate ());
+        Assert.assertEquals (dsiab2.getValidEndDate (), dsiab3.getValidStartDate ());
+        Assert.assertEquals (dsiab3.getValidEndDate (), dsiab4.getValidStartDate ());
+        
         return null;
       }
     });
-    // TODO ...
   }
         
   @Test

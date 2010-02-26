@@ -18,7 +18,9 @@
          meta-type="string"
          id-type="long"
          cascade="save-update">
+      <meta-value value="BOND" class="BondSecurityBean"/>
       <meta-value value="EQUITY" class="EquitySecurityBean"/>
+      <meta-value value="EQUITYOPTION" class="EquityOptionSecurityBean"/>
       <!--  insert more subclasses of SecurityBean here -->
       <!--  note the order is important here -->
       <column name="security_discriminator"/>
@@ -41,8 +43,8 @@
       SecurityBean as s
     where
       a.security = s.firstVersion and
-      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier and
       s.effectiveDateTime &lt;= :now and
@@ -64,8 +66,8 @@
       SecurityBean as s
     where
       a.security = s.firstVersion and
-      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier in (:identifiers) and
       s.effectiveDateTime &lt; :now and
@@ -82,8 +84,8 @@
     from 
       DomainSpecificIdentifierAssociationBean as a 
     where
-      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier
   </query>
@@ -91,8 +93,8 @@
     from 
       DomainSpecificIdentifierAssociationBean as a 
     where
-      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.domainSpecificIdentifier.domain = :domain and
       a.domainSpecificIdentifier.identifier = :identifier and
       a.security = :security
@@ -101,24 +103,24 @@
     from 
       DomainSpecificIdentifierAssociationBean as a 
     where
-      ((a.validStartDate is null) or (a.validStartDate &lt;= :now) and
-       (a.validEndDate is null) or (a.validEndDate &gt; :now)) and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.security = :security
   </query>
   <query name="DomainSpecificIdentifierAssociationBean.one.previousAssociation">
     from
       DomainSpecificIdentifierAssociationBean as a
     where
-      a.domain = :domain and
-      a.security = :security and
-      a.validEndDate = (select max(b.validEndDate) from DomainSpecificIdentifierBean as b where b.domain = :domain and b.identifier = :identifier and b.validEndDate &lt;= now)
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier = :identifier and
+      a.validEndDate = (select max(b.validEndDate) from DomainSpecificIdentifierAssociationBean as b where b.domainSpecificIdentifier.domain = :domain and b.domainSpecificIdentifier.identifier = :identifier and b.validEndDate &lt;= :now)
   </query>
   <query name="DomainSpecificIdentifierAssociationBean.one.nextAssociation">
     from
       DomainSpecificIdentifierAssociationBean as a
     where
-      a.domain = :domain and 
-      a.security = :security and 
-      a.validStartDate = (select mind(b.validStartDate) from DomainSpecificIdentifierBean as b where b.domain = :domain and b.identifier = :identifier as b.validStartDate &gt; now)
+      a.domainSpecificIdentifier.domain = :domain and 
+      a.domainSpecificIdentifier.identifier = :identifier and 
+      a.validStartDate = (select min(b.validStartDate) from DomainSpecificIdentifierAssociationBean as b where b.domainSpecificIdentifier.domain = :domain and b.domainSpecificIdentifier.identifier = :identifier and b.validStartDate &gt; :now)
   </query>
 </hibernate-mapping>

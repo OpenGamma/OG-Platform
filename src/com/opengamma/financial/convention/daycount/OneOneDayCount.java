@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
  * @author emcleod
  */
 
-public class OneOneDayCount implements DayCount {
+public class OneOneDayCount extends StatelessDayCount {
 
   /**
    * 

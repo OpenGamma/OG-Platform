@@ -12,9 +12,9 @@ import com.opengamma.util.time.Expiry;
  *
  * @author Andrew
  */
-public class ForwardExchangeFutureSecurity extends FutureSecurity {
+public class FXFutureSecurity extends FutureSecurity {
   
-  // TODO 2010-02-10 Andrew -- FIN-21 what other fields do we want here?
+  // Additional fields ...
   
   /**
    * @param expiry
@@ -23,7 +23,7 @@ public class ForwardExchangeFutureSecurity extends FutureSecurity {
    * @param tradingExchange
    * @param settlementExchange
    */
-  public ForwardExchangeFutureSecurity(Expiry expiry, int month, int year,
+  public FXFutureSecurity(Expiry expiry, int month, int year,
       String tradingExchange, String settlementExchange) {
     super(expiry, month, year, tradingExchange, settlementExchange);
   }

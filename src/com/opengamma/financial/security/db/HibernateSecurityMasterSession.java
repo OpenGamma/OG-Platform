@@ -194,7 +194,8 @@ public class HibernateSecurityMasterSession {
   // Domain specific ID / Security specific methods
   
   private DomainSpecificIdentifierAssociationBean createDomainSpecificIdentifierAssociationBean (Date now, String domain, String identifier, SecurityBean security) {
-    DomainSpecificIdentifierAssociationBean association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean (domain, identifier));
+    final Transaction transaction = getSession ().beginTransaction ();
+    final DomainSpecificIdentifierAssociationBean association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean (domain, identifier));
     Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.previousAssociation");
     query.setString ("domain", domain);
     query.setString ("identifier", identifier);
@@ -213,48 +214,34 @@ public class HibernateSecurityMasterSession {
     }
     Long id = (Long) getSession().save(association);
     association.setId(id);
+    transaction.commit ();
     getSession().flush();
     return association;
   }
   
-  /* package *//*DomainSpecificIdentifierAssociationBean getOrCreateDomainSpecificIdentifierAssociationBean(
-      Date now, String domain, String identifier, SecurityBean security) {
-    Query query = getSession()
-        .getNamedQuery(
-            "DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifierSecurity");
-    query.setString("domain", domain);
-    query.setString("identifier", identifier);
-    query.setParameter("security", security);
-    query.setDate("now", now);
-    DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query
-        .uniqueResult();
-    if (association == null) {
-      association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
-    }
-    return association;
-  }*/
-
   /* package */DomainSpecificIdentifierAssociationBean getCreateOrUpdateDomainSpecificIdentifierAssociationBean(
       Date now, String domain, String identifier, SecurityBean security) {
+    System.err.println ("DSidA: " + now + ", " + domain + ", " + identifier + ", " + security);
     Query query = getSession().getNamedQuery(
         "DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier");
     query.setString("domain", domain);
     query.setString("identifier", identifier);
     query.setDate("now", now);
-    DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query
-        .uniqueResult();
+    DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query.uniqueResult();
     if (association == null) {
       association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
     } else {
       if (association.getSecurity().getId().equals(security.getId())) {
         // we're okay, it's already there
       } else {
-        // TODO 2010-02-25 Andrew -- don't just update the security association; terminate the previous record, and create a new one
-        association.setSecurity(security);
-        getSession().saveOrUpdate(association);
-        getSession().flush();
+        // terminate the previous record, and create a new one
+        association.setValidEndDate (now);
+        getSession ().update (association);
+        getSession ().flush ();
+        association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
       }
     }
+    System.err.println (association);
     return association;
   }
 
@@ -424,6 +411,12 @@ public class HibernateSecurityMasterSession {
 
   // Equity options
 
+  @SuppressWarnings("unchecked")
+  /* package */List<EquityOptionSecurityBean> getEquityOptionSecurityBeans() {
+    Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
+    return query.list();
+  }
+  
   /* package */EquityOptionSecurityBean persistEquityOptionSecurityBean(
       final Date now, final EquityOptionSecurity equityOptionSecurity) {
     final EquityOptionType equityOptionType = EquityOptionType.identify (equityOptionSecurity);
@@ -517,6 +510,7 @@ public class HibernateSecurityMasterSession {
     bond.setFrequency (frequency);
     bond.setCountry (country);
     bond.setCreditRating (creditRating);
+    bond.setCurrency (currency);
     bond.setIssuer (issuer);
     bond.setDayCountConvention (dayCountConvention);
     bond.setBusinessDayConvention (businessDayConvention);

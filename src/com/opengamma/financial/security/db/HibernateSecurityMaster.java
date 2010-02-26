@@ -2,14 +2,16 @@ package com.opengamma.financial.security.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -36,13 +38,16 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.FrequencyFactory;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.VanillaFutureSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.time.Expiry;
@@ -85,7 +90,9 @@ public class HibernateSecurityMaster implements SecurityMaster {
   }
   
   private Expiry dateToExpiry(Date date) {
-    return new Expiry (ZonedDateTime.fromInstant ((InstantProvider)date, TimeZone.UTC));
+    final Calendar c = Calendar.getInstance ();
+    c.setTime (date);
+    return new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
   }
   
   private Date expiryToDate (Expiry expiry) {
@@ -218,8 +225,34 @@ public class HibernateSecurityMaster implements SecurityMaster {
             @Override
             public DefaultSecurity visitFutureSecurityBean(
                 FutureSecurityBean security) {
-              // TODO Auto-generated method stub
-              return null;
+              switch (security.getFutureType ()) {
+              case BOND :
+                return new BondFutureSecurity (
+                    dateToExpiry (security.getExpiry ()),
+                    security.getMonth (),
+                    security.getYear (),
+                    security.getTradingExchange ().getName (),
+                    security.getSettlementExchange ().getName ()
+                    );
+              case FX :
+                return new FXFutureSecurity (
+                    dateToExpiry (security.getExpiry ()),
+                    security.getMonth (),
+                    security.getYear (),
+                    security.getTradingExchange ().getName (),
+                    security.getSettlementExchange ().getName ()
+                    );
+              case VANILLA :
+                return new VanillaFutureSecurity (
+                    dateToExpiry (security.getExpiry ()),
+                    security.getMonth (),
+                    security.getYear (),
+                    security.getTradingExchange ().getName (),
+                    security.getSettlementExchange ().getName ()
+                    );
+              default :
+                throw new OpenGammaRuntimeException ("Bad value for futureSecurityType (" + security.getFutureType () + ")");
+              }
             }
           });
           final List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
@@ -255,7 +288,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
           EquitySecurityBean equity = secMasterSession.persistEquitySecurityBean(now, equitySecurity);
           Collection<DomainSpecificIdentifier> identifiers = equitySecurity.getIdentifiers();
           for (DomainSpecificIdentifier identifier : identifiers) {
-            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, equity.getFirstVersion()); //associate all the identifiers with the first version.
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, equity);
           }
         } else if (security instanceof EquitySecurityBean) {
           EquitySecurityBean equity = (EquitySecurityBean) security;
@@ -291,7 +324,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
           EquityOptionSecurityBean equity = secMasterSession.persistEquityOptionSecurityBean(now, equityOptionSecurity);
           Collection<DomainSpecificIdentifier> identifiers = equityOptionSecurity.getIdentifiers();
           for (DomainSpecificIdentifier identifier : identifiers) {
-            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, equity.getFirstVersion()); //associate all the identifiers with the first version.
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, equity);
           }
         } else if (security instanceof EquityOptionSecurityBean) {
           EquityOptionSecurityBean equity = (EquityOptionSecurityBean) security;
@@ -332,7 +365,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
           BondSecurityBean bond = secMasterSession.persistBondSecurityBean(now, bondSecurity);
           Collection<DomainSpecificIdentifier> identifiers = bondSecurity.getIdentifiers();
           for (DomainSpecificIdentifier identifier : identifiers) {
-            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, bond.getFirstVersion()); //associate all the identifiers with the first version.
+            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity(now, identifier, bond);
           }
         } else if (security instanceof BondSecurityBean) {
           BondSecurityBean bond = (BondSecurityBean) security;

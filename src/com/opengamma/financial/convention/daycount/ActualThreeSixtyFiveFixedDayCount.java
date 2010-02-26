@@ -21,7 +21,7 @@ import com.opengamma.util.time.DateUtil;
  * @author emcleod
  */
 
-public class ActualThreeSixtyFiveFixedDayCount implements DayCount {
+public class ActualThreeSixtyFiveFixedDayCount extends StatelessDayCount {
 
   @Override
   public double getBasis(final ZonedDateTime date) {

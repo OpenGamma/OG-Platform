@@ -12,6 +12,10 @@
         <mapping resource="com/opengamma/financial/security/db/DomainSpecificIdentifierBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/db/ExchangeBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/db/CurrencyBean.hbm.xml"/>
-        <mapping resource="com/opengamma/financial/security/db/EquitySecurityBean.hbm.xml"/>     
+        <mapping resource="com/opengamma/financial/security/db/GICSCodeBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/db/FrequencyBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/db/DayCountBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/db/BusinessDayConventionBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/db/SecurityBean.hbm.xml"/>     
     </session-factory>
 </hibernate-configuration>

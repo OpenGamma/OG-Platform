@@ -29,7 +29,7 @@ import javax.time.calendar.ZonedDateTime;
  * 
  * @author emcleod
  */
-public class ThirtyEThreeSixtyDayCount implements DayCount {
+public class ThirtyEThreeSixtyDayCount extends StatelessDayCount {
 
   @Override
   public double getBasis(final ZonedDateTime date) {

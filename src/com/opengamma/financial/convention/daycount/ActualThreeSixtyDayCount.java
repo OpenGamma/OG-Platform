@@ -18,7 +18,7 @@ import com.opengamma.util.time.DateUtil;
  * @author emcleod
  */
 
-public class ActualThreeSixtyDayCount implements DayCount {
+public class ActualThreeSixtyDayCount extends StatelessDayCount {
 
   @Override
   public double getBasis(final ZonedDateTime date) {

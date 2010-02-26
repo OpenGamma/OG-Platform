@@ -14,7 +14,7 @@
         validStartDate date,
         validEndDate date,
         primary key (id),
-        unique (domain, identifier)
+        unique (domain, identifier, validStartDate, validEndDate)
     );
 
     create table exchange (
@@ -68,5 +68,48 @@
         constraint fk_equityoption2currency foreign key (currency_id) references currency (id),
         constraint fk_equityoption2exchange foreign key (exchange_id) references exchange (id)
     );
-
+    
+    create table frequency (
+        id int8 not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+    
+    create table daycount (
+        id int8 not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+    
+    create table businessdayconvention (
+        id int8 not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+    
+    create table bond (
+        id int8 not null,
+        effectiveDateTime date not null,
+        deleted bool not null,
+        lastModifiedDateTime date not null,
+        lastModifiedBy varchar(255),
+        first_version_descriminator varchar(255),
+        first_version_id int8,
+        bond_type varchar(32) not null,
+        maturity date not null,
+        coupon double precision not null,
+        frequency_id int8 not null,
+        country varchar(255) not null,
+        credit_rating varchar(255) not null,
+        currency_id int8 not null,
+        issuer varchar(255) not null,
+        daycount_id int8 not null,
+        businessdayconvention_id int8 not null,
+        primary key (id),
+        constraint fk_bond2frequency foreign key (frequency_id) references frequency (id),
+        constraint fk_bond2currency foreign key (currency_id) references currency (id),
+        constraint fk_bond2daycount foreign key (daycount_id) references daycount (id),
+        constraint fk_bond2businessdayconvention foreign key (businessdayconvention_id) references businessdayconvention (id)
+    );
+    
     create sequence hibernate_sequence start 1 increment 1;

@@ -22,7 +22,7 @@ import org.apache.commons.lang.NotImplementedException;
  * @author emcleod
  */
 
-public class ActualActualICMADayCount implements DayCount {
+public class ActualActualICMADayCount extends StatelessDayCount {
   
   @Override
   public double getBasis(final ZonedDateTime date) {

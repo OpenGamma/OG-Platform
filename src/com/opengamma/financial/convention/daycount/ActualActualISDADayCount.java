@@ -24,7 +24,7 @@ import com.opengamma.util.time.FirstDateOfYearAdjuster;
  * 
  * @author emcleod
  */
-public class ActualActualISDADayCount implements DayCount {
+public class ActualActualISDADayCount extends StatelessDayCount {
   private static final DateAdjuster FIRST_DAY_OF_YEAR = new FirstDateOfYearAdjuster();
 
   @Override

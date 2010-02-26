@@ -27,7 +27,11 @@
         <value>com/opengamma/financial/security/db/DomainSpecificIdentifierBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/ExchangeBean.hbm.xml</value>
         <value>com/opengamma/financial/security/db/CurrencyBean.hbm.xml</value>
-        <value>com/opengamma/financial/security/db/EquitySecurityBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/GICSCodeBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/FrequencyBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/DayCountBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/BusinessDayConventionBean.hbm.xml</value>
+        <value>com/opengamma/financial/security/db/SecurityBean.hbm.xml</value>
       </list>
     </property>
     <property name="hibernateProperties">

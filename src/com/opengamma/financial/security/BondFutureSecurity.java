@@ -14,6 +14,8 @@ import com.opengamma.util.time.Expiry;
  */
 public class BondFutureSecurity extends FutureSecurity {
   
+  // Additional fields ...
+  
   /**
    * @param expiry
    * @param month

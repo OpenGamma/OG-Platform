@@ -16,7 +16,7 @@ public interface FinancialSecurityVisitor<T> {
   public T visitCorporateBondSecurity(CorporateBondSecurity security);
   public T visitEquitySecurity(EquitySecurity security);
   public T visitEuropeanVanillaEquityOptionSecurity(EuropeanVanillaEquityOptionSecurity security);
-  public T visitForwardExchangeFutureSecurity(ForwardExchangeFutureSecurity security);
+  public T visitForwardExchangeFutureSecurity(FXFutureSecurity security);
   public T visitGovernmentBondSecurity(GovernmentBondSecurity security);
   public T visitMunicipalBondSecurity(MunicipalBondSecurity security);
   public T visitPoweredEquityOptionSecurity(PoweredEquityOptionSecurity security);
