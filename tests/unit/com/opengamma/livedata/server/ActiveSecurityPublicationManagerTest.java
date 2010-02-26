@@ -6,8 +6,6 @@
 package com.opengamma.livedata.server;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.Timer;
@@ -32,14 +30,14 @@ import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 public class ActiveSecurityPublicationManagerTest {
   
   @Test
-  public void expiration() throws InterruptedException {
+  public void expirationWithHeartbeatSendingClient() throws InterruptedException {
     MockLiveDataServer dataServer = new MockLiveDataServer();
     ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer, 100, 500);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
     ValueDistributor valueDistributor = new ValueDistributor();
     Timer t = new Timer("HeartbeatConduitTest");
-    HeartbeatSender sender = new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 100);
+    new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 100);
     
     // subscribe on the client side - starts sending heartbeats
     LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("BbgId"), "USSw5 Curncy"));
@@ -62,8 +60,27 @@ public class ActiveSecurityPublicationManagerTest {
     assertEquals(1, dataServer.getUnsubscriptions().size());
     assertEquals(subscription, dataServer.getSubscriptions().get(0));
     assertEquals(subscription, dataServer.getUnsubscriptions().get(0));
+  }
+  
+  @Test
+  public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
     
-    t.cancel();
+    MockLiveDataServer dataServer = new MockLiveDataServer();
+    ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer, 100, 500);
+    
+    // subscribe on the server side
+    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("BbgId"), "USSw5 Curncy"));
+    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", Collections.singleton(subscription)));
+    
+    assertEquals(1, dataServer.getSubscriptions().size());
+    assertEquals(subscription, dataServer.getSubscriptions().get(0));
+    
+    // Wait for expiry
+    Thread.sleep(1000);
+    
+    assertEquals(1, dataServer.getUnsubscriptions().size());
+    assertEquals(subscription, dataServer.getUnsubscriptions().get(0));
+    
   }
 
 }

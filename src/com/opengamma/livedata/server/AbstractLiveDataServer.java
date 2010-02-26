@@ -7,8 +7,10 @@ package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
@@ -34,12 +36,15 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class AbstractLiveDataServer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractLiveDataServer.class);
-  private final Set<MarketDataFieldReceiver> _fieldReceivers = new HashSet<MarketDataFieldReceiver>();
+  
+  private final Set<MarketDataFieldReceiver> _fieldReceivers = new CopyOnWriteArraySet<MarketDataFieldReceiver>();
+  private final Set<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArraySet<SubscriptionListener>();
+  private final Set<LiveDataSpecification> _currentlyActiveSubscriptions = Collections.synchronizedSet(new HashSet<LiveDataSpecification>()); 
+  
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   private LiveDataSpecificationResolver _specificationResolver = new IdentitySpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
-
-
+  
   /**
    * @return the distributionSpecificationResolver
    */
@@ -55,8 +60,20 @@ public abstract class AbstractLiveDataServer {
     _distributionSpecificationResolver = distributionSpecificationResolver;
   }
 
-  public void unsubscribe(LiveDataSpecification dataSpec) {
-    s_logger.info("Terminating publication of {}", dataSpec);
+  public void unsubscribe(LiveDataSpecification fullyQualifiedSpec) {
+    s_logger.info("Terminating publication of {}", fullyQualifiedSpec);
+    boolean removed = _currentlyActiveSubscriptions.remove(fullyQualifiedSpec);
+    if (removed) {
+      for (SubscriptionListener listener : _subscriptionListeners) {
+        try {
+          listener.unsubscribed(fullyQualifiedSpec);
+        } catch (RuntimeException e) {
+          s_logger.error("Listener unsubscribe failed", e);
+        }
+      }
+    } else {
+      s_logger.warn("Failed to remove {}", fullyQualifiedSpec);
+    }
   }
   
   public void addMarketDataFieldReceiver(MarketDataFieldReceiver fieldReceiver) {
@@ -65,11 +82,30 @@ public abstract class AbstractLiveDataServer {
   }
   
   public void setMarketDataFieldReceivers(Collection<MarketDataFieldReceiver> fieldReceivers) {
+    _fieldReceivers.clear();
     for (MarketDataFieldReceiver receiver : fieldReceivers) {
       addMarketDataFieldReceiver(receiver);      
     }
   }
   
+  public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
+    ArgumentChecker.checkNotNull(subscriptionListener, "Subscription Listener");
+    _subscriptionListeners.add(subscriptionListener);
+  }
+  
+  public void setSubscriptionListeners(Collection<SubscriptionListener> subscriptionListeners) {
+    _subscriptionListeners.clear();
+    for (SubscriptionListener subscriptionListener : subscriptionListeners) {
+      addSubscriptionListener(subscriptionListener);      
+    }
+  }
+  
+  public Set<LiveDataSpecification> getCurrentlyActiveSubscriptions() {
+    synchronized (_currentlyActiveSubscriptions) {
+      return new HashSet<LiveDataSpecification>(_currentlyActiveSubscriptions);
+    }
+  }
+
   /**
    * @return the specificationResolver
    */
@@ -137,6 +173,17 @@ public abstract class AbstractLiveDataServer {
         }
       
         subscribe(qualifiedSpecification);
+        
+        boolean added = _currentlyActiveSubscriptions.add(qualifiedSpecification);
+        if (added) {
+          for (SubscriptionListener listener : _subscriptionListeners) {
+            try {
+              listener.subscribed(qualifiedSpecification);
+            } catch (RuntimeException e) {
+              s_logger.error("Listener subscribe failed", e);
+            }
+          }
+        }
 
         String tickDistributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(qualifiedSpecification);
         LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(requestedSpecification, new LiveDataSpecificationImpl(qualifiedSpecification), LiveDataSubscriptionResult.SUCCESS, null, tickDistributionSpec);
@@ -159,4 +206,5 @@ public abstract class AbstractLiveDataServer {
       receiver.marketDataReceived(resolvedSpecification, liveDataFields);
     }
   }
+  
 }

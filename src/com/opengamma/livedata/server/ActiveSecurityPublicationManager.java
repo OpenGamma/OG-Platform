@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class ActiveSecurityPublicationManager {
+public class ActiveSecurityPublicationManager implements SubscriptionListener {
   public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * HeartbeatSender.DEFAULT_PERIOD;
   public static final long DEFAULT_CHECK_PERIOD = HeartbeatSender.DEFAULT_PERIOD / 2;
   private static final Logger s_logger = LoggerFactory.getLogger(ActiveSecurityPublicationManager.class);
@@ -53,6 +53,7 @@ public class ActiveSecurityPublicationManager {
     ArgumentChecker.checkNotNull(timer, "Expiration Timer");
     _dataServer = dataServer;
     _timeoutExtension = timeoutExtension;
+    _dataServer.addSubscriptionListener(this);
     timer.schedule(new ExpirationCheckTimerTask(), checkPeriod, checkPeriod);
   }
 
@@ -76,7 +77,13 @@ public class ActiveSecurityPublicationManager {
   public ConcurrentMap<LiveDataSpecification, Long> getActiveSpecificationTimeouts() {
     return _activeSpecificationTimeouts;
   }
-
+  
+  public void subscribed(LiveDataSpecification fullyQualifiedSpec) {
+    extendPublicationTimeout(fullyQualifiedSpec);        
+  }
+  
+  public void unsubscribed(LiveDataSpecification fullyQualifiedSpec) {
+  }
 
   public boolean isCurrentlyPublished(LiveDataSpecification spec) {
     return getActiveSpecificationTimeouts().containsKey(spec);
@@ -102,9 +109,7 @@ public class ActiveSecurityPublicationManager {
           }
         }
       }
-      if(nExpired > 0) {
-        s_logger.info("Expired {} specifications", nExpired);
-      }
+      s_logger.info("Expired {} specifications", nExpired);
     }
   }
   
