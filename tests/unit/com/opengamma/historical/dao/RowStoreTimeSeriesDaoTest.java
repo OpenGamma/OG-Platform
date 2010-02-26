@@ -11,9 +11,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -39,14 +44,16 @@ import com.opengamma.util.time.DateUtil;
  * @author yomi
  */
 public class RowStoreTimeSeriesDaoTest extends DBTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesDaoTest.class);
   
+  private static final int TIMESERIES_SIZE = 100;
+
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
   private static final String BBG_DATA_SOURCE = "BBG";
 
-  private final static Logger s_logger = LoggerFactory.getLogger(RowStoreTimeSeriesDaoTest.class);
-
+  private Random _random = new Random();
   private TimeSeriesDao _timeseriesDao;
   
   public RowStoreTimeSeriesDaoTest(String databaseType) {
@@ -75,13 +82,11 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   @After
   public void tearDown() throws Exception {
     _timeseriesDao = null;
-//    dropTables();
   }
 
-  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void createDataProvider() throws Exception {
     int id1 = _timeseriesDao.createDataProvider("DP1", "DP1");
-//    assertEquals(1, id);
 
     Set<String> allDataProviders = _timeseriesDao.getAllDataProviders();
     assertNotNull(allDataProviders);
@@ -92,7 +97,6 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals("DP1", actualName);
 
     int id2 = _timeseriesDao.createDataProvider("DP2", "DP2");
-//    assertEquals(2, id);
     allDataProviders = _timeseriesDao.getAllDataProviders();
     assertNotNull(allDataProviders);
     assertEquals(2, allDataProviders.size());
@@ -110,15 +114,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     
     int id = _timeseriesDao.getDataProviderID("Invalid");
     assertEquals(-1, id);
-    
+  }
+  
+  @Test(expected = DataIntegrityViolationException.class)
+  public void uniqueDataProvider() throws Exception {
+    _timeseriesDao.createDataProvider("DP1", "DP1");
     // should throw DataIntegrityViolationException
     _timeseriesDao.createDataProvider("DP1", "DP1");
   }
 
-  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void createDataSource() throws Exception {
     int id1 = _timeseriesDao.createDataSource("DS1", "DS1");
-//    assertEquals(1, id1);
     Set<String> all = _timeseriesDao.getAllDataSources();
     assertNotNull(all);
     assertEquals(1, all.size());
@@ -128,7 +135,6 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals("DS1", actualName);
 
     int id2 = _timeseriesDao.createDataSource("DS2", "DS2");
-//    assertEquals(2, id2);
     all = _timeseriesDao.getAllDataSources();
     assertNotNull(all);
     assertEquals(2, all.size());
@@ -147,14 +153,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     int id = _timeseriesDao.getDataSourceID("Invalid");
     assertEquals(-1, id);
 
+  }
+  
+  @Test(expected = DataIntegrityViolationException.class)
+  public void uniqueDataSource() throws Exception {
+    _timeseriesDao.createDataSource("DS1", "DS1");
     // should throw DataIntegrityViolationException
     _timeseriesDao.createDataSource("DS1", "DS1");
   }
 
-  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void createField() throws Exception {
     int id1 = _timeseriesDao.createDataField("TSF1", "TSF1");
-//    assertEquals(1, id);
     Set<String> all = _timeseriesDao.getAllTimeSeriesFields();
     assertNotNull(all);
     assertEquals(1, all.size());
@@ -164,7 +174,6 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals("TSF1", actualName);
 
     int id2 = _timeseriesDao.createDataField("TSF2", "TSF2");
-//    assertEquals(2, id2);
     all = _timeseriesDao.getAllTimeSeriesFields();
     assertNotNull(all);
     assertEquals(2, all.size());
@@ -183,14 +192,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     int id = _timeseriesDao.getDataFieldID("Invalid");
     assertEquals(-1, id);
 
+  }
+  
+  @Test(expected = DataIntegrityViolationException.class)
+  public void uniqueField() throws Exception {
+    _timeseriesDao.createDataField("TSF1", "TSF1");
     // should throw DataIntegrityViolationException
     _timeseriesDao.createDataField("TSF1", "TSF1");
   }
 
-  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void createObservationTime() throws Exception {
     int id1 = _timeseriesDao.createObservationTime("OBT1", "OBT1");
-//    assertEquals(1, id1);
     Set<String> all = _timeseriesDao.getAllObservationTimes();
     assertNotNull(all);
     assertEquals(1, all.size());
@@ -200,7 +213,6 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals("OBT1", actualName);
 
     int id2 = _timeseriesDao.createObservationTime("OBT2", "OBT2");
-//    assertEquals(2, id2);
     all = _timeseriesDao.getAllObservationTimes();
     assertNotNull(all);
     assertEquals(2, all.size());
@@ -219,14 +231,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     int id = _timeseriesDao.getObservationTimeID("Invalid");
     assertEquals(-1, id);
     
+  }
+  
+  @Test(expected = DataIntegrityViolationException.class)
+  public void uniqueObservationTime() throws Exception {
+    _timeseriesDao.createObservationTime("OBT1", "OBT1");
     // should throw DataIntegrityViolationException
     _timeseriesDao.createObservationTime("OBT1", "OBT1");
   }
 
-  @Test(expected = DataIntegrityViolationException.class)
+  @Test
   public void createQuotedObject() throws Exception {
     int id1 = _timeseriesDao.createQuotedObject("QO1", "QO1");
-//    assertEquals(1, id1);
     Set<String> all = _timeseriesDao.getAllQuotedObjects();
     assertNotNull(all);
     assertEquals(1, all.size());
@@ -236,7 +252,6 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals("QO1", actualName);
 
     int id2 = _timeseriesDao.createQuotedObject("QO2", "QO2");
-//    assertEquals(2, id2);
     all = _timeseriesDao.getAllQuotedObjects();
     assertNotNull(all);
     assertEquals(2, all.size());
@@ -255,14 +270,18 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     int id = _timeseriesDao.getQuotedObjectID("Invalid");
     assertEquals(-1, id);
     
-    //should throw DataIntegrityViolationException
-    _timeseriesDao.createQuotedObject("QO1", "QO1");
   }
   
   @Test(expected = DataIntegrityViolationException.class)
+  public void uniqueQuotedObject() throws Exception {
+    _timeseriesDao.createQuotedObject("QO1", "QO1");
+    // should throw DataIntegrityViolationException
+    _timeseriesDao.createQuotedObject("QO1", "QO1");
+  }
+  
+  @Test
   public void createDomain() throws Exception {
     int id1 = _timeseriesDao.createDomain("D1", "D1");
-//    assertEquals(1, id1);
     Set<String> all = _timeseriesDao.getAllDomains();
     assertNotNull(all);
     assertEquals(1, all.size());
@@ -272,7 +291,6 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals("D1", actualName);
 
     int id2 = _timeseriesDao.createDomain("D2", "D2");
-//    assertEquals(2, id2);
     all = _timeseriesDao.getAllDomains();
     assertNotNull(all);
     assertEquals(2, all.size());
@@ -291,7 +309,12 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     int id = _timeseriesDao.getDomainID("Invalid");
     assertEquals(-1, id);
     
-    //should throw DataIntegrityViolationException
+  }
+  
+  @Test(expected = DataIntegrityViolationException.class)
+  public void uniqueDomain() throws Exception {
+    _timeseriesDao.createDomain("D1", "D1");
+    // should throw DataIntegrityViolationException
     _timeseriesDao.createDomain("D1", "D1");
   }
   
@@ -354,23 +377,26 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     domainIdentifiers.add(new DomainSpecificIdentifier("DE", "DE1"));
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO2");
     
-    
   }
 
   @Test
   public void addTimeSeries() throws Exception {
     
-    List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
-    List<Double> values = new ArrayList<Double>();
+    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
+    for (int i = 0; i < TIMESERIES_SIZE; i++) {
+      tsMap.put(new DomainSpecificIdentifier("d" + i, "id" + i), makeRandomTimeSeries());
+    }
+        
+    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
+      DomainSpecificIdentifier domainSpecificIdentifier = entry.getKey();
+      DoubleTimeSeries timeSeries = entry.getValue();
+      _timeseriesDao.addTimeSeries(Collections.singleton(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+          LCLOSE_OBSERVATION_TIME, timeSeries);
+      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      assertEquals(timeSeries, actualTS);
+    }
     
-    times.add(DateUtil.getUTCDate(2010, 2, 9));
-    times.add(DateUtil.getUTCDate(2010, 2, 10));
-    
-    values.add(10.0);
-    values.add(11.0);
-    
-    ArrayDoubleTimeSeries timeSeries = new ArrayDoubleTimeSeries(times, values);
-    
+    //test set of domain identifiers
     DomainSpecificIdentifier bbgtickerID = new DomainSpecificIdentifier("bbgTicker", "AAPL US Equity");
     DomainSpecificIdentifier cusipID = new DomainSpecificIdentifier("cusip", "123456789");
     DomainSpecificIdentifier bbgUniqueID = new DomainSpecificIdentifier("bbgUnique", "XI45678-89");
@@ -379,6 +405,8 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     domainSpeIdentifiers.add(bbgtickerID);
     domainSpeIdentifiers.add(cusipID);
     domainSpeIdentifiers.add(bbgUniqueID);
+    
+    DoubleTimeSeries timeSeries = makeRandomTimeSeries();
     
     _timeseriesDao.addTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
@@ -392,9 +420,28 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     actualTS = _timeseriesDao.getTimeSeries(bbgUniqueID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeSeries, actualTS);
     
-
   }
   
+  /**
+   * @return
+   */
+  private DoubleTimeSeries makeRandomTimeSeries() {
+    
+    List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
+    List<Double> values = new ArrayList<Double>();
+    
+    int tsSize = 10 + _random.nextInt(18);
+    int year = 1970 + _random.nextInt(40);
+    int month = 1 + _random.nextInt(11);
+    for (int i = 1; i < tsSize; i++) {
+      times.add(DateUtil.getUTCDate(year, month, i));
+      values.add(_random.nextDouble());
+    }
+    
+    ArrayDoubleTimeSeries timeSeries = new ArrayDoubleTimeSeries(times, values);
+    return timeSeries;
+  }
+
   @Test
   public void getEmptyTimeSeries() throws Exception {
     DomainSpecificIdentifier bbgtickerID = new DomainSpecificIdentifier("bbgTicker", "AAPL US Equity");
