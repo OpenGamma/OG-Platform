@@ -55,7 +55,7 @@ public abstract class AbstractLiveDataServer {
     _distributionSpecificationResolver = distributionSpecificationResolver;
   }
 
-  public void terminatePublication(LiveDataSpecification dataSpec) {
+  public void unsubscribe(LiveDataSpecification dataSpec) {
     s_logger.info("Terminating publication of {}", dataSpec);
   }
   

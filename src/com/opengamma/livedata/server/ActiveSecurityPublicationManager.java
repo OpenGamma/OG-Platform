@@ -37,7 +37,15 @@ public class ActiveSecurityPublicationManager {
     new ConcurrentHashMap<LiveDataSpecification, Long>();
   
   public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer) {
-    this(dataServer, DEFAULT_TIMEOUT_EXTENSION, new Timer("ActiveSecurityPublicationManager Timer"), DEFAULT_CHECK_PERIOD);
+    this(dataServer, DEFAULT_CHECK_PERIOD);
+  }
+  
+  public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer, long checkPeriod) {
+    this(dataServer, DEFAULT_TIMEOUT_EXTENSION, new Timer("ActiveSecurityPublicationManager Timer"), checkPeriod);
+  }
+  
+  public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer, long timeoutExtension, long checkPeriod) {
+    this(dataServer, timeoutExtension, new Timer("ActiveSecurityPublicationManager Timer"), checkPeriod);
   }
   
   public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
@@ -87,7 +95,7 @@ public class ActiveSecurityPublicationManager {
       for(Map.Entry<LiveDataSpecification, Long> entry : getActiveSpecificationTimeouts().entrySet()) {
         if(entry.getValue() < startTime) {
           if(getActiveSpecificationTimeouts().remove(entry.getKey(), entry.getValue())) {
-            getDataServer().terminatePublication(entry.getKey());
+            getDataServer().unsubscribe(entry.getKey());
             nExpired++;
           } else {
             // Someone piped up while we were navigating. Do nothing.
