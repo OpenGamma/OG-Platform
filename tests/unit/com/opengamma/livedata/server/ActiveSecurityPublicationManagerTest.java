@@ -66,7 +66,7 @@ public class ActiveSecurityPublicationManagerTest {
   public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
     
     MockLiveDataServer dataServer = new MockLiveDataServer();
-    ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer, 100, 500);
+    new ActiveSecurityPublicationManager(dataServer, 100, 500);
     
     // subscribe on the server side
     LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("BbgId"), "USSw5 Curncy"));
