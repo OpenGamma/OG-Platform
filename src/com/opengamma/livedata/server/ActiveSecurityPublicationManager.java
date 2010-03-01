@@ -102,7 +102,7 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
       for(Map.Entry<LiveDataSpecification, Long> entry : getActiveSpecificationTimeouts().entrySet()) {
         if(entry.getValue() < startTime) {
           if(getActiveSpecificationTimeouts().remove(entry.getKey(), entry.getValue())) {
-            getDataServer().unsubscribe(entry.getKey());
+            getDataServer().unsubscriptionRequestMade(entry.getKey());
             nExpired++;
           } else {
             // Someone piped up while we were navigating. Do nothing.
