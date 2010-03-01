@@ -140,12 +140,12 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
     int startPos = Arrays.binarySearch(_times, startTime);
     int endPos = Arrays.binarySearch(_times, endTime);
     // if either is -1, make it zero
-    startPos = startPos >= 0 ? startPos : -startPos - 1;
-    endPos = endPos >= 0 ? endPos : -endPos - 1;
+    startPos = startPos >= 0 ? startPos : -(startPos + 1);
+    endPos = endPos >= 0 ? endPos : -(endPos + 1);
     if (endPos >= _times.length) {
       endPos--;
     }
-    final int length = endPos - startPos + 1;
+    final int length = endPos - startPos;
     final int[] resultTimes = new int[length];
     final double[] resultValues = new double[length];
     System.arraycopy(_times, startPos, resultTimes, 0, length);

@@ -16,6 +16,7 @@ import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -192,7 +193,13 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   @Override
   public FastIntDoubleTimeSeries subSeriesFast(final int startTime, final int endTime) {
     int startIndex = _times.indexOf(startTime);
-    int endIndex = _times.indexOf(endTime)+1;
+    int endIndex = _times.indexOf(endTime);
+    if (startIndex == -1) {
+      startIndex = -(Collections.binarySearch(_times, startTime) + 1); // insertion point
+    }
+    if (endIndex == -1) {
+      endIndex = -(Collections.binarySearch(_times, endTime) + 1);
+    }
     if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
     return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }

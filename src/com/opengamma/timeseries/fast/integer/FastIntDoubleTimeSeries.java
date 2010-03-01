@@ -44,6 +44,8 @@ public interface FastIntDoubleTimeSeries extends FastTimeSeries<Integer> {
   public abstract double getDataPointFast(int time);
 
   public abstract FastIntDoubleTimeSeries subSeriesFast(int startTime, int endTime);
+  
+  public abstract FastIntDoubleTimeSeries subSeriesFast(int startTime, boolean includeStart, int endTime, boolean includeEnd);
 
   public abstract FastIntDoubleTimeSeries headFast(int items);
 

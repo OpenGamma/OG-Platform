@@ -313,16 +313,18 @@ public abstract class DateDoubleTimeSeriesTest {
     DateDoubleTimeSeries dts = createStandardTimeSeries();
     Date[] testDates = testDates();
     DateDoubleTimeSeries threeToFive = (DateDoubleTimeSeries) dts.subSeries(testDates[3], testDates[5]);
-    assertEquals(3, threeToFive.size());
+    assertEquals(2, threeToFive.size());
     Iterator<Entry<Date, Double>> iterator = threeToFive.iterator();
-    for (int i=3; i<=5; i++) {
+    for (int i=3; i<5; i++) {
       Entry<Date, Double> item = iterator.next();
       assertEquals(testDates[i], item.getKey());
       assertTrue(CompareUtils.closeEquals((double)i+1, item.getValue()));
     }
-    assertEquals(5, dts.subSeries(testDates[0], testDates[4]).size());
-    assertEquals(2, dts.subSeries(testDates[4], testDates[5]).size());
-    //assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
+    assertEquals(4, dts.subSeries(testDates[0], testDates[4]).size());
+    assertEquals(5, dts.subSeries(testDates[0], true, testDates[4], true).size());
+    assertEquals(1, dts.subSeries(testDates[4], testDates[5]).size());
+    assertEquals(0, dts.subSeries(testDates[4], false, testDates[5], false).size());
+    assertEquals(emptyTS, emptyTS.subSeries(testDates[1], testDates[1]));
   }
 
   @Test

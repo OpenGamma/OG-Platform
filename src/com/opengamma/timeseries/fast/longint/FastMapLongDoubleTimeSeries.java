@@ -152,13 +152,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
 
   @Override
   public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final long endTime) {
-    return new FastMapLongDoubleTimeSeries(getEncoding(), _map.subMap(startTime, endTime + 1)); // +1
-    // so
-    // it's
-    // inclusive
-    // rather
-    // than
-    // exclusive.
+    return new FastMapLongDoubleTimeSeries(getEncoding(), _map.subMap(startTime, endTime));
   }
 
   @Override

@@ -111,12 +111,25 @@ public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DA
 
   /**
    * Return the subset of the current TimeSeries from the start to the end time.
-   * If the start or end time are not present in the series then a
-   * NoSuchElementException will be thrown.
+   * If the start or end time are not present in the series then the nearest element is
+   * found instead.
+   * 
+   * @param startTime
+   * @param inclusiveStart whether or not the startTime is included in the result.
+   * @param endTime
+   * @param inclusiveEnd whether or not the endTime is included in the result.
+   * @return subset of TimeSeries
+   */
+  public TimeSeries<DATE_TYPE, VALUE_TYPE> subSeries(DATE_TYPE startTime, boolean inclusiveStart, DATE_TYPE endTime, boolean exclusiveEnd);
+  
+  /**
+   * Return the subset of the current TimeSeries from the start to the end time.
+   * If the start or end time are not present in the series then the nearest element is
+   * found instead.  This version follows the standard Collections pattern of being 
+   * start INCLUSIVE and end EXCLUSIVE.
    * 
    * @param startTime
    * @param endTime
-   * @throws NoSuchElementException
    * @return subset of TimeSeries
    */
   public TimeSeries<DATE_TYPE, VALUE_TYPE> subSeries(DATE_TYPE startTime, DATE_TYPE endTime);

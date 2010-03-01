@@ -74,6 +74,11 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   public TimeSeries<Long, Double> subSeries(final Long startTime, final Long endTime) {
     return (TimeSeries<Long, Double>) subSeriesFast(startTime, endTime);
   }
+  
+  @Override
+  public TimeSeries<Long, Double> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
+    return (TimeSeries<Long, Double>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
+  }
 
   @Override
   public Iterator<Long> timeIterator() {
@@ -351,6 +356,10 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
   }  
+  
+  public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final boolean includeStart, final long endTime, final boolean includeEnd) {
+    return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));
+  }
 
   public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries() {
     return new FastListIntDoubleTimeSeries(this);
