@@ -13,11 +13,11 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.Map.Entry;
 
+import com.opengamma.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
@@ -88,24 +88,39 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
 
   public FastArrayLongDoubleTimeSeries(final FastLongDoubleTimeSeries dts) {
     super(dts.getEncoding());
-    final int size = dts.size();
-    _times = new long[size];
-    _values = new double[size];
-    if (dts instanceof FastArrayLongDoubleTimeSeries) { // interesting to
-      // know
-      // if
-      // this
-      // is worth it
-      final FastArrayLongDoubleTimeSeries adts = (FastArrayLongDoubleTimeSeries) dts;
-      System.arraycopy(adts._times, 0, _times, 0, size);
-      System.arraycopy(adts._values, 0, _values, 0, size);
-    } else {
-      int pos = 0;
-      for (final Map.Entry<Long, Double> entry : dts) {
-        _times[pos] = entry.getKey().longValue();
-        _values[pos] = entry.getValue().doubleValue();
-        pos++;
-      }
+    _times = dts.timesArrayFast();
+    _values = dts.valuesArrayFast();
+  }
+  
+  public FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastLongDoubleTimeSeries dts) {
+    super(dts.getEncoding());
+    DateTimeNumericEncoding otherEncoding = dts.getEncoding();
+    _times = dts.timesArrayFast();
+    for (int i=0; i<_times.length; i++) {
+      _times[i] = otherEncoding.convertToLong(_times[i], encoding);
+    }
+    _values = dts.valuesArrayFast();
+  }
+  
+  public FastArrayLongDoubleTimeSeries(final FastIntDoubleTimeSeries dts) {
+    super(dts.getEncoding());
+    DateTimeNumericEncoding encoding = dts.getEncoding();
+    int[] timesArrayFast = dts.timesArrayFast();
+    _values = dts.valuesArrayFast();
+    _times = new long[timesArrayFast.length];
+    for (int i=0; i<timesArrayFast.length; i++) {
+      _times[i] = encoding.convertToLong(timesArrayFast[i], encoding);
+    }
+  }
+  
+  public FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastIntDoubleTimeSeries dts) {
+    super(encoding);
+    DateTimeNumericEncoding otherEncoding = dts.getEncoding();
+    int[] timesArrayFast = dts.timesArrayFast();
+    _values = dts.valuesArrayFast();
+    _times = new long[timesArrayFast.length];
+    for (int i=0; i<timesArrayFast.length; i++) {
+      _times[i] = otherEncoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
 
@@ -420,7 +435,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
           }
           i++;
         }
-      } else if (obj instanceof FastBackedDoubleTimeSeries<?>) {
+      } else if (obj instanceof AbstractFastBackedDoubleTimeSeries<?>) {
         final FastBackedDoubleTimeSeries<?> fastBackedDTS = (FastBackedDoubleTimeSeries<?>) obj;
         return equals(fastBackedDTS.getFastSeries());
       } else {
@@ -436,7 +451,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
         return false;
       }
       if (other.getEncoding() == getEncoding()) {
-        if (!_times.equals(other._times)) {
+        if (!Arrays.equals(_times, other._times)) {
           return false;
         }
       } else {

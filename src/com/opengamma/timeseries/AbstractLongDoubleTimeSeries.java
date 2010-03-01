@@ -19,7 +19,7 @@ import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * @author jim
  * 
  */
-public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends FastBackedDoubleTimeSeries<DATE_TYPE> {
+public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFastBackedDoubleTimeSeries<DATE_TYPE> {
 
   final DateTimeConverter<DATE_TYPE> _converter;
   private final FastLongDoubleTimeSeries _timeSeries;
@@ -188,16 +188,19 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends FastBacked
     return getFastSeries().valuesArray();
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final UnaryOperator operator) {
     FastTimeSeries<Long> fastResult = getFastSeries().operate(operator);
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, (FastLongDoubleTimeSeries) fastResult);
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final double other, final BinaryOperator operator) {
     FastTimeSeries<Long> fastResult = getFastSeries().operate(other, operator);
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, (FastLongDoubleTimeSeries) fastResult);
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator) {
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     FastLongDoubleTimeSeries longDoubleTimeSeries;
@@ -214,6 +217,7 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends FastBacked
     return unionOperate(fastSeries, operator);
   }
     
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastLongDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
@@ -224,6 +228,7 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends FastBacked
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, intDoubleTimeSeries);
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastLongDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {

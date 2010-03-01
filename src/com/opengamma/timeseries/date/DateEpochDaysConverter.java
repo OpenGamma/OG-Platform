@@ -51,6 +51,10 @@ public class DateEpochDaysConverter implements DateTimeConverter<Date> {
   public DateEpochDaysConverter() {
     _timeZone = TimeZone.getDefault();
   }
+  
+  public TimeZone getTimeZone() {
+    return _timeZone;
+  }
 
   @Override
   public Date convertFromInt(final int dateTime) {

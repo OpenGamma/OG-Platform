@@ -26,6 +26,7 @@ import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
@@ -203,25 +204,33 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
 
   @Override
   public FastLongDoubleTimeSeries headFast(final int numItems) {
-    if (_map.size() <= numItems) {
+    if (_map.size() < numItems) {
       throw new OpenGammaRuntimeException("cannot get head " + numItems + " items because there aren't that many in the series");
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(numItems);
-    final long time = iterator.nextLong();
-    return new FastMapLongDoubleTimeSeries(getEncoding(), _map.headMap(time + 1));
-    // +1 means we get inclusive rather than exclusive.
+    if (iterator.hasNext() && numItems != 0) {
+      final long time = iterator.nextLong();
+      return new FastMapLongDoubleTimeSeries(getEncoding(), _map.headMap(time + 1));
+      // +1 means we get inclusive rather than exclusive.
+    } else {
+      return new FastMapLongDoubleTimeSeries(getEncoding());
+    }
   }
 
   @Override
   public FastLongDoubleTimeSeries tailFast(final int numItems) {
-    if (_map.size() <= numItems) {
+    if (_map.size() < numItems) {
       throw new OpenGammaRuntimeException("cannot get head " + numItems + " items because there aren't that many in the series");
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(_map.size() - numItems);
-    final long time = iterator.nextLong();
-    return new FastMapLongDoubleTimeSeries(getEncoding(), _map.tailMap(time));
+    if (iterator.hasNext() && numItems != 0) {
+      final long time = iterator.nextLong();
+      return new FastMapLongDoubleTimeSeries(getEncoding(), _map.tailMap(time));
+    } else {
+      return new FastMapLongDoubleTimeSeries(getEncoding());
+    }
   }
 
   @Override
@@ -298,7 +307,7 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
             return false;
           }
         }
-      } else if (obj instanceof FastBackedDoubleTimeSeries<?>) {
+      } else if (obj instanceof AbstractFastBackedDoubleTimeSeries<?>) {
         final FastBackedDoubleTimeSeries<?> fastBackedDTS = (FastBackedDoubleTimeSeries<?>) obj;
         return equals(fastBackedDTS.getFastSeries());
       } else {

@@ -22,8 +22,8 @@ public class MapDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Integer
   public static final MapDateDoubleTimeSeries EMPTY_SERIES = new MapDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
-  private MapDateDoubleTimeSeries() {
-    super(s_converter, new FastMapIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+  public MapDateDoubleTimeSeries() {
+    super(new DateEpochDaysConverter(), new FastMapIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }
 
   public MapDateDoubleTimeSeries(final Date[] dates, final double[] values) {

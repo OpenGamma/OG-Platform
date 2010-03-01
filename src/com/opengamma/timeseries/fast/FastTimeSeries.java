@@ -198,5 +198,4 @@ public interface FastTimeSeries<T> extends DoubleTimeSeries<T> {
   public abstract double maxValue();
 
   public abstract double minValue();
-
 }

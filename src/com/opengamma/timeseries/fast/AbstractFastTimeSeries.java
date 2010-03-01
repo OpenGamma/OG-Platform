@@ -21,11 +21,21 @@ import static com.opengamma.timeseries.DoubleTimeSeriesOperators.RECIPROCAL_OPER
 import static com.opengamma.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
 
+import java.util.TimeZone;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.timeseries.date.ArrayDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.timeseries.date.ListDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.MutableDateDoubleTimeSeries;
+import com.opengamma.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.time.DateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.time.ListDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -300,5 +310,36 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
     }
     return min;
   }
-
+  
+  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries() {
+    return new ListDateDoubleTimeSeries(this.toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS)); 
+  }
+  
+  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(TimeZone timeZone) {
+    return new ListDateDoubleTimeSeries(timeZone, this.toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+  }
+  
+  public DateDoubleTimeSeries toDateDoubleTimeSeries() {
+    return new ArrayDateDoubleTimeSeries(this.toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));    
+  }
+  
+  public DateDoubleTimeSeries toDateDoubleTimeSeries(TimeZone timeZone) {
+    return new ArrayDateDoubleTimeSeries(timeZone, this.toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+  }
+  
+  public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries() {
+    return new ListDateTimeDoubleTimeSeries(this.toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS)); 
+  }
+  
+  public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries(TimeZone timeZone) {
+    return new ListDateTimeDoubleTimeSeries(timeZone, this.toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
+  
+  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries() {
+    return new ArrayDateTimeDoubleTimeSeries(this.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS)); 
+  }
+  
+  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(TimeZone timeZone) {
+    return new ArrayDateTimeDoubleTimeSeries(timeZone, this.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
 }

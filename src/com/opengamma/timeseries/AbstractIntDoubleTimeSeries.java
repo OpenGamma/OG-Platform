@@ -14,11 +14,12 @@ import com.opengamma.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.timeseries.fast.FastTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.Primitives;
 /**
  * @author jim
  * 
  */
-public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends FastBackedDoubleTimeSeries<DATE_TYPE> {
+public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFastBackedDoubleTimeSeries<DATE_TYPE> {
 
   final DateTimeConverter<DATE_TYPE> _converter;
   private final FastIntDoubleTimeSeries _timeSeries;
@@ -174,7 +175,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends FastBackedD
 
   @Override
   public List<Double> values() {
-    return getFastSeries().values();
+    return getFastSeries().valuesFast();
   }
 
   @Override
@@ -184,14 +185,16 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends FastBackedD
 
   @Override
   public Double[] valuesArray() {
-    return getFastSeries().valuesArray();
+    return Primitives.box(getFastSeries().valuesArrayFast());
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final UnaryOperator operator) {
     FastTimeSeries<Integer> fastResult = getFastSeries().operate(operator);
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final double other, final BinaryOperator operator) {
     FastTimeSeries<Integer> fastResult = getFastSeries().operate(other, operator);
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, (FastIntDoubleTimeSeries) fastResult);
@@ -207,6 +210,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends FastBackedD
     return unionOperate(fastSeries, operator);
   }
     
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastIntDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
@@ -217,6 +221,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends FastBackedD
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, intDoubleTimeSeries);
   }
   
+  @SuppressWarnings("unchecked")
   public FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastIntDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {

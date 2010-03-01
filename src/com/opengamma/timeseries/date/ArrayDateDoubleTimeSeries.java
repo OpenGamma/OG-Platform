@@ -7,6 +7,7 @@ package com.opengamma.timeseries.date;
 
 import java.util.Date;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TimeZone;
 
 import com.opengamma.timeseries.DateTimeConverter;
@@ -23,8 +24,8 @@ public class ArrayDateDoubleTimeSeries extends DateDoubleTimeSeries.Integer {
   public static final ArrayDateDoubleTimeSeries EMPTY_SERIES = new ArrayDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
-  private ArrayDateDoubleTimeSeries() {
-    super(s_converter, FastArrayIntDoubleTimeSeries.EMPTY_SERIES);
+  public ArrayDateDoubleTimeSeries() {
+    super(new DateEpochDaysConverter(), new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }
 
   public ArrayDateDoubleTimeSeries(final Date[] dates, final double[] values) {
@@ -65,5 +66,6 @@ public class ArrayDateDoubleTimeSeries extends DateDoubleTimeSeries.Integer {
   public DateDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
     return new ArrayDateDoubleTimeSeries(dateTimes, values);
   }
+
 
 }

@@ -22,6 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
@@ -157,7 +158,7 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   @Override
   public double getLatestValueFast() {
     if (_values.size() > 0) {
-      return _values.getDouble(0);
+      return _values.getDouble(_times.size() - 1);
     } else {
       throw new NoSuchElementException();
     }
@@ -190,8 +191,10 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
 
   @Override
   public FastIntDoubleTimeSeries subSeriesFast(final int startTime, final int endTime) {
-    return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(_times.indexOf(startTime), _times.indexOf(endTime)), _values.subList(_times.indexOf(startTime), _times
-        .indexOf(endTime)));
+    int startIndex = _times.indexOf(startTime);
+    int endIndex = _times.indexOf(endTime)+1;
+    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
+    return new FastListIntDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }
 
   @Override
@@ -355,7 +358,7 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
             return false;
           }
         }
-      } else if (obj instanceof FastBackedDoubleTimeSeries<?>) {
+      } else if (obj instanceof AbstractFastBackedDoubleTimeSeries<?>) {
         final FastBackedDoubleTimeSeries<?> fastBackedDTS = (FastBackedDoubleTimeSeries<?>) obj;
         return equals(fastBackedDTS.getFastSeries());
       } else {

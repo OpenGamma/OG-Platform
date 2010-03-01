@@ -16,7 +16,10 @@ import com.opengamma.timeseries.fast.AbstractFastTimeSeries;
 import com.opengamma.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.timeseries.fast.DateTimeResolution;
 import com.opengamma.timeseries.fast.FastTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastListIntDoubleTimeSeries;
+import com.opengamma.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.Primitives;
 
 /**
@@ -349,4 +352,35 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     return newInstanceFast(trimmedTimes, trimmedValues);
   }  
 
+  public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries() {
+    return new FastListIntDoubleTimeSeries(this);
+  }
+  
+  public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries() {
+    return new FastArrayIntDoubleTimeSeries(this);
+  }
+  
+  public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries() {
+    return new FastListLongDoubleTimeSeries(this);
+  }
+  
+  public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries() {
+    return this;
+  }
+
+  public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
+    return new FastListIntDoubleTimeSeries(encoding, this);
+  }
+  
+  public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(DateTimeNumericEncoding encoding) {
+    return new FastArrayIntDoubleTimeSeries(encoding, this);
+  }
+  
+  public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
+    return new FastListLongDoubleTimeSeries(encoding, this);
+  }
+  
+  public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries(DateTimeNumericEncoding encoding) {
+    return new FastArrayLongDoubleTimeSeries(encoding, this);
+  }
 }

@@ -29,7 +29,7 @@ public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Intege
   }
 
   public ListDateDoubleTimeSeries() {
-    super(s_converter, new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+    super(new DateEpochDaysConverter(), new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }
 
   public ListDateDoubleTimeSeries(final Date[] dates, final double[] values) {

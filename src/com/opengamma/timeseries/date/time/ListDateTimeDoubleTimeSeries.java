@@ -24,7 +24,7 @@ public class ListDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSerie
   private static final DateTimeConverter<Date> s_converter = new DateEpochMillisConverter();
 
   private ListDateTimeDoubleTimeSeries() {
-    super(s_converter, new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+    super(new DateEpochMillisConverter(), new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
   public ListDateTimeDoubleTimeSeries(final Date[] dates, final double[] values) {

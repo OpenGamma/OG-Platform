@@ -24,7 +24,7 @@ public class MapDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries
   private static final DateTimeConverter<Date> s_converter = new DateEpochMillisConverter();
 
   private MapDateTimeDoubleTimeSeries() {
-    super(s_converter, new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+    super(new DateEpochMillisConverter(), new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
   public MapDateTimeDoubleTimeSeries(final Date[] dates, final double[] values) {
