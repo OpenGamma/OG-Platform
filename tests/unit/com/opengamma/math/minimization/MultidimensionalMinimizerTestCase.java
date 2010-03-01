@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.minimization;
@@ -8,13 +8,14 @@ package com.opengamma.math.minimization;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import com.opengamma.math.ProbabilisticTestCase;
 import com.opengamma.math.function.FunctionND;
 
 /**
  * 
  * @author emcleod
  */
-public class MultidimensionalMinimizerTestCase {
+public class MultidimensionalMinimizerTestCase extends ProbabilisticTestCase {
   private static final int DIMENSION = 2;
   private static final double EPS = 1e-6;
   private static final FunctionND<Double, Double> F_1D = new FunctionND<Double, Double>(1) {

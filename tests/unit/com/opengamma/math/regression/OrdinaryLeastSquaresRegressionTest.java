@@ -10,17 +10,21 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.opengamma.math.ProbabilisticTestCase;
+
 /**
  * 
  * @author emcleod
  */
-public class OrdinaryLeastSquaresRegressionTest {
+public class OrdinaryLeastSquaresRegressionTest extends ProbabilisticTestCase {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
   private static final double EPS = 1e-2;
   private static final double FACTOR = 1. / EPS;
 
   @Test
   public void test() {
+    if (retry(2))
+      return;
     final int n = 20;
     final Double[][] x = new Double[n][5];
     final Double[] y1 = new Double[n];
