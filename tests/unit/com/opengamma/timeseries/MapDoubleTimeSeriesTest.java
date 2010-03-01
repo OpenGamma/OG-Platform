@@ -4,8 +4,8 @@ package com.opengamma.timeseries;
 import java.util.Date;
 import java.util.List;
 
-import com.opengamma.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.timeseries.date.MapDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.MapDateDoubleTimeSeries;
 
 public class MapDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 

@@ -14,11 +14,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.opengamma.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 
+@Ignore
 public abstract class DateDoubleTimeSeriesTest {
    
   public abstract DateDoubleTimeSeries createEmptyTimeSeries();

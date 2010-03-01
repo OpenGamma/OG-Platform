@@ -4,8 +4,8 @@
 import java.util.Date;
 import java.util.List;
 
-import com.opengamma.timeseries.date.ArrayDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 
 public class ArrayDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
