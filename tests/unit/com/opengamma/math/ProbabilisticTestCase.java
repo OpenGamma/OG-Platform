@@ -7,8 +7,6 @@ import static org.junit.Assert.fail;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.junit.Test;
-
 import com.opengamma.OpenGammaRuntimeException;
 
 public class ProbabilisticTestCase {
@@ -36,8 +34,14 @@ public class ProbabilisticTestCase {
     final StackTraceElement[] stack = t.getStackTrace();
     // take no action if we've already been called (i.e. another retry is
     // controlling execution)
-    if (stack[6].getClassName().equals(getClass().getName()) && stack[6].getMethodName().equals("retry"))
-      return false;
+    if (stack.length > 50) {
+      t.printStackTrace();
+      fail("reflection/recursion error");
+    }
+    for (int i = 1; i < 10; i++) {
+      if (stack[i].getClassName().equals(getClass().getName()) && stack[6].getMethodName().equals("retry"))
+        return false;
+    }
     // get the test method to retry
     assertEquals(getClass().getName(), stack[1].getClassName());
     final Method test;
@@ -51,6 +55,8 @@ public class ProbabilisticTestCase {
     assertNotNull(test);
     AssertionError testError = null;
     for (int i = 0; i < n; i++) {
+      if (i > 0)
+        System.out.println("Repeating call to " + test + " (" + i + " of " + (n - 1) + ")");
       try {
         test.invoke(this);
         // it worked if we got here
@@ -70,33 +76,6 @@ public class ProbabilisticTestCase {
     // it didn't work if we got here
     assertNotNull(testError);
     throw testError;
-  }
-
-  private int _testRetry_failFirstCount = 0;
-
-  @Test
-  public void testRetry_failFirst() {
-    if (retry(3))
-      return;
-    _testRetry_failFirstCount++;
-    assertEquals(0, _testRetry_failFirstCount % 2);
-  }
-
-  private int _testRetry_failSecondCount = 0;
-
-  @Test
-  public void testRetry_failSecond() {
-    if (retry(3))
-      return;
-    _testRetry_failSecondCount++;
-    assertEquals(1, _testRetry_failSecondCount % 2);
-  }
-
-  @Test(expected = java.lang.AssertionError.class)
-  public void testRetry_alwaysFails() {
-    if (retry(3))
-      return;
-    fail("I always fail");
   }
 
 }
