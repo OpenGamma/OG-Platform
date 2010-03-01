@@ -20,7 +20,7 @@
 		</sequential>
 	</macrodef>
 
-	<macrodef name="git-clone-pull">
+        <macrodef name="git-clone">
 		<attribute name="repository" />
 		<attribute name="dest" />
 		<sequential>
@@ -30,7 +30,26 @@
 					<arg value="@{dest}" />
 				</args>
 			</git>
+		</sequential>
+        </macrodef>
+
+        <macrodef name="git-pull">
+		<attribute name="dest" />
+		<sequential>
 			<git command="pull" dir="@{dest}" />
 		</sequential>
+        </macrodef>
+
+	<macrodef name="git-clone-pull">
+		<attribute name="repository" />
+		<attribute name="dest" />
+		<sequential>
+			<echo message="git clone-or-pull @{repository}" />
+			<subant antfile="git-tasks.xml" failonerror="true" target="git-repo" buildpath="${basedir}">
+				<property name="repository" value="@{repository}" />
+				<property name="dest" value="@{dest}" />
+			</subant>
+		</sequential>
 	</macrodef>
+
 </project>
