@@ -63,7 +63,7 @@ public class JmsBatchMessageDispatcherTest {
     messageSender.send(new byte[10]);
     messageSender.send(new byte[10]);
     
-    // Add in a delay.
+    // Add in a delay. 
     Thread.sleep(1000l);
 
     // Now start the dispatcher.
@@ -79,18 +79,27 @@ public class JmsBatchMessageDispatcherTest {
   }
   
   public static void assertBatchSize(List<Integer> batchSizes, int totalSize) throws InterruptedException {
+    int actualTotal = 0;
     long startTime = System.currentTimeMillis();
-    while(batchSizes.isEmpty()) {
-      Thread.sleep(100);
+    while(actualTotal < totalSize) {
+      while(batchSizes.isEmpty()) {
+        Thread.sleep(100);
+        if((System.currentTimeMillis() - startTime) > 5000l) {
+          fail("Did not receive a batch in 5 seconds.");
+        }
+      }
+      synchronized(batchSizes) {
+        for(Integer batchSize : batchSizes) {
+          actualTotal += batchSize;
+        }
+        batchSizes.clear();
+      }
+      
       if((System.currentTimeMillis() - startTime) > 5000l) {
-        fail("Did not receive a batch in 5 seconds.");
+        fail("Did not receive expected total batches in 5 seconds.");
       }
     }
-    int actualTotal = 0;
-    for(Integer batchSize : batchSizes) {
-      actualTotal += batchSize;
-    }
-    assertEquals("Batch sizes was " + batchSizes, totalSize, actualTotal);
+    assertEquals(actualTotal, totalSize);
   }
 
 }

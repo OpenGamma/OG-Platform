@@ -30,13 +30,7 @@ abstract public class DBTest {
   protected DBTest(String databaseType) {
     ArgumentChecker.checkNotNull(databaseType, "Database type");
     _databaseType = databaseType;
-    
-    String dbHost = TestProperties.getDbHost(_databaseType);
-    String user = TestProperties.getDbUsername(_databaseType);
-    String password = TestProperties.getDbPassword(_databaseType);
-    
-    _dbtool = new DBTool(dbHost, user, password);
-    _dbtool.initialise();
+    _dbtool = TestProperties.getDbTool(databaseType);
   }
   
   @Parameters

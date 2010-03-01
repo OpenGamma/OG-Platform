@@ -2,7 +2,6 @@ package com.opengamma.util.test;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 import org.junit.After;
 import org.junit.Before;
 
@@ -29,14 +28,7 @@ public abstract class HibernateTest extends DBTest {
   public void setUp() throws Exception {
     super.setUp();
     
-    Configuration configuration = new Configuration();
-    configuration.setProperty(Environment.DRIVER, getDbTool().getJDBCDriverClass().getName());
-    configuration.setProperty(Environment.URL, getDbTool().getTestDatabaseURL());
-    configuration.setProperty(Environment.USER, getDbTool().getUser());
-    configuration.setProperty(Environment.PASS, getDbTool().getPassword());
-    configuration.setProperty(Environment.DIALECT, getDbTool().getHibernateDialect().getClass().getName());
-    configuration.setProperty(Environment.SHOW_SQL, "true");
-    
+    Configuration configuration = getDbTool().getHibernateConfiguration(getDbTool().getTestDatabaseURL());
     for (Class<?> clazz : getHibernateMappingClasses()) {
       configuration.addClass(clazz);
     }

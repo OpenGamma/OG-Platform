@@ -22,21 +22,36 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class TestProperties {
 
-  private static final String PROPS_FILE_NAME = "tests.properties";
+  private static final String DEFAULT_PROPS_FILE_NAME = "tests.properties";
 
+  private static String _baseDir = null;
   private static Properties _props = null;
+  
+  public static synchronized void setBaseDir(String dir) {
+    if (_props != null) {
+      throw new IllegalStateException("Properties already loaded");
+    }
+    _baseDir = dir;    
+  }
 
   public static synchronized Properties getTestProperties() {
     if (_props == null) {
       _props = new Properties();
-      File file = new File(PROPS_FILE_NAME);
+      
+      String propsFileName = DEFAULT_PROPS_FILE_NAME;
+      String overridePropsFileName = System.getProperty("test.properties"); // passed in by Ant
+      if (overridePropsFileName != null) {
+        propsFileName = overridePropsFileName;         
+      }
+      
+      File file = new File(_baseDir, propsFileName);
       System.err.println(file.getAbsoluteFile());
       try {
         FileInputStream fis = new FileInputStream(file);
         _props.load(fis);
         fis.close();
       } catch (IOException e) {
-        throw new OpenGammaRuntimeException("Could not read " + PROPS_FILE_NAME, e);
+        throw new OpenGammaRuntimeException("Could not read " + propsFileName, e);
       }
     }
     return _props;
@@ -88,6 +103,16 @@ public class TestProperties {
           + " not found");
     }
     return password;
+  }
+  
+  public static DBTool getDbTool(String databaseType) {
+    String dbHost = getDbHost(databaseType);
+    String user = getDbUsername(databaseType);
+    String password = getDbPassword(databaseType);
+    
+    DBTool dbtool = new DBTool(dbHost, user, password);
+    dbtool.initialise();
+    return dbtool;
   }
 
 }
