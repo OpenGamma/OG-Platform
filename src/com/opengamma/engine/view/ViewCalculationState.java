@@ -6,7 +6,7 @@
 package com.opengamma.engine.view;
 
 /**
- * Specifies the current state of a {@link ViewImpl}.
+ * Specifies the current state of a {@link View}.
  *
  * @author kirk
  */

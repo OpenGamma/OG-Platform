@@ -5,22 +5,64 @@
  */
 package com.opengamma.engine.view;
 
+import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
- * A definition for a particular {@link View} to be managed
- * by a {@link ViewProcessor}.
+ * A simple in-memory implementation of {@link ViewDefinition}. 
  *
  * @author kirk
  */
-public interface ViewDefinition {
+public class ViewDefinition implements Serializable {
+  private final String _name;
+  private final String _rootPortfolioName;
+  private final Map<String, Set<String>> _definitionsBySecurityType =
+    new TreeMap<String, Set<String>>();
+  
+  public ViewDefinition(String name, String rootPortfolioName) {
+    assert name != null;
+    assert rootPortfolioName != null;
+    
+    _name = name;
+    _rootPortfolioName = rootPortfolioName;
+  }
 
-  String getName();
+  public Set<String> getAllValueDefinitions() {
+    Set<String> definitions = new TreeSet<String>();
+    for(Set<String> secTypeDefinitions : _definitionsBySecurityType.values()) {
+      definitions.addAll(secTypeDefinitions);
+    }
+    return definitions;
+  }
+
+  public String getName() {
+    return _name;
+  }
+
+  public String getRootPortfolioName() {
+    return _rootPortfolioName;
+  }
+
+  public Map<String, Set<String>> getValueDefinitionsBySecurityTypes() {
+    return Collections.unmodifiableMap(_definitionsBySecurityType);
+  }
   
-  String getRootPortfolioName();
+  public void addValueDefinitions(String securityType, Set<String> definitions) {
+    assert securityType != null;
+    Set<String> secTypeDefinitions = _definitionsBySecurityType.get(securityType);
+    if(secTypeDefinitions == null) {
+      secTypeDefinitions = new TreeSet<String>();
+      _definitionsBySecurityType.put(securityType, secTypeDefinitions);
+    }
+    secTypeDefinitions.addAll(definitions);
+  }
   
-  Set<String> getAllValueDefinitions();
-  
-  Map<String, Set<String>> getValueDefinitionsBySecurityTypes();
+  public void addValueDefinition(String securityType, String definition) {
+    addValueDefinitions(securityType, Collections.singleton(definition));
+  }
+
 }

@@ -43,7 +43,6 @@ public class SingleComputationCycle {
   private final String _viewName;
   private final ViewProcessingContext _processingContext;
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
-  private final ViewDefinition _viewDefinition;
   
   // State:
   private final long _startTime;
@@ -63,16 +62,15 @@ public class SingleComputationCycle {
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition) {
+    // TODO kirk 2010-03-02 -- Convert to proper arg checks.
     assert viewName != null;
     assert processingContext != null;
     assert portfolioEvaluationModel != null;
     assert resultModel != null;
-    assert viewDefinition != null;
     _viewName = viewName;
     _processingContext = processingContext;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _resultModel = resultModel;
-    _viewDefinition = viewDefinition;
     _startTime = System.currentTimeMillis();
   }
   
@@ -137,13 +135,6 @@ public class SingleComputationCycle {
    */
   public ViewComputationResultModelImpl getResultModel() {
     return _resultModel;
-  }
-
-  /**
-   * @return the viewDefinition
-   */
-  public ViewDefinition getViewDefinition() {
-    return _viewDefinition;
   }
 
   public boolean prepareInputs() {

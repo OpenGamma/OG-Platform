@@ -24,12 +24,12 @@ import com.opengamma.util.TerminatableJob;
 public class ViewRecalculationJob extends TerminatableJob {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRecalculationJob.class);
   private static long s_delay = 0L;
-  private final ViewImpl _view;
+  private final View _view;
   private ViewComputationResultModelImpl _previousResult;
   private static boolean _paused;
   private static One2OneChannel _channel = Channel.one2one(new OverWriteOldestBuffer(1));
   
-  public ViewRecalculationJob(ViewImpl view) {
+  public ViewRecalculationJob(View view) {
     if(view == null) {
       throw new NullPointerException("Must provide a backing view.");
     }
@@ -53,7 +53,7 @@ public class ViewRecalculationJob extends TerminatableJob {
   /**
    * @return the view
    */
-  public ViewImpl getView() {
+  public View getView() {
     return _view;
   }
 
