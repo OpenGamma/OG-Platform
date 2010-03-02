@@ -17,7 +17,7 @@ import java.util.TreeSet;
  *
  * @author kirk
  */
-public class ViewDefinitionImpl implements ViewDefinition, Serializable {
+public class ViewDefinitionImpl implements Serializable {
   private final String _name;
   private final String _rootPortfolioName;
   private final Map<String, Set<String>> _definitionsBySecurityType =
@@ -31,7 +31,6 @@ public class ViewDefinitionImpl implements ViewDefinition, Serializable {
     _rootPortfolioName = rootPortfolioName;
   }
 
-  @Override
   public Set<String> getAllValueDefinitions() {
     Set<String> definitions = new TreeSet<String>();
     for(Set<String> secTypeDefinitions : _definitionsBySecurityType.values()) {
@@ -40,17 +39,14 @@ public class ViewDefinitionImpl implements ViewDefinition, Serializable {
     return definitions;
   }
 
-  @Override
   public String getName() {
     return _name;
   }
 
-  @Override
   public String getRootPortfolioName() {
     return _rootPortfolioName;
   }
 
-  @Override
   public Map<String, Set<String>> getValueDefinitionsBySecurityTypes() {
     return Collections.unmodifiableMap(_definitionsBySecurityType);
   }

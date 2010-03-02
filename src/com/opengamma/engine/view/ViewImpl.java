@@ -32,7 +32,7 @@ import com.opengamma.util.ThreadUtil;
 public class ViewImpl implements View, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewImpl.class);
   // Injected dependencies:
-  private final ViewDefinition _definition;
+  private final ViewDefinitionImpl _definition;
   private final ViewProcessingContext _processingContext;
   // Internal State:
   private PortfolioEvaluationModel _portfolioEvaluationModel;
@@ -43,7 +43,7 @@ public class ViewImpl implements View, Lifecycle {
   private final Set<ComputationResultListener> _resultListeners = new HashSet<ComputationResultListener>();
   private final Set<DeltaComputationResultListener> _deltaListeners = new HashSet<DeltaComputationResultListener>();
 
-  public ViewImpl(ViewDefinition definition, ViewProcessingContext processingContext) {
+  public ViewImpl(ViewDefinitionImpl definition, ViewProcessingContext processingContext) {
     if(definition == null) {
       throw new NullPointerException("Must provide a definition.");
     }
@@ -57,7 +57,7 @@ public class ViewImpl implements View, Lifecycle {
   /**
    * @return the definition
    */
-  public ViewDefinition getDefinition() {
+  public ViewDefinitionImpl getDefinition() {
     return _definition;
   }
 

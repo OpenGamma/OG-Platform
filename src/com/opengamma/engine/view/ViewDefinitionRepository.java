@@ -17,6 +17,6 @@ public interface ViewDefinitionRepository {
   
   Collection<String> getDefinitionNames();
   
-  ViewDefinition getDefinition(String definitionName);
+  ViewDefinitionImpl getDefinition(String definitionName);
 
 }
