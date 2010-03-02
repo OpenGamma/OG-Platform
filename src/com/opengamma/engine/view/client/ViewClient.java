@@ -27,7 +27,7 @@ public interface ViewClient {
   
   Set<String> getAllSecurityTypes();
   
-  Set<String> getAllRequirementNames();
+  Set<String> getAllValueNames();
   
   Set<String> getRequirementNames(String securityType);
   
