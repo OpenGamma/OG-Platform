@@ -9,7 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.opengamma.util.Primitives;
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.FastTimeSeries;
@@ -190,7 +191,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
 
   @Override
   public Double[] valuesArray() {
-    return Primitives.box(getFastSeries().valuesArrayFast());
+    return ArrayUtils.toObject(getFastSeries().valuesArrayFast());
   }
   
   @SuppressWarnings("unchecked")
