@@ -43,15 +43,10 @@ public class GreekToValueGreekConversionVisitorTest {
     new GreekToValueGreekConversionVisitor(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testValueGreekForPrice() {
-    VISITOR.visitPrice();
-  }
-
   @Test
   public void test() {
     assertNull(VISITOR.visitVega());
-    assertEquals(DELTA * S * PV * N, VISITOR.visitDelta(), EPS);
-    assertEquals(GAMMA * S * S * PV * N, VISITOR.visitGamma(), EPS);
+    assertEquals(S * PV * N, VISITOR.visitDelta(), EPS);
+    assertEquals(S * S * PV * N, VISITOR.visitGamma(), EPS);
   }
 }
