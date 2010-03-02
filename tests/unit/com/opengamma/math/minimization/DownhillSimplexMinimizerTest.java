@@ -15,7 +15,8 @@ public class DownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestC
 
   @Test
   public void test() {
-    retry(2);
+    if (retry(2))
+      return;
     final MultidimensionalMinimizer MINIMIZER = new DownhillSimplexMinimizer();
     super.testInputs(MINIMIZER);
     super.test(MINIMIZER);
