@@ -11,6 +11,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.PolynomialFunction1D;
 
 /**
@@ -18,6 +21,7 @@ import com.opengamma.math.function.PolynomialFunction1D;
  * @author emcleod
  */
 public class EigenvaluePolynomialRootFinderTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Polynomial1DRootFinder<Double> FINDER = new EigenvaluePolynomialRootFinder();
 
   @Test(expected = IllegalArgumentException.class)
@@ -27,7 +31,7 @@ public class EigenvaluePolynomialRootFinderTest {
 
   @Test
   public void test() {
-    final Double[] r = new Double[] { -Math.random(), -Math.random(), Math.random(), Math.random() };
+    final Double[] r = new Double[] { -RANDOM.nextDouble(), -RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble() };
     final double a0 = r[0] * r[1] * r[2] * r[3];
     final double a1 = r[0] * r[1] * r[2] + r[0] * r[1] * r[3] + r[0] * r[2] * r[3] + r[1] * r[2] * r[3];
     final double a2 = r[0] * r[1] + r[0] * r[2] + r[0] * r[3] + r[1] * r[2] + r[1] * r[3] + r[2] * r[3];

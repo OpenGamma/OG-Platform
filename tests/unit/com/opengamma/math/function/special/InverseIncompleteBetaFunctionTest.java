@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.function.special;
@@ -10,6 +10,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -17,6 +20,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  */
 public class InverseIncompleteBetaFunctionTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-9;
 
   @Test
@@ -52,7 +56,7 @@ public class InverseIncompleteBetaFunctionTest {
   public void test() {
     final double a = 0.35;
     final double b = 6.7;
-    final double x = Math.random();
+    final double x = RANDOM.nextDouble();
     final Function1D<Double, Double> beta = new IncompleteBetaFunction(a, b);
     final Function1D<Double, Double> inverse = new InverseIncompleteBetaFunction(a, b);
     assertEquals(beta.evaluate(inverse.evaluate(x)), x, EPS);

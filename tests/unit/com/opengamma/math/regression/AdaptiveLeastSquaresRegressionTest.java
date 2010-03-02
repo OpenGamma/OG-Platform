@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.regression;
@@ -9,6 +9,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function2D;
 
 /**
@@ -16,12 +20,13 @@ import com.opengamma.math.function.Function2D;
  * @author emcleod
  */
 public class AdaptiveLeastSquaresRegressionTest {
+  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
   private static final double BETA_2 = -0.9;
   private static final double BETA_3 = 1.1;
   private static final int N = 100;
   private static final Double[][] X = new Double[N][3];
   private static final LeastSquaresRegression OLS = new OrdinaryLeastSquaresRegression();
-  private static final LeastSquaresRegression ADAPTIVE = new AdaptiveLeastSquaresRegression(OLS, 0.05);
+  private static final LeastSquaresRegression ADAPTIVE = new AdaptiveLeastSquaresRegression(OLS, 0.025);
   private static final Function2D<Double, Double> F2 = new Function2D<Double, Double>() {
 
     @Override
@@ -30,7 +35,7 @@ public class AdaptiveLeastSquaresRegressionTest {
     }
 
   };
-  private static final double EPS = 1e-9;
+  private static final double EPS = 1e-2;
 
   @Test(expected = IllegalArgumentException.class)
   public void testInputs() {
@@ -39,9 +44,9 @@ public class AdaptiveLeastSquaresRegressionTest {
 
   static {
     for (int i = 0; i < N; i++) {
-      X[i][0] = Math.random();
-      X[i][1] = Math.random();
-      X[i][2] = Math.random();
+      X[i][0] = RANDOM.nextDouble();
+      X[i][1] = RANDOM.nextDouble();
+      X[i][2] = RANDOM.nextDouble();
     }
   }
 
@@ -67,7 +72,7 @@ public class AdaptiveLeastSquaresRegressionTest {
       }
       x[i][0] = i % 2 == 0 ? -1. : 1.;
     }
-    final NamedVariableLeastSquaresRegressionResult result = (NamedVariableLeastSquaresRegressionResult) ADAPTIVE.regress(x, null, y, false);
+    final LeastSquaresRegressionResult result = ADAPTIVE.regress(x, null, y, false);
     final Double[] betas = result.getBetas();
     assertEquals(betas.length, 2);
     assertEquals(betas[0], BETA_2, EPS);

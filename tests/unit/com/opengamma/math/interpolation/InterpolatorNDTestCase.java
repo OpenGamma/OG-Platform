@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -14,19 +14,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 /**
  * 
  * @author emcleod
  */
 public class InterpolatorNDTestCase {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   protected static final Map<List<Double>, Double> FLAT_DATA = new HashMap<List<Double>, Double>();
   protected static final double VALUE = 0.3;
   static {
     double x, y, z;
     for (int i = 0; i < 20; i++) {
-      x = 10 * Math.random();
-      y = 10 * Math.random();
-      z = 10 * Math.random();
+      x = 10 * RANDOM.nextDouble();
+      y = 10 * RANDOM.nextDouble();
+      z = 10 * RANDOM.nextDouble();
       FLAT_DATA.put(Arrays.asList(x, y, z), VALUE);
     }
   }

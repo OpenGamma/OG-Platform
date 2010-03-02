@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -14,6 +14,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.PolynomialFunction1D;
 
@@ -22,6 +25,7 @@ import com.opengamma.math.function.PolynomialFunction1D;
  * @author emcleod
  */
 public class NaturalCubicSplineInterpolator1DTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Double[] COEFF = new Double[] { -0.4, 0.05, 0.2, 1. };
   private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Function1D<Double, Double> CUBIC = new PolynomialFunction1D(COEFF);
@@ -61,7 +65,7 @@ public class NaturalCubicSplineInterpolator1DTest {
       data.put(x, CUBIC.evaluate(x));
     }
     for (int i = 0; i < 100; i++) {
-      x = Math.random();
+      x = RANDOM.nextDouble();
       assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(data, x).getResult(), EPS);
     }
   }

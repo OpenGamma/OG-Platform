@@ -10,12 +10,17 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 /**
  * 
  * @author emcleod
  */
 public class WeightedLeastSquaresRegressionTest {
-  private static final double EPS = 1e-6;
+  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
+  private static final double EPS = 1e-2;
 
   @Test
   public void test() {
@@ -39,7 +44,7 @@ public class WeightedLeastSquaresRegressionTest {
       yNoIntercept[i] = y;
       yIntercept[i] = y + a0;
       for (int j = 0; j < n; j++) {
-        w1[i][j] = Math.random();
+        w1[i][j] = RANDOM.nextDouble();
       }
       w1[i][i] = 1.;
       w2[i] = 1.;

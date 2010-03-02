@@ -14,6 +14,9 @@ import javax.time.calendar.TimeZone;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -26,6 +29,7 @@ import com.opengamma.util.CalculationMode;
  */
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Function<DoubleTimeSeries, DoubleTimeSeries> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
 
   @Test
@@ -61,7 +65,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     double random;
     for (int i = 0; i < n - 2; i++) {
       times[i] = i;
-      random = Math.random();
+      random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
@@ -72,7 +76,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     data[n - 2] = 0;
     zones[n - 2] = TimeZone.UTC;
     times[n - 1] = n - 1;
-    data[n - 1] = Math.random();
+    data[n - 1] = RANDOM.nextDouble();
     zones[n - 1] = TimeZone.UTC;
     final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
     final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns, Arrays.copyOfRange(zones, 1, n - 2));
@@ -98,7 +102,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
-      random = Math.random();
+      random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
@@ -120,7 +124,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
-      random = Math.random();
+      random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
@@ -143,7 +147,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
-      random = Math.random();
+      random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);

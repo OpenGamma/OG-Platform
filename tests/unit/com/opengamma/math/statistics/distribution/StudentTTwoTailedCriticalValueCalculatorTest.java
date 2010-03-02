@@ -9,6 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -16,6 +19,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class StudentTTwoTailedCriticalValueCalculatorTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double NU = 3;
   private static final Function1D<Double, Double> F = new StudentTTwoTailedCriticalValueCalculator(NU);
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);
@@ -40,7 +44,7 @@ public class StudentTTwoTailedCriticalValueCalculatorTest {
     double x, y;
     final double eps = 1e-5;
     for (int i = 0; i < 100; i++) {
-      x = Math.random();
+      x = RANDOM.nextDouble();
       y = 0.5 * (1 + x);
       assertEquals(y, T.getCDF(F.evaluate(x)), eps);
     }

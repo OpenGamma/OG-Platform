@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -14,6 +14,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.PolynomialFunction1D;
 
@@ -22,7 +25,9 @@ import com.opengamma.math.function.PolynomialFunction1D;
  * @author emcleod
  */
 public class BarycentricRationalFunctionInterpolator1DTest {
-  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new Double[] { Math.random(), Math.random(), Math.random(), Math.random(), Math.random() });
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new Double[] { RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(),
+      RANDOM.nextDouble() });
   private static final Interpolator1D INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
   private static final double EPS = 1;
 

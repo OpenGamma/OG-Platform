@@ -10,6 +10,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.util.test.ProbabilisticTestCase;
 
 /**
@@ -18,6 +21,7 @@ import com.opengamma.util.test.ProbabilisticTestCase;
  */
 public class OrdinaryLeastSquaresRegressionTest extends ProbabilisticTestCase {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-2;
   private static final double FACTOR = 1. / EPS;
 
@@ -33,10 +37,10 @@ public class OrdinaryLeastSquaresRegressionTest extends ProbabilisticTestCase {
     final double[] a2 = new double[] { 0.98, 3.4, 1.2, -0.62, -0.44, 0.65 };
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < 5; j++) {
-        x[i][j] = Math.random() + (Math.random() - 0.5) / FACTOR;
+        x[i][j] = RANDOM.nextDouble() + (RANDOM.nextDouble() - 0.5) / FACTOR;
       }
-      y1[i] = a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4] + Math.random() / FACTOR;
-      y2[i] = a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4] + Math.random() / FACTOR;
+      y1[i] = a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4] + RANDOM.nextDouble() / FACTOR;
+      y2[i] = a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4] + RANDOM.nextDouble() / FACTOR;
     }
     final LeastSquaresRegressionResult result1 = REGRESSION.regress(x, null, y1, false);
     final LeastSquaresRegressionResult result2 = REGRESSION.regress(x, null, y2, true);

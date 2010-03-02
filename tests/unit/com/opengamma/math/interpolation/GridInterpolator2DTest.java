@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -13,6 +13,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function2D;
 import com.opengamma.util.Pair;
 
@@ -21,6 +24,7 @@ import com.opengamma.util.Pair;
  * @author emcleod
  */
 public class GridInterpolator2DTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Map<Pair<Double, Double>, Double> FLAT_DATA = new HashMap<Pair<Double, Double>, Double>();
   private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
 
@@ -121,7 +125,7 @@ public class GridInterpolator2DTest {
     for (final Pair<Double, Double> pair : FLAT_DATA.keySet()) {
       nonTrivial.put(pair, F.evaluate(pair.getKey(), pair.getValue()));
     }
-    final Pair<Double, Double> pair = new Pair<Double, Double>(Math.random() + 2, Math.random() + 4);
+    final Pair<Double, Double> pair = new Pair<Double, Double>(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
     assertEquals(INTERPOLATOR_2D.interpolate(nonTrivial, pair).getResult(), F.evaluate(pair.getKey(), pair.getValue()), EPS);
   }
 }

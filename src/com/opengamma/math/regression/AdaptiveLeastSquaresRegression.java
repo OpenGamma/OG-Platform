@@ -32,8 +32,13 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
   @Override
   public LeastSquaresRegressionResult regress(final Double[][] x, final Double[][] weights, final Double[] y, final boolean useIntercept) {
     final LeastSquaresRegressionResult result = _regression.regress(x, weights, y, useIntercept);
-    if (areCoefficientsSignificant(result.getPValues()))
-      return result;
+    if (areCoefficientsSignificant(result.getPValues())) {
+      final List<Integer> tempIndex = new ArrayList<Integer>();
+      for (int i = 0; i < result.getPValues().length; i++) {
+        tempIndex.add(i);
+      }
+      return new NamedVariableLeastSquaresRegressionResult(getNames(tempIndex), result);
+    }
     try {
       return getBestResult(result, x, weights, y, useIntercept);
     } catch (final RegressionException e) {
@@ -56,10 +61,14 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     final int newLength = significantIndex.size();
     if (newLength == 0) {
       s_Log.info("Could not find any significant regression coefficients");
-      return result;
+      final List<Integer> tempIndex = new ArrayList<Integer>();
+      for (i = 0; i < pValues.length; i++) {
+        tempIndex.add(i);
+      }
+      return new NamedVariableLeastSquaresRegressionResult(getNames(tempIndex), result);
     }
     if (newLength == pValues.length)
-      return result;
+      return new NamedVariableLeastSquaresRegressionResult(getNames(significantIndex), result);
     final Double[][] newX = new Double[x.length][newLength];
     final Double[][] newW = w == null ? null : new Double[x.length][newLength];
     int k;
@@ -77,13 +86,22 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     }
     final LeastSquaresRegressionResult newResult = _regression.regress(newX, newW, y, useIntercept);
     if (areCoefficientsSignificant(newResult.getPValues())) {
-      final List<String> names = new ArrayList<String>();
-      for (final Integer index : significantIndex) {
-        names.add(index.toString());
-      }
+      final List<String> names = getNames(significantIndex);
       return new NamedVariableLeastSquaresRegressionResult(names, newResult);
     }
     return getBestResult(newResult, newX, newW, y, useIntercept);
+  }
+
+  /**
+   * @param significantIndex
+   * @return
+   */
+  private List<String> getNames(final List<Integer> significantIndex) {
+    final List<String> names = new ArrayList<String>();
+    for (final Integer index : significantIndex) {
+      names.add(index.toString());
+    }
+    return names;
   }
 
   private boolean areCoefficientsSignificant(final Double[] pValue) {

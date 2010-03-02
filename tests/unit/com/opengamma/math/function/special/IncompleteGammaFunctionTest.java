@@ -10,6 +10,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.Function2D;
 
@@ -18,6 +21,7 @@ import com.opengamma.math.function.Function2D;
  * @author emcleod
  */
 public class IncompleteGammaFunctionTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Function2D<Double, Double> FUNCTION = new IncompleteGammaFunction();
   private static final double EPS = 1e-9;
 
@@ -33,8 +37,8 @@ public class IncompleteGammaFunctionTest {
 
   @Test
   public void testLimits() {
-    assertEquals(FUNCTION.evaluate(Math.random(), 0.), 0, EPS);
-    assertEquals(FUNCTION.evaluate(Math.random(), 100.), 1, EPS);
+    assertEquals(FUNCTION.evaluate(RANDOM.nextDouble(), 0.), 0, EPS);
+    assertEquals(FUNCTION.evaluate(RANDOM.nextDouble(), 100.), 1, EPS);
   }
 
   @Test

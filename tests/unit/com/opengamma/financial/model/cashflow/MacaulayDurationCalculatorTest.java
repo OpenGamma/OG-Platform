@@ -14,6 +14,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.DateUtil;
@@ -23,6 +26,7 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class MacaulayDurationCalculatorTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final DoubleTimeSeries ZERO = new ArrayDoubleTimeSeries(Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1), DateUtil.getDateOffsetWithYearFraction(
       DATE, 2), DateUtil.getDateOffsetWithYearFraction(DATE, 3), DateUtil.getDateOffsetWithYearFraction(DATE, 4)), Arrays.asList(0., 0., 0., 1.));
@@ -66,8 +70,8 @@ public class MacaulayDurationCalculatorTest {
   @Test
   public void test() {
     for (int i = 0; i < 100; i++) {
-      assertEquals(CALCULATOR.calculate(ZERO, Math.random(), DATE, DISCRETE), 4, EPS);
-      assertEquals(CALCULATOR.calculate(ZERO, Math.random(), DATE, CONTINUOUS), 4, EPS);
+      assertEquals(CALCULATOR.calculate(ZERO, RANDOM.nextDouble(), DATE, DISCRETE), 4, EPS);
+      assertEquals(CALCULATOR.calculate(ZERO, RANDOM.nextDouble(), DATE, CONTINUOUS), 4, EPS);
     }
     final double discrete = CALCULATOR.calculate(CF, PRICE, DATE, DISCRETE);
     assertEquals(discrete, 3.68, 1e-2);

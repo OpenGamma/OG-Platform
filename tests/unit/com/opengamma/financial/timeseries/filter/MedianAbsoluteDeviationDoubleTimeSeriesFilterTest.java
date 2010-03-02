@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.filter;
@@ -16,6 +16,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -24,6 +27,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double LIMIT = 5;
   private static final double DATA1 = 29;
   private static final double DATA2 = 16;
@@ -36,7 +40,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   static {
     for (int i = 0; i < 500; i++) {
       DATES.add(ZonedDateTime.fromInstant(Instant.instant(i + 1), TimeZone.UTC));
-      DATA.add(Math.random());
+      DATA.add(RANDOM.nextDouble());
     }
     DATA.set(0, DATA1);
     DATA.set(1, DATA2);

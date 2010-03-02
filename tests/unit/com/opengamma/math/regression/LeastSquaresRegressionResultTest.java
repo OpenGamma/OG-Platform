@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.regression;
@@ -10,6 +10,10 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function2D;
 
 /**
@@ -17,7 +21,8 @@ import com.opengamma.math.function.Function2D;
  * @author emcleod
  */
 public class LeastSquaresRegressionResultTest {
-  private static final double EPS = 1e-12;
+  private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
+  private static final double EPS = 1e-2;
 
   @Test(expected = IllegalArgumentException.class)
   public void testInputs() {
@@ -50,8 +55,8 @@ public class LeastSquaresRegressionResultTest {
     final Double[] y1 = new Double[n];
     final Double[] y2 = new Double[n];
     for (int i = 0; i < n; i++) {
-      x[i][0] = Math.random();
-      x[i][1] = Math.random();
+      x[i][0] = RANDOM.nextDouble();
+      x[i][1] = RANDOM.nextDouble();
       y1[i] = f1.evaluate(x[i][0], x[i][1]);
       y2[i] = f2.evaluate(x[i][0], x[i][1]);
     }
@@ -78,7 +83,7 @@ public class LeastSquaresRegressionResultTest {
     }
     Double[] z;
     for (int i = 0; i < 10; i++) {
-      z = new Double[] { Math.random(), Math.random() };
+      z = new Double[] { RANDOM.nextDouble(), RANDOM.nextDouble() };
       assertEquals(f1.evaluate(z), result1.getPredictedValue(z), EPS);
       assertEquals(f2.evaluate(z), result2.getPredictedValue(z), EPS);
     }

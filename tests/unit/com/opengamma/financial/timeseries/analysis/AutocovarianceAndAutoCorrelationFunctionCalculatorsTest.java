@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -17,6 +17,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.timeseries.ArrayDoubleTimeSeries;
@@ -27,6 +30,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final Function1D<DoubleTimeSeries, Double[]> COVARIANCE = new AutocovarianceFunctionCalculator();
   private static final Function1D<DoubleTimeSeries, Double[]> CORRELATION = new AutocorrelationFunctionCalculator();
 
@@ -57,7 +61,7 @@ public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
     final int n = 20000;
     for (int i = 0; i < n; i++) {
       dates.add(ZonedDateTime.fromInstant(Instant.instant(i), TimeZone.UTC));
-      data.add(Math.random());
+      data.add(RANDOM.nextDouble());
     }
     final Double[] result = CORRELATION.evaluate(new ArrayDoubleTimeSeries(dates, data));
     assertEquals(result[0], 1, 1e-16);
