@@ -7,6 +7,8 @@ package com.opengamma.historical.dao;
 
 import java.util.Set;
 
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
@@ -75,14 +77,11 @@ public interface TimeSeriesDao {
   
   public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
 
-  /*
-  public List<DoubleTimeSeries> getTimeSeriesByDataSource(String secDes, String dataSource);
+  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime start, ZonedDateTime end);
   
-  public List<DoubleTimeSeries> getTimeSeriesByDataProvider(String secDes, String dataProvider);
+  public void deleteTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
   
-  public List<DoubleTimeSeries> getTimeSeriesByField(String secDes, String field);
+  public void updateDataPoint(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime date, Double value);
   
-  public List<DoubleTimeSeries> getTimeSeriesByObservationTime(String secDes, String observationTime);
-  */
   
 }

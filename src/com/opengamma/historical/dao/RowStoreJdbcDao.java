@@ -419,64 +419,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     return getNamedDimensionID(QUOTED_OBJECT_TABLE, name);
   }
 
-  @Override
-  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
-      String dataSource, String dataProvider, String field,
-      String observationTime) {
-    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
-    
-    s_logger.debug("getting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
-        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
-    
-    String sql = "SELECT ts_date, value FROM time_series_data " +
-    		" WHERE time_series_id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
-    		" domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
-    		" WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
-    		" AND tsKey.quoted_obj_id = qo.id " +
-    		" AND tsKey.data_source_id = ds.id " +
-    		" AND tsKey.data_provider_id = dp.id " +
-    		" AND tsKey.data_field_id = df.id" +
-    		" AND observation_time_id = ot.id " +
-    		" AND dsi.identifier = :identifier " +
-        " AND d.name = :domain " +
-        " AND ds.name = :dataSource " +
-        " AND dp.name = :dataProvider " +
-        " AND df.name = :dataField " +
-        " AND ot.name = :observationTime)" +
-        " ORDER BY ts_date";
-       
-    SqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
-      .addValue("domain", domainSpecId.getDomain().getDomainName())
-      .addValue("dataSource", dataSource)
-      .addValue("dataProvider", dataProvider)
-      .addValue("dataField", field)
-      .addValue("observationTime", observationTime);
-    
-    List<TimeSeriesData> queryResult = _simpleJdbcTemplate.query(sql, new ParameterizedRowMapper<TimeSeriesData>() {
-
-      @Override
-      public TimeSeriesData mapRow(ResultSet rs, int rowNum)
-          throws SQLException {
-        double tsValue = rs.getDouble("value");
-        Date tsDate = rs.getDate("ts_date");
-        return new TimeSeriesData(tsDate, tsValue);
-      }
-    }, parameters);
-    
-    List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
-    List<Double> values = new ArrayList<Double>();
-    for (TimeSeriesData tsData : queryResult) {
-      double tsValue = tsData.getValue();
-      values.add(tsValue);
-      times.add(DateUtil.getUTCDate(tsData.getYear(), tsData.getMonth(), tsData.getDay()));
-    }
-    
-    return new ArrayDoubleTimeSeries(times, values);
-  }
+  
   
   @Override
   public Set<DomainSpecificIdentifier> findDomainSpecIdentifiersByQuotedObject(String name) {
@@ -606,6 +549,169 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     return _simpleJdbcTemplate.queryForInt(sql, parameterSource);
   }
   
+  @Override
+  public void deleteTimeSeries(DomainSpecificIdentifier domainSpecId,
+      String dataSource, String dataProvider, String field,
+      String observationTime) {
+    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
+    ArgumentChecker.checkNotNull(dataSource, "dataSource");
+    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
+    ArgumentChecker.checkNotNull(field, "field");
+    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    
+    s_logger.debug("deleting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
+        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
+    
+    String sql = "DELETE FROM time_series_data " +
+    " WHERE time_series_id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
+    " domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
+    " WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
+    " AND tsKey.quoted_obj_id = qo.id " +
+    " AND tsKey.data_source_id = ds.id " +
+    " AND tsKey.data_provider_id = dp.id " +
+    " AND tsKey.data_field_id = df.id" +
+    " AND observation_time_id = ot.id " +
+    " AND dsi.identifier = :identifier " +
+    " AND d.name = :domain " +
+    " AND ds.name = :dataSource " +
+    " AND dp.name = :dataProvider " +
+    " AND df.name = :dataField " +
+    " AND ot.name = :observationTime)";
+    
+    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
+    .addValue("domain", domainSpecId.getDomain().getDomainName())
+    .addValue("dataSource", dataSource)
+    .addValue("dataProvider", dataProvider)
+    .addValue("dataField", field)
+    .addValue("observationTime", observationTime);
+    
+    _simpleJdbcTemplate.update(sql, parameters);
+    
+  }
+  
+  @Override
+  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
+      String dataSource, String dataProvider, String field,
+      String observationTime) {
+    return getTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
+  }
+
+  @Override
+  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
+      String dataSource, String dataProvider, String field,
+      String observationTime, ZonedDateTime start, ZonedDateTime end) {
+    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
+    ArgumentChecker.checkNotNull(dataSource, "dataSource");
+    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
+    ArgumentChecker.checkNotNull(field, "field");
+    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    
+    s_logger.debug("getting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
+        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
+    
+    StringBuilder sql = new StringBuilder("SELECT ts_date, value FROM time_series_data tsd " +
+        " WHERE time_series_id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
+        " domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
+        " WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
+        " AND tsKey.quoted_obj_id = qo.id " +
+        " AND tsKey.data_source_id = ds.id " +
+        " AND tsKey.data_provider_id = dp.id " +
+        " AND tsKey.data_field_id = df.id" +
+        " AND observation_time_id = ot.id " +
+        " AND dsi.identifier = :identifier " +
+        " AND d.name = :domain " +
+        " AND ds.name = :dataSource " +
+        " AND dp.name = :dataProvider " +
+        " AND df.name = :dataField " +
+        " AND ot.name = :observationTime)");
+    
+    if (start != null & end != null) {
+        sql.append(" AND ( tsd.ts_date >= :startDate AND ts_date <= :endDate )");
+    } 
+    
+    sql.append(" ORDER BY ts_date");
+       
+    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
+      .addValue("domain", domainSpecId.getDomain().getDomainName())
+      .addValue("dataSource", dataSource)
+      .addValue("dataProvider", dataProvider)
+      .addValue("dataField", field)
+      .addValue("observationTime", observationTime);
+    if (start != null & end != null) {
+      parameters.addValue("startDate", convertZonedDateTime(start));
+      parameters.addValue("endDate", convertZonedDateTime(end));
+    }
+    
+    List<TimeSeriesData> queryResult = _simpleJdbcTemplate.query(sql.toString(), new ParameterizedRowMapper<TimeSeriesData>() {
+
+      @Override
+      public TimeSeriesData mapRow(ResultSet rs, int rowNum)
+          throws SQLException {
+        double tsValue = rs.getDouble("value");
+        Date tsDate = rs.getDate("ts_date");
+        return new TimeSeriesData(tsDate, tsValue);
+      }
+    }, parameters);
+    
+    List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
+    List<Double> values = new ArrayList<Double>();
+    for (TimeSeriesData tsData : queryResult) {
+      double tsValue = tsData.getValue();
+      values.add(tsValue);
+      times.add(DateUtil.getUTCDate(tsData.getYear(), tsData.getMonth(), tsData.getDay()));
+    }
+    
+    return new ArrayDoubleTimeSeries(times, values);
+  }
+
+  @Override
+  public void updateDataPoint(DomainSpecificIdentifier domainSpecId,
+      String dataSource, String dataProvider, String field,
+      String observationTime, ZonedDateTime date, Double value) {
+    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
+    ArgumentChecker.checkNotNull(dataSource, "dataSource");
+    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
+    ArgumentChecker.checkNotNull(field, "field");
+    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    ArgumentChecker.checkNotNull(date, "date");
+    ArgumentChecker.checkNotNull(value, "value");
+    
+    s_logger.debug("updating dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} with values(date={}, value={})", 
+        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime, date, value});
+    
+    String sql = "UPDATE time_series_data " +
+      " SET value = :value " +
+      " WHERE time_series_id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
+      " domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
+      " WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
+      " AND tsKey.quoted_obj_id = qo.id " +
+      " AND tsKey.data_source_id = ds.id " +
+      " AND tsKey.data_provider_id = dp.id " +
+      " AND tsKey.data_field_id = df.id" +
+      " AND observation_time_id = ot.id " +
+      " AND dsi.identifier = :identifier " +
+      " AND d.name = :domain " +
+      " AND ds.name = :dataSource " +
+      " AND dp.name = :dataProvider " +
+      " AND df.name = :dataField " +
+      " AND ot.name = :observationTime) " +
+      " AND ts_date = :date ";
+    
+    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
+      .addValue("domain", domainSpecId.getDomain().getDomainName())
+      .addValue("dataSource", dataSource)
+      .addValue("dataProvider", dataProvider)
+      .addValue("dataField", field)
+      .addValue("observationTime", observationTime)
+      .addValue("value", value)
+      .addValue("date", convertZonedDateTime(date));
+    
+    _simpleJdbcTemplate.update(sql, parameters);
+    
+  }
+
+
+
   private static class TimeSeriesData {
     private Date _date;
     private double _value;
