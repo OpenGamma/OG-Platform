@@ -106,31 +106,39 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
-	<!-- Fudge proto compiler; reduces to a null-op if fudge-proto is not in the ivy dependencies -->
-	<target name="fudge-proto-present" depends="resolve">
-		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+        <target name="fudge-proto-present" depends="resolve">
+                <available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+                <available property="fudge.proto.gitignore.exists" file="${fudge.proto.gitIgnoreFlag}" />
+        </target>
+
+	<target name="fudge-proto-gitignore" depends="fudge-proto-present" unless="fudge.proto.gitignore.exists">
+		<touch file="${fudge.proto.gitIgnoreFlag}" />
+		<property name="fudge.proto.gitIgnore" value="true" />
 	</target>
-	<target name="fudge-proto-compile" if="fudge.proto.present">
-                <path id="fudge.proto.project.path">
-                        <dirset dir="${projects.dir}">
-                                <include name="**/src" />
-                        </dirset>
-                </path>
-                <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-                <fudgeproto
-                	srcdir="${src.dir}"
-                	destdir="${src.dir}"
-                	searchdir="${toString:fudge.proto.project.path}"
-                	equals="${fudge.proto.equals}"
-                	toString="${fudge.proto.toString}"
-                	hashCode="${fudge.proto.hashCode}"
-                	verbose="${build.verbose}"
-                	fudgeContext="${fudge.proto.fudgeContext}"
-                	rebuildAll="${fudge.proto.rebuildall}" />
-	</target>
-	<target name="fudge-proto" depends="fudge-proto-present,fudge-proto-compile"
-		description="--> compile any Fudge .proto files">
-	</target>
+
+        <target name="fudge-proto-compile" depends="fudge-proto-gitignore" if="fudge.proto.present">
+                 <path id="fudge.proto.project.path">
+                         <dirset dir="${projects.dir}">
+                                 <include name="**/src" />
+                         </dirset>
+                 </path>
+                 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
+                 <fudgeproto
+                        srcdir="${src.dir}"
+                        destdir="${src.dir}"
+                        searchdir="${toString:fudge.proto.project.path}"
+                        equals="${fudge.proto.equals}"
+                        toString="${fudge.proto.toString}"
+                        hashCode="${fudge.proto.hashCode}"
+                        verbose="${build.verbose}"
+                        fudgeContext="${fudge.proto.fudgeContext}"
+                        rebuildAll="${fudge.proto.rebuildall}"
+                        gitIgnore="${fudge.proto.gitIgnore}" />
+        </target>
+
+        <target name="fudge-proto" depends="fudge-proto-compile" 
+                description="--> compile any Fudge .proto files">
+        </target>
 
 	<target name="compile-src" depends="fudge-proto"
 		description="--> compile the main project files">
@@ -335,16 +343,23 @@
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
-	<target name="clean-build" description="--> clean the project built files">
+	<target name="clean-build" description="--> clean the project build files">
 		<delete includeemptydirs="true" dir="${build.dir}" />
 		<delete includeemptydirs="true" dir="${tests.build.dir}" />
 	</target>
 	
 	<target name="clean-dist" description="--> clean the project distribution files">
-    <delete includeemptydirs="true" dir="${dist.dir}" />
+		<delete includeemptydirs="true" dir="${dist.dir}" />
+	</target>
+
+	<target name="clean-src" description="--> clean the project auto-generated source files (.gitignore'd ones)">
+		<subant genericantfile="${common.dir}/gitignore.xml">
+			<dirset dir="${src.dir}" />
+		</subant>
+		<delete file="${fudge.proto.gitIgnoreFlag}" />
 	</target>
 	
-	<target name="clean" depends="clean-build, clean-lib, clean-dist"
+	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-src"
 		description="--> clean the project" />
 	
 	<target name="run-hbm2ddl" depends="load-ivy,compile"
