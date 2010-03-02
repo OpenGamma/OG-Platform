@@ -11,12 +11,16 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 /**
  * 
  * @author emcleod
  */
 public class PercentileCalculatorTest {
   private static final PercentileCalculator CALCULATOR = new PercentileCalculator(0.1);
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighPercentile() {
@@ -53,7 +57,7 @@ public class PercentileCalculatorTest {
     final int n = 100;
     final Double[] x = new Double[n];
     for (int i = 0; i < n; i++) {
-      x[i] = Math.random();
+      x[i] = RANDOM.nextDouble();
     }
     testResult(x, 10, n);
     testResult(x, 99, n);
