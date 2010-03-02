@@ -7,7 +7,7 @@ package com.opengamma.engine.view.client;
 
 import java.util.Set;
 
-import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,7 +43,7 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
 
   @Override
   public ViewClient getView(String viewName) {
-    ViewImpl view = getViewProcessor().getView(viewName);
+    View view = getViewProcessor().getView(viewName);
     if(view == null) {
       return null;
     }

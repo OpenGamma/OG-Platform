@@ -13,7 +13,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewImpl;
+import com.opengamma.engine.view.View;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,9 +22,9 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class LocalViewClient implements ViewClient {
-  private final ViewImpl _view;
+  private final View _view;
   
-  public LocalViewClient(ViewImpl view) {
+  public LocalViewClient(View view) {
     ArgumentChecker.checkNotNull(view, "View");
     _view = view;
   }
@@ -32,7 +32,7 @@ public class LocalViewClient implements ViewClient {
   /**
    * @return the view
    */
-  public ViewImpl getView() {
+  public View getView() {
     return _view;
   }
 

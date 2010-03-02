@@ -23,9 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewProcessor {
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
-  private final Map<String, ViewImpl> _viewsByName = new ConcurrentHashMap<String, ViewImpl>();
+  private final Map<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   
-  public void addView(ViewImpl view) {
+  public void addView(View view) {
     ArgumentChecker.checkNotNull(view, "View");
     _viewsByName.put(view.getDefinition().getName(), view);
   }
@@ -34,7 +34,7 @@ public class ViewProcessor {
     return Collections.unmodifiableSet(_viewsByName.keySet());
   }
   
-  public ViewImpl getView(String name) {
+  public View getView(String name) {
     return _viewsByName.get(name);
   }
 
