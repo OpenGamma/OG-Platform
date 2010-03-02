@@ -33,19 +33,22 @@ public class BusinessDayConventionFactory {
         try {
           instances.put (clazz, instance = (BusinessDayConvention)Class.forName (clazz).newInstance ());
         } catch (InstantiationException e) {
-          throw new OpenGammaRuntimeException ("Error initialising DayCount conventions", e);
+          throw new OpenGammaRuntimeException ("Error initialising BusinessDay conventions", e);
         } catch (IllegalAccessException e) {
-          throw new OpenGammaRuntimeException ("Error initialising DayCount conventions", e);
+          throw new OpenGammaRuntimeException ("Error initialising BusinessDay conventions", e);
         } catch (ClassNotFoundException e) {
-          throw new OpenGammaRuntimeException ("Error initialising DayCount conventions", e);
+          throw new OpenGammaRuntimeException ("Error initialising BusinessDay conventions", e);
         }
       }
-      _conventionMap.put (convention, instance);
+      _conventionMap.put (convention.toLowerCase (), instance);
     }
   }
   
+  /**
+   * Retrieves a named BusinessDayConvention. Note that the lookup is not case sensitive.
+   */
   public BusinessDayConvention getBusinessDayConvention (final String name) {
-    return _conventionMap.get (name);
+    return _conventionMap.get (name.toLowerCase ());
   }
   
 }

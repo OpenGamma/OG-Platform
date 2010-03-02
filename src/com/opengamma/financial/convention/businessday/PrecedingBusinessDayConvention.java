@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
+
+import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * Adjusts a date to the preceding business day.
@@ -18,18 +18,16 @@ import javax.time.calendar.LocalDate;
 public class PrecedingBusinessDayConvention extends BusinessDayConvention {
 
   @Override
-  public LocalDate adjustDate(final LocalDate date) {
-    final LocalDate adjusted = LocalDate.date(date);
-    if (isWeekendOrHoliday(date)) {
-      final DateAdjuster adjuster = DateAdjusters.previous(date.getDayOfWeek());
-      return adjustDate(adjuster.adjustDate(adjusted));
+  public LocalDate adjustDate(final Calendar workingDays, LocalDate date) {
+    while (!workingDays.isWorkingDay (date)) {
+      date = date.minusDays (1);
     }
-    return adjusted;
+    return date;
   }
   
   @Override
   public String getConventionName () {
-    return "preceding";
+    return "Preceding";
   }
   
 }

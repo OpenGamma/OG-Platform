@@ -9,6 +9,8 @@ import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.financial.convention.calendar.Calendar;
+
 /**
  * Adjusts a date to the following business day.
  * 
@@ -18,17 +20,15 @@ import javax.time.calendar.LocalDate;
 public class FollowingBusinessDayConvention extends BusinessDayConvention {
 
   @Override
-  public LocalDate adjustDate(final LocalDate date) {
-    final LocalDate adjusted = LocalDate.date(date);
-    if (isWeekendOrHoliday(date)) {
-      final DateAdjuster adjuster = DateAdjusters.next(date.getDayOfWeek());
-      return adjustDate(adjuster.adjustDate(adjusted));
+  public LocalDate adjustDate(final Calendar workingDays, LocalDate date) {
+    while (!workingDays.isWorkingDay (date)) {
+      date = date.plusDays (1);
     }
-    return adjusted;
+    return date;
   }
   
   public String getConventionName () {
-    return "following";
+    return "Following";
   }
 
 }

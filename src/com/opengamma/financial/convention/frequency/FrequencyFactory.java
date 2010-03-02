@@ -27,11 +27,11 @@ public class FrequencyFactory {
   }
   
   private void store (final Frequency freq) {
-    _conventionMap.put (freq.getConventionName (), freq);
+    _conventionMap.put (freq.getConventionName ().toLowerCase (), freq);
   }
   
   public Frequency getFrequency (final String name) {
-    return _conventionMap.get (name);
+    return _conventionMap.get (name.toLowerCase ());
   }
   
 }

@@ -40,12 +40,15 @@ public class DayCountFactory {
           throw new OpenGammaRuntimeException ("Error initialising DayCount conventions", e);
         }
       }
-      _conventionMap.put (convention, instance);
+      _conventionMap.put (convention.toLowerCase (), instance);
     }
   }
   
+  /**
+   * Returns a DayCount convention by symbolic name. Note that the lookup is not case sensitive.
+   */
   public DayCount getDayCount (final String name) {
-    return _conventionMap.get (name);
+    return _conventionMap.get (name.toLowerCase ());
   }
   
 }
