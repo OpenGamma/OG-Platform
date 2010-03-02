@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.math.ProbabilisticTestCase;
+import com.opengamma.util.test.ProbabilisticTestCase;
 
 /**
  * 

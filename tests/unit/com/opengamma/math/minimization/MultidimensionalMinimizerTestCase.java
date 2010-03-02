@@ -8,8 +8,8 @@ package com.opengamma.math.minimization;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.opengamma.math.ProbabilisticTestCase;
 import com.opengamma.math.function.FunctionND;
+import com.opengamma.util.test.ProbabilisticTestCase;
 
 /**
  * 
