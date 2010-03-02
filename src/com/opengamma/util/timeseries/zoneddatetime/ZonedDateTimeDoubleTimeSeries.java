@@ -9,7 +9,8 @@ import java.util.TimeZone;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.util.Primitives;
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.util.timeseries.AbstractIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
@@ -41,7 +42,7 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
 
     @Override
     public TimeSeries<ZonedDateTime, Double> newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
-      return newInstanceFast(dateTimes, Primitives.unbox(values));
+      return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
     public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);
@@ -116,7 +117,7 @@ public interface ZonedDateTimeDoubleTimeSeries extends DoubleTimeSeries<ZonedDat
 
     @Override
     public TimeSeries<ZonedDateTime, Double> newInstance(final ZonedDateTime[] dateTimes, final Double[] values) {
-      return newInstanceFast(dateTimes, Primitives.unbox(values));
+      return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
     public abstract ZonedDateTimeDoubleTimeSeries newInstanceFast(ZonedDateTime[] dateTimes, double[] values);

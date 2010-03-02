@@ -8,7 +8,8 @@ package com.opengamma.util.timeseries.date.time;
 import java.util.Date;
 import java.util.TimeZone;
 
-import com.opengamma.util.Primitives;
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.util.timeseries.AbstractIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.DateTimeConverter;
@@ -43,7 +44,7 @@ public interface DateTimeDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBa
 
     @Override
     public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
-      return newInstanceFast(dateTimes, Primitives.unbox(values));
+      return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
     public abstract DateTimeDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);
@@ -118,7 +119,7 @@ public interface DateTimeDoubleTimeSeries extends DoubleTimeSeries<Date>, FastBa
 
     @Override
     public TimeSeries<Date, Double> newInstance(final Date[] dateTimes, final Double[] values) {
-      return newInstanceFast(dateTimes, Primitives.unbox(values));
+      return newInstanceFast(dateTimes, ArrayUtils.toPrimitive(values));
     }
 
     public abstract DateTimeDoubleTimeSeries newInstanceFast(Date[] dateTimes, double[] values);

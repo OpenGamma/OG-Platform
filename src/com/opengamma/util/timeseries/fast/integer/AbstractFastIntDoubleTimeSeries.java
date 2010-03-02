@@ -9,7 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.util.Primitives;
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
@@ -93,7 +94,7 @@ public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSe
 
   @Override
   public Integer[] timesArray() {
-    return Primitives.box(timesArrayFast());
+    return ArrayUtils.toObject(timesArrayFast());
   }
 
   @Override
@@ -103,7 +104,7 @@ public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSe
 
   @Override
   public Double[] valuesArray() {
-    return Primitives.box(valuesArrayFast());
+    return ArrayUtils.toObject(valuesArrayFast());
   }
 
   @Override
@@ -129,7 +130,7 @@ public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSe
 
   @Override
   public TimeSeries<Integer, Double> newInstance(final Integer[] times, final Double[] values) {
-    return newInstanceFast(Primitives.unbox(times), Primitives.unbox(values));
+    return newInstanceFast(ArrayUtils.toPrimitive(times), ArrayUtils.toPrimitive(values));
   }
   
   public FastIntDoubleTimeSeries operate(final UnaryOperator operator) {

@@ -292,5 +292,4 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
       DateTimeNumericEncoding encoding) {
     return getFastSeries().toFastMutableLongDoubleTimeSeries(encoding);
   }
-
 }

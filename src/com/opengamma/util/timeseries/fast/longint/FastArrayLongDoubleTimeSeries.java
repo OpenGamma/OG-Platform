@@ -17,7 +17,8 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.Map.Entry;
 
-import com.opengamma.util.Primitives;
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeries;
@@ -40,7 +41,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
     super(encoding);
     _times = new long[times.length];
     _values = new double[values.length];
-    init(Primitives.unbox(times), Primitives.unbox(values));
+    init(ArrayUtils.toPrimitive(times), ArrayUtils.toPrimitive(values));
   }
 
   public FastArrayLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final long[] times, final double[] values) {
