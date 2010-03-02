@@ -118,7 +118,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     int endPos = Arrays.binarySearch(_times, endMillis);
     // if either is -1, make it zero
     startPos = startPos >= 0 ? startPos : -startPos - 1;
-    endPos = endPos >= 0 ? endPos : -endPos - 1; 
+    endPos = endPos >= 0 ? endPos : -endPos - 1;
     if (endPos >= _times.length) {
       endPos--;
     }
@@ -134,8 +134,8 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   @Override
   public Double getDataPoint(final ZonedDateTime instant) {
-    long time = instant.toInstant().toEpochMillis();
-    int index = Arrays.binarySearch(_times, time);
+    final long time = instant.toInstant().toEpochMillis();
+    final int index = Arrays.binarySearch(_times, time);
     if (index >= 0) {
       return _values[index];
     } else {
@@ -279,16 +279,16 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     return _values[index];
   }
 
-  //REVIEW Elaine - 2009-11-25 This is really horrible and it's my fault
+  // REVIEW Elaine - 2009-11-25 This is really horrible and it's my fault
   @Override
   public Double[] getValues() {
-    Double[] values = new Double[_values.length];
-    for(int i = 0; i < _values.length; i++) {
+    final Double[] values = new Double[_values.length];
+    for (int i = 0; i < _values.length; i++) {
       values[i] = _values[i];
     }
     return values;
   }
-  
+
   @Override
   public ZonedDateTime getTime(final int index) {
     return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);
@@ -376,7 +376,9 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   @Override
   public List<Double> values() {
     final Double[] copy = new Double[_values.length];
-    System.arraycopy(_values, 0, copy, 0, _values.length);
+    for (int i = 0; i < _values.length; i++) {
+      copy[i] = _values[i];
+    }
     return Arrays.asList(copy);
   }
 
