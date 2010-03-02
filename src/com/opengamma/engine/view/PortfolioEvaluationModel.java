@@ -114,7 +114,7 @@ public class PortfolioEvaluationModel {
 
   public void init(
       ViewProcessingContext viewProcessingContext,
-      ViewDefinitionImpl viewDefinition) {
+      ViewDefinition viewDefinition) {
     ArgumentChecker.checkNotNull(viewProcessingContext, "View Processing Context");
     ArgumentChecker.checkNotNull(viewDefinition, "View Definition");
     
@@ -192,7 +192,7 @@ public class PortfolioEvaluationModel {
       FunctionResolver functionResolver,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       ComputationTargetResolver computationTargetResolver,
-      ViewDefinitionImpl viewDefinition) {
+      ViewDefinition viewDefinition) {
     DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
     dependencyGraphModel.setFunctionRepository(functionRepository);
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
@@ -245,11 +245,11 @@ public class PortfolioEvaluationModel {
   protected static class PortfolioNodeCompiler
   extends AbstractPortfolioNodeTraversalCallback {
     private final DependencyGraphModel _dependencyGraphModel;
-    private final ViewDefinitionImpl _viewDefinition;
+    private final ViewDefinition _viewDefinition;
     
     public PortfolioNodeCompiler(
         DependencyGraphModel dependencyGraphModel,
-        ViewDefinitionImpl viewDefinition) {
+        ViewDefinition viewDefinition) {
       _dependencyGraphModel = dependencyGraphModel;
       _viewDefinition = viewDefinition;
     }

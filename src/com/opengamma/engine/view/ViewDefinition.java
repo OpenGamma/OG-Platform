@@ -17,13 +17,13 @@ import java.util.TreeSet;
  *
  * @author kirk
  */
-public class ViewDefinitionImpl implements Serializable {
+public class ViewDefinition implements Serializable {
   private final String _name;
   private final String _rootPortfolioName;
   private final Map<String, Set<String>> _definitionsBySecurityType =
     new TreeMap<String, Set<String>>();
   
-  public ViewDefinitionImpl(String name, String rootPortfolioName) {
+  public ViewDefinition(String name, String rootPortfolioName) {
     assert name != null;
     assert rootPortfolioName != null;
     

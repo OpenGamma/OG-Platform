@@ -61,7 +61,7 @@ public class SingleComputationCycle {
       ViewProcessingContext processingContext,
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinitionImpl viewDefinition) {
+      ViewDefinition viewDefinition) {
     // TODO kirk 2010-03-02 -- Convert to proper arg checks.
     assert viewName != null;
     assert processingContext != null;
