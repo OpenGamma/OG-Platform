@@ -5,12 +5,15 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionRepository;
@@ -30,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class ViewProcessor {
+public class ViewProcessor implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
   // Injected Inputs:
   private final ViewDefinitionRepository _viewDefinitionRepository;
@@ -43,6 +46,8 @@ public class ViewProcessor {
   private final FudgeRequestSender _computationJobRequestSender;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
+  private final ReentrantLock _lifecycleLock = new ReentrantLock();
+  private boolean _isStarted = false;
   
   public ViewProcessor(
       ViewDefinitionRepository viewDefinitionRepository,
@@ -236,6 +241,51 @@ public class ViewProcessor {
       throw new IllegalArgumentException("No view available with name \"" + viewName + "\"");
     }
     throw new IllegalStateException("View \"" + viewName + "\" available, but not initialized. Must be initialized first.");
+  }
+  
+  // --------------------------------------------------------------------------
+  // LIFECYCLE METHODS
+  // --------------------------------------------------------------------------
+
+  @Override
+  public boolean isRunning() {
+    _lifecycleLock.lock();
+    try {
+      return _isStarted;
+    } finally {
+      _lifecycleLock.unlock();
+    }
+  }
+
+  @Override
+  public void start() {
+    _lifecycleLock.lock();
+    try {
+      // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
+      // where we'd do it.
+      _isStarted = true;
+    } finally {
+      _lifecycleLock.unlock();
+    }
+  }
+
+  @Override
+  public void stop() {
+    _lifecycleLock.lock();
+    try {
+      s_logger.info("Stopping on lifecycle call, terminating all running views.");
+      Collection<View> views = _viewsByName.values();
+      for(View view : views) {
+        if(view.isRunning()) {
+          s_logger.info("Terminating view {} due to lifecycle call", view.getDefinition().getName());
+          view.stop();
+        }
+      }
+      _viewsByName.clear();
+      _isStarted = false;
+    } finally {
+      _lifecycleLock.unlock();
+    }
   }
 
 }
