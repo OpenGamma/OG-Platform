@@ -23,12 +23,15 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class StandardVaRCovarianceMatrix {
-  private final StandardVaRDataBundle _data;
+/*
+ *   private final StandardVaRDataBundle _data;
   private final CovarianceMatrixCalculator _calculator;
   private DoubleMatrix2D _matrix;
   private List<SecurityKey> _keys;
 
-  public StandardVaRCovarianceMatrix(final StandardVaRDataBundle data, final CovarianceMatrixCalculator calculator) {
+
+ *   public StandardVaRCovarianceMatrix(final StandardVaRDataBundle data, final CovarianceMatrixCalculator calculator) {
+ 
     if (data == null)
       throw new IllegalArgumentException("VaR data bundle was null");
     if (calculator == null)
@@ -122,5 +125,5 @@ public class StandardVaRCovarianceMatrix {
     } else if (!getCovarianceMatrix().equals(other.getCovarianceMatrix()))
       return false;
     return true;
-  }
+  }*/
 }
