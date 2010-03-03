@@ -68,6 +68,8 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
       return getValueFast(dateTime);
     } catch (NoSuchElementException nsee) {
       return null;
+    } catch (ArrayIndexOutOfBoundsException aioobe) {
+      return null;
     }
   }
 
