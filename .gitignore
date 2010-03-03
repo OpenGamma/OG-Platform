@@ -11,3 +11,4 @@ lib/
 derby.log
 db/
 !db/*/create-db.sql
+/.fudge-proto-gitignore
