@@ -21,6 +21,7 @@ import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.Map.Entry;
 
@@ -39,6 +40,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTimeSeries {
 
   Int2DoubleSortedMap _map = new Int2DoubleAVLTreeMap();
+  final double DEFAULT_RETURN_VALUE = _map.defaultReturnValue();
 
   public FastMapIntDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -90,11 +92,6 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
   }
 
   @Override
-  public double getDataPointFast(final int time) {
-    return _map.get(time);
-  }
-
-  @Override
   public int getEarliestTimeFast() {
     return _map.firstIntKey();
   }
@@ -136,7 +133,11 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
 
   @Override
   public double getValueFast(final int time) {
-    return _map.get(time);
+    double value = _map.get(time);
+    if (value == DEFAULT_RETURN_VALUE) {
+      throw new NoSuchElementException();
+    }
+    return value; 
   }
 
   @Override

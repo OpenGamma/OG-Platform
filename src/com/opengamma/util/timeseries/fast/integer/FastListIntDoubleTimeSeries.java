@@ -120,16 +120,6 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   }
 
   @Override
-  public double getDataPointFast(final int time) {
-    final int index = _times.indexOf(time);
-    if (index >= 0) {
-      return _values.getDouble(index);
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
-  @Override
   public int getEarliestTimeFast() {
     if (_times.size() > 0) {
       return _times.getInt(0);
@@ -177,7 +167,12 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
 
   @Override
   public double getValueFast(final int time) {
-    return getDataPointFast(time);
+    final int index = _times.indexOf(time);
+    if (index >= 0) {
+      return _values.getDouble(index);
+    } else {
+      throw new NoSuchElementException();
+    }
   }
 
   @Override

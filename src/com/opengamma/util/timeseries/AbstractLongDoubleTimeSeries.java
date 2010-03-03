@@ -7,6 +7,7 @@ package com.opengamma.util.timeseries;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
@@ -71,7 +72,11 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
 
   @Override
   public Double getValue(final DATE_TYPE dateTime) {
-    return getFastSeries().getValueFast(_converter.convertToLong(dateTime));
+    try {
+      return getFastSeries().getValueFast(_converter.convertToLong(dateTime));
+    } catch (NoSuchElementException nsee) {
+      return null;
+    }
   }
 
   @Override

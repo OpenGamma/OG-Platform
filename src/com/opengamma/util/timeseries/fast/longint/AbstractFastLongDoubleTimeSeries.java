@@ -7,6 +7,7 @@ package com.opengamma.util.timeseries.fast.longint;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -63,7 +64,11 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
 
   @Override
   public Double getValue(final Long dateTime) {
-    return getValueFast(dateTime);
+    try {
+      return getValueFast(dateTime);
+    } catch (NoSuchElementException nsee) {
+      return null;
+    }
   }
 
   @Override

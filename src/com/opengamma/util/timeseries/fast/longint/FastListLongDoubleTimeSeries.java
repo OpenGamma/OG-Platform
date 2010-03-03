@@ -123,16 +123,6 @@ public class FastListLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeri
   }
 
   @Override
-  public double getDataPointFast(final long time) {
-    final int index = _times.indexOf(time);
-    if (index >= 0) {
-      return _values.getDouble(index);
-    } else {
-      throw new NoSuchElementException();
-    }
-  }
-
-  @Override
   public long getEarliestTimeFast() {
     if (_times.size() > 0) {
       return _times.getLong(0);
@@ -180,7 +170,12 @@ public class FastListLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeri
 
   @Override
   public double getValueFast(final long time) {
-    return getDataPointFast(time);
+    final int index = _times.indexOf(time);
+    if (index >= 0) {
+      return _values.getDouble(index);
+    } else {
+      throw new NoSuchElementException();
+    }
   }
 
   @Override

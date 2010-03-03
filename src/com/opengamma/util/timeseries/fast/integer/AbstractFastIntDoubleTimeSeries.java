@@ -8,6 +8,7 @@ package com.opengamma.util.timeseries.fast.integer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
 
@@ -64,7 +65,11 @@ public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSe
 
   @Override
   public Double getValue(final Integer dateTime) {
-    return getValueFast(dateTime);
+    try {
+      return getValueFast(dateTime);
+    } catch (NoSuchElementException nsee) {
+      return null;
+    }
   }
 
   @Override

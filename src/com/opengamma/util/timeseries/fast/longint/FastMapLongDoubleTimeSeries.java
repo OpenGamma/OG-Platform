@@ -40,6 +40,7 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
 
   Long2DoubleSortedMap _map = new Long2DoubleAVLTreeMap();
+  final double DEFAULT_RETURN_VALUE = _map.defaultReturnValue();
 
   public FastMapLongDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -91,11 +92,6 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
   }
 
   @Override
-  public double getDataPointFast(final long time) {
-    return _map.get(time);
-  }
-
-  @Override
   public long getEarliestTimeFast() {
     return _map.firstLongKey();
   }
@@ -137,7 +133,11 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
 
   @Override
   public double getValueFast(final long time) {
-    return _map.get(time);
+    double value = _map.get(time);
+    if (value == DEFAULT_RETURN_VALUE) {
+      throw new NoSuchElementException();
+    }
+    return value; 
   }
 
   @Override

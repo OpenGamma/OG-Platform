@@ -41,8 +41,6 @@ public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long>, Iterable
 
   public abstract LongList timesFast();
 
-  public abstract double getDataPointFast(long time);
-
   public abstract ObjectIterator<Long2DoubleMap.Entry> iteratorFast();
 
   public abstract FastLongDoubleTimeSeries subSeriesFast(long startTime, long endTime);
