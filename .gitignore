@@ -10,3 +10,4 @@ tests/output/
 lib/
 build/
 docs/
+/.fudge-proto-gitignore
