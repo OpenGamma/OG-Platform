@@ -9,3 +9,4 @@ tests/output/
 .DS_Store
 build/
 lib/
+/.fudge-proto-gitignore
