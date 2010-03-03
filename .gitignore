@@ -14,3 +14,4 @@ db/derby/*
 generated/
 build/
 doc/
+/.fudge-proto-gitignore
