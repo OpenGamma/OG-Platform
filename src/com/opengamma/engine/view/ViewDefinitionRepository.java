@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
+import java.util.Set;
 
 /**
  * Allows modules, specifically the {@link ViewProcessor}, access to
@@ -15,7 +15,7 @@ import java.util.Collection;
  */
 public interface ViewDefinitionRepository {
   
-  Collection<String> getDefinitionNames();
+  Set<String> getDefinitionNames();
   
   ViewDefinition getDefinition(String definitionName);
 
