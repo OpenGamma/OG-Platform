@@ -5,22 +5,22 @@
  */
 package com.opengamma.financial.var.historical;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * @author emcleod
  * 
  */
 public class HistoricalVaRDataBundle {
-  private final DoubleTimeSeries _pnl;
+  private final DoubleTimeSeries<?> _pnl;
 
-  public HistoricalVaRDataBundle(final DoubleTimeSeries pnl) {
+  public HistoricalVaRDataBundle(final DoubleTimeSeries<?> pnl) {
     if (pnl == null)
       throw new IllegalArgumentException("P&L time series was empty");
     _pnl = pnl;
   }
 
-  public DoubleTimeSeries getPNLSeries() {
+  public DoubleTimeSeries<?> getPNLSeries() {
     return _pnl;
   }
 }

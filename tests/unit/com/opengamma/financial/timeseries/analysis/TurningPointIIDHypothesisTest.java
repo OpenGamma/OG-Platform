@@ -10,21 +10,23 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+
 /**
  * 
  * @author emcleod
  */
 public class TurningPointIIDHypothesisTest extends IIDHypothesisTestCase {
-  private static final IIDHypothesis TURNING_POINT = new TurningPointIIDHypothesis(0.05);
+  private static final IIDHypothesis<DoubleTimeSeries<Long>> TURNING_POINT = new TurningPointIIDHypothesis<DoubleTimeSeries<Long>>(0.05);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new TurningPointIIDHypothesis(-0.1);
+    new TurningPointIIDHypothesis<DoubleTimeSeries<Long>>(-0.1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new TurningPointIIDHypothesis(1.5);
+    new TurningPointIIDHypothesis<DoubleTimeSeries<Long>>(1.5);
   }
 
   @Test

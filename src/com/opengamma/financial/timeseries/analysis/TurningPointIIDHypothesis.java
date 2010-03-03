@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
 
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class TurningPointIIDHypothesis extends IIDHypothesis {
+public class TurningPointIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
   private final double _criticalValue;
 
   public TurningPointIIDHypothesis(final double level) {
@@ -22,8 +22,8 @@ public class TurningPointIIDHypothesis extends IIDHypothesis {
   }
 
   @Override
-  public boolean testIID(final DoubleTimeSeries x) {
-    final Double[] data = x.getValues();
+  public boolean testIID(final T x) {
+    final Double[] data = x.valuesArray();
     final int n = data.length;
     int t = 0;
     double x0, x1, x2;

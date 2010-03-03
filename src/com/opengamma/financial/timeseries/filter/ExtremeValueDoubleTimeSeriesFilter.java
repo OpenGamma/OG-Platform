@@ -1,28 +1,25 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.filter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
-
-import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class ExtremeValueDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
+public class ExtremeValueDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(ExtremeValueDoubleTimeSeriesFilter.class);
   private double _minValue;
   private double _maxValue;
@@ -54,32 +51,35 @@ public class ExtremeValueDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
   }
 
   @Override
-  public FilteredDoubleTimeSeries evaluate(final DoubleTimeSeries ts) {
+  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredDoubleTimeSeries(ArrayDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
     }
-    final List<ZonedDateTime> filteredDates = new ArrayList<ZonedDateTime>();
-    final List<Double> filteredData = new ArrayList<Double>();
-    final List<ZonedDateTime> rejectedDates = new ArrayList<ZonedDateTime>();
-    final List<Double> rejectedData = new ArrayList<Double>();
-    final Iterator<Entry<ZonedDateTime, Double>> iter = ts.iterator();
-    Entry<ZonedDateTime, Double> entry;
+    final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
+    final int n = x.size();
+    final long[] filteredDates = new long[n];
+    final double[] filteredData = new double[n];
+    final long[] rejectedDates = new long[n];
+    final double[] rejectedData = new double[n];
+    final Iterator<Entry<Long, Double>> iter = x.iterator();
+    Entry<Long, Double> entry;
     Double value;
+    int i = 0, j = 0;
     while (iter.hasNext()) {
       entry = iter.next();
       value = entry.getValue();
       if (value > _maxValue || value < _minValue) {
-        rejectedDates.add(entry.getKey());
-        rejectedData.add(entry.getValue());
+        rejectedDates[j] = entry.getKey();
+        rejectedData[j++] = entry.getValue();
       } else {
-        filteredDates.add(entry.getKey());
-        filteredData.add(entry.getValue());
+        filteredDates[i] = entry.getKey();
+        filteredData[i++] = entry.getValue();
       }
     }
-    return new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(filteredDates, filteredData), new ArrayDoubleTimeSeries(rejectedDates, rejectedData));
+    return getFilteredSeries(x, filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
 
 }

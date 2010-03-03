@@ -8,18 +8,14 @@ package com.opengamma.financial.model.cashflow;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-
-import javax.time.calendar.ZonedDateTime;
-
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -27,15 +23,13 @@ import com.opengamma.util.time.DateUtil;
  */
 public class MacaulayDurationCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final DoubleTimeSeries ZERO = new ArrayDoubleTimeSeries(Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1), DateUtil.getDateOffsetWithYearFraction(
-      DATE, 2), DateUtil.getDateOffsetWithYearFraction(DATE, 3), DateUtil.getDateOffsetWithYearFraction(DATE, 4)), Arrays.asList(0., 0., 0., 1.));
-  private static final DoubleTimeSeries LOW_CF = new ArrayDoubleTimeSeries(Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1), DateUtil.getDateOffsetWithYearFraction(
-      DATE, 2), DateUtil.getDateOffsetWithYearFraction(DATE, 3), DateUtil.getDateOffsetWithYearFraction(DATE, 4)), Arrays.asList(0.03, 0.03, 0.03, 1.03));
-  private static final DoubleTimeSeries CF = new ArrayDoubleTimeSeries(Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1), DateUtil.getDateOffsetWithYearFraction(DATE,
-      2), DateUtil.getDateOffsetWithYearFraction(DATE, 3), DateUtil.getDateOffsetWithYearFraction(DATE, 4)), Arrays.asList(0.06, 0.06, 0.06, 1.06));
-  private static final DoubleTimeSeries HIGH_CF = new ArrayDoubleTimeSeries(Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1), DateUtil.getDateOffsetWithYearFraction(
-      DATE, 2), DateUtil.getDateOffsetWithYearFraction(DATE, 3), DateUtil.getDateOffsetWithYearFraction(DATE, 4)), Arrays.asList(0.09, 0.09, 0.09, 1.09));
+  private static final Long DATE = 0l;
+  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
+  private static final long[] DATES = new long[] { 1l, 2l, 3l, 4l };
+  private static final DoubleTimeSeries<Long> ZERO = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] { 0., 0., 0., 1. });
+  private static final DoubleTimeSeries<Long> LOW_CF = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] { 0.03, 0.03, 0.03, 1.03 });
+  private static final DoubleTimeSeries<Long> CF = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] { 0.06, 0.06, 0.06, 1.06 });
+  private static final DoubleTimeSeries<Long> HIGH_CF = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, new double[] { 0.09, 0.09, 0.09, 1.09 });
   private static final MacaulayDurationCalculator CALCULATOR = new MacaulayDurationCalculator();
   private static final PresentValueCalculator DISCRETE = new DiscreteCompoundingPresentValueCalculator();
   private static final PresentValueCalculator CONTINUOUS = new ContinuousCompoundingPresentValueCalculator();
@@ -49,7 +43,7 @@ public class MacaulayDurationCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty() {
-    CALCULATOR.calculate(ArrayDoubleTimeSeries.EMPTY_SERIES, PRICE, DATE, DISCRETE);
+    CALCULATOR.calculate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, PRICE, DATE, DISCRETE);
   }
 
   @Test(expected = IllegalArgumentException.class)

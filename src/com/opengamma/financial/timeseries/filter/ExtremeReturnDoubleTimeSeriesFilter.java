@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.filter;
@@ -9,23 +9,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class ExtremeReturnDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
+public class ExtremeReturnDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(ExtremeReturnDoubleTimeSeriesFilter.class);
-  private TimeSeriesReturnCalculator _returnCalculator;
-  private final ExtremeValueDoubleTimeSeriesFilter _filter;
+  private TimeSeriesReturnCalculator<T> _returnCalculator;
+  private final ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> _filter;
 
-  public ExtremeReturnDoubleTimeSeriesFilter(final double minValue, final double maxValue, final TimeSeriesReturnCalculator returnCalculator) {
+  public ExtremeReturnDoubleTimeSeriesFilter(final double minValue, final double maxValue, final TimeSeriesReturnCalculator<T> returnCalculator) {
     if (returnCalculator == null)
       throw new IllegalArgumentException("Return calculator was null");
     _returnCalculator = returnCalculator;
-    _filter = new ExtremeValueDoubleTimeSeriesFilter(minValue, maxValue);
+    _filter = new ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(minValue, maxValue);
   }
 
   public void setMinimumValue(final double minValue) {
@@ -40,21 +40,22 @@ public class ExtremeReturnDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter 
     _filter.setRange(minValue, maxValue);
   }
 
-  public void setReturnCalculator(final TimeSeriesReturnCalculator returnCalculator) {
+  public void setReturnCalculator(final TimeSeriesReturnCalculator<T> returnCalculator) {
     if (returnCalculator == null)
       throw new IllegalArgumentException("Return calculator was null");
     _returnCalculator = returnCalculator;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public FilteredDoubleTimeSeries evaluate(final DoubleTimeSeries ts) {
+  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredDoubleTimeSeries(ArrayDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
     }
-    final DoubleTimeSeries returnTS = _returnCalculator.evaluate(ts);
+    final DoubleTimeSeries<Long> returnTS = _returnCalculator.evaluate(ts);
     return _filter.evaluate(returnTS);
   }
 

@@ -7,21 +7,17 @@ package com.opengamma.financial.model.cashflow;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.StepInterpolator1D;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -30,15 +26,14 @@ import com.opengamma.util.time.DateUtil;
 public class PresentValueCalculatorTest {
   private static final PresentValueCalculator DISCRETE = new DiscreteCompoundingPresentValueCalculator();
   private static final PresentValueCalculator CONTINUOUS = new ContinuousCompoundingPresentValueCalculator();
-  private static final DoubleTimeSeries TS;
+  private static final DoubleTimeSeries<Long> TS;
   private static final InterestRateModel<Double> RATES;
   private static final InterestRateModel<Double> LN_RATES;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
+  private static final Long DATE = 0l;
 
   static {
-    final List<ZonedDateTime> times = Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1.), DateUtil.getDateOffsetWithYearFraction(DATE, 2.), DateUtil
-        .getDateOffsetWithYearFraction(DATE, 3.), DateUtil.getDateOffsetWithYearFraction(DATE, 4.), DateUtil.getDateOffsetWithYearFraction(DATE, 5.));
-    final List<Double> cf = Arrays.asList(.1, .1, .1, .1, 1.1);
+    final long[] times = new long[] { 1, 2, 3, 4, 5 };
+    final double[] cf = new double[] { .1, .1, .1, .1, 1.1 };
     final Map<Double, Double> rates = new HashMap<Double, Double>();
     rates.put(1., 0.04);
     rates.put(2., 0.0425);
@@ -53,7 +48,7 @@ public class PresentValueCalculatorTest {
     lnRates.put(5., Math.log(1.042));
     RATES = new InterpolatedDiscountCurve(rates, new StepInterpolator1D());
     LN_RATES = new InterpolatedDiscountCurve(lnRates, new StepInterpolator1D());
-    TS = new ArrayDoubleTimeSeries(times, cf);
+    TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, times, cf);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -63,7 +58,7 @@ public class PresentValueCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyCF() {
-    DISCRETE.calculate(ArrayDoubleTimeSeries.EMPTY_SERIES, RATES, DATE);
+    DISCRETE.calculate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, RATES, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)

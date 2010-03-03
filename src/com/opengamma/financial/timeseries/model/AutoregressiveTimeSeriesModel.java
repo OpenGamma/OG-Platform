@@ -1,18 +1,14 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.model;
 
-import java.util.Arrays;
-import java.util.List;
-
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -27,7 +23,7 @@ public class AutoregressiveTimeSeriesModel {
     _random = random;
   }
 
-  public DoubleTimeSeries getSeries(final Double[] phi, final int p, final List<ZonedDateTime> dates) {
+  public DoubleTimeSeries<Long> getSeries(final double[] phi, final int p, final long[] dates) {
     if (phi == null)
       throw new IllegalArgumentException("Coefficient array was null");
     if (p < 1)
@@ -35,11 +31,11 @@ public class AutoregressiveTimeSeriesModel {
     if (phi.length < p + 1)
       throw new IllegalArgumentException("Coefficient array must contain at least " + (p + 1) + " elements");
     if (dates == null)
-      throw new IllegalArgumentException("Dates list was null");
-    if (dates.isEmpty())
-      throw new IllegalArgumentException("Dates list was empty");
-    final int n = dates.size();
-    final Double[] data = new Double[n];
+      throw new IllegalArgumentException("Dates array was null");
+    if (dates.length == 0)
+      throw new IllegalArgumentException("Dates array was empty");
+    final int n = dates.length;
+    final double[] data = new double[n];
     data[0] = phi[0] + _random.nextRandom();
     double sum;
     for (int i = 1; i < n; i++) {
@@ -49,6 +45,6 @@ public class AutoregressiveTimeSeriesModel {
       }
       data[i] = sum;
     }
-    return new ArrayDoubleTimeSeries(dates, Arrays.asList(data));
+    return new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data);
   }
 }

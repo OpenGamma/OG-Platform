@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -8,13 +8,13 @@ package com.opengamma.financial.timeseries.analysis;
 import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class AutoregressiveTimeSeriesPACFOrderIdentifier {
+public class AutoregressiveTimeSeriesPACFOrderIdentifier<T extends DoubleTimeSeries<?>> {
   private final int _maxOrder;
   private final double _level;
   private final LeastSquaresRegression _regression = new OrdinaryLeastSquaresRegression();
@@ -28,7 +28,7 @@ public class AutoregressiveTimeSeriesPACFOrderIdentifier {
     _level = level;
   }
 
-  public int getOrder(final DoubleTimeSeries ts) {
+  public int getOrder(final T ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty())
@@ -37,7 +37,7 @@ public class AutoregressiveTimeSeriesPACFOrderIdentifier {
       throw new IllegalArgumentException("Need at least " + (_maxOrder + 1) + " points in the time series");
     final int n = ts.size();
     Integer order = null;
-    final Double[] data = ts.getValues();
+    final Double[] data = ts.valuesArray();
     for (int i = 1; i < _maxOrder; i++) {
       final Double[] y = new Double[n - i];
       final Double[][] x = new Double[n - i][i];

@@ -1,32 +1,25 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class LiMcLeodPortmanteauIIDHypothesis extends IIDHypothesis {
+public class LiMcLeodPortmanteauIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(LiMcLeodPortmanteauIIDHypothesis.class);
-  private final Function1D<DoubleTimeSeries, Double[]> _calculator = new AutocorrelationFunctionCalculator();
+  private final Function1D<DoubleTimeSeries<Long>, Double[]> _calculator = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
   private final double _criticalValue;
   private final int _h;
 
@@ -43,19 +36,12 @@ public class LiMcLeodPortmanteauIIDHypothesis extends IIDHypothesis {
   }
 
   @Override
-  public boolean testIID(final DoubleTimeSeries x) {
+  public boolean testIID(final T x) {
     if (x.size() < _h)
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    final List<Double> data = new ArrayList<Double>();
-    final Iterator<Map.Entry<ZonedDateTime, Double>> iter = x.iterator();
-    Map.Entry<ZonedDateTime, Double> entry;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      dates.add(entry.getKey());
-      data.add(entry.getValue() * entry.getValue());
-    }
-    final Double[] autocorrelation = _calculator.evaluate(new ArrayDoubleTimeSeries(dates, data));
+    final FastLongDoubleTimeSeries ts = x.toFastLongDoubleTimeSeries();
+    final DoubleTimeSeries<Long> tsSq = ts.multiply(ts);
+    final Double[] autocorrelation = _calculator.evaluate(tsSq);
     double q = 0;
     final int n = x.size();
     for (int i = 1; i < _h; i++) {

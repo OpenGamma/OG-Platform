@@ -5,13 +5,8 @@
  */
 package com.opengamma.financial.timeseries.model;
 
-import java.util.List;
-
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeriesOperations;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -28,7 +23,7 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
     _arModel = new AutoregressiveTimeSeriesModel(random);
   }
 
-  public DoubleTimeSeries getSeries(final Double[] phi, final int p, final Double[] theta, final int q, final List<ZonedDateTime> dates) {
+  public DoubleTimeSeries<Long> getSeries(final double[] phi, final int p, final double[] theta, final int q, final long[] dates) {
     if (phi == null && p != 0)
       throw new IllegalArgumentException("AR coefficient array was null");
     if (p < 0)
@@ -42,10 +37,10 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
     if (theta != null && theta.length < q)
       throw new IllegalArgumentException("MA coefficient array must contain at least " + q + " elements");
     if (dates == null)
-      throw new IllegalArgumentException("Dates list was null");
-    if (dates.isEmpty())
-      throw new IllegalArgumentException("Dates list was empty");
-    final Double[] theta1 = theta == null ? null : new Double[theta.length + 1];
+      throw new IllegalArgumentException("Dates array was null");
+    if (dates.length == 0)
+      throw new IllegalArgumentException("Dates array was empty");
+    final double[] theta1 = theta == null ? null : new double[theta.length + 1];
     if (theta != null) {
       theta1[0] = 0.;
       for (int i = 0; i < theta.length; i++) {
@@ -56,6 +51,6 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
       return _maModel.getSeries(theta1, q, dates);
     if (q == 0)
       return _arModel.getSeries(phi, p, dates);
-    return DoubleTimeSeriesOperations.add(_arModel.getSeries(phi, p, dates), _maModel.getSeries(theta1, q, dates));
+    return _arModel.getSeries(phi, p, dates).toFastLongDoubleTimeSeries().add(_maModel.getSeries(theta1, q, dates).toFastLongDoubleTimeSeries());
   }
 }

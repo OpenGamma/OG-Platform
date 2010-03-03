@@ -8,13 +8,6 @@ package com.opengamma.financial.timeseries.analysis;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -22,8 +15,9 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -31,39 +25,39 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function1D<DoubleTimeSeries, Double[]> COVARIANCE = new AutocovarianceFunctionCalculator();
-  private static final Function1D<DoubleTimeSeries, Double[]> CORRELATION = new AutocorrelationFunctionCalculator();
+  private static final Function1D<DoubleTimeSeries<Long>, Double[]> COVARIANCE = new AutocovarianceFunctionCalculator<DoubleTimeSeries<Long>>();
+  private static final Function1D<DoubleTimeSeries<Long>, Double[]> CORRELATION = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
 
   @Test(expected = IllegalArgumentException.class)
   public void testCovarianceWithNull() {
-    COVARIANCE.evaluate((DoubleTimeSeries) null);
+    COVARIANCE.evaluate((DoubleTimeSeries<Long>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCovarianceWithEmpty() {
-    COVARIANCE.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
+    COVARIANCE.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCorrelationWithNull() {
-    CORRELATION.evaluate((DoubleTimeSeries) null);
+    CORRELATION.evaluate((DoubleTimeSeries<Long>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCorrelationWithEmpty() {
-    CORRELATION.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
+    CORRELATION.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test
   public void test() {
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    final List<Double> data = new ArrayList<Double>();
     final int n = 20000;
+    final long[] dates = new long[n];
+    final double[] data = new double[n];
     for (int i = 0; i < n; i++) {
-      dates.add(ZonedDateTime.fromInstant(Instant.instant(i), TimeZone.UTC));
-      data.add(RANDOM.nextDouble());
+      dates[i] = i;
+      data[i] = RANDOM.nextDouble();
     }
-    final Double[] result = CORRELATION.evaluate(new ArrayDoubleTimeSeries(dates, data));
+    final Double[] result = CORRELATION.evaluate(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data));
     assertEquals(result[0], 1, 1e-16);
     final double level = 0.05;
     final double criticalValue = new NormalDistribution(0, 1).getInverseCDF(1 - level / 2.) / Math.sqrt(n);

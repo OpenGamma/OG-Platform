@@ -10,31 +10,33 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+
 /**
  * 
  * @author emcleod
  */
 public class BoxLjungPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
-  private static final IIDHypothesis BOX_LJUNG = new BoxLjungPortmanteauIIDHypothesis(0.05, 20);
+  private static final IIDHypothesis<DoubleTimeSeries<Long>> BOX_LJUNG = new BoxLjungPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(0.05, 20);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new BoxLjungPortmanteauIIDHypothesis(-0.1, 20);
+    new BoxLjungPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(-0.1, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new BoxLjungPortmanteauIIDHypothesis(1.5, 20);
+    new BoxLjungPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(1.5, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testZeroLag() {
-    new BoxLjungPortmanteauIIDHypothesis(0.05, 0);
+    new BoxLjungPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(0.05, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    BOX_LJUNG.evaluate(RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3)));
+    BOX_LJUNG.evaluate((DoubleTimeSeries<Long>) RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3)));
   }
 
   @Test

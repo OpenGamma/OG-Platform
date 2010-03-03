@@ -6,21 +6,16 @@
 package com.opengamma.financial.timeseries.filter;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -31,47 +26,51 @@ public class StandardDeviationDoubleTimeSeriesFilterTest {
   private static final double LIMIT = 5;
   private static final double DATA1 = 34;
   private static final double DATA2 = 12;
-  private static final DoubleTimeSeriesFilter FILTER = new StandardDeviationDoubleTimeSeriesFilter(LIMIT);
-  private static final List<ZonedDateTime> DATES = new ArrayList<ZonedDateTime>();
-  private static final List<Double> DATA = new ArrayList<Double>();
-  private static final DoubleTimeSeries TS;
+  private static final TimeSeriesFilter<DoubleTimeSeries<Long>> FILTER = new StandardDeviationDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(LIMIT);
+  private static final int N = 500;
+  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_SECONDS;
+  private static final long[] DATES = new long[N];
+  private static final double[] DATA = new double[N];
+  private static final DoubleTimeSeries<Long> TS;
   private static final double EPS = 1e-15;
 
   static {
     for (int i = 0; i < 500; i++) {
-      DATES.add(ZonedDateTime.fromInstant(Instant.instant(i + 1), TimeZone.UTC));
-      DATA.add(RANDOM.nextDouble());
+      DATES[i] = i;
+      DATA[i] = (RANDOM.nextDouble());
     }
-    DATA.set(0, DATA1);
-    DATA.set(1, DATA2);
-    TS = new ArrayDoubleTimeSeries(DATES, DATA);
+    DATA[0] = DATA1;
+    DATA[1] = DATA2;
+    TS = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, DATA);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
-    FILTER.evaluate((DoubleTimeSeries) null);
+    FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testEmptyTS() {
-    FILTER.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    assertNull(filtered.getRejectedTS());
   }
 
   @Test
   public void testMasked() {
-    final DoubleTimeSeries subSeries = TS.subSeries(DATES.get(0), DATES.get(10));
-    final FilteredDoubleTimeSeries result = FILTER.evaluate(subSeries);
+    final DoubleTimeSeries<Long> subSeries = (DoubleTimeSeries<Long>) TS.subSeries(DATES[0], DATES[10]);
+    final FilteredTimeSeries<DoubleTimeSeries<Long>> result = FILTER.evaluate(subSeries);
     assertEquals(result.getFilteredTS().size(), 11);
   }
 
   @Test
   public void test() {
-    final FilteredDoubleTimeSeries result = FILTER.evaluate(TS);
+    final FilteredTimeSeries<DoubleTimeSeries<Long>> result = FILTER.evaluate(TS);
     assertEquals(result.getFilteredTS().size(), 498);
-    final DoubleTimeSeries rejected = result.getRejectedTS();
-    assertEquals(rejected.getTime(0), ZonedDateTime.fromInstant(Instant.instant(1), TimeZone.UTC));
-    assertEquals(rejected.getValue(0), DATA1, EPS);
-    assertEquals(rejected.getTime(1), ZonedDateTime.fromInstant(Instant.instant(2), TimeZone.UTC));
-    assertEquals(rejected.getValue(1), DATA2, EPS);
+    final DoubleTimeSeries<Long> rejected = result.getRejectedTS();
+    assertEquals(rejected.getTime(0), 0, EPS);
+    assertEquals(rejected.getValueAt(0), DATA1, EPS);
+    assertEquals(rejected.getTime(1), 1, EPS);
+    assertEquals(rejected.getValueAt(1), DATA2, EPS);
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -11,16 +11,16 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.math.statistics.descriptive.SampleFisherKurtosisCalculator;
 import com.opengamma.math.statistics.descriptive.SampleSkewnessCalculator;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class JarqueBeraIIDHypothesis extends IIDHypothesis {
+public class JarqueBeraIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(JarqueBeraIIDHypothesis.class);
-  private final DoubleTimeSeriesStatisticsCalculator _skewCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleSkewnessCalculator());
-  private final DoubleTimeSeriesStatisticsCalculator _kurtosisCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleFisherKurtosisCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator<T> _skewCalculator = new DoubleTimeSeriesStatisticsCalculator<T>(new SampleSkewnessCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator<T> _kurtosisCalculator = new DoubleTimeSeriesStatisticsCalculator<T>(new SampleFisherKurtosisCalculator());
   private final double _criticalValue;
 
   public JarqueBeraIIDHypothesis(final double level) {
@@ -30,7 +30,7 @@ public class JarqueBeraIIDHypothesis extends IIDHypothesis {
   }
 
   @Override
-  public boolean testIID(final DoubleTimeSeries ts) {
+  public boolean testIID(final T ts) {
     if (ts.size() < 1000) {
       s_Log.warn("Use of this test is discouraged for time series with fewer than 1000 elements; the result will be inaccurate");
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -11,15 +11,15 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
+public class SampleAutocorrelationIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(SampleAutocorrelationIIDHypothesis.class);
-  private final Function1D<DoubleTimeSeries, Double[]> _calculator = new AutocorrelationFunctionCalculator();
+  private final Function1D<DoubleTimeSeries<Long>, Double[]> _calculator = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
   private final double _level;
   private final double _criticalValue;
   private final int _h;
@@ -39,10 +39,10 @@ public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
   }
 
   @Override
-  public boolean testIID(final DoubleTimeSeries x) {
+  public boolean testIID(final T x) {
     if (x.size() < _h)
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
-    final Double[] autocorrelations = _calculator.evaluate(x);
+    final Double[] autocorrelations = _calculator.evaluate(x.toFastLongDoubleTimeSeries());
     final double upper = _criticalValue / Math.sqrt(x.size());
     final double lower = -upper;
     double violations = 0;

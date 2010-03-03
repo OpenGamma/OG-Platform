@@ -5,25 +5,23 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import java.util.Iterator;
+import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
  * @author emcleod
  */
-public abstract class RelativeTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
+public abstract class RelativeTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> extends TimeSeriesReturnCalculator<T> {
 
   public RelativeTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
   }
 
-  protected void testInputData(final DoubleTimeSeries[] x) {
+  protected void testInputData(final T[] x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)
@@ -33,15 +31,13 @@ public abstract class RelativeTimeSeriesReturnCalculator extends TimeSeriesRetur
       if (x[i].size() != size)
         throw new TimeSeriesException("Time series were not all the same length");
     }
-    final Iterator<ZonedDateTime> iter = x[0].timeIterator();
-    while (iter.hasNext()) {
-      final ZonedDateTime instant = iter.next();
-      for (int i = 1; i < x.length; i++) {
-        try {
-          x[i].getDataPoint(instant);
-        } catch (final ArrayIndexOutOfBoundsException e) {
-          throw new TimeSeriesException("Time series did not all contain the same dates; " + e);
-        }
+    final List<?> times1 = x[0].times();
+    List<?> times2;
+    for (int i = 1; i < x.length; i++) {
+      times2 = x[1].times();
+      for (final Object t : times1) {
+        if (!times2.contains(t))
+          throw new TimeSeriesException("Time series did not contain all the same dates");
       }
     }
   }

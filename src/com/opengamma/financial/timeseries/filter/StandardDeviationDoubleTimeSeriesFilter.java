@@ -1,16 +1,12 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.filter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
-
-import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,17 +14,20 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class StandardDeviationDoubleTimeSeriesFilter extends DoubleTimeSeriesFilter {
+public class StandardDeviationDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
-  private final DoubleTimeSeriesStatisticsCalculator _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
-  private final DoubleTimeSeriesStatisticsCalculator _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries>(
+      new MeanCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries> _stdCalculator = new DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries>(
+      new SampleStandardDeviationCalculator());
   private double _standardDeviations;
 
   public StandardDeviationDoubleTimeSeriesFilter(final double standardDeviations) {
@@ -46,29 +45,34 @@ public class StandardDeviationDoubleTimeSeriesFilter extends DoubleTimeSeriesFil
   }
 
   @Override
-  public FilteredDoubleTimeSeries evaluate(final DoubleTimeSeries ts) {
+  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
-    if (ts.isEmpty())
-      throw new IllegalArgumentException("Time series was empty");
-    final double mean = _meanCalculator.evaluate(ts);
-    final double std = _stdCalculator.evaluate(ts);
-    final List<ZonedDateTime> filteredDates = new ArrayList<ZonedDateTime>();
-    final List<Double> filteredData = new ArrayList<Double>();
-    final List<ZonedDateTime> rejectedDates = new ArrayList<ZonedDateTime>();
-    final List<Double> rejectedData = new ArrayList<Double>();
-    final Iterator<Entry<ZonedDateTime, Double>> iter = ts.iterator();
-    Entry<ZonedDateTime, Double> entry;
+    if (ts.isEmpty()) {
+      s_Log.info("Time series was empty");
+      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+    }
+    final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
+    final double mean = _meanCalculator.evaluate(x);
+    final double std = _stdCalculator.evaluate(x);
+    final int n = x.size();
+    final long[] filteredDates = new long[n];
+    final double[] filteredData = new double[n];
+    final long[] rejectedDates = new long[n];
+    final double[] rejectedData = new double[n];
+    final Iterator<Entry<Long, Double>> iter = x.iterator();
+    Entry<Long, Double> entry;
+    int i = 0, j = 0;
     while (iter.hasNext()) {
       entry = iter.next();
       if (Math.abs(entry.getValue() - mean) > _standardDeviations * std) {
-        rejectedDates.add(entry.getKey());
-        rejectedData.add(entry.getValue());
+        rejectedDates[j] = entry.getKey();
+        rejectedData[j++] = entry.getValue();
       } else {
-        filteredDates.add(entry.getKey());
-        filteredData.add(entry.getValue());
+        filteredDates[i] = entry.getKey();
+        filteredData[i++] = entry.getValue();
       }
     }
-    return new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(filteredDates, filteredData), new ArrayDoubleTimeSeries(rejectedDates, rejectedData));
+    return getFilteredSeries(x, filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
 }

@@ -9,24 +9,24 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix2D;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class CovarianceMatrixCalculator implements Function<DoubleTimeSeries, DoubleMatrix2D> {
-  private final CovarianceCalculator _calculator;
+public class CovarianceMatrixCalculator<T extends DoubleTimeSeries<?>> implements Function<T, DoubleMatrix2D> {
+  private final CovarianceCalculator<T> _calculator;
 
-  public CovarianceMatrixCalculator(final CovarianceCalculator calculator) {
+  public CovarianceMatrixCalculator(final CovarianceCalculator<T> calculator) {
     _calculator = calculator;
   }
 
   @Override
-  public DoubleMatrix2D evaluate(final DoubleTimeSeries... x) {
+  public DoubleMatrix2D evaluate(final T... x) {
     final int n = x.length;
     final double[][] covariance = new double[n][n];
-    DoubleTimeSeries ts;
+    T ts;
     for (int i = 0; i < n; i++) {
       ts = x[i];
       covariance[i][i] = _calculator.evaluate(ts, ts);
@@ -37,5 +37,4 @@ public class CovarianceMatrixCalculator implements Function<DoubleTimeSeries, Do
     }
     return DoubleFactory2D.dense.make(covariance);
   }
-
 }

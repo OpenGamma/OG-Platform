@@ -5,17 +5,13 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesException;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * <p>
@@ -30,7 +26,7 @@ import com.opengamma.util.CalculationMode;
  * @author emcleod
  */
 
-public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
+public class ContinuouslyCompoundedTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> extends TimeSeriesReturnCalculator<T> {
 
   public ContinuouslyCompoundedTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
@@ -54,39 +50,44 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries evaluate(final DoubleTimeSeries... x) {
+  public DoubleTimeSeries<Long> evaluate(final T... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)
-      throw new TimeSeriesException("Time series array was empty");
-    final DoubleTimeSeries ts = x[0];
+      throw new TimeSeriesException("Need at least one time series");
+    if (x[0] == null)
+      throw new TimeSeriesException("First time series was null");
+    final FastLongDoubleTimeSeries ts = x[0].toFastLongDoubleTimeSeries();
     if (ts.size() < 2)
       throw new TimeSeriesException("Need at least two data points to calculate return series");
-    DoubleTimeSeries d = null;
+    FastLongDoubleTimeSeries d = null;
     if (x.length > 1) {
-      d = x[1];
+      if (x[1] != null)
+        d = x[1].toFastLongDoubleTimeSeries();
     }
-    final List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
-    final List<Double> data = new ArrayList<Double>();
-    final Iterator<Map.Entry<ZonedDateTime, Double>> iter = ts.iterator();
-    Map.Entry<ZonedDateTime, Double> previousEntry = iter.next();
-    Map.Entry<ZonedDateTime, Double> entry;
+    final int n = ts.size();
+    final long[] times = new long[n];
+    final double[] data = new double[n];
+    final Iterator<Map.Entry<Long, Double>> iter = ts.iterator();
+    Map.Entry<Long, Double> previousEntry = iter.next();
+    Map.Entry<Long, Double> entry;
     double dividend;
-    Double dividendTSData = null;
+    Double dividendTSData;
+    int i = 0;
     while (iter.hasNext()) {
       entry = iter.next();
       if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
-        times.add(entry.getKey());
+        times[i] = entry.getKey();
         if (d == null) {
           dividend = 0;
         } else {
-          dividendTSData = d.getDataPoint(entry.getKey());
+          dividendTSData = d.getValue(entry.getKey());
           dividend = dividendTSData == null ? 0 : dividendTSData;
         }
-        data.add(Math.log((entry.getValue() + dividend) / previousEntry.getValue()));
+        data[i++] = Math.log((entry.getValue() + dividend) / previousEntry.getValue());
       }
       previousEntry = entry;
     }
-    return new ArrayDoubleTimeSeries(times, data);
+    return getSeries(ts, times, data, i);
   }
 }

@@ -1,21 +1,21 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public abstract class IIDHypothesis extends Function1D<DoubleTimeSeries, Boolean> {
+public abstract class IIDHypothesis<T extends DoubleTimeSeries<?>> extends Function1D<T, Boolean> {
 
   @Override
-  public Boolean evaluate(final DoubleTimeSeries x) {
+  public Boolean evaluate(final T x) {
     if (x == null)
       throw new IllegalArgumentException("Time series was null");
     if (x.isEmpty())
@@ -23,5 +23,5 @@ public abstract class IIDHypothesis extends Function1D<DoubleTimeSeries, Boolean
     return testIID(x);
   }
 
-  public abstract boolean testIID(DoubleTimeSeries x);
+  public abstract boolean testIID(T x);
 }

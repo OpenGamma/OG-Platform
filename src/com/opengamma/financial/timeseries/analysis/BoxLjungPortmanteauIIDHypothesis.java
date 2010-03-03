@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -10,15 +10,15 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class BoxLjungPortmanteauIIDHypothesis extends IIDHypothesis {
+public class BoxLjungPortmanteauIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
   private static final Logger s_Log = LoggerFactory.getLogger(BoxLjungPortmanteauIIDHypothesis.class);
-  private final Function1D<DoubleTimeSeries, Double[]> _calculator = new AutocorrelationFunctionCalculator();
+  private final Function1D<T, Double[]> _calculator = new AutocorrelationFunctionCalculator<T>();
   private final double _criticalValue;
   private final int _h;
 
@@ -35,7 +35,7 @@ public class BoxLjungPortmanteauIIDHypothesis extends IIDHypothesis {
   }
 
   @Override
-  public boolean testIID(final DoubleTimeSeries ts) {
+  public boolean testIID(final T ts) {
     if (ts.size() < _h)
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
     final Double[] autocorrelation = _calculator.evaluate(ts);

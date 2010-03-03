@@ -10,18 +10,17 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
-import javax.time.calendar.TimeZone;
-
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesException;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -30,37 +29,34 @@ import com.opengamma.util.CalculationMode;
 
 public class SimpleNetTimeSeriesReturnCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function<DoubleTimeSeries, DoubleTimeSeries> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  private static final Function<DoubleTimeSeries<Long>, DoubleTimeSeries<Long>> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
+      CalculationMode.LENIENT);
+  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_DDMMYYYY;
 
-  @Test
-  public void testWithBadInputs() {
-    try {
-      CALCULATOR.evaluate((DoubleTimeSeries[]) null);
-      fail();
-    } catch (final TimeSeriesException e) {
-      // Expected
-    }
-    try {
-      CALCULATOR.evaluate(new DoubleTimeSeries[0]);
-      fail();
-    } catch (final TimeSeriesException e) {
-      // Expected
-    }
-    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(new long[] { 1 }, new double[] { 4 }, new TimeZone[] { TimeZone.UTC });
-    try {
-      CALCULATOR.evaluate(new DoubleTimeSeries[] { ts });
-      fail();
-    } catch (final TimeSeriesException e) {
-      // Expected
-    }
+  @Test(expected = TimeSeriesException.class)
+  public void testNullArray() {
+    CALCULATOR.evaluate((DoubleTimeSeries<Long>[]) null);
   }
 
+  @SuppressWarnings("unchecked")
+  @Test(expected = TimeSeriesException.class)
+  public void testEmptyArray() {
+    CALCULATOR.evaluate(new DoubleTimeSeries[0]);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test(expected = TimeSeriesException.class)
+  public void testWithShortTS() {
+    final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] { 14022000 }, new double[] { 4 });
+    CALCULATOR.evaluate(ts);
+  }
+
+  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithoutDividends() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
-    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
@@ -70,19 +66,18 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
       if (i > 0) {
         returns[i - 1] = random / data[i - 1] - 1;
       }
-      zones[i] = TimeZone.UTC;
     }
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns, Arrays.copyOfRange(zones, 1, n));
+    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
+    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS }).equals(returnTS));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithZeroesInSeries() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
-    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 3];
     double random;
     for (int i = 0; i < n - 2; i++) {
@@ -92,18 +87,15 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
       if (i > 0) {
         returns[i - 1] = random / data[i - 1] - 1;
       }
-      zones[i] = TimeZone.UTC;
     }
     times[n - 2] = n - 2;
     data[n - 2] = 0;
-    zones[n - 2] = TimeZone.UTC;
     times[n - 1] = n - 1;
     data[n - 1] = RANDOM.nextDouble();
-    zones[n - 1] = TimeZone.UTC;
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns, Arrays.copyOfRange(zones, 1, n - 2));
-    final TimeSeriesReturnCalculator strict = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.STRICT);
-    final DoubleTimeSeries[] tsArray = new DoubleTimeSeries[] { priceTS };
+    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
+    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n - 2), returns);
+    final TimeSeriesReturnCalculator<DoubleTimeSeries<Long>> strict = new SimpleNetTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(CalculationMode.STRICT);
+    final DoubleTimeSeries<Long>[] tsArray = new DoubleTimeSeries[] { priceTS };
     try {
       strict.evaluate(tsArray);
       fail();
@@ -114,12 +106,12 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     assertTrue(lenient.evaluate(tsArray).equals(returnTS));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithDividendsAtDifferentTimes() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
-    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
@@ -129,24 +121,22 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
       if (i > 0) {
         returns[i - 1] = random / data[i - 1] - 1;
       }
-      zones[i] = TimeZone.UTC;
     }
-    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(new long[] { 300 }, new double[] { 3 }, new TimeZone[] { TimeZone.UTC });
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns, Arrays.copyOfRange(zones, 1, n));
+    final DoubleTimeSeries<Long> dividendTS = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] { 300 }, new double[] { 3 });
+    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
+    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithDividend() {
     final int n = 20;
     final long[] times = new long[n];
     final double[] data = new double[n];
-    final TimeZone[] zones = new TimeZone[n];
     final double[] returns = new double[n - 1];
     final long[] dividendTimes = new long[] { 1, 4 };
     final double[] dividendData = new double[] { 0.4, 0.6 };
-    final TimeZone[] dividendZones = new TimeZone[] { TimeZone.UTC, TimeZone.UTC };
     double random;
     for (int i = 0; i < n; i++) {
       times[i] = i;
@@ -161,11 +151,10 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
           returns[i - 1] = random / data[i - 1] - 1;
         }
       }
-      zones[i] = TimeZone.UTC;
     }
-    final DoubleTimeSeries dividendTS = new ArrayDoubleTimeSeries(dividendTimes, dividendData, dividendZones);
-    final DoubleTimeSeries priceTS = new ArrayDoubleTimeSeries(times, data, zones);
-    final DoubleTimeSeries returnTS = new ArrayDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns, Arrays.copyOfRange(zones, 1, n));
+    final DoubleTimeSeries<Long> dividendTS = new FastArrayLongDoubleTimeSeries(ENCODING, dividendTimes, dividendData);
+    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
+    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 }

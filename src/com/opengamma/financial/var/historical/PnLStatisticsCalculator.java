@@ -6,16 +6,16 @@
 package com.opengamma.financial.var.historical;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * @author emcleod
  * 
  */
 public class PnLStatisticsCalculator extends Function1D<HistoricalVaRDataBundle, Double> {
-  private final Function1D<DoubleTimeSeries, Double> _calculator;
+  private final Function1D<DoubleTimeSeries<?>, Double> _calculator;
 
-  public PnLStatisticsCalculator(final Function1D<DoubleTimeSeries, Double> calculator) {
+  public PnLStatisticsCalculator(final Function1D<DoubleTimeSeries<?>, Double> calculator) {
     _calculator = calculator;
   }
 

@@ -1,19 +1,11 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.model;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -21,7 +13,7 @@ import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalcul
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -32,17 +24,17 @@ public class AutoregressiveTimeSeriesModelTest {
   private static final double STD = 0.25;
   private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(MEAN, STD));
   private static final int ORDER = 2;
-  private static final DoubleTimeSeries MA;
-  private static final Double[] PHI;
+  private static final DoubleTimeSeries<Long> MA;
+  private static final double[] PHI;
   private static double LIMIT = 3;
 
   static {
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final int n = 20000;
+    final long[] dates = new long[n];
     for (int i = 0; i < n; i++) {
-      dates.add(ZonedDateTime.fromInstant(Instant.instant(i), TimeZone.UTC));
+      dates[i] = i;
     }
-    PHI = new Double[ORDER + 1];
+    PHI = new double[ORDER + 1];
     for (int i = 0; i <= ORDER; i++) {
       PHI[i] = (i + 1) / 10.;
     }
@@ -57,43 +49,43 @@ public class AutoregressiveTimeSeriesModelTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullThetas() {
-    MODEL.getSeries(null, 2, Arrays.asList(ZonedDateTime.fromInstant(Instant.instant(1), TimeZone.UTC)));
+    MODEL.getSeries(null, 2, new long[] { 1 });
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyThetas() {
-    MODEL.getSeries(new Double[0], 2, Arrays.asList(ZonedDateTime.fromInstant(Instant.instant(1), TimeZone.UTC)));
+    MODEL.getSeries(new double[0], 2, new long[] { 1 });
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    MODEL.getSeries(new Double[] { 0.2 }, -3, Arrays.asList(ZonedDateTime.fromInstant(Instant.instant(1), TimeZone.UTC)));
+    MODEL.getSeries(new double[] { 0.2 }, -3, new long[] { 1 });
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientThetas() {
-    MODEL.getSeries(new Double[] { 0.2 }, 4, Arrays.asList(ZonedDateTime.fromInstant(Instant.instant(1), TimeZone.UTC)));
+    MODEL.getSeries(new double[] { 0.2 }, 4, new long[] { 1 });
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDates() {
-    MODEL.getSeries(new Double[] { 0.3 }, 1, null);
+    MODEL.getSeries(new double[] { 0.3 }, 1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDates() {
-    MODEL.getSeries(new Double[] { 0.3 }, 1, new ArrayList<ZonedDateTime>());
+    MODEL.getSeries(new double[] { 0.3 }, 1, new long[0]);
   }
 
   @Test
   public void testACF() {
     final double eps = 1e-2;
-    final Double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
+    final Double[] rho = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>().evaluate(MA);
     final double rho1 = PHI[1] / (1 - PHI[2]);
     assertEquals(rho[0], 1, 1e-16);
     assertEquals(rho[1], rho1, eps);
     assertEquals(rho[2], rho1 * PHI[1] + PHI[2], eps);
-    final Double mean = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()).evaluate(MA);
+    final Double mean = new DoubleTimeSeriesStatisticsCalculator<DoubleTimeSeries<Long>>(new MeanCalculator()).evaluate(MA);
     assertEquals(mean, PHI[0] / (1 - PHI[1] - PHI[2]), eps);
   }
 }

@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.model.cashflow;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.financial.model.bond.BondYieldCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -20,7 +18,7 @@ public class EffectiveDurationCalculator {
   private final BondYieldCalculator _yield = new BondYieldCalculator();
   private final double _eps = 1e-3;
 
-  public double calculate(final DoubleTimeSeries cashFlows, final double price, final ZonedDateTime date, final PresentValueCalculator pvCalculator) {
+  public double calculate(final DoubleTimeSeries<Long> cashFlows, final double price, final Long date, final PresentValueCalculator pvCalculator) {
     if (cashFlows == null)
       throw new IllegalArgumentException("Cash flow time series was null");
     if (cashFlows.isEmpty())

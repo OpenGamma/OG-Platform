@@ -10,16 +10,14 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.junit.Test;
 
 import com.opengamma.financial.model.cashflow.ContinuousCompoundingPresentValueCalculator;
 import com.opengamma.financial.model.cashflow.DiscreteCompoundingPresentValueCalculator;
 import com.opengamma.financial.model.cashflow.PresentValueCalculator;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -28,16 +26,15 @@ import com.opengamma.util.time.DateUtil;
 public class BondYieldCalculatorTest {
   private static final BondYieldCalculator CALCULATOR = new BondYieldCalculator();
   private static final double PRICE = 1.;
-  private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final DoubleTimeSeries TS;
+  private static final Long DATE = 0l;
+  private static final DoubleTimeSeries<Long> TS;
   private static final PresentValueCalculator DISCRETE = new DiscreteCompoundingPresentValueCalculator();
   private static final PresentValueCalculator CONTINUOUS = new ContinuousCompoundingPresentValueCalculator();
 
   static {
-    final List<ZonedDateTime> times = Arrays.asList(DateUtil.getDateOffsetWithYearFraction(DATE, 1.), DateUtil.getDateOffsetWithYearFraction(DATE, 2.), DateUtil
-        .getDateOffsetWithYearFraction(DATE, 3.), DateUtil.getDateOffsetWithYearFraction(DATE, 4.), DateUtil.getDateOffsetWithYearFraction(DATE, 5.));
+    final List<Long> times = Arrays.asList(1l, 2l, 3l, 4l, 5l);
     final List<Double> cf = Arrays.asList(.1, .1, .1, .1, 1.1);
-    TS = new ArrayDoubleTimeSeries(times, cf);
+    TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, times, cf);
   }
 
   @Test(expected = IllegalArgumentException.class)

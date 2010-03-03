@@ -8,24 +8,25 @@ package com.opengamma.financial.covariance;
 import java.util.Iterator;
 
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class HistoricalCovarianceCalculator extends CovarianceCalculator {
-  private final TimeSeriesReturnCalculator _returnCalculator;
+public class HistoricalCovarianceCalculator<T extends DoubleTimeSeries<?>> extends CovarianceCalculator<T> {
+  private final TimeSeriesReturnCalculator<T> _returnCalculator;
 
-  public HistoricalCovarianceCalculator(final TimeSeriesReturnCalculator returnCalculator) {
+  public HistoricalCovarianceCalculator(final TimeSeriesReturnCalculator<T> returnCalculator) {
     _returnCalculator = returnCalculator;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Double evaluate(final DoubleTimeSeries ts1, final DoubleTimeSeries ts2) {
+  public Double evaluate(final T ts1, final T ts2) {
     testTimeSeries(ts1, ts2);
-    final DoubleTimeSeries returnTS1 = _returnCalculator.evaluate(ts1);
-    final DoubleTimeSeries returnTS2 = _returnCalculator.evaluate(ts2);
+    final DoubleTimeSeries<Long> returnTS1 = _returnCalculator.evaluate(ts1);
+    final DoubleTimeSeries<Long> returnTS2 = _returnCalculator.evaluate(ts2);
     final int n = returnTS1.size();
     double xyMean = 0;
     double xMean = 0;
@@ -44,6 +45,5 @@ public class HistoricalCovarianceCalculator extends CovarianceCalculator {
     xMean /= n;
     yMean /= n;
     return xyMean - xMean * yMean;
-
   }
 }

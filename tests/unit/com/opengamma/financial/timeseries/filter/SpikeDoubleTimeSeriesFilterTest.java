@@ -8,20 +8,16 @@ package com.opengamma.financial.timeseries.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import java.util.Arrays;
 
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -29,61 +25,63 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class SpikeDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final DoubleTimeSeriesFilter FILTER = new SpikeDoubleTimeSeriesFilter(100);
-  private static final List<ZonedDateTime> DATES = new ArrayList<ZonedDateTime>();
-  private static final List<Double> DATA = new ArrayList<Double>();
+  private static final TimeSeriesFilter<DoubleTimeSeries<Long>> FILTER = new SpikeDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(100);
+  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_MILLIS;
+  private static final int N = 100;
+  private static final long[] DATES = new long[N];
+  private static final double[] DATA = new double[N];
 
   static {
     final double value = 0.5;
     double random;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < N; i++) {
       random = RANDOM.nextDouble();
-      DATES.add(ZonedDateTime.fromInstant(Instant.instant(i + 1), TimeZone.UTC));
-      DATA.add(value * (random < 0.5 ? 1 - random : 1 + random));
+      DATES[i] = i;
+      DATA[i] = value * (random < 0.5 ? 1 - random : 1 + random);
     }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
-    FILTER.evaluate((DoubleTimeSeries) null);
+    FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
   @Test
   public void testEmptyTS() {
-    final FilteredDoubleTimeSeries filtered = FILTER.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
-    assertEquals(filtered.getFilteredTS(), ArrayDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
 
   @Test
   public void testInitialSpike() {
-    final List<Double> data = new ArrayList<Double>(DATA);
-    data.set(0, 100.);
-    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(DATES, data);
-    final DoubleTimeSeries rejected = FILTER.evaluate(ts).getRejectedTS();
+    final double[] data = Arrays.copyOf(DATA, N);
+    data[0] = 100.;
+    final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
+    final DoubleTimeSeries<Long> rejected = FILTER.evaluate(ts).getRejectedTS();
     assertEquals(rejected.size(), 1);
     assertEquals(rejected.getTime(0), ts.getTime(0));
-    assertEquals(rejected.getValue(0), ts.getValue(0));
+    assertEquals(rejected.getValueAt(0), ts.getValueAt(0));
   }
 
   @Test
   public void testSpike() {
-    final List<Double> data = new ArrayList<Double>(DATA);
-    data.set(10, 100.);
-    DoubleTimeSeries ts = new ArrayDoubleTimeSeries(DATES, data);
-    FilteredDoubleTimeSeries filtered = FILTER.evaluate(ts);
+    final double[] data = Arrays.copyOf(DATA, N);
+    data[10] = 100.;
+    DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
+    FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(ts);
     testSeries(ts, filtered, 10);
-    data.set(10, -100.);
-    ts = new ArrayDoubleTimeSeries(DATES, data);
+    data[10] = -100.;
+    ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
     filtered = FILTER.evaluate(ts);
     testSeries(ts, filtered, 10);
   }
 
-  private void testSeries(final DoubleTimeSeries ts, final FilteredDoubleTimeSeries filtered, final int index) {
-    final DoubleTimeSeries rejected = filtered.getRejectedTS();
+  private void testSeries(final DoubleTimeSeries<Long> ts, final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered, final int index) {
+    final DoubleTimeSeries<Long> rejected = filtered.getRejectedTS();
     assertEquals(rejected.size(), 1);
     assertEquals(rejected.getTime(0), ts.getTime(index));
-    assertEquals(rejected.getValue(0), ts.getValue(index));
+    assertEquals(rejected.getValueAt(0), ts.getValueAt(index));
     assertEquals(filtered.getFilteredTS().size(), 99);
   }
 }

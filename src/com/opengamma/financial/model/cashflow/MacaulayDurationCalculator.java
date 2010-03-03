@@ -7,13 +7,10 @@ package com.opengamma.financial.model.cashflow;
 
 import java.util.Iterator;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.financial.model.bond.BondYieldCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -22,7 +19,7 @@ import com.opengamma.util.time.DateUtil;
 public class MacaulayDurationCalculator {
   private final BondYieldCalculator _yield = new BondYieldCalculator();
 
-  public double calculate(final DoubleTimeSeries cashFlows, final double price, final ZonedDateTime date, final PresentValueCalculator pvCalculator) {
+  public double calculate(final DoubleTimeSeries<Long> cashFlows, final double price, final Long date, final PresentValueCalculator pvCalculator) {
     if (cashFlows == null)
       throw new IllegalArgumentException("Cash flow time series was null");
     if (cashFlows.isEmpty())
@@ -33,14 +30,14 @@ public class MacaulayDurationCalculator {
       throw new IllegalArgumentException("Date was null");
     if (pvCalculator == null)
       throw new IllegalArgumentException("Present value calculator was null");
-    final Iterator<ZonedDateTime> iter = cashFlows.timeIterator();
+    final Iterator<Long> iter = cashFlows.timeIterator();
     double sum = 0, t;
-    ZonedDateTime d;
+    Long d;
     final InterestRateModel<Double> yield = new ConstantInterestRateModel(_yield.calculate(cashFlows, price, date, pvCalculator));
     while (iter.hasNext()) {
       d = iter.next();
-      t = DateUtil.getDifferenceInYears(date, d);
-      sum += t * pvCalculator.calculate(t, cashFlows.getDataPoint(d), yield);
+      t = d - date;
+      sum += t * pvCalculator.calculate(t, cashFlows.getValue(d), yield);
     }
     return sum / price;
   }

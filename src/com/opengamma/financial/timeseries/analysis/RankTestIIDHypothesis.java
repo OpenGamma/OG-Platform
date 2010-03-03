@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
 
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class RankTestIIDHypothesis extends IIDHypothesis {
+public class RankTestIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
   private final double _criticalValue;
 
   public RankTestIIDHypothesis(final double level) {
@@ -22,8 +22,8 @@ public class RankTestIIDHypothesis extends IIDHypothesis {
   }
 
   @Override
-  public boolean testIID(final DoubleTimeSeries x) {
-    final Double[] data = x.getValues();
+  public boolean testIID(final T x) {
+    final Double[] data = x.valuesArray();
     int t = 0;
     final int n = x.size();
     double val;

@@ -7,16 +7,16 @@ package com.opengamma.financial.timeseries.analysis;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class MovingAverageTimeSeriesOrderIdentifier {
+public class MovingAverageTimeSeriesOrderIdentifier<T extends DoubleTimeSeries<?>> {
   private final int _maxOrder;
   private final double _criticalValue;
-  private final Function1D<DoubleTimeSeries, Double[]> _calculator = new AutocorrelationFunctionCalculator();
+  private final Function1D<T, Double[]> _calculator = new AutocorrelationFunctionCalculator<T>();
 
   public MovingAverageTimeSeriesOrderIdentifier(final int maxOrder, final double level) {
     if (maxOrder < 1)
@@ -27,7 +27,7 @@ public class MovingAverageTimeSeriesOrderIdentifier {
     _criticalValue = new NormalDistribution(0, 1).getInverseCDF(1 - level / 2.);
   }
 
-  public int getOrder(final DoubleTimeSeries ts) {
+  public int getOrder(final T ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty())

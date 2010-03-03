@@ -5,14 +5,10 @@
  */
 package com.opengamma.financial.timeseries.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
@@ -27,7 +23,7 @@ public class MovingAverageTimeSeriesModel {
     _random = random;
   }
 
-  public DoubleTimeSeries getSeries(final Double[] theta, final int q, final List<ZonedDateTime> dates) {
+  public DoubleTimeSeries<Long> getSeries(final double[] theta, final int q, final long[] dates) {
     if (theta == null)
       throw new IllegalArgumentException("Coefficient array was null");
     if (q < 1)
@@ -35,24 +31,24 @@ public class MovingAverageTimeSeriesModel {
     if (theta.length < q)
       throw new IllegalArgumentException("Coefficient array must contain at least " + q + " elements");
     if (dates == null)
-      throw new IllegalArgumentException("Dates list was null");
-    if (dates.isEmpty())
-      throw new IllegalArgumentException("Dates list was empty");
-    final int n = dates.size();
-    final Double[] z = new Double[n];
+      throw new IllegalArgumentException("Dates array was null");
+    if (dates.length == 0)
+      throw new IllegalArgumentException("Dates array was empty");
+    final int n = dates.length;
+    final double[] z = new double[n];
     for (int i = 0; i < n; i++) {
       z[i] = _random.nextRandom();
     }
-    final List<Double> data = new ArrayList<Double>(n);
-    data.add(theta[0]);
+    final double[] data = new double[n];
+    data[0] = theta[0];
     double sum;
     for (int i = 1; i < n; i++) {
       sum = theta[0] + z[i];
       for (int j = 1; j < (i < q ? i : q + 1); j++) {
         sum += z[i - j] * theta[j];
       }
-      data.add(sum);
+      data[i] = sum;
     }
-    return new ArrayDoubleTimeSeries(dates, data);
+    return new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data);
   }
 }

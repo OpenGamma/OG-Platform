@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.analysis;
@@ -9,17 +9,17 @@ import java.util.Arrays;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSeries, Double[]> {
-  private final Function1D<DoubleTimeSeries, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
+public class AutocovarianceFunctionCalculator<T extends DoubleTimeSeries<?>> extends Function1D<T, Double[]> {
+  private final Function1D<T, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator<T>(new MeanCalculator());
 
   @Override
-  public Double[] evaluate(final DoubleTimeSeries x) {
+  public Double[] evaluate(final T x) {
     if (x == null)
       throw new IllegalArgumentException("Time series was null");
     if (x.isEmpty())
@@ -30,7 +30,7 @@ public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSerie
     Double[] x1 = null, x2 = null;
     final int n = x.size();
     double sum;
-    final Double[] x0 = x.getValues();
+    final Double[] x0 = x.valuesArray();
     for (int i = 0; i < h; i++) {
       x1 = Arrays.copyOfRange(x0, 0, n - i);
       x2 = Arrays.copyOfRange(x0, i, n);

@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.model.bond;
 
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.financial.model.cashflow.PresentValueCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -22,7 +20,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 public class BondYieldCalculator {
   private final RealSingleRootFinder _root = new VanWijngaardenDekkerBrentSingleRootFinder();
 
-  public double calculate(final DoubleTimeSeries cashFlows, final Double price, final ZonedDateTime date, final PresentValueCalculator pvCalculator) {
+  public double calculate(final DoubleTimeSeries<Long> cashFlows, final Double price, final Long date, final PresentValueCalculator pvCalculator) {
     if (cashFlows == null)
       throw new IllegalArgumentException("Cash flow time series was null");
     if (cashFlows.isEmpty())

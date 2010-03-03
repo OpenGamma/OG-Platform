@@ -5,11 +5,16 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
+import cern.colt.Arrays;
+
 import com.opengamma.math.function.Function;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeriesException;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
@@ -19,17 +24,17 @@ import com.opengamma.util.CompareUtils;
  * @author emcleod
  */
 
-public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries, DoubleTimeSeries> {
+public abstract class TimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> implements Function<T, DoubleTimeSeries<Long>> {
   private final CalculationMode _mode;
 
-  public TimeSeriesReturnCalculator(CalculationMode mode) {
+  public TimeSeriesReturnCalculator(final CalculationMode mode) {
     _mode = mode;
   }
 
   @Override
-  public abstract DoubleTimeSeries evaluate(DoubleTimeSeries... x);
+  public abstract DoubleTimeSeries<Long> evaluate(T... x);
 
-  protected boolean isValueNonZero(Double value) {
+  protected boolean isValueNonZero(final Double value) {
     if (CompareUtils.closeEquals(value, 0)) {
       if (_mode == CalculationMode.STRICT) {
         throw new TimeSeriesException("Cannot have zero in time series in strict mode");
@@ -41,5 +46,10 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
 
   protected CalculationMode getMode() {
     return _mode;
+  }
+
+  protected DoubleTimeSeries<Long> getSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i) {
+    final DateTimeNumericEncoding encoding = x.getEncoding();
+    return new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i));
   }
 }

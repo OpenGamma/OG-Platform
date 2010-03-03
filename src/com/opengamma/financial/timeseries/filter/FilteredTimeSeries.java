@@ -1,30 +1,30 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.timeseries.filter;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
-public class FilteredDoubleTimeSeries {
-  private final DoubleTimeSeries _filteredTS;
-  private final DoubleTimeSeries _rejectedTS;
+public class FilteredTimeSeries<T extends DoubleTimeSeries<?>> {
+  private final T _filteredTS;
+  private final T _rejectedTS;
 
-  public FilteredDoubleTimeSeries(final DoubleTimeSeries filteredTS, final DoubleTimeSeries rejectedTS) {
+  public FilteredTimeSeries(final T filteredTS, final T rejectedTS) {
     _filteredTS = filteredTS;
     _rejectedTS = rejectedTS;
   }
 
-  public DoubleTimeSeries getFilteredTS() {
+  public T getFilteredTS() {
     return _filteredTS;
   }
 
-  public DoubleTimeSeries getRejectedTS() {
+  public T getRejectedTS() {
     return _rejectedTS;
   }
 
@@ -37,6 +37,7 @@ public class FilteredDoubleTimeSeries {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj)
@@ -45,7 +46,7 @@ public class FilteredDoubleTimeSeries {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final FilteredDoubleTimeSeries other = (FilteredDoubleTimeSeries) obj;
+    final FilteredTimeSeries other = (FilteredTimeSeries) obj;
     if (_filteredTS == null) {
       if (other._filteredTS != null)
         return false;

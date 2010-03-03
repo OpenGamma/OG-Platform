@@ -11,10 +11,6 @@ import static org.junit.Assert.assertNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -22,9 +18,11 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
 
 /**
  * 
@@ -34,28 +32,31 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double MAX = 10;
   private static final double MIN = -1;
-  private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
-  private static final ExtremeValueDoubleTimeSeriesFilter VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
-  private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
+  private static final TimeSeriesReturnCalculator<DoubleTimeSeries<Long>> RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
+      CalculationMode.LENIENT);
+  private static final ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MIN, MAX);
+  private static final ExtremeReturnDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MIN, MAX,
+      RETURN_CALCULATOR);
+  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS1() {
-    VALUE_FILTER.evaluate((DoubleTimeSeries) null);
+    VALUE_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS2() {
-    RETURN_FILTER.evaluate((DoubleTimeSeries) null);
+    RETURN_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadRange() {
-    new ExtremeValueDoubleTimeSeriesFilter(MAX, MIN);
+    new ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MAX, MIN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, null);
+    new ExtremeReturnDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MIN, MAX, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -85,46 +86,46 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredDoubleTimeSeries filtered = VALUE_FILTER.evaluate(ArrayDoubleTimeSeries.EMPTY_SERIES);
-    assertEquals(filtered.getFilteredTS(), ArrayDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = VALUE_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void test() {
-    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    final List<Long> dates = new ArrayList<Long>();
     final List<Double> data = new ArrayList<Double>();
-    final List<ZonedDateTime> filteredDates = new ArrayList<ZonedDateTime>();
+    final List<Long> filteredDates = new ArrayList<Long>();
     final List<Double> filteredData = new ArrayList<Double>();
-    final List<ZonedDateTime> rejectedDates = new ArrayList<ZonedDateTime>();
+    final List<Long> rejectedDates = new ArrayList<Long>();
     final List<Double> rejectedData = new ArrayList<Double>();
     Double d;
-    ZonedDateTime date;
     Double value;
     for (int i = 0; i < 100; i++) {
       d = RANDOM.nextDouble();
-      date = ZonedDateTime.fromInstant(Instant.millisInstant(i + 1), TimeZone.UTC);
-      dates.add(date);
+      dates.add(Long.valueOf(i));
       if (d < 0.25) {
         value = d < 0.1 ? MIN - d : MAX + d;
         data.add(value);
-        rejectedDates.add(date);
+        rejectedDates.add(Long.valueOf(i));
         rejectedData.add(value);
       } else {
         data.add(d);
-        filteredDates.add(date);
+        filteredDates.add(Long.valueOf(i));
         filteredData.add(d);
       }
     }
-    final List<ZonedDateTime> returnFilteredDates = new ArrayList<ZonedDateTime>();
+    final List<Long> returnFilteredDates = new ArrayList<Long>();
     final List<Double> returnFilteredData = new ArrayList<Double>();
-    final List<ZonedDateTime> returnRejectedDates = new ArrayList<ZonedDateTime>();
+    final List<Long> returnRejectedDates = new ArrayList<Long>();
     final List<Double> returnRejectedData = new ArrayList<Double>();
-    final DoubleTimeSeries ts = new ArrayDoubleTimeSeries(dates, data);
-    final DoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
+    final DoubleTimeSeries<Long> ts = new FastListLongDoubleTimeSeries(ENCODING, dates, data);
+    final DoubleTimeSeries<Long> returnTS = RETURN_CALCULATOR.evaluate(ts);
+    long date;
     for (int i = 0; i < 99; i++) {
       date = returnTS.getTime(i);
-      d = returnTS.getValue(i);
+      d = returnTS.getValueAt(i);
       if (d > MAX || d < MIN) {
         returnRejectedDates.add(date);
         returnRejectedData.add(d);
@@ -133,10 +134,11 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
         returnFilteredData.add(d);
       }
     }
-    FilteredDoubleTimeSeries result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(filteredDates, filteredData), new ArrayDoubleTimeSeries(rejectedDates, rejectedData)));
+    FilteredTimeSeries<DoubleTimeSeries<Long>> result = VALUE_FILTER.evaluate(ts);
+    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(
+        ENCODING, rejectedDates, rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredDoubleTimeSeries(new ArrayDoubleTimeSeries(returnFilteredDates, returnFilteredData), new ArrayDoubleTimeSeries(returnRejectedDates,
-        returnRejectedData)));
+    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData),
+        new FastListLongDoubleTimeSeries(ENCODING, returnRejectedDates, returnRejectedData)));
   }
 }

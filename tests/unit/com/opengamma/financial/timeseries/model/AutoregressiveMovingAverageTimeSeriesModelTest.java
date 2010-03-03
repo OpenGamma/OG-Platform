@@ -7,20 +7,13 @@ package com.opengamma.financial.timeseries.model;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
 import com.opengamma.financial.timeseries.analysis.AutocovarianceFunctionCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -33,29 +26,30 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(NORMAL);
   private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(NORMAL);
   private static final AutoregressiveMovingAverageTimeSeriesModel MODEL = new AutoregressiveMovingAverageTimeSeriesModel(NORMAL);
-  private static final List<ZonedDateTime> DATES = new ArrayList<ZonedDateTime>();
+  private static final long[] DATES;
   private static final int P = 3;
   private static final int Q = 6;
-  private static final DoubleTimeSeries ARMA;
-  private static final DoubleTimeSeries ARMA11;
-  private static final DoubleTimeSeries MA;
-  private static final DoubleTimeSeries AR;
-  private static final Double[] PHI;
-  private static final Double[] THETA;
+  private static final DoubleTimeSeries<Long> ARMA;
+  private static final DoubleTimeSeries<Long> ARMA11;
+  private static final DoubleTimeSeries<Long> MA;
+  private static final DoubleTimeSeries<Long> AR;
+  private static final double[] PHI;
+  private static final double[] THETA;
   private static double LIMIT = 3;
 
   static {
     final int n = 20000;
+    DATES = new long[n];
     for (int i = 0; i < n; i++) {
-      DATES.add(ZonedDateTime.fromInstant(Instant.instant(i + 1), TimeZone.UTC));
+      DATES[i] = i;
     }
-    PHI = new Double[P + 1];
+    PHI = new double[P + 1];
     PHI[0] = 0.;
     for (int i = 1; i <= P; i++) {
       PHI[i] = (i + 2.) / 15.;
     }
-    THETA = new Double[Q];
-    final Double[] theta1 = new Double[Q + 1];
+    THETA = new double[Q];
+    final double[] theta1 = new double[Q + 1];
     theta1[0] = 0.;
     for (int i = 0; i < Q; i++) {
       THETA[i] = (i % 2 == 0 ? -1 : 1) * (i + 1) / 10.;
@@ -70,8 +64,8 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
 
   @Test
   public void test() {
-    final AutocovarianceFunctionCalculator autocovariance = new AutocovarianceFunctionCalculator();
-    final AutocorrelationFunctionCalculator autocorrelation = new AutocorrelationFunctionCalculator();
+    final AutocovarianceFunctionCalculator<DoubleTimeSeries<Long>> autocovariance = new AutocovarianceFunctionCalculator<DoubleTimeSeries<Long>>();
+    final AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>> autocorrelation = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
     final Double[] rhoAR = autocorrelation.evaluate(AR);
     final Double[] rhoMA = autocorrelation.evaluate(MA);
     final Double[] rhoARMAP0 = autocorrelation.evaluate(MODEL.getSeries(PHI, P, null, 0, DATES));
@@ -84,9 +78,5 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
     final Double[] rhoARMA11 = autocorrelation.evaluate(ARMA11);
     final Double[] gammaARMA11 = autocovariance.evaluate(ARMA11);
     assertEquals(PHI[1] - THETA[1] * STD * STD / gammaARMA11[0], rhoARMA11[1], eps);
-    final Double[] t = autocorrelation.evaluate(ARMA);
-    for (final Double d : t) {
-      System.out.println(d);
-    }
   }
 }
