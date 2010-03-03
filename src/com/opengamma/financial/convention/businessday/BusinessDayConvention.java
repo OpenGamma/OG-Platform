@@ -8,7 +8,8 @@ package com.opengamma.financial.convention.businessday;
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.field.DayOfWeek;
+
+import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
  * 
@@ -16,28 +17,18 @@ import javax.time.calendar.field.DayOfWeek;
  * 
  */
 
-public abstract class BusinessDayConvention implements DateAdjuster {
+public abstract class BusinessDayConvention {
 
-  // TODO this doesn't have any concept of Holidays in here yet.
-  // TODO the holiday also needs to tell us which days of the week are weekend -
-  // for example, Israel or Middle Eastern countries do not have Saturday and
-  // Sunday
-  protected boolean isWeekendOrHoliday(final LocalDate date) {
-    final DayOfWeek day = DayOfWeek.dayOfWeek(date);
-    if (day.equals(DayOfWeek.SATURDAY) || day.equals(DayOfWeek.SUNDAY)) {
-      return false;
-    }
-    return true;
+  public abstract LocalDate adjustDate (Calendar workingDayCalendar, LocalDate date);
+
+  public ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime date) {
+    return ZonedDateTime.dateTime(adjustDate(workingDayCalendar, date.toLocalDate()), date.toLocalTime(), date.getZone());
   }
 
-  public ZonedDateTime adjustDate(final ZonedDateTime date) {
-    return ZonedDateTime.dateTime(adjustDate(date.toLocalDate()), date.toLocalTime(), date.getZone());
-  }
-
-  public boolean isWeekendOrHoliday(final ZonedDateTime date) {
-    return isWeekendOrHoliday(date.toLocalDate());
-  }
-  
   public abstract String getConventionName ();
+  
+  public DateAdjuster getDateAdjuster (final Calendar workingDayCalendar) {
+    return new BusinessDayConventionWithCalendar (this, workingDayCalendar);
+  }
   
 }
