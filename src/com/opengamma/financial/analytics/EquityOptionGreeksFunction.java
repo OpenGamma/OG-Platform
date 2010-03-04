@@ -6,8 +6,11 @@
 package com.opengamma.financial.analytics;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
@@ -22,8 +25,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -53,12 +56,20 @@ import com.opengamma.util.time.Expiry;
  */
 public class EquityOptionGreeksFunction extends AbstractFunction
 implements FunctionInvoker {
+  private static final Map<String, Greek> s_greeksByValueName;
   
-  public static final String PRICE_FIELD_NAME = "PRICE";
+  static {
+    Map<String, Greek> greeksMap = new TreeMap<String,Greek>();
+    greeksMap.put(ValueRequirementNames.FAIR_VALUE, Greek.PRICE);
+    greeksMap.put(ValueRequirementNames.DELTA, Greek.DELTA);
+    greeksMap.put(ValueRequirementNames.GAMMA, Greek.GAMMA);
+    greeksMap.put(ValueRequirementNames.RHO, Greek.RHO);
+    s_greeksByValueName = Collections.unmodifiableMap(greeksMap);
+  }
 
   @Override
   public String getShortName() {
-    return "Greeks Analytic Function";
+    return "Equity Option Greeks Analytic Function";
   }
 
   // NewFunction* Methods:
@@ -119,16 +130,15 @@ implements FunctionInvoker {
       return null;
     }
     EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
-    ValueSpecification priceSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification deltaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DELTA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification gammaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.GAMMA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification rhoSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.RHO, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    
     Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(priceSpecification);
-    results.add(deltaSpecification);
-    results.add(gammaSpecification);
-    results.add(rhoSpecification);
+    for(ValueRequirement requirement : requirements) {
+      if(requirement.getTargetSpecification().getType() != ComputationTargetType.SECURITY) {
+        continue;
+      }
+      if(s_greeksByValueName.containsKey(requirement.getValueName())) {
+        results.add(new ValueSpecification(new ValueRequirement(requirement.getValueName(), ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey())));
+      }
+    }
     
     return results;
   }
