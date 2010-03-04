@@ -45,7 +45,7 @@ public class PositionBean implements Position, Serializable {
     _security = security;
     // REVIEW kirk 2009-11-04 -- Is this right?
     // NOTE jim 2010-03-04 -- No it wasn't (it was being set to null)
-    _securityKey = new SecurityKeyImpl(security.getIdentifiers());
+    _securityKey = security.getIdentifiers() != null ? new SecurityKeyImpl(security.getIdentifiers()) : null;
   }
 
   @Override
