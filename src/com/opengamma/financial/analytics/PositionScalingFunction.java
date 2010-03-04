@@ -52,8 +52,7 @@ implements FunctionInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
-      ComputationTarget target,
-      Set<ValueRequirement> requirements) {
+      ComputationTarget target) {
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.getSpecification());
     ValueSpecification specification = new ValueSpecification(requirement);
     return Collections.singleton(specification);

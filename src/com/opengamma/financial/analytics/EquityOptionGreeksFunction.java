@@ -124,22 +124,26 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if(!canApplyTo(context, target)) {
       return null;
     }
     EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
     Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    for(ValueRequirement requirement : requirements) {
-      if(requirement.getTargetSpecification().getType() != ComputationTargetType.SECURITY) {
-        continue;
-      }
-      if(s_greeksByValueName.containsKey(requirement.getValueName())) {
-        results.add(new ValueSpecification(new ValueRequirement(requirement.getValueName(), ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey())));
-      }
-    }
-    
+    addAllPotentialGreeks(results, equityOptionSec.getIdentityKey());
     return results;
+  }
+
+  /**
+   * @param results
+   * @param identityKey
+   */
+  protected static void addAllPotentialGreeks(
+      Set<ValueSpecification> results,
+      String identityKey) {
+    for(String valueName : s_greeksByValueName.keySet()) {
+      results.add(new ValueSpecification(new ValueRequirement(valueName, ComputationTargetType.SECURITY, identityKey)));
+    }
   }
 
   @Override

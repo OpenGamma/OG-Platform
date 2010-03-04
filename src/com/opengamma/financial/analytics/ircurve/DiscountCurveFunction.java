@@ -97,7 +97,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if(canApplyTo(context, target)) {
       return _results;
     }

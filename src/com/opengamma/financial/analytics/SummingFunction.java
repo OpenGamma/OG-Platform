@@ -110,8 +110,7 @@ implements FunctionInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context,
-      ComputationTarget target,
-      Set<ValueRequirement> requirements) {
+      ComputationTarget target) {
     PortfolioNode node = target.getPortfolioNode();
     ValueSpecification result = new ValueSpecification(
         new ValueRequirement(_requirementName, ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey()));
