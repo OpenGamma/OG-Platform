@@ -130,7 +130,8 @@ implements FunctionInvoker {
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
     
