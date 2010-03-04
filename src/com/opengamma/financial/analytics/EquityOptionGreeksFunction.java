@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -166,29 +165,31 @@ implements FunctionInvoker {
     StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volatilitySurface, spot, today);
     EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOptionSec.getStrike(), expiry, equityOptionSec.getOptionType() == OptionType.CALL);
     AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
-    GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
+    
+    // Process the desired values:
+    Set<Greek> desiredGreeks = new HashSet<Greek>();
+    for(ValueRequirement desiredValue : desiredValues) {
+      Greek desiredGreek = s_greeksByValueName.get(desiredValue.getValueName());
+      if(desiredGreek == null) {
+        throw new IllegalArgumentException("Told to produce " + desiredValue + " but couldn't be mapped to a Greek.");
+      }
+      desiredGreeks.add(desiredGreek);
+    }
 
-    // Translate and package results
-    GreekResult<?> priceResult = greeks.get(Greek.PRICE);
-    GreekResult<?> deltaResult = greeks.get(Greek.DELTA);
-    GreekResult<?> gammaResult = greeks.get(Greek.GAMMA);
-    GreekResult<?> rhoResult = greeks.get(Greek.RHO);
+    // Invoke calculation:
+    GreekResultCollection greeks = model.getGreeks(definition, bundle, desiredGreeks);
     
-    ValueSpecification priceSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification deltaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DELTA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification gammaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.GAMMA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification rhoSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.RHO, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    
-    ComputedValue priceValue = new ComputedValue(priceSpecification, priceResult.getResult());
-    ComputedValue deltaValue = new ComputedValue(deltaSpecification, deltaResult.getResult());
-    ComputedValue gammaValue = new ComputedValue(gammaSpecification, gammaResult.getResult());
-    ComputedValue rhoValue = new ComputedValue(rhoSpecification, rhoResult.getResult());
-    
+    // Package results:
     Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(priceValue);
-    results.add(deltaValue);
-    results.add(gammaValue);
-    results.add(rhoValue);
+    for(ValueRequirement desiredValue : desiredValues) {
+      Greek desiredGreek = s_greeksByValueName.get(desiredValue.getValueName());
+      assert desiredGreek != null : "Should have thrown IllegalArgumentException above.";
+      GreekResult<?> greekResult = greeks.get(desiredGreek);
+      ValueSpecification resultSpecification = new ValueSpecification(
+          new ValueRequirement(desiredValue.getValueName(), ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
+      ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
+      results.add(resultValue);
+    }
     return results;
   }
 
