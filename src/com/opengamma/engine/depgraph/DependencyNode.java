@@ -131,6 +131,24 @@ public class DependencyNode {
     }
     return null;
   }
+  
+  public Set<ValueSpecification> removeUnnecessaryOutputs() {
+    Set<ValueSpecification> unnecessaryOutputs = new HashSet<ValueSpecification>();
+    for(ValueSpecification outputSpec : _outputValues) {
+      boolean isUsed = false;
+      for(DependencyNode dependantNode : _dependentNodes) {
+        if(dependantNode.getInputRequirements().contains(outputSpec.getRequirementSpecification())) {
+          isUsed = true;
+          break;
+        }
+      }
+      if(!isUsed) {
+        unnecessaryOutputs.add(outputSpec);
+      }
+    }
+    _outputValues.removeAll(unnecessaryOutputs);
+    return unnecessaryOutputs;
+  }
 
   @Override
   public String toString() {

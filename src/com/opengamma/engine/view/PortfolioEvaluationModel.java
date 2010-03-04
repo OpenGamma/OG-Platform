@@ -217,6 +217,9 @@ public class PortfolioEvaluationModel {
     }
     PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, viewDefinition);
     new PortfolioNodeTraverser(compiler).traverse(getPopulatedRootNode());
+    
+    dependencyGraphModel.removeUnnecessaryOutputs();
+    
     setDependencyGraphModel(dependencyGraphModel);
   }
   
