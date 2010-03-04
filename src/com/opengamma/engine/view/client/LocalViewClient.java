@@ -75,13 +75,11 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public Portfolio getPortfolio() {
-    // TODO Auto-generated method stub
-    return null;
+    return (Portfolio)getView().getPositionRoot();
   }
 
   @Override
   public Set<String> getRequirementNames(String securityType) {
-    // TODO Auto-generated method stub
     return null;
   }
 
