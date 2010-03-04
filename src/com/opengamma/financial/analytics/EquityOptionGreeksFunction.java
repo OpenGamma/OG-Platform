@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
@@ -22,8 +24,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -53,12 +55,63 @@ import com.opengamma.util.time.Expiry;
  */
 public class EquityOptionGreeksFunction extends AbstractFunction
 implements FunctionInvoker {
+  private static final Map<String, Greek> s_greeksByValueName;
   
-  public static final String PRICE_FIELD_NAME = "PRICE";
+  static {
+    Map<String, Greek> greeksMap = new TreeMap<String,Greek>();
+    greeksMap.put(ValueRequirementNames.FAIR_VALUE, Greek.PRICE);
+    greeksMap.put(ValueRequirementNames.DELTA, Greek.DELTA);
+    greeksMap.put(ValueRequirementNames.DELTA_BLEED, Greek.DELTA_BLEED);
+    greeksMap.put(ValueRequirementNames.STRIKE_DELTA, Greek.STRIKE_DELTA);
+    greeksMap.put(ValueRequirementNames.DRIFTLESS_DELTA, Greek.DRIFTLESS_THETA);
+    
+    greeksMap.put(ValueRequirementNames.GAMMA, Greek.GAMMA);
+    greeksMap.put(ValueRequirementNames.GAMMA_P, Greek.GAMMA_P);
+    greeksMap.put(ValueRequirementNames.STRIKE_GAMMA, Greek.STRIKE_GAMMA);
+    greeksMap.put(ValueRequirementNames.GAMMA_BLEED, Greek.GAMMA_BLEED);
+    greeksMap.put(ValueRequirementNames.GAMMA_P_BLEED, Greek.GAMMA_P_BLEED);
+    
+    greeksMap.put(ValueRequirementNames.VEGA, Greek.VEGA);
+    greeksMap.put(ValueRequirementNames.VEGA_P, Greek.VEGA_P);
+    greeksMap.put(ValueRequirementNames.VARIANCE_VEGA, Greek.VARIANCE_VEGA);
+    greeksMap.put(ValueRequirementNames.VEGA_BLEED, Greek.VEGA_BLEED);
+    
+    greeksMap.put(ValueRequirementNames.THETA, Greek.THETA);
+    
+    greeksMap.put(ValueRequirementNames.RHO, Greek.RHO);
+    greeksMap.put(ValueRequirementNames.TIME_BUCKETED_RHO, Greek.TIME_BUCKETED_RHO);
+    greeksMap.put(ValueRequirementNames.CARRY_RHO, Greek.CARRY_RHO);
+    
+    greeksMap.put(ValueRequirementNames.ZETA, Greek.ZETA);
+    greeksMap.put(ValueRequirementNames.ZETA_BLEED, Greek.ZETA_BLEED);
+    greeksMap.put(ValueRequirementNames.DZETA_DVOL, Greek.DZETA_DVOL);
+    
+    greeksMap.put(ValueRequirementNames.ELASTICITY, Greek.ELASTICITY);
+    greeksMap.put(ValueRequirementNames.PHI, Greek.PHI);
+    
+    greeksMap.put(ValueRequirementNames.ZOMMA, Greek.ZOMMA);
+    greeksMap.put(ValueRequirementNames.ZOMMA_P, Greek.ZOMMA_P);
+    
+    greeksMap.put(ValueRequirementNames.ULTIMA, Greek.ULTIMA);
+    greeksMap.put(ValueRequirementNames.VARIANCE_ULTIMA, Greek.VARIANCE_ULTIMA);
+    
+    greeksMap.put(ValueRequirementNames.SPEED, Greek.SPEED);
+    greeksMap.put(ValueRequirementNames.SPEED_P, Greek.SPEED_P);
+    
+    greeksMap.put(ValueRequirementNames.VANNA, Greek.VANNA);
+    greeksMap.put(ValueRequirementNames.VARIANCE_VANNA, Greek.VARIANCE_VANNA);
+    greeksMap.put(ValueRequirementNames.DVANNA_DVOL, Greek.DVANNA_DVOL);
+    
+    greeksMap.put(ValueRequirementNames.VOMMA, Greek.VOMMA);
+    greeksMap.put(ValueRequirementNames.VOMMA_P, Greek.VOMMA_P);
+    greeksMap.put(ValueRequirementNames.VARIANCE_VOMMA, Greek.VARIANCE_VOMMA);
+    
+    s_greeksByValueName = Collections.unmodifiableMap(greeksMap);
+  }
 
   @Override
   public String getShortName() {
-    return "Greeks Analytic Function";
+    return "Equity Option Greeks Analytic Function";
   }
 
   // NewFunction* Methods:
@@ -114,29 +167,33 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if(!canApplyTo(context, target)) {
       return null;
     }
     EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
-    ValueSpecification priceSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification deltaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DELTA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification gammaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.GAMMA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification rhoSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.RHO, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    
     Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(priceSpecification);
-    results.add(deltaSpecification);
-    results.add(gammaSpecification);
-    results.add(rhoSpecification);
-    
+    addAllPotentialGreeks(results, equityOptionSec.getIdentityKey());
     return results;
+  }
+
+  /**
+   * @param results
+   * @param identityKey
+   */
+  protected static void addAllPotentialGreeks(
+      Set<ValueSpecification> results,
+      String identityKey) {
+    for(String valueName : s_greeksByValueName.keySet()) {
+      results.add(new ValueSpecification(new ValueRequirement(valueName, ComputationTargetType.SECURITY, identityKey)));
+    }
   }
 
   @Override
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     if(!canApplyTo(target)) {
       return null;
     }
@@ -155,29 +212,31 @@ implements FunctionInvoker {
     StandardOptionDataBundle bundle = new StandardOptionDataBundle(discountCurve, costOfCarry_b, volatilitySurface, spot, today);
     EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(equityOptionSec.getStrike(), expiry, equityOptionSec.getOptionType() == OptionType.CALL);
     AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> model = new BlackScholesMertonModel();
-    GreekResultCollection greeks = model.getGreeks(definition, bundle, Arrays.asList(new Greek[] {Greek.PRICE, Greek.DELTA, Greek.GAMMA, Greek.RHO}));
+    
+    // Process the desired values:
+    Set<Greek> desiredGreeks = new HashSet<Greek>();
+    for(ValueRequirement desiredValue : desiredValues) {
+      Greek desiredGreek = s_greeksByValueName.get(desiredValue.getValueName());
+      if(desiredGreek == null) {
+        throw new IllegalArgumentException("Told to produce " + desiredValue + " but couldn't be mapped to a Greek.");
+      }
+      desiredGreeks.add(desiredGreek);
+    }
 
-    // Translate and package results
-    GreekResult<?> priceResult = greeks.get(Greek.PRICE);
-    GreekResult<?> deltaResult = greeks.get(Greek.DELTA);
-    GreekResult<?> gammaResult = greeks.get(Greek.GAMMA);
-    GreekResult<?> rhoResult = greeks.get(Greek.RHO);
+    // Invoke calculation:
+    GreekResultCollection greeks = model.getGreeks(definition, bundle, desiredGreeks);
     
-    ValueSpecification priceSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification deltaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DELTA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification gammaSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.GAMMA, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    ValueSpecification rhoSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.RHO, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
-    
-    ComputedValue priceValue = new ComputedValue(priceSpecification, priceResult.getResult());
-    ComputedValue deltaValue = new ComputedValue(deltaSpecification, deltaResult.getResult());
-    ComputedValue gammaValue = new ComputedValue(gammaSpecification, gammaResult.getResult());
-    ComputedValue rhoValue = new ComputedValue(rhoSpecification, rhoResult.getResult());
-    
+    // Package results:
     Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(priceValue);
-    results.add(deltaValue);
-    results.add(gammaValue);
-    results.add(rhoValue);
+    for(ValueRequirement desiredValue : desiredValues) {
+      Greek desiredGreek = s_greeksByValueName.get(desiredValue.getValueName());
+      assert desiredGreek != null : "Should have thrown IllegalArgumentException above.";
+      GreekResult<?> greekResult = greeks.get(desiredGreek);
+      ValueSpecification resultSpecification = new ValueSpecification(
+          new ValueRequirement(desiredValue.getValueName(), ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey()));
+      ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
+      results.add(resultValue);
+    }
     return results;
   }
 

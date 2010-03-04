@@ -108,7 +108,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if(canApplyTo(context, target)) {
       return _results;
     }
@@ -134,7 +134,8 @@ implements FunctionInvoker {
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     // Gather market data rates
     // Note that this assumes that all strips are priced in decimal percent. We need to resolve
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than

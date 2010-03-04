@@ -119,7 +119,7 @@ implements FunctionInvoker {
   }
   
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if(!canApplyTo(context, target)) {
       return null;
     }
@@ -130,7 +130,8 @@ implements FunctionInvoker {
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
     
