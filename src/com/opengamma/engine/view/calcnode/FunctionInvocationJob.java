@@ -20,6 +20,7 @@ import com.opengamma.engine.function.FunctionInputsImpl;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
@@ -39,23 +40,27 @@ public class FunctionInvocationJob implements Runnable {
   private final ViewComputationCache _computationCache;
   private final FunctionRepository _functionRepository;
   private final ComputationTarget _target;
+  private final Set<ValueRequirement> _desiredValues;
   
   public FunctionInvocationJob(
       String functionUniqueIdentifier,
       Collection<ValueSpecification> resolvedInputs,
       ViewComputationCache computationCache,
       FunctionRepository functionRepository,
-      ComputationTarget computationTarget) {
+      ComputationTarget computationTarget,
+      Set<ValueRequirement> desiredValues) {
     ArgumentChecker.checkNotNull(functionUniqueIdentifier, "Function identifier");
     ArgumentChecker.checkNotNull(resolvedInputs, "Resolved inputs");
     ArgumentChecker.checkNotNull(computationCache, "Computation Cache");
     ArgumentChecker.checkNotNull(functionRepository, "Function repository");
     ArgumentChecker.checkNotNull(computationTarget, "Computation target");
+    ArgumentChecker.checkNotNull(desiredValues, "Desired value requirements");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _resolvedInputs = resolvedInputs;
     _computationCache = computationCache;
     _functionRepository = functionRepository;
     _target = computationTarget;
+    _desiredValues = desiredValues;
   }
   
   /**
@@ -93,6 +98,13 @@ public class FunctionInvocationJob implements Runnable {
     return _target;
   }
 
+  /**
+   * @return the desiredValues
+   */
+  public Set<ValueRequirement> getDesiredValues() {
+    return _desiredValues;
+  }
+
   @Override
   public void run() {
     s_logger.debug("Invoking {} on target {}", getFunctionUniqueIdentifier(), getTarget());
@@ -103,7 +115,7 @@ public class FunctionInvocationJob implements Runnable {
     
     FunctionInputs functionInputs = assembleInputs();
     
-    Set<ComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget());
+    Set<ComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget(), getDesiredValues());
     cacheResults(results);
   }
 

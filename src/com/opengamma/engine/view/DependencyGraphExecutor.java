@@ -275,6 +275,10 @@ public class DependencyGraphExecutor {
     for(ValueRequirement requirement : depNode.getInputRequirements()) {
       resolvedInputs.add(depNode.getMappedRequirement(requirement));
     }
+    Set<ValueRequirement> desiredValues = new HashSet<ValueRequirement>();
+    for(ValueSpecification outputValue : depNode.getOutputValues()) {
+      desiredValues.add(outputValue.getRequirementSpecification());
+    }
 
     CalculationJob job = new CalculationJob(
         getViewName(),
@@ -282,7 +286,8 @@ public class DependencyGraphExecutor {
         jobId,
         depNode.getFunctionDefinition().getUniqueIdentifier(),
         depNode.getComputationTarget().getSpecification(),
-        resolvedInputs);
+        resolvedInputs,
+        desiredValues);
     
     s_logger.debug("Enqueuing job with specification {}", jobSpec);
     invokeJob(job);

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 
 
 /**
@@ -21,5 +22,6 @@ public interface FunctionInvoker {
   Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
-      ComputationTarget target);
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues);
 }

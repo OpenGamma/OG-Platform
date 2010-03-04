@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -34,6 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
 public class CalculationJob implements Serializable {
   public static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
   public static final String INPUT_FIELD_NAME = "valueInput";
+  public static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
   
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
@@ -42,6 +44,7 @@ public class CalculationJob implements Serializable {
   private final String _functionUniqueIdentifier;
   private final ComputationTargetSpecification _computationTargetSpecification;
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
+  private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
   
   /**
    * @param viewName
@@ -51,21 +54,25 @@ public class CalculationJob implements Serializable {
   public CalculationJob(String viewName, long iterationTimestamp, long jobId,
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
-      Collection<ValueSpecification> inputs) {
+      Collection<ValueSpecification> inputs,
+      Collection<ValueRequirement> desiredValues) {
     this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
-        functionUniqueIdentifier, computationTargetSpecification, inputs);
+        functionUniqueIdentifier, computationTargetSpecification, inputs,
+        desiredValues);
   }
   
   protected CalculationJob(
       CalculationJobSpecification specification,
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
-      Collection<ValueSpecification> inputs) {
+      Collection<ValueSpecification> inputs,
+      Collection<ValueRequirement> desiredValues) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _specification = specification;
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _computationTargetSpecification = computationTargetSpecification;
     _inputs.addAll(inputs);
+    _desiredValues.addAll(desiredValues);
   }
 
   /**
@@ -96,6 +103,13 @@ public class CalculationJob implements Serializable {
     return _computationTargetSpecification;
   }
 
+  /**
+   * @return the desiredValues
+   */
+  public Set<ValueRequirement> getDesiredValues() {
+    return _desiredValues;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -110,6 +124,11 @@ public class CalculationJob implements Serializable {
     
     for(ValueSpecification inputSpecification : getInputs()) {
       msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
+    }
+    for(ValueRequirement desiredValue : getDesiredValues()) {
+      MutableFudgeFieldContainer valueMsg = fudgeContext.newMessage();
+      desiredValue.toFudgeMsg(fudgeContext, valueMsg);
+      msg.add(DESIRED_VALUE_FIELD_NAME, valueMsg);
     }
     
     return msg;
@@ -130,6 +149,13 @@ public class CalculationJob implements Serializable {
       inputs.add(inputSpecification);
     }
     
-    return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, computationTargetSpecification, inputs);
+    List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
+    for(FudgeField field : msg.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
+      FudgeFieldContainer valueMsg = (FudgeFieldContainer)field.getValue();
+      ValueRequirement desiredValue = ValueRequirement.fromFudgeMsg(valueMsg);
+      desiredValues.add(desiredValue);
+    }
+    
+    return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, computationTargetSpecification, inputs, desiredValues);
   }
 }

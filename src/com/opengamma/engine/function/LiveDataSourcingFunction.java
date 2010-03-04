@@ -74,7 +74,7 @@ implements FunctionInvoker {
   @Override
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target, Set<ValueRequirement> desiredValues) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }
 
