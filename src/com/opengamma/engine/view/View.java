@@ -141,6 +141,7 @@ public class View implements Lifecycle {
   }
 
   public synchronized void init() {
+    s_logger.info("Initializing view {}", getDefinition().getName());
     checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 

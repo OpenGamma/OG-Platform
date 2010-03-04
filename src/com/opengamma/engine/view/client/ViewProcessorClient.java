@@ -34,4 +34,8 @@ public interface ViewProcessorClient {
   
   ViewClient getView(String viewName);
   
+  void startLiveCalculation(String viewName);
+  
+  void stopLiveCalculation(String viewName);
+  
 }
