@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface FunctionDefinition {
   
+  void init(FunctionCompilationContext context);
   /**
    * The unique identifier for an {@code AnalyticFunction} is the handle
    * through which its {@link FunctionInvoker} can be identified
@@ -46,7 +47,7 @@ public interface FunctionDefinition {
    * @return
    */
   ComputationTargetType getTargetType();
-  
+ 
   boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
   
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target);

@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class FunctionCompilationContext {
   private final Map<String, Object> _backingMap = new ConcurrentSkipListMap<String, Object>();
-  
+    
   public Object get(String elementName) {
     return _backingMap.get(elementName);
   }

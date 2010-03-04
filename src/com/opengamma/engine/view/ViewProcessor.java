@@ -276,6 +276,8 @@ public class ViewProcessor implements Lifecycle {
     try {
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
+      getFunctionRepository().initFunctions(getCompilationContext());
+      
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();

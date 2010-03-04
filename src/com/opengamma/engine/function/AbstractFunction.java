@@ -34,5 +34,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
     // TODO Auto-generated method stub
     return false;
   }
+  
+  @Override
+  public void init(FunctionCompilationContext context) {
+  }
 
 }

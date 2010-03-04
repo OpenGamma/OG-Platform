@@ -47,4 +47,11 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     return _invokersByUniqueIdentifier.get(uniqueIdentifier);
   }
 
+  @Override
+  public void initFunctions(FunctionCompilationContext compilationContext) {
+    for (FunctionDefinition function : _functions) {
+      function.init(compilationContext);
+    }
+  }
+
 }
