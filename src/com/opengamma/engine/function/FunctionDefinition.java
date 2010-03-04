@@ -52,5 +52,12 @@ public interface FunctionDefinition {
   
   Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target);
   
-  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements);
+  /**
+   * Should return the <b>maximal</b> set of potential outputs. <b>Actual</b> computed values
+   * will be trimmed.
+   * @param context
+   * @param target
+   * @return
+   */
+  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 }

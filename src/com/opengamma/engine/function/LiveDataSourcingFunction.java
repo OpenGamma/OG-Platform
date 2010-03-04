@@ -57,7 +57,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     return Collections.singleton(_result);
   }
 
@@ -74,7 +74,7 @@ implements FunctionInvoker {
   @Override
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target, Set<ValueRequirement> desiredValues) {
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }
 

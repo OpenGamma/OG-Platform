@@ -117,6 +117,19 @@ public class DependencyGraphModel {
     return Collections.unmodifiableSet(_allRequiredLiveData);
   }
   
+  /**
+   * Go through the entire model and remove any output values that
+   * aren't actually consumed.
+   * Because functions can possibly produce more than their minimal set of values,
+   * we need to strip out the ones that aren't actually used after the whole graph
+   * is bootstrapped.
+   */
+  public void removeUnnecessaryOutputs() {
+    for(DependencyGraph graph : _graphsByTarget.values()) {
+      graph.removeUnnecessaryValues();
+    }
+  }
+  
   public void addTarget(ComputationTarget target, Set<ValueRequirement> requirements) {
     ArgumentChecker.checkNotNull(target, "Computation Target");
     ArgumentChecker.checkNotNull(requirements, "Value requirements");

@@ -12,6 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -24,6 +27,7 @@ import com.opengamma.util.Pair;
  * @author kirk
  */
 public class DependencyGraph {
+  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraph.class);
   private final ComputationTarget _computationTarget;
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
   private final List<DependencyNode> _dependencyNodes = new ArrayList<DependencyNode>();
@@ -65,6 +69,16 @@ public class DependencyGraph {
   
   public Collection<DependencyNode> getNodes() {
     return Collections.unmodifiableCollection(_dependencyNodes);
+  }
+  
+  public void removeUnnecessaryValues() {
+    for(DependencyNode node : _dependencyNodes) {
+      Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
+      if(!unnecessaryValues.isEmpty()) {
+        s_logger.info("Graph for {} removed {} unnecessary potential results", getComputationTarget(), unnecessaryValues.size());
+        _outputValues.removeAll(unnecessaryValues);
+      }
+    }
   }
 
 }

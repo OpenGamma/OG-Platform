@@ -65,7 +65,7 @@ public abstract class AbstractCalculationNode {
     if(target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
     }
-    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository(), target);
+    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository(), target, job.getDesiredValues());
     long startTS = System.currentTimeMillis();
     boolean wasException = false;
     try {
