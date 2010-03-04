@@ -8,7 +8,9 @@ package com.opengamma.livedata.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -17,24 +19,36 @@ import com.opengamma.livedata.LiveDataSpecification;
  */
 public class MockLiveDataServer extends AbstractLiveDataServer {
   
-  private List<LiveDataSpecification> _subscriptions = new ArrayList<LiveDataSpecification>();
-  private List<LiveDataSpecification> _unsubscriptions = new ArrayList<LiveDataSpecification>();
-
-  @Override
-  public synchronized void subscribe(LiveDataSpecification fullyQualifiedSpec) {
-    _subscriptions.add(fullyQualifiedSpec);    
+  private final IdentificationDomain _domain;
+  private List<String> _subscriptions = new ArrayList<String>();
+  private List<String> _unsubscriptions = new ArrayList<String>();
+  
+  public MockLiveDataServer(IdentificationDomain domain) {
+    ArgumentChecker.checkNotNull(domain, "Identification domain");
+    _domain = domain;
   }
   
   @Override
-  public synchronized void unsubscribe(LiveDataSpecification spec) {
-    _unsubscriptions.add(spec);
+  protected IdentificationDomain getUniqueIdDomain() {
+    return _domain;
   }
 
-  public List<LiveDataSpecification> getSubscriptions() {
+  @Override
+  protected Object subscribe(String uniqueId) {
+    _subscriptions.add(uniqueId);
+    return uniqueId;
+  }
+
+  @Override
+  protected void unsubscribe(Object subscriptionHandle) {
+    _unsubscriptions.add((String) subscriptionHandle);
+  }
+
+  public List<String> getSubscriptions() {
     return _subscriptions;
   }
 
-  public List<LiveDataSpecification> getUnsubscriptions() {
+  public List<String> getUnsubscriptions() {
     return _unsubscriptions;
   }
 

@@ -31,7 +31,9 @@ public class HeartbeatConduitTest {
   
   @Test
   public void singleSpecification() throws InterruptedException {
-    MockLiveDataServer dataServer = new MockLiveDataServer();
+    IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
+    
+    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
@@ -42,7 +44,7 @@ public class HeartbeatConduitTest {
     Thread.sleep(3000l);
     assertTrue(pubManager.getActiveSpecificationTimeouts().isEmpty());
     
-    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("BbgId"), "USSw5 Curncy"));
+    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     valueDistributor.addListener(subscription, new CollectingLiveDataListener());
 
     // Wait at least 3 seconds to make sure we get heartbeats.

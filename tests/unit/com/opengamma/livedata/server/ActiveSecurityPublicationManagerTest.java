@@ -31,7 +31,9 @@ public class ActiveSecurityPublicationManagerTest {
   
   @Test
   public void expirationWithHeartbeatSendingClient() throws InterruptedException {
-    MockLiveDataServer dataServer = new MockLiveDataServer();
+    IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
+    
+    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer, 100, 500);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
@@ -40,7 +42,7 @@ public class ActiveSecurityPublicationManagerTest {
     new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 100);
     
     // subscribe on the client side - starts sending heartbeats
-    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("BbgId"), "USSw5 Curncy"));
+    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     valueDistributor.addListener(subscription, listener);
     
@@ -58,28 +60,29 @@ public class ActiveSecurityPublicationManagerTest {
     
     assertEquals(1, dataServer.getSubscriptions().size());
     assertEquals(1, dataServer.getUnsubscriptions().size());
-    assertEquals(subscription, dataServer.getSubscriptions().get(0));
-    assertEquals(subscription, dataServer.getUnsubscriptions().get(0));
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getSubscriptions().get(0));
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getUnsubscriptions().get(0));
   }
   
   @Test
   public void expirationWithClientThatDoesNotSendHeartbeats() throws InterruptedException {
+    IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
     
-    MockLiveDataServer dataServer = new MockLiveDataServer();
+    MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     new ActiveSecurityPublicationManager(dataServer, 100, 500);
     
     // subscribe on the server side
-    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("BbgId"), "USSw5 Curncy"));
+    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", Collections.singleton(subscription)));
     
     assertEquals(1, dataServer.getSubscriptions().size());
-    assertEquals(subscription, dataServer.getSubscriptions().get(0));
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getSubscriptions().get(0));
     
     // Wait for expiry
     Thread.sleep(1000);
     
     assertEquals(1, dataServer.getUnsubscriptions().size());
-    assertEquals(subscription, dataServer.getUnsubscriptions().get(0));
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getUnsubscriptions().get(0));
     
   }
 

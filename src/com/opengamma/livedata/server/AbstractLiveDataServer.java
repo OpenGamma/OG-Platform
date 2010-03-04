@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -18,6 +20,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
@@ -42,6 +46,9 @@ public abstract class AbstractLiveDataServer {
   private final Set<MarketDataFieldReceiver> _fieldReceivers = new CopyOnWriteArraySet<MarketDataFieldReceiver>();
   private final Set<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArraySet<SubscriptionListener>();
   private final Set<LiveDataSpecification> _currentlyActiveSubscriptions = Collections.synchronizedSet(new HashSet<LiveDataSpecification>());
+  private final Map<String, LiveDataSpecification> _securityUniqueId2FullyQualifiedSpecification = new ConcurrentHashMap<String, LiveDataSpecification>();
+  private final Map<LiveDataSpecification, Object> _fullyQualifiedSpec2SubscriptionHandle = new ConcurrentHashMap<LiveDataSpecification, Object>();
+
   
   private final Lock _subscriptionLock = new ReentrantLock();
   
@@ -124,13 +131,20 @@ public abstract class AbstractLiveDataServer {
     _entitlementChecker = entitlementChecker;
   }
 
-
   /**
-   * @param subscriptionRequest
-   * @return
+   * @return Subscription handle
    */
-  protected abstract void subscribe(LiveDataSpecification fullyQualifiedSpec);
-  protected abstract void unsubscribe(LiveDataSpecification fullyQualifiedSpec);
+  protected abstract Object subscribe(String uniqueId);
+  
+  /**
+   * @param subscriptionHandle The object that was returned by subscribe()
+   */
+  protected abstract void unsubscribe(Object subscriptionHandle);
+  
+  /**
+   * @return Identification domain that uniquely identifies securities for this type of server.
+   */
+  protected abstract IdentificationDomain getUniqueIdDomain();
   
   public final LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
     
@@ -166,8 +180,16 @@ public abstract class AbstractLiveDataServer {
           if (isSubscribedTo(qualifiedSpecification)) {
             s_logger.info("Already subscribed to {}", qualifiedSpecification);
           } else {
-            subscribe(qualifiedSpecification);
-            _currentlyActiveSubscriptions.add(new LiveDataSpecificationImpl(qualifiedSpecification));
+            
+            String uniqueId = qualifiedSpecification.getIdentifier(getUniqueIdDomain());
+            Object subscriptionHandle = subscribe(uniqueId);
+            
+            LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(qualifiedSpecification);
+            
+            _currentlyActiveSubscriptions.add(localFullyQualifiedSpecification);
+            _securityUniqueId2FullyQualifiedSpecification.put(uniqueId, localFullyQualifiedSpecification);
+            _fullyQualifiedSpec2SubscriptionHandle.put(localFullyQualifiedSpecification, subscriptionHandle);
+
             for (SubscriptionListener listener : _subscriptionListeners) {
               try {
                 listener.subscribed(qualifiedSpecification);
@@ -200,9 +222,20 @@ public abstract class AbstractLiveDataServer {
       if (isSubscribedTo(fullyQualifiedSpec)) {
         s_logger.info("Terminating publication of {}", fullyQualifiedSpec);
         
-        unsubscribe(fullyQualifiedSpec);
+        LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(fullyQualifiedSpec);
+        String uniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
         
-        _currentlyActiveSubscriptions.remove(new LiveDataSpecificationImpl(fullyQualifiedSpec));
+        Object subscriptionHandle = _fullyQualifiedSpec2SubscriptionHandle.get(localFullyQualifiedSpecification);
+        if (subscriptionHandle == null) {
+          throw new OpenGammaRuntimeException("Subscription handle not found for " + fullyQualifiedSpec);
+        }
+        
+        unsubscribe(subscriptionHandle);
+        
+        _currentlyActiveSubscriptions.remove(localFullyQualifiedSpecification);
+        _securityUniqueId2FullyQualifiedSpecification.remove(uniqueId);
+        _fullyQualifiedSpec2SubscriptionHandle.remove(localFullyQualifiedSpecification);
+        
         for (SubscriptionListener listener : _subscriptionListeners) {
           try {
             listener.unsubscribed(fullyQualifiedSpec);
@@ -221,6 +254,10 @@ public abstract class AbstractLiveDataServer {
   
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
     return _currentlyActiveSubscriptions.contains(new LiveDataSpecificationImpl(fullyQualifiedSpec));
+  }
+  
+  public LiveDataSpecification getFullyQualifiedSpec(String securityUniqueId) {
+    return _securityUniqueId2FullyQualifiedSpecification.get(securityUniqueId);  
   }
   
   public void liveDataReceived(LiveDataSpecification resolvedSpecification, FudgeFieldContainer liveDataFields) {
