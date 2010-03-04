@@ -45,19 +45,19 @@ implements FunctionInvoker {
   }
 
   @Override
-  public boolean canApplyTo(ComputationTarget target) {
+  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     // Special pseudo-function. If constructed, we apply.
     return true;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
     // None by design.
     return Collections.emptySet();
   }
 
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
     return Collections.singleton(_result);
   }
 

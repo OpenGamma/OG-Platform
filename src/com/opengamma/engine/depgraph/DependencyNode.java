@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -38,6 +39,7 @@ public class DependencyNode {
   private final Set<DependencyNode> _dependentNodes = new HashSet<DependencyNode>();
   
   public DependencyNode(
+      FunctionCompilationContext context,
       FunctionDefinition functionDefinition,
       ComputationTarget target) {
     ArgumentChecker.checkNotNull(functionDefinition, "Function Definition");
@@ -50,8 +52,8 @@ public class DependencyNode {
     
     _functionDefinition = functionDefinition;
     _computationTarget = target;
-    _inputRequirements.addAll(_functionDefinition.getRequirements(_computationTarget));
-    _outputValues.addAll(_functionDefinition.getResults(_computationTarget, _inputRequirements));
+    _inputRequirements.addAll(_functionDefinition.getRequirements(context, _computationTarget));
+    _outputValues.addAll(_functionDefinition.getResults(context, _computationTarget, _inputRequirements));
   }
   
   public void addInputNode(DependencyNode inputNode) {

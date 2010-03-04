@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -25,17 +26,17 @@ public class DependencyNodeTest {
   private class TestFunction extends AbstractFunction {
 
     @Override
-    public boolean canApplyTo(ComputationTarget target) {
+    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
       return target.getType() == ComputationTargetType.PRIMITIVE && target.getValue() instanceof Integer;
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(ComputationTarget target) {
+    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
       return Collections.emptySet();
     }
 
     @Override
-    public Set<ValueSpecification> getResults(ComputationTarget target,
+    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target,
         Set<ValueRequirement> requirements) {
       return Collections.emptySet();
     }
@@ -54,12 +55,13 @@ public class DependencyNodeTest {
   
   @Test
   public void testDepdendentNodes() {
-    DependencyNode node0 = new DependencyNode(new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(0)));
-    DependencyNode node1 = new DependencyNode(new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(1)));
-    DependencyNode node2 = new DependencyNode(new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(2)));
-    DependencyNode node3 = new DependencyNode(new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(3)));
-    DependencyNode node4 = new DependencyNode(new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(4)));
-    DependencyNode node5 = new DependencyNode(new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(5)));
+    FunctionCompilationContext context = new FunctionCompilationContext();
+    DependencyNode node0 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(0)));
+    DependencyNode node1 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(1)));
+    DependencyNode node2 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(2)));
+    DependencyNode node3 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(3)));
+    DependencyNode node4 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(4)));
+    DependencyNode node5 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Integer(5)));
     node0.addInputNode(node1);
     node0.addInputNode(node2);
     node0.addInputNode(node3);

@@ -17,5 +17,6 @@ import com.opengamma.util.Pair;
  * @author jim
  */
 public interface FunctionResolver {
-  public Pair<FunctionDefinition, ValueSpecification> resolveFunction(ComputationTarget target, ValueRequirement requirement);
+  public Pair<FunctionDefinition, ValueSpecification> resolveFunction(
+      FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement);
 }

@@ -6,10 +6,11 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -30,6 +31,7 @@ public class ViewProcessingContext {
   private final ViewComputationCacheSource _computationCacheSource;
   private final FudgeRequestSender _computationJobRequestSender;
   private final DefaultComputationTargetResolver _computationTargetResolver;
+  private final FunctionCompilationContext _compilationContext;
 
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -39,7 +41,8 @@ public class ViewProcessingContext {
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
-      FudgeRequestSender computationJobRequestSender
+      FudgeRequestSender computationJobRequestSender,
+      FunctionCompilationContext compilationContext
       ) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -50,6 +53,7 @@ public class ViewProcessingContext {
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
+    _compilationContext = compilationContext;
     
     _computationTargetResolver = new DefaultComputationTargetResolver(securityMaster, positionMaster);
   }
@@ -115,6 +119,13 @@ public class ViewProcessingContext {
    */
   public DefaultComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
+  }
+
+  /**
+   * @return the compilationContext
+   */
+  public FunctionCompilationContext getCompilationContext() {
+    return _compilationContext;
   }
 
 }

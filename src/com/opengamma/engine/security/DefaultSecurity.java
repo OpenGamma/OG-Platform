@@ -26,6 +26,7 @@ public class DefaultSecurity implements Security, Serializable {
   private String _identityKey;
   
   public DefaultSecurity() {
+    _identifiers = new DomainSpecificIdentifiersImpl();
   }
   
   public DefaultSecurity(String securityType, Collection<? extends DomainSpecificIdentifier> identifiers) {

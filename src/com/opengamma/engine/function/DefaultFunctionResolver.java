@@ -34,14 +34,14 @@ public class DefaultFunctionResolver implements FunctionResolver {
 
   @Override
   public Pair<FunctionDefinition, ValueSpecification> resolveFunction(
-      ComputationTarget target, ValueRequirement requirement) {
+      FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement) {
     for(FunctionDefinition function : getFunctionRepository().getAllFunctions()) {
       if(function instanceof FunctionDefinition) {
         FunctionDefinition newFunction = (FunctionDefinition) function;
-        if(!newFunction.canApplyTo(target)) {
+        if(!newFunction.canApplyTo(context, target)) {
           continue;
         }
-        Set<ValueSpecification> resultSpecs = newFunction.getResults(target, Collections.singleton(requirement));
+        Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target, Collections.singleton(requirement));
         for(ValueSpecification resultSpec : resultSpecs) {
           if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
             return new Pair<FunctionDefinition, ValueSpecification>(newFunction, resultSpec);

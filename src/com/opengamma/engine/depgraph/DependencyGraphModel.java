@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
@@ -42,6 +43,7 @@ public class DependencyGraphModel {
   private FunctionRepository _functionRepository;
   private ComputationTargetResolver _targetResolver;
   private FunctionResolver _functionResolver;
+  private FunctionCompilationContext _compilationContext;
   // State:
   private final Map<ComputationTarget, DependencyGraph> _graphsByTarget =
     new HashMap<ComputationTarget, DependencyGraph>();
@@ -99,6 +101,18 @@ public class DependencyGraphModel {
     _targetResolver = targetResolver;
   }
   
+  /**
+   * @return the compilationContext
+   */
+  public FunctionCompilationContext getCompilationContext() {
+    return _compilationContext;
+  }
+  /**
+   * @param compilationContext the compilationContext to set
+   */
+  public void setCompilationContext(FunctionCompilationContext compilationContext) {
+    _compilationContext = compilationContext;
+  }
   public Set<ValueRequirement> getAllRequiredLiveData() {
     return Collections.unmodifiableSet(_allRequiredLiveData);
   }
@@ -128,18 +142,18 @@ public class DependencyGraphModel {
       s_logger.debug("Live Data : {} on {}", requirement, target);
       _allRequiredLiveData.add(requirement);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
-      DependencyNode node = new DependencyNode(function, target);
+      DependencyNode node = new DependencyNode(getCompilationContext(), function, target);
       depGraph.addDependencyNode(node);
       return new Pair<DependencyNode, ValueSpecification>(node, function.getResult());
     }
     
-    Pair<FunctionDefinition, ValueSpecification> resolvedFunction = getFunctionResolver().resolveFunction(target, requirement);
+    Pair<FunctionDefinition, ValueSpecification> resolvedFunction = getFunctionResolver().resolveFunction(getCompilationContext(), target, requirement);
     if(resolvedFunction == null) {
       // Couldn't resolve.
       // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
       throw new UnsatisfiableDependencyGraphException("Could not satisfy requirement " + requirement + " for target " + target);
     }
-    DependencyNode node = new DependencyNode(resolvedFunction.getFirst(), target);
+    DependencyNode node = new DependencyNode(getCompilationContext(), resolvedFunction.getFirst(), target);
     depGraph.addDependencyNode(node);
     
     for(ValueRequirement inputRequirement : node.getInputRequirements()) {

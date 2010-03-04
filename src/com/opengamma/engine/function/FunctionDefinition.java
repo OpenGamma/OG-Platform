@@ -47,9 +47,9 @@ public interface FunctionDefinition {
    */
   ComputationTargetType getTargetType();
   
-  boolean canApplyTo(ComputationTarget target);
+  boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
   
-  Set<ValueRequirement> getRequirements(ComputationTarget target);
+  Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target);
   
-  Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements);
+  Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements);
 }

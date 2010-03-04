@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.DefaultFunctionResolver;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
@@ -28,6 +29,9 @@ import com.opengamma.util.ArgumentChecker;
 // REVIEW kirk 2010-03-02 -- View initialization is really slow, and right now there's no
 // asynchronous support in any type of RESTful call for a super-slow (1-2 minutes) call.
 // Should we pre-load all views? Have an option for pre-loaded ones? What?
+
+// TODO kirk 2010-03-04 -- Needs a way to Spring-based inject things into the
+// compilation context.
 /**
  * 
  *
@@ -46,6 +50,7 @@ public class ViewProcessor implements Lifecycle {
   private final FudgeRequestSender _computationJobRequestSender;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
+  private final FunctionCompilationContext _compilationContext = new FunctionCompilationContext();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private boolean _isStarted = false;
   
@@ -134,6 +139,13 @@ public class ViewProcessor implements Lifecycle {
   }
   
   /**
+   * @return the compilationContext
+   */
+  public FunctionCompilationContext getCompilationContext() {
+    return _compilationContext;
+  }
+
+  /**
    * Obtain an already-initialized {@link View} instance.
    * <p/>
    * This method will only return a view if it has already been initialized.
@@ -167,7 +179,8 @@ public class ViewProcessor implements Lifecycle {
         getPositionMaster(),
         getSecurityMaster(),
         getComputationCacheSource(),
-        getComputationJobRequestSender()
+        getComputationJobRequestSender(),
+        getCompilationContext()
         );
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);

@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
@@ -127,6 +128,7 @@ public class PortfolioEvaluationModel {
     buildDependencyGraphs(
         viewProcessingContext.getFunctionRepository(),
         viewProcessingContext.getFunctionResolver(),
+        viewProcessingContext.getCompilationContext(),
         viewProcessingContext.getLiveDataAvailabilityProvider(),
         viewProcessingContext.getComputationTargetResolver(),
         viewDefinition);
@@ -190,6 +192,7 @@ public class PortfolioEvaluationModel {
   public void buildDependencyGraphs(
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
+      FunctionCompilationContext compilationContext,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       ComputationTargetResolver computationTargetResolver,
       ViewDefinition viewDefinition) {
@@ -198,6 +201,7 @@ public class PortfolioEvaluationModel {
     dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
     dependencyGraphModel.setTargetResolver(computationTargetResolver);
     dependencyGraphModel.setFunctionResolver(functionResolver);
+    dependencyGraphModel.setCompilationContext(compilationContext);
 
     Map<String, Set<String>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
     for(Position position : getPopulatedPositions()) {
