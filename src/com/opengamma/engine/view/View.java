@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -216,13 +215,13 @@ public class View implements Lifecycle {
     for(ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       deltaModel.addTarget(targetSpec);
       
-      Collection<ComputedValue> resultValues = result.getValues(targetSpec);
-      Collection<ComputedValue> previousValues = previousResult.getValues(targetSpec);
+      Map<String, ComputedValue> resultValues = result.getValues(targetSpec);
+      Map<String, ComputedValue> previousValues = previousResult.getValues(targetSpec);
       Map<ValueSpecification, ComputedValue> previousValueMap = new HashMap<ValueSpecification, ComputedValue>();
-      for(ComputedValue previousValue : previousValues) {
+      for(ComputedValue previousValue : previousValues.values()) {
         previousValueMap.put(previousValue.getSpecification(), previousValue);
       }
-      for(ComputedValue resultValue : resultValues) {
+      for(ComputedValue resultValue : resultValues.values()) {
         ComputedValue previousValue = previousValueMap.get(resultValue.getSpecification());
         if(previousValue == null) {
           deltaModel.addValue(resultValue);

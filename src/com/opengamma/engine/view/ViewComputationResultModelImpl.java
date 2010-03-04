@@ -9,9 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -28,8 +26,8 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
-  private final Map<ComputationTargetSpecification, Set<ComputedValue>> _values =
-    new HashMap<ComputationTargetSpecification, Set<ComputedValue>>();
+  private final Map<ComputationTargetSpecification, Map<String, ComputedValue>> _values =
+    new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
   private ViewComputationCache _cache;
@@ -73,12 +71,12 @@ public class ViewComputationResultModelImpl implements
     for (Position position : node.getPositions()) {
       ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getIdentityKey());
       if(!_values.containsKey(targetSpec)) {
-        _values.put(targetSpec, new HashSet<ComputedValue>());
+        _values.put(targetSpec, new HashMap<String, ComputedValue>());
       }
     }
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey());
     if(!_values.containsKey(targetSpec)) {
-      _values.put(targetSpec, new HashSet<ComputedValue>());
+      _values.put(targetSpec, new HashMap<String, ComputedValue>());
     }
     for (PortfolioNode subNode : node.getSubNodes()) {
       recursiveAddPortfolio(subNode);
@@ -110,14 +108,14 @@ public class ViewComputationResultModelImpl implements
   }
 
   @Override
-  public Collection<ComputedValue> getValues(
+  public Map<String, ComputedValue> getValues(
       ComputationTargetSpecification target) {
-    return new ArrayList<ComputedValue>(_values.get(target));
+    return new HashMap<String, ComputedValue>(_values.get(target));
   }
   
   public void addValue(ComputedValue value) {
     ComputationTargetSpecification targetSpec = value.getSpecification().getRequirementSpecification().getTargetSpecification();
-    _values.get(targetSpec).add(value);
+    _values.get(targetSpec).put(value.getSpecification().getRequirementSpecification().getValueName(), value);
   }
 
 }

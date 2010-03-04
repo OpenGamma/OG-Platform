@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
@@ -29,5 +30,5 @@ public interface ViewComputationResultModel {
   // so has to be at the level of specifications.
   Collection<ComputationTargetSpecification> getAllTargets();
   
-  Collection<ComputedValue> getValues(ComputationTargetSpecification target);
+  Map<String, ComputedValue> getValues(ComputationTargetSpecification target);
 }

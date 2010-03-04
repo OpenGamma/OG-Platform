@@ -14,6 +14,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -43,7 +44,8 @@ public class PositionBean implements Position, Serializable {
     _quantity = quantity;
     _security = security;
     // REVIEW kirk 2009-11-04 -- Is this right?
-    _securityKey = null;
+    // NOTE jim 2010-03-04 -- No it wasn't (it was being set to null)
+    _securityKey = new SecurityKeyImpl(security.getIdentifiers());
   }
 
   @Override
