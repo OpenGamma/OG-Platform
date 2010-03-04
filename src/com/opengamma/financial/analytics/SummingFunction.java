@@ -59,7 +59,8 @@ implements FunctionInvoker {
 
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext,
-      FunctionInputs inputs, ComputationTarget target) {
+      FunctionInputs inputs, ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     PortfolioNode node = target.getPortfolioNode();
     Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;

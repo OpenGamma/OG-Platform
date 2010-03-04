@@ -72,7 +72,8 @@ implements FunctionInvoker {
   @Override
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     Object value = inputs.getValue(_requirementName);
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.getSpecification());
     ValueSpecification specification = new ValueSpecification(requirement);

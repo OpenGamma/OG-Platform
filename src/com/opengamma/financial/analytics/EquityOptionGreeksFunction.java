@@ -136,7 +136,8 @@ implements FunctionInvoker {
   @Override
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     if(!canApplyTo(target)) {
       return null;
     }
