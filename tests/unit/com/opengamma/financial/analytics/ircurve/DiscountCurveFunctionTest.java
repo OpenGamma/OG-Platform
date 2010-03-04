@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -45,7 +46,8 @@ public class DiscountCurveFunctionTest {
     DiscountCurveDefinition definition = constructDefinition();
     DiscountCurveFunction function = new DiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
+    FunctionCompilationContext context = new FunctionCompilationContext();
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
     Set<String> foundKeys = new TreeSet<String>();
@@ -69,13 +71,15 @@ public class DiscountCurveFunctionTest {
     DiscountCurveFunction function = new DiscountCurveFunction(definition);
     Set<ValueRequirement> requirements = null;
     
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    FunctionCompilationContext context = new FunctionCompilationContext();
+    
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNull(requirements);
     
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "EUR"));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "EUR"));
     assertNull(requirements);
 
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
 

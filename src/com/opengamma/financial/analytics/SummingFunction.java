@@ -13,6 +13,7 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
@@ -91,12 +92,12 @@ implements FunctionInvoker {
   }
 
   @Override
-  public boolean canApplyTo(ComputationTarget target) {
+  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     return target.getType() == ComputationTargetType.MULTIPLE_POSITIONS;
   }
   
   @Override
-  public Set<ValueRequirement> getRequirements(ComputationTarget target) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
     PortfolioNode node = target.getPortfolioNode();
     Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -107,7 +108,8 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target,
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context,
+      ComputationTarget target,
       Set<ValueRequirement> requirements) {
     PortfolioNode node = target.getPortfolioNode();
     ValueSpecification result = new ValueSpecification(

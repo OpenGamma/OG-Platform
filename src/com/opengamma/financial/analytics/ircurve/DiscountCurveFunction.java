@@ -17,6 +17,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
@@ -76,7 +77,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public boolean canApplyTo(ComputationTarget target) {
+  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     if(target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
@@ -88,16 +89,16 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(ComputationTarget target) {
-    if(canApplyTo(target)) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+    if(canApplyTo(context, target)) {
       return _requirements;
     }
     return null;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements) {
-    if(canApplyTo(target)) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Set<ValueRequirement> requirements) {
+    if(canApplyTo(context, target)) {
       return _results;
     }
     return null;
