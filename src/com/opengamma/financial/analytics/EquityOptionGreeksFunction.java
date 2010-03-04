@@ -61,8 +61,51 @@ implements FunctionInvoker {
     Map<String, Greek> greeksMap = new TreeMap<String,Greek>();
     greeksMap.put(ValueRequirementNames.FAIR_VALUE, Greek.PRICE);
     greeksMap.put(ValueRequirementNames.DELTA, Greek.DELTA);
+    greeksMap.put(ValueRequirementNames.DELTA_BLEED, Greek.DELTA_BLEED);
+    greeksMap.put(ValueRequirementNames.STRIKE_DELTA, Greek.STRIKE_DELTA);
+    greeksMap.put(ValueRequirementNames.DRIFTLESS_DELTA, Greek.DRIFTLESS_THETA);
+    
     greeksMap.put(ValueRequirementNames.GAMMA, Greek.GAMMA);
+    greeksMap.put(ValueRequirementNames.GAMMA_P, Greek.GAMMA_P);
+    greeksMap.put(ValueRequirementNames.STRIKE_GAMMA, Greek.STRIKE_GAMMA);
+    greeksMap.put(ValueRequirementNames.GAMMA_BLEED, Greek.GAMMA_BLEED);
+    greeksMap.put(ValueRequirementNames.GAMMA_P_BLEED, Greek.GAMMA_P_BLEED);
+    
+    greeksMap.put(ValueRequirementNames.VEGA, Greek.VEGA);
+    greeksMap.put(ValueRequirementNames.VEGA_P, Greek.VEGA_P);
+    greeksMap.put(ValueRequirementNames.VARIANCE_VEGA, Greek.VARIANCE_VEGA);
+    greeksMap.put(ValueRequirementNames.VEGA_BLEED, Greek.VEGA_BLEED);
+    
+    greeksMap.put(ValueRequirementNames.THETA, Greek.THETA);
+    
     greeksMap.put(ValueRequirementNames.RHO, Greek.RHO);
+    greeksMap.put(ValueRequirementNames.TIME_BUCKETED_RHO, Greek.TIME_BUCKETED_RHO);
+    greeksMap.put(ValueRequirementNames.CARRY_RHO, Greek.CARRY_RHO);
+    
+    greeksMap.put(ValueRequirementNames.ZETA, Greek.ZETA);
+    greeksMap.put(ValueRequirementNames.ZETA_BLEED, Greek.ZETA_BLEED);
+    greeksMap.put(ValueRequirementNames.DZETA_DVOL, Greek.DZETA_DVOL);
+    
+    greeksMap.put(ValueRequirementNames.ELASTICITY, Greek.ELASTICITY);
+    greeksMap.put(ValueRequirementNames.PHI, Greek.PHI);
+    
+    greeksMap.put(ValueRequirementNames.ZOMMA, Greek.ZOMMA);
+    greeksMap.put(ValueRequirementNames.ZOMMA_P, Greek.ZOMMA_P);
+    
+    greeksMap.put(ValueRequirementNames.ULTIMA, Greek.ULTIMA);
+    greeksMap.put(ValueRequirementNames.VARIANCE_ULTIMA, Greek.VARIANCE_ULTIMA);
+    
+    greeksMap.put(ValueRequirementNames.SPEED, Greek.SPEED);
+    greeksMap.put(ValueRequirementNames.SPEED_P, Greek.SPEED_P);
+    
+    greeksMap.put(ValueRequirementNames.VANNA, Greek.VANNA);
+    greeksMap.put(ValueRequirementNames.VARIANCE_VANNA, Greek.VARIANCE_VANNA);
+    greeksMap.put(ValueRequirementNames.DVANNA_DVOL, Greek.DVANNA_DVOL);
+    
+    greeksMap.put(ValueRequirementNames.VOMMA, Greek.VOMMA);
+    greeksMap.put(ValueRequirementNames.VOMMA_P, Greek.VOMMA_P);
+    greeksMap.put(ValueRequirementNames.VARIANCE_VOMMA, Greek.VARIANCE_VOMMA);
+    
     s_greeksByValueName = Collections.unmodifiableMap(greeksMap);
   }
 
