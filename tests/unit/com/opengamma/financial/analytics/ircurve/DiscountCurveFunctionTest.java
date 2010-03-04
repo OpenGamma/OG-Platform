@@ -44,9 +44,12 @@ public class DiscountCurveFunctionTest {
   @Test
   public void requirements() {
     DiscountCurveDefinition definition = constructDefinition();
-    DiscountCurveFunction function = new DiscountCurveFunction(definition);
+    DefaultDiscountCurveSource curveSource = new DefaultDiscountCurveSource();
+    curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
+    DiscountCurveFunction function = new DiscountCurveFunction(Currency.getInstance("USD"), "DEFAULT");
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
+    context.put("discountCurveSource", curveSource);
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
@@ -68,10 +71,12 @@ public class DiscountCurveFunctionTest {
   @Test
   public void notMatchingRequirements() {
     DiscountCurveDefinition definition = constructDefinition();
-    DiscountCurveFunction function = new DiscountCurveFunction(definition);
+    DefaultDiscountCurveSource curveSource = new DefaultDiscountCurveSource();
+    curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
+    DiscountCurveFunction function = new DiscountCurveFunction(Currency.getInstance("USD"), "DEFAULT");
     Set<ValueRequirement> requirements = null;
-    
     FunctionCompilationContext context = new FunctionCompilationContext();
+    context.put("discountCurveSource", curveSource);
     
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNull(requirements);
