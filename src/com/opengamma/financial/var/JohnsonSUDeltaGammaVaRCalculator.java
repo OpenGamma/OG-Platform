@@ -5,15 +5,12 @@
  */
 package com.opengamma.financial.var;
 
-import java.util.Iterator;
-
 import com.opengamma.math.ComplexMath;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * @author emcleod
@@ -88,17 +85,6 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
     final double d = Math.cbrt(7 + k2 + e) - Math.cbrt(e - 7 - k2) - 1;
     final double sqrtD = Math.sqrt(d);
     return (sqrtD + Math.sqrt(4. / sqrtD - d - 3) - 1) / 2.;
-  }
-
-  protected double getSign(final double mu, final DoubleTimeSeries ts) {
-    double sum = 0;
-    final Iterator<Double> iter = ts.valuesIterator();
-    double x;
-    while (iter.hasNext()) {
-      x = iter.next();
-      sum += Math.pow(x - mu, 3);
-    }
-    return Math.signum(sum);
   }
 
   private Function1D<Double, Double> getFunction(final double t, final double k) {
