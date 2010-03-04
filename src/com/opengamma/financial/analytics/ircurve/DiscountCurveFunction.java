@@ -26,6 +26,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.Currency;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -41,21 +43,30 @@ public class DiscountCurveFunction
 extends AbstractFunction 
 implements FunctionInvoker {
   private final Interpolator1D _interpolator; 
-  private final DiscountCurveDefinition _definition;
+  private DiscountCurveDefinition _definition;
   private final Set<ValueRequirement> _requirements;
   private final ValueSpecification _result;
   private final Set<ValueSpecification> _results;
+  private Currency _curveCurrency;
+  private String _curveName;
   
-  public DiscountCurveFunction(DiscountCurveDefinition definition) {
-    ArgumentChecker.checkNotNull(definition, "Discount Curve Definition");
-    _definition = definition;
-    
+  public DiscountCurveFunction(Currency currency, String name) {
+    ArgumentChecker.checkNotNull(currency, "Currency");
+    ArgumentChecker.checkNotNull(name, "Name");
+    _definition = null;
+    _curveCurrency = currency;
+    _curveName = name;
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
     _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
     _results = Collections.singleton(_result);
   }
 
+  @Override
+  public void init(FunctionCompilationContext context) {
+    _definition = OpenGammaCompilationContext.getDiscountCurveDefinition(context, _curveCurrency, _curveName);
+  }
+  
   /**
    * @param definition
    * @return
@@ -111,7 +122,7 @@ implements FunctionInvoker {
 
   @Override
   public String getShortName() {
-    return getDefinition().getCurrency() + "-" + getDefinition().getName() + " Discount Curve";
+    return _curveCurrency + "-" + _curveName + " Discount Curve";
   }
 
   @Override
