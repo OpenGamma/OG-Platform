@@ -9,22 +9,22 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
 public class StandardOptionDataBundleWithSpotTimeSeries extends StandardOptionDataBundle {
-  private final DoubleTimeSeries _spotTS;
+  private final DoubleTimeSeries<?> _spotTS;
 
   public StandardOptionDataBundleWithSpotTimeSeries(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot,
-      final ZonedDateTime date, final DoubleTimeSeries spotTS) {
+      final ZonedDateTime date, final DoubleTimeSeries<?> spotTS) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _spotTS = spotTS;
   }
 
-  public DoubleTimeSeries getSpotTimeSeries() {
+  public DoubleTimeSeries<?> getSpotTimeSeries() {
     return _spotTS;
   }
 

@@ -7,19 +7,20 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 public class StandardJFreeChartHistogramChart {
   // TODO
   // TODO map of ts label -> data
-  public JFreeChart getHistogram(DoubleTimeSeries ts, String title, String abscissaLabel, String ordinateLabel, boolean legend, boolean tooltip, boolean urls) {
-    HistogramDataset dataset = new HistogramDataset();
-    double[] data = new double[ts.size()];
+  public JFreeChart getHistogram(final DoubleTimeSeries<?> ts, final String title, final String abscissaLabel, final String ordinateLabel, final boolean legend,
+      final boolean tooltip, final boolean urls) {
+    final HistogramDataset dataset = new HistogramDataset();
+    final double[] data = new double[ts.size()];
     int i = 0;
-    for (Iterator<Double> iter = ts.valuesIterator(); iter.hasNext();) {
+    for (final Iterator<Double> iter = ts.valuesIterator(); iter.hasNext();) {
       data[i++] = iter.next();
     }
-    int bins = ts.size() / 10;
+    final int bins = ts.size() / 10;
     dataset.addSeries("", data, bins >= 1 ? bins : ts.size());// TODO
     return ChartFactory.createHistogram(title, abscissaLabel, ordinateLabel, dataset, PlotOrientation.VERTICAL, legend, tooltip, urls);// TODO
     // change

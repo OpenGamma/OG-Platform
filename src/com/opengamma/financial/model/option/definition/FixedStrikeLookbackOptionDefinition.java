@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import com.opengamma.timeseries.DoubleTimeSeriesOperations;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * A fixed-strike lookback call(put) option pays out the maximum of the
@@ -21,8 +21,8 @@ public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
-      return isCall() ? Math.max(0, DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries()) - getStrike()) : Math.max(0, getStrike()
-          - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()));
+      final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
+      return isCall() ? Math.max(0, ts.maxValue() - getStrike()) : Math.max(0, getStrike() - ts.minValue());
     }
   };
   private final OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries>() {

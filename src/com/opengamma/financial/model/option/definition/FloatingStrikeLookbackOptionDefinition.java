@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import com.opengamma.timeseries.DoubleTimeSeriesOperations;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
@@ -26,8 +26,8 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
-      return isCall() ? data.getSpot() - DoubleTimeSeriesOperations.minValue(data.getSpotTimeSeries()) : DoubleTimeSeriesOperations.maxValue(data.getSpotTimeSeries())
-          - data.getSpot();
+      final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
+      return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };
   private final OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries>() {

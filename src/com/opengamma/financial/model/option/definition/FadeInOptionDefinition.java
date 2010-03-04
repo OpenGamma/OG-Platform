@@ -7,8 +7,8 @@ package com.opengamma.financial.model.option.definition;
 
 import java.util.Iterator;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class FadeInOptionDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
-      final DoubleTimeSeries spotTS = data.getSpotTimeSeries();
+      final DoubleTimeSeries<?> spotTS = data.getSpotTimeSeries();
       final Iterator<Double> iter = spotTS.valuesIterator();
       double inRange = 0;
       while (iter.hasNext()) {

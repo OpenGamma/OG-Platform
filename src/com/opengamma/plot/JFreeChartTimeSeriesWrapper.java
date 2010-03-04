@@ -8,12 +8,12 @@ import javax.time.calendar.ZonedDateTime;
 import org.jfree.data.time.FixedMillisecond;
 import org.jfree.data.time.TimeSeries;
 
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 public class JFreeChartTimeSeriesWrapper {
   private static final JFreeChartTimeSeriesWrapper WRAPPER = new JFreeChartTimeSeriesWrapper();
 
-  public static TimeSeries getJFreeChartTimeSeries(final DoubleTimeSeries ts, final String title) {
+  public static TimeSeries getJFreeChartTimeSeries(final DoubleTimeSeries<ZonedDateTime> ts, final String title) {
     final TimeSeries jFreeChartTimeSeries = new TimeSeries(title);
     for (final Map.Entry<ZonedDateTime, Double> entry : ts) {
       jFreeChartTimeSeries.add(WRAPPER.new ConvertedTimePeriod(entry.getKey().toInstant()), entry.getValue());
