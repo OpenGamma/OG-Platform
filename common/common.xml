@@ -199,6 +199,7 @@
 				<path refid="lib.path.id" />
 				<pathelement path="${classes.dir}" />
 				<pathelement path="${tests.classes.dir}" />
+				<pathelement path="${config.dir}" />
 			</classpath>
 			<jvmarg value="${junit.logback.jvmarg}" />
 			<assertions>
