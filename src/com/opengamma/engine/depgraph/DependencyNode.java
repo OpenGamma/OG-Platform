@@ -53,7 +53,7 @@ public class DependencyNode {
     _functionDefinition = functionDefinition;
     _computationTarget = target;
     _inputRequirements.addAll(_functionDefinition.getRequirements(context, _computationTarget));
-    _outputValues.addAll(_functionDefinition.getResults(context, _computationTarget, _inputRequirements));
+    _outputValues.addAll(_functionDefinition.getResults(context, _computationTarget));
   }
   
   public void addInputNode(DependencyNode inputNode) {

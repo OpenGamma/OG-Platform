@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.function;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -41,7 +40,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
         if(!newFunction.canApplyTo(context, target)) {
           continue;
         }
-        Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target, Collections.singleton(requirement));
+        Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target);
         for(ValueSpecification resultSpec : resultSpecs) {
           if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
             return new Pair<FunctionDefinition, ValueSpecification>(newFunction, resultSpec);
