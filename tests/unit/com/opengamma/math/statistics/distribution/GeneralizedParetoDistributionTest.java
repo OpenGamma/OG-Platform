@@ -49,7 +49,7 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
 
   @Test
   public void testSupport() {
-    ProbabilityDistribution<Double> dist = new GeneralizedParetoDistribution(MU, SIGMA, KSI);
+    ProbabilityDistribution<Double> dist = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
     testLimit(dist, MU - EPS);
     assertEquals(dist.getCDF(MU + EPS), 0, EPS);
     assertEquals(dist.getCDF(LARGE_X), 1, EPS);
@@ -63,6 +63,8 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
 
   @Test
   public void testDistribution() {
+    if (retry(2))
+      return;
     final Function1D<Double[], Double> meanCalculator = new MeanCalculator();
     final Function1D<Double[], Double> medianCalculator = new MedianCalculator();
     final Function1D<Double[], Double> varianceCalculator = new PopulationVarianceCalculator();

@@ -30,6 +30,11 @@ public class StudentTTwoTailedCriticalValueCalculatorTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testNullEngine() {
+    new StudentTDistribution(3, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     F.evaluate((Double) null);
   }

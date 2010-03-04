@@ -5,8 +5,10 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import java.util.Date;
+
 import cern.jet.random.StudentT;
-import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
@@ -18,7 +20,7 @@ import com.opengamma.math.function.special.InverseIncompleteBetaFunction;
  */
 public class StudentTDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private final RandomEngine _randomEngine = new MersenneTwister(1);
+  private final RandomEngine _randomEngine = new MersenneTwister64(new Date());
   private final double _degFreedom;
   private final StudentT _dist;
   private final Function1D<Double, Double> _beta;

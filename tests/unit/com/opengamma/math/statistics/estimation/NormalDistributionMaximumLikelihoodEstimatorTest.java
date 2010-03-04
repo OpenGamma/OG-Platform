@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
@@ -31,11 +33,11 @@ public class NormalDistributionMaximumLikelihoodEstimatorTest {
 
   @Test
   public void test() {
-    final int n = 20000;
+    final int n = 500000;
     final double eps = 1e-2;
     final double mu = -1.3;
     final double sigma = 0.4;
-    final ProbabilityDistribution<Double> p1 = new NormalDistribution(mu, sigma);
+    final ProbabilityDistribution<Double> p1 = new NormalDistribution(mu, sigma, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
     final Double[] x = new Double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();

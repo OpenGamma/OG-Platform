@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -32,10 +34,10 @@ public class NormalDistributionMomentEstimatorTest {
 
   @Test
   public void test() {
-    final int n = 50000;
+    final int n = 500000;
     final double mu = 4.5;
     final double sigma = 0.86;
-    final ProbabilityDistribution<Double> p1 = new NormalDistribution(mu, sigma);
+    final ProbabilityDistribution<Double> p1 = new NormalDistribution(mu, sigma, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
     final Double[] x = new Double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();

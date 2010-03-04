@@ -6,6 +6,7 @@
 package com.opengamma.financial.timeseries.analysis;
 
 import static org.junit.Assert.fail;
+import cern.jet.random.engine.MersenneTwister64;
 
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -28,7 +29,7 @@ public class IIDHypothesisTestCase {
     final double[] random = new double[n];
     final double[] signal = new double[n];
     final double[] increasing = new double[n];
-    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 0.5);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 0.5, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
       dates[i] = i;
       random[i] = normal.nextRandom();

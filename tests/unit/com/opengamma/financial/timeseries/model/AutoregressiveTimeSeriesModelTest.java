@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
@@ -22,7 +24,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class AutoregressiveTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.25;
-  private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(MEAN, STD));
+  private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(MEAN, STD, new MersenneTwister64(
+      MersenneTwister64.DEFAULT_SEED)));
   private static final int ORDER = 2;
   private static final DoubleTimeSeries<Long> MA;
   private static final double[] PHI;

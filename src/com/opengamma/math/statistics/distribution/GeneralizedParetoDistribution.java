@@ -9,7 +9,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.util.CompareUtils;
@@ -23,7 +23,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   private final double _sigma;
   private final double _ksi;
   // TODO better seed
-  private RandomEngine _engine = new MersenneTwister(new Date());
+  private RandomEngine _engine = new MersenneTwister64(new Date());
 
   public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi) {
     if (sigma < 0)
@@ -103,6 +103,8 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * (non-Javadoc)
    * 
    * @see
+   * 
+   * 
    * 
    * 
    * com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom
