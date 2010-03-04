@@ -7,8 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -39,7 +39,7 @@ public class AsymmetricPowerOptionModelTest {
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
   private static final double EPS = 1e-4;
 
   @Test

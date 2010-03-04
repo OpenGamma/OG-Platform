@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -27,7 +27,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   protected final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final List<Greek> PRICE = Arrays.asList(Greek.PRICE);
+  protected final Set<Greek> PRICE = Collections.singleton(Greek.PRICE);
   protected final RealSingleRootFinder FINDER = new BisectionSingleRootFinder();
 
   @Override

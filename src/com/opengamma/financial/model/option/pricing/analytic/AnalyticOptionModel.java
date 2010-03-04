@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import java.util.List;
+import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
@@ -34,7 +34,7 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
   }
 
   @Override
-  public GreekResultCollection getGreeks(final T definition, final U data, final List<Greek> requiredGreeks) {
+  public GreekResultCollection getGreeks(final T definition, final U data, final Set<Greek> requiredGreeks) {
     final Function1D<U, Double> pricingFunction = getPricingFunction(definition);
     final GreekResultCollection results = new GreekResultCollection();
     final GreekVisitor<GreekResult<?>> visitor = getGreekVisitor(pricingFunction, data, definition);

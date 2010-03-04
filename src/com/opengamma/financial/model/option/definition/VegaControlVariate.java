@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
@@ -18,7 +18,7 @@ import com.opengamma.math.function.Function1D;
  */
 public class VegaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> {
   protected final AnalyticOptionModel<T, U> _analyticModel;
-  protected final List<Greek> _greek = Arrays.asList(Greek.DELTA);
+  protected final Set<Greek> _greek = Collections.singleton(Greek.DELTA);
   protected final double _beta = -1;
 
   public VegaControlVariate(final AnalyticOptionModel<T, U> analyticModel) {

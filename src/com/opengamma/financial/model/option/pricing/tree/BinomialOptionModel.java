@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.tree;
 
-import java.util.List;
+import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
@@ -44,7 +44,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
-  public GreekResultCollection getGreeks(final OptionDefinition definition, final T data, final List<Greek> requiredGreeks) {
+  public GreekResultCollection getGreeks(final OptionDefinition definition, final T data, final Set<Greek> requiredGreeks) {
     final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction = getTreeGeneratingFunction(definition);
     final GreekResultCollection results = new GreekResultCollection();
     final GreekVisitor<GreekResult<?>> visitor = getGreekVisitor(treeFunction, data, definition);

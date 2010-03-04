@@ -7,8 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -48,13 +48,13 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
 
   @Test
   public void testModels() {
-    final List<Greek> greekList = Arrays.asList(Greek.PRICE);
-    testPrices(greekList, 65, THREE_MONTHS, true, 0.08, 0.08, 0.3, 60, getCollection(Greek.PRICE, 2.1334));
-    testPrices(greekList, 95, SIX_MONTHS, false, 0.1, 0.05, 0.2, 100, getCollection(Greek.PRICE, 2.4648));
-    testPrices(greekList, 19, NINE_MONTHS, true, 0.1, 0, 0.28, 19, getCollection(Greek.PRICE, 1.7011));
-    testPrices(greekList, 19, NINE_MONTHS, false, 0.1, 0, 0.28, 19, getCollection(Greek.PRICE, 1.7011));
-    testPrices(greekList, 3800, NINE_MONTHS, false, 0, 0, 0.15, 4200, getCollection(Greek.PRICE, 65.6185));
-    testPrices(greekList, 1.6, SIX_MONTHS, true, 0.06, -0.02, 0.12, 1.56, getCollection(Greek.PRICE, 0.0291));
+    final Set<Greek> greeks = Collections.singleton(Greek.PRICE);
+    testPrices(greeks, 65, THREE_MONTHS, true, 0.08, 0.08, 0.3, 60, getCollection(Greek.PRICE, 2.1334));
+    testPrices(greeks, 95, SIX_MONTHS, false, 0.1, 0.05, 0.2, 100, getCollection(Greek.PRICE, 2.4648));
+    testPrices(greeks, 19, NINE_MONTHS, true, 0.1, 0, 0.28, 19, getCollection(Greek.PRICE, 1.7011));
+    testPrices(greeks, 19, NINE_MONTHS, false, 0.1, 0, 0.28, 19, getCollection(Greek.PRICE, 1.7011));
+    testPrices(greeks, 3800, NINE_MONTHS, false, 0, 0, 0.15, 4200, getCollection(Greek.PRICE, 65.6185));
+    testPrices(greeks, 1.6, SIX_MONTHS, true, 0.06, -0.02, 0.12, 1.56, getCollection(Greek.PRICE, 0.0291));
   }
 
   @Test
@@ -94,11 +94,11 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     return collection;
   }
 
-  private void testPrices(final List<Greek> greekList, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma,
+  private void testPrices(final Set<Greek> greeks, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma,
       final double spot, final GreekResultCollection expected) {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
-    final GreekResultCollection result = MODEL.getGreeks(definition, data, greekList);
+    final GreekResultCollection result = MODEL.getGreeks(definition, data, greeks);
     testResults(result, expected);
     testPutCallParity(strike, expiry, r, b, sigma, spot);
   }
@@ -107,17 +107,17 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
       final GreekResultCollection expected) {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
-    final GreekResultCollection result = MODEL.getGreeks(definition, data, Arrays.asList(greek));
+    final GreekResultCollection result = MODEL.getGreeks(definition, data, Collections.singleton(greek));
     testResults(result, expected);
   }
 
   private void testPutCallParity(final double strike, final Expiry expiry, final double r, final double b, final double sigma, final double spot) {
-    final List<Greek> greekList = Arrays.asList(Greek.PRICE);
+    final Set<Greek> greeks = Collections.singleton(Greek.PRICE);
     final EuropeanVanillaOptionDefinition call = new EuropeanVanillaOptionDefinition(strike, expiry, true);
     final EuropeanVanillaOptionDefinition put = new EuropeanVanillaOptionDefinition(strike, expiry, false);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
-    final GreekResultCollection callResult = MODEL.getGreeks(call, data, greekList);
-    final GreekResultCollection putResult = MODEL.getGreeks(put, data, greekList);
+    final GreekResultCollection callResult = MODEL.getGreeks(call, data, greeks);
+    final GreekResultCollection putResult = MODEL.getGreeks(put, data, greeks);
     final Double c = ((SingleGreekResult) callResult.values().iterator().next()).getResult();
     final Double p = ((SingleGreekResult) putResult.values().iterator().next()).getResult();
     final double t = call.getTimeToExpiry(DATE);

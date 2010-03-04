@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -52,7 +52,7 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
   private final OptionDefinition _callDefinition;
   private final OptionDefinition _putDefinition;
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final List<Greek> GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
+  protected final Set<Greek> GREEKS = Collections.singleton(Greek.PRICE);
 
   /**
    * 

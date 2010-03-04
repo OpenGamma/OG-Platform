@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing.montecarlo;
 
-import java.util.List;
+import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -47,7 +47,7 @@ public abstract class MonteCarloOptionModel<T extends OptionDefinition, U extend
   }
 
   @Override
-  public GreekResultCollection getGreeks(final T definition, final U data, final List<Greek> requiredGreeks) {
+  public GreekResultCollection getGreeks(final T definition, final U data, final Set<Greek> requiredGreeks) {
     final GreekResultCollection greeks = new GreekResultCollection();
     final Function1D<U, Double> price = getPrice(definition);
     greeks.put(Greek.PRICE, new SingleGreekResult(price.evaluate(data)));

@@ -7,8 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -31,7 +31,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class LogOptionModelTest {
   private static final AnalyticOptionModel<LogOptionDefinition, StandardOptionDataBundle> MODEL = new LogOptionModel();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
@@ -55,17 +55,17 @@ public class LogOptionModelTest {
     assertPriceEquals(definition, 0.6, 0.0691);
   }
 
-  private void assertPriceEquals(LogOptionDefinition definition, double sigma, double price) {
-    StandardOptionDataBundle bundle = getBundle(sigma);
-    GreekResultCollection actual = MODEL.getGreeks(definition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult)actual.get(Greek.PRICE)).getResult(), price, EPS);
+  private void assertPriceEquals(final LogOptionDefinition definition, final double sigma, final double price) {
+    final StandardOptionDataBundle bundle = getBundle(sigma);
+    final GreekResultCollection actual = MODEL.getGreeks(definition, bundle, REQUIRED_GREEKS);
+    assertEquals(((SingleGreekResult) actual.get(Greek.PRICE)).getResult(), price, EPS);
   }
 
-  private StandardOptionDataBundle getBundle(double sigma) {
+  private StandardOptionDataBundle getBundle(final double sigma) {
     return new StandardOptionDataBundle(CURVE, B, new ConstantVolatilitySurface(sigma), SPOT, DATE);
   }
 
-  private LogOptionDefinition getDefinition(double strike) {
+  private LogOptionDefinition getDefinition(final double strike) {
     return new LogOptionDefinition(strike, EXPIRY);
   }
 

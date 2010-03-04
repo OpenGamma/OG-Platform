@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.option.pricing;
 
-import java.util.List;
+import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
@@ -20,6 +20,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
 public interface OptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 
-  public GreekResultCollection getGreeks(T definition, U data, List<Greek> requiredGreeks);
+  public GreekResultCollection getGreeks(T definition, U data, Set<Greek> requiredGreeks);
 
 }

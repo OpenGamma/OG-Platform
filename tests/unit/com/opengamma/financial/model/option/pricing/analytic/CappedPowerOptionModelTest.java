@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -39,7 +39,7 @@ public class CappedPowerOptionModelTest {
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(new Greek[] { Greek.PRICE });
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
   private static final double HIGH_CAP = 1e20;
   private static final double EPS = 1e-4;
 

@@ -8,10 +8,9 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -27,6 +26,7 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.SetUtils;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -69,7 +69,7 @@ public class AnalyticOptionModelTest {
 
   @Test
   public void testFiniteDifferenceAgainstBSM() {
-    final List<Greek> greekTypes = Arrays.asList(Greek.PRICE, Greek.ZETA, Greek.CARRY_RHO, Greek.DELTA, Greek.DZETA_DVOL, Greek.ELASTICITY, Greek.PHI, Greek.RHO, Greek.THETA,
+    final Set<Greek> greekTypes = SetUtils.asSet(Greek.PRICE, Greek.ZETA, Greek.CARRY_RHO, Greek.DELTA, Greek.DZETA_DVOL, Greek.ELASTICITY, Greek.PHI, Greek.RHO, Greek.THETA,
         Greek.VARIANCE_VEGA, Greek.VEGA, Greek.VEGA_P, Greek.ZETA_BLEED, Greek.VARIANCE_VANNA, Greek.DELTA_BLEED, Greek.GAMMA, Greek.GAMMA_P, Greek.VANNA, Greek.VARIANCE_VOMMA,
         Greek.VEGA_BLEED, Greek.VOMMA, Greek.VOMMA_P, Greek.DVANNA_DVOL, Greek.GAMMA_BLEED, Greek.GAMMA_P_BLEED, Greek.SPEED, Greek.SPEED_P, Greek.ULTIMA, Greek.VARIANCE_ULTIMA,
         Greek.ZOMMA, Greek.ZOMMA_P);

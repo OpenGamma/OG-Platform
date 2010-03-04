@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.option.pricing;
@@ -8,9 +8,8 @@ package com.opengamma.financial.model.option.pricing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -34,6 +33,7 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TreeOptionModel;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
+import com.opengamma.util.SetUtils;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -51,7 +51,7 @@ public class VanillaOptionCrossModelPricingTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.PRICE, Greek.DELTA, Greek.GAMMA);
+  private static final Set<Greek> REQUIRED_GREEKS = SetUtils.asSet(Greek.PRICE, Greek.DELTA, Greek.GAMMA);
   private static final double EPS = 0.02;
 
   @Test
