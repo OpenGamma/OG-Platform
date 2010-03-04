@@ -5,7 +5,9 @@
  */
 package com.opengamma.math.statistics.distribution;
 
-import cern.jet.random.engine.MersenneTwister;
+import java.util.Date;
+
+import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 /**
@@ -14,7 +16,7 @@ import cern.jet.random.engine.RandomEngine;
  */
 public class LaplaceDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private RandomEngine _engine = new MersenneTwister(1);
+  private RandomEngine _engine = new MersenneTwister64(new Date());
   private final double _mu;
   private final double _b;
 
@@ -82,6 +84,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * (non-Javadoc)
    * 
    * @see
+   * 
    * 
    * 
    * 

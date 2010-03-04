@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -32,9 +34,9 @@ public class ChiSquareDistributionMomentEstimatorTest {
 
   @Test
   public void test() {
-    final int n = 50000;
+    final int n = 500000;
     final double k = 1.34;
-    final ProbabilityDistribution<Double> p1 = new ChiSquareDistribution(k);
+    final ProbabilityDistribution<Double> p1 = new ChiSquareDistribution(k, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
     final Double[] x = new Double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();

@@ -5,8 +5,10 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import java.util.Date;
+
 import cern.jet.random.ChiSquare;
-import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
@@ -18,7 +20,7 @@ import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
-  private final RandomEngine _engine = new MersenneTwister(1);
+  private final RandomEngine _engine = new MersenneTwister64(new Date());
   private final Function2D<Double, Double> _inverseFunction = new InverseIncompleteGammaFunction();
   private final ChiSquare _chiSquare;
   private final double _degrees;

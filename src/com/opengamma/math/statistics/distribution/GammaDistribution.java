@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import java.util.Date;
+
 import org.apache.commons.lang.NotImplementedException;
 
 import cern.jet.random.Gamma;
@@ -26,7 +28,7 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     if (theta <= 0)
       throw new IllegalArgumentException("Theta must be positive");
     // TODO better seed
-    _gamma = new Gamma(k, 1. / theta, new MersenneTwister(1));
+    _gamma = new Gamma(k, 1. / theta, new MersenneTwister(new Date()));
     _k = k;
     _theta = theta;
   }

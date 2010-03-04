@@ -14,7 +14,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class AutoregressiveTimeSeriesPACFOrderIdentifier<T extends DoubleTimeSeries<?>> {
+public class AutoregressiveTimeSeriesPACFOrderIdentifier {
   private final int _maxOrder;
   private final double _level;
   private final LeastSquaresRegression _regression = new OrdinaryLeastSquaresRegression();
@@ -28,7 +28,7 @@ public class AutoregressiveTimeSeriesPACFOrderIdentifier<T extends DoubleTimeSer
     _level = level;
   }
 
-  public int getOrder(final T ts) {
+  public int getOrder(final DoubleTimeSeries<?> ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty())

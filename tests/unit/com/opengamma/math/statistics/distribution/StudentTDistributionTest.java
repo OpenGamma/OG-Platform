@@ -51,8 +51,8 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
 
   @Test
   public void testNormal() {
-    final ProbabilityDistribution<Double> highDOF = new StudentTDistribution(1000000);
-    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
+    final ProbabilityDistribution<Double> highDOF = new StudentTDistribution(1000000, ENGINE);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1, ENGINE);
     final double eps = 1e-4;
     double x;
     for (int i = 0; i < 100; i++) {

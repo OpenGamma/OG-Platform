@@ -21,8 +21,8 @@ import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
  */
 public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.7;
-  private static final double B = 5;
-  private static final ProbabilityDistribution<Double> LAPLACE = new LaplaceDistribution(MU, B);
+  private static final double B = 0.5;
+  private static final ProbabilityDistribution<Double> LAPLACE = new LaplaceDistribution(MU, B, ENGINE);
   private static final Double[] DATA;
   private static final double EPS1 = 0.05;
   static {
@@ -55,6 +55,8 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
 
   @Test
   public void test() {
+    if (retry(2))
+      return;
     testCDFWithNull(LAPLACE);
     testPDFWithNull(LAPLACE);
     testInverseCDFWithNull(LAPLACE);

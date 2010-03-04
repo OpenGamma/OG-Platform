@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.financial.timeseries.model.MovingAverageTimeSeriesModel;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -21,16 +23,16 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * @author emcleod
  */
 public class MovingAverageTimeSeriesOrderIdentifierTest {
-  private static final MovingAverageTimeSeriesOrderIdentifier MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier(10, 0.01);
-  private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1));
+  private static final MovingAverageTimeSeriesOrderIdentifier MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier(10, 0.05);
+  private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
   private static final DoubleTimeSeries<Long> RANDOM;
   private static final DoubleTimeSeries<Long> MA3;
 
   static {
-    final int n = 20000;
+    final int n = 50000;
     final long[] dates = new long[n];
     final double[] random = new double[n];
-    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
+    final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
       dates[i] = i;
       random[i] = normal.nextRandom();

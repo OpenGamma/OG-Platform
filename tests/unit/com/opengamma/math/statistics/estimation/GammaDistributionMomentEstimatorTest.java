@@ -9,6 +9,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.GammaDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -32,10 +35,10 @@ public class GammaDistributionMomentEstimatorTest {
 
   @Test
   public void test() {
-    final int n = 50000;
+    final int n = 500000;
     final double k = 0.97;
     final double theta = 0.46;
-    final ProbabilityDistribution<Double> p1 = new GammaDistribution(k, theta);
+    final ProbabilityDistribution<Double> p1 = new GammaDistribution(k, theta, new MersenneTwister(MersenneTwister64.DEFAULT_SEED));
     final Double[] x = new Double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();

@@ -10,6 +10,9 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ChiSquareDistribution;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -32,9 +35,10 @@ public class MomentCalculatorTest {
   private static final Function1D<Double[], Double> SAMPLE_PEARSON_KURTOSIS = new SamplePearsonKurtosisCalculator();
   private static final Function1D<Double[], Double> SAMPLE_FISHER_KURTOSIS = new SampleFisherKurtosisCalculator();
   private static final Function1D<Double[], Double> SAMPLE_CENTRAL_MOMENT = new SampleCentralMomentCalculator(1);
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD);
-  private static final ProbabilityDistribution<Double> STUDENT_T = new StudentTDistribution(DOF);
-  private static final ProbabilityDistribution<Double> CHI_SQ = new ChiSquareDistribution(DOF);
+  private static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, ENGINE);
+  private static final ProbabilityDistribution<Double> STUDENT_T = new StudentTDistribution(DOF, ENGINE);
+  private static final ProbabilityDistribution<Double> CHI_SQ = new ChiSquareDistribution(DOF, ENGINE);
   private static final Double[] NORMAL_DATA = new Double[500000];
   private static final Double[] STUDENT_T_DATA = new Double[500000];
   private static final Double[] CHI_SQ_DATA = new Double[500000];

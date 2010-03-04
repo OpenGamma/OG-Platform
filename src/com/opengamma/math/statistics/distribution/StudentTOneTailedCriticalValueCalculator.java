@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.CompareUtils;
 
@@ -19,6 +21,14 @@ public class StudentTOneTailedCriticalValueCalculator extends Function1D<Double,
     if (nu < 0)
       throw new IllegalArgumentException("Degrees of freedom must be positive");
     _dist = new StudentTDistribution(nu);
+  }
+
+  public StudentTOneTailedCriticalValueCalculator(final double nu, final RandomEngine engine) {
+    if (nu < 0)
+      throw new IllegalArgumentException("Degrees of freedom must be positive");
+    if (engine == null)
+      throw new IllegalArgumentException("Engine was null");
+    _dist = new StudentTDistribution(nu, engine);
   }
 
   /*

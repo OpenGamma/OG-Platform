@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -21,7 +23,7 @@ public class PearsonSkewnessCoeffiecientCalculatorTest {
   private static final double STD = 2.;
   private static final Function1D<Double[], Double> FIRST = new PearsonFirstSkewnessCoefficientCalculator();
   private static final Function1D<Double[], Double> SECOND = new PearsonSecondSkewnessCoefficientCalculator();
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
   private static final Double[] NORMAL_DATA = new Double[50000];
   static {
     for (int i = 0; i < 50000; i++) {
