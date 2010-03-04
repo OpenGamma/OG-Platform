@@ -22,12 +22,10 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class StandardDeviationDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
+public class StandardDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_Log = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
-  private final DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries>(
-      new MeanCalculator());
-  private final DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries> _stdCalculator = new DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries>(
-      new SampleStandardDeviationCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _stdCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleStandardDeviationCalculator());
   private double _standardDeviations;
 
   public StandardDeviationDoubleTimeSeriesFilter(final double standardDeviations) {
@@ -45,12 +43,12 @@ public class StandardDeviationDoubleTimeSeriesFilter<T extends DoubleTimeSeries<
   }
 
   @Override
-  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
+  public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
     final double mean = _meanCalculator.evaluate(x);

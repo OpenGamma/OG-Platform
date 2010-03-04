@@ -16,9 +16,9 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class PortmanteauIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
+public class PortmanteauIIDHypothesis extends IIDHypothesis {
   private static final Logger s_Log = LoggerFactory.getLogger(PortmanteauIIDHypothesis.class);
-  private final Function1D<DoubleTimeSeries<Long>, Double[]> _calculator = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
+  private final Function1D<DoubleTimeSeries<?>, Double[]> _calculator = new AutocorrelationFunctionCalculator();
   private final double _criticalValue;
   private final int _h;
 
@@ -35,7 +35,7 @@ public class PortmanteauIIDHypothesis<T extends DoubleTimeSeries<?>> extends IID
   }
 
   @Override
-  public boolean testIID(final T x) {
+  public boolean testIID(final DoubleTimeSeries<?> x) {
     if (x.size() < _h)
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
     final Double[] autocorrelation = _calculator.evaluate(x.toFastLongDoubleTimeSeries());

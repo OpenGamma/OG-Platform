@@ -15,9 +15,9 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * 
  * @author emcleod
  */
-public abstract class CovarianceCalculator<T extends DoubleTimeSeries<?>> extends Function2D<T, Double> {
+public abstract class CovarianceCalculator extends Function2D<DoubleTimeSeries<?>, Double> {
 
-  protected void testTimeSeries(final T ts1, final T ts2) {
+  protected void testTimeSeries(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
     if (ts1 == null)
       throw new IllegalArgumentException("First time series was null");
     if (ts2 == null)

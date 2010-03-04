@@ -19,7 +19,7 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * 
  * @author emcleod
  */
-public abstract class HistoricalVolatilityCalculator<T extends DoubleTimeSeries<?>> implements VolatilityCalculator<T> {
+public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
   private final CalculationMode _mode;
   private final double _percentBadDataPoints;
@@ -42,7 +42,7 @@ public abstract class HistoricalVolatilityCalculator<T extends DoubleTimeSeries<
     _percentBadDataPoints = percentBadDataPoints;
   }
 
-  protected void testInput(final T[] x) {
+  protected void testInput(final DoubleTimeSeries<?>[] x) {
     if (x == null)
       throw new TimeSeriesException("Array of time series was null");
     if (x.length == 0)
@@ -51,14 +51,14 @@ public abstract class HistoricalVolatilityCalculator<T extends DoubleTimeSeries<
       throw new TimeSeriesException("First time series was null");
   }
 
-  protected void testTimeSeries(final T[] x, final int minLength) {
-    for (final T ts : x) {
+  protected void testTimeSeries(final DoubleTimeSeries<?>[] x, final int minLength) {
+    for (final DoubleTimeSeries<?> ts : x) {
       if (ts.size() < minLength)
         throw new TimeSeriesException("Need at least two data points to calculate volatility");
     }
   }
 
-  protected void testDatesCoincide(final T[] x) {
+  protected void testDatesCoincide(final DoubleTimeSeries<?>[] x) {
     final int size = x[0].size();
     for (int i = 1; i < x.length; i++) {
       if (x[i].size() != size)
@@ -75,7 +75,7 @@ public abstract class HistoricalVolatilityCalculator<T extends DoubleTimeSeries<
     }
   }
 
-  protected void testHighLow(final T high, final T low) {
+  protected void testHighLow(final DoubleTimeSeries<?> high, final DoubleTimeSeries<?> low) {
     final double size = high.size();
     int count = 0;
     final Iterator<Double> highIter = high.valuesIterator();
@@ -94,7 +94,7 @@ public abstract class HistoricalVolatilityCalculator<T extends DoubleTimeSeries<
       throw new TimeSeriesException("Percent " + percent + " of bad data points is greater than " + _percentBadDataPoints);
   }
 
-  protected void testHighLowClose(final T high, final T low, final T close) {
+  protected void testHighLowClose(final DoubleTimeSeries<?> high, final DoubleTimeSeries<?> low, final DoubleTimeSeries<?> close) {
     final double size = high.size();
     int count = 0;
     final Iterator<Double> highIter = high.valuesIterator();

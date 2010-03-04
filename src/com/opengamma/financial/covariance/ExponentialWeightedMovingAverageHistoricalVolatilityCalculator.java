@@ -18,13 +18,13 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator<T extends DoubleTimeSeries<?>> extends HistoricalVolatilityCalculator<T> {
+public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(ExponentialWeightedMovingAverageHistoricalVolatilityCalculator.class);
-  private final TimeSeriesReturnCalculator<T> _returnCalculator;
+  private final TimeSeriesReturnCalculator _returnCalculator;
   private final double _lambda;
   private final double _lambdaM1;
 
-  public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator<T> returnCalculator) {
+  public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator) {
     super();
     checkLambda(lambda);
     _lambda = lambda;
@@ -32,7 +32,7 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator<T ex
     _returnCalculator = returnCalculator;
   }
 
-  public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator<T> returnCalculator, final CalculationMode mode) {
+  public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
     super(mode);
     checkLambda(lambda);
     _lambda = lambda;
@@ -40,7 +40,7 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator<T ex
     _returnCalculator = returnCalculator;
   }
 
-  public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator<T> returnCalculator, final CalculationMode mode,
+  public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode,
       final double percentBadDataPoints) {
     super(mode, percentBadDataPoints);
     checkLambda(lambda);
@@ -59,11 +59,11 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator<T ex
   }
 
   @Override
-  public Double evaluate(final T... x) {
+  public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     testTimeSeries(x, 3);
     testDatesCoincide(x);
-    final DoubleTimeSeries<Long> returnTS = _returnCalculator.evaluate(x);
+    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(x);
     final Iterator<Double> iter = returnTS.valuesIterator();
     double returnValue = iter.next();
     double variance = returnValue * returnValue;

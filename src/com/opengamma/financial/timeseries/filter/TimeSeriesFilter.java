@@ -17,12 +17,12 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public abstract class TimeSeriesFilter<T extends DoubleTimeSeries<?>> extends Function1D<T, FilteredTimeSeries<DoubleTimeSeries<Long>>> {
+public abstract class TimeSeriesFilter extends Function1D<DoubleTimeSeries<?>, FilteredTimeSeries> {
 
-  protected FilteredTimeSeries<DoubleTimeSeries<Long>> getFilteredSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i,
+  protected FilteredTimeSeries getFilteredSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i,
       final long[] rejectedDates, final double[] rejectedData, final int j) {
     final DateTimeNumericEncoding encoding = x.getEncoding();
-    return new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData,
-        i)), new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(rejectedDates, j), Arrays.trimToCapacity(rejectedData, j)));
+    return new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i)),
+        new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(rejectedDates, j), Arrays.trimToCapacity(rejectedData, j)));
   }
 }

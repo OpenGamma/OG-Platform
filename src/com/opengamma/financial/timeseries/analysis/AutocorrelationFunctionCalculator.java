@@ -12,11 +12,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class AutocorrelationFunctionCalculator<T extends DoubleTimeSeries<?>> extends Function1D<T, Double[]> {
-  private final Function1D<T, Double[]> _autoCovariance = new AutocovarianceFunctionCalculator<T>();
+public class AutocorrelationFunctionCalculator extends Function1D<DoubleTimeSeries<?>, Double[]> {
+  private final Function1D<DoubleTimeSeries<?>, Double[]> _autoCovariance = new AutocovarianceFunctionCalculator();
 
   @Override
-  public Double[] evaluate(final T x) {
+  public Double[] evaluate(final DoubleTimeSeries<?> x) {
     if (x == null)
       throw new IllegalArgumentException("Time series was null");
     if (x.isEmpty())

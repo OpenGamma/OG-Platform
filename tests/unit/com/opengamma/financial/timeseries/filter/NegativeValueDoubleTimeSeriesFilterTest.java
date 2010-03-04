@@ -25,7 +25,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 public class NegativeValueDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final TimeSeriesFilter<DoubleTimeSeries<Long>> FILTER = new NegativeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>();
+  private static final TimeSeriesFilter FILTER = new NegativeValueDoubleTimeSeriesFilter();
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
 
   @Test(expected = IllegalArgumentException.class)
@@ -35,7 +35,7 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
@@ -64,9 +64,8 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
         filteredData[j++] = d;
       }
     }
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, dates, data));
-    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(
-        new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)), new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(
-            rejectedDates, k), Arrays.copyOf(rejectedData, k))));
+    final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, dates, data));
+    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)),
+        new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
   }
 }

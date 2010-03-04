@@ -17,9 +17,9 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class LiMcLeodPortmanteauIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
+public class LiMcLeodPortmanteauIIDHypothesis extends IIDHypothesis {
   private static final Logger s_Log = LoggerFactory.getLogger(LiMcLeodPortmanteauIIDHypothesis.class);
-  private final Function1D<DoubleTimeSeries<Long>, Double[]> _calculator = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
+  private final Function1D<DoubleTimeSeries<?>, Double[]> _calculator = new AutocorrelationFunctionCalculator();
   private final double _criticalValue;
   private final int _h;
 
@@ -36,7 +36,7 @@ public class LiMcLeodPortmanteauIIDHypothesis<T extends DoubleTimeSeries<?>> ext
   }
 
   @Override
-  public boolean testIID(final T x) {
+  public boolean testIID(final DoubleTimeSeries<?> x) {
     if (x.size() < _h)
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
     final FastLongDoubleTimeSeries ts = x.toFastLongDoubleTimeSeries();

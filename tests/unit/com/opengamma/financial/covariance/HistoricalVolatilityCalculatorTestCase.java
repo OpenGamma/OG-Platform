@@ -35,56 +35,49 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
   protected static final DoubleTimeSeries<Long> CLOSE_TS = new FastArrayLongDoubleTimeSeries(ENCODING, T, CLOSE);
   protected static final DoubleTimeSeries<Long> HIGH_TS = new FastArrayLongDoubleTimeSeries(ENCODING, T, HIGH);
   protected static final DoubleTimeSeries<Long> LOW_TS = new FastArrayLongDoubleTimeSeries(ENCODING, T, LOW);
-  protected static final TimeSeriesReturnCalculator<DoubleTimeSeries<Long>> RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
-      CalculationMode.LENIENT);
-  protected static final RelativeTimeSeriesReturnCalculator<DoubleTimeSeries<Long>> RELATIVE_RETURN_CALCULATOR = new ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
-      CalculationMode.LENIENT);
+  protected static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  protected static final RelativeTimeSeriesReturnCalculator RELATIVE_RETURN_CALCULATOR = new ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   protected static final double EPS = 1e-4;
-  private static HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> CALCULATOR = new HistoricalVolatilityCalculator<DoubleTimeSeries<Long>>() {
+  private static HistoricalVolatilityCalculator CALCULATOR = new HistoricalVolatilityCalculator() {
 
     @Override
-    public Double evaluate(final DoubleTimeSeries<Long>... x) {
+    public Double evaluate(final DoubleTimeSeries<?>... x) {
       return 0.;
     }
 
   };
-  private static HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> LENIENT_CALCULATOR = new HistoricalVolatilityCalculator<DoubleTimeSeries<Long>>(CalculationMode.LENIENT) {
+  private static HistoricalVolatilityCalculator LENIENT_CALCULATOR = new HistoricalVolatilityCalculator(CalculationMode.LENIENT) {
 
     @Override
-    public Double evaluate(final DoubleTimeSeries<Long>... x) {
+    public Double evaluate(final DoubleTimeSeries<?>... x) {
       return 0.;
     }
 
   };
-  private static HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> FOOLISH_CALCULATOR = new HistoricalVolatilityCalculator<DoubleTimeSeries<Long>>(CalculationMode.LENIENT,
-      1.1) {
+  private static HistoricalVolatilityCalculator FOOLISH_CALCULATOR = new HistoricalVolatilityCalculator(CalculationMode.LENIENT, 1.1) {
 
     @Override
-    public Double evaluate(final DoubleTimeSeries<Long>... x) {
+    public Double evaluate(final DoubleTimeSeries<?>... x) {
       return 0.;
     }
 
   };
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testNullTS() {
     getCalculator().evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testEmptyArray() {
     getCalculator().evaluate(new DoubleTimeSeries[0]);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testShortTS() {
     getCalculator().testTimeSeries(new DoubleTimeSeries[] { new FastArrayLongDoubleTimeSeries(ENCODING, new long[] { 1l }, new double[] { 3 }) }, 2);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testInputs1() {
     getCalculator().testDatesCoincide(
@@ -92,7 +85,6 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
             new FastArrayLongDoubleTimeSeries(ENCODING, new long[] { 1l, 2l }, new double[] { 3, 4 }) });
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testInputs2() {
     getCalculator().testDatesCoincide(
@@ -143,5 +135,5 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
     FOOLISH_CALCULATOR.testHighLowClose(x, y, z);
   }
 
-  protected abstract HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> getCalculator();
+  protected abstract HistoricalVolatilityCalculator getCalculator();
 }

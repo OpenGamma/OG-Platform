@@ -10,33 +10,35 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
 public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCase {
-  private static final IIDHypothesis<DoubleTimeSeries<Long>> SAMPLE_ACF = new SampleAutocorrelationIIDHypothesis<DoubleTimeSeries<Long>>(0.05, 100);
+  private static final IIDHypothesis SAMPLE_ACF = new SampleAutocorrelationIIDHypothesis(0.05, 100);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new SampleAutocorrelationIIDHypothesis<DoubleTimeSeries<Long>>(-0.1, 20);
+    new SampleAutocorrelationIIDHypothesis(-0.1, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new SampleAutocorrelationIIDHypothesis<DoubleTimeSeries<Long>>(1.5, 20);
+    new SampleAutocorrelationIIDHypothesis(1.5, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testZeroLag() {
-    new SampleAutocorrelationIIDHypothesis<DoubleTimeSeries<Long>>(0.05, 0);
+    new SampleAutocorrelationIIDHypothesis(0.05, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    SAMPLE_ACF.evaluate((DoubleTimeSeries<Long>) RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3)));
+    final TimeSeries<Long, Double> subSeries = RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3));
+    SAMPLE_ACF.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
   }
 
   @Test

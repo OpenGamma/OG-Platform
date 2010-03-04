@@ -29,8 +29,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 public class SimpleNetTimeSeriesReturnCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function<DoubleTimeSeries<Long>, DoubleTimeSeries<Long>> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
-      CalculationMode.LENIENT);
+  private static final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_DDMMYYYY;
 
   @Test(expected = TimeSeriesException.class)
@@ -38,20 +37,17 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     CALCULATOR.evaluate((DoubleTimeSeries<Long>[]) null);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testEmptyArray() {
     CALCULATOR.evaluate(new DoubleTimeSeries[0]);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testWithShortTS() {
     final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] { 14022000 }, new double[] { 4 });
     CALCULATOR.evaluate(ts);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithoutDividends() {
     final int n = 20;
@@ -94,7 +90,7 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     data[n - 1] = RANDOM.nextDouble();
     final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
     final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n - 2), returns);
-    final TimeSeriesReturnCalculator<DoubleTimeSeries<Long>> strict = new SimpleNetTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(CalculationMode.STRICT);
+    final TimeSeriesReturnCalculator strict = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.STRICT);
     final DoubleTimeSeries<Long>[] tsArray = new DoubleTimeSeries[] { priceTS };
     try {
       strict.evaluate(tsArray);
@@ -106,7 +102,6 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     assertTrue(lenient.evaluate(tsArray).equals(returnTS));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithDividendsAtDifferentTimes() {
     final int n = 20;
@@ -128,7 +123,6 @@ public class SimpleNetTimeSeriesReturnCalculatorTest {
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithDividend() {
     final int n = 20;

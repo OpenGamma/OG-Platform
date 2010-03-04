@@ -16,16 +16,16 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class ExtremeReturnDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
+public class ExtremeReturnDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_Log = LoggerFactory.getLogger(ExtremeReturnDoubleTimeSeriesFilter.class);
-  private TimeSeriesReturnCalculator<T> _returnCalculator;
-  private final ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> _filter;
+  private TimeSeriesReturnCalculator _returnCalculator;
+  private final ExtremeValueDoubleTimeSeriesFilter _filter;
 
-  public ExtremeReturnDoubleTimeSeriesFilter(final double minValue, final double maxValue, final TimeSeriesReturnCalculator<T> returnCalculator) {
+  public ExtremeReturnDoubleTimeSeriesFilter(final double minValue, final double maxValue, final TimeSeriesReturnCalculator returnCalculator) {
     if (returnCalculator == null)
       throw new IllegalArgumentException("Return calculator was null");
     _returnCalculator = returnCalculator;
-    _filter = new ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(minValue, maxValue);
+    _filter = new ExtremeValueDoubleTimeSeriesFilter(minValue, maxValue);
   }
 
   public void setMinimumValue(final double minValue) {
@@ -40,22 +40,21 @@ public class ExtremeReturnDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> 
     _filter.setRange(minValue, maxValue);
   }
 
-  public void setReturnCalculator(final TimeSeriesReturnCalculator<T> returnCalculator) {
+  public void setReturnCalculator(final TimeSeriesReturnCalculator returnCalculator) {
     if (returnCalculator == null)
       throw new IllegalArgumentException("Return calculator was null");
     _returnCalculator = returnCalculator;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
+  public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
     }
-    final DoubleTimeSeries<Long> returnTS = _returnCalculator.evaluate(ts);
+    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(ts);
     return _filter.evaluate(returnTS);
   }
 

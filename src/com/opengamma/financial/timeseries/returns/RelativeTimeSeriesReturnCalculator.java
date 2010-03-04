@@ -15,13 +15,13 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * 
  * @author emcleod
  */
-public abstract class RelativeTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> extends TimeSeriesReturnCalculator<T> {
+public abstract class RelativeTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   public RelativeTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
   }
 
-  protected void testInputData(final T[] x) {
+  protected void testInputData(final DoubleTimeSeries<?>[] x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)

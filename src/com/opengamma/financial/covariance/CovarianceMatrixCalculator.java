@@ -15,18 +15,18 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class CovarianceMatrixCalculator<T extends DoubleTimeSeries<?>> implements Function<T, DoubleMatrix2D> {
-  private final CovarianceCalculator<T> _calculator;
+public class CovarianceMatrixCalculator implements Function<DoubleTimeSeries<?>, DoubleMatrix2D> {
+  private final CovarianceCalculator _calculator;
 
-  public CovarianceMatrixCalculator(final CovarianceCalculator<T> calculator) {
+  public CovarianceMatrixCalculator(final CovarianceCalculator calculator) {
     _calculator = calculator;
   }
 
   @Override
-  public DoubleMatrix2D evaluate(final T... x) {
+  public DoubleMatrix2D evaluate(final DoubleTimeSeries<?>... x) {
     final int n = x.length;
     final double[][] covariance = new double[n][n];
-    T ts;
+    DoubleTimeSeries<?> ts;
     for (int i = 0; i < n; i++) {
       ts = x[i];
       covariance[i][i] = _calculator.evaluate(ts, ts);

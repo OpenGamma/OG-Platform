@@ -12,7 +12,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class DoubleTimeSeriesStatisticsCalculator<T extends DoubleTimeSeries<?>> extends Function1D<T, Double> {
+public class DoubleTimeSeriesStatisticsCalculator extends Function1D<DoubleTimeSeries<?>, Double> {
   private final Function1D<Double[], Double> _statistic;
 
   public DoubleTimeSeriesStatisticsCalculator(final Function1D<Double[], Double> statistic) {
@@ -20,7 +20,7 @@ public class DoubleTimeSeriesStatisticsCalculator<T extends DoubleTimeSeries<?>>
   }
 
   @Override
-  public Double evaluate(final T x) {
+  public Double evaluate(final DoubleTimeSeries<?> x) {
     if (x == null)
       throw new IllegalArgumentException("Time series was null");
     if (x.isEmpty())

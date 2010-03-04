@@ -21,12 +21,12 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * @author emcleod
  */
 
-public class ExcessSimpleNetTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> extends TimeSeriesReturnCalculator<T> {
-  private final Function<T, DoubleTimeSeries<Long>> _returnCalculator;
+public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
+  private final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> _returnCalculator;
 
   public ExcessSimpleNetTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
-    _returnCalculator = new SimpleNetTimeSeriesReturnCalculator<T>(mode);
+    _returnCalculator = new SimpleNetTimeSeriesReturnCalculator(mode);
   }
 
   /**
@@ -42,17 +42,16 @@ public class ExcessSimpleNetTimeSeriesReturnCalculator<T extends DoubleTimeSerie
    *           series are not the same length.
    * @return A DoubleTimeSeries containing the excess return series.
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public DoubleTimeSeries<Long> evaluate(final T... x) {
+  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length < 4)
       throw new TimeSeriesException("Time series array must contain at least four elements");
     if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size())
       throw new TimeSeriesException("Asset price series and reference price series were not the same size");
-    final DoubleTimeSeries<Long> assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 0, 2));
-    final DoubleTimeSeries<Long> referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 2, 4));
+    final DoubleTimeSeries<?> assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 0, 2));
+    final DoubleTimeSeries<?> referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 2, 4));
     return assetReturn.toFastLongDoubleTimeSeries().subtract(referenceReturn.toFastLongDoubleTimeSeries());
   }
 }

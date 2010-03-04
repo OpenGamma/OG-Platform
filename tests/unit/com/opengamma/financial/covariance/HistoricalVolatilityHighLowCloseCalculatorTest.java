@@ -18,10 +18,8 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * @author emcleod
  */
 public class HistoricalVolatilityHighLowCloseCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
-  private static final HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> CALCULATOR = new HistoricalVolatilityHighLowCloseCalculator<DoubleTimeSeries<Long>>(
-      RETURN_CALCULATOR, RELATIVE_RETURN_CALCULATOR);
+  private static final HistoricalVolatilityCalculator CALCULATOR = new HistoricalVolatilityHighLowCloseCalculator(RETURN_CALCULATOR, RELATIVE_RETURN_CALCULATOR);
 
-  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     try {
@@ -41,7 +39,7 @@ public class HistoricalVolatilityHighLowCloseCalculatorTest extends HistoricalVo
    * #getCalculator()
    */
   @Override
-  protected HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> getCalculator() {
+  protected HistoricalVolatilityCalculator getCalculator() {
     return CALCULATOR;
   }
 }

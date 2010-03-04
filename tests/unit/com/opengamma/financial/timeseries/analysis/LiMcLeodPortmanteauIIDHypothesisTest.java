@@ -10,33 +10,35 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
  * @author emcleod
  */
 public class LiMcLeodPortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
-  private static final IIDHypothesis<DoubleTimeSeries<Long>> LI_MCLEOD = new LiMcLeodPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(0.05, 20);
+  private static final IIDHypothesis LI_MCLEOD = new LiMcLeodPortmanteauIIDHypothesis(0.05, 20);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new LiMcLeodPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(-0.1, 20);
+    new LiMcLeodPortmanteauIIDHypothesis(-0.1, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new LiMcLeodPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(1.5, 20);
+    new LiMcLeodPortmanteauIIDHypothesis(1.5, 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testZeroLag() {
-    new LiMcLeodPortmanteauIIDHypothesis<DoubleTimeSeries<Long>>(0.05, 0);
+    new LiMcLeodPortmanteauIIDHypothesis(0.05, 0);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    LI_MCLEOD.evaluate((DoubleTimeSeries<Long>) RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3)));
+    final TimeSeries<Long, Double> subSeries = RANDOM.subSeries(RANDOM.getTime(0), RANDOM.getTime(3));
+    LI_MCLEOD.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
   }
 
   @Test

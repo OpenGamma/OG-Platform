@@ -18,33 +18,33 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class HistoricalVolatilityCloseCalculator<T extends DoubleTimeSeries<?>> extends HistoricalVolatilityCalculator<T> {
+public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityCloseCalculator.class);
-  private final TimeSeriesReturnCalculator<T> _returnCalculator;
+  private final TimeSeriesReturnCalculator _returnCalculator;
 
-  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator<T> returnCalculator) {
+  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator) {
     super();
     _returnCalculator = returnCalculator;
   }
 
-  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator<T> returnCalculator, final CalculationMode mode) {
+  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
     super(mode);
     _returnCalculator = returnCalculator;
   }
 
-  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator<T> returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
+  public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
     super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
   }
 
   @Override
-  public Double evaluate(final T... x) {
+  public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     if (x.length > 1) {
       s_Log.info("Time series array contained more than one series; only using the first one");
     }
     testTimeSeries(x, 2);
-    final DoubleTimeSeries<Long> returnTS = _returnCalculator.evaluate(x);
+    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(x);
     final Iterator<Double> iter = returnTS.valuesIterator();
     Double value;
     double sum = 0;

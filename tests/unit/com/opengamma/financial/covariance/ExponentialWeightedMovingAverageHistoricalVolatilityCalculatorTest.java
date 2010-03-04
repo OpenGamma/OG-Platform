@@ -9,17 +9,13 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-
 /**
  * 
  * @author emcleod
  */
 public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
-  private static final HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> CALCULATOR = new ExponentialWeightedMovingAverageHistoricalVolatilityCalculator<DoubleTimeSeries<Long>>(
-      0.94, RETURN_CALCULATOR);
+  private static final HistoricalVolatilityCalculator CALCULATOR = new ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(0.94, RETURN_CALCULATOR);
 
-  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     assertEquals(Math.sqrt(252) * CALCULATOR.evaluate(CLOSE_TS), 0.2455, EPS);
@@ -33,7 +29,7 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculatorTest 
    * #getCalculator()
    */
   @Override
-  protected HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> getCalculator() {
+  protected HistoricalVolatilityCalculator getCalculator() {
     return CALCULATOR;
   }
 }

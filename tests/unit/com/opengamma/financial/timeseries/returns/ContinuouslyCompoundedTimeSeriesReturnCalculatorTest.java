@@ -29,23 +29,19 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function<DoubleTimeSeries<Long>, DoubleTimeSeries<Long>> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
-      CalculationMode.LENIENT);
+  private static final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testEmptyArray() {
     CALCULATOR.evaluate(new DoubleTimeSeries[0]);
   }
 
-  @SuppressWarnings("unchecked")
   @Test(expected = TimeSeriesException.class)
   public void testWithBadInputs() {
     final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] { 1 }, new double[] { 4 });
@@ -74,7 +70,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     data[n - 1] = RANDOM.nextDouble();
     final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
     final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n - 2), returns);
-    final TimeSeriesReturnCalculator<DoubleTimeSeries<Long>> strict = new ContinuouslyCompoundedTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(CalculationMode.STRICT);
+    final TimeSeriesReturnCalculator strict = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.STRICT);
     final DoubleTimeSeries<Long>[] tsArray = new DoubleTimeSeries[] { priceTS };
     try {
       strict.evaluate(tsArray);
@@ -86,7 +82,6 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     assertTrue(lenient.evaluate(tsArray).equals(returnTS));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithoutDividends() {
     final int n = 20;
@@ -107,7 +102,6 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS }).equals(returnTS));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithDividendsAtDifferentTimes() {
     final int n = 20;
@@ -129,7 +123,6 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
     assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] { priceTS, dividendTS }).equals(returnTS));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithDividends() {
     final int n = 20;

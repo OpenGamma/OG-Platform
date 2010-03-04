@@ -20,34 +20,33 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * 
  * @author emcleod
  */
-public class HistoricalVolatilityHighLowCloseCalculator<T extends DoubleTimeSeries<?>> extends HistoricalVolatilityCalculator<T> {
+public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityHighLowCloseCalculator.class);
-  private final TimeSeriesReturnCalculator<T> _returnCalculator;
-  private final RelativeTimeSeriesReturnCalculator<T> _relativeReturnCalculator;
+  private final TimeSeriesReturnCalculator _returnCalculator;
+  private final RelativeTimeSeriesReturnCalculator _relativeReturnCalculator;
 
-  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator<T> returnCalculator, final RelativeTimeSeriesReturnCalculator<T> relativeReturnCalculator) {
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator) {
     super();
     _returnCalculator = returnCalculator;
     _relativeReturnCalculator = relativeReturnCalculator;
   }
 
-  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator<T> returnCalculator, final RelativeTimeSeriesReturnCalculator<T> relativeReturnCalculator,
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator,
       final CalculationMode mode) {
     super(mode);
     _returnCalculator = returnCalculator;
     _relativeReturnCalculator = relativeReturnCalculator;
   }
 
-  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator<T> returnCalculator, final RelativeTimeSeriesReturnCalculator<T> relativeReturnCalculator,
+  public HistoricalVolatilityHighLowCloseCalculator(final TimeSeriesReturnCalculator returnCalculator, final RelativeTimeSeriesReturnCalculator relativeReturnCalculator,
       final CalculationMode mode, final double percentBadDataPoints) {
     super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
     _relativeReturnCalculator = relativeReturnCalculator;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Double evaluate(final T... x) {
+  public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     if (x.length < 3) {
       throw new TimeSeriesException("Need high, low and close time series to calculate high-low-close volatility");
@@ -57,12 +56,12 @@ public class HistoricalVolatilityHighLowCloseCalculator<T extends DoubleTimeSeri
     }
     testTimeSeries(x, 2);
     testDatesCoincide(x);
-    final T high = x[0];
-    final T low = x[1];
-    final T close = x[2];
+    final DoubleTimeSeries<?> high = x[0];
+    final DoubleTimeSeries<?> low = x[1];
+    final DoubleTimeSeries<?> close = x[2];
     testHighLowClose(high, low, close);
-    final DoubleTimeSeries<Long> closeReturns = _returnCalculator.evaluate(close);
-    final DoubleTimeSeries<Long> highLowReturns = _relativeReturnCalculator.evaluate((T[]) new DoubleTimeSeries<?>[] { high, low });
+    final DoubleTimeSeries<?> closeReturns = _returnCalculator.evaluate(close);
+    final DoubleTimeSeries<?> highLowReturns = _relativeReturnCalculator.evaluate(new DoubleTimeSeries<?>[] { high, low });
     final Iterator<Double> highLowIterator = highLowReturns.valuesIterator();
     final Iterator<Double> closeReturnIterator = closeReturns.valuesIterator();
     double value, highLowValue;

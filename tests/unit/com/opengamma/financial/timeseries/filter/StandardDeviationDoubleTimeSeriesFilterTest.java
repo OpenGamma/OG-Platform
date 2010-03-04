@@ -14,6 +14,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
@@ -26,7 +27,7 @@ public class StandardDeviationDoubleTimeSeriesFilterTest {
   private static final double LIMIT = 5;
   private static final double DATA1 = 34;
   private static final double DATA2 = 12;
-  private static final TimeSeriesFilter<DoubleTimeSeries<Long>> FILTER = new StandardDeviationDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(LIMIT);
+  private static final TimeSeriesFilter FILTER = new StandardDeviationDoubleTimeSeriesFilter(LIMIT);
   private static final int N = 500;
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_SECONDS;
   private static final long[] DATES = new long[N];
@@ -51,23 +52,23 @@ public class StandardDeviationDoubleTimeSeriesFilterTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
 
   @Test
   public void testMasked() {
-    final DoubleTimeSeries<Long> subSeries = (DoubleTimeSeries<Long>) TS.subSeries(DATES[0], DATES[10]);
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> result = FILTER.evaluate(subSeries);
+    final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[10]);
+    final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
     assertEquals(result.getFilteredTS().size(), 11);
   }
 
   @Test
   public void test() {
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> result = FILTER.evaluate(TS);
+    final FilteredTimeSeries result = FILTER.evaluate(TS);
     assertEquals(result.getFilteredTS().size(), 498);
-    final DoubleTimeSeries<Long> rejected = result.getRejectedTS();
+    final DoubleTimeSeries<Long> rejected = result.getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.getTime(0), 0, EPS);
     assertEquals(rejected.getValueAt(0), DATA1, EPS);
     assertEquals(rejected.getTime(1), 1, EPS);

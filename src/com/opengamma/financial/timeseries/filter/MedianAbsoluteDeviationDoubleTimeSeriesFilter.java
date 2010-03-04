@@ -22,12 +22,10 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class MedianAbsoluteDeviationDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
+public class MedianAbsoluteDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_Log = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
-  private final DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries> _medianCalculator = new DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries>(
-      new MedianCalculator());
-  private final DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries> _madCalculator = new DoubleTimeSeriesStatisticsCalculator<FastLongDoubleTimeSeries>(
-      new SampleMedianAbsoluteDeviationCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _medianCalculator = new DoubleTimeSeriesStatisticsCalculator(new MedianCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _madCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleMedianAbsoluteDeviationCalculator());
   private double _standardDeviations;
 
   public MedianAbsoluteDeviationDoubleTimeSeriesFilter(final double standardDeviations) {
@@ -45,12 +43,12 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilter<T extends DoubleTimeS
   }
 
   @Override
-  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
+  public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
     final double median = _medianCalculator.evaluate(x);

@@ -25,12 +25,12 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function1D<DoubleTimeSeries<Long>, Double[]> COVARIANCE = new AutocovarianceFunctionCalculator<DoubleTimeSeries<Long>>();
-  private static final Function1D<DoubleTimeSeries<Long>, Double[]> CORRELATION = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
+  private static final Function1D<DoubleTimeSeries<?>, Double[]> COVARIANCE = new AutocovarianceFunctionCalculator();
+  private static final Function1D<DoubleTimeSeries<?>, Double[]> CORRELATION = new AutocorrelationFunctionCalculator();
 
   @Test(expected = IllegalArgumentException.class)
   public void testCovarianceWithNull() {
-    COVARIANCE.evaluate((DoubleTimeSeries<Long>) null);
+    COVARIANCE.evaluate((DoubleTimeSeries<?>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -40,7 +40,7 @@ public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testCorrelationWithNull() {
-    CORRELATION.evaluate((DoubleTimeSeries<Long>) null);
+    CORRELATION.evaluate((DoubleTimeSeries<?>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -12,10 +12,10 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public abstract class IIDHypothesis<T extends DoubleTimeSeries<?>> extends Function1D<T, Boolean> {
+public abstract class IIDHypothesis extends Function1D<DoubleTimeSeries<?>, Boolean> {
 
   @Override
-  public Boolean evaluate(final T x) {
+  public Boolean evaluate(final DoubleTimeSeries<?> x) {
     if (x == null)
       throw new IllegalArgumentException("Time series was null");
     if (x.isEmpty())
@@ -23,5 +23,5 @@ public abstract class IIDHypothesis<T extends DoubleTimeSeries<?>> extends Funct
     return testIID(x);
   }
 
-  public abstract boolean testIID(T x);
+  public abstract boolean testIID(DoubleTimeSeries<?> x);
 }

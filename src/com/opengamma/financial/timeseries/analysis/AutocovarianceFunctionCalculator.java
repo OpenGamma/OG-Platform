@@ -15,11 +15,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class AutocovarianceFunctionCalculator<T extends DoubleTimeSeries<?>> extends Function1D<T, Double[]> {
-  private final Function1D<T, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator<T>(new MeanCalculator());
+public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSeries<?>, Double[]> {
+  private final Function1D<DoubleTimeSeries<?>, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
 
   @Override
-  public Double[] evaluate(final T x) {
+  public Double[] evaluate(final DoubleTimeSeries<?> x) {
     if (x == null)
       throw new IllegalArgumentException("Time series was null");
     if (x.isEmpty())

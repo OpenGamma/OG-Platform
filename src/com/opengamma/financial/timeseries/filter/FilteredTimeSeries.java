@@ -11,20 +11,20 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class FilteredTimeSeries<T extends DoubleTimeSeries<?>> {
-  private final T _filteredTS;
-  private final T _rejectedTS;
+public class FilteredTimeSeries {
+  private final DoubleTimeSeries<?> _filteredTS;
+  private final DoubleTimeSeries<?> _rejectedTS;
 
-  public FilteredTimeSeries(final T filteredTS, final T rejectedTS) {
+  public FilteredTimeSeries(final DoubleTimeSeries<?> filteredTS, final DoubleTimeSeries<?> rejectedTS) {
     _filteredTS = filteredTS;
     _rejectedTS = rejectedTS;
   }
 
-  public T getFilteredTS() {
+  public DoubleTimeSeries<?> getFilteredTS() {
     return _filteredTS;
   }
 
-  public T getRejectedTS() {
+  public DoubleTimeSeries<?> getRejectedTS() {
     return _rejectedTS;
   }
 
@@ -37,7 +37,6 @@ public class FilteredTimeSeries<T extends DoubleTimeSeries<?>> {
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj)

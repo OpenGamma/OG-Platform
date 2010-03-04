@@ -10,23 +10,21 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-
 /**
  * 
  * @author emcleod
  */
 public class DifferenceSignIIDHypothesisTest extends IIDHypothesisTestCase {
-  private static final IIDHypothesis<DoubleTimeSeries<Long>> DIFFERENCE_SIGN = new DifferenceSignIIDHypothesis<DoubleTimeSeries<Long>>(0.05);
+  private static final IIDHypothesis DIFFERENCE_SIGN = new DifferenceSignIIDHypothesis(0.05);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new DifferenceSignIIDHypothesis<DoubleTimeSeries<Long>>(-0.1);
+    new DifferenceSignIIDHypothesis(-0.1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new DifferenceSignIIDHypothesis<DoubleTimeSeries<Long>>(1.5);
+    new DifferenceSignIIDHypothesis(1.5);
   }
 
   @Test

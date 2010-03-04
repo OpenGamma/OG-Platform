@@ -32,11 +32,9 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double MAX = 10;
   private static final double MIN = -1;
-  private static final TimeSeriesReturnCalculator<DoubleTimeSeries<Long>> RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator<DoubleTimeSeries<Long>>(
-      CalculationMode.LENIENT);
-  private static final ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MIN, MAX);
-  private static final ExtremeReturnDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MIN, MAX,
-      RETURN_CALCULATOR);
+  private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  private static final ExtremeValueDoubleTimeSeriesFilter VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
+  private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
 
   @Test(expected = IllegalArgumentException.class)
@@ -51,12 +49,12 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadRange() {
-    new ExtremeValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MAX, MIN);
+    new ExtremeValueDoubleTimeSeriesFilter(MAX, MIN);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCalculator() {
-    new ExtremeReturnDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(MIN, MAX, null);
+    new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -86,12 +84,11 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = VALUE_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = VALUE_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     final List<Long> dates = new ArrayList<Long>();
@@ -121,7 +118,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     final List<Long> returnRejectedDates = new ArrayList<Long>();
     final List<Double> returnRejectedData = new ArrayList<Double>();
     final DoubleTimeSeries<Long> ts = new FastListLongDoubleTimeSeries(ENCODING, dates, data);
-    final DoubleTimeSeries<Long> returnTS = RETURN_CALCULATOR.evaluate(ts);
+    final DoubleTimeSeries<Long> returnTS = RETURN_CALCULATOR.evaluate(ts).toFastLongDoubleTimeSeries();
     long date;
     for (int i = 0; i < 99; i++) {
       date = returnTS.getTime(i);
@@ -134,11 +131,11 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
         returnFilteredData.add(d);
       }
     }
-    FilteredTimeSeries<DoubleTimeSeries<Long>> result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(
-        ENCODING, rejectedDates, rejectedData)));
+    FilteredTimeSeries result = VALUE_FILTER.evaluate(ts);
+    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(ENCODING, rejectedDates,
+        rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData),
-        new FastListLongDoubleTimeSeries(ENCODING, returnRejectedDates, returnRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData), new FastListLongDoubleTimeSeries(ENCODING,
+        returnRejectedDates, returnRejectedData)));
   }
 }

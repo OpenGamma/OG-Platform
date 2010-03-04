@@ -19,28 +19,27 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * 
  * @author emcleod
  */
-public class HistoricalVolatilityHighLowCalculator<T extends DoubleTimeSeries<?>> extends HistoricalVolatilityCalculator<T> {
+public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityHighLowCalculator.class);
-  private final RelativeTimeSeriesReturnCalculator<T> _returnCalculator;
+  private final RelativeTimeSeriesReturnCalculator _returnCalculator;
 
-  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator<T> returnCalculator) {
+  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator) {
     super();
     _returnCalculator = returnCalculator;
   }
 
-  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator<T> returnCalculator, final CalculationMode mode) {
+  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
     super(mode);
     _returnCalculator = returnCalculator;
   }
 
-  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator<T> returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
+  public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator, final CalculationMode mode, final double percentBadDataPoints) {
     super(mode, percentBadDataPoints);
     _returnCalculator = returnCalculator;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Double evaluate(final T... x) {
+  public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     if (x.length < 2) {
       throw new TimeSeriesException("Need high and low time series to calculate high-low volatility");
@@ -50,10 +49,10 @@ public class HistoricalVolatilityHighLowCalculator<T extends DoubleTimeSeries<?>
     }
     testTimeSeries(x, 1);
     testDatesCoincide(x);
-    final T high = x[0];
-    final T low = x[1];
+    final DoubleTimeSeries<?> high = x[0];
+    final DoubleTimeSeries<?> low = x[1];
     testHighLow(high, low);
-    final DoubleTimeSeries<Long> returnTS = _returnCalculator.evaluate((T[]) new DoubleTimeSeries[] { high, low });
+    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(new DoubleTimeSeries<?>[] { high, low });
     final int n = returnTS.size();
     final Iterator<Double> iter = returnTS.valuesIterator();
     double sum = 0;

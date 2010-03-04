@@ -12,7 +12,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class DifferenceSignIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
+public class DifferenceSignIIDHypothesis extends IIDHypothesis {
   private final double _criticalValue;
 
   public DifferenceSignIIDHypothesis(final double level) {
@@ -22,7 +22,7 @@ public class DifferenceSignIIDHypothesis<T extends DoubleTimeSeries<?>> extends 
   }
 
   @Override
-  public boolean testIID(final T x) {
+  public boolean testIID(final DoubleTimeSeries<?> x) {
     final Double[] data = x.valuesArray();
     final int n = data.length;
     int t = 0;

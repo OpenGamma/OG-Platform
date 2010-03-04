@@ -16,9 +16,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * @author emcleod
  */
 public class HistoricalVolatilityCloseCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
-  private static final HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> CALCULATOR = new HistoricalVolatilityCloseCalculator<DoubleTimeSeries<Long>>(RETURN_CALCULATOR);
+  private static final HistoricalVolatilityCalculator CALCULATOR = new HistoricalVolatilityCloseCalculator(RETURN_CALCULATOR);
 
-  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     assertEquals(CALCULATOR.evaluate(new DoubleTimeSeries[] { CLOSE_TS }), 0.0173, EPS);
@@ -32,7 +31,7 @@ public class HistoricalVolatilityCloseCalculatorTest extends HistoricalVolatilit
    * #getCalculator()
    */
   @Override
-  protected HistoricalVolatilityCalculator<DoubleTimeSeries<Long>> getCalculator() {
+  protected HistoricalVolatilityCalculator getCalculator() {
     return CALCULATOR;
   }
 }

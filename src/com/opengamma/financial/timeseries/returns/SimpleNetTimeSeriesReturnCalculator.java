@@ -26,7 +26,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * @author emcleod
  */
 
-public class SimpleNetTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> extends TimeSeriesReturnCalculator<T> {
+public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 
   public SimpleNetTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
@@ -50,7 +50,7 @@ public class SimpleNetTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> 
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries<Long> evaluate(final T... x) {
+  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length == 0)

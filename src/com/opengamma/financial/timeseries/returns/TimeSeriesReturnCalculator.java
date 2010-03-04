@@ -24,7 +24,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * @author emcleod
  */
 
-public abstract class TimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> implements Function<T, DoubleTimeSeries<Long>> {
+public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> {
   private final CalculationMode _mode;
 
   public TimeSeriesReturnCalculator(final CalculationMode mode) {
@@ -32,7 +32,7 @@ public abstract class TimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> 
   }
 
   @Override
-  public abstract DoubleTimeSeries<Long> evaluate(T... x);
+  public abstract DoubleTimeSeries<?> evaluate(DoubleTimeSeries<?>... x);
 
   protected boolean isValueNonZero(final Double value) {
     if (CompareUtils.closeEquals(value, 0)) {
@@ -48,7 +48,7 @@ public abstract class TimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> 
     return _mode;
   }
 
-  protected DoubleTimeSeries<Long> getSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i) {
+  protected DoubleTimeSeries<?> getSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i) {
     final DateTimeNumericEncoding encoding = x.getEncoding();
     return new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i));
   }

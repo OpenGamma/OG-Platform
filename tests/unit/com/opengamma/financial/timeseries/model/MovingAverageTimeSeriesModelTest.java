@@ -83,7 +83,7 @@ public class MovingAverageTimeSeriesModelTest {
   @Test
   public void testACF() {
     final double eps = 1e-2;
-    final Double[] rho = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>().evaluate(MA);
+    final Double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
     assertEquals(rho[0], 1, 1e-16);
     final double denom = 1 + THETA[1] * THETA[1] + THETA[2] * THETA[2];
     assertEquals(rho[1], (THETA[1] * THETA[2] + THETA[1]) / denom, eps);
@@ -95,9 +95,9 @@ public class MovingAverageTimeSeriesModelTest {
         assertTrue(rho[i] < LIMIT);
       }
     }
-    final Double mean = new DoubleTimeSeriesStatisticsCalculator<DoubleTimeSeries<Long>>(new MeanCalculator()).evaluate(MA);
+    final Double mean = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator()).evaluate(MA);
     assertEquals(mean, THETA[0], eps);
-    final Double variance = new DoubleTimeSeriesStatisticsCalculator<DoubleTimeSeries<Long>>(new SampleVarianceCalculator()).evaluate(MA);
+    final Double variance = new DoubleTimeSeriesStatisticsCalculator(new SampleVarianceCalculator()).evaluate(MA);
     double sum = 1;
     for (int i = 1; i <= ORDER; i++) {
       sum += THETA[i] * THETA[i];

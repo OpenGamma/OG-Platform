@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * @author emcleod
  */
 public class MovingAverageTimeSeriesOrderIdentifierTest {
-  private static final MovingAverageTimeSeriesOrderIdentifier<DoubleTimeSeries<Long>> MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier<DoubleTimeSeries<Long>>(10, 0.01);
+  private static final MovingAverageTimeSeriesOrderIdentifier MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier(10, 0.01);
   private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1));
   private static final DoubleTimeSeries<Long> RANDOM;
   private static final DoubleTimeSeries<Long> MA3;
@@ -47,17 +47,17 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadOrder() {
-    new MovingAverageTimeSeriesOrderIdentifier<DoubleTimeSeries<Long>>(-10, 0.05);
+    new MovingAverageTimeSeriesOrderIdentifier(-10, 0.05);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeLevel() {
-    new MovingAverageTimeSeriesOrderIdentifier<DoubleTimeSeries<Long>>(20, -0.1);
+    new MovingAverageTimeSeriesOrderIdentifier(20, -0.1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighLevel() {
-    new MovingAverageTimeSeriesOrderIdentifier<DoubleTimeSeries<Long>>(20, 1.2);
+    new MovingAverageTimeSeriesOrderIdentifier(20, 1.2);
   }
 
   @Test(expected = IllegalArgumentException.class)

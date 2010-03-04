@@ -64,8 +64,8 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
 
   @Test
   public void test() {
-    final AutocovarianceFunctionCalculator<DoubleTimeSeries<Long>> autocovariance = new AutocovarianceFunctionCalculator<DoubleTimeSeries<Long>>();
-    final AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>> autocorrelation = new AutocorrelationFunctionCalculator<DoubleTimeSeries<Long>>();
+    final AutocovarianceFunctionCalculator autocovariance = new AutocovarianceFunctionCalculator();
+    final AutocorrelationFunctionCalculator autocorrelation = new AutocorrelationFunctionCalculator();
     final Double[] rhoAR = autocorrelation.evaluate(AR);
     final Double[] rhoMA = autocorrelation.evaluate(MA);
     final Double[] rhoARMAP0 = autocorrelation.evaluate(MODEL.getSeries(PHI, P, null, 0, DATES));

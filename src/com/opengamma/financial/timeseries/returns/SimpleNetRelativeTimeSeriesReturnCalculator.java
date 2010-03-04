@@ -20,7 +20,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class SimpleNetRelativeTimeSeriesReturnCalculator<T extends DoubleTimeSeries<?>> extends RelativeTimeSeriesReturnCalculator<T> {
+public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSeriesReturnCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(SimpleNetRelativeTimeSeriesReturnCalculator.class);
   private final double ZERO = 1e-12;
 
@@ -29,7 +29,7 @@ public class SimpleNetRelativeTimeSeriesReturnCalculator<T extends DoubleTimeSer
   }
 
   @Override
-  public DoubleTimeSeries<Long> evaluate(final T... x) {
+  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
     if (x == null)
       throw new TimeSeriesException("Time series array was null");
     if (x.length > 2) {

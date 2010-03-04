@@ -12,7 +12,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class RankTestIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
+public class RankTestIIDHypothesis extends IIDHypothesis {
   private final double _criticalValue;
 
   public RankTestIIDHypothesis(final double level) {
@@ -22,7 +22,7 @@ public class RankTestIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHyp
   }
 
   @Override
-  public boolean testIID(final T x) {
+  public boolean testIID(final DoubleTimeSeries<?> x) {
     final Double[] data = x.valuesArray();
     int t = 0;
     final int n = x.size();

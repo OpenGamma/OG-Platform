@@ -24,8 +24,8 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 public class ZeroValueDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final ZeroValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>();
-  private static final ZeroValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>> LARGE_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(1e-3);
+  private static final ZeroValueDoubleTimeSeriesFilter SMALL_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter();
+  private static final ZeroValueDoubleTimeSeriesFilter LARGE_ZERO_FILTER = new ZeroValueDoubleTimeSeriesFilter(1e-3);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
@@ -34,7 +34,7 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeZero() {
-    new ZeroValueDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(-1e-12);
+    new ZeroValueDoubleTimeSeriesFilter(-1e-12);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -44,7 +44,7 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = SMALL_ZERO_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = SMALL_ZERO_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
@@ -101,11 +101,11 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
     largeZeroRejectedDates = Arrays.trimToCapacity(largeZeroRejectedDates, j);
     largeZeroRejectedData = Arrays.trimToCapacity(largeZeroRejectedData, j);
     final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(encoding, dates, data);
-    FilteredTimeSeries<DoubleTimeSeries<Long>> result = SMALL_ZERO_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastArrayLongDoubleTimeSeries(encoding, smallZeroFilteredDates, smallZeroFilteredData),
-        new FastArrayLongDoubleTimeSeries(encoding, smallZeroRejectedDates, smallZeroRejectedData)));
+    FilteredTimeSeries result = SMALL_ZERO_FILTER.evaluate(ts);
+    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(encoding, smallZeroFilteredDates, smallZeroFilteredData), new FastArrayLongDoubleTimeSeries(
+        encoding, smallZeroRejectedDates, smallZeroRejectedData)));
     result = LARGE_ZERO_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries<DoubleTimeSeries<Long>>(new FastArrayLongDoubleTimeSeries(encoding, largeZeroFilteredDates, largeZeroFilteredData),
-        new FastArrayLongDoubleTimeSeries(encoding, largeZeroRejectedDates, largeZeroRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(encoding, largeZeroFilteredDates, largeZeroFilteredData), new FastArrayLongDoubleTimeSeries(
+        encoding, largeZeroRejectedDates, largeZeroRejectedData)));
   }
 }

@@ -17,10 +17,10 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class JarqueBeraIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDHypothesis<T> {
+public class JarqueBeraIIDHypothesis extends IIDHypothesis {
   private static final Logger s_Log = LoggerFactory.getLogger(JarqueBeraIIDHypothesis.class);
-  private final DoubleTimeSeriesStatisticsCalculator<T> _skewCalculator = new DoubleTimeSeriesStatisticsCalculator<T>(new SampleSkewnessCalculator());
-  private final DoubleTimeSeriesStatisticsCalculator<T> _kurtosisCalculator = new DoubleTimeSeriesStatisticsCalculator<T>(new SampleFisherKurtosisCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _skewCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleSkewnessCalculator());
+  private final DoubleTimeSeriesStatisticsCalculator _kurtosisCalculator = new DoubleTimeSeriesStatisticsCalculator(new SampleFisherKurtosisCalculator());
   private final double _criticalValue;
 
   public JarqueBeraIIDHypothesis(final double level) {
@@ -30,7 +30,7 @@ public class JarqueBeraIIDHypothesis<T extends DoubleTimeSeries<?>> extends IIDH
   }
 
   @Override
-  public boolean testIID(final T ts) {
+  public boolean testIID(final DoubleTimeSeries<?> ts) {
     if (ts.size() < 1000) {
       s_Log.warn("Use of this test is discouraged for time series with fewer than 1000 elements; the result will be inaccurate");
     }

@@ -25,7 +25,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 public class SpikeDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final TimeSeriesFilter<DoubleTimeSeries<Long>> FILTER = new SpikeDoubleTimeSeriesFilter<DoubleTimeSeries<Long>>(100);
+  private static final TimeSeriesFilter FILTER = new SpikeDoubleTimeSeriesFilter(100);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_MILLIS;
   private static final int N = 100;
   private static final long[] DATES = new long[N];
@@ -48,7 +48,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertNull(filtered.getRejectedTS());
   }
@@ -58,7 +58,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
     final double[] data = Arrays.copyOf(DATA, N);
     data[0] = 100.;
     final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
-    final DoubleTimeSeries<Long> rejected = FILTER.evaluate(ts).getRejectedTS();
+    final DoubleTimeSeries<Long> rejected = FILTER.evaluate(ts).getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.size(), 1);
     assertEquals(rejected.getTime(0), ts.getTime(0));
     assertEquals(rejected.getValueAt(0), ts.getValueAt(0));
@@ -69,7 +69,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
     final double[] data = Arrays.copyOf(DATA, N);
     data[10] = 100.;
     DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
-    FilteredTimeSeries<DoubleTimeSeries<Long>> filtered = FILTER.evaluate(ts);
+    FilteredTimeSeries filtered = FILTER.evaluate(ts);
     testSeries(ts, filtered, 10);
     data[10] = -100.;
     ts = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, data);
@@ -77,8 +77,8 @@ public class SpikeDoubleTimeSeriesFilterTest {
     testSeries(ts, filtered, 10);
   }
 
-  private void testSeries(final DoubleTimeSeries<Long> ts, final FilteredTimeSeries<DoubleTimeSeries<Long>> filtered, final int index) {
-    final DoubleTimeSeries<Long> rejected = filtered.getRejectedTS();
+  private void testSeries(final DoubleTimeSeries<Long> ts, final FilteredTimeSeries filtered, final int index) {
+    final DoubleTimeSeries<Long> rejected = filtered.getRejectedTS().toFastLongDoubleTimeSeries();
     assertEquals(rejected.size(), 1);
     assertEquals(rejected.getTime(0), ts.getTime(index));
     assertEquals(rejected.getValueAt(0), ts.getValueAt(index));

@@ -19,7 +19,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class SpikeDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends TimeSeriesFilter<T> {
+public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_Log = LoggerFactory.getLogger(SpikeDoubleTimeSeriesFilter.class);
   private double _maxPercentageMove;
 
@@ -38,12 +38,12 @@ public class SpikeDoubleTimeSeriesFilter<T extends DoubleTimeSeries<?>> extends 
   }
 
   @Override
-  public FilteredTimeSeries<DoubleTimeSeries<Long>> evaluate(final T ts) {
+  public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredTimeSeries<DoubleTimeSeries<Long>>(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
     final int n = x.size();

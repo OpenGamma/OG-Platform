@@ -13,10 +13,10 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * @author emcleod
  */
-public class MovingAverageTimeSeriesOrderIdentifier<T extends DoubleTimeSeries<?>> {
+public class MovingAverageTimeSeriesOrderIdentifier {
   private final int _maxOrder;
   private final double _criticalValue;
-  private final Function1D<T, Double[]> _calculator = new AutocorrelationFunctionCalculator<T>();
+  private final Function1D<DoubleTimeSeries<?>, Double[]> _calculator = new AutocorrelationFunctionCalculator();
 
   public MovingAverageTimeSeriesOrderIdentifier(final int maxOrder, final double level) {
     if (maxOrder < 1)
@@ -27,7 +27,7 @@ public class MovingAverageTimeSeriesOrderIdentifier<T extends DoubleTimeSeries<?
     _criticalValue = new NormalDistribution(0, 1).getInverseCDF(1 - level / 2.);
   }
 
-  public int getOrder(final T ts) {
+  public int getOrder(final DoubleTimeSeries<?> ts) {
     if (ts == null)
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty())

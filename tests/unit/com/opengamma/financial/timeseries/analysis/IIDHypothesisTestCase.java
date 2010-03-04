@@ -21,6 +21,7 @@ public class IIDHypothesisTestCase {
   protected static final DoubleTimeSeries<Long> RANDOM;
   protected static final DoubleTimeSeries<Long> SIGNAL;
   protected static final DoubleTimeSeries<Long> INCREASING;
+  protected static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
   static {
     final int n = 5000;
     final long[] dates = new long[n];
@@ -34,13 +35,12 @@ public class IIDHypothesisTestCase {
       signal[i] = Math.cos(i / 10.) + normal.nextRandom();
       increasing[i] = i == 0 ? 1 : increasing[i - 1] * 1.0001;
     }
-    final DateTimeNumericEncoding encoding = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
-    RANDOM = new FastArrayLongDoubleTimeSeries(encoding, dates, random);
-    SIGNAL = new FastArrayLongDoubleTimeSeries(encoding, dates, signal);
-    INCREASING = new FastArrayLongDoubleTimeSeries(encoding, dates, increasing);
+    RANDOM = new FastArrayLongDoubleTimeSeries(ENCODING, dates, random);
+    SIGNAL = new FastArrayLongDoubleTimeSeries(ENCODING, dates, signal);
+    INCREASING = new FastArrayLongDoubleTimeSeries(ENCODING, dates, increasing);
   }
 
-  public void testNullTS(final IIDHypothesis<DoubleTimeSeries<Long>> h) {
+  public void testNullTS(final IIDHypothesis h) {
     try {
       h.evaluate((DoubleTimeSeries<Long>) null);
       fail();
@@ -49,7 +49,7 @@ public class IIDHypothesisTestCase {
     }
   }
 
-  public void testEmptyTS(final IIDHypothesis<DoubleTimeSeries<Long>> h) {
+  public void testEmptyTS(final IIDHypothesis h) {
     try {
       h.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
       fail();
