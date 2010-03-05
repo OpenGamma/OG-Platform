@@ -64,11 +64,4 @@ public class CompareUtils {
   public static boolean closeEquals(double a, double b, double maxDifference) {
     return (Math.abs(a - b) < maxDifference);
   }
-  
-  public static <T> T checkForNull(T o) throws NullPointerException  {
-    if (o == null) {
-      throw new NullPointerException();
-    }
-    return o;
-  }
 }
