@@ -1,12 +1,14 @@
 DROP TABLE domain_spec_identifier CASCADE;
 DROP TABLE domain CASCADE;
 DROP TABLE time_series_data CASCADE;
+DROP TABLE time_series_data_delta CASCADE;
 DROP TABLE time_series_key CASCADE;
 DROP TABLE quoted_object CASCADE;
 DROP TABLE data_source CASCADE;
 DROP TABLE data_provider CASCADE;
 DROP TABLE data_field CASCADE;
 DROP TABLE observation_time CASCADE;
+
 
 --DROP SEQUENCE quoted_object_sequence;
 --DROP SEQUENCE data_source_sequence;

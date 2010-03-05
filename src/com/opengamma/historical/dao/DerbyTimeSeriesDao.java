@@ -21,4 +21,9 @@ public class DerbyTimeSeriesDao extends RowStoreJdbcDao {
     super(transactionManager);
   }
 
+  @Override
+  protected boolean isTriggerSupported() {
+    return false;
+  }
+
 }

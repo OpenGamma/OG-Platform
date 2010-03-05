@@ -83,5 +83,9 @@ public interface TimeSeriesDao {
   
   public void updateDataPoint(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime date, Double value);
   
+  public void deleteDataPoint(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime date);
+  
+  public DoubleTimeSeries getTimeSeriesSnapShot(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime time);
+  
   
 }
