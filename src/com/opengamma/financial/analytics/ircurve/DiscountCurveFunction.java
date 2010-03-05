@@ -42,11 +42,11 @@ import com.opengamma.util.ArgumentChecker;
 public class DiscountCurveFunction
 extends AbstractFunction 
 implements FunctionInvoker {
-  private final Interpolator1D _interpolator; 
+  private Interpolator1D _interpolator; 
   private DiscountCurveDefinition _definition;
-  private final Set<ValueRequirement> _requirements;
-  private final ValueSpecification _result;
-  private final Set<ValueSpecification> _results;
+  private Set<ValueRequirement> _requirements;
+  private ValueSpecification _result;
+  private Set<ValueSpecification> _results;
   private Currency _curveCurrency;
   private String _curveName;
   
@@ -56,15 +56,19 @@ implements FunctionInvoker {
     _definition = null;
     _curveCurrency = currency;
     _curveName = name;
-    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
-    _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
-    _results = Collections.singleton(_result);
+    _interpolator = null;
+    _requirements = null;
+    _result = null;
+    _results = null;
   }
 
   @Override
   public void init(FunctionCompilationContext context) {
     _definition = OpenGammaCompilationContext.getDiscountCurveDefinition(context, _curveCurrency, _curveName);
+    _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
+    _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
+    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
+    _results = Collections.singleton(_result);
   }
   
   /**
