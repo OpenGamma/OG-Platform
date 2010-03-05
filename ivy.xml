@@ -12,7 +12,6 @@
     	<dependency name="og-livedata" rev="latest.integration" conf="opengamma->*"/>
     	<dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
     	
-        <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
         <dependency org="org.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
     </dependencies>
 </ivy-module>
