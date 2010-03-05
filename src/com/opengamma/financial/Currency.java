@@ -8,7 +8,7 @@ package com.opengamma.financial;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.util.CompareUtils;
+import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2009-09-15 -- This REALLY needs to be renamed.
 
@@ -34,7 +34,7 @@ public class Currency {
     // - Will allow lower-case ISO codes
     // - Will allow ISO codes outside normal rules (e.g. 3-letter)
     // - Isn't even concurrency safe
-    CompareUtils.checkForNull(isoCode);
+    ArgumentChecker.checkNotNull(isoCode, "ISO Code");
     if (s_instanceMap.containsKey(isoCode)) {
       return s_instanceMap.get(isoCode);
     } else {
