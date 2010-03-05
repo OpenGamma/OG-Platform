@@ -25,13 +25,11 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
   private final double _percentBadDataPoints;
 
   public HistoricalVolatilityCalculator() {
-    _mode = CalculationMode.STRICT;
-    _percentBadDataPoints = 0.001;
+    this(CalculationMode.STRICT);
   }
 
   public HistoricalVolatilityCalculator(final CalculationMode mode) {
-    _mode = mode;
-    _percentBadDataPoints = 0.001;
+    this(mode, 0.001);
   }
 
   public HistoricalVolatilityCalculator(final CalculationMode mode, final double percentBadDataPoints) {
