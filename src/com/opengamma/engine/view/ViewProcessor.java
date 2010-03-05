@@ -50,7 +50,7 @@ public class ViewProcessor implements Lifecycle {
   private final FudgeRequestSender _computationJobRequestSender;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
-  private final FunctionCompilationContext _compilationContext = new FunctionCompilationContext();
+  private final FunctionCompilationContext _compilationContext;
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private boolean _isStarted = false;
   
@@ -62,6 +62,7 @@ public class ViewProcessor implements Lifecycle {
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       ViewComputationCacheSource computationCacheSource,
+      FunctionCompilationContext compilationContext,
       FudgeRequestSender computationJobRequestSender) {
     ArgumentChecker.checkNotNull(viewDefinitionRepository, "View definition repository");
     ArgumentChecker.checkNotNull(functionRepository, "Function repository");
@@ -74,6 +75,7 @@ public class ViewProcessor implements Lifecycle {
     _positionMaster = positionMaster;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
+    _compilationContext = compilationContext;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
   }
