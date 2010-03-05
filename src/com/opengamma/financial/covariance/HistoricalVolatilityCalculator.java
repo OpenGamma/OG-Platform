@@ -21,15 +21,17 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  */
 public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
+  protected static final CalculationMode DEFAULT_CALCULATION_MODE = CalculationMode.STRICT;
+  protected static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.001;
   private final CalculationMode _mode;
   private final double _percentBadDataPoints;
 
   public HistoricalVolatilityCalculator() {
-    this(CalculationMode.STRICT);
+    this(DEFAULT_CALCULATION_MODE);
   }
 
   public HistoricalVolatilityCalculator(final CalculationMode mode) {
-    this(mode, 0.001);
+    this(mode, DEFAULT_PERCENT_BAD_DATA_POINTS);
   }
 
   public HistoricalVolatilityCalculator(final CalculationMode mode, final double percentBadDataPoints) {

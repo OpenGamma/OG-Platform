@@ -25,19 +25,11 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
   private final double _lambdaM1;
 
   public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator) {
-    super();
-    checkLambda(lambda);
-    _lambda = lambda;
-    _lambdaM1 = 1 - lambda;
-    _returnCalculator = returnCalculator;
+    this(lambda, returnCalculator, HistoricalVolatilityCalculator.DEFAULT_CALCULATION_MODE);
   }
 
   public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode) {
-    super(mode);
-    checkLambda(lambda);
-    _lambda = lambda;
-    _lambdaM1 = 1 - lambda;
-    _returnCalculator = returnCalculator;
+    this(lambda, returnCalculator, mode, HistoricalVolatilityCalculator.DEFAULT_PERCENT_BAD_DATA_POINTS);
   }
 
   public ExponentialWeightedMovingAverageHistoricalVolatilityCalculator(final double lambda, final TimeSeriesReturnCalculator returnCalculator, final CalculationMode mode,
