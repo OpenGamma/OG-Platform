@@ -1,12 +1,17 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.greeks;
 
-import com.opengamma.util.CompareUtils;
+import com.opengamma.util.ArgumentChecker;
 
 public class SingleGreekResult implements GreekResult<Double> {
   private final Double _result;
 
   public SingleGreekResult(final Double result) {
-    CompareUtils.checkForNull(result);
+    ArgumentChecker.checkNotNull(result, "Result");
     _result = result;
   }
 
