@@ -50,6 +50,9 @@ public class DiscountCurveFunctionTest {
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     context.put("discountCurveSource", curveSource);
+    
+    function.init(context);
+    
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
@@ -77,6 +80,8 @@ public class DiscountCurveFunctionTest {
     Set<ValueRequirement> requirements = null;
     FunctionCompilationContext context = new FunctionCompilationContext();
     context.put("discountCurveSource", curveSource);
+    
+    function.init(context);
     
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNull(requirements);
