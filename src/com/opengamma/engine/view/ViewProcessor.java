@@ -9,12 +9,20 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
@@ -26,6 +34,7 @@ import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.NamedThreadPoolFactory;
 
 // REVIEW kirk 2010-03-02 -- View initialization is really slow, and right now there's no
 // asynchronous support in any type of RESTful call for a super-slow (1-2 minutes) call.
@@ -54,6 +63,8 @@ public class ViewProcessor implements Lifecycle {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private boolean _isStarted = false;
   private final FunctionCompilationContext _compilationContext = new FunctionCompilationContext();
+  private ExecutorService _executorService;
+  private boolean _localExecutorService = false;
   
   public ViewProcessor() {
   }
@@ -187,6 +198,36 @@ public class ViewProcessor implements Lifecycle {
       FudgeRequestSender computationJobRequestSender) {
     assertNotStarted();
     _computationJobRequestSender = computationJobRequestSender;
+  }
+
+  /**
+   * @return the executorService
+   */
+  public ExecutorService getExecutorService() {
+    return _executorService;
+  }
+
+  /**
+   * @param executorService the executorService to set
+   */
+  public void setExecutorService(ExecutorService executorService) {
+    assertNotStarted();
+    _executorService = executorService;
+  }
+
+  /**
+   * @return the localExecutorService
+   */
+  public boolean isLocalExecutorService() {
+    return _localExecutorService;
+  }
+
+  /**
+   * @param localExecutorService the localExecutorService to set
+   */
+  public void setLocalExecutorService(boolean localExecutorService) {
+    assertNotStarted();
+    _localExecutorService = localExecutorService;
   }
 
   /**
@@ -330,6 +371,7 @@ public class ViewProcessor implements Lifecycle {
     _lifecycleLock.lock();
     try {
       checkInjectedInputs();
+      initializeExecutorService();
       initializeAllFunctionDefinitions();
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
@@ -353,6 +395,15 @@ public class ViewProcessor implements Lifecycle {
         }
       }
       _viewsByName.clear();
+      if(isLocalExecutorService()) {
+        getExecutorService().shutdown();
+        try {
+          getExecutorService().awaitTermination(90, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+          s_logger.info("Interrupted while attempting to shutdown local executor service");
+          Thread.interrupted();
+        }
+      }
       _isStarted = false;
     } finally {
       _lifecycleLock.unlock();
@@ -367,9 +418,54 @@ public class ViewProcessor implements Lifecycle {
   protected void initializeAllFunctionDefinitions() {
     s_logger.info("Initializing all function definitions.");
     // TODO kirk 2010-03-07 -- Better error handling.
-    // TODO kirk 2010-03-07 -- Should be an option to do this in parallel.
+    ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
+    int nFunctions = getFunctionRepository().getAllFunctions().size();
     for(FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
-      definition.init(getCompilationContext());
+      final FunctionDefinition finalDefinition = definition;
+      completionService.submit(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            finalDefinition.init(getCompilationContext());
+          } catch (RuntimeException e) {
+            s_logger.warn("Exception thrown while initializing FunctionDefinition {}-{}", new Object[]{finalDefinition, finalDefinition.getShortName()}, e);
+            throw e;
+          }
+        }
+      }, definition);
+    }
+    for(int i = 0; i < nFunctions; i++) {
+      Future<FunctionDefinition> future = null;
+      try {
+        future = completionService.take();
+      } catch (InterruptedException e1) {
+        Thread.interrupted();
+        s_logger.warn("Interrupted while initializing function definitions.");
+        throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
+      }
+      try {
+        future.get();
+      } catch (Exception e) {
+        s_logger.warn("Got exception check back on future for initializing FunctionDefinition. See above log entries", e);
+        // REVIEW kirk 2010-03-07 -- What do we do here?
+      }
+    }
+  }
+  
+  protected void initializeExecutorService() {
+    if(getExecutorService() == null) {
+      s_logger.info("No injected executor service; starting one.");
+      ThreadFactory tf = new NamedThreadPoolFactory("ViewProcessor", true);
+      int nThreads = Runtime.getRuntime().availableProcessors() - 1;
+      if(nThreads == 0) {
+        nThreads = 1;
+      }
+      // REVIEW kirk 2010-03-07 -- Is this the right queue to use here?
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nThreads, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
+      setExecutorService(executor);
+      setLocalExecutorService(true);
+    } else {
+      setLocalExecutorService(false);
     }
   }
   
