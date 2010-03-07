@@ -10,6 +10,6 @@ package com.opengamma.engine.function;
  *
  * @author kirk
  */
-public interface FunctionExecutionContext {
+public class FunctionExecutionContext extends AbstractFunctionContext {
 
 }
