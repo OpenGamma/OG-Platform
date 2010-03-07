@@ -17,6 +17,7 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
@@ -258,6 +259,15 @@ public class ViewProcessor implements Lifecycle {
     throw new IllegalStateException("View \"" + viewName + "\" available, but not initialized. Must be initialized first.");
   }
   
+  protected void initializeAllFunctionDefinitions() {
+    s_logger.info("Initializing all function definitions.");
+    // TODO kirk 2010-03-07 -- Better error handling.
+    // TODO kirk 2010-03-07 -- Should be an option to do this in parallel.
+    for(FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
+      definition.init(getCompilationContext());
+    }
+  }
+  
   // --------------------------------------------------------------------------
   // LIFECYCLE METHODS
   // --------------------------------------------------------------------------
@@ -276,6 +286,7 @@ public class ViewProcessor implements Lifecycle {
   public void start() {
     _lifecycleLock.lock();
     try {
+      initializeAllFunctionDefinitions();
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
       

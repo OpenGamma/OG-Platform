@@ -24,6 +24,16 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface FunctionDefinition {
   
+  /**
+   * Initialize the function definition with an example {@link FunctionCompilationContext}.
+   * This method will be called during the {@link ViewProcessor} startup call, and will be done
+   * exactly once per {@link ViewProcessor}'s lifetime.
+   * Because this is done on a per-processor basis rather than a per-view basis, the
+   * {@link FunctionCompilationContext} provided will only contain details that are generic
+   * to the processor being initialized, rather than the {@link View} being compiled.
+   * 
+   * @param context
+   */
   void init(FunctionCompilationContext context);
   /**
    * The unique identifier for an {@code AnalyticFunction} is the handle

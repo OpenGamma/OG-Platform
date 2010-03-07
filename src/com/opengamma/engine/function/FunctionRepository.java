@@ -19,6 +19,4 @@ public interface FunctionRepository {
   
   FunctionInvoker getInvoker(String uniqueIdentifier);
 
-  void initFunctions(FunctionCompilationContext compilationContext);
-
 }

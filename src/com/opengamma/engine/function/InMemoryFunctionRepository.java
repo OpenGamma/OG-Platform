@@ -47,7 +47,12 @@ public class InMemoryFunctionRepository implements FunctionRepository {
     return _invokersByUniqueIdentifier.get(uniqueIdentifier);
   }
 
-  @Override
+  /**
+   * This method is primarily useful for testing, as otherwise it will be
+   * done explicitly by the {@link ViewProcessor} on startup.
+   * 
+   * @param compilationContext
+   */
   public void initFunctions(FunctionCompilationContext compilationContext) {
     for (FunctionDefinition function : _functions) {
       function.init(compilationContext);

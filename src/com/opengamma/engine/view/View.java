@@ -145,7 +145,6 @@ public class View implements Lifecycle {
     checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 
-    getProcessingContext().getFunctionRepository().initFunctions(getProcessingContext().getCompilationContext());
     reloadPortfolio();
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
