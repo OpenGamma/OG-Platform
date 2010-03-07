@@ -64,7 +64,8 @@ implements FunctionInvoker {
 
   @Override
   public void init(FunctionCompilationContext context) {
-    _definition = OpenGammaCompilationContext.getDiscountCurveDefinition(context, _curveCurrency, _curveName);
+    DiscountCurveSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
+    _definition = curveSource.getDefinition(_curveCurrency, _curveName);
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
     _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));

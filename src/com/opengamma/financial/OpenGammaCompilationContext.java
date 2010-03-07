@@ -6,7 +6,6 @@
 package com.opengamma.financial;
 
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.financial.analytics.ircurve.DiscountCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.DiscountCurveSource;
 
 /**
@@ -15,13 +14,12 @@ import com.opengamma.financial.analytics.ircurve.DiscountCurveSource;
  * @author kirk
  */
 public final class OpenGammaCompilationContext {
-  //public static final string 
+  public static final String DISCOUNT_CURVE_SOURCE_NAME = "discountCurveSource"; 
 
   private OpenGammaCompilationContext() {
   }
-
-  public static DiscountCurveDefinition getDiscountCurveDefinition(FunctionCompilationContext compilationContext, Currency currency, String name) {
-    DiscountCurveSource curveSource = (DiscountCurveSource) compilationContext.get("discountCurveSource");
-    return curveSource.getDefinition(currency, name);
+  
+  public static DiscountCurveSource getDiscountCurveSource(FunctionCompilationContext compilationContext) {
+    return (DiscountCurveSource) compilationContext.get(DISCOUNT_CURVE_SOURCE_NAME);
   }
 }
