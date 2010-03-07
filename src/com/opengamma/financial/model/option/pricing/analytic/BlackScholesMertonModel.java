@@ -17,18 +17,16 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
+ * Generalised Black-Scholes-Merton option pricing. Inputs will give:<br>
+ * <em>b = r</em> Black-Scholes stock option pricing model<br>
+ * <em>b = r - q</em> Merton stock option model with continuous dividend
+ * yield <em>q</em><br>
+ * <em>b = 0</em> Black future option model<br>
+ * <em>b = 0, r = 0</em> Asay margined future option model<br>
+ * <em>b = r - r<sub>f</sub></em> Garman-Kohlhagen FX option model, with
+ * foreign risk-free rate <em>r<sub>f</sub></em>
  * 
  * @author emcleod
- * 
- * 
- *         Generalised Black-Scholes-Merton option pricing. Inputs will give:<br>
- *         <em>b = r</em> Black-Scholes stock option pricing model<br>
- *         <em>b = r - q</em> Merton stock option model with continuous dividend
- *         yield <em>q</em><br>
- *         <em>b = 0</em> Black future option model<br>
- *         <em>b = 0, r = 0</em> Asay margined future option model<br>
- *         <em>b = r - r<sub>f</sub></em> Garman-Kohlhagen FX option model, with
- *         foreign risk-free rate <em>r<sub>f</sub></em>
  */
 public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> {
   ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
