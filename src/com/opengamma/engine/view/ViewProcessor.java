@@ -276,7 +276,8 @@ public class ViewProcessor implements Lifecycle {
         getSecurityMaster(),
         getComputationCacheSource(),
         getComputationJobRequestSender(),
-        getCompilationContext()
+        getCompilationContext(),
+        getExecutorService()
         );
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);

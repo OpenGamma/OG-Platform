@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +34,7 @@ import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
@@ -55,6 +59,7 @@ public class PortfolioEvaluationModel {
 
   private PortfolioNode _populatedRootNode;
   private DependencyGraphModel _dependencyGraphModel;
+  private final Map<SecurityKey, Security> _securitiesByKey = new ConcurrentHashMap<SecurityKey, Security>();
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
@@ -119,6 +124,8 @@ public class PortfolioEvaluationModel {
     ArgumentChecker.checkNotNull(viewProcessingContext, "View Processing Context");
     ArgumentChecker.checkNotNull(viewDefinition, "View Definition");
     
+    resolveSecurities(viewProcessingContext);
+    
     PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio(), viewProcessingContext.getSecurityMaster());
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
@@ -134,6 +141,85 @@ public class PortfolioEvaluationModel {
         viewDefinition);
     addLiveDataSubscriptions(viewProcessingContext.getLiveDataSnapshotProvider());
   }
+  
+  protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
+    // TODO kirk 2010-03-07 -- Need to switch to OperationTimer for this.
+    s_logger.info("Resolving all securities for portfolio {}", getPortfolio().getPortfolioName());
+    Set<SecurityKey> securityKeys = getSecurityKeysForResolution(getPortfolio());
+    ExecutorCompletionService<SecurityKey> completionService = new ExecutorCompletionService<SecurityKey>(viewProcessingContext.getExecutorService());
+    
+    for(SecurityKey secKey : securityKeys) {
+      completionService.submit(new SecurityResolutionJob(viewProcessingContext, secKey), secKey);
+    }
+    boolean failed = false;
+    for(int i = 0; i < securityKeys.size(); i++) {
+      Future<SecurityKey> future = null;
+      try {
+        future = completionService.take();
+      } catch (InterruptedException e1) {
+        Thread.interrupted();
+        s_logger.warn("Interrupted, so didn't finish resolution.");
+        failed = true;
+        break;
+      }
+      try {
+        future.get();
+      } catch (Exception e) {
+        s_logger.warn("Got exception resolving securities", e);
+        failed = true;
+      }
+    }
+    if(failed) {
+      throw new OpenGammaRuntimeException("Unable to resolve all securities for Portfolio " + getPortfolio().getPortfolioName());
+    }
+  }
+  
+  protected class SecurityResolutionJob implements Runnable {
+    private final ViewProcessingContext _viewProcessingContext;
+    private final SecurityKey _securityKey;
+    
+    public SecurityResolutionJob(
+        ViewProcessingContext viewProcessingContext,
+        SecurityKey securityKey) {
+      _viewProcessingContext = viewProcessingContext;
+      _securityKey = securityKey;
+    }
+    
+    @Override
+    public void run() {
+      Security security = null;
+      try {
+        security = _viewProcessingContext.getSecurityMaster().getSecurity(_securityKey);
+      } catch (Exception e) {
+        throw new OpenGammaRuntimeException("Unable to resolve SecurityKey " + _securityKey, e);
+      }
+      if(security == null) {
+        _securitiesByKey.put(_securityKey, security);
+      } else {
+        throw new OpenGammaRuntimeException("Unable to resolve security key " + _securityKey);
+      }
+    }
+  }
+
+  protected Set<SecurityKey> getSecurityKeysForResolution(PortfolioNode node) {
+    Set<SecurityKey> result = new TreeSet<SecurityKey>();
+    
+    for(Position position : node.getPositions()) {
+      if(position.getSecurity() != null) {
+        // Nothing to do here; they pre-resolved the security.
+      } else if(position.getSecurityKey() != null) {
+        result.add(position.getSecurityKey());
+      } else {
+        throw new IllegalArgumentException("For position " + position.getIdentityKey() + " no security or security key provided.");
+      }
+    }
+    
+    for(PortfolioNode subNode : node.getSubNodes()) {
+      result.addAll(getSecurityKeysForResolution(subNode));
+    }
+    
+    return result;
+  }
 
   /**
    * @param node
@@ -144,16 +230,12 @@ public class PortfolioEvaluationModel {
     if(node == null) {
       return null;
     }
-    // REVIEW kirk 2009-09-16 -- This should actually be three passes:
-    // - Gather up all the distinct SecurityKeys
-    // - Scatter/gather to resolve all Securities
-    // - Build the node tree from the resolved Securities
     PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
     populatedNode.setIdentityKey(node.getIdentityKey());
     for(Position position : node.getPositions()) {
       Security security = position.getSecurity();
       if(position.getSecurity() == null) {
-        security = secMaster.getSecurity(position.getSecurityKey());
+        security = _securitiesByKey.get(position.getSecurityKey());
       }
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
@@ -167,13 +249,12 @@ public class PortfolioEvaluationModel {
     }
     return populatedNode;
   }
-
+  
   public void loadPositions() {
     PortfolioNode populatedRootNode = getPopulatedRootNode();
     loadPositions(populatedRootNode);
     setPopulatedRootNode(populatedRootNode);
     s_logger.debug("Operating on {} positions", getPopulatedPositions().size());
-    // TODO kirk 2009-09-15 -- cache securities
   }
   
   protected void loadPositions(PortfolioNode node) {
@@ -184,6 +265,9 @@ public class PortfolioEvaluationModel {
   }
   
   public void loadSecurities() {
+    // REVIEW kirk 2010-03-07 -- This is necessary because securities might have
+    // been pre-resolved, so we can't just rely on the map from SecurityKey to Security
+    // that we build up during resolution.
     for(Position position : getPopulatedPositions()) {
       getSecurities().add(position.getSecurity());
     }

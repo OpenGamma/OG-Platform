@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.concurrent.ExecutorService;
+
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
@@ -32,6 +34,7 @@ public class ViewProcessingContext {
   private final FudgeRequestSender _computationJobRequestSender;
   private final DefaultComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
+  private final ExecutorService _executorService;
 
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -42,7 +45,8 @@ public class ViewProcessingContext {
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
       FudgeRequestSender computationJobRequestSender,
-      FunctionCompilationContext compilationContext
+      FunctionCompilationContext compilationContext,
+      ExecutorService executorService
       ) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
@@ -54,6 +58,7 @@ public class ViewProcessingContext {
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
     _compilationContext = compilationContext;
+    _executorService = executorService;
     
     _computationTargetResolver = new DefaultComputationTargetResolver(securityMaster, positionMaster);
   }
@@ -126,6 +131,13 @@ public class ViewProcessingContext {
    */
   public FunctionCompilationContext getCompilationContext() {
     return _compilationContext;
+  }
+
+  /**
+   * @return the executorService
+   */
+  public ExecutorService getExecutorService() {
+    return _executorService;
   }
 
 }
