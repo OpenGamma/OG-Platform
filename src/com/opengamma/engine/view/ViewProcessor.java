@@ -41,44 +41,27 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewProcessor implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
   // Injected Inputs:
-  private final ViewDefinitionRepository _viewDefinitionRepository;
-  private final FunctionRepository _functionRepository;
-  private final SecurityMaster _securityMaster;
-  private final PositionMaster _positionMaster;
-  private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
-  private final ViewComputationCacheSource _computationCacheSource;
-  private final FudgeRequestSender _computationJobRequestSender;
+  private ViewDefinitionRepository _viewDefinitionRepository;
+  private FunctionRepository _functionRepository;
+  private SecurityMaster _securityMaster;
+  private PositionMaster _positionMaster;
+  private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
+  private LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private ViewComputationCacheSource _computationCacheSource;
+  private FudgeRequestSender _computationJobRequestSender;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
-  private final FunctionCompilationContext _compilationContext;
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private boolean _isStarted = false;
+  private final FunctionCompilationContext _compilationContext = new FunctionCompilationContext();
   
-  public ViewProcessor(
-      ViewDefinitionRepository viewDefinitionRepository,
-      FunctionRepository functionRepository,
-      SecurityMaster securityMaster,
-      PositionMaster positionMaster,
-      LiveDataAvailabilityProvider liveDataAvailabilityProvider,
-      LiveDataSnapshotProvider liveDataSnapshotProvider,
-      ViewComputationCacheSource computationCacheSource,
-      FunctionCompilationContext compilationContext,
-      FudgeRequestSender computationJobRequestSender) {
-    ArgumentChecker.checkNotNull(viewDefinitionRepository, "View definition repository");
-    ArgumentChecker.checkNotNull(functionRepository, "Function repository");
-    ArgumentChecker.checkNotNull(securityMaster, "Security master");
-    ArgumentChecker.checkNotNull(positionMaster, "Position master");
-    // TODO kirk 2010-03-02 -- Finish checking inputs.
-    _viewDefinitionRepository = viewDefinitionRepository;
-    _functionRepository = functionRepository;
-    _securityMaster = securityMaster;
-    _positionMaster = positionMaster;
-    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-    _liveDataSnapshotProvider = liveDataSnapshotProvider;
-    _compilationContext = compilationContext;
-    _computationCacheSource = computationCacheSource;
-    _computationJobRequestSender = computationJobRequestSender;
+  public ViewProcessor() {
+  }
+  
+  protected void assertNotStarted() {
+    if(_isStarted) {
+      throw new IllegalStateException("Cannot change injected properties once this ViewProcessor has been started.");
+    }
   }
   
   /**
@@ -89,10 +72,27 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
+   * @param viewDefinitionRepository the viewDefinitionRepository to set
+   */
+  public void setViewDefinitionRepository(
+      ViewDefinitionRepository viewDefinitionRepository) {
+    assertNotStarted();
+    _viewDefinitionRepository = viewDefinitionRepository;
+  }
+
+  /**
    * @return the functionRepository
    */
   public FunctionRepository getFunctionRepository() {
     return _functionRepository;
+  }
+
+  /**
+   * @param functionRepository the functionRepository to set
+   */
+  public void setFunctionRepository(FunctionRepository functionRepository) {
+    assertNotStarted();
+    _functionRepository = functionRepository;
   }
 
   /**
@@ -103,10 +103,26 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
+   * @param securityMaster the securityMaster to set
+   */
+  public void setSecurityMaster(SecurityMaster securityMaster) {
+    assertNotStarted();
+    _securityMaster = securityMaster;
+  }
+
+  /**
    * @return the positionMaster
    */
   public PositionMaster getPositionMaster() {
     return _positionMaster;
+  }
+
+  /**
+   * @param positionMaster the positionMaster to set
+   */
+  public void setPositionMaster(PositionMaster positionMaster) {
+    assertNotStarted();
+    _positionMaster = positionMaster;
   }
 
   /**
@@ -117,10 +133,28 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
+   * @param liveDataAvailabilityProvider the liveDataAvailabilityProvider to set
+   */
+  public void setLiveDataAvailabilityProvider(
+      LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
+    assertNotStarted();
+    _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
+  }
+
+  /**
    * @return the liveDataSnapshotProvider
    */
   public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
     return _liveDataSnapshotProvider;
+  }
+
+  /**
+   * @param liveDataSnapshotProvider the liveDataSnapshotProvider to set
+   */
+  public void setLiveDataSnapshotProvider(
+      LiveDataSnapshotProvider liveDataSnapshotProvider) {
+    assertNotStarted();
+    _liveDataSnapshotProvider = liveDataSnapshotProvider;
   }
 
   /**
@@ -131,16 +165,30 @@ public class ViewProcessor implements Lifecycle {
   }
 
   /**
+   * @param computationCacheSource the computationCacheSource to set
+   */
+  public void setComputationCacheSource(
+      ViewComputationCacheSource computationCacheSource) {
+    assertNotStarted();
+    _computationCacheSource = computationCacheSource;
+  }
+
+  /**
    * @return the computationJobRequestSender
    */
   public FudgeRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
   }
 
-  public Set<String> getViewNames() {
-    return getViewDefinitionRepository().getDefinitionNames();
+  /**
+   * @param computationJobRequestSender the computationJobRequestSender to set
+   */
+  public void setComputationJobRequestSender(
+      FudgeRequestSender computationJobRequestSender) {
+    assertNotStarted();
+    _computationJobRequestSender = computationJobRequestSender;
   }
-  
+
   /**
    * @return the compilationContext
    */
@@ -148,6 +196,10 @@ public class ViewProcessor implements Lifecycle {
     return _compilationContext;
   }
 
+  public Set<String> getViewNames() {
+    return getViewDefinitionRepository().getDefinitionNames();
+  }
+  
   /**
    * Obtain an already-initialized {@link View} instance.
    * <p/>
@@ -259,15 +311,6 @@ public class ViewProcessor implements Lifecycle {
     throw new IllegalStateException("View \"" + viewName + "\" available, but not initialized. Must be initialized first.");
   }
   
-  protected void initializeAllFunctionDefinitions() {
-    s_logger.info("Initializing all function definitions.");
-    // TODO kirk 2010-03-07 -- Better error handling.
-    // TODO kirk 2010-03-07 -- Should be an option to do this in parallel.
-    for(FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
-      definition.init(getCompilationContext());
-    }
-  }
-  
   // --------------------------------------------------------------------------
   // LIFECYCLE METHODS
   // --------------------------------------------------------------------------
@@ -286,6 +329,7 @@ public class ViewProcessor implements Lifecycle {
   public void start() {
     _lifecycleLock.lock();
     try {
+      checkInjectedInputs();
       initializeAllFunctionDefinitions();
       // REVIEW kirk 2010-03-03 -- If we initialize all views or anything, this is
       // where we'd do it.
@@ -314,5 +358,31 @@ public class ViewProcessor implements Lifecycle {
       _lifecycleLock.unlock();
     }
   }
+  
+  // --------------------------------------------------------------------------
+  // INITIALIZATION METHODS
+  // For all methods that are ultimately called from start()
+  // --------------------------------------------------------------------------
 
+  protected void initializeAllFunctionDefinitions() {
+    s_logger.info("Initializing all function definitions.");
+    // TODO kirk 2010-03-07 -- Better error handling.
+    // TODO kirk 2010-03-07 -- Should be an option to do this in parallel.
+    for(FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
+      definition.init(getCompilationContext());
+    }
+  }
+  
+  protected void checkInjectedInputs() {
+    s_logger.debug("Checking injected inputs.");
+    ArgumentChecker.checkNotNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
+    ArgumentChecker.checkNotNullInjected(getFunctionRepository(), "functionRepository");
+    ArgumentChecker.checkNotNullInjected(getSecurityMaster(), "securityMaster");
+    ArgumentChecker.checkNotNullInjected(getPositionMaster(), "positionMaster");
+    ArgumentChecker.checkNotNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
+    ArgumentChecker.checkNotNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
+    ArgumentChecker.checkNotNullInjected(getComputationCacheSource(), "computationCacheSource");
+    ArgumentChecker.checkNotNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
+  }
+  
 }
