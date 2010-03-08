@@ -20,8 +20,8 @@ import com.opengamma.util.ArgumentChecker;
 public class MockLiveDataServer extends AbstractLiveDataServer {
   
   private final IdentificationDomain _domain;
-  private List<String> _subscriptions = new ArrayList<String>();
-  private List<String> _unsubscriptions = new ArrayList<String>();
+  private final List<String> _subscriptions = new ArrayList<String>();
+  private final List<String> _unsubscriptions = new ArrayList<String>();
   
   public MockLiveDataServer(IdentificationDomain domain) {
     ArgumentChecker.checkNotNull(domain, "Identification domain");

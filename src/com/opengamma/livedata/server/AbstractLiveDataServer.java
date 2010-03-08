@@ -252,7 +252,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   }
   
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
-    return _currentlyActiveSubscriptions.contains(new LiveDataSpecificationImpl(fullyQualifiedSpec));
+    return _fullyQualifiedSpec2Subscription.containsKey(new LiveDataSpecificationImpl(fullyQualifiedSpec));
   }
   
   public LiveDataSpecification getFullyQualifiedSpec(String securityUniqueId) {
