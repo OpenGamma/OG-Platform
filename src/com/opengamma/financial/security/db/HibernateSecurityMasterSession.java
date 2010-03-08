@@ -11,7 +11,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
@@ -165,6 +165,12 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
 
+  @SuppressWarnings ("unchecked")
+  /* package */ List<BusinessDayConventionBean> getBusinessDayConventionBeans () {
+    final Query query = getSession ().getNamedQuery ("BusinessDayConventionBean.all");
+    return query.list ();
+  }
+
   // Frequencies
   /* package */ FrequencyBean getOrCreateFrequencyBean (final String convention) {
     final Query query = getSession ().getNamedQuery ("FrequencyBean.one");
@@ -182,12 +188,6 @@ public class HibernateSecurityMasterSession {
   @SuppressWarnings ("unchecked")
   /* package */ List<FrequencyBean> getFrequencyBeans () {
     final Query query = getSession ().getNamedQuery ("FrequencyBean.all");
-    return query.list ();
-  }
-
-  @SuppressWarnings ("unchecked")
-  /* package */ List<BusinessDayConventionBean> getBusinessDayConventionBeans () {
-    final Query query = getSession ().getNamedQuery ("BusinessDayConventionBean.all");
     return query.list ();
   }
 
@@ -221,7 +221,6 @@ public class HibernateSecurityMasterSession {
   
   /* package */DomainSpecificIdentifierAssociationBean getCreateOrUpdateDomainSpecificIdentifierAssociationBean(
       Date now, String domain, String identifier, SecurityBean security) {
-    System.err.println ("DSidA: " + now + ", " + domain + ", " + identifier + ", " + security);
     Query query = getSession().getNamedQuery(
         "DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier");
     query.setString("domain", domain);
@@ -241,7 +240,6 @@ public class HibernateSecurityMasterSession {
         association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
       }
     }
-    System.err.println (association);
     return association;
   }
 
@@ -290,68 +288,41 @@ public class HibernateSecurityMasterSession {
     }
     return null; // none of the dsid's matched.
   }
+  
+  // Specific securities through BeanOperation
+  
+  /* package */ <S extends Security,SBean extends SecurityBean> SBean createSecurityBean (final BeanOperation<S,SBean> beanOperation, final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
+    final SBean bean = beanOperation.createBean (this, security);
+    persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, bean);
+    return bean;
+  }
+  
+  /* package */ void persistSecurityBean (final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SecurityBean firstVersion, final SecurityBean bean) {
+    // base properties
+    bean.setEffectiveDateTime (effectiveDateTime);
+    bean.setDeleted (deleted);
+    bean.setLastModifiedDateTime (lastModified);
+    bean.setLastModifiedBy (modifiedBy);
+    // first version
+    bean.setFirstVersion (firstVersion);
+    if (firstVersion == null) {
+      // link to itself as a parent
+      final Transaction transaction = getSession ().beginTransaction ();
+      transaction.begin ();
+      final Long id = (Long)getSession ().save (bean);
+      bean.setId (id);
+      bean.setFirstVersion (bean);
+      getSession ().update (bean);
+      transaction.commit ();
+    } else {
+      final Long id = (Long)getSession ().save (bean);
+      bean.setId (id);
+    }    
+    getSession ().flush ();
+    Hibernate.initialize(bean);
+  }
 
   // Equities
-
-  EquitySecurityBean persistEquitySecurityBean(Date now,
-      EquitySecurity equitySecurity) {
-    ExchangeBean exchange = getOrCreateExchangeBean(equitySecurity
-        .getExchange(), "");
-    CurrencyBean currency = getOrCreateCurrencyBean(equitySecurity
-        .getCurrency().getISOCode());
-    GICSCodeBean gicsCode = getOrCreateGICSCodeBean(equitySecurity
-        .getGICSCode().toString(), "");
-    EquitySecurityBean equity = createEquitySecurityBean(now, false, now, null,
-        null, exchange, equitySecurity.getCompanyName(), currency, gicsCode);
-    return equity;
-  }
-
-  // /*package*/ EquitySecurityBean createEquitySecurityBean(ExchangeBean
-  // exchange, String companyName, CurrencyBean currency) {
-  // Date effectiveDateTime = new Date();
-  // return createEquitySecurityBean(effectiveDateTime, false,
-  // effectiveDateTime, null, null, exchange, companyName, currency);
-  // }
-
-  // If firstVersion is null, then the bean is linked to itself.
-  /* package */EquitySecurityBean createEquitySecurityBean(
-      Date effectiveDateTime, boolean deleted, Date lastModified,
-      String modifiedBy, EquitySecurityBean firstVersion,
-      ExchangeBean exchange, String companyName, CurrencyBean currency,
-      GICSCodeBean gicsCode) {
-    final EquitySecurityBean equity = new EquitySecurityBean();
-    // base properties
-    equity.setEffectiveDateTime(effectiveDateTime);
-    equity.setDeleted(deleted);
-    equity.setLastModifiedDateTime(lastModified);
-    equity.setLastModifiedBy(modifiedBy);
-    // first version
-    equity.setFirstVersion(firstVersion);
-    // equity properties
-    equity.setExchange(exchange);
-    equity.setCompanyName(companyName);
-    equity.setCurrency(currency);
-    equity.setGICSCode(gicsCode);
-    if (firstVersion == null) { // we need to link it to itself as a parent.
-      // TODO: TRANSACTION START - CAN WE GET AWAY WITH NOT USING THE
-      // TRANSACTION MANAGER? NO, REWORK THIS
-      Transaction transaction = getSession().beginTransaction();
-      transaction.begin();
-      Long id = (Long) getSession().save(equity);
-      equity.setId(id);
-      equity.setFirstVersion(equity);
-      getSession().update(equity);
-      transaction.commit();
-      getSession().flush();
-      // TODO: TRANSACTION END
-    } else {
-      Long id = (Long) getSession().save(equity);
-      equity.setId(id);
-      getSession().flush();
-    }
-    Hibernate.initialize(equity);
-    return equity;
-  }
 
   // Internal query methods for equities
   @SuppressWarnings("unchecked")
@@ -415,124 +386,6 @@ public class HibernateSecurityMasterSession {
   /* package */List<EquityOptionSecurityBean> getEquityOptionSecurityBeans() {
     Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
     return query.list();
-  }
-  
-  /* package */EquityOptionSecurityBean persistEquityOptionSecurityBean(
-      final Date now, final EquityOptionSecurity equityOptionSecurity) {
-    final EquityOptionType equityOptionType = EquityOptionType.identify (equityOptionSecurity);
-    final Date expiry = new Date(equityOptionSecurity.getExpiry().toInstant()
-        .toEpochMillis());
-    final CurrencyBean currency = getOrCreateCurrencyBean(equityOptionSecurity
-        .getCurrency().getISOCode());
-    final ExchangeBean exchange = getOrCreateExchangeBean(equityOptionSecurity
-        .getExchange(), "");
-    return createEquityOptionSecurityBean(now, false, now, null, null,
-        equityOptionType, equityOptionSecurity.getOptionType (), equityOptionSecurity.getStrike(), expiry,
-        equityOptionSecurity.getUnderlyingIdentityKey(), currency, exchange);
-  }
-
-  /* package */EquityOptionSecurityBean createEquityOptionSecurityBean(
-      Date effectiveDateTime, boolean deleted, Date lastModified,
-      String modifiedBy, EquityOptionSecurityBean firstVersion,
-      EquityOptionType equityOptionType, OptionType optionType,
-      double strike, Date expiry, String underlyingIdentityKey,
-      CurrencyBean currency, ExchangeBean exchange) {
-    final EquityOptionSecurityBean equityOption = new EquityOptionSecurityBean();
-    // base properties
-    equityOption.setEffectiveDateTime(effectiveDateTime);
-    equityOption.setDeleted(deleted);
-    equityOption.setLastModifiedDateTime(lastModified);
-    equityOption.setLastModifiedBy(modifiedBy);
-    // first version
-    equityOption.setFirstVersion(firstVersion);
-    // equity option properties
-    equityOption.setEquityOptionType(equityOptionType);
-    equityOption.setOptionType(optionType);
-    equityOption.setStrike(strike);
-    equityOption.setExpiry(expiry);
-    equityOption.setUnderlyingIdentityKey(underlyingIdentityKey);
-    equityOption.setCurrency(currency);
-    equityOption.setExchange(exchange);
-    if (firstVersion == null) { // we need to link it to itself as a parent.
-      // TODO: TRANSACTION START - CAN WE GET AWAY WITH NOT USING THE
-      // TRANSACTION MANAGER? NO, REWORK THIS
-      Transaction transaction = getSession().beginTransaction();
-      transaction.begin();
-      Long id = (Long) getSession().save(equityOption);
-      equityOption.setId(id);
-      equityOption.setFirstVersion(equityOption);
-      getSession().update(equityOption);
-      transaction.commit();
-      getSession().flush();
-      // TODO: TRANSACTION END
-    } else {
-      Long id = (Long) getSession().save(equityOption);
-      equityOption.setId(id);
-      getSession().flush();
-    }
-    Hibernate.initialize(equityOption);
-    return equityOption;
-  }
-  
-  // Bonds
-  
-  /* package */ BondSecurityBean persistBondSecurityBean (final Date now, final BondSecurity bondSecurity) {
-    final FrequencyBean frequency = getOrCreateFrequencyBean (bondSecurity.getFrequency ().getConventionName ());
-    final CurrencyBean currency = getOrCreateCurrencyBean (bondSecurity.getCurrency ().getISOCode ());
-    final DayCountBean dayCountConvention = getOrCreateDayCountBean (bondSecurity.getDayCountConvention ().getConventionName ());
-    final BusinessDayConventionBean businessDayConvention = getOrCreateBusinessDayConventionBean (bondSecurity.getBusinessDayConvention ().getConventionName ());
-    return createBondSecurityBean (now, false, now, null, null, BondType.identify (bondSecurity), new Date (bondSecurity.getMaturity ().toInstant ().toEpochMillis ()), bondSecurity.getCoupon (), frequency, bondSecurity.getCountry (), bondSecurity.getCreditRating (), currency, bondSecurity.getIssuer (), dayCountConvention, businessDayConvention);
-  }
-  
-  /* package */ BondSecurityBean createBondSecurityBean (final Date effectiveDateTime, boolean deleted, Date lastModified, String modifiedBy, BondSecurityBean firstVersion,
-      BondType bondType,
-      Date maturity,
-      double coupon,
-      FrequencyBean frequency,
-      String country,
-      String creditRating,
-      CurrencyBean currency,
-      String issuer,
-      DayCountBean dayCountConvention,
-      BusinessDayConventionBean businessDayConvention) {
-    final BondSecurityBean bond = new BondSecurityBean();
-    // base properties
-    bond.setEffectiveDateTime(effectiveDateTime);
-    bond.setDeleted(deleted);
-    bond.setLastModifiedDateTime(lastModified);
-    bond.setLastModifiedBy(modifiedBy);
-    // first version
-    bond.setFirstVersion(firstVersion);
-    // bond properties
-    bond.setBondType (bondType);
-    bond.setMaturity (maturity);
-    bond.setCoupon (coupon);
-    bond.setFrequency (frequency);
-    bond.setCountry (country);
-    bond.setCreditRating (creditRating);
-    bond.setCurrency (currency);
-    bond.setIssuer (issuer);
-    bond.setDayCountConvention (dayCountConvention);
-    bond.setBusinessDayConvention (businessDayConvention);
-    if (firstVersion == null) { // we need to link it to itself as a parent.
-      // TODO: TRANSACTION START - CAN WE GET AWAY WITH NOT USING THE
-      // TRANSACTION MANAGER? NO, REWORK THIS
-      Transaction transaction = getSession().beginTransaction();
-      transaction.begin();
-      Long id = (Long) getSession().save(bond);
-      bond.setId(id);
-      bond.setFirstVersion(bond);
-      getSession().update(bond);
-      transaction.commit();
-      getSession().flush();
-      // TODO: TRANSACTION END
-    } else {
-      Long id = (Long) getSession().save(bond);
-      bond.setId(id);
-      getSession().flush();
-    }
-    Hibernate.initialize(bond);
-    return bond;
   }
   
 }
