@@ -73,7 +73,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
 
   private Date convertZonedDateTime(ZonedDateTime date) {
     ArgumentChecker.checkNotNull(date, "date");
-    return new Date(date.toInstant().toEpochMillis());
+    return new Date(date.toInstant().toEpochMillisLong());
   }
 
   @Override
