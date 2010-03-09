@@ -50,7 +50,6 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
 
   public ZonedDateTimeEpochMillisConverter() {
     _timeZone = TimeZone.UTC;//TimeZone.of(java.util.TimeZone.getDefault().getID()); 
-    Clock.systemDefaultZone();
   }
 
   public java.util.TimeZone getTimeZone() {
