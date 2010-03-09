@@ -1,3 +1,14 @@
+DROP TABLE IF EXISTS domain_spec_identifier CASCADE;
+DROP TABLE IF EXISTS domain CASCADE;
+DROP TABLE IF EXISTS time_series_data CASCADE;
+DROP TABLE IF EXISTS time_series_data_delta CASCADE;
+DROP TABLE IF EXISTS time_series_key CASCADE;
+DROP TABLE IF EXISTS quoted_object CASCADE;
+DROP TABLE IF EXISTS data_source CASCADE;
+DROP TABLE IF EXISTS data_provider CASCADE;
+DROP TABLE IF EXISTS data_field CASCADE;
+DROP TABLE IF EXISTS observation_time CASCADE;
+
 CREATE SEQUENCE data_field_id_seq START 1;
 CREATE SEQUENCE data_provider_id_seq START 1;
 CREATE SEQUENCE data_source_id_seq START 1;
@@ -99,7 +110,18 @@ CREATE TABLE time_series_data (
 	value DOUBLE PRECISION NOT NULL
 );
 
-CREATE UNIQUE INDEX idx_tsdata_id_date ON time_series_data (time_series_id, ts_date); 
+CREATE UNIQUE INDEX idx_tsdata_id_date ON time_series_data (time_series_id, ts_date);
+
+CREATE TABLE time_series_data_delta (
+	time_series_id INTEGER NOT NULL
+	  constraint fk_tsd_delta_time_series  REFERENCES time_series_key (id),
+	time_stamp TIMESTAMP NOT NULL,
+	ts_date date NOT NULL,
+	old_value DOUBLE PRECISION NOT NULL,
+	operation char(1) NOT NULL
+	 CONSTRAINT operation_constraint CHECK ( operation IN ('I', 'U', 'D', 'Q')),
+	PRIMARY KEY (time_series_id, time_stamp, ts_date)
+);
 
 CREATE TABLE domain_spec_identifier (
 	id INTEGER NOT NULL

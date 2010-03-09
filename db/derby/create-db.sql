@@ -85,6 +85,19 @@ CREATE TABLE time_series_data (
 
 CREATE UNIQUE INDEX idx_tsdata_id_date ON time_series_data (time_series_id, ts_date); 
 
+CREATE TABLE time_series_data_delta (
+	time_series_id INTEGER NOT NULL
+	  constraint fk_tsd_delta_time_series  REFERENCES time_series_key (id),
+	time_stamp TIMESTAMP NOT NULL,
+	ts_date date NOT NULL,
+	old_value DOUBLE NOT NULL,
+	operation char(1) NOT NULL
+	 CONSTRAINT operation_constraint CHECK ( operation IN ('I', 'U', 'D', 'Q')),
+	PRIMARY KEY (time_series_id, time_stamp, ts_date)
+);
+
+CREATE UNIQUE INDEX idx_tsdata_id_stamp_date ON time_series_data_delta (time_series_id, time_stamp, ts_date);
+
 CREATE TABLE domain_spec_identifier (
 	id INTEGER NOT NULL
 	  PRIMARY KEY

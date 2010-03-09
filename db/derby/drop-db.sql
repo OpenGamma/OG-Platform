@@ -1,6 +1,7 @@
 DROP TABLE domain_spec_identifier;
 DROP TABLE domain;
 DROP TABLE time_series_data;
+DROP TABLE time_series_data_delta;
 DROP TABLE time_series_key;
 DROP TABLE quoted_object;
 DROP TABLE data_source;

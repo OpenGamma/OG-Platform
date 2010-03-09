@@ -10,3 +10,4 @@ tests/output/
 build/
 lib/
 db/derby/test_*
+/.fudge-proto-gitignore
