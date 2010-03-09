@@ -13,24 +13,26 @@ import javax.time.Instant;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-public class MapDoubleTimeSeries extends DoubleTimeSeries  {
+public class MapDoubleTimeSeries extends DoubleTimeSeries {
   public static final DoubleTimeSeries EMPTY_SERIES = new MapDoubleTimeSeries();
-  private TreeMap<ZonedDateTime, Double> _data;
-  
+  private final TreeMap<ZonedDateTime, Double> _data;
+
   public MapDoubleTimeSeries() {
     _data = new TreeMap<ZonedDateTime, Double>();
   }
-  
-  public MapDoubleTimeSeries(SortedMap<ZonedDateTime, Double> data) {
+
+  public MapDoubleTimeSeries(final SortedMap<ZonedDateTime, Double> data) {
     _data = new TreeMap<ZonedDateTime, Double>(data);
   }
-  
-  public MapDoubleTimeSeries(List<ZonedDateTime> times, List<Double> values) {
+
+  public MapDoubleTimeSeries(final List<ZonedDateTime> times, final List<Double> values) {
     this();
-    if (times.size() != values.size()) { throw new IllegalArgumentException("lists of different lengths"); }
-    Iterator<Double> valuesIter = values.iterator();
-    for (ZonedDateTime time : times) {
-      Double value = valuesIter.next();
+    if (times.size() != values.size()) {
+      throw new IllegalArgumentException("lists of different lengths");
+    }
+    final Iterator<Double> valuesIter = values.iterator();
+    for (final ZonedDateTime time : times) {
+      final Double value = valuesIter.next();
       if (time != null && value != null) {
         _data.put(time, value);
       } else {
@@ -38,34 +40,34 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
       }
     }
   }
-  
-  public MapDoubleTimeSeries(long[] times, double[] values, TimeZone[] zones) {
+
+  public MapDoubleTimeSeries(final long[] times, final double[] values, final TimeZone[] zones) {
     this();
-    if (times.length != values.length || times.length != zones.length) { 
-      throw new IllegalArgumentException("arrays of different lengths"); 
-      }
+    if (times.length != values.length || times.length != zones.length) {
+      throw new IllegalArgumentException("arrays of different lengths");
+    }
     long timeMax = 0;
-    for (int i=0; i<times.length; i++) {
+    for (int i = 0; i < times.length; i++) {
       if (times[i] > timeMax) {
-        _data.put(ZonedDateTime.fromInstant(Instant.millisInstant(times[i]), zones[i]), values[i]);
+        _data.put(ZonedDateTime.fromInstant(Instant.millis(times[i]), zones[i]), values[i]);
         timeMax = times[i];
       } else {
         throw new IllegalArgumentException("times array must be increasing");
       }
     }
   }
-  
-  public MapDoubleTimeSeries(DoubleTimeSeries dts) {
+
+  public MapDoubleTimeSeries(final DoubleTimeSeries dts) {
     this();
-    Iterator<Entry<ZonedDateTime, Double>> iterator = dts.iterator();
+    final Iterator<Entry<ZonedDateTime, Double>> iterator = dts.iterator();
     while (iterator.hasNext()) {
-      Entry<ZonedDateTime, Double> entry = iterator.next();
+      final Entry<ZonedDateTime, Double> entry = iterator.next();
       _data.put(entry.getKey(), entry.getValue());
     }
   }
-  
+
   @Override
-  public Double getDataPoint(ZonedDateTime instant) {
+  public Double getDataPoint(final ZonedDateTime instant) {
     return _data.get(instant);
   }
 
@@ -73,72 +75,75 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   public Iterator<Map.Entry<ZonedDateTime, Double>> iterator() {
     return _data.entrySet().iterator();
   }
-  
+
   @Override
   public Iterator<ZonedDateTime> timeIterator() {
     return _data.keySet().iterator();
   }
-  
+
   @Override
   public List<ZonedDateTime> times() {
     return new ArrayList<ZonedDateTime>(_data.keySet());
   }
-  
+
   @Override
   public Iterator<Double> valuesIterator() {
     return _data.values().iterator();
   }
-  
-  @Override 
+
+  @Override
   public List<Double> values() {
     return new ArrayList<Double>(_data.values());
   }
-  
+
   @Override
   public Double getEarliestValue() {
     return _data.get(_data.firstKey());
   }
-  
+
   @Override
   public ZonedDateTime getEarliestTime() {
     return _data.firstKey();
   }
-  
+
   @Override
   public Double getLatestValue() {
     return _data.get(_data.lastKey());
   }
-    
+
   @Override
   public ZonedDateTime getLatestTime() {
     return _data.lastKey();
   }
-  
+
   @Override
   public int size() {
     return _data.size();
   }
-  
+
   @Override
   public Double[] getValues() {
     return _data.values().toArray(new Double[0]);
   }
-  
+
+  @Override
   public boolean isEmpty() {
     return _data.isEmpty();
   }
-  
+
+  @Override
   public int hashCode() {
     return _data.hashCode();
   }
-  
-  public DoubleTimeSeries subSeries(ZonedDateTime startTime, ZonedDateTime endTime) {
+
+  @Override
+  public DoubleTimeSeries subSeries(final ZonedDateTime startTime, final ZonedDateTime endTime) {
     return new MapDoubleTimeSeries(_data.subMap(startTime, true, endTime, true));
   }
-  
+
   /* oldest n items */
-  public DoubleTimeSeries head(int numItems) {
-    ZonedDateTime[] keys = _data.keySet().toArray(new ZonedDateTime[] {});
+  public DoubleTimeSeries head(final int numItems) {
+    final ZonedDateTime[] keys = _data.keySet().toArray(new ZonedDateTime[] {});
     if (numItems > keys.length) {
       throw new IllegalStateException("you asked for more head elements that are available");
     } else if (numItems == 0) {
@@ -147,14 +152,17 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
       return new MapDoubleTimeSeries(_data.headMap(keys[numItems]));
     }
   }
-  
-  public boolean equals(Object other) {
+
+  @Override
+  public boolean equals(final Object other) {
     if (other instanceof DoubleTimeSeries) {
-      DoubleTimeSeries dts = (DoubleTimeSeries)other;
-      if (dts.size() != size()) { return false; }
-      Iterator<Entry<ZonedDateTime, Double>> iterator = _data.entrySet().iterator();
-      for (Entry<?, ?> entry : dts) {
-        Entry<ZonedDateTime, Double> myEntry = iterator.next();
+      final DoubleTimeSeries dts = (DoubleTimeSeries) other;
+      if (dts.size() != size()) {
+        return false;
+      }
+      final Iterator<Entry<ZonedDateTime, Double>> iterator = _data.entrySet().iterator();
+      for (final Entry<?, ?> entry : dts) {
+        final Entry<ZonedDateTime, Double> myEntry = iterator.next();
         if (!myEntry.equals(entry)) {
           return false;
         }
@@ -164,17 +172,18 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
       return false;
     }
   }
-  
+
   protected SortedMap<ZonedDateTime, Double> getUnderlyingMap() {
     return _data;
   }
 
   @Override
-  public Double getValue(int index) {
+  public Double getValue(final int index) {
     // TODO: make this efficient
-    if (index < _data.size()) { // this assumption has threading implications in Mutable subclass
-      Iterator<Double> iter = _data.values().iterator();
-      for (int i=0; i<index; i++) {
+    if (index < _data.size()) { // this assumption has threading implications in
+                                // Mutable subclass
+      final Iterator<Double> iter = _data.values().iterator();
+      for (int i = 0; i < index; i++) {
         iter.next();
       }
       return iter.next();
@@ -182,14 +191,14 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
       throw new IndexOutOfBoundsException("Cannot reference data point outside size of time series");
     }
   }
-  
 
   @Override
-  public TimeSeries<Double> tail(int numItems) {
+  public TimeSeries<Double> tail(final int numItems) {
     // TODO: make this efficient
-    if(numItems == 0) return EMPTY_SERIES; 
+    if (numItems == 0)
+      return EMPTY_SERIES;
     if (numItems < _data.size()) {
-      ZonedDateTime[] keys = _data.keySet().toArray(new ZonedDateTime[] {});      
+      final ZonedDateTime[] keys = _data.keySet().toArray(new ZonedDateTime[] {});
       return new MapDoubleTimeSeries(_data.tailMap(keys[keys.length - numItems]));
     } else {
       throw new IndexOutOfBoundsException("Cannot reference data point outside size of time series");
@@ -197,11 +206,12 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   }
 
   @Override
-  public ZonedDateTime getTime(int index) {
+  public ZonedDateTime getTime(final int index) {
     // TODO: make this efficient
-    if (index < _data.size()) { // this assumption has threading implications in Mutable subclass
-      Iterator<ZonedDateTime> iter = _data.keySet().iterator();
-      for (int i=0; i<index; i++) {
+    if (index < _data.size()) { // this assumption has threading implications in
+                                // Mutable subclass
+      final Iterator<ZonedDateTime> iter = _data.keySet().iterator();
+      for (int i = 0; i < index; i++) {
         iter.next();
       }
       return iter.next();
@@ -212,8 +222,8 @@ public class MapDoubleTimeSeries extends DoubleTimeSeries  {
   }
 
   @Override
-  public Double getValue(ZonedDateTime instant) {
-    Double value = _data.get(instant);
+  public Double getValue(final ZonedDateTime instant) {
+    final Double value = _data.get(instant);
     if (value != null) {
       return value;
     } else {

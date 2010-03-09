@@ -57,7 +57,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     long maxTime = Long.MIN_VALUE; // for checking the dates are sorted.
     for (final ZonedDateTime time : times) {
       final Double value = iter.next();
-      final long epochMillis = time.toInstant().toEpochMillis();
+      final long epochMillis = time.toInstant().toEpochMillisLong();
       if (maxTime < epochMillis) {
         _times[i] = epochMillis;
         _values[i] = value;
@@ -84,7 +84,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     } else {
       int pos = 0;
       for (final Map.Entry<ZonedDateTime, Double> entry : dts) {
-        _times[pos] = entry.getKey().toInstant().toEpochMillis();
+        _times[pos] = entry.getKey().toInstant().toEpochMillisLong();
         _values[pos] = entry.getValue();
         _zones[pos] = entry.getKey().getZone();
         pos++;
@@ -101,7 +101,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<ZonedDateTime, Double> entry = iterator.next();
-      _times[i] = entry.getKey().toInstant().toEpochMillis();
+      _times[i] = entry.getKey().toInstant().toEpochMillisLong();
       _values[i] = entry.getValue().doubleValue();
       i++;
     }
@@ -112,8 +112,8 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     if (isEmpty())
       return EMPTY_SERIES;
     // throw new NoSuchElementException("Series is empty");
-    final long startMillis = startTime.toInstant().toEpochMillis();
-    final long endMillis = endTime.toInstant().toEpochMillis();
+    final long startMillis = startTime.toInstant().toEpochMillisLong();
+    final long endMillis = endTime.toInstant().toEpochMillisLong();
     int startPos = Arrays.binarySearch(_times, startMillis);
     int endPos = Arrays.binarySearch(_times, endMillis);
     // if either is -1, make it zero
@@ -134,7 +134,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   @Override
   public Double getDataPoint(final ZonedDateTime instant) {
-    final long time = instant.toInstant().toEpochMillis();
+    final long time = instant.toInstant().toEpochMillisLong();
     final int index = Arrays.binarySearch(_times, time);
     if (index >= 0) {
       return _values[index];
@@ -146,7 +146,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   @Override
   public ZonedDateTime getEarliestTime() {
     if (_times.length > 0)
-      return ZonedDateTime.fromInstant(Instant.millisInstant(_times[0]), _zones[0]);
+      return ZonedDateTime.fromInstant(Instant.millis(_times[0]), _zones[0]);
     else
       throw new NoSuchElementException("Series is empty");
   }
@@ -163,7 +163,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public ZonedDateTime getLatestTime() {
     if (_times.length > 0) {
       final int index = _times.length - 1;
-      return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);
+      return ZonedDateTime.fromInstant(Instant.millis(_times[index]), _zones[index]);
     } else
       throw new NoSuchElementException("Series is empty");
   }
@@ -187,7 +187,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     @Override
     public Entry<ZonedDateTime, Double> next() {
       if (hasNext()) {
-        final KeyValuePair<ZonedDateTime, Double> keyValuePair = new KeyValuePair<ZonedDateTime, Double>(ZonedDateTime.fromInstant(Instant.millisInstant(_times[_current]),
+        final KeyValuePair<ZonedDateTime, Double> keyValuePair = new KeyValuePair<ZonedDateTime, Double>(ZonedDateTime.fromInstant(Instant.millis(_times[_current]),
             _zones[_current]), _values[_current]);
         _current++;
         return keyValuePair;
@@ -227,7 +227,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     @Override
     public ZonedDateTime next() {
       if (hasNext()) {
-        final ZonedDateTime time = ZonedDateTime.fromInstant(Instant.millisInstant(_times[_current]), _zones[_current]);
+        final ZonedDateTime time = ZonedDateTime.fromInstant(Instant.millis(_times[_current]), _zones[_current]);
         _current++;
         return time;
       } else
@@ -291,7 +291,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
 
   @Override
   public ZonedDateTime getTime(final int index) {
-    return ZonedDateTime.fromInstant(Instant.millisInstant(_times[index]), _zones[index]);
+    return ZonedDateTime.fromInstant(Instant.millis(_times[index]), _zones[index]);
   }
 
   @Override
@@ -351,7 +351,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
       int i = 0;
       while (otherIter.hasNext()) {
         final Entry<ZonedDateTime, Double> entry = otherIter.next();
-        if (entry.getKey().toInstant().toEpochMillis() != _times[i])
+        if (entry.getKey().toInstant().toEpochMillisLong() != _times[i])
           return false;
         if (!CompareUtils.closeEquals(entry.getValue(), _values[i]))
           return false;
@@ -368,7 +368,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public List<ZonedDateTime> times() {
     final ZonedDateTime[] times = new ZonedDateTime[_times.length];
     for (int i = 0; i < _times.length; i++) {
-      times[i] = ZonedDateTime.fromInstant(Instant.millisInstant(_times[i]), _zones[i]);
+      times[i] = ZonedDateTime.fromInstant(Instant.millis(_times[i]), _zones[i]);
     }
     return Arrays.asList(times);
   }
@@ -395,7 +395,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   @Override
   public Double getValue(final ZonedDateTime instant) {
     final Instant time = instant.toInstant();
-    final long epochMillis = time.toEpochMillis();
+    final long epochMillis = time.toEpochMillisLong();
     final int binarySearch = Arrays.binarySearch(_times, epochMillis);
     if (_times[binarySearch] == epochMillis)
       return _values[binarySearch];

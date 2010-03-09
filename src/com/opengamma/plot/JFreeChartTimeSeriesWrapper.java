@@ -26,10 +26,11 @@ public class JFreeChartTimeSeriesWrapper {
     private final Instant _instant;
 
     public ConvertedTimePeriod(final Instant instant) {
-      super(instant.toEpochMillis());
+      super(instant.toEpochMillisLong());
       _instant = instant;
     }
 
+    @SuppressWarnings("unused")
     public Instant getInstant() {
       return _instant;
     }
