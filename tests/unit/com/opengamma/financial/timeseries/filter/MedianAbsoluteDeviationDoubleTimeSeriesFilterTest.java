@@ -8,7 +8,11 @@ package com.opengamma.financial.timeseries.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.util.Map;
+
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -23,6 +27,7 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * @author emcleod
  */
 public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
+  private static final Logger s_logger = LoggerFactory.getLogger(MedianAbsoluteDeviationDoubleTimeSeriesFilterTest.class);
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double LIMIT = 5;
   private static final double DATA1 = 29;
@@ -61,6 +66,10 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
   public void testMasked() {
     final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[10]);
     final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
+    s_logger.info("TestMasked()");
+    for (final Map.Entry<Long, Double> entry : subSeries) {
+      s_logger.info("{}-{}", entry.getKey(), entry.getValue());
+    }
     test(result, 9);
   }
 
