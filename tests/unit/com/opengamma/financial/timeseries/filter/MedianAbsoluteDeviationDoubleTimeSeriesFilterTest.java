@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
@@ -25,7 +23,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  * @author emcleod
  */
 public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(MedianAbsoluteDeviationDoubleTimeSeriesFilterTest.class);
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double LIMIT = 5;
   private static final double DATA1 = 29;
