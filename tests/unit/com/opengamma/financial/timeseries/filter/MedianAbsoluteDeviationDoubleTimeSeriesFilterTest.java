@@ -8,8 +8,6 @@ package com.opengamma.financial.timeseries.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.Map;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,12 +62,8 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
 
   @Test
   public void testMasked() {
-    final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[10]);
+    final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[11]);
     final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
-    s_logger.info("TestMasked()");
-    for (final Map.Entry<Long, Double> entry : subSeries) {
-      s_logger.info("{}-{}", entry.getKey(), entry.getValue());
-    }
     test(result, 9);
   }
 

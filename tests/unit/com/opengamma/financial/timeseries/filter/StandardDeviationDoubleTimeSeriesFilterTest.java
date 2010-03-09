@@ -59,7 +59,7 @@ public class StandardDeviationDoubleTimeSeriesFilterTest {
 
   @Test
   public void testMasked() {
-    final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[10]);
+    final TimeSeries<Long, Double> subSeries = TS.subSeries(DATES[0], DATES[11]);
     final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, subSeries.timesArray(), subSeries.valuesArray()));
     assertEquals(result.getFilteredTS().size(), 11);
   }
