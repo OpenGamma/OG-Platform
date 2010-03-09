@@ -55,7 +55,8 @@
                   where
                     latest.effectiveDateTime &lt; :now and
                     latest.effectiveDateTime &gt; s.effectiveDateTime and
-                    latest.id &lt;&gt; s.id)
+                    latest.id &lt;&gt; s.id and
+                    latest.firstVersion = s.firstVersion)
   </query>
   <!-- note the s, and the 'in (:identifiers)' part of the where -->
   <query name="SecurityBean.one.byDateDomainIdentifiers"> 
@@ -78,7 +79,8 @@
                   where
                     latest.effectiveDateTime &lt; :now and
                     latest.effectiveDateTime &gt; s.effectiveDateTime and
-                    latest.id &lt;&gt; s.id)
+                    latest.id &lt;&gt; s.id and
+                    latest.firstVersion = s.firstVersion)
   </query>
   <query name="DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier">
     from 

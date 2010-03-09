@@ -205,14 +205,14 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2000);
         
-        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
+        EquitySecurityBean nomura = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
         Assert.assertNotNull(nomura);
         Assert.assertEquals(tpxBean, nomura.getExchange());
         Assert.assertEquals(jpyBean, nomura.getCurrency());
         Assert.assertEquals("Nomura", nomura.getCompanyName());
         Assert.assertEquals(banksBean, nomura.getGICSCode ());
         
-        EquitySecurityBean generalMotors = secMasterSession.createEquitySecurityBean(cal.getTime(), false, cal.getTime(), null, null, djxBean,"General Motors", usdBean, carManuBean);
+        EquitySecurityBean generalMotors = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, djxBean,"General Motors", usdBean, carManuBean);
         Assert.assertNotNull(generalMotors);
         Assert.assertEquals(djxBean, generalMotors.getExchange());
         Assert.assertEquals(usdBean, generalMotors.getCurrency());
@@ -289,11 +289,11 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     // create an American equity option
     EquityOptionSecurity equityOption = new AmericanVanillaEquityOptionSecurity (OptionType.PUT, 1.23, expiry, "underlying american option id", dollar, "DJX");
     equityOption.setIdentifiers (Collections.singleton (americanIdentifier));
-    _secMaster.persistEquityOptionSecurity (now, equityOption);
+    _secMaster.persistSecurity (now, equityOption);
     // create a European equity option
     equityOption = new EuropeanVanillaEquityOptionSecurity (OptionType.CALL, 4.56, expiry, "underlying european option id", sterling, "UKX");
     equityOption.setIdentifiers (Collections.singleton (europeanIdentifier));
-    _secMaster.persistEquityOptionSecurity (now, equityOption);
+    _secMaster.persistSecurity (now, equityOption);
     // retrieve the American option
     Security security = _secMaster.getSecurity (now, americanIdentifier, true);
     Assert.assertNotNull (security);
@@ -337,15 +337,15 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     // create a Corporate bond
     BondSecurity bond = new CorporateBondSecurity (expiry, 1.23, annually, "country 1", "credit rating 1", dollar, "issuer 1", act360, following);
     bond.setIdentifiers (Collections.singleton (corporateId));
-    _secMaster.persistBondSecurity (now, bond);
+    _secMaster.persistSecurity (now, bond);
     // create a Municipal bond
     bond = new MunicipalBondSecurity (expiry, 4.56, monthly, "country 2", "credit rating 2", dollar, "issuer 2", actact, modified);
     bond.setIdentifiers (Collections.singleton (municipalId));
-    _secMaster.persistBondSecurity (now, bond);
+    _secMaster.persistSecurity (now, bond);
     // create a Government bond
     bond = new GovernmentBondSecurity (expiry, 7.89, quarterly, "country 3", "credit rating 3", dollar, "issuer 3", act360, preceding);
     bond.setIdentifiers (Collections.singleton (governmentId));
-    _secMaster.persistBondSecurity (now, bond);
+    _secMaster.persistSecurity (now, bond);
     // retrieve the Corporate bond
     Security security = _secMaster.getSecurity (now, corporateId, true);
     Assert.assertNotNull (security);
@@ -410,23 +410,23 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         cal2003.set(Calendar.YEAR, 2003);
         Calendar cal2004 = Calendar.getInstance();
         cal2004.set(Calendar.YEAR, 2004);
-        EquitySecurityBean nomura = secMasterSession.createEquitySecurityBean(cal2000.getTime(), false, cal2000.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
-        EquitySecurityBean notNomura = secMasterSession.createEquitySecurityBean(cal2003.getTime(), false, cal2003.getTime(), null, null, tpxBean,"Not Nomura", jpyBean, banksBean);
-        DomainSpecificIdentifierAssociationBean dsiab1 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2001.getTime (), "BLOOMBERG", "1311 Equity", nomura);
-        DomainSpecificIdentifierAssociationBean dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        EquitySecurityBean nomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2000.getTime(), false, cal2000.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
+        EquitySecurityBean notNomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2003.getTime(), false, cal2003.getTime(), null, null, tpxBean,"Not Nomura", jpyBean, banksBean);
+        DomainSpecificIdentifierAssociationBean dsiab1 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2001.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
+        DomainSpecificIdentifierAssociationBean dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
         Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
-        DomainSpecificIdentifierAssociationBean dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomura);
+        DomainSpecificIdentifierAssociationBean dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomuraBean);
         if (dsiab1.getId () == dsiab3.getId ()) Assert.fail ("different association should have been created");
         Assert.assertNotNull (dsiab3.getValidStartDate ());
         Assert.assertNull (dsiab3.getValidEndDate ());
-        DomainSpecificIdentifierAssociationBean dsiab4 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2004.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        DomainSpecificIdentifierAssociationBean dsiab4 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2004.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
         if (dsiab1.getId () == dsiab4.getId ()) Assert.fail ("different association should have been created");
         if (dsiab3.getId () == dsiab4.getId ()) Assert.fail ("different association should have been created");
         Assert.assertNotNull (dsiab4.getValidStartDate ());
         Assert.assertNull (dsiab4.getValidEndDate ());
         
-        dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomura);
-        dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomura);
+        dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
+        dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomuraBean);
         Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
         Assert.assertNull (dsiab2.getValidStartDate ());
         Assert.assertNotNull (dsiab2.getValidEndDate ());
@@ -472,8 +472,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     nomura.setGICSCode(GICSCode.getInstance (4010));
     nomura.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity")));
     
-    _secMaster.persistEquitySecurity(yesterYear2003, generalMotors);
-    _secMaster.persistEquitySecurity(yesterYear2003, nomura);
+    _secMaster.persistSecurity(yesterYear2003, generalMotors);
+    _secMaster.persistSecurity(yesterYear2003, nomura);
     
     Security shouldBeNomura = _secMaster.getSecurity("1311 JP Equity");
     Assert.assertEquals(nomura, shouldBeNomura);
@@ -488,7 +488,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     generalMotors2.setTicker("GM US Equity");
     generalMotors2.setGICSCode(GICSCode.getInstance (25102010));
     generalMotors2.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity")));
-    _secMaster.persistEquitySecurity(yesterYear2005, generalMotors2);
+    _secMaster.persistSecurity(yesterYear2005, generalMotors2);
     _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
