@@ -10,7 +10,7 @@ public class MapDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest {
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createEmptyTimeSeries() {
-    return new MapZonedDateTimeDoubleTimeSeries();
+    return new MapZonedDateTimeDoubleTimeSeries(TimeZone.UTC);
   }
 
   @Override

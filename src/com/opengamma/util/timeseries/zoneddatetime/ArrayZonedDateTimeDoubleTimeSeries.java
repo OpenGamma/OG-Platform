@@ -24,10 +24,14 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
   public static final ArrayZonedDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayZonedDateTimeDoubleTimeSeries();
   private static final ZonedDateTimeEpochMillisConverter s_converter = new ZonedDateTimeEpochMillisConverter();
 
-  ArrayZonedDateTimeDoubleTimeSeries() {
+  public ArrayZonedDateTimeDoubleTimeSeries() {
     super(new ZonedDateTimeEpochMillisConverter(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
+  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone) {
+    super(new ZonedDateTimeEpochMillisConverter(timeZone), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+  }
+  
   public ArrayZonedDateTimeDoubleTimeSeries(final ZonedDateTime[] dates, final double[] values) {
     super(s_converter, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }

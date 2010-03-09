@@ -23,8 +23,12 @@ public class ListZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDoubl
   public static final ListZonedDateTimeDoubleTimeSeries EMPTY_SERIES = new ListZonedDateTimeDoubleTimeSeries();
   private static final DateTimeConverter<ZonedDateTime> s_converter = new ZonedDateTimeEpochMillisConverter();
 
-  private ListZonedDateTimeDoubleTimeSeries() {
+  public ListZonedDateTimeDoubleTimeSeries() {
     super(new ZonedDateTimeEpochMillisConverter(), new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
+  
+  public ListZonedDateTimeDoubleTimeSeries(TimeZone timeZone) {
+    super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
   public ListZonedDateTimeDoubleTimeSeries(final ZonedDateTime[] dates, final double[] values) {

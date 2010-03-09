@@ -10,7 +10,7 @@ public class ArrayDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createEmptyTimeSeries() {
-    return new ArrayZonedDateTimeDoubleTimeSeries();
+    return new ArrayZonedDateTimeDoubleTimeSeries(TimeZone.UTC);
   }
 
   @Override
