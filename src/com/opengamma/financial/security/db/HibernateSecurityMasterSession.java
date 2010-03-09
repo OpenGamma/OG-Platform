@@ -11,7 +11,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
@@ -421,7 +420,7 @@ public class HibernateSecurityMasterSession {
       final Date now, final EquityOptionSecurity equityOptionSecurity) {
     final EquityOptionType equityOptionType = EquityOptionType.identify (equityOptionSecurity);
     final Date expiry = new Date(equityOptionSecurity.getExpiry().toInstant()
-        .toEpochMillis());
+        .toEpochMillisLong());
     final CurrencyBean currency = getOrCreateCurrencyBean(equityOptionSecurity
         .getCurrency().getISOCode());
     final ExchangeBean exchange = getOrCreateExchangeBean(equityOptionSecurity
@@ -481,7 +480,7 @@ public class HibernateSecurityMasterSession {
     final CurrencyBean currency = getOrCreateCurrencyBean (bondSecurity.getCurrency ().getISOCode ());
     final DayCountBean dayCountConvention = getOrCreateDayCountBean (bondSecurity.getDayCountConvention ().getConventionName ());
     final BusinessDayConventionBean businessDayConvention = getOrCreateBusinessDayConventionBean (bondSecurity.getBusinessDayConvention ().getConventionName ());
-    return createBondSecurityBean (now, false, now, null, null, BondType.identify (bondSecurity), new Date (bondSecurity.getMaturity ().toInstant ().toEpochMillis ()), bondSecurity.getCoupon (), frequency, bondSecurity.getCountry (), bondSecurity.getCreditRating (), currency, bondSecurity.getIssuer (), dayCountConvention, businessDayConvention);
+    return createBondSecurityBean (now, false, now, null, null, BondType.identify (bondSecurity), new Date (bondSecurity.getMaturity ().toInstant ().toEpochMillisLong ()), bondSecurity.getCoupon (), frequency, bondSecurity.getCountry (), bondSecurity.getCreditRating (), currency, bondSecurity.getIssuer (), dayCountConvention, businessDayConvention);
   }
   
   /* package */ BondSecurityBean createBondSecurityBean (final Date effectiveDateTime, boolean deleted, Date lastModified, String modifiedBy, BondSecurityBean firstVersion,

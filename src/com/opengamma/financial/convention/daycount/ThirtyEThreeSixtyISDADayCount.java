@@ -6,7 +6,7 @@
 package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.field.MonthOfYear;
+import javax.time.calendar.MonthOfYear;
 
 import com.opengamma.util.time.DateUtil;
 
@@ -42,15 +42,15 @@ public class ThirtyEThreeSixtyISDADayCount extends StatelessDayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     final int firstYear = firstDate.getYear();
     final int secondYear = secondDate.getYear();
-    final MonthOfYear firstMonth = firstDate.toMonthOfYear();
-    final MonthOfYear secondMonth = secondDate.toMonthOfYear();
+    final MonthOfYear firstMonth = firstDate.getMonthOfYear();
+    final MonthOfYear secondMonth = secondDate.getMonthOfYear();
     final int firstDay = getAdjustedDayNumber(firstDate);
     final int secondDay = getAdjustedDayNumber(secondDate);
     return (360 * (secondYear - firstYear) + 30 * (secondMonth.getValue() - firstMonth.getValue()) + secondDay - firstDay) / 360.;
   }
 
   private int getAdjustedDayNumber(final ZonedDateTime date) {
-    final MonthOfYear month = date.toMonthOfYear();
+    final MonthOfYear month = date.getMonthOfYear();
     int day = date.getDayOfMonth();
     if (day == 31) {
       day = 30;

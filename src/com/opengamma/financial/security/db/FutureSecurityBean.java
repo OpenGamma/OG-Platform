@@ -7,8 +7,6 @@ package com.opengamma.financial.security.db;
 
 import java.util.Date;
 
-import com.opengamma.util.time.Expiry;
-
 /**
  * 
  * @author Andrew

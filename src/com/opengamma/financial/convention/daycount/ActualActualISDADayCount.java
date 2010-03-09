@@ -38,9 +38,9 @@ public class ActualActualISDADayCount extends StatelessDayCount {
       return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
     }
     if (DateUtil.isLeapYear(firstDate) || DateUtil.isLeapYear(secondDate)) {
-      final ZonedDateTime lastDayOfFirstYear = ZonedDateTime.dateTime(DateAdjusters.lastDayOfYear().adjustDate(firstDate.toLocalDate()), firstDate.toLocalTime(), firstDate
+      final ZonedDateTime lastDayOfFirstYear = ZonedDateTime.from(DateAdjusters.lastDayOfYear().adjustDate(firstDate.toLocalDate()), firstDate.toLocalTime(), firstDate
           .getZone());
-      final ZonedDateTime firstDayOfSecondYear = ZonedDateTime.dateTime(FIRST_DAY_OF_YEAR.adjustDate(secondDate.toLocalDate()), secondDate.toLocalTime(), secondDate.getZone());
+      final ZonedDateTime firstDayOfSecondYear = ZonedDateTime.from(FIRST_DAY_OF_YEAR.adjustDate(secondDate.toLocalDate()), secondDate.toLocalTime(), secondDate.getZone());
       return (1 + DateUtil.getDaysBetween(firstDate, false, lastDayOfFirstYear, true)) / getBasis(firstDate)
           + DateUtil.getDaysBetween(firstDayOfSecondYear, false, secondDate, true) / getBasis(secondDate);
     }

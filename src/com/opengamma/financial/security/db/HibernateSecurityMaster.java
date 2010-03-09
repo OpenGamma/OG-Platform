@@ -66,6 +66,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
     SUPPORTED_SECURITY_TYPES.add("EQUITY");
     SUPPORTED_SECURITY_TYPES.add("EQUITYOPTION");
   }
+  @SuppressWarnings("unused")
   private Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private HibernateTemplate _hibernateTemplate = null;
   
@@ -92,7 +93,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
   private Expiry dateToExpiry(Date date) {
     final Calendar c = Calendar.getInstance ();
     c.setTime (date);
-    return new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
+    return new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
   }
   
   private Date expiryToDate (Expiry expiry) {
@@ -100,7 +101,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
     if (expiry.getAccuracy () != null) {
       if (expiry.getAccuracy () != ExpiryAccuracy.DAY_MONTH_YEAR) throw new OpenGammaRuntimeException ("Expiry is not to DAY_MONTH_YEAR precision");
     }
-    return new Date (expiry.toInstant ().toEpochMillis ());
+    return new Date (expiry.toInstant().toEpochMillisLong());
   }
   
   private Frequency frequencyBeanToFrequency (final FrequencyBean frequencyBean) {

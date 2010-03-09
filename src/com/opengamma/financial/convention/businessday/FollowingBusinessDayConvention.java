@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;

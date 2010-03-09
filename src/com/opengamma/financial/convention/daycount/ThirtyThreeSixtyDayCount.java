@@ -41,8 +41,8 @@ public class ThirtyThreeSixtyDayCount extends StatelessDayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     final int firstYear = firstDate.getYear();
     final int secondYear = secondDate.getYear();
-    final int firstMonth = firstDate.toMonthOfYear().getValue();
-    final int secondMonth = secondDate.toMonthOfYear().getValue();
+    final int firstMonth = firstDate.getMonthOfYear().getValue();
+    final int secondMonth = secondDate.getMonthOfYear().getValue();
     int firstDay = firstDate.getDayOfMonth();
     int secondDay = secondDate.getDayOfMonth();
     firstDay = firstDay == 31 ? 30 : firstDay;

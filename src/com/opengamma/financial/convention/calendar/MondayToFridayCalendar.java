@@ -6,7 +6,7 @@
 package com.opengamma.financial.convention.calendar;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.field.DayOfWeek;
+import javax.time.calendar.DayOfWeek;
 
 /**
  * Implementation of a M-F working week. Bank Holidays can be loaded into an instance
@@ -27,7 +27,7 @@ public class MondayToFridayCalendar extends ExceptionCalendar {
   
   @Override
   protected boolean isNormallyWorkingDay(LocalDate date) {
-    final DayOfWeek day = DayOfWeek.dayOfWeek(date);
+    final DayOfWeek day = date.getDayOfWeek();
     if (day.equals(DayOfWeek.SATURDAY) || day.equals(DayOfWeek.SUNDAY)) {
       return false;
     }

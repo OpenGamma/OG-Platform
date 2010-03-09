@@ -30,16 +30,16 @@ public class BusinessDayTest {
     assertNotNull (convention);
     final DateAdjuster adjuster = convention.getDateAdjuster (_calendar_UK);
     assertNotNull (adjuster);
-    test (adjuster, LocalDate.date (2009, 12, 31), LocalDate.date (2009, 12, 31));
-    test (adjuster, LocalDate.date (2010, 1, 1), LocalDate.date (2009, 12, 31)); // Fri 1 Jan -> Thu 31 Dec
-    test (adjuster, LocalDate.date (2010, 1, 2), LocalDate.date (2009, 12, 31)); 
-    test (adjuster, LocalDate.date (2010, 1, 3), LocalDate.date (2009, 12, 31)); 
-    test (adjuster, LocalDate.date (2010, 1, 4), LocalDate.date (2010, 1, 4));
-    test (adjuster, LocalDate.date (2010, 5, 28), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 5, 29), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 5, 30), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 5, 31), LocalDate.date (2010, 5, 28)); // Mon 31 May -> Fri 28 May
-    test (adjuster, LocalDate.date (2010, 6, 1), LocalDate.date (2010, 6, 1));
+    test (adjuster, LocalDate.of (2009, 12, 31), LocalDate.of (2009, 12, 31));
+    test (adjuster, LocalDate.of (2010, 1, 1), LocalDate.of (2009, 12, 31)); // Fri 1 Jan -> Thu 31 Dec
+    test (adjuster, LocalDate.of (2010, 1, 2), LocalDate.of (2009, 12, 31)); 
+    test (adjuster, LocalDate.of (2010, 1, 3), LocalDate.of (2009, 12, 31)); 
+    test (adjuster, LocalDate.of (2010, 1, 4), LocalDate.of (2010, 1, 4));
+    test (adjuster, LocalDate.of (2010, 5, 28), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 5, 29), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 5, 30), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 5, 31), LocalDate.of (2010, 5, 28)); // Mon 31 May -> Fri 28 May
+    test (adjuster, LocalDate.of (2010, 6, 1), LocalDate.of (2010, 6, 1));
   }
   
   @Test
@@ -48,16 +48,16 @@ public class BusinessDayTest {
     assertNotNull (convention);
     final DateAdjuster adjuster = convention.getDateAdjuster (_calendar_UK);
     assertNotNull (adjuster);
-    test (adjuster, LocalDate.date (2009, 12, 31), LocalDate.date (2009, 12, 31));
-    test (adjuster, LocalDate.date (2010, 1, 1), LocalDate.date (2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
-    test (adjuster, LocalDate.date (2010, 1, 2), LocalDate.date (2010, 1, 4)); 
-    test (adjuster, LocalDate.date (2010, 1, 3), LocalDate.date (2010, 1, 4)); 
-    test (adjuster, LocalDate.date (2010, 1, 4), LocalDate.date (2010, 1, 4));
-    test (adjuster, LocalDate.date (2010, 5, 28), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 5, 29), LocalDate.date (2010, 6, 1)); // Sat 29 May -> Tue 1 Jun
-    test (adjuster, LocalDate.date (2010, 5, 30), LocalDate.date (2010, 6, 1));
-    test (adjuster, LocalDate.date (2010, 5, 31), LocalDate.date (2010, 6, 1));
-    test (adjuster, LocalDate.date (2010, 6, 1), LocalDate.date (2010, 6, 1));
+    test (adjuster, LocalDate.of (2009, 12, 31), LocalDate.of (2009, 12, 31));
+    test (adjuster, LocalDate.of (2010, 1, 1), LocalDate.of (2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
+    test (adjuster, LocalDate.of (2010, 1, 2), LocalDate.of (2010, 1, 4)); 
+    test (adjuster, LocalDate.of (2010, 1, 3), LocalDate.of (2010, 1, 4)); 
+    test (adjuster, LocalDate.of (2010, 1, 4), LocalDate.of (2010, 1, 4));
+    test (adjuster, LocalDate.of (2010, 5, 28), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 5, 29), LocalDate.of (2010, 6, 1)); // Sat 29 May -> Tue 1 Jun
+    test (adjuster, LocalDate.of (2010, 5, 30), LocalDate.of (2010, 6, 1));
+    test (adjuster, LocalDate.of (2010, 5, 31), LocalDate.of (2010, 6, 1));
+    test (adjuster, LocalDate.of (2010, 6, 1), LocalDate.of (2010, 6, 1));
   }
   
   @Test
@@ -66,16 +66,16 @@ public class BusinessDayTest {
     assertNotNull (convention);
     final DateAdjuster adjuster = convention.getDateAdjuster (_calendar_UK);
     assertNotNull (adjuster);
-    test (adjuster, LocalDate.date (2009, 12, 31), LocalDate.date (2009, 12, 31));
-    test (adjuster, LocalDate.date (2010, 1, 1), LocalDate.date (2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
-    test (adjuster, LocalDate.date (2010, 1, 2), LocalDate.date (2010, 1, 4)); 
-    test (adjuster, LocalDate.date (2010, 1, 3), LocalDate.date (2010, 1, 4)); 
-    test (adjuster, LocalDate.date (2010, 1, 4), LocalDate.date (2010, 1, 4));
-    test (adjuster, LocalDate.date (2010, 5, 28), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 5, 29), LocalDate.date (2010, 5, 28)); // Sat 29 May -> Fri 28 May
-    test (adjuster, LocalDate.date (2010, 5, 30), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 5, 31), LocalDate.date (2010, 5, 28));
-    test (adjuster, LocalDate.date (2010, 6, 1), LocalDate.date (2010, 6, 1));
+    test (adjuster, LocalDate.of (2009, 12, 31), LocalDate.of (2009, 12, 31));
+    test (adjuster, LocalDate.of (2010, 1, 1), LocalDate.of (2010, 1, 4)); // Fri 1 Jan -> Mon 4 Jan
+    test (adjuster, LocalDate.of (2010, 1, 2), LocalDate.of (2010, 1, 4)); 
+    test (adjuster, LocalDate.of (2010, 1, 3), LocalDate.of (2010, 1, 4)); 
+    test (adjuster, LocalDate.of (2010, 1, 4), LocalDate.of (2010, 1, 4));
+    test (adjuster, LocalDate.of (2010, 5, 28), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 5, 29), LocalDate.of (2010, 5, 28)); // Sat 29 May -> Fri 28 May
+    test (adjuster, LocalDate.of (2010, 5, 30), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 5, 31), LocalDate.of (2010, 5, 28));
+    test (adjuster, LocalDate.of (2010, 6, 1), LocalDate.of (2010, 6, 1));
   }
    
 }
