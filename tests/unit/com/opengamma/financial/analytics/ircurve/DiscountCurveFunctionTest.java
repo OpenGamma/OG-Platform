@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -43,9 +44,16 @@ public class DiscountCurveFunctionTest {
   @Test
   public void requirements() {
     DiscountCurveDefinition definition = constructDefinition();
-    DiscountCurveFunction function = new DiscountCurveFunction(definition);
+    DefaultDiscountCurveSource curveSource = new DefaultDiscountCurveSource();
+    curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
+    DiscountCurveFunction function = new DiscountCurveFunction(Currency.getInstance("USD"), "DEFAULT");
     Set<ValueRequirement> requirements = null;
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
+    FunctionCompilationContext context = new FunctionCompilationContext();
+    context.put("discountCurveSource", curveSource);
+    
+    function.init(context);
+    
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
     Set<String> foundKeys = new TreeSet<String>();
@@ -66,16 +74,22 @@ public class DiscountCurveFunctionTest {
   @Test
   public void notMatchingRequirements() {
     DiscountCurveDefinition definition = constructDefinition();
-    DiscountCurveFunction function = new DiscountCurveFunction(definition);
+    DefaultDiscountCurveSource curveSource = new DefaultDiscountCurveSource();
+    curveSource.addDefinition(Currency.getInstance("USD"), "DEFAULT", definition);
+    DiscountCurveFunction function = new DiscountCurveFunction(Currency.getInstance("USD"), "DEFAULT");
     Set<ValueRequirement> requirements = null;
+    FunctionCompilationContext context = new FunctionCompilationContext();
+    context.put("discountCurveSource", curveSource);
     
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
+    function.init(context);
+    
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNull(requirements);
     
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.PRIMITIVE, "EUR"));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "EUR"));
     assertNull(requirements);
 
-    requirements = function.getRequirements(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
 

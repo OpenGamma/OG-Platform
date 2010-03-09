@@ -17,6 +17,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
@@ -25,6 +26,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.Currency;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -39,22 +42,36 @@ import com.opengamma.util.ArgumentChecker;
 public class DiscountCurveFunction
 extends AbstractFunction 
 implements FunctionInvoker {
-  private final Interpolator1D _interpolator; 
-  private final DiscountCurveDefinition _definition;
-  private final Set<ValueRequirement> _requirements;
-  private final ValueSpecification _result;
-  private final Set<ValueSpecification> _results;
+  private Interpolator1D _interpolator; 
+  private DiscountCurveDefinition _definition;
+  private Set<ValueRequirement> _requirements;
+  private ValueSpecification _result;
+  private Set<ValueSpecification> _results;
+  private Currency _curveCurrency;
+  private String _curveName;
   
-  public DiscountCurveFunction(DiscountCurveDefinition definition) {
-    ArgumentChecker.checkNotNull(definition, "Discount Curve Definition");
-    _definition = definition;
-    
+  public DiscountCurveFunction(Currency currency, String name) {
+    ArgumentChecker.checkNotNull(currency, "Currency");
+    ArgumentChecker.checkNotNull(name, "Name");
+    _definition = null;
+    _curveCurrency = currency;
+    _curveName = name;
+    _interpolator = null;
+    _requirements = null;
+    _result = null;
+    _results = null;
+  }
+
+  @Override
+  public void init(FunctionCompilationContext context) {
+    DiscountCurveSource curveSource = OpenGammaCompilationContext.getDiscountCurveSource(context);
+    _definition = curveSource.getDefinition(_curveCurrency, _curveName);
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
     _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
     _results = Collections.singleton(_result);
   }
-
+  
   /**
    * @param definition
    * @return
@@ -76,7 +93,7 @@ implements FunctionInvoker {
   }
 
   @Override
-  public boolean canApplyTo(ComputationTarget target) {
+  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     if(target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
@@ -88,16 +105,16 @@ implements FunctionInvoker {
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(ComputationTarget target) {
-    if(canApplyTo(target)) {
+  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
+    if(canApplyTo(context, target)) {
       return _requirements;
     }
     return null;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(ComputationTarget target, Set<ValueRequirement> requirements) {
-    if(canApplyTo(target)) {
+  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    if(canApplyTo(context, target)) {
       return _results;
     }
     return null;
@@ -110,7 +127,7 @@ implements FunctionInvoker {
 
   @Override
   public String getShortName() {
-    return getDefinition().getCurrency() + "-" + getDefinition().getName() + " Discount Curve";
+    return _curveCurrency + "-" + _curveName + " Discount Curve";
   }
 
   @Override
@@ -122,7 +139,8 @@ implements FunctionInvoker {
   public Set<ComputedValue> execute(
       FunctionExecutionContext executionContext,
       FunctionInputs inputs,
-      ComputationTarget target) {
+      ComputationTarget target,
+      Set<ValueRequirement> desiredValues) {
     // Gather market data rates
     // Note that this assumes that all strips are priced in decimal percent. We need to resolve
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
