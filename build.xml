@@ -80,7 +80,7 @@
 				<exclude name="Fudge-CSharp/**" />
 				<exclude name="fudgemsg-dist/**" />
 				<exclude name="Hermit/**" />
-				<exclude name="jsr-310-ri-20090901/**" />
+				<exclude name="jsr-310*/**" />
 				<exclude name="OG-PrivateIvy/**" />
 				<exclude name="sysadmin/**" />
 			</fileset>
