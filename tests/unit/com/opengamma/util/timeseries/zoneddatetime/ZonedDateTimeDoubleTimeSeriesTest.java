@@ -30,7 +30,7 @@ public abstract class ZonedDateTimeDoubleTimeSeriesTest {
   public abstract ZonedDateTimeDoubleTimeSeries createTimeSeries(ZonedDateTimeDoubleTimeSeries dts);
 
   public ZonedDateTime makeDate(int year, int month, int day) {
-    ZonedDateTime one = ZonedDateTime.from(LocalDateTime.midnight(year, month, day), TimeZone.of(java.util.TimeZone.getDefault().getID()));
+    ZonedDateTime one = ZonedDateTime.from(LocalDateTime.midnight(year, month, day), TimeZone.UTC);//TimeZone.of(java.util.TimeZone.getDefault().getID()));
     return one;
   }
   
