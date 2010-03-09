@@ -16,16 +16,16 @@
 	-->
 <project name="all" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-        <!-- Load the environment variables first -->
-        <property environment="env" />
-        <!-- also, try a property file because some JVMs don't support env properly -->
-        <property file="${user.home}/.OG-Build-common.properties" />
+	<!-- Load the environment variables first -->
+	<property environment="env" />
+	<!-- also, try a property file because some JVMs don't support env properly -->
+	<property file="${user.home}/.OG-Build-common.properties" />
 
 	<property file="build.properties" />
-        <property file="${common.dir}/build.properties" />
+	<property file="${common.dir}/build.properties" />
 
-        <condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
-        <condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
@@ -35,7 +35,7 @@
 	
 	<import file="git-macros.xml" />
 
-        <available file="${ivy.jar.file}" property="skip.download"/>
+	<available file="${ivy.jar.file}" property="skip.download"/>
 
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
@@ -44,9 +44,7 @@
 			special installation
 		-->
 		<echo message="installing ivy..." />
-		<get
-			src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
-			dest="${ivy.jar.file}" usetimestamp="true" />
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true" />
 
 	</target>
 
@@ -67,9 +65,8 @@
 		<path id="ivy.lib.path">
 			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
 		</path>
-		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
-			classpathref="ivy.lib.path" />
-                <echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 
@@ -98,51 +95,56 @@
 	</target>
 
 	<target name="compile" depends="buildlist"
-	    description="compile all projects in the right order">
+		description="compile all projects in the right order">
 		<subant target="compile" buildpathref="build-path" />
 	</target>
 
 	<target name="tarball" depends="buildlist"
-		    description="build tarballs for all projects">
-			<subant target="tarball" buildpathref="build-path" />
+		description="build tarballs for all projects">
+		<subant target="tarball" buildpathref="build-path" />
 	</target>
 
 	<target name="zipfile" depends="buildlist"
-		    description="build zip files for all projects">
-			<subant target="zipfile" buildpathref="build-path" />
+		description="build zip files for all projects">
+		<subant target="zipfile" buildpathref="build-path" />
 	</target>
 	
 	<target name="tests" depends="buildlist"
-		    description="run unit tests for all projects">
-			<subant target="tests" buildpathref="build-path">
-				<!-- property name="tests.dir" value="${basedir}/tests"/ -->
-			</subant>
+		description="run unit tests for all projects">
+		<subant target="tests" buildpathref="build-path">
+			<!-- property name="tests.dir" value="${basedir}/tests"/ -->
+		</subant>
 	</target>
 	
 	<target name="clean-all" depends="buildlist" description="clean all projects">
 		<subant target="clean" buildpathref="build-path" />
 	</target>
 
+	<target name="clean-src" depends="buildlist">
+		<subant target="clean-src" buildpathref="build-path" />
+	</target>
+
 	<target name="clean" depends="clean-all, load-ivy"
-		description="clean tutorial: delete repository, ivy cache, and all projects">
+		description="delete repository, clean ivy cache, and clean all projects">
 		<delete dir="${repository.dir}" />
 		<ivy:cleancache />
 	</target>
 
-	<target name="clone-or-pull" description="clone or pull all projects from git">
+	<target name="clone-or-pull"
+		description="clone or pull all projects from git">
 		<mkdir dir="projects" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Engine.git" dest="projects/OG-Engine" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Financial.git" dest="projects/OG-Financial" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-LiveData.git" dest="projects/OG-LiveData" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Util.git" dest="projects/OG-Util" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Integration.git" dest="projects/OG-Integration" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-Security.git" dest="projects/OG-Security" />
-	    	<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
-			<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
-   	</target>
+		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Bloomberg.git" dest="projects/OG-Bloomberg" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Engine.git" dest="projects/OG-Engine" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Financial.git" dest="projects/OG-Financial" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-LiveData.git" dest="projects/OG-LiveData" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Util.git" dest="projects/OG-Util" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Integration.git" dest="projects/OG-Integration" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Security.git" dest="projects/OG-Security" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
+		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
+	</target>
 </project>
 
