@@ -1,3 +1,14 @@
+DROP TABLE IF EXISTS domain_spec_identifier CASCADE;
+DROP TABLE IF EXISTS domain CASCADE;
+DROP TABLE IF EXISTS time_series_data CASCADE;
+DROP TABLE IF EXISTS time_series_data_delta CASCADE;
+DROP TABLE IF EXISTS time_series_key CASCADE;
+DROP TABLE IF EXISTS quoted_object CASCADE;
+DROP TABLE IF EXISTS data_source CASCADE;
+DROP TABLE IF EXISTS data_provider CASCADE;
+DROP TABLE IF EXISTS data_field CASCADE;
+DROP TABLE IF EXISTS observation_time CASCADE;
+
 CREATE SEQUENCE data_field_id_seq START 1;
 CREATE SEQUENCE data_provider_id_seq START 1;
 CREATE SEQUENCE data_source_id_seq START 1;

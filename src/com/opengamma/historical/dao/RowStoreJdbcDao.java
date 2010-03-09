@@ -108,10 +108,14 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     if (quotedObject == null) {
       DomainSpecificIdentifier identifier = domainIdentifiers.iterator().next();
       quotedObject = identifier.getDomain().getDomainName() + "_" + identifier.getValue();
+      createDomainSpecIdentifiers(domainIdentifiers, quotedObject);
     }
-    createDomainSpecIdentifiers(domainIdentifiers, quotedObject);
-    createTimeSeriesKey(quotedObject, dataSource, dataProvider, field, observationTime);
-    final int timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
+    int timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
+    if (timeSeriesKeyID == -1) {
+      createTimeSeriesKey(quotedObject, dataSource, dataProvider, field, observationTime);
+      timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
+    }
+    
     String insertSQL = "INSERT INTO time_series_data (time_series_id, ts_date, value) VALUES (:timeSeriesID, :date, :value)";
     String insertDelta = "INSERT INTO time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:timeSeriesID, :timeStamp, :date, :value, 'I')";
     
@@ -421,6 +425,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private int getNamedDimensionID(final String tableName, final String name) {
     ArgumentChecker.checkNotNull(tableName, "tableName");
     ArgumentChecker.checkNotNull(name, "name");
+    
     s_logger.debug("looking up id from table={} with name={}", tableName, name);
     final StringBuffer sql = new StringBuffer("SELECT ").append(ID_COLUMN).append(" FROM ").append(tableName).append(" WHERE ").append(NAME_COLUMN).append(" = :name");
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("name", name);
@@ -432,6 +437,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       s_logger.debug("Empty row return for name = {} from table = {}", name, tableName);
       result = -1;
     }
+    s_logger.debug("id = {}", result);
     return result;
   }
 
@@ -553,7 +559,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.checkNotNull(dataField, "dataField");
     ArgumentChecker.checkNotNull(observationTime, "observationTime");
     
-    s_logger.debug("looking up id for timeSeriesKey with domainSpecId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
+    int result = -1;
+    
+    s_logger.debug("Looking up timeSeriesKeyID by identifier with domainSpecId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{domainSpecId, dataSource, dataProvider, dataField, observationTime});
     
     String sql = "SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
@@ -578,7 +586,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     .addValue("dataField", dataField, Types.VARCHAR)
     .addValue("observationTime", observationTime, Types.VARCHAR);
     
-    return _simpleJdbcTemplate.queryForInt(sql, parameters);
+    result = _simpleJdbcTemplate.queryForInt(sql, parameters);
+    s_logger.debug("timeSeriesKeyID = {}", result);
+    return result;
   }
   
   protected int getTimeSeriesKeyIDByQuotedObject(String quotedObject, String dataSource,
@@ -589,7 +599,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.checkNotNull(dataField, "dataField");
     ArgumentChecker.checkNotNull(observationTime, "observationTime");
     
-    s_logger.debug("looking up id for timeSeriesKey with quotedObj={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
+    int result = -1;
+    
+    s_logger.debug("looking up timeSeriesKeyID by quotedObject with quotedObj={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{quotedObject, dataSource, dataProvider, dataField, observationTime});
     
     String sql = "SELECT tskey.id FROM " +
@@ -618,7 +630,15 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     .addValue("dataField", dataField, Types.VARCHAR)
     .addValue("observationTime", observationTime, Types.VARCHAR);
     
-    return _simpleJdbcTemplate.queryForInt(sql, parameterSource);
+    try {
+      result = _simpleJdbcTemplate.queryForInt(sql, parameterSource);
+    } catch(EmptyResultDataAccessException e) {
+      s_logger.debug("Empty row returned for timeSeriesKeyID");
+      result = -1;
+    }
+    
+    s_logger.debug("timeSeriesKeyID = {}", result);
+    return result;
   }
   
   @Override
