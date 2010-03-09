@@ -123,8 +123,8 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
 
   @Override
   public double getValueAtFast(final int index) {
-    if (index >= _map.size()) {
-      throw new NoSuchElementException();
+    if (index >= _map.size() || index < 0) {
+      throw new IndexOutOfBoundsException();
     }
     final LongBidirectionalIterator iterator = _map.keySet().iterator();
     iterator.skip(index);

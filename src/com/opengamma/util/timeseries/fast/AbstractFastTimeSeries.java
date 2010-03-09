@@ -21,7 +21,10 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.RECIPROCAL
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
 
+import java.util.Date;
 import java.util.TimeZone;
+
+import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -38,6 +41,10 @@ import com.opengamma.util.timeseries.date.time.ListDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.ArrayYearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.ListYearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.MutableYearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
@@ -365,5 +372,25 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   @Override
   public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
     return new ListZonedDateTimeDoubleTimeSeries(timeZone, this.toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
+  
+  @Override
+  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
+    return new ArrayYearOffsetDoubleTimeSeries(zeroDate, this.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
+
+  @Override
+  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
+    return new ArrayYearOffsetDoubleTimeSeries(timeZone, zeroDate, this.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
+
+  @Override
+  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
+    return new ListYearOffsetDoubleTimeSeries(zeroDate, this.toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
+  }
+  
+  @Override
+  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
+    return new ListYearOffsetDoubleTimeSeries(timeZone, zeroDate, this.toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 }

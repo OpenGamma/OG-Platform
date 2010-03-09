@@ -28,8 +28,8 @@ public class DateUtilTest {
 
   @Test
   public void testDifferenceInYears() {
-    final ZonedDateTime startDate = ZonedDateTime.dateTime(LocalDate.date(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime endDate = ZonedDateTime.dateTime(LocalDate.date(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime startDate = ZonedDateTime.from(LocalDate.of(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.from(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     try {
       DateUtil.getDifferenceInYears(null, endDate);
       fail();
@@ -61,9 +61,9 @@ public class DateUtilTest {
 
   @Test
   public void testDateOffsetWithYearFraction() {
-    final ZonedDateTime startDate = ZonedDateTime.dateTime(LocalDate.date(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.dateTime(LocalDate.date(2002, 1, 1), LocalTime.time(6, 0), TimeZone.UTC);
-    final ZonedDateTime endDate = ZonedDateTime.dateTime(LocalDate.date(2002, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime startDate = ZonedDateTime.from(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.from(LocalDate.of(2002, 1, 1), LocalTime.of(6, 0), TimeZone.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.from(LocalDate.of(2002, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     final double daysPerYear = 365;
     try {
       DateUtil.getDateOffsetWithYearFraction((InstantProvider) null, 1);
@@ -195,14 +195,14 @@ public class DateUtilTest {
   
   @Test
   public void testPreviousWeekDay() {
-    LocalDate sun = LocalDate.date(2009, 11, 8);
-    LocalDate sat = LocalDate.date(2009, 11, 7);
-    LocalDate fri = LocalDate.date(2009, 11, 6);
-    LocalDate thur = LocalDate.date(2009, 11, 5);
-    LocalDate wed = LocalDate.date(2009, 11, 4);
-    LocalDate tue = LocalDate.date(2009, 11, 3);
-    LocalDate mon = LocalDate.date(2009, 11, 2);
-    LocalDate lastFri = LocalDate.date(2009, 10, 30);
+    LocalDate sun = LocalDate.of(2009, 11, 8);
+    LocalDate sat = LocalDate.of(2009, 11, 7);
+    LocalDate fri = LocalDate.of(2009, 11, 6);
+    LocalDate thur = LocalDate.of(2009, 11, 5);
+    LocalDate wed = LocalDate.of(2009, 11, 4);
+    LocalDate tue = LocalDate.of(2009, 11, 3);
+    LocalDate mon = LocalDate.of(2009, 11, 2);
+    LocalDate lastFri = LocalDate.of(2009, 10, 30);
     
     assertEquals(fri, DateUtil.previousWeekDay(sun));
     assertEquals(fri, DateUtil.previousWeekDay(sat));

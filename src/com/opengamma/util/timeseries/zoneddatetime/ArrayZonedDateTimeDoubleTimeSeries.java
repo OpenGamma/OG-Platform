@@ -24,7 +24,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
   public static final ArrayZonedDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayZonedDateTimeDoubleTimeSeries();
   private static final ZonedDateTimeEpochMillisConverter s_converter = new ZonedDateTimeEpochMillisConverter();
 
-  private ArrayZonedDateTimeDoubleTimeSeries() {
+  ArrayZonedDateTimeDoubleTimeSeries() {
     super(new ZonedDateTimeEpochMillisConverter(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 

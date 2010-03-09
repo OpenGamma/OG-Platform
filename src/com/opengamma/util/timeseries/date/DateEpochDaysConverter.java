@@ -57,7 +57,7 @@ public class DateEpochDaysConverter implements DateTimeConverter<Date> {
   }
   
   public javax.time.calendar.TimeZone getTimeZone310() {
-    return javax.time.calendar.TimeZone.timeZone(_timeZone.getID());
+    return javax.time.calendar.TimeZone.of(_timeZone.getID());
   }
 
   @Override

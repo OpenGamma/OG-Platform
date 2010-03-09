@@ -152,7 +152,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeri
   @Override
   public double getLatestValueFast() {
     if (_values.size() > 0) {
-      return _values.getDouble(0);
+      return _values.getDouble(_times.size() - 1);
     } else {
       throw new NoSuchElementException();
     }

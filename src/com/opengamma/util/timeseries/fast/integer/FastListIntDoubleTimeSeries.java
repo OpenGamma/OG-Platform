@@ -292,8 +292,13 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     if (index >= 0) {
       _values.set(index, value);
     } else {
-      _times.add(-(index + 1), time);
-      _values.add(-(index + 1), value);
+      if ((-(index + 1)) >= _times.size()) { // add onto the end.
+        _times.add(time);
+        _values.add(value);
+      } else {
+        _times.add(-(index + 1), time);
+        _values.add(-(index + 1), value);
+      }
     }
   }
 

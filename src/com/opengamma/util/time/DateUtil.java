@@ -8,15 +8,13 @@ package com.opengamma.util.time;
 import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
-import javax.time.calendar.Calendrical;
 import javax.time.calendar.Clock;
+import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.field.DayOfWeek;
-import javax.time.calendar.field.MonthOfYear;
 import javax.time.calendar.format.DateTimeFormatters;
 
 import org.apache.commons.lang.StringUtils;
@@ -53,7 +51,7 @@ public class DateUtil {
       throw new IllegalArgumentException("Start date was null");
     if (endDate == null)
       throw new IllegalArgumentException("End date was null");
-    return (double) (endDate.toInstant().toEpochMillis() - startDate.toInstant().toEpochMillis()) / MILLISECONDS_PER_YEAR;
+    return (double) (endDate.toInstant().toEpochMillisLong() - startDate.toInstant().toEpochMillisLong()) / MILLISECONDS_PER_YEAR;
   }
 
   /**
@@ -74,7 +72,7 @@ public class DateUtil {
       throw new IllegalArgumentException("Start date was null");
     if (endDate == null)
       throw new IllegalArgumentException("End date was null");
-    return (endDate.toInstant().toEpochMillis() - startDate.toInstant().toEpochMillis()) / MILLISECONDS_PER_DAY / daysInYear;
+    return (endDate.toInstant().toEpochMillisLong() - startDate.toInstant().toEpochMillisLong()) / MILLISECONDS_PER_DAY / daysInYear;
   }
 
   /**
@@ -167,7 +165,7 @@ public class DateUtil {
    * @return
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day) {
-    return ZonedDateTime.dateTime(LocalDateTime.dateMidnight(year, month, day), TimeZone.UTC);
+    return ZonedDateTime.from(LocalDateTime.midnight(year, month, day), TimeZone.UTC);
   }
 
   /**
@@ -181,7 +179,7 @@ public class DateUtil {
    * @return A UTC date.
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day, final int hour, final int minutes) {
-    return ZonedDateTime.dateTime(LocalDate.date(year, month, day), LocalTime.time(hour, minutes), TimeZone.UTC);
+    return ZonedDateTime.from(LocalDate.of(year, month, day), LocalTime.of(hour, minutes), TimeZone.UTC);
   }
 
   /**
@@ -197,7 +195,7 @@ public class DateUtil {
    * @return A UTC date.
    */
   public static ZonedDateTime getDateInTimeZone(final int year, final int month, final int day, final int hour, final int minutes, final String timeZone) {
-    return ZonedDateTime.dateTime(LocalDate.date(year, month, day), LocalTime.time(hour, minutes), TimeZone.timeZone("London"));
+    return ZonedDateTime.from(LocalDate.of(year, month, day), LocalTime.of(hour, minutes), TimeZone.of("London"));
   }
 
   /**
@@ -209,7 +207,7 @@ public class DateUtil {
   public static boolean isLeapYear(final ZonedDateTime date) {
     if (date == null)
       throw new IllegalArgumentException("Date was null");
-    return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
+    return date.toYear().isLeap();
   }
 
   /**
@@ -221,7 +219,7 @@ public class DateUtil {
   public static boolean isLeapYear(final LocalDate date) {
     if (date == null)
       throw new IllegalArgumentException("Date was null");
-    return MonthOfYear.FEBRUARY.lengthInDays(date.getYear()) == 29 ? true : false;
+    return date.toYear().isLeap();
   }
 
   /**
@@ -323,10 +321,8 @@ public class DateUtil {
    * @return
    */
   public static long getUTCEpochMilis(int date) {
-    Calendrical parse = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date));
-    LocalDate localDate = parse.mergeStrict().toLocalDate();
-    ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthOfYear().getValue(), localDate.getDayOfMonth());
-    return zonedDateTime.toInstant().toEpochMillis();
+    LocalDate localDate = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date), LocalDate.rule()); 
+    return localDate.toEpochDays() * 24 * 60 * 60 * 1000;
   }
 
   /**
@@ -335,8 +331,7 @@ public class DateUtil {
    * @return
    */
   public static ZonedDateTime toZonedDateTimeUTC(int date) {
-    Calendrical parse = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date));
-    LocalDate localDate = parse.mergeStrict().toLocalDate();
+    LocalDate localDate = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date), LocalDate.rule());
     ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthOfYear().getValue(), localDate.getDayOfMonth());
     return zonedDateTime;
   }

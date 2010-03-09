@@ -1,32 +1,32 @@
-package com.opengamma.timeseries;
+ package com.opengamma.util.timeseries.date;
 
 
 import java.util.Date;
 import java.util.List;
 
+import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
-import com.opengamma.util.timeseries.date.ListDateDoubleTimeSeries;
 
-public class ListDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
+public class ArrayDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
   @Override
   public DateDoubleTimeSeries createEmptyTimeSeries() {
-    return ListDateDoubleTimeSeries.EMPTY_SERIES;
+    return new ArrayDateDoubleTimeSeries();
   }
 
   @Override
   public DateDoubleTimeSeries createTimeSeries(Date[] times, double[] values) {
-    return new ListDateDoubleTimeSeries(times, values);
+    return new ArrayDateDoubleTimeSeries(times, values);
   }
 
   @Override
   public DateDoubleTimeSeries createTimeSeries(List<Date> times, List<Double> values) {
-    return new ListDateDoubleTimeSeries(times, values);
+    return new ArrayDateDoubleTimeSeries(times, values);
   }
 
   @Override
   public DateDoubleTimeSeries createTimeSeries(DateDoubleTimeSeries dts) {
-    return new ListDateDoubleTimeSeries(dts);
+    return new ArrayDateDoubleTimeSeries(dts);
   }
 
 }
