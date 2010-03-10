@@ -14,6 +14,10 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
 /**
+ * A Gamma distribution with shape parameter {@latex.inline $k$} and scale parameter {@latex.inline $\\theta$}.
+ * <p>
+ * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the cdf, pdf
+ * and {@latex.inline $\\Gamma$}-distributed random numbers.
  * 
  * @author emcleod
  */
@@ -22,6 +26,17 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
   private final double _k;
   private final double _theta;
 
+  /**
+   * 
+   * @param k 
+   *          The shape parameter of the distribution
+   * @param theta
+   *          The scale parameter of the distribution
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $k \\leq 0$} 
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $\\theta \\leq 0$}
+   */
   public GammaDistribution(final double k, final double theta) {
     if (k <= 0)
       throw new IllegalArgumentException("k must be positive");
@@ -33,6 +48,22 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     _theta = theta;
   }
 
+  /**
+   * 
+   * @param k 
+   *          The shape parameter of the distribution
+   * @param theta
+   *          The scale parameter of the distribution
+   * @param engine
+   *          A <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">RandomEngine</a>, a uniform random number
+   *          generator
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $k \\leq 0$} 
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $\\theta \\leq 0$}
+   * @throws IllegalArgumentException
+   *           If the random number generator was null
+   */
   public GammaDistribution(final double k, final double theta, final RandomEngine engine) {
     if (k <= 0)
       throw new IllegalArgumentException("k must be positive");
@@ -45,6 +76,18 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     _theta = theta;
   }
 
+  /**
+   * 
+   * Returns the cdf:
+   * <p>
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{equation*}
+   * F(x; k; \\theta)=\\frac{\\gamma\\left(k, \\frac{x}{\\theta}\\right)}{\\Gamma(k)}
+   * \\end{equation*}}
+   * 
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x$} was null
+   */
   @Override
   public double getCDF(final Double x) {
     if (x == null)
@@ -52,11 +95,28 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
     return _gamma.cdf(x);
   }
 
+  /**
+   * The inverse cdf has not been implemented
+   * 
+   * @throws NotImplementedException
+   */
   @Override
   public double getInverseCDF(final Double p) {
     throw new NotImplementedException();
   }
 
+  /**
+   * 
+   * Returns the pdf:
+   * <p>
+   * {@latex.inline %preamble{\\usepackage{amsmath}}
+   * \\begin{equation*}
+   * f(x; k; \\theta)=\\frac{x^{k-1}e^{-\\frac{x}{\\theta}}}{\\Gamma{k}\\theta^k}
+   * \\end{equation*}}
+   * 
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x$} was null
+   */
   @Override
   public double getPDF(final Double x) {
     if (x == null)

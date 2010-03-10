@@ -10,15 +10,50 @@ import org.apache.commons.lang.NotImplementedException;
 import com.opengamma.util.CompareUtils;
 
 /**
+ * 
+ * The generalized extreme value distribution is a family of continuous probability distributions that combines the Gumbel (type I),
+ * Frechet (type II) and Weibull (type III) families of distributions.
+ * <p>
+ * This distribution has location parameter {@latex.inline $\\mu$}, shape parameter {@latex.inline $\\xi$}
+ * and scale parameter {@latex.inline $\\sigma$}, with
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * \\mu&\\in&\\Re,\\\\
+ * \\xi&\\in&\\Re,\\\\
+ * \\sigma&>&0
+ * \\end{eqnarray*}}
+ * and support
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{eqnarray*}
+ * x\\in
+ * \\begin{cases}
+ * \\left[\\mu - \\frac{\\sigma}{\\xi}, +\\infty\\right) & \\text{when } \\xi > 0\\\\
+ * (-\\infty,+\\infty) & \\text{when } \\xi = 0\\\\
+ * \\left(-\\infty, \\mu - \\frac{\\sigma}{\\xi}\\right] & \\text{when } \\xi < 0
+ * \\end{cases}
+ * \\end{eqnarray*}}
+ * 
  * @author emcleod
  * 
  */
+// TODO accent on Frechet
 public class GeneralizedExtremeValueDistribution implements ProbabilityDistribution<Double> {
   private final double _mu;
   private final double _sigma;
   private final double _ksi;
   private final boolean _ksiIsZero;
 
+  /**
+   * 
+   * @param mu
+   *          The location parameter
+   * @param sigma
+   *          The scale parameter
+   * @param ksi
+   *          The shape parameter
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $\\sigma < 0$}
+   */
   public GeneralizedExtremeValueDistribution(final double mu, final double sigma, final double ksi) {
     if (sigma < 0)
       throw new IllegalArgumentException("Sigma must be positive");
@@ -28,12 +63,24 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
     _ksiIsZero = CompareUtils.closeEquals(ksi, 0, 1e-13);
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Returns the cdf:
+   * <p>
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{eqnarray*}
+   * F(x) &=&e^{-t(x)}\\quad\\text{where}\\\\
+   * t(x)&=&
+   * \\begin{cases}
+   * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
+   * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
+   * \\end{cases}
+   * \\end{eqnarray*}}
    * 
-   * @see
-   * com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
-   * (java.lang.Object)
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x$} was null
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x \\not\\in$} support
    */
   @Override
   public double getCDF(final Double x) {
@@ -42,24 +89,37 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
     return Math.exp(-getT(x));
   }
 
-  /*
-   * (non-Javadoc)
+  /**
    * 
-   * @see
-   * com.opengamma.math.statistics.distribution.ProbabilityDistribution#
-   * getInverseCDF(java.lang.Double)
+   * This method is not implemented
+   * 
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF(java.lang.Double)
+   * @throws NotImplementedException
    */
   @Override
   public double getInverseCDF(final Double p) {
     throw new NotImplementedException();
   }
 
-  /*
-   * (non-Javadoc)
+  /**
    * 
-   * @see
-   * com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
-   * (java.lang.Object)
+   * Returns the pdf:
+   * <p>
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{eqnarray*}
+   * f(x)&=&\\frac{t(x)^{\\xi + 1}e^{-t(x)}}{\\sigma}\\quad\\text{where}\\\\
+   * t(x)&=&
+   * \\begin{cases}
+   * \\left(1 + \\xi\\frac{x-\\mu}{\\sigma}\\right)^{-\\frac{1}{\\xi}} & \\text{if } \\xi \\neq 0,\\\\
+   * e^{-\\frac{x-\\mu}{\\sigma}} & \\text{if } \\xi = 0.
+   * \\end{cases}
+   * \\end{eqnarray*}}
+   *  
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x$} was null
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x \\not\\in$} support
    */
   @Override
   public double getPDF(final Double x) {
@@ -69,21 +129,12 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
     return Math.pow(t, _ksi + 1) * Math.exp(-t) / _sigma;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
    * 
-   * @see
+   * This method is not implemented.
    * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
-   * com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom
-   * ()
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom()
+   * @throws NotImplementedException
    */
   @Override
   public double nextRandom() {

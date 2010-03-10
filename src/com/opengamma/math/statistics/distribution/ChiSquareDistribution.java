@@ -16,8 +16,8 @@ import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
 
 /**
  * 
- * A {@latex.inline $\\chi^2$} distribution with <i>k</i> degrees of freedom is the distribution of the sum of squares
- * of <i>k</i> independent standard normal random variables.
+ * A {@latex.inline $\\chi^2$} distribution with {@latex.inline $k$} degrees of freedom is the distribution of the sum of squares
+ * of {@latex.inline $k$} independent standard normal random variables.
  * <p>
  * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the
  * cdf, pdf and {@latex.inline $\\chi^2$}-distributed random numbers.
@@ -36,7 +36,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * @param degrees
    *          The degrees of freedom of the distribution
    * @throws IllegalArgumentException
-   *           If the degrees of freedom is less than one
+   *          If the degrees of freedom is less than one
    */
   public ChiSquareDistribution(final double degrees) {
     if (degrees < 1)
@@ -68,12 +68,16 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
 
   /**
    * 
+   * Returns the cdf:
+   * <p>
    * {@latex.ilb %preamble{\\usepackage{amsmath}}
    * \\begin{equation*}
    * F(x; k)=\\frac{\\gamma\\left(\\frac{k}{2}, \\frac{x}{2}\\right)}{\\Gamma\\left(\\frac{k}{2}\\right)}
    * \\end{equation*}}
    * where {@latex.inline $\\gamma(y, z)$} is the lower incomplete Gamma function and {@latex.inline $\\Gamma(y)$} is the Gamma function.
    * 
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x$} is null
    */
   @Override
   public double getCDF(final Double x) {
@@ -84,11 +88,16 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
 
   /**
    * 
+   * Returns the pdf:
+   * <p>
    * {@latex.ilb %preamble{\\usepackage{amsmath}}
    * \\begin{equation*}
    * f(x; k)=\\frac{x^{\\frac{k}{2}-1}e^{-\\frac{x}{2}}}{2^{\\frac{k}{2}}\\Gamma\\left(\\frac{k}{2}\\right)}
    * \\end{equation*}}
    * where {@latex.inline $\\Gamma(y)$} is the Gamma function.
+   * 
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $x$} is null
    * 
    */
   @Override
@@ -100,6 +109,8 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
 
   /**
    * 
+   * Returns the inverse cdf:
+   * <p>
    * {@latex.ilb %preamble{\\usepackage{amsmath}}
    * \\begin{equation*}
    * F^{-1}(x; k) = 2\\gamma^{-1}\\left(\\frac{k}{2}, p\\right)
@@ -107,6 +118,10 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * where {@latex.inline $\\gamma^{-1}(y)$} is the inverse incomplete Gamma function.
    * 
    * @see com.opengamma.math.function.special.InverseIncompleteGammaFunction
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $p$} is null
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $p < 0$ or $p \\geq 1$}
    * 
    */
   @Override
