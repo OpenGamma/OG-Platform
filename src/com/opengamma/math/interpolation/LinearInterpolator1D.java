@@ -26,9 +26,9 @@ public class LinearInterpolator1D extends Interpolator1D {
    *          A map containing the (x, y) data points.
    * @param value
    *          The value of x for which the interpolated point y is required.
-   * @returns An InterpolationResult containing the value of the interpolated
-   *          point and an interpolation error of zero (linear interpolation is
-   *          by definition exact).
+   * @return An InterpolationResult containing the value of the interpolated
+   *         point and an interpolation error of zero (linear interpolation is
+   *         by definition exact).
    * @throws IllegalArgumentException
    *           If the x-value is null.
    */

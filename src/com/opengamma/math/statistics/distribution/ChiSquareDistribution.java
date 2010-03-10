@@ -16,6 +16,12 @@ import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
 
 /**
  * 
+ * A {@latex.inline $\\chi^2$} distribution with <i>k</i> degrees of freedom is the distribution of the sum of squares
+ * of <i>k</i> independent standard normal random variables.
+ * <p>
+ * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the
+ * cdf, pdf and {@latex.inline $\\chi^2$}-distributed random numbers.
+ * 
  * @author emcleod
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
@@ -25,6 +31,13 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   private final ChiSquare _chiSquare;
   private final double _degrees;
 
+  /**
+   * 
+   * @param degrees
+   *          The degrees of freedom of the distribution
+   * @throws IllegalArgumentException
+   *           If the degrees of freedom is less than one
+   */
   public ChiSquareDistribution(final double degrees) {
     if (degrees < 1)
       throw new IllegalArgumentException("Degrees of freedom must be greater than or equal to one");
@@ -32,6 +45,18 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
     _degrees = degrees;
   }
 
+  /**
+   * 
+   * @param degrees
+   *          The degrees of freedom of the distribution
+   * @param engine
+   *          A <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">RandomEngine</a>, a uniform random number
+   *          generator
+   * @throws IllegalArgumentException
+   *           If the degrees of freedom is less than one
+   * @throws IllegalArgumentException
+   *           If the random number generator was null
+   */
   public ChiSquareDistribution(final double degrees, final RandomEngine engine) {
     if (degrees < 1)
       throw new IllegalArgumentException("Degrees of freedom must be greater than or equal to one");
@@ -41,6 +66,15 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
     _degrees = degrees;
   }
 
+  /**
+   * 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{equation*}
+   * F(x; k)=\\frac{\\gamma\\left(\\frac{k}{2}, \\frac{x}{2}\\right)}{\\Gamma\\left(\\frac{k}{2}\\right)}
+   * \\end{equation*}}
+   * where {@latex.inline $\\gamma(y, z)$} is the lower incomplete Gamma function and {@latex.inline $\\Gamma(y)$} is the Gamma function.
+   * 
+   */
   @Override
   public double getCDF(final Double x) {
     if (x == null)
@@ -48,6 +82,15 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
     return _chiSquare.cdf(x);
   }
 
+  /**
+   * 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{equation*}
+   * f(x; k)=\\frac{x^{\\frac{k}{2}-1}e^{-\\frac{x}{2}}}{2^{\\frac{k}{2}}\\Gamma\\left(\\frac{k}{2}\\right)}
+   * \\end{equation*}}
+   * where {@latex.inline $\\Gamma(y)$} is the Gamma function.
+   * 
+   */
   @Override
   public double getPDF(final Double x) {
     if (x == null)
@@ -55,6 +98,17 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
     return _chiSquare.pdf(x);
   }
 
+  /**
+   * 
+   * {@latex.ilb %preamble{\\usepackage{amsmath}}
+   * \\begin{equation*}
+   * F^{-1}(x; k) = 2\\gamma^{-1}\\left(\\frac{k}{2}, p\\right)
+   * \\end{equation*}}
+   * where {@latex.inline $\\gamma^{-1}(y)$} is the inverse incomplete Gamma function.
+   * 
+   * @see com.opengamma.math.function.special.InverseIncompleteGammaFunction
+   * 
+   */
   @Override
   public double getInverseCDF(final Double p) {
     if (p == null)

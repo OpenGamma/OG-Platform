@@ -25,8 +25,8 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    * @param value
    *          The value of x for which an interpolated value for y is to be
    *          found.
-   * @returns An InterpolationResult containing the interpolated value of y and
-   *          (if appropriate) the estimated error of this value.
+   * @return An InterpolationResult containing the interpolated value of y and
+   *         (if appropriate) the estimated error of this value.
    */
   @Override
   public abstract InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value);
