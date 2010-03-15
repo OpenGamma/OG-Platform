@@ -129,7 +129,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * 
    * This method is not implemented.
    * 
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom()
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF
    * @throws NotImplementedException
    */
   @Override
@@ -147,7 +147,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   * z&=&\\frac{x-\\mu}{\\sigma}
   * \\end{eqnarray*}}
   * 
-  * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
+  * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
   * @throws IllegalArgumentException
   *           If {@latex.inline $x$} was null
   */
@@ -166,7 +166,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * \\begin{equation*}
    * X=\\mu + \\frac{\\sigma\\left(U^{-\\xi}-1\\right)}{\\xi}\\sim GPD(\\mu,\\sigma,\\xi)
    * \\end{equation*}}
-   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom()
+   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom
    * 
    */
   @Override
