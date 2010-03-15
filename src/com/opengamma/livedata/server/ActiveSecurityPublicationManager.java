@@ -5,16 +5,13 @@
  */
 package com.opengamma.livedata.server;
 
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -31,10 +28,6 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
   // Injected Inputs:
   private final AbstractLiveDataServer _dataServer;
   private final long _timeoutExtension;
-  
-  // Running State:
-  private final ConcurrentMap<LiveDataSpecification, Long> _activeSpecificationTimeouts =
-    new ConcurrentHashMap<LiveDataSpecification, Long>();
   
   public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer) {
     this(dataServer, DEFAULT_CHECK_PERIOD);
@@ -70,27 +63,27 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
   public long getTimeoutExtension() {
     return _timeoutExtension;
   }
-
-  /**
-   * @return the activeSpecificationTimeouts
-   */
-  public ConcurrentMap<LiveDataSpecification, Long> getActiveSpecificationTimeouts() {
-    return _activeSpecificationTimeouts;
-  }
   
-  public void subscribed(LiveDataSpecification fullyQualifiedSpec) {
-    extendPublicationTimeout(fullyQualifiedSpec);        
-  }
-  
-  public void unsubscribed(LiveDataSpecification fullyQualifiedSpec) {
+  @Override
+  public void subscribed(Subscription subscription) {
+    extendPublicationTimeout(subscription);
   }
 
-  public boolean isCurrentlyPublished(LiveDataSpecification spec) {
-    return getActiveSpecificationTimeouts().containsKey(spec);
+  @Override
+  public void unsubscribed(Subscription subscription) {
   }
-  
-  public void extendPublicationTimeout(LiveDataSpecification spec) {
-    getActiveSpecificationTimeouts().put(spec, (System.currentTimeMillis() + getTimeoutExtension()));
+
+  public void extendPublicationTimeout(LiveDataSpecificationImpl spec) {
+    Subscription subscription = _dataServer.getSubscription(spec);
+    if (subscription != null) {
+      extendPublicationTimeout(subscription);
+    }
+  }
+
+  private void extendPublicationTimeout(Subscription subscription) {
+    if (!subscription.isPersistent()) {
+      subscription.setExpiry(System.currentTimeMillis() + getTimeoutExtension());
+    }
   }
   
   public class ExpirationCheckTimerTask extends TimerTask {
@@ -99,13 +92,14 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
       s_logger.debug("Checking for data specifications to time out");
       int nExpired = 0;
       long startTime = System.currentTimeMillis();
-      for(Map.Entry<LiveDataSpecification, Long> entry : getActiveSpecificationTimeouts().entrySet()) {
-        if(entry.getValue() < startTime) {
-          if(getActiveSpecificationTimeouts().remove(entry.getKey(), entry.getValue())) {
-            getDataServer().unsubscriptionRequestMade(entry.getKey());
-            nExpired++;
-          } else {
-            // Someone piped up while we were navigating. Do nothing.
+      for (Subscription subscription : _dataServer.getSubscriptions()) {
+        // TODO Move this logic to Subscription.hasExpired()
+        if (!subscription.isPersistent()) {
+          if (subscription.getExpiry() < startTime) {
+            boolean removed = getDataServer().unsubscribe(subscription);
+            if (removed) {
+              nExpired++;
+            }
           }
         }
       }

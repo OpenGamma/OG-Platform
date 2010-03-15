@@ -47,7 +47,7 @@ public class ActiveSecurityPublicationManagerTest {
     valueDistributor.addListener(subscription, listener);
     
     // subscribe on the server side
-    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", Collections.singleton(subscription)));
+    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", false, Collections.singleton(subscription)));
     
     // Send a couple of heartbeats
     Thread.sleep(300);
@@ -58,10 +58,10 @@ public class ActiveSecurityPublicationManagerTest {
     // Wait for expiry
     Thread.sleep(1000);
     
-    assertEquals(1, dataServer.getSubscriptions().size());
-    assertEquals(1, dataServer.getUnsubscriptions().size());
-    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getSubscriptions().get(0));
-    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getUnsubscriptions().get(0));
+    assertEquals(1, dataServer.getActualSubscriptions().size());
+    assertEquals(1, dataServer.getActualUnsubscriptions().size());
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualSubscriptions().get(0));
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualUnsubscriptions().get(0));
   }
   
   @Test
@@ -73,16 +73,16 @@ public class ActiveSecurityPublicationManagerTest {
     
     // subscribe on the server side
     LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
-    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", Collections.singleton(subscription)));
+    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", false, Collections.singleton(subscription)));
     
-    assertEquals(1, dataServer.getSubscriptions().size());
-    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getSubscriptions().get(0));
+    assertEquals(1, dataServer.getActualSubscriptions().size());
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualSubscriptions().get(0));
     
     // Wait for expiry
     Thread.sleep(1000);
     
-    assertEquals(1, dataServer.getUnsubscriptions().size());
-    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getUnsubscriptions().get(0));
+    assertEquals(1, dataServer.getActualUnsubscriptions().size());
+    assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualUnsubscriptions().get(0));
     
   }
 

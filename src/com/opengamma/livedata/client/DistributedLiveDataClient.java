@@ -153,7 +153,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       }
     }
     
-    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(username, specs);
+    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(username, false, specs);
     return request;
   }
 

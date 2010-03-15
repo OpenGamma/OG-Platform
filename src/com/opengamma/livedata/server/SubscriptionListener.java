@@ -5,8 +5,6 @@
  */
 package com.opengamma.livedata.server;
 
-import com.opengamma.livedata.LiveDataSpecification;
-
 /**
  * 
  *
@@ -14,7 +12,7 @@ import com.opengamma.livedata.LiveDataSpecification;
  */
 public interface SubscriptionListener {
   
-  public void subscribed(LiveDataSpecification fullyQualifiedSpec);
-  public void unsubscribed(LiveDataSpecification fullyQualifiedSpec);
+  public void subscribed(Subscription subscription);
+  public void unsubscribed(Subscription subscription);
 
 }

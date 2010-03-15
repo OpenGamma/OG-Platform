@@ -7,7 +7,6 @@ package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +20,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
@@ -46,7 +44,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   
   private final Set<MarketDataFieldReceiver> _fieldReceivers = new CopyOnWriteArraySet<MarketDataFieldReceiver>();
   private final Set<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArraySet<SubscriptionListener>();
-  private final Set<Subscription> _currentlyActiveSubscriptions = Collections.synchronizedSet(new HashSet<Subscription>());
+  private final Set<Subscription> _currentlyActiveSubscriptions = new CopyOnWriteArraySet<Subscription>();
   private final Map<String, LiveDataSpecificationImpl> _securityUniqueId2FullyQualifiedSpecification = new ConcurrentHashMap<String, LiveDataSpecificationImpl>();
   private final Map<LiveDataSpecificationImpl, Subscription> _fullyQualifiedSpec2Subscription = new ConcurrentHashMap<LiveDataSpecificationImpl, Subscription>();
   
@@ -130,19 +128,19 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   /**
    * @return Subscription handle
    */
-  protected abstract Object subscribe(String uniqueId);
+  protected abstract Object doSubscribe(String uniqueId);
   
   /**
    * @param subscriptionHandle The object that was returned by subscribe()
    */
-  protected abstract void unsubscribe(Object subscriptionHandle);
+  protected abstract void doUnsubscribe(Object subscriptionHandle);
   
   /**
    * @return Identification domain that uniquely identifies securities for this type of server.
    */
   protected abstract IdentificationDomain getUniqueIdDomain();
   
-  public final LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
+  public LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
     
     ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
     for (LiveDataSpecificationImpl requestedSpecification : subscriptionRequest.getSpecifications()) {
@@ -159,6 +157,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
               null));
           continue;
         }
+        LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(qualifiedSpecification);
         
         if(!getEntitlementChecker().isEntitled(subscriptionRequest.getUserName(), qualifiedSpecification)) {
           s_logger.info("User {} not entitled to specification {}", subscriptionRequest.getUserName(), qualifiedSpecification);
@@ -177,23 +176,31 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
         try {
           if (isSubscribedTo(qualifiedSpecification)) {
             s_logger.info("Already subscribed to {}", qualifiedSpecification);
+            
+            // Might be necessary to turn the subscription into a persistent one. We
+            // never turn it back from persistent to non-persistent, however.
+            Subscription subscription = getSubscription(localFullyQualifiedSpecification);
+            if (!subscription.isPersistent() && subscriptionRequest.getPersistent()) {
+              subscription.setPersistent(true);
+            }
+            
           } else {
             
             String securityUniqueId = qualifiedSpecification.getIdentifier(getUniqueIdDomain());
-            Object subscriptionHandle = subscribe(securityUniqueId);
+            Object subscriptionHandle = doSubscribe(securityUniqueId);
             
-            LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(qualifiedSpecification);
             Subscription subscription = new Subscription(securityUniqueId, 
-                subscriptionHandle, 
-                tickDistributionSpec);
-            
+                  subscriptionHandle, 
+                  tickDistributionSpec,
+                  subscriptionRequest.getPersistent());
+                        
             _currentlyActiveSubscriptions.add(subscription);
             _securityUniqueId2FullyQualifiedSpecification.put(securityUniqueId, localFullyQualifiedSpecification);
             _fullyQualifiedSpec2Subscription.put(localFullyQualifiedSpecification, subscription);
 
             for (SubscriptionListener listener : _subscriptionListeners) {
               try {
-                listener.subscribed(qualifiedSpecification);
+                listener.subscribed(subscription);
               } catch (RuntimeException e) {
                 s_logger.error("Listener subscribe failed", e);
               }
@@ -216,43 +223,62 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
     return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUserName(), responses);
   }
   
-  public final void unsubscriptionRequestMade(LiveDataSpecification fullyQualifiedSpec) {
+  /**
+   * @return Whether the server actually unsubscribed from the spec
+   */
+  public boolean unsubscribe(LiveDataSpecificationImpl fullyQualifiedSpec) {
+    Subscription subscription = getSubscription(fullyQualifiedSpec);
+    if (subscription == null) {
+      return false;
+    }
+    return unsubscribe(subscription);
+  }
+  
+  boolean unsubscribe(Subscription subscription) {
+    ArgumentChecker.checkNotNull(subscription, "Subscription");
+    
+    boolean actuallyUnsubscribed = false;
+    
     _subscriptionLock.lock();
     try {
-      if (isSubscribedTo(fullyQualifiedSpec)) {
-        s_logger.info("Terminating publication of {}", fullyQualifiedSpec);
+      if (isSubscribedTo(subscription) && !subscription.isPersistent()) {
         
-        LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(fullyQualifiedSpec);
-        Subscription subscription = _fullyQualifiedSpec2Subscription.get(localFullyQualifiedSpecification);
-        if (subscription == null) {
-          throw new OpenGammaRuntimeException("Subscription handle not found for " + fullyQualifiedSpec);
-        }
-
-        unsubscribe(subscription.getHandle());
+        s_logger.info("Unsubscribing from {}", subscription);
+        
+        doUnsubscribe(subscription.getHandle());
+        actuallyUnsubscribed = true;
         
         _currentlyActiveSubscriptions.remove(subscription);
-        String uniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
-        _securityUniqueId2FullyQualifiedSpecification.remove(uniqueId);
+        _securityUniqueId2FullyQualifiedSpecification.remove(subscription.getSecurityUniqueId());
         _fullyQualifiedSpec2Subscription.remove(subscription);
         
         for (SubscriptionListener listener : _subscriptionListeners) {
           try {
-            listener.unsubscribed(fullyQualifiedSpec);
+            listener.unsubscribed(subscription);
           } catch (RuntimeException e) {
             s_logger.error("Listener unsubscribe failed", e);
           }
         }
+        
+        s_logger.info("Unsubscribed from {}", subscription);
+        
       } else {
-        s_logger.warn("Already unsubscribed from {}", fullyQualifiedSpec);
+        s_logger.warn("Received unsubscription request for non-active/persistent subscription: {}", subscription);
       }
             
     } finally {
       _subscriptionLock.unlock();          
     }
+    
+    return actuallyUnsubscribed;
   }
   
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
     return _fullyQualifiedSpec2Subscription.containsKey(new LiveDataSpecificationImpl(fullyQualifiedSpec));
+  }
+  
+  boolean isSubscribedTo(Subscription subscription) {
+    return _currentlyActiveSubscriptions.contains(subscription);
   }
   
   public LiveDataSpecification getFullyQualifiedSpec(String securityUniqueId) {
@@ -274,10 +300,8 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   @Override
   public Set<String> getActiveDistributionSpecs() {
     Set<String> subscriptions = new HashSet<String>();
-    synchronized (_currentlyActiveSubscriptions) {
-      for (Subscription subscription : _currentlyActiveSubscriptions) {
-        subscriptions.add(subscription.getDistributionSpecification());                
-      }
+    for (Subscription subscription : _currentlyActiveSubscriptions) {
+      subscriptions.add(subscription.getDistributionSpecification());                
     }
     return subscriptions;
   }
@@ -285,10 +309,8 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   @Override
   public Set<String> getActiveSubscriptionIds() {
     Set<String> subscriptions = new HashSet<String>();
-    synchronized (_currentlyActiveSubscriptions) {
-      for (Subscription subscription : _currentlyActiveSubscriptions) {
-        subscriptions.add(subscription.getSecurityUniqueId());                
-      }
+    for (Subscription subscription : _currentlyActiveSubscriptions) {
+      subscriptions.add(subscription.getSecurityUniqueId());                
     }
     return subscriptions;
   }
@@ -301,6 +323,14 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   @Override
   public long getNumLiveDataUpdatesSent() {
     return _numUpdatesSent.get();
+  }
+  
+  Set<Subscription> getSubscriptions() {
+    return _currentlyActiveSubscriptions;   
+  }
+  
+  Subscription getSubscription(LiveDataSpecificationImpl spec) {
+    return _fullyQualifiedSpec2Subscription.get(spec);  
   }
   
 }

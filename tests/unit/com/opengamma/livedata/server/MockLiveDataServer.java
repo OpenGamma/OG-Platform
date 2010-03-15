@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.id.IdentificationDomain;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,21 +33,21 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   }
 
   @Override
-  protected Object subscribe(String uniqueId) {
+  protected Object doSubscribe(String uniqueId) {
     _subscriptions.add(uniqueId);
     return uniqueId;
   }
 
   @Override
-  protected void unsubscribe(Object subscriptionHandle) {
+  protected void doUnsubscribe(Object subscriptionHandle) {
     _unsubscriptions.add((String) subscriptionHandle);
   }
 
-  public List<String> getSubscriptions() {
+  public List<String> getActualSubscriptions() {
     return _subscriptions;
   }
 
-  public List<String> getUnsubscriptions() {
+  public List<String> getActualUnsubscriptions() {
     return _unsubscriptions;
   }
 
