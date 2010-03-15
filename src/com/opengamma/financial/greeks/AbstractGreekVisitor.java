@@ -18,8 +18,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitCarryRho() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -29,8 +28,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDVannaDVol() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -40,8 +38,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDZetaDVol() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -51,8 +48,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDelta() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -62,8 +58,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDeltaBleed() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -73,8 +68,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDriftlessTheta() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -84,8 +78,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitElasticity() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -95,8 +88,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGamma() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -106,8 +98,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGammaBleed() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -117,8 +108,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGammaP() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -128,8 +118,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGammaPBleed() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -139,8 +128,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitPhi() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -150,8 +138,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitPrice() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -161,8 +148,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitRho() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -172,8 +158,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitSpeed() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -183,8 +168,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitSpeedP() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -194,8 +178,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitStrikeDelta() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -205,8 +188,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitStrikeGamma() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -216,19 +198,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitTheta() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.greeks.GreekVisitor#visitTimeBucketedRho()
-   */
-  @Override
-  public T visitTimeBucketedRho() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -238,8 +208,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitUltima() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -249,8 +218,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVanna() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -260,8 +228,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceUltima() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -271,8 +238,8 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceVanna() {
-    // TODO Auto-generated method stub
-    return null;
+
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -282,8 +249,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceVega() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -293,8 +259,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceVomma() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -304,8 +269,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVega() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -315,8 +279,8 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVegaBleed() {
-    // TODO Auto-generated method stub
-    return null;
+
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -326,8 +290,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVegaP() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -337,8 +300,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVomma() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -348,8 +310,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVommaP() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -359,8 +320,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZeta() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -370,8 +330,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZetaBleed() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -381,8 +340,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZomma() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   /*
@@ -392,8 +350,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZommaP() {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException();
   }
 
 }
