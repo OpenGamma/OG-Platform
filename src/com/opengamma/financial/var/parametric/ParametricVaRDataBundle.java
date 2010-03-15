@@ -8,10 +8,8 @@ package com.opengamma.financial.var.parametric;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.greeks.Order;
-import com.opengamma.financial.sensitivity.OrderSensitivityVisitor;
+import com.opengamma.financial.greeks.FirstOrder;
 import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.financial.sensitivity.SensitivityVisitor;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
@@ -45,14 +43,13 @@ public class ParametricVaRDataBundle {
       throw new IllegalArgumentException("Covariance map was null");
     if (sensitivities.size() < covariances.size())
       throw new IllegalArgumentException("Have more covariance matrices than sensitivity types");
-    final SensitivityVisitor<Order> visitor = new OrderSensitivityVisitor();
     Matrix<?> m1;
     DoubleMatrix2D m2;
     for (final Sensitivity s : sensitivities.keySet()) {
       m1 = sensitivities.get(s);
       if (m1 == null)
         throw new IllegalArgumentException("Null value for " + s + " in sensitivity data");
-      if (s.accept(visitor).equals(Order.FIRST)) {
+      if (s.getOrder() instanceof FirstOrder) {
         if (!(m1 instanceof DoubleMatrix1D)) {
           throw new IllegalArgumentException("First order sensitivities must be a vector, not a matrix (have matrix for " + s + ")");
         } else {
