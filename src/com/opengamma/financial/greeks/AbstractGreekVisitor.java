@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.greeks;
 
+import org.apache.commons.lang.NotImplementedException;
+
 /**
  * @author emcleod
  * 
@@ -18,7 +20,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitCarryRho() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -28,7 +30,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDVannaDVol() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -38,7 +40,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDZetaDVol() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -48,7 +50,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDelta() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -58,7 +60,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDeltaBleed() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -68,7 +70,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitDriftlessTheta() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -78,7 +80,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitElasticity() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -88,7 +90,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGamma() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -98,7 +100,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGammaBleed() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -108,7 +110,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGammaP() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -118,7 +120,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitGammaPBleed() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -128,7 +130,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitPhi() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -138,7 +140,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitPrice() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -148,7 +150,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitRho() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -158,7 +160,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitSpeed() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -168,7 +170,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitSpeedP() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -178,7 +180,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitStrikeDelta() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -188,7 +190,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitStrikeGamma() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -198,7 +200,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitTheta() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -208,7 +210,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitUltima() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -218,7 +220,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVanna() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -228,7 +230,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceUltima() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -239,7 +241,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
   @Override
   public T visitVarianceVanna() {
 
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -249,7 +251,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceVega() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -259,7 +261,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVarianceVomma() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -269,7 +271,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVega() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -280,7 +282,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
   @Override
   public T visitVegaBleed() {
 
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -290,7 +292,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVegaP() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -300,7 +302,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVomma() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -310,7 +312,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitVommaP() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -320,7 +322,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZeta() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -330,7 +332,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZetaBleed() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -340,7 +342,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZomma() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
   /*
@@ -350,7 +352,7 @@ public abstract class AbstractGreekVisitor<T> implements GreekVisitor<T> {
    */
   @Override
   public T visitZommaP() {
-    throw new UnsupportedOperationException();
+    throw new NotImplementedException();
   }
 
 }

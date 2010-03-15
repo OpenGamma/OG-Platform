@@ -49,11 +49,14 @@ public class GreekToPositionGreekConverter extends Function1D<RiskFactorDataBund
           riskFactorResultMap.put(e.getKey(), e.getValue() * data.getUnderlyingDataForGreek(entry.getKey(), Underlying.NUMBER_OF_CONTRACTS));
         }
         riskFactors.put(entry.getKey().accept(_visitor), new MultipleRiskFactorResult(riskFactorResultMap));
+      } else {
+        throw new IllegalArgumentException("Can only handle SingleGreekResult and MultipleGreekResult");
       }
     }
     return riskFactors;
   }
 
+  // TODO this will probably be better extracted out
   class GreekToPositionGreekVisitor extends AbstractGreekVisitor<PositionGreek> {
 
     /*
