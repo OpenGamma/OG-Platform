@@ -43,7 +43,6 @@ public interface ValueRequirementNames {
   public static final String THETA = "Theta";
   
   public static final String RHO = "Rho";
-  public static final String TIME_BUCKETED_RHO = "TimeBucketedRho";
   public static final String CARRY_RHO = "CarryRho";
   
   public static final String ZETA = "Zeta";
