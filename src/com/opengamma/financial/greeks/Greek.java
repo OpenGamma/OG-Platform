@@ -5,18 +5,21 @@
  */
 package com.opengamma.financial.greeks;
 
+import com.opengamma.financial.pnl.Underlying;
+
 public enum Greek {
 
-  /**
-   * 
-   * Zeroth order greeks
-   * 
-   */
   PRICE {
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitPrice();
     }
+
+    @Override
+    public Order getOrder() {
+      return new ZerothOrder();
+    }
+
   },
   ZETA {
 
@@ -25,18 +28,22 @@ public enum Greek {
       return visitor.visitZeta();
     }
 
-  },
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
+    }
 
-  /**
-   * 
-   * First order greeks
-   * 
-   */
+  },
   CARRY_RHO {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitCarryRho();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.COST_OF_CARRY);
     }
 
   },
@@ -47,12 +54,22 @@ public enum Greek {
       return visitor.visitDelta();
     }
 
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.SPOT_PRICE);
+    }
+
   },
   DRIFTLESS_THETA {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitDriftlessTheta();
+    }
+
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
     }
 
   },
@@ -63,12 +80,22 @@ public enum Greek {
       return visitor.visitDZetaDVol();
     }
 
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
+    }
+
   },
   ELASTICITY {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitElasticity();
+    }
+
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
     }
 
   },
@@ -79,12 +106,23 @@ public enum Greek {
       return visitor.visitPhi();
     }
 
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
+    }
+
   },
   RHO {
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitRho();
     }
+
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.INTEREST_RATE);
+    }
+
   },
   STRIKE_DELTA {
 
@@ -93,24 +131,34 @@ public enum Greek {
       return visitor.visitStrikeDelta();
     }
 
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.STRIKE);
+    }
+
   },
   THETA {
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitTheta();
     }
-  },
-  TIME_BUCKETED_RHO {
+
     @Override
-    public <T> T accept(final GreekVisitor<T> visitor) {
-      return visitor.visitTimeBucketedRho();
+    public Order getOrder() {
+      return new FirstOrder(Underlying.TIME);
     }
+
   },
   VARIANCE_VEGA {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVarianceVega();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.SPOT_VARIANCE);
     }
 
   },
@@ -121,12 +169,22 @@ public enum Greek {
       return visitor.visitVega();
     }
 
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.SPOT_VOLATILITY);
+    }
+
   },
   VEGA_P {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVegaP();
+    }
+
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
     }
 
   },
@@ -137,18 +195,22 @@ public enum Greek {
       return visitor.visitZetaBleed();
     }
 
-  },
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
+    }
 
-  /**
-   * 
-   * Second order greeks
-   * 
-   */
+  },
   DELTA_BLEED {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitDeltaBleed();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.TIME));
     }
 
   },
@@ -157,12 +219,23 @@ public enum Greek {
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitGamma();
     }
+
+    @Override
+    public Order getOrder() {
+      return new SecondOrder(Underlying.SPOT_PRICE);
+    }
+
   },
   GAMMA_P {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitGammaP();
+    }
+
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
     }
 
   },
@@ -173,6 +246,11 @@ public enum Greek {
       return visitor.visitStrikeGamma();
     }
 
+    @Override
+    public Order getOrder() {
+      return new SecondOrder(Underlying.STRIKE);
+    }
+
   },
   VANNA {
 
@@ -180,12 +258,23 @@ public enum Greek {
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVanna();
     }
+
+    @Override
+    public Order getOrder() {
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.SPOT_VOLATILITY));
+    }
+
   },
   VARIANCE_VANNA {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVarianceVanna();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.SPOT_VARIANCE));
     }
 
   },
@@ -196,12 +285,22 @@ public enum Greek {
       return visitor.visitVarianceVomma();
     }
 
+    @Override
+    public Order getOrder() {
+      return new SecondOrder(Underlying.SPOT_VARIANCE);
+    }
+
   },
   VEGA_BLEED {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVegaBleed();
+    }
+
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
     }
 
   },
@@ -212,6 +311,11 @@ public enum Greek {
       return visitor.visitVomma();
     }
 
+    @Override
+    public Order getOrder() {
+      return new SecondOrder(Underlying.SPOT_VOLATILITY);
+    }
+
   },
   VOMMA_P {
 
@@ -220,18 +324,22 @@ public enum Greek {
       return visitor.visitVommaP();
     }
 
-  },
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
+    }
 
-  /**
-   * 
-   * Third order greeks
-   * 
-   */
+  },
   DVANNA_DVOL {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitDVannaDVol();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new MixedThirdOrder(new FirstOrder(Underlying.SPOT_VOLATILITY), new SecondOrder(Underlying.SPOT_PRICE));
     }
 
   },
@@ -242,12 +350,22 @@ public enum Greek {
       return visitor.visitGammaBleed();
     }
 
+    @Override
+    public Order getOrder() {
+      return new MixedThirdOrder(new FirstOrder(Underlying.TIME), new SecondOrder(Underlying.SPOT_PRICE));
+    }
+
   },
   GAMMA_P_BLEED {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitGammaPBleed();
+    }
+
+    @Override
+    public Order getOrder() {
+      throw new UnsupportedOperationException();
     }
 
   },
@@ -258,12 +376,24 @@ public enum Greek {
       return visitor.visitSpeed();
     }
 
+    @Override
+    public Order getOrder() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   },
   SPEED_P {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitSpeedP();
+    }
+
+    @Override
+    public Order getOrder() {
+      // TODO Auto-generated method stub
+      return null;
     }
 
   },
@@ -274,12 +404,24 @@ public enum Greek {
       return visitor.visitUltima();
     }
 
+    @Override
+    public Order getOrder() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   },
   VARIANCE_ULTIMA {
 
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitVarianceUltima();
+    }
+
+    @Override
+    public Order getOrder() {
+      // TODO Auto-generated method stub
+      return null;
     }
 
   },
@@ -290,6 +432,12 @@ public enum Greek {
       return visitor.visitZomma();
     }
 
+    @Override
+    public Order getOrder() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   },
   ZOMMA_P {
 
@@ -298,7 +446,16 @@ public enum Greek {
       return visitor.visitZommaP();
     }
 
+    @Override
+    public Order getOrder() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
   };
 
   public abstract <T> T accept(GreekVisitor<T> visitor);
+
+  public abstract Order getOrder();
+
 }

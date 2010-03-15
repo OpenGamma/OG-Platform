@@ -33,8 +33,6 @@ public interface GreekVisitor<T> {
 
   public T visitTheta();
 
-  public T visitTimeBucketedRho();
-
   public T visitVarianceVega();
 
   public T visitVega();
