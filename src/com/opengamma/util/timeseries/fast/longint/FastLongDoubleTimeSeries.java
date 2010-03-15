@@ -68,4 +68,6 @@ public interface FastLongDoubleTimeSeries extends FastTimeSeries<Long>, Iterable
   public abstract FastLongDoubleTimeSeries unionOperate(final FastIntDoubleTimeSeries other, final BinaryOperator operator);
   
   public abstract FastLongDoubleTimeSeries operate(final UnaryOperator operator);
+  
+  public abstract FastLongDoubleTimeSeries lag(final int days);
 }

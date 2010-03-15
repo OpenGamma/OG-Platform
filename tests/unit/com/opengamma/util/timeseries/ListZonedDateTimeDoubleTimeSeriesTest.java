@@ -1,4 +1,4 @@
-package com.opengamma.util.timeseries.zoneddatetime;
+package com.opengamma.util.timeseries;
 
 
 import java.util.List;
@@ -6,7 +6,10 @@ import java.util.List;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-public class ListDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest {
+import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
+
+public class ListZonedDateTimeDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest {
 
   @Override
   public ZonedDateTimeDoubleTimeSeries createEmptyTimeSeries() {
@@ -24,7 +27,7 @@ public class ListDoubleTimeSeriesTest extends ZonedDateTimeDoubleTimeSeriesTest 
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries createTimeSeries(ZonedDateTimeDoubleTimeSeries dts) {
+  public ZonedDateTimeDoubleTimeSeries createTimeSeries(DoubleTimeSeries<ZonedDateTime> dts) {
     return new ListZonedDateTimeDoubleTimeSeries(TimeZone.UTC, dts);
   }
 

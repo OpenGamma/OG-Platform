@@ -12,6 +12,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
@@ -80,13 +81,13 @@ public abstract class AbstractFastIntDoubleTimeSeries extends AbstractFastTimeSe
   }
 
   @Override
-  public TimeSeries<Integer, Double> subSeries(final Integer startTime, final Integer endTime) {
+  public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final Integer endTime) {
     return subSeriesFast(startTime, endTime);
   }
   
   @Override
-  public TimeSeries<Integer, Double> subSeries(final Integer startTime, final boolean includeStart, final Integer endTime, final boolean includeEnd) {
-    return (TimeSeries<Integer, Double>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
+  public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final boolean includeStart, final Integer endTime, final boolean includeEnd) {
+    return subSeriesFast(startTime, includeStart, endTime, includeEnd);
   }
 
   @Override

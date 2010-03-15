@@ -20,8 +20,8 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
@@ -513,7 +513,7 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   }
 
   @Override
-  public TimeSeries<Long, Double> subSeries(final Long startTime, final Long endTime) {
+  public DoubleTimeSeries<Long> subSeries(final Long startTime, final Long endTime) {
     return subSeriesFast(startTime, endTime);
   }
 

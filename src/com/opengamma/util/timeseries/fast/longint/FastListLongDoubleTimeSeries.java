@@ -26,8 +26,8 @@ import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
@@ -282,12 +282,12 @@ public class FastListLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeri
   // REVIEW: jim 15-Feb-2010 -- should these be here (head and tail)?
 
   @Override
-  public TimeSeries<Long, Double> head(final int numItems) {
+  public DoubleTimeSeries<Long> head(final int numItems) {
     return headFast(numItems);
   }
 
   @Override
-  public TimeSeries<Long, Double> tail(final int numItems) {
+  public DoubleTimeSeries<Long> tail(final int numItems) {
     return tailFast(numItems);
   }
 

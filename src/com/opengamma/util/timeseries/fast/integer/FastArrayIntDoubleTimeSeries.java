@@ -20,8 +20,8 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -490,7 +490,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   @Override
-  public TimeSeries<Integer, Double> subSeries(final Integer startTime, final Integer endTime) {
+  public DoubleTimeSeries<Integer> subSeries(final Integer startTime, final Integer endTime) {
     return subSeriesFast(startTime, endTime);
   }
 
@@ -500,12 +500,12 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   }
 
   @Override
-  public TimeSeries<Integer, Double> head(final int numItems) {
+  public DoubleTimeSeries<Integer> head(final int numItems) {
     return headFast(numItems);
   }
 
   @Override
-  public TimeSeries<Integer, Double> tail(final int numItems) {
+  public DoubleTimeSeries<Integer> tail(final int numItems) {
     return tailFast(numItems);
   }
 
@@ -513,5 +513,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   public FastIntDoubleTimeSeries newInstanceFast(final int[] times, final double[] values) {
     return new FastArrayIntDoubleTimeSeries(getEncoding(), times, values);
   }
+
+
 
 }

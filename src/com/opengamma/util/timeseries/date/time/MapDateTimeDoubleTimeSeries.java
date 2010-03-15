@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastMapLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
@@ -22,7 +23,7 @@ public class MapDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries
   public static final MapDateTimeDoubleTimeSeries EMPTY_SERIES = new MapDateTimeDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochMillisConverter();
 
-  private MapDateTimeDoubleTimeSeries() {
+  public MapDateTimeDoubleTimeSeries() {
     super(new DateEpochMillisConverter(), new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
@@ -44,11 +45,11 @@ public class MapDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries
         .convertToLong(dates), values));
   }
 
-  public MapDateTimeDoubleTimeSeries(final DateTimeDoubleTimeSeries dts) {
+  public MapDateTimeDoubleTimeSeries(final DoubleTimeSeries<Date> dts) {
     super(s_converter, (FastMutableLongDoubleTimeSeries) s_converter.convertToLong(new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  public MapDateTimeDoubleTimeSeries(final TimeZone timeZone, final DateTimeDoubleTimeSeries dts) {
+  public MapDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<Date> dts) {
     super(new DateEpochMillisConverter(timeZone), (FastMutableLongDoubleTimeSeries) new DateEpochMillisConverter(timeZone).convertToLong(new FastMapLongDoubleTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }

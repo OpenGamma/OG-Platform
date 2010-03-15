@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
@@ -44,11 +45,11 @@ public class ListDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSerie
         .convertToLong(dates), values));
   }
 
-  public ListDateTimeDoubleTimeSeries(final DateTimeDoubleTimeSeries dts) {
+  public ListDateTimeDoubleTimeSeries(final DoubleTimeSeries<Date> dts) {
     super(s_converter, (FastMutableLongDoubleTimeSeries) s_converter.convertToLong(new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  public ListDateTimeDoubleTimeSeries(final TimeZone timeZone, final DateTimeDoubleTimeSeries dts) {
+  public ListDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<Date> dts) {
     super(new DateEpochMillisConverter(timeZone), (FastMutableLongDoubleTimeSeries) new DateEpochMillisConverter(timeZone).convertToLong(new FastListLongDoubleTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }

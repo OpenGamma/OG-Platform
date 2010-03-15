@@ -19,7 +19,7 @@ import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSerie
  *
  * @author jim
  */
-public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
+public interface FastBackedDoubleTimeSeries<DATE_TYPE> extends DoubleTimeSeries<DATE_TYPE> {
 
   public abstract DateTimeConverter<DATE_TYPE> getConverter();
 
@@ -29,8 +29,7 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       final FastTimeSeries<?> other, final BinaryOperator operator);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> operate(
-      final FastBackedDoubleTimeSeries<?> other,
-      final BinaryOperator operator);
+      final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> operate(
       final double other, final BinaryOperator operator);
@@ -42,28 +41,36 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       final FastTimeSeries<?> other, final BinaryOperator operator);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(
-      final FastBackedDoubleTimeSeries<?> other,
-      final BinaryOperator operator);
+      final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> add(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> add(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
 
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> add(
+      FastLongDoubleTimeSeries other);
+  
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> add(double other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> subtract(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> subtract(
-      FastTimeSeries<?> other);
+      FastLongDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> subtract(
+      FastIntDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> subtract(double other);
 
@@ -71,13 +78,19 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> multiply(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> multiply(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> multiply(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> multiply(double other);
 
@@ -85,13 +98,19 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> divide(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> divide(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> divide(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> divide(double other);
 
@@ -99,13 +118,19 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> power(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> power(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> power(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> power(double other);
 
@@ -113,13 +138,19 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> minimum(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> minimum(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> minimum(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> minimum(double other);
 
@@ -127,13 +158,19 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> maximum(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> maximum(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> maximum(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> maximum(double other);
 
@@ -141,13 +178,19 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> average(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> average(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> average(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> average(double other);
 
@@ -155,19 +198,28 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(
       FastBackedDoubleTimeSeries<?> other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(
-      FastTimeSeries<?> other);
+      FastIntDoubleTimeSeries other);
+
+  public abstract FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(
+      FastLongDoubleTimeSeries other);
 
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> negate();
 
@@ -204,6 +256,5 @@ public interface FastBackedDoubleTimeSeries<DATE_TYPE> {
 
   public abstract FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries(
       DateTimeNumericEncoding encoding);
-
   
 }

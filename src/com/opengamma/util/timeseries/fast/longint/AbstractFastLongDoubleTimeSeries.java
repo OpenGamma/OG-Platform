@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
@@ -79,13 +80,13 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
   }
 
   @Override
-  public TimeSeries<Long, Double> subSeries(final Long startTime, final Long endTime) {
-    return (TimeSeries<Long, Double>) subSeriesFast(startTime, endTime);
+  public DoubleTimeSeries<Long> subSeries(final Long startTime, final Long endTime) {
+    return (DoubleTimeSeries<Long>) subSeriesFast(startTime, endTime);
   }
   
   @Override
-  public TimeSeries<Long, Double> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
-    return (TimeSeries<Long, Double>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
+  public DoubleTimeSeries<Long> subSeries(final Long startTime, final boolean includeStart, final Long endTime, final boolean includeEnd) {
+    return (DoubleTimeSeries<Long>) subSeriesFast(startTime, includeStart, endTime, includeEnd);
   }
 
   @Override
@@ -364,6 +365,26 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
     System.arraycopy(resValues, 0, trimmedValues, 0, resCount);
     return newInstanceFast(trimmedTimes, trimmedValues);
   }  
+  
+  public FastLongDoubleTimeSeries lag(final int days) {
+    long[] times = timesArrayFast();
+    double[] values = valuesArrayFast();
+    if (days == 0) {
+      return newInstanceFast(times, values);
+    } else if (days < 0) {
+      long[] resultTimes = new long[times.length + days]; // remember days is -ve
+      System.arraycopy(times, 0, resultTimes, 0, times.length + days);
+      Double[] resultValues = new Double[times.length + days];
+      System.arraycopy(values, -days, resultValues, 0, times.length + days);
+      return newInstanceFast(times, values);
+    } else { // if (days > 0) {
+      long[] resultTimes = new long[times.length - days]; // remember days is +ve
+      System.arraycopy(times, days, resultTimes, 0, times.length - days);
+      Double[] resultValues = new Double[times.length - days];
+      System.arraycopy(values, 0, resultValues, 0, times.length - days);
+      return newInstanceFast(times, values);
+    }
+  }
   
   public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final boolean includeStart, final long endTime, final boolean includeEnd) {
     return subSeriesFast(startTime + (includeStart ? 0 : 1), endTime + (includeEnd ? 1 : 0));

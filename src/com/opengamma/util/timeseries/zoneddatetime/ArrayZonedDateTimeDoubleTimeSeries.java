@@ -10,6 +10,7 @@ import java.util.List;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
@@ -21,7 +22,6 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeSeries.Long {
   private static final FastListLongDoubleTimeSeries DEFAULT_SERIES_TEMPLATE = new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-  public static final ArrayZonedDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayZonedDateTimeDoubleTimeSeries();
   private static final ZonedDateTimeEpochMillisConverter s_converter = new ZonedDateTimeEpochMillisConverter();
 
   public ArrayZonedDateTimeDoubleTimeSeries() {
@@ -54,7 +54,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
     super(s_converter, s_converter.convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
   }
 
-  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final ZonedDateTimeDoubleTimeSeries dts) {
+  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
   }
 

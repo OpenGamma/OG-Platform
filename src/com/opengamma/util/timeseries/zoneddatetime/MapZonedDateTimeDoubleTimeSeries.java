@@ -11,6 +11,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastMapLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
@@ -52,7 +53,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
     super(s_converter, (FastMutableLongDoubleTimeSeries) s_converter.convertToLong(new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
 
-  public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final ZonedDateTimeDoubleTimeSeries dts) {
+  public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), (FastMutableLongDoubleTimeSeries) new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(new FastMapLongDoubleTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }

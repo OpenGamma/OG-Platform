@@ -25,6 +25,10 @@ import com.opengamma.util.timeseries.date.MutableDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.ArrayYearOffsetDoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.ListYearOffsetDoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.MutableYearOffsetDoubleTimeSeries;
@@ -145,6 +149,26 @@ public interface MutableDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSerie
     public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(TimeZone timeZone) {
       return new ArrayDateTimeDoubleTimeSeries(timeZone, this);
     }
+    
+    @Override
+    public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries() {
+      return new ArraySQLDateDoubleTimeSeries(((DateEpochMillisConverter)getConverter()).getTimeZone(), toFastIntDoubleTimeSeries());
+    }
+
+    @Override
+    public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone timeZone) {
+      return new ArraySQLDateDoubleTimeSeries(((DateEpochMillisConverter)getConverter()).getTimeZone(), toFastIntDoubleTimeSeries());
+    }
+
+    @Override
+    public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries() {
+      return new ListSQLDateDoubleTimeSeries(((DateEpochMillisConverter)getConverter()).getTimeZone(), toFastMutableIntDoubleTimeSeries());
+    }
+
+    @Override
+    public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone timeZone) {
+      return new ListSQLDateDoubleTimeSeries(timeZone, toFastMutableIntDoubleTimeSeries());
+    }
 
     @Override
     public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries() {
@@ -170,7 +194,7 @@ public interface MutableDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSerie
     
     @Override
     public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries() {
-      return new ArrayZonedDateTimeDoubleTimeSeries(((DateEpochDaysConverter)getConverter()).getTimeZone310(), getFastSeries());
+      return new ArrayZonedDateTimeDoubleTimeSeries(((DateEpochMillisConverter)getConverter()).getTimeZone310(), getFastSeries());
     }
     
     @Override
@@ -180,7 +204,7 @@ public interface MutableDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSerie
 
     @Override
     public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries() {
-      return new ListZonedDateTimeDoubleTimeSeries(((DateEpochDaysConverter)getConverter()).getTimeZone310(), getFastSeries());
+      return new ListZonedDateTimeDoubleTimeSeries(((DateEpochMillisConverter)getConverter()).getTimeZone310(), getFastSeries());
     }
     
     @Override

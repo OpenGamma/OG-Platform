@@ -28,6 +28,10 @@ import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
@@ -59,6 +63,26 @@ public interface YearOffsetDoubleTimeSeries extends DoubleTimeSeries<Double>, Fa
     @Override
     public DateDoubleTimeSeries toDateDoubleTimeSeries(TimeZone timeZone) {
       return new ArrayDateDoubleTimeSeries(timeZone, getFastSeries().toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+    }
+    
+    @Override
+    public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries() {
+      return new ArraySQLDateDoubleTimeSeries(((YearOffsetEpochMillisConverter)getConverter()).getTimeZone(), toFastIntDoubleTimeSeries());
+    }
+
+    @Override
+    public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone timeZone) {
+      return new ArraySQLDateDoubleTimeSeries(timeZone, toFastIntDoubleTimeSeries());
+    }
+
+    @Override
+    public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries() {
+      return new ListSQLDateDoubleTimeSeries(((YearOffsetEpochMillisConverter)getConverter()).getTimeZone(), toFastMutableIntDoubleTimeSeries());
+    }
+
+    @Override
+    public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone timeZone) {
+      return new ListSQLDateDoubleTimeSeries(timeZone, toFastMutableIntDoubleTimeSeries());
     }
 
     @Override
@@ -145,6 +169,26 @@ public interface YearOffsetDoubleTimeSeries extends DoubleTimeSeries<Double>, Fa
       return new ArrayDateDoubleTimeSeries(timeZone, getFastSeries().toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
     }
 
+    @Override
+    public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries() {
+      return new ArraySQLDateDoubleTimeSeries(((YearOffsetEpochMillisConverter)getConverter()).getTimeZone(), toFastIntDoubleTimeSeries());
+    }
+
+    @Override
+    public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone timeZone) {
+      return new ArraySQLDateDoubleTimeSeries(timeZone, toFastIntDoubleTimeSeries());
+    }
+
+    @Override
+    public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries() {
+      return new ListSQLDateDoubleTimeSeries(((YearOffsetEpochMillisConverter)getConverter()).getTimeZone(), toFastMutableIntDoubleTimeSeries());
+    }
+
+    @Override
+    public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone timeZone) {
+      return new ListSQLDateDoubleTimeSeries(timeZone, toFastMutableIntDoubleTimeSeries());
+    }
+    
     @Override
     public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries() {
       return new ArrayDateTimeDoubleTimeSeries(((YearOffsetEpochMillisConverter)getConverter()).getTimeZone(), getFastSeries());

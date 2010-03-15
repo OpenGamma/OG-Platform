@@ -24,8 +24,8 @@ import java.util.SortedMap;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -402,12 +402,12 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
   }
 
   @Override
-  public TimeSeries<Integer, Double> head(final int numItems) {
+  public DoubleTimeSeries<Integer> head(final int numItems) {
     return headFast(numItems);
   }
 
   @Override
-  public TimeSeries<Integer, Double> tail(final int numItems) {
+  public DoubleTimeSeries<Integer> tail(final int numItems) {
     return tailFast(numItems);
   }
 

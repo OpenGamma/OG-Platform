@@ -101,7 +101,9 @@ public class DateEpochMillisConverter implements DateTimeConverter<Date> {
 
   @Override
   public Date convertFromLong(final long dateTime) {
-    throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
+    final Calendar cal = _calendar.get();
+    cal.setTimeInMillis(dateTime);
+    return cal.getTime();
   }
 
   @Override

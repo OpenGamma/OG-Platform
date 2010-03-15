@@ -1,4 +1,4 @@
- package com.opengamma.util.timeseries.date;
+ package com.opengamma.util.timeseries;
 
 
 import java.util.Date;
@@ -7,10 +7,10 @@ import java.util.List;
 import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 
-public class ArrayDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
+public class ArrayDateDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
   @Override
-  public DateDoubleTimeSeries createEmptyTimeSeries() {
+  public DoubleTimeSeries<Date> createEmptyTimeSeries() {
     return new ArrayDateDoubleTimeSeries();
   }
 
@@ -25,8 +25,7 @@ public class ArrayDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
   }
 
   @Override
-  public DateDoubleTimeSeries createTimeSeries(DateDoubleTimeSeries dts) {
+  public DateDoubleTimeSeries createTimeSeries(DoubleTimeSeries<Date> dts) {
     return new ArrayDateDoubleTimeSeries(dts);
   }
-
 }

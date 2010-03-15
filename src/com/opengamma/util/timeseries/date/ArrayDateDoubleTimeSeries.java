@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
@@ -45,7 +46,7 @@ public class ArrayDateDoubleTimeSeries extends DateDoubleTimeSeries.Integer {
         values));
   }
 
-  public ArrayDateDoubleTimeSeries(final DateDoubleTimeSeries dts) {
+  public ArrayDateDoubleTimeSeries(final DoubleTimeSeries<Date> dts) {
     super(s_converter, s_converter.convertToInt(new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS), dts));
   }
 

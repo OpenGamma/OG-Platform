@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries;
@@ -50,7 +51,7 @@ public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Intege
         values));
   }
 
-  public ListDateDoubleTimeSeries(final DateDoubleTimeSeries dts) {
+  public ListDateDoubleTimeSeries(final DoubleTimeSeries<Date> dts) {
     super(s_converter, (FastMutableIntDoubleTimeSeries) s_converter.convertToInt(TIMESERIES_TEMPLATE, dts));
   }
 
@@ -70,5 +71,7 @@ public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Intege
   public DateDoubleTimeSeries newInstanceFast(final Date[] dateTimes, final double[] values) {
     return new ListDateDoubleTimeSeries(dateTimes, values);
   }
+
+
 
 }
