@@ -79,7 +79,6 @@ implements FunctionInvoker {
     greeksMap.put(ValueRequirementNames.THETA, Greek.THETA);
     
     greeksMap.put(ValueRequirementNames.RHO, Greek.RHO);
-    greeksMap.put(ValueRequirementNames.TIME_BUCKETED_RHO, Greek.TIME_BUCKETED_RHO);
     greeksMap.put(ValueRequirementNames.CARRY_RHO, Greek.CARRY_RHO);
     
     greeksMap.put(ValueRequirementNames.ZETA, Greek.ZETA);
