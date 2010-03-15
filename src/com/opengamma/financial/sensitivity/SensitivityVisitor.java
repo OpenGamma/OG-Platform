@@ -8,6 +8,8 @@ public interface SensitivityVisitor<T> {
 
   public T visitValueVega();
 
+  public T visitValueVanna();
+
   public T visitValueTheta();
 
   public T visitPV01();

@@ -1,6 +1,7 @@
 package com.opengamma.financial.sensitivity;
 
 import com.opengamma.financial.greeks.FirstOrder;
+import com.opengamma.financial.greeks.MixedSecondOrder;
 import com.opengamma.financial.greeks.Order;
 import com.opengamma.financial.greeks.SecondOrder;
 import com.opengamma.financial.pnl.Underlying;
@@ -30,6 +31,18 @@ public enum Sensitivity {
       return new SecondOrder(Underlying.SPOT_PRICE);
     }
 
+  },
+  VALUE_VANNA {
+
+    @Override
+    public <T> T accept(final SensitivityVisitor<T> visitor) {
+      return visitor.visitValueVanna();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.SPOT_VOLATILITY));
+    }
   },
   VALUE_VEGA {
 

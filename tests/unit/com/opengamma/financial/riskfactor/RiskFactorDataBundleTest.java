@@ -15,6 +15,7 @@ import org.junit.Test;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.SingleGreekResult;
+import com.opengamma.financial.pnl.OptionTradeData;
 import com.opengamma.financial.pnl.Underlying;
 
 /**
@@ -31,7 +32,7 @@ public class RiskFactorDataBundleTest {
     GREEKS.put(Greek.DELTA, new SingleGreekResult(0.12));
     GREEKS.put(Greek.GAMMA, new SingleGreekResult(0.34));
     D = new HashMap<Object, Double>();
-    D.put(Underlying.NUMBER_OF_CONTRACTS, 200.);
+    D.put(OptionTradeData.NUMBER_OF_CONTRACTS, 200.);
     D.put(Underlying.SPOT_PRICE, 40.);
     UNDERLYING.put(Greek.DELTA, D);
     UNDERLYING.put(Greek.GAMMA, D);
@@ -78,7 +79,7 @@ public class RiskFactorDataBundleTest {
     assertEquals(DATA.getAllGreekValues(), GREEKS);
     assertEquals(DATA.getAllUnderlyingData(), UNDERLYING);
     assertEquals(DATA.getAllUnderlyingDataForGreek(Greek.DELTA), UNDERLYING.get(Greek.DELTA));
-    assertEquals(DATA.getUnderlyingDataForGreek(Greek.DELTA, Underlying.NUMBER_OF_CONTRACTS), D.get(Underlying.NUMBER_OF_CONTRACTS));
+    assertEquals(DATA.getUnderlyingDataForGreek(Greek.DELTA, OptionTradeData.NUMBER_OF_CONTRACTS), D.get(OptionTradeData.NUMBER_OF_CONTRACTS));
     assertEquals(DATA.getUnderlyingDataForGreek(Greek.DELTA, Underlying.SPOT_PRICE), D.get(Underlying.SPOT_PRICE));
   }
 }

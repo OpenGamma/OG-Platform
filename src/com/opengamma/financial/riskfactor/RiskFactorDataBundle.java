@@ -10,7 +10,6 @@ import java.util.Map;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.pnl.Underlying;
 
 /**
  * @author emcleod
@@ -53,11 +52,11 @@ public class RiskFactorDataBundle {
     throw new IllegalArgumentException("Underlying data map did not contain data for " + greek);
   }
 
-  public Double getUnderlyingDataForGreek(final Greek greek, final Underlying underlying) {
+  public Double getUnderlyingDataForGreek(final Greek greek, final Object requiredData) {
     final Map<Object, Double> data = getAllUnderlyingDataForGreek(greek);
-    if (data.containsKey(underlying))
-      return data.get(underlying);
-    throw new IllegalArgumentException("Underlying data map did not contain " + underlying + " data for " + greek);
+    if (data.containsKey(requiredData))
+      return data.get(requiredData);
+    throw new IllegalArgumentException("Underlying data map did not contain " + requiredData + " data for " + greek);
   }
 
   /*
