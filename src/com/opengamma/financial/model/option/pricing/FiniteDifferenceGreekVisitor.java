@@ -91,11 +91,6 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
   }
 
   @Override
-  public GreekResult<?> visitTimeBucketedRho() {
-    return null;
-  }
-
-  @Override
   public GreekResult<?> visitCarryRho() {
     final double b = _data.getCostOfCarry();
     final S dataUp = (S) _data.withCostOfCarry(b + EPS);

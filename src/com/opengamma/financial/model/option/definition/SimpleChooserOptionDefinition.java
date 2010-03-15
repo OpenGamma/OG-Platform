@@ -59,8 +59,6 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
    * @param strike
    * @param underlyingExpiry
    * @param chooseDate
-   * @param optionExpiry
-   * @param vars
    */
   public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry, final ZonedDateTime chooseDate) {
     super(strike, underlyingExpiry, null);

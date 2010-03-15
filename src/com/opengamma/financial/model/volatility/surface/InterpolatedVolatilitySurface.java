@@ -62,9 +62,9 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   /**
    * 
-   * @return The data sorted by (x, y) pair. The ordering is first x, then y (
-   *         {@link #FirstThenSecondPairComparator
-   *         FirstThenSecondPairComparator}).
+   * @return The data sorted by (x, y) pair. The ordering is first x, then y
+   * 
+   * @see com.opengamma.util.FirstThenSecondPairComparator
    */
   public SortedMap<Pair<Double, Double>, Double> getData() {
     return _data;
