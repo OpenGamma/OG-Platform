@@ -5,39 +5,25 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author emcleod
  * 
  */
-public class ValueGreekDataBundle {
-  private static final Logger s_Log = LoggerFactory.getLogger(ValueGreekDataBundle.class);
-  private final Map<DataType, Double> _data;
+public class PositionGreekDataBundle {
+  private final Double _data;
 
   public enum DataType {
-    UNDERLYING_PRICE, OPTION_POINT_VALUE, NUMBER_OF_CONTRACTS
+    NUMBER_OF_CONTRACTS
   }
 
-  public ValueGreekDataBundle(final Map<DataType, Double> data) {
+  public PositionGreekDataBundle(final Double data) {
     if (data == null)
       throw new IllegalArgumentException("Data was null");
     _data = data;
   }
 
-  public Map<DataType, Double> getData() {
+  public Double getData() {
     return _data;
-  }
-
-  public Double getDataForType(final DataType type) {
-    if (!_data.containsKey(type)) {
-      s_Log.info("Data map did not contain " + type + " data");
-      return null;
-    }
-    return _data.get(type);
   }
 
   /*
@@ -66,7 +52,7 @@ public class ValueGreekDataBundle {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final ValueGreekDataBundle other = (ValueGreekDataBundle) obj;
+    final PositionGreekDataBundle other = (PositionGreekDataBundle) obj;
     if (_data == null) {
       if (other._data != null)
         return false;
@@ -74,4 +60,5 @@ public class ValueGreekDataBundle {
       return false;
     return true;
   }
+
 }

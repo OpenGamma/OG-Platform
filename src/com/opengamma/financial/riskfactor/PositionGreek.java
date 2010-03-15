@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import com.opengamma.financial.greeks.AbstractGreekVisitor;
-
 /**
  * @author emcleod
  *
  */
-public class GreekToPriceBetaValueGreekConversionVisitor extends AbstractGreekVisitor<Double> {
-
+public enum PositionGreek {
+  // TODO finish these off
+  POSITION_DELTA, POSITION_GAMMA, POSITION_VEGA, POSITION_THETA, POSITION_ZETA, POSITION_CARRY_RHO, POSITION_RHO
 }

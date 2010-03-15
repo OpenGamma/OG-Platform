@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import com.opengamma.financial.greeks.AbstractGreekVisitor;
+import java.util.TreeMap;
 
 /**
  * @author emcleod
  * 
  */
-public class GreekToPositionGreekConversionVisitor extends AbstractGreekVisitor<Double> {
+public class RiskFactorResultCollection extends TreeMap<Object, RiskFactorResult<?>> {
 
 }
