@@ -6,7 +6,9 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
@@ -31,13 +33,20 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.security.AgricultureFutureSecurity;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
+import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.FXFutureSecurity;
+import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.InterestRateFutureSecurity;
+import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.OptionType;
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -54,7 +63,25 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   
   @Override
   public Class<?>[] getHibernateMappingClasses() {
-    return new Class<?>[] { DomainSpecificIdentifierBean.class, ExchangeBean.class, CurrencyBean.class, SecurityBean.class, GICSCodeBean.class, FrequencyBean.class, DayCountBean.class, BusinessDayConventionBean.class };
+    return new Class<?>[] {
+        BondFutureTypeBean.class,
+        BondSecurityBean.class,
+        BusinessDayConventionBean.class,
+        CashRateTypeBean.class,
+        CommodityFutureTypeBean.class,
+        CurrencyBean.class,
+        DayCountBean.class,
+        DomainSpecificIdentifierBean.class,
+        EquityOptionSecurityBean.class,
+        EquitySecurityBean.class,
+        ExchangeBean.class,
+        FrequencyBean.class,
+        FutureBasketAssociationBean.class,
+        FutureSecurityBean.class,
+        GICSCodeBean.class,
+        SecurityBean.class,
+        UnitBean.class
+        };
   }
 
   @SuppressWarnings("unused")
@@ -388,6 +415,101 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals ("issuer 3", government.getIssuer ());
     Assert.assertEquals (act360, government.getDayCountConvention ());
     Assert.assertEquals (preceding, government.getBusinessDayConvention ());
+  }
+  
+  @Test
+  public void testFutureSecurityBeans () {
+    final Date now = new Date ();
+    final Currency dollar = Currency.getInstance ("USD");
+    final Currency yen = Currency.getInstance ("JPY");
+    final Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.timeZone ("UTC")));
+    DomainSpecificIdentifier agricultureId = new DomainSpecificIdentifier ("BLOOMBERG", "agriculture");
+    DomainSpecificIdentifier bondId = new DomainSpecificIdentifier ("BLOOMBERG", "bond");
+    DomainSpecificIdentifier energyId = new DomainSpecificIdentifier ("BLOOMBERG", "energy");
+    DomainSpecificIdentifier fxId = new DomainSpecificIdentifier ("BLOOMBERG", "fx");
+    DomainSpecificIdentifier interestRateId = new DomainSpecificIdentifier ("BLOOMBERG", "interest rate");
+    DomainSpecificIdentifier metalId = new DomainSpecificIdentifier ("BLOOMBERG", "metal");
+    FutureSecurity future;
+    future = new AgricultureFutureSecurity (expiry, "TPX", "DJX", "Red wheat");
+    future.setIdentifiers (Collections.singleton (agricultureId));
+    _secMaster.persistSecurity (now, future);
+    Set<DomainSpecificIdentifier> bondIdentifiers = new HashSet<DomainSpecificIdentifier> ();
+    bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "corporate bond"));
+    bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "municipal bond"));
+    bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "government bond"));
+    future = new BondFutureSecurity (expiry, "TPX", "DJX", "type", bondIdentifiers);
+    future.setIdentifiers (Collections.singleton (bondId));
+    _secMaster.persistSecurity (now, future);
+    future = new EnergyFutureSecurity (expiry, "TPX", "DJX", "Oil", 1.0, "barrel");
+    future.setIdentifiers (Collections.singleton (energyId));
+    _secMaster.persistSecurity (now, future);
+    future = new FXFutureSecurity (expiry, "DJX", "DJX", dollar, yen, 10000.0);
+    future.setIdentifiers (Collections.singleton (fxId));
+    _secMaster.persistSecurity (now, future);
+    future = new InterestRateFutureSecurity (expiry, "TPX", "TPX", yen, "LIBOR");
+    future.setIdentifiers (Collections.singleton (interestRateId));
+    _secMaster.persistSecurity (now, future);
+    future = new MetalFutureSecurity (expiry, "DJX", "TPX", "gold", 100.0, "gram");
+    future.setIdentifiers (Collections.singleton (metalId));
+    _secMaster.persistSecurity (now, future);
+    Security security;
+    security = _secMaster.getSecurity (now, agricultureId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof AgricultureFutureSecurity);
+    AgricultureFutureSecurity agricultureSecurity = (AgricultureFutureSecurity)security;
+    Assert.assertEquals ("TPX", agricultureSecurity.getTradingExchange ());
+    Assert.assertEquals ("DJX", agricultureSecurity.getSettlementExchange ());
+    Assert.assertEquals ("Red wheat", agricultureSecurity.getCommodityType ());
+    Assert.assertEquals (null, agricultureSecurity.getUnitName ());
+    Assert.assertEquals (null, agricultureSecurity.getUnitNumber ());
+    security = _secMaster.getSecurity (now, bondId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof BondFutureSecurity);
+    BondFutureSecurity bondSecurity = (BondFutureSecurity)security;
+    Assert.assertEquals ("TPX", bondSecurity.getTradingExchange ());
+    Assert.assertEquals ("DJX", bondSecurity.getSettlementExchange ());
+    Assert.assertEquals ("type", bondSecurity.getBondType ());
+    Set<DomainSpecificIdentifier> identifiers = bondSecurity.getBasket ();
+    Assert.assertNotNull (identifiers);
+    Assert.assertEquals (bondIdentifiers.size (), identifiers.size ());
+    for (DomainSpecificIdentifier dsid : bondIdentifiers) {
+      Assert.assertTrue (identifiers.contains (dsid));
+    }
+    security = _secMaster.getSecurity (now, energyId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof EnergyFutureSecurity);
+    EnergyFutureSecurity energySecurity = (EnergyFutureSecurity)security;
+    Assert.assertEquals ("TPX", energySecurity.getTradingExchange ());
+    Assert.assertEquals ("DJX", energySecurity.getSettlementExchange ());
+    Assert.assertEquals ("Oil", energySecurity.getCommodityType ());
+    Assert.assertEquals (1.0, energySecurity.getUnitNumber (), 0);
+    Assert.assertEquals ("barrel", energySecurity.getUnitName ());
+    security = _secMaster.getSecurity (now, fxId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof FXFutureSecurity);
+    FXFutureSecurity fxSecurity = (FXFutureSecurity)security;
+    Assert.assertEquals ("DJX", fxSecurity.getTradingExchange ());
+    Assert.assertEquals ("DJX", fxSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, fxSecurity.getNumerator ());
+    Assert.assertEquals (yen, fxSecurity.getDenominator ());
+    Assert.assertEquals (10000.0, fxSecurity.getMultiplicationFactor (), 0);
+    security = _secMaster.getSecurity (now, interestRateId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof InterestRateFutureSecurity);
+    InterestRateFutureSecurity interestSecurity = (InterestRateFutureSecurity)security;
+    Assert.assertEquals ("TPX", interestSecurity.getTradingExchange ());
+    Assert.assertEquals ("TPX", interestSecurity.getSettlementExchange ());
+    Assert.assertEquals (yen, interestSecurity.getCurrency ());
+    Assert.assertEquals ("LIBOR", interestSecurity.getCashRateType ());
+    security = _secMaster.getSecurity (now, metalId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof MetalFutureSecurity);
+    MetalFutureSecurity metalSecurity = (MetalFutureSecurity)security;
+    Assert.assertEquals ("DJX", metalSecurity.getTradingExchange ());
+    Assert.assertEquals ("TPX", metalSecurity.getSettlementExchange ());
+    Assert.assertEquals ("gold", metalSecurity.getCommodityType ());
+    Assert.assertEquals (100.0, metalSecurity.getUnitNumber (), 0);
+    Assert.assertEquals ("gram", metalSecurity.getUnitName ());
   }
         
   @Test

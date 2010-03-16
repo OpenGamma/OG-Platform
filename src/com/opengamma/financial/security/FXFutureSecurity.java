@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -14,7 +15,9 @@ import com.opengamma.util.time.Expiry;
  */
 public class FXFutureSecurity extends FutureSecurity {
   
-  // Additional fields ...
+  private final Currency _numerator;
+  private final Currency _denominator;
+  private final double _multiplicationFactor;
   
   /**
    * @param expiry
@@ -23,14 +26,32 @@ public class FXFutureSecurity extends FutureSecurity {
    * @param tradingExchange
    * @param settlementExchange
    */
-  public FXFutureSecurity(Expiry expiry, int month, int year,
-      String tradingExchange, String settlementExchange) {
-    super(expiry, month, year, tradingExchange, settlementExchange);
+  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency numerator, Currency denominator, double multiplicationFactor) {
+    super(expiry, tradingExchange, settlementExchange);
+    _numerator = numerator;
+    _denominator = denominator;
+    _multiplicationFactor = multiplicationFactor;
+  }
+  
+  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency numerator, Currency denominator) {
+    this (expiry, tradingExchange, settlementExchange, numerator, denominator, 1.0);
+  }
+  
+  public Currency getNumerator () {
+    return _numerator;
+  }
+  
+  public Currency getDenominator () {
+    return _denominator;
+  }
+  
+  public double getMultiplicationFactor () {
+    return _multiplicationFactor;
   }
 
   @Override
-  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
-    return visitor.visitForwardExchangeFutureSecurity (this);
+  public <T> T accept(FutureSecurityVisitor<T> visitor) {
+    return visitor.visitFXFutureSecurity (this);
   }
 
 }

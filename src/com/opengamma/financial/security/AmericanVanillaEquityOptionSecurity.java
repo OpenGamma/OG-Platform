@@ -31,7 +31,7 @@ public class AmericanVanillaEquityOptionSecurity extends EquityOptionSecurity im
   }
 
   @Override
-  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+  public <T> T accept(EquityOptionSecurityVisitor<T> visitor) {
     return visitor.visitAmericanVanillaEquityOptionSecurity(this);
   }
 

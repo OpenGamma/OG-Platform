@@ -28,6 +28,7 @@ public class EquityOptionSecurityBean extends SecurityBean {
   private String _underlyingIdentityKey;
   private CurrencyBean _currency;
   private ExchangeBean _exchange;
+  private double _power;
 
   public EquityOptionSecurityBean() {
     super();
@@ -45,6 +46,21 @@ public class EquityOptionSecurityBean extends SecurityBean {
     _underlyingIdentityKey = underlyingIdentityKey;
     _currency = currency;
     _exchange = exchange;
+  }
+
+  public EquityOptionSecurityBean(final EquityOptionType equityOptionType, final OptionType optionType,
+      final double strike, final Date expiry,
+      final String underlyingIdentityKey, final CurrencyBean currency,
+      final ExchangeBean exchange, final double power) {
+    this();
+    _equityOptionType = equityOptionType;
+    _optionType = optionType;
+    _strike = strike;
+    _expiry = expiry;
+    _underlyingIdentityKey = underlyingIdentityKey;
+    _currency = currency;
+    _exchange = exchange;
+    _power = power;
   }
 
   /**
@@ -150,10 +166,13 @@ public class EquityOptionSecurityBean extends SecurityBean {
   public void setExchange(ExchangeBean exchange) {
     _exchange = exchange;
   }
-
-  @Override
-  public <T> T accept(SecurityBeanVisitor<T> visitor) {
-    return visitor.visitEquityOptionSecurityBean(this);
+  
+  public double getPower () {
+    return _power;
+  }
+  
+  public void setPower (final double power) {
+    _power = power;
   }
 
   @Override
@@ -171,7 +190,7 @@ public class EquityOptionSecurityBean extends SecurityBean {
         .append(getUnderlyingIdentityKey(),
             equityOption.getUnderlyingIdentityKey()).append(getCurrency(),
             equityOption.getCurrency()).append(getExchange(),
-            equityOption.getExchange()).isEquals();
+            equityOption.getExchange()).append(getPower(),equityOption.getPower ()).isEquals();
   }
 
   @Override

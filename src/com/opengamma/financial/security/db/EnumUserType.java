@@ -9,22 +9,36 @@ import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.usertype.UserType;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Custom Hibernate type for trivial enums.
  * 
  * @author Andrew
  */
-public abstract class EnumUserType<E> implements UserType {
+public abstract class EnumUserType<E extends Enum<E>> implements UserType {
   
   private final Class<E> _clazz;
+  private final Map<String,E> _stringToEnum;
+  private final Map<E,String> _enumToString;
   
-  protected EnumUserType (final Class<E> clazz) {
+  protected EnumUserType (final Class<E> clazz, final E[] values) {
     _clazz = clazz;
+    _stringToEnum = new HashMap<String,E> ();
+    _enumToString = new EnumMap<E,String> (clazz);
+    for (final E value : values) {
+      final String string = enumToStringNoCache (value);
+      _stringToEnum.put (string, value);
+      _enumToString.put (value, string);
+    }
   }
 
   @Override
@@ -60,7 +74,13 @@ public abstract class EnumUserType<E> implements UserType {
     return false;
   }
   
-  protected abstract E stringToEnum (final String string);
+  protected abstract String enumToStringNoCache (E value); 
+  
+  protected E stringToEnum (final String string) {
+    final E value = _stringToEnum.get (string);
+    if (value == null) throw new OpenGammaRuntimeException ("unexpected value: " + string);
+    return value;
+  }
 
   @Override
   public Object nullSafeGet(ResultSet resultSet, String[] columnNames, Object owner)
@@ -70,7 +90,9 @@ public abstract class EnumUserType<E> implements UserType {
     return stringToEnum (databaseValue);
   }
   
-  protected abstract String enumToString (final E value);
+  protected String enumToString (final E value) {
+    return _enumToString.get (value);
+  }
 
   @SuppressWarnings("unchecked")
   @Override

@@ -19,136 +19,58 @@
 	    <meta-value value="BOND" class="BondSecurityBean" />
 	    <meta-value value="EQUITY" class="EquitySecurityBean"/>
 	    <meta-value value="EQUITYOPTION" class="EquityOptionSecurityBean" />
+	    <meta-value value="FUTURE" class="FutureSecurityBean" />
 	    <!--  insert more subclasses of SecurityBean here -->
 	    <!--  note the order is important here -->
 	    <column name="first_version_descriminator"/> 
 	    <column name="first_version_id"/>
 	  </any>
-	  <union-subclass name="BondSecurityBean" table="bond">
-	    <property name="bondType" column="bond_type" type="com.opengamma.financial.security.db.BondTypeUserType" not-null="true" />
-	    <property name="maturity" type="date" not-null="true" />
-	    <property name="coupon" type="double" not-null="true" />
-	    <many-to-one name="frequency" column="frequency_id" class="FrequencyBean" not-null="true" />
-	    <property name="country" type="string" not-null="true" />
-	    <property name="creditRating" column="credit_rating" type="string" not-null="true" />
-	    <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true" />
-	    <property name="issuer" type="string" not-null="true" />
-	    <many-to-one name="dayCountConvention" column="daycount_id" class="DayCountBean" not-null="true" />
-      <many-to-one name="businessDayConvention" column="businessdayconvention_id" class="BusinessDayConventionBean" not-null="true" />
-	  </union-subclass>
-    <union-subclass name="EquitySecurityBean" table="equity">
-	    <many-to-one name="exchange" column="exchange_id" class="ExchangeBean" not-null="true"/>
-	    <property name="companyName" type="string" not-null="true"/>
-	    <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true"/>
-	    <many-to-one name="GICSCode" column="gicscode_id" class="GICSCodeBean" not-null="true" />
-    </union-subclass>
-    <union-subclass name="EquityOptionSecurityBean" table="equityoption">
-      <property name="equityOptionType" column="equity_option_type" type="com.opengamma.financial.security.db.EquityOptionTypeUserType" not-null="true" />
-      <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.OptionTypeUserType" not-null="true" />
-      <property name="strike" type="double" not-null="true" />
-      <property name="expiry" type="date" not-null="true" />
-      <property name="underlyingIdentityKey" type="string" not-null="true" />
-      <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true" />
-      <many-to-one name="exchange" column="exchange_id" class="ExchangeBean" not-null="true" />
-    </union-subclass>
   </class>
-  <!-- queries on this entity -->
-  <query name="EquitySecurityBean.all">
-    from EquitySecurityBean
-  </query>
-  <query name="EquitySecurityBean.one.byEffectiveDateTimeExchangeCompanyNameCurrency">
+  <query name="SecurityBean.one.byDateDomainIdentifier">
+    select 
+      s
     from 
-      EquitySecurityBean as e 
-    where 
-      e.effectiveDateTime=:effectiveDateTime and
-      e.exchange=:exchange and 
-      e.companyName=:companyName and 
-      e.currency=:currency
-  </query>
-  <query name="EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate">
-    from 
-      EquitySecurityBean as e 
-    where 
-      e.exchange=:exchange and 
-      e.companyName=:companyName and 
-      e.currency=:currency and
-      e.effectiveDateTime &lt;= :now and
+      DomainSpecificIdentifierAssociationBean as a,
+      SecurityBean as s
+    where
+      a.security = s.firstVersion and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier = :identifier and
+      s.effectiveDateTime &lt;= :now and
       not exists (select 
-                    s.id 
+                    latest.id
                   from 
-                    EquitySecurityBean as s
+                    SecurityBean as latest
                   where
-		  	        s.exchange=:exchange and 
-			        s.companyName=:companyName and 
-			        s.currency=:currency and
-			        s.effectiveDateTime &lt; :now and
-			        s.effectiveDateTime &gt; e.effectiveDateTime and 
-			        s.id &lt;&gt; e.id)
+                    latest.effectiveDateTime &lt; :now and
+                    latest.effectiveDateTime &gt; s.effectiveDateTime and
+                    latest.id &lt;&gt; s.id and
+                    latest.firstVersion = s.firstVersion)
   </query>
-  <query name="EquitySecurityBean.one.byFirstVersionDate">
+  <!-- note the s, and the 'in (:identifiers)' part of the where -->
+  <query name="SecurityBean.one.byDateDomainIdentifiers"> 
+    select 
+      s
     from 
-      EquitySecurityBean as e 
-    where 
-      e.firstVersion=:firstVersion and 
-      e.effectiveDateTime &lt;= :now and
+      DomainSpecificIdentifierAssociationBean as a,
+      SecurityBean as s
+    where
+      a.security = s.firstVersion and
+      (a.validStartDate is null or a.validStartDate &lt;= :now) and
+      (a.validEndDate is null or a.validEndDate &gt; :now) and
+      a.domainSpecificIdentifier.domain = :domain and
+      a.domainSpecificIdentifier.identifier in (:identifiers) and
+      s.effectiveDateTime &lt; :now and
       not exists (select 
-                    s.id 
+                    latest.id
                   from 
-                    EquitySecurityBean as s
+                    SecurityBean as latest
                   where
-                    s.firstVersion = :firstVersion and
-                    s.effectiveDateTime &lt; :now and
-                    s.effectiveDateTime &gt; e.effectiveDateTime and
-                    s.id &lt;&gt; e.id)  
-  </query>
-  <query name="EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate">
-    from 
-      EquitySecurityBean as e 
-    where 
-      e.exchange = :exchange and 
-      e.companyName = :companyName and 
-      e.currency = :currency and
-      e.effectiveDateTime &lt;= :now and
-      e.deleted = false and
-      not exists (select 
-                    s.id 
-                  from 
-                    EquitySecurityBean as s
-                  where
-                    s.exchange = :exchange and
-                    s.companyName = :companyName and
-                    s.currency = :currency and
-                    s.effectiveDateTime &lt; :now and
-                    s.effectiveDateTime &gt; e.effectiveDateTime and
-                    s.id &lt;&gt; e.id)  
-  </query>
-  <query name="EquitySecurityBean.one.liveByFirstVersionDate">
-    from 
-      EquitySecurityBean as e 
-    where 
-      e.firstVersion=:firstVersion and 
-      e.deleted=false and
-      e.effectiveDateTime &lt;= :now and
-      not exists (select 
-                    s.id 
-                  from 
-                    EquitySecurityBean as s
-                  where
-                    s.firstVersion = :firstVersion and
-                    s.deleted = false and
-                    s.effectiveDateTime &lt; :now and
-                    s.effectiveDateTime &gt; e.effectiveDateTime and
-                    s.id &lt;&gt; e.id)  
-  </query>
-  <query name="EquitySecurityBean.many.allVersionsByFirstVersion">
-    from 
-      EquitySecurityBean as e 
-    where 
-      e.firstVersion = :firstVersion
-    order by
-      e.effectiveDateTime desc
-  </query>
-  <query name="EquityOptionSecurityBean.all">
-    from EquityOptionSecurityBean
+                    latest.effectiveDateTime &lt; :now and
+                    latest.effectiveDateTime &gt; s.effectiveDateTime and
+                    latest.id &lt;&gt; s.id and
+                    latest.firstVersion = s.firstVersion)
   </query>
 </hibernate-mapping>

@@ -39,7 +39,7 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
   }
 
   @Override
-  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+  public <T> T accept(EquityOptionSecurityVisitor<T> visitor) {
     return visitor.visitPoweredEquityOptionSecurity(this);
   }
 

@@ -21,8 +21,7 @@
       <meta-value value="BOND" class="BondSecurityBean"/>
       <meta-value value="EQUITY" class="EquitySecurityBean"/>
       <meta-value value="EQUITYOPTION" class="EquityOptionSecurityBean"/>
-      <!--  insert more subclasses of SecurityBean here -->
-      <!--  note the order is important here -->
+      <meta-value value="FUTURE" class="FutureSecurityBean" />
       <column name="security_discriminator"/>
       <column name="security_id"/>
     </any>
@@ -34,54 +33,6 @@
       <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
     </component>
   </class>
-  <!-- queries on this entity -->
-  <query name="SecurityBean.one.byDateDomainIdentifier">
-    select 
-      s
-    from 
-      DomainSpecificIdentifierAssociationBean as a,
-      SecurityBean as s
-    where
-      a.security = s.firstVersion and
-      (a.validStartDate is null or a.validStartDate &lt;= :now) and
-      (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier = :identifier and
-      s.effectiveDateTime &lt;= :now and
-      not exists (select 
-                    latest.id
-                  from 
-                    SecurityBean as latest
-                  where
-                    latest.effectiveDateTime &lt; :now and
-                    latest.effectiveDateTime &gt; s.effectiveDateTime and
-                    latest.id &lt;&gt; s.id and
-                    latest.firstVersion = s.firstVersion)
-  </query>
-  <!-- note the s, and the 'in (:identifiers)' part of the where -->
-  <query name="SecurityBean.one.byDateDomainIdentifiers"> 
-    select 
-      s
-    from 
-      DomainSpecificIdentifierAssociationBean as a,
-      SecurityBean as s
-    where
-      a.security = s.firstVersion and
-      (a.validStartDate is null or a.validStartDate &lt;= :now) and
-      (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier in (:identifiers) and
-      s.effectiveDateTime &lt; :now and
-      not exists (select 
-                    latest.id
-                  from 
-                    SecurityBean as latest
-                  where
-                    latest.effectiveDateTime &lt; :now and
-                    latest.effectiveDateTime &gt; s.effectiveDateTime and
-                    latest.id &lt;&gt; s.id and
-                    latest.firstVersion = s.firstVersion)
-  </query>
   <query name="DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier">
     from 
       DomainSpecificIdentifierAssociationBean as a 

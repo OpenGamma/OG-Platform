@@ -5,6 +5,30 @@
         primary key (id)
     );
 
+    create table commodityfuturetype (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+
+    create table bondfuturetype (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+
+    create table cashrate (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+
+    create table unit (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+    );
+
     create table domain_specific_identifier_association (
         id bigint not null,
         security_discriminator varchar(255),
@@ -64,6 +88,7 @@
         underlyingIdentityKey varchar(255),
         currency_id bigint not null,
         exchange_id bigint not null,
+        power double,
         primary key (id),
         constraint fk_equityoption2currency foreign key (currency_id) references currency (id),
         constraint fk_equityoption2exchange foreign key (exchange_id) references exchange (id)
@@ -112,6 +137,46 @@
         constraint fk_bond2businessdayconvention foreign key (businessdayconvention_id) references businessdayconvention (id)
     );
 
+    create table future (
+        id bigint not null,
+        effectiveDateTime date not null,
+        deleted smallint not null,
+        lastModifiedDateTime date not null,
+        lastModifiedBy varchar(255),
+        first_version_descriminator varchar(255),
+        first_version_id bigint,
+        future_type varchar(32) not null,
+        expiry date not null,
+        tradingexchange_id bigint not null,
+        settlementexchange_id bigint not null,
+        currency1_id bigint,
+        currency2_id bigint,
+        bondtype_id bigint,
+        commoditytype_id bigint,
+        cashratetype_id bigint,
+        unitname_id bigint,
+        unitnumber double precision, 
+        primary key (id),
+        constraint fk_future2exchange1 foreign key (tradingexchange_id) references exchange (id),
+        constraint fk_future2exchange2 foreign key (settlementexchange_id) references exchange (id),
+        constraint fk_future2currency1 foreign key (currency1_id) references currency (id),
+        constraint fk_future2currency2 foreign key (currency2_id) references currency (id),
+        constraint fk_future2bondfuturetype foreign key (bondtype_id) references bondfuturetype (id),
+        constraint fk_future2commodityfuturetype foreign key (commoditytype_id) references commodityfuturetype (id),
+        constraint fk_future2cashrate foreign key (cashratetype_id) references cashrate (id),
+        constraint fk_future2unit foreign key (unitname_id) references unit (id)
+    );
+    
+    create table future_basket (
+        id bigint not null,
+        future_id bigint not null,
+        domain varchar(255) not null,
+        identifier varchar(255) not null,
+        primary key (id),
+        constraint fk_future_basket2future foreign key (future_id) references future (id),
+        unique (future_id, domain, identifier)
+    );
+    
     create table hibernate_sequence (
          next_val bigint 
     );

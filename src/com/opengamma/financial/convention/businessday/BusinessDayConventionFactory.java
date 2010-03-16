@@ -24,7 +24,7 @@ public class BusinessDayConventionFactory {
   private final Map<String,BusinessDayConvention> _conventionMap = new HashMap<String,BusinessDayConvention> ();
   
   private BusinessDayConventionFactory () {
-    final ResourceBundle conventions = ResourceBundle.getBundle ("com.opengamma.financial.convention.businessday.BusinessDayConvention");
+    final ResourceBundle conventions = ResourceBundle.getBundle (BusinessDayConvention.class.getName ());
     final Map<String,BusinessDayConvention> instances = new HashMap<String,BusinessDayConvention> ();
     for (final String convention : conventions.keySet ()) {
       final String clazz = conventions.getString (convention);

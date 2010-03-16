@@ -119,11 +119,6 @@ public class BondSecurityBean extends SecurityBean {
     return _businessDayConvention;
   }
 
-  @Override
-  public <T> T accept(SecurityBeanVisitor<T> visitor) {
-    return visitor.visitBondSecurityBean (this);
-  }
-
   /**
    * @param maturity the maturity to set
    */

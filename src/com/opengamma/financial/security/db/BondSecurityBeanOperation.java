@@ -9,7 +9,6 @@ import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
@@ -24,10 +23,12 @@ import com.opengamma.id.DomainSpecificIdentifier;
   }
   
   @Override
-  public BondSecurity createSecurity (DomainSpecificIdentifier identifier, BondSecurityBean bean) {
-    switch (bean.getBondType ()) {
-    case CORPORATE :
-      return new CorporateBondSecurity (
+  public BondSecurity createSecurity (final DomainSpecificIdentifier identifier, final BondSecurityBean bean) {
+    return bean.getBondType ().accept (new BondType.Visitor<BondSecurity> () {
+
+      @Override
+      public BondSecurity visitCorporateBondType() {
+        return new CorporateBondSecurity (
             dateToExpiry (bean.getMaturity ()),
             bean.getCoupon (),
             frequencyBeanToFrequency (bean.getFrequency ()),
@@ -38,33 +39,39 @@ import com.opengamma.id.DomainSpecificIdentifier;
             dayCountBeanToDayCount (bean.getDayCountConvention ()),
             businessDayConventionBeanToBusinessDayConvention (bean.getBusinessDayConvention ())
           );
-    case MUNICIPAL :
-      return new MunicipalBondSecurity (
-          dateToExpiry (bean.getMaturity ()),
-          bean.getCoupon (),
-          frequencyBeanToFrequency (bean.getFrequency ()),
-          bean.getCountry (),
-          bean.getCreditRating (),
-          currencyBeanToCurrency (bean.getCurrency ()),
-          bean.getIssuer (),
-          dayCountBeanToDayCount (bean.getDayCountConvention ()),
-          businessDayConventionBeanToBusinessDayConvention (bean.getBusinessDayConvention ())
-        );
-    case GOVERNMENT :
-      return new GovernmentBondSecurity (
-          dateToExpiry (bean.getMaturity ()),
-          bean.getCoupon (),
-          frequencyBeanToFrequency (bean.getFrequency ()),
-          bean.getCountry (),
-          bean.getCreditRating (),
-          currencyBeanToCurrency (bean.getCurrency ()),
-          bean.getIssuer (),
-          dayCountBeanToDayCount (bean.getDayCountConvention ()),
-          businessDayConventionBeanToBusinessDayConvention (bean.getBusinessDayConvention ())
-        );
-    default :
-      throw new OpenGammaRuntimeException ("Bad value for bondSecurityType (" + bean.getBondType () + ")");
-    }
+      }
+
+      @Override
+      public BondSecurity visitGovernmentBondType() {
+        return new GovernmentBondSecurity (
+            dateToExpiry (bean.getMaturity ()),
+            bean.getCoupon (),
+            frequencyBeanToFrequency (bean.getFrequency ()),
+            bean.getCountry (),
+            bean.getCreditRating (),
+            currencyBeanToCurrency (bean.getCurrency ()),
+            bean.getIssuer (),
+            dayCountBeanToDayCount (bean.getDayCountConvention ()),
+            businessDayConventionBeanToBusinessDayConvention (bean.getBusinessDayConvention ())
+          );
+      }
+
+      @Override
+      public BondSecurity visitMunicipalBondType() {
+        return new MunicipalBondSecurity (
+            dateToExpiry (bean.getMaturity ()),
+            bean.getCoupon (),
+            frequencyBeanToFrequency (bean.getFrequency ()),
+            bean.getCountry (),
+            bean.getCreditRating (),
+            currencyBeanToCurrency (bean.getCurrency ()),
+            bean.getIssuer (),
+            dayCountBeanToDayCount (bean.getDayCountConvention ()),
+            businessDayConventionBeanToBusinessDayConvention (bean.getBusinessDayConvention ())
+          );
+      }
+      
+    });
   }
 
   @Override

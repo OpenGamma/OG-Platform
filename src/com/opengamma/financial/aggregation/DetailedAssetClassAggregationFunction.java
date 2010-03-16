@@ -7,18 +7,21 @@ package com.opengamma.financial.aggregation;
 
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.financial.security.AgricultureFutureSecurity;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
+import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.InterestRateFutureSecurity;
+import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.PoweredEquityOptionSecurity;
-import com.opengamma.financial.security.VanillaFutureSecurity;
 
 /**
  * 
@@ -34,10 +37,13 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /*package*/ static final String MUNICIPAL_BONDS = "Municipal Bonds";
   /*package*/ static final String CORPORATE_BONDS = "Corporate Bonds";
   /*package*/ static final String BOND_FUTURES = "Bond Futures";
-  /*package*/ static final String FORWARD_EXCHANGE_FUTURES = "Forward Exchange Futures";
-  /*package*/ static final String VANILLA_FUTURES = "Vanilla Futures";
+  /*package*/ static final String CURRENCY_FUTURES = "Currency Futures";
+  /*package*/ static final String INTEREST_RATE_FUTURES = "Interest Rate Futures";
   /*package*/ static final String UNKNOWN = "Unknown Security Type";
   /*package*/ static final String NAME = "Detailed Asset Class";
+  /*package*/ static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
+  /*package*/ static final String METAL_FUTURES = "Metal Futures";
+  /*package*/ static final String ENERGY_FUTURES = "Energy Futures";
   
   @Override
   public String classifyPosition(Position position) {
@@ -79,9 +85,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         }
 
         @Override
-        public String visitForwardExchangeFutureSecurity(
-            FXFutureSecurity security) {
-          return FORWARD_EXCHANGE_FUTURES;
+        public String visitFXFutureSecurity(FXFutureSecurity security) {
+          return CURRENCY_FUTURES;
         }
 
         @Override
@@ -96,8 +101,25 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         }
 
         @Override
-        public String visitVanillaFutureSecurity(VanillaFutureSecurity security) {
-          return VANILLA_FUTURES;
+        public String visitInterestRateFutureSecurity(
+            InterestRateFutureSecurity security) {
+          return INTEREST_RATE_FUTURES;
+        }
+
+        @Override
+        public String visitAgricultureFutureSecurity(
+            AgricultureFutureSecurity security) {
+          return AGRICULTURAL_FUTURES;
+        }
+
+        @Override
+        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+          return ENERGY_FUTURES;
+        }
+
+        @Override
+        public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+          return METAL_FUTURES;
         }
       });
     } else {

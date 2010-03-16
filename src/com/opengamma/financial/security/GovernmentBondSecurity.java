@@ -39,7 +39,7 @@ public class GovernmentBondSecurity extends BondSecurity {
   }
 
   @Override
-  public <T> T accept(FinancialSecurityVisitor<T> visitor) {
+  public <T> T accept(BondSecurityVisitor<T> visitor) {
     return visitor.visitGovernmentBondSecurity (this);
   }
   

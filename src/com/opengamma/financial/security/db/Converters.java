@@ -34,20 +34,24 @@ import com.opengamma.util.time.ExpiryAccuracy;
 /* package */ abstract class Converters {
 
   protected static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
+    if (currencyBean == null) return null;
     return Currency.getInstance(currencyBean.getName());
   }
   
   protected static DomainSpecificIdentifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
+    if (domainSpecificIdentifierBean == null) return null;
     return new DomainSpecificIdentifier(domainSpecificIdentifierBean.getDomain(), domainSpecificIdentifierBean.getIdentifier());
   }
   
   protected static Expiry dateToExpiry(Date date) {
+    if (date == null) return null;
     final Calendar c = Calendar.getInstance ();
     c.setTime (date);
     return new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
   }
   
   protected static Date expiryToDate (Expiry expiry) {
+    if (expiry == null) return null;
     // we're storing just as a date, so assert that the value we're storing isn't a vague month or year
     if (expiry.getAccuracy () != null) {
       if (expiry.getAccuracy () != ExpiryAccuracy.DAY_MONTH_YEAR) throw new OpenGammaRuntimeException ("Expiry is not to DAY_MONTH_YEAR precision");
@@ -56,24 +60,28 @@ import com.opengamma.util.time.ExpiryAccuracy;
   }
   
   protected static Frequency frequencyBeanToFrequency (final FrequencyBean frequencyBean) {
+    if (frequencyBean == null) return null;
     final Frequency f = FrequencyFactory.INSTANCE.getFrequency (frequencyBean.getName ());
     if (f == null) throw new OpenGammaRuntimeException ("Bad value for frequencyBean (" + frequencyBean.getName () + ")");
     return f;
   }
   
   protected static DayCount dayCountBeanToDayCount (final DayCountBean dayCountBean) {
+    if (dayCountBean == null) return null;
     final DayCount dc = DayCountFactory.INSTANCE.getDayCount (dayCountBean.getName ());
     if (dc == null) throw new OpenGammaRuntimeException ("Bad value for dayCountBean (" + dayCountBean.getName () + ")");
     return dc;
   }
   
   protected static BusinessDayConvention businessDayConventionBeanToBusinessDayConvention (final BusinessDayConventionBean businessDayConventionBean) {
+    if (businessDayConventionBean == null) return null;
     final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention (businessDayConventionBean.getName ());
     if (bdc == null) throw new OpenGammaRuntimeException ("Bad value for businessDayConventionBean (" + businessDayConventionBean.getName () + ")");
     return bdc;
   }
   
   protected static GICSCode gicsCodeBeanToGICSCode (final GICSCodeBean gicsCodeBean) {
+    if (gicsCodeBean == null) return null;
     return GICSCode.getInstance (gicsCodeBean.getName ());
   }
   

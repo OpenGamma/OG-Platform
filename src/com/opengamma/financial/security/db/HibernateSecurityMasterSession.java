@@ -12,10 +12,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.BondSecurity;
-import com.opengamma.financial.security.EquityOptionSecurity;
-import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.financial.security.OptionType;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 public class HibernateSecurityMasterSession {
@@ -50,7 +46,14 @@ public class HibernateSecurityMasterSession {
     }
     return values;
   }
-
+  
+  private <T extends EnumBean> T persistBean (T bean) {
+    Long id = (Long)getSession ().save (bean);
+    getSession ().flush ();
+    bean.setId (id);
+    return bean;
+  }
+  
   // SESSION LEVEL METHODS
 
   // Exchanges
@@ -60,10 +63,7 @@ public class HibernateSecurityMasterSession {
     query.setString("name", name);
     ExchangeBean exchange = (ExchangeBean) query.uniqueResult();
     if (exchange == null) {
-      exchange = new ExchangeBean(name, description);
-      Long id = (Long) getSession().save(exchange);
-      getSession().flush();
-      exchange.setId(id);
+      exchange = persistBean (new ExchangeBean(name, description));
     } else {
       if (description != null) {
         if (exchange.getDescription () == null) {
@@ -88,10 +88,7 @@ public class HibernateSecurityMasterSession {
     query.setString("name", name);
     CurrencyBean currency = (CurrencyBean) query.uniqueResult();
     if (currency == null) {
-      currency = new CurrencyBean(name);
-      Long id = (Long) getSession().save(currency);
-      getSession().flush();
-      currency.setId(id);
+      currency = persistBean (new CurrencyBean(name));
     }
     return currency;
   }
@@ -109,10 +106,7 @@ public class HibernateSecurityMasterSession {
     query.setString("name", name);
     GICSCodeBean gicsCode = (GICSCodeBean) query.uniqueResult();
     if (gicsCode == null) {
-      gicsCode = new GICSCodeBean(name, description);
-      Long id = (Long) getSession().save(gicsCode);
-      getSession().flush();
-      gicsCode.setId(id);
+      gicsCode = persistBean (new GICSCodeBean(name, description));
     } else {
       if (description != null) {
         if (gicsCode.getDescription () == null) {
@@ -137,10 +131,7 @@ public class HibernateSecurityMasterSession {
     query.setString ("name", convention);
     DayCountBean bean = (DayCountBean)query.uniqueResult ();
     if (bean == null) {
-      bean = new DayCountBean (convention);
-      Long id = (Long)getSession ().save (bean);
-      getSession ().flush ();
-      bean.setId (id);
+      bean = persistBean (new DayCountBean (convention));
     }
     return bean;
   }
@@ -157,10 +148,7 @@ public class HibernateSecurityMasterSession {
     query.setString ("name", convention);
     BusinessDayConventionBean bean = (BusinessDayConventionBean)query.uniqueResult ();
     if (bean == null) {
-      bean = new BusinessDayConventionBean (convention);
-      Long id = (Long)getSession ().save (bean);
-      getSession ().flush ();
-      bean.setId (id);
+      bean = persistBean (new BusinessDayConventionBean (convention));
     }
     return bean;
   }
@@ -177,10 +165,7 @@ public class HibernateSecurityMasterSession {
     query.setString ("name", convention);
     FrequencyBean bean = (FrequencyBean)query.uniqueResult ();
     if (bean == null) {
-      bean = new FrequencyBean (convention);
-      Long id = (Long)getSession ().save (bean);
-      getSession ().flush ();
-      bean.setId (id);
+      bean = persistBean (new FrequencyBean (convention));
     }
     return bean;
   }
@@ -189,6 +174,54 @@ public class HibernateSecurityMasterSession {
   /* package */ List<FrequencyBean> getFrequencyBeans () {
     final Query query = getSession ().getNamedQuery ("FrequencyBean.all");
     return query.list ();
+  }
+  
+  // CommodityFutureTypes
+  
+  /* package */ CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean (final String type) {
+    final Query query = getSession ().getNamedQuery ("CommodityFutureTypeBean.one");
+    query.setString ("name", type);
+    CommodityFutureTypeBean bean = (CommodityFutureTypeBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new CommodityFutureTypeBean (type));
+    }
+    return bean;
+  }
+  
+  // BondFutureType
+  
+  /* package */ BondFutureTypeBean getOrCreateBondFutureTypeBean (final String type) {
+    final Query query = getSession ().getNamedQuery ("BondFutureTypeBean.one");
+    query.setString ("name", type);
+    BondFutureTypeBean bean = (BondFutureTypeBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new BondFutureTypeBean (type));
+    }
+    return bean;
+  }
+  
+  // UnitName
+  
+  /* package */ UnitBean getOrCreateUnitNameBean (final String unitName) {
+    final Query query = getSession ().getNamedQuery ("UnitBean.one");
+    query.setString ("name", unitName);
+    UnitBean bean = (UnitBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new UnitBean (unitName));
+    }
+    return bean;
+  }
+  
+  // CashRateType
+  
+  /* package */ CashRateTypeBean getOrCreateCashRateTypeBean (final String type) {
+    final Query query = getSession ().getNamedQuery ("CashRateTypeBean.one");
+    query.setString ("name", type);
+    CashRateTypeBean bean = (CashRateTypeBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new CashRateTypeBean (type));
+    }
+    return bean;
   }
 
   // Domain specific ID / Security specific methods

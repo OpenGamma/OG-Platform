@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.security.db">
+  <union-subclass name="BondSecurityBean" extends="SecurityBean" table="bond">
+    <property name="bondType" column="bond_type" type="com.opengamma.financial.security.db.BondTypeUserType" not-null="true" />
+    <property name="maturity" type="date" not-null="true" />
+    <property name="coupon" type="double" not-null="true" />
+    <many-to-one name="frequency" column="frequency_id" class="FrequencyBean" not-null="true" />
+    <property name="country" type="string" not-null="true" />
+    <property name="creditRating" column="credit_rating" type="string" not-null="true" />
+    <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true" />
+    <property name="issuer" type="string" not-null="true" />
+    <many-to-one name="dayCountConvention" column="daycount_id" class="DayCountBean" not-null="true" />
+    <many-to-one name="businessDayConvention" column="businessdayconvention_id" class="BusinessDayConventionBean" not-null="true" />
+  </union-subclass>
+</hibernate-mapping>

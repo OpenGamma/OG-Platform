@@ -67,4 +67,11 @@ public abstract class EquityOptionSecurity extends FinancialSecurity implements 
   }
   
   public abstract <T> T accept(OptionVisitor<T> visitor);
+  
+  public abstract <T> T accept(EquityOptionSecurityVisitor<T> visitor);
+  
+  public <T> T accept (FinancialSecurityVisitor<T> visitor) {
+    return accept ((EquityOptionSecurityVisitor<T>)visitor);
+  }
+  
 }

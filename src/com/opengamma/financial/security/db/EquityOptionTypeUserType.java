@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security.db;
 
-import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Custom Hibernate usertype for the EquityOptionType enum
@@ -13,29 +12,34 @@ import com.opengamma.OpenGammaRuntimeException;
  * @author andrew
  */
 public class EquityOptionTypeUserType extends EnumUserType<EquityOptionType> {
+  
+  private static final String AMERICAN_EQUITY_OPTION_TYPE = "American";
+  private static final String EUROPEAN_EQUITY_OPTION_TYPE = "European";
+  private static final String POWERED_EQUITY_OPTION_TYPE = "Powered";
 
   public EquityOptionTypeUserType () {
-    super (EquityOptionType.class);
+    super (EquityOptionType.class, EquityOptionType.values ());
   }
 
   @Override
-  protected String enumToString(EquityOptionType value) {
-    switch (value) {
-    case AMERICAN : return "American";
-    case EUROPEAN : return "European";
-    default : throw new OpenGammaRuntimeException ("unexpected value " + value);
-    }
-  }
+  protected String enumToStringNoCache(EquityOptionType value) {
+    return value.accept (new EquityOptionType.Visitor<String> () {
 
-  @Override
-  protected EquityOptionType stringToEnum(String string) {
-    if (string.equals ("American")) {
-      return EquityOptionType.AMERICAN;
-    } else if (string.equals ("European")) {
-      return EquityOptionType.EUROPEAN;
-    } else {
-      throw new OpenGammaRuntimeException ("unexpected value " + string);
-    }
+      @Override
+      public String visitAmericanEquityOptionType() {
+        return AMERICAN_EQUITY_OPTION_TYPE;
+      }
+
+      @Override
+      public String visitEuropeanEquityOptionType() {
+        return EUROPEAN_EQUITY_OPTION_TYPE;
+      }
+
+      @Override
+      public String visitPoweredEquityOptionType() {
+        return POWERED_EQUITY_OPTION_TYPE;
+      }
+    });
   }
   
 }

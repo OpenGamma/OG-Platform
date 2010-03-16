@@ -104,6 +104,5 @@ public abstract class SecurityBean {
   public void setFirstVersion(SecurityBean firstVersion) {
     _firstVersion = firstVersion; 
   }
-
-  public abstract <T> T accept(SecurityBeanVisitor<T> visitor);
+  
 }

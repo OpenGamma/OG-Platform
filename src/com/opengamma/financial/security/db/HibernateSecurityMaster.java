@@ -76,6 +76,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
     loadBeanOperation (BondSecurityBeanOperation.INSTANCE);
     loadBeanOperation (EquitySecurityBeanOperation.INSTANCE);
     loadBeanOperation (EquityOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation (FutureSecurityBeanOperation.INSTANCE);
   }
   
   public void setSessionFactory(SessionFactory sessionFactory) {

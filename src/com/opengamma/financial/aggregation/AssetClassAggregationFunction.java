@@ -7,19 +7,24 @@ package com.opengamma.financial.aggregation;
 
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.financial.security.AgricultureFutureSecurity;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.BondFutureSecurity;
+import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
+import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.FXFutureSecurity;
+import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.InterestRateFutureSecurity;
+import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.PoweredEquityOptionSecurity;
-import com.opengamma.financial.security.VanillaFutureSecurity;
 
 /**
  * Function to classify positions by asset class.  Note that this bins all types of options together.
@@ -41,9 +46,18 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       FinancialSecurity finSec = (FinancialSecurity)security;
       return finSec.accept(new FinancialSecurityVisitor<String>() {
         
-        public String visitEquityOption(EquityOptionSecurity security) {
+        private String visitEquityOption(EquityOptionSecurity security) {
           return EQUITY_OPTIONS;
         }
+        
+        private String visitBond (BondSecurity security) {
+          return BONDS;
+        }
+        
+        private String visitFuture (FutureSecurity security) {
+          return FUTURES;
+        }
+        
         @Override
         public String visitAmericanVanillaEquityOptionSecurity(
             AmericanVanillaEquityOptionSecurity security) {
@@ -68,29 +82,45 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
         @Override
         public String visitBondFutureSecurity(BondFutureSecurity security) {
-          return FUTURES;
+          return visitFuture (security);
         }
         @Override
         public String visitCorporateBondSecurity(CorporateBondSecurity security) {
-          return BONDS;
+          return visitBond (security);
         }
         @Override
-        public String visitForwardExchangeFutureSecurity(
-            FXFutureSecurity security) {
-          return FUTURES;
+        public String visitFXFutureSecurity(FXFutureSecurity security) {
+          return visitFuture (security);
         }
         @Override
-        public String visitGovernmentBondSecurity(
-            GovernmentBondSecurity security) {
-          return BONDS;
+        public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
+          return visitBond (security);
         }
         @Override
         public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
-          return BONDS;
+          return visitBond (security);
         }
+
         @Override
-        public String visitVanillaFutureSecurity(VanillaFutureSecurity security) {
-          return FUTURES;
+        public String visitInterestRateFutureSecurity(
+            InterestRateFutureSecurity security) {
+          return visitFuture (security);
+        }
+
+        @Override
+        public String visitAgricultureFutureSecurity(
+            AgricultureFutureSecurity security) {
+          return visitFuture (security);
+        }
+
+        @Override
+        public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
+          return visitFuture (security);
+        }
+
+        @Override
+        public String visitMetalFutureSecurity(MetalFutureSecurity security) {
+          return visitFuture (security);
         }
       });
     } else {

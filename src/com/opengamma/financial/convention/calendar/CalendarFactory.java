@@ -34,7 +34,7 @@ public class CalendarFactory {
   
   @SuppressWarnings("unchecked")
   private void loadCalendarInstances () {
-    final ResourceBundle calendars = ResourceBundle.getBundle ("com.opengamma.financial.convention.calendar.Calendar");
+    final ResourceBundle calendars = ResourceBundle.getBundle (Calendar.class.getName ());
     for (final String calendarName : calendars.keySet ()) {
       try {
         String uri = null;

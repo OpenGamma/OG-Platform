@@ -128,11 +128,6 @@ public class EquitySecurityBean extends SecurityBean {
                                 .toHashCode(); 
   }
   
-  @Override
-  public <T> T accept(SecurityBeanVisitor<T> visitor) {
-    return visitor.visitEquitySecurityBean(this);
-  }
-  
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }

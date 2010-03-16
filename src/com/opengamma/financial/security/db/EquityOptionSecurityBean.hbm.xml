@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.security.db">
+  <union-subclass name="EquityOptionSecurityBean" extends="SecurityBean" table="equityoption">
+    <property name="equityOptionType" column="equity_option_type" type="com.opengamma.financial.security.db.EquityOptionTypeUserType" not-null="true" />
+    <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.OptionTypeUserType" not-null="true" />
+    <property name="strike" type="double" not-null="true" />
+    <property name="expiry" type="date" not-null="true" />
+    <property name="underlyingIdentityKey" type="string" not-null="true" />
+    <property name="power" type="double" not-null="false" />
+    <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true" />
+    <many-to-one name="exchange" column="exchange_id" class="ExchangeBean" not-null="true" />
+  </union-subclass>
+  <query name="EquityOptionSecurityBean.all">
+    from EquityOptionSecurityBean
+  </query>
+</hibernate-mapping>

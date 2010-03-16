@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.security.db;
 
-import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Custom Hibernate usertype for the BondType enum
@@ -13,32 +12,34 @@ import com.opengamma.OpenGammaRuntimeException;
  * @author andrew
  */
 public class BondTypeUserType extends EnumUserType<BondType> {
+  
+  private static final String CORPORATE_BOND_TYPE = "Corporate";
+  private static final String GOVERNMENT_BOND_TYPE = "Government";
+  private static final String MUNICIPAL_BOND_TYPE = "Municipal";
 
   public BondTypeUserType () {
-    super (BondType.class);
+    super (BondType.class, BondType.values ());
   }
 
   @Override
-  protected String enumToString(BondType value) {
-    switch (value) {
-    case CORPORATE : return "Corporate";
-    case MUNICIPAL : return "Municipal";
-    case GOVERNMENT : return "Government";
-    default : throw new OpenGammaRuntimeException ("unexpected value " + value);
-    }
+  protected String enumToStringNoCache(BondType value) {
+    return value.accept (new BondType.Visitor<String> () {
+
+      @Override
+      public String visitCorporateBondType() {
+        return CORPORATE_BOND_TYPE;
+      }
+
+      @Override
+      public String visitGovernmentBondType() {
+        return GOVERNMENT_BOND_TYPE;
+      }
+
+      @Override
+      public String visitMunicipalBondType() {
+        return MUNICIPAL_BOND_TYPE;
+      }
+    });
   }
 
-  @Override
-  protected BondType stringToEnum(String string) {
-    if (string.equals ("Corporate")) {
-      return BondType.CORPORATE;
-    } else if (string.equals ("Municipal")) {
-      return BondType.MUNICIPAL;
-    } else if (string.equals ("Government")) {
-      return BondType.GOVERNMENT;
-    } else {
-      throw new OpenGammaRuntimeException ("unexpected value " + string);
-    }
-  }
-  
 }

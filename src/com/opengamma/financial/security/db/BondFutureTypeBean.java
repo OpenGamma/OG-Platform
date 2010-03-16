@@ -8,11 +8,13 @@ package com.opengamma.financial.security.db;
 import javax.persistence.Entity;
 
 @Entity
-public class DayCountBean extends EnumBean {
-  protected DayCountBean() {
+public class BondFutureTypeBean extends EnumBean {
+  
+  protected BondFutureTypeBean() {
   }
 
-  public DayCountBean(String conventionName) {
-    super(conventionName);
+  public BondFutureTypeBean(String bondType) {
+    super(bondType);
   }
+  
 }

@@ -10,15 +10,6 @@ package com.opengamma.financial.security;
  * Note how we've just got the concrete classes here.
  * @author jim
  */
-public interface FinancialSecurityVisitor<T> {
-  public T visitAmericanVanillaEquityOptionSecurity(AmericanVanillaEquityOptionSecurity security);
-  public T visitBondFutureSecurity(BondFutureSecurity security);
-  public T visitCorporateBondSecurity(CorporateBondSecurity security);
+public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>,BondSecurityVisitor<T>,EquityOptionSecurityVisitor<T> {
   public T visitEquitySecurity(EquitySecurity security);
-  public T visitEuropeanVanillaEquityOptionSecurity(EuropeanVanillaEquityOptionSecurity security);
-  public T visitForwardExchangeFutureSecurity(FXFutureSecurity security);
-  public T visitGovernmentBondSecurity(GovernmentBondSecurity security);
-  public T visitMunicipalBondSecurity(MunicipalBondSecurity security);
-  public T visitPoweredEquityOptionSecurity(PoweredEquityOptionSecurity security);
-  public T visitVanillaFutureSecurity(VanillaFutureSecurity security);
 }
