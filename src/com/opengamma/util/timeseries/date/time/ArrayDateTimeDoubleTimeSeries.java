@@ -24,7 +24,7 @@ public class ArrayDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSeries.Long
   public static final ArrayDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayDateTimeDoubleTimeSeries();
   private static final DateEpochMillisConverter s_converter = new DateEpochMillisConverter();
 
-  public ArrayDateTimeDoubleTimeSeries() {
+  public ArrayDateTimeDoubleTimeSeries() { 
     super(new DateEpochMillisConverter(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 

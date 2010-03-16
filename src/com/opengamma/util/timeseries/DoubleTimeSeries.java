@@ -14,6 +14,8 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.yearoffset.MutableYearOffsetDoubleTimeSeries;
@@ -169,6 +171,14 @@ public interface DoubleTimeSeries<DATE_TYPE> extends TimeSeries<DATE_TYPE, Doubl
   public abstract MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries();
   
   public abstract MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
+
+  public abstract LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries();
+  
+  public abstract LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
+  
+  public abstract MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries();
+  
+  public abstract MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone);
   
   public abstract YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
 

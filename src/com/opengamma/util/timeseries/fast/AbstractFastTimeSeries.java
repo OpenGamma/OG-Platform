@@ -41,6 +41,10 @@ import com.opengamma.util.timeseries.date.time.ListDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
@@ -485,6 +489,27 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
       }
     }
     return min;
+  }
+  
+  
+  @Override
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries() {
+    return new ArrayLocalDateDoubleTimeSeries(toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+    return new ArrayLocalDateDoubleTimeSeries(timeZone, toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+  }    
+  
+  @Override
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries() {
+    return new ListLocalDateDoubleTimeSeries(toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
+  }
+
+  @Override
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+    return new ListLocalDateDoubleTimeSeries(timeZone, toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
   }
   
   public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries() {
