@@ -66,7 +66,7 @@ class Subscription {
     
     _creationTime = new Date();
   }
-
+  
   public Object getHandle() {
     return _handle;
   }

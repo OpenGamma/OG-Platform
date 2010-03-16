@@ -12,7 +12,19 @@ package com.opengamma.livedata.server;
  */
 public interface SubscriptionListener {
   
+  /**
+   * Called on initial subscription. 
+   */
   public void subscribed(Subscription subscription);
+  
+  /**
+   * Called if a non-persistent subscription is modified to become persistent.
+   */
+  public void madePersistent(Subscription subscription);
+  
+  /**
+   * Called on unsubscription.
+   */
   public void unsubscribed(Subscription subscription);
 
 }

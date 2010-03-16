@@ -68,6 +68,10 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
   public void subscribed(Subscription subscription) {
     extendPublicationTimeout(subscription);
   }
+  
+  @Override
+  public void madePersistent(Subscription subscription) {
+  }
 
   @Override
   public void unsubscribed(Subscription subscription) {
@@ -81,30 +85,40 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
   }
 
   private void extendPublicationTimeout(Subscription subscription) {
-    if (!subscription.isPersistent()) {
-      subscription.setExpiry(System.currentTimeMillis() + getTimeoutExtension());
+    synchronized (subscription) {
+      if (!subscription.isPersistent()) {
+        subscription.setExpiry(System.currentTimeMillis() + getTimeoutExtension());
+      }
     }
   }
   
   public class ExpirationCheckTimerTask extends TimerTask {
     @Override
     public void run() {
-      s_logger.debug("Checking for data specifications to time out");
-      int nExpired = 0;
-      long startTime = System.currentTimeMillis();
-      for (Subscription subscription : _dataServer.getSubscriptions()) {
-        // TODO Move this logic to Subscription.hasExpired()
-        if (!subscription.isPersistent()) {
-          if (subscription.getExpiry() < startTime) {
-            boolean removed = getDataServer().unsubscribe(subscription);
-            if (removed) {
-              nExpired++;
-            }
+      try {
+        expirationCheck();
+      } catch (RuntimeException e) {
+        s_logger.error("Checking for data specifications to time out failed", e);
+      }
+    }
+  }
+    
+  private void expirationCheck() {
+    s_logger.debug("Checking for data specifications to time out");
+    int nExpired = 0;
+    long startTime = System.currentTimeMillis();
+    for (Subscription subscription : _dataServer.getSubscriptions()) {
+      // TODO Move this logic to Subscription.hasExpired()
+      if (!subscription.isPersistent()) {
+        if (subscription.getExpiry() < startTime) {
+          boolean removed = getDataServer().unsubscribe(subscription);
+          if (removed) {
+            nExpired++;
           }
         }
       }
-      s_logger.info("Expired {} specifications", nExpired);
     }
+    s_logger.info("Expired {} specifications", nExpired);
   }
-  
+
 }

@@ -140,6 +140,74 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
    */
   protected abstract IdentificationDomain getUniqueIdDomain();
   
+  /**
+   * Subscribes to market data.
+   * If the server already subscribes to the given market data, this method is a no-op.
+   *  
+   * @param qualifiedSpecification This spec needs to contain an ID with the domain returned by {@link #getUniqueIdDomain()} 
+   * @param persistent <code>true</code> if the subscription should be persistent. A persistent subscription never automatically expires.
+   * Instead it lives on until explicitly cancelled by the user via JMX.
+   * @return Tick distribution specification 
+   */
+  String subscribe(LiveDataSpecificationImpl qualifiedSpecification, boolean persistent) {
+    String tickDistributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(qualifiedSpecification);
+    
+    _subscriptionLock.lock();
+    try {
+      if (isSubscribedTo(qualifiedSpecification)) {
+        s_logger.info("Already subscribed to {}", qualifiedSpecification);
+        
+        // Might be necessary to turn the subscription into a persistent one. We
+        // never turn it back from persistent to non-persistent, however.
+        Subscription subscription = getSubscription(qualifiedSpecification);
+        if (!subscription.isPersistent() && persistent) {
+          subscription.setPersistent(true);
+          
+          for (SubscriptionListener listener : _subscriptionListeners) {
+            try {
+              listener.madePersistent(subscription);
+            } catch (RuntimeException e) {
+              s_logger.error("Listener subscriptionChanged failed", e);
+            }
+          }
+        }
+        
+      } else {
+        
+        String securityUniqueId = qualifiedSpecification.getIdentifier(getUniqueIdDomain());
+        if (securityUniqueId == null) {
+          throw new IllegalArgumentException("Qualified spec " + qualifiedSpecification + " does not contain ID of domain " + getUniqueIdDomain());          
+        }
+        Object subscriptionHandle = doSubscribe(securityUniqueId);
+        
+        Subscription subscription = new Subscription(securityUniqueId, 
+              subscriptionHandle, 
+              tickDistributionSpec,
+              persistent);
+                    
+        _currentlyActiveSubscriptions.add(subscription);
+        _securityUniqueId2FullyQualifiedSpecification.put(securityUniqueId, qualifiedSpecification);
+        _fullyQualifiedSpec2Subscription.put(qualifiedSpecification, subscription);
+
+        for (SubscriptionListener listener : _subscriptionListeners) {
+          try {
+            listener.subscribed(subscription);
+          } catch (RuntimeException e) {
+            s_logger.error("Listener subscribe failed", e);
+          }
+        }
+      }
+    } finally {
+      _subscriptionLock.unlock();          
+    }
+    
+    return tickDistributionSpec;
+  }
+  
+  /**
+   * Processes a market data subscription request by going through the steps of resolution,
+   * entitlement check, and subscription.
+   */
   public LiveDataSubscriptionResponseMsg subscriptionRequestMade(LiveDataSubscriptionRequest subscriptionRequest) {
     
     ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
@@ -147,6 +215,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
       
       try {
     
+        // Resolution
         LiveDataSpecification qualifiedSpecification = getSpecificationResolver().resolve(requestedSpecification);
         if(qualifiedSpecification == null) {
           s_logger.info("Unable to resolve requested specification {}", requestedSpecification);
@@ -159,6 +228,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
         }
         LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(qualifiedSpecification);
         
+        // Entitlement check
         if(!getEntitlementChecker().isEntitled(subscriptionRequest.getUserName(), qualifiedSpecification)) {
           s_logger.info("User {} not entitled to specification {}", subscriptionRequest.getUserName(), qualifiedSpecification);
           // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to get a user message.
@@ -170,45 +240,8 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
           continue;
         }
         
-        String tickDistributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(qualifiedSpecification);
-      
-        _subscriptionLock.lock();
-        try {
-          if (isSubscribedTo(qualifiedSpecification)) {
-            s_logger.info("Already subscribed to {}", qualifiedSpecification);
-            
-            // Might be necessary to turn the subscription into a persistent one. We
-            // never turn it back from persistent to non-persistent, however.
-            Subscription subscription = getSubscription(localFullyQualifiedSpecification);
-            if (!subscription.isPersistent() && subscriptionRequest.getPersistent()) {
-              subscription.setPersistent(true);
-            }
-            
-          } else {
-            
-            String securityUniqueId = qualifiedSpecification.getIdentifier(getUniqueIdDomain());
-            Object subscriptionHandle = doSubscribe(securityUniqueId);
-            
-            Subscription subscription = new Subscription(securityUniqueId, 
-                  subscriptionHandle, 
-                  tickDistributionSpec,
-                  subscriptionRequest.getPersistent());
-                        
-            _currentlyActiveSubscriptions.add(subscription);
-            _securityUniqueId2FullyQualifiedSpecification.put(securityUniqueId, localFullyQualifiedSpecification);
-            _fullyQualifiedSpec2Subscription.put(localFullyQualifiedSpecification, subscription);
-
-            for (SubscriptionListener listener : _subscriptionListeners) {
-              try {
-                listener.subscribed(subscription);
-              } catch (RuntimeException e) {
-                s_logger.error("Listener subscribe failed", e);
-              }
-            }
-          }
-        } finally {
-          _subscriptionLock.unlock();          
-        }
+        // Subscribe
+        String tickDistributionSpec = subscribe(localFullyQualifiedSpecification, subscriptionRequest.getPersistent());
 
         LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(requestedSpecification, new LiveDataSpecificationImpl(qualifiedSpecification), LiveDataSubscriptionResult.SUCCESS, null, tickDistributionSpec);
         responses.add(response);
@@ -224,16 +257,26 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   }
   
   /**
-   * @return Whether the server actually unsubscribed from the spec
+   * Unsubscribes from market data.
+   * Works even if the subscription is persistent.
+   * 
+   * @return true if a market data subscription was actually removed. false otherwise.
    */
-  public boolean unsubscribe(LiveDataSpecificationImpl fullyQualifiedSpec) {
-    Subscription subscription = getSubscription(fullyQualifiedSpec);
-    if (subscription == null) {
+  boolean unsubscribe(String securityUniqueId) {
+    Subscription sub = getSubscription(securityUniqueId);
+    if (sub == null) {
       return false;
     }
-    return unsubscribe(subscription);
+    sub.setPersistent(false); // make sure it will actually be deleted
+    return unsubscribe(sub);
   }
   
+  /**
+   * Unsubscribes from market data.
+   * If the subscription is persistent, this method is a no-op.
+   * 
+   * @return true if a market data subscription was actually removed. false otherwise.  
+   */
   boolean unsubscribe(Subscription subscription) {
     ArgumentChecker.checkNotNull(subscription, "Subscription");
     
@@ -281,7 +324,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
     return _currentlyActiveSubscriptions.contains(subscription);
   }
   
-  public LiveDataSpecification getFullyQualifiedSpec(String securityUniqueId) {
+  public LiveDataSpecificationImpl getFullyQualifiedSpec(String securityUniqueId) {
     return _securityUniqueId2FullyQualifiedSpecification.get(securityUniqueId);  
   }
   
@@ -331,6 +374,14 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
   
   Subscription getSubscription(LiveDataSpecificationImpl spec) {
     return _fullyQualifiedSpec2Subscription.get(spec);  
+  }
+  
+  Subscription getSubscription(String securityUniqueId) {
+    LiveDataSpecificationImpl spec = getFullyQualifiedSpec(securityUniqueId);
+    if (spec == null) {
+      return null;
+    }
+    return getSubscription(spec);     
   }
   
 }
