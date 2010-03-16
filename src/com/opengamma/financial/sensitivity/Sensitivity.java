@@ -41,7 +41,7 @@ public enum Sensitivity {
 
     @Override
     public Order getOrder() {
-      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.SPOT_VOLATILITY));
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.IMPLIED_VOLATILITY));
     }
   },
   VALUE_VEGA {
@@ -53,7 +53,7 @@ public enum Sensitivity {
 
     @Override
     public Order getOrder() {
-      return new FirstOrder(Underlying.SPOT_VOLATILITY);
+      return new FirstOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },

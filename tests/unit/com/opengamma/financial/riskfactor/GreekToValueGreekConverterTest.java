@@ -39,7 +39,7 @@ public class GreekToValueGreekConverterTest {
   private static final String VEGA_1 = "V1";
   private static final String VEGA_2 = "V2";
   private static final double SPOT_PRICE = 100;
-  private static final double SPOT_VOLATILITY = 0.5;
+  private static final double IMPLIED_VOLATILITY = 0.5;
   private static final Function1D<RiskFactorDataBundle, RiskFactorResultCollection> CONVERTER = new GreekToValueGreekConverter();
   private static final GreekResultCollection GREEKS;
   private static final RiskFactorDataBundle DATA;
@@ -61,11 +61,11 @@ public class GreekToValueGreekConverterTest {
     m1.put(Underlying.SPOT_PRICE, SPOT_PRICE);
     m1.put(OptionTradeData.NUMBER_OF_CONTRACTS, N);
     m1.put(OptionTradeData.POINT_VALUE, PV);
-    m2.put(Underlying.SPOT_VOLATILITY, SPOT_VOLATILITY);
+    m2.put(Underlying.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
     m2.put(OptionTradeData.NUMBER_OF_CONTRACTS, N);
     m2.put(OptionTradeData.POINT_VALUE, PV);
     m3.put(Underlying.SPOT_PRICE, SPOT_PRICE);
-    m3.put(Underlying.SPOT_VOLATILITY, SPOT_VOLATILITY);
+    m3.put(Underlying.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
     m3.put(OptionTradeData.NUMBER_OF_CONTRACTS, N);
     m3.put(OptionTradeData.POINT_VALUE, PV);
     map.put(Greek.DELTA, m1);
@@ -106,11 +106,11 @@ public class GreekToValueGreekConverterTest {
     final RiskFactorResultCollection result = CONVERTER.evaluate(DATA);
     assertEquals((Double) result.get(Sensitivity.VALUE_DELTA).getResult(), DELTA.getResult() * N * PV * SPOT_PRICE, EPS);
     assertEquals((Double) result.get(Sensitivity.VALUE_GAMMA).getResult(), GAMMA.getResult() * N * PV * SPOT_PRICE * SPOT_PRICE, EPS);
-    assertEquals((Double) result.get(Sensitivity.VALUE_VANNA).getResult(), VANNA.getResult() * N * PV * SPOT_PRICE * SPOT_VOLATILITY, EPS);
+    assertEquals((Double) result.get(Sensitivity.VALUE_VANNA).getResult(), VANNA.getResult() * N * PV * SPOT_PRICE * IMPLIED_VOLATILITY, EPS);
     assertTrue(result.get(Sensitivity.VALUE_VEGA) instanceof MultipleRiskFactorResult);
     final Map<Object, Double> m = ((MultipleRiskFactorResult) result.get(Sensitivity.VALUE_VEGA)).getResult();
     assertEquals(m.size(), 2);
-    assertEquals(m.get(VEGA_1), VEGA_V1 * N * PV * SPOT_VOLATILITY, EPS);
-    assertEquals(m.get(VEGA_2), VEGA_V2 * N * PV * SPOT_VOLATILITY, EPS);
+    assertEquals(m.get(VEGA_1), VEGA_V1 * N * PV * IMPLIED_VOLATILITY, EPS);
+    assertEquals(m.get(VEGA_2), VEGA_V2 * N * PV * IMPLIED_VOLATILITY, EPS);
   }
 }

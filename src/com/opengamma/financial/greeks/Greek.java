@@ -95,7 +95,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new SecondOrder(Underlying.SPOT_PRICE);
     }
 
   },
@@ -108,7 +108,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new FirstOrder(Underlying.YIELD);
     }
 
   },
@@ -158,7 +158,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new FirstOrder(Underlying.SPOT_VARIANCE);
+      return new FirstOrder(Underlying.IMPLIED_VARIANCE);
     }
 
   },
@@ -171,7 +171,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new FirstOrder(Underlying.SPOT_VOLATILITY);
+      return new FirstOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },
@@ -184,7 +184,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new FirstOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },
@@ -235,7 +235,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new SecondOrder(Underlying.SPOT_PRICE);
     }
 
   },
@@ -261,7 +261,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.SPOT_VOLATILITY));
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.IMPLIED_VOLATILITY));
     }
 
   },
@@ -274,7 +274,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.SPOT_VARIANCE));
+      return new MixedSecondOrder(new FirstOrder(Underlying.SPOT_PRICE), new FirstOrder(Underlying.IMPLIED_VARIANCE));
     }
 
   },
@@ -287,7 +287,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new SecondOrder(Underlying.SPOT_VARIANCE);
+      return new SecondOrder(Underlying.IMPLIED_VARIANCE);
     }
 
   },
@@ -300,7 +300,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new MixedSecondOrder(new FirstOrder(Underlying.IMPLIED_VOLATILITY), new FirstOrder(Underlying.TIME));
     }
 
   },
@@ -313,7 +313,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new SecondOrder(Underlying.SPOT_VOLATILITY);
+      return new SecondOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },
@@ -326,7 +326,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new SecondOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },
@@ -339,7 +339,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      return new MixedThirdOrder(new FirstOrder(Underlying.SPOT_VOLATILITY), new SecondOrder(Underlying.SPOT_PRICE));
+      return new MixedThirdOrder(new FirstOrder(Underlying.IMPLIED_VOLATILITY), new SecondOrder(Underlying.SPOT_PRICE));
     }
 
   },
@@ -365,7 +365,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      throw new UnsupportedOperationException();
+      return new MixedThirdOrder(new FirstOrder(Underlying.TIME), new SecondOrder(Underlying.SPOT_PRICE));
     }
 
   },
@@ -378,8 +378,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new ThirdOrder(Underlying.SPOT_PRICE);
     }
 
   },
@@ -392,8 +391,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new ThirdOrder(Underlying.SPOT_PRICE);
     }
 
   },
@@ -406,8 +404,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new ThirdOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },
@@ -420,8 +417,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new ThirdOrder(Underlying.IMPLIED_VARIANCE);
     }
 
   },
@@ -434,8 +430,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new SecondOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   },
@@ -448,8 +443,7 @@ public enum Greek {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new SecondOrder(Underlying.IMPLIED_VOLATILITY);
     }
 
   };
