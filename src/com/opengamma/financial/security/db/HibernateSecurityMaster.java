@@ -38,6 +38,8 @@ public class HibernateSecurityMaster implements SecurityMaster {
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
   protected static final String MODIFIED_BY = "";
+
+  @SuppressWarnings("unused")
   private Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private HibernateTemplate _hibernateTemplate = null;
   

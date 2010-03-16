@@ -92,7 +92,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
   public BondSecurityBean createBean(final HibernateSecurityMasterSession secMasterSession, final BondSecurity security) {
     final BondSecurityBean bond = new BondSecurityBean();
     bond.setBondType (BondType.identify (security));
-    bond.setMaturity (new Date (security.getMaturity ().toInstant ().toEpochMillis ()));
+    bond.setMaturity (new Date (security.getMaturity ().toInstant ().toEpochMillisLong ()));
     bond.setCoupon (security.getCoupon ());
     bond.setFrequency (secMasterSession.getOrCreateFrequencyBean (security.getFrequency ().getConventionName ()));
     bond.setCountry (security.getCountry ());

@@ -309,7 +309,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   public void testEquityOptionSecurityBeans() {
     Currency dollar = Currency.getInstance ("USD");
     Currency sterling = Currency.getInstance ("GBP");
-    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.timeZone ("UTC")));
+    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
     DomainSpecificIdentifier americanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "American equity option");
     DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European equity option");
     Date now = new Date ();
@@ -348,7 +348,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   @Test
   public void testBondSecurityBeans () {
     final Date now = new Date ();
-    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.timeZone ("UTC")));
+    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
     Currency dollar = Currency.getInstance ("USD");
     Frequency annually = FrequencyFactory.INSTANCE.getFrequency ("annually");
     Frequency monthly = FrequencyFactory.INSTANCE.getFrequency ("monthly");

@@ -420,5 +420,4 @@ public class HibernateSecurityMasterSession {
     Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
     return query.list();
   }
-  
 }

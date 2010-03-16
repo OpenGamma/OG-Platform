@@ -6,7 +6,6 @@
 package com.opengamma.financial.convention.calendar;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.field.DayOfWeek;
 
 /**
  * Utility class to simplify the Calendar interface for a common pattern of normal+exception data.

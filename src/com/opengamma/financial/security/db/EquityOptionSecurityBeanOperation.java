@@ -111,7 +111,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
         equityOption.setEquityOptionType(EquityOptionType.identify (security));
         equityOption.setOptionType(security.getOptionType ());
         equityOption.setStrike(security.getStrike ());
-        equityOption.setExpiry(new Date (security.getExpiry ().toInstant ().toEpochMillis ()));
+        equityOption.setExpiry(new Date (security.getExpiry ().toInstant ().toEpochMillisLong ()));
         equityOption.setUnderlyingIdentityKey(security.getUnderlyingIdentityKey ());
         equityOption.setCurrency(secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()));
         equityOption.setExchange(secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""));

@@ -47,7 +47,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
     if (date == null) return null;
     final Calendar c = Calendar.getInstance ();
     c.setTime (date);
-    return new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
+    return new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH), ZoneOffset.UTC), TimeZone.UTC));
   }
   
   protected static Date expiryToDate (Expiry expiry) {
@@ -56,7 +56,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
     if (expiry.getAccuracy () != null) {
       if (expiry.getAccuracy () != ExpiryAccuracy.DAY_MONTH_YEAR) throw new OpenGammaRuntimeException ("Expiry is not to DAY_MONTH_YEAR precision");
     }
-    return new Date (expiry.toInstant ().toEpochMillis ());
+    return new Date (expiry.toInstant ().toEpochMillisLong ());
   }
   
   protected static Frequency frequencyBeanToFrequency (final FrequencyBean frequencyBean) {
