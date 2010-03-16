@@ -124,6 +124,10 @@
 		<subant target="clean-src" buildpathref="build-path" />
 	</target>
 
+	<target name="fudge-proto" depends="clean-src">
+		<subant target="fudge-proto" buildpathref="build-path" />
+	</target>
+
 	<target name="clean" depends="clean-all, load-ivy"
 		description="delete repository, clean ivy cache, and clean all projects">
 		<delete dir="${repository.dir}" />
