@@ -422,7 +422,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final Date now = new Date ();
     final Currency dollar = Currency.getInstance ("USD");
     final Currency yen = Currency.getInstance ("JPY");
-    final Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.dateMidnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.timeZone ("UTC")));
+    final Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of ("UTC")));
     DomainSpecificIdentifier agricultureId = new DomainSpecificIdentifier ("BLOOMBERG", "agriculture");
     DomainSpecificIdentifier bondId = new DomainSpecificIdentifier ("BLOOMBERG", "bond");
     DomainSpecificIdentifier energyId = new DomainSpecificIdentifier ("BLOOMBERG", "energy");

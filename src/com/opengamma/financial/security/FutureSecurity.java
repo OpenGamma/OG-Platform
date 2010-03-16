@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security;
 
-import javax.time.calendar.field.MonthOfYear;
+import javax.time.calendar.MonthOfYear;
 
 import com.opengamma.util.time.Expiry;
 
