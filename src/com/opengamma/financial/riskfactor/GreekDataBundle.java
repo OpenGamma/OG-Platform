@@ -15,11 +15,11 @@ import com.opengamma.financial.greeks.GreekResultCollection;
  * @author emcleod
  *
  */
-public class RiskFactorDataBundle {
+public class GreekDataBundle {
   private final GreekResultCollection _greekValues;
   private final Map<Greek, Map<Object, Double>> _underlyingData;
 
-  public RiskFactorDataBundle(final GreekResultCollection greekValues, final Map<Greek, Map<Object, Double>> underlyingData) {
+  public GreekDataBundle(final GreekResultCollection greekValues, final Map<Greek, Map<Object, Double>> underlyingData) {
     if (greekValues == null)
       throw new IllegalArgumentException("GreekResultCollection was null");
     if (greekValues.isEmpty())
@@ -86,7 +86,7 @@ public class RiskFactorDataBundle {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final RiskFactorDataBundle other = (RiskFactorDataBundle) obj;
+    final GreekDataBundle other = (GreekDataBundle) obj;
     if (_greekValues == null) {
       if (other._greekValues != null)
         return false;

@@ -5,25 +5,56 @@
  */
 package com.opengamma.financial.riskfactor;
 
+import java.util.Map;
+
+import com.opengamma.financial.greeks.Greek;
+
 /**
  * @author emcleod
  * 
  */
 public class PositionGreekDataBundle {
-  private final Double _data;
+  private final RiskFactorResultCollection _riskFactors;
+  private final Map<Greek, Map<Object, Double>> _underlyingData;
 
-  public enum DataType {
-    NUMBER_OF_CONTRACTS
+  public PositionGreekDataBundle(final RiskFactorResultCollection riskFactors, final Map<Greek, Map<Object, Double>> underlyingData) {
+    if (riskFactors == null)
+      throw new IllegalArgumentException("RiskFactorResultCollection was null");
+    if (riskFactors.isEmpty())
+      throw new IllegalArgumentException("RiskFactorResultCollection was empty");
+    if (underlyingData == null)
+      throw new IllegalArgumentException("Underlying data map was null");
+    if (underlyingData.isEmpty())
+      throw new IllegalArgumentException("Underlying data map was empty");
+    _riskFactors = riskFactors;
+    _underlyingData = underlyingData;
   }
 
-  public PositionGreekDataBundle(final Double data) {
-    if (data == null)
-      throw new IllegalArgumentException("Data was null");
-    _data = data;
+  public RiskFactorResultCollection getAllRiskFactorValues() {
+    return _riskFactors;
   }
 
-  public Double getData() {
-    return _data;
+  public Map<Greek, Map<Object, Double>> getAllUnderlyingData() {
+    return _underlyingData;
+  }
+
+  public RiskFactorResult<?> getRiskFactorValueForRiskFactor(final PositionGreek riskFactor) {
+    if (_riskFactors.containsKey(riskFactor))
+      return _riskFactors.get(riskFactor);
+    throw new IllegalArgumentException("Risk factor result collection did not contain a value for " + riskFactor);
+  }
+
+  public Map<Object, Double> getAllUnderlyingDataForRiskFactor(final PositionGreek riskFactor) {
+    if (_underlyingData.containsKey(riskFactor.getUnderlyingGreek()))
+      return _underlyingData.get(riskFactor.getUnderlyingGreek());
+    throw new IllegalArgumentException("Underlying data map did not contain data for " + riskFactor.getUnderlyingGreek());
+  }
+
+  public Double getUnderlyingDataForRiskFactor(final PositionGreek riskFactor, final Object requiredData) {
+    final Map<Object, Double> data = getAllUnderlyingDataForRiskFactor(riskFactor);
+    if (data.containsKey(requiredData))
+      return data.get(requiredData);
+    throw new IllegalArgumentException("Underlying data map did not contain " + requiredData + " data for " + riskFactor);
   }
 
   /*
@@ -35,7 +66,8 @@ public class PositionGreekDataBundle {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_data == null) ? 0 : _data.hashCode());
+    result = prime * result + ((_riskFactors == null) ? 0 : _riskFactors.hashCode());
+    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
     return result;
   }
 
@@ -53,10 +85,15 @@ public class PositionGreekDataBundle {
     if (getClass() != obj.getClass())
       return false;
     final PositionGreekDataBundle other = (PositionGreekDataBundle) obj;
-    if (_data == null) {
-      if (other._data != null)
+    if (_riskFactors == null) {
+      if (other._riskFactors != null)
         return false;
-    } else if (!_data.equals(other._data))
+    } else if (!_riskFactors.equals(other._riskFactors))
+      return false;
+    if (_underlyingData == null) {
+      if (other._underlyingData != null)
+        return false;
+    } else if (!_underlyingData.equals(other._underlyingData))
       return false;
     return true;
   }

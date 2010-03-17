@@ -8,7 +8,6 @@ package com.opengamma.financial.riskfactor;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.financial.greeks.FirstOrder;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
@@ -28,7 +27,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  *
  */
-public class GreekToValueGreekConverter extends Function1D<RiskFactorDataBundle, RiskFactorResultCollection> {
+public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, RiskFactorResultCollection> {
   private final GreekVisitor<Sensitivity> _visitor = new GreekToValueGreekVisitor();
 
   /*
@@ -37,7 +36,7 @@ public class GreekToValueGreekConverter extends Function1D<RiskFactorDataBundle,
    * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
    */
   @Override
-  public RiskFactorResultCollection evaluate(final RiskFactorDataBundle data) {
+  public RiskFactorResultCollection evaluate(final GreekDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Risk factor data bundle was null");
     final GreekResultCollection greeks = data.getAllGreekValues();
@@ -65,10 +64,8 @@ public class GreekToValueGreekConverter extends Function1D<RiskFactorDataBundle,
     return riskFactors;
   }
 
-  // TODO this should be a function that can is taken in the constructor; the definitions could be different (e.g.
-  // second order multiplied by 0.5)
   // TODO handle theta separately?
-  Double getValueGreek(final Greek greek, final RiskFactorDataBundle data, final Double greekValue) {
+  Double getValueGreek(final Greek greek, final GreekDataBundle data, final Double greekValue) {
     final Order order = greek.getOrder();
     final Map<Object, Double> underlyings = data.getAllUnderlyingDataForGreek(greek);
     if (order instanceof FirstOrder) {
@@ -88,31 +85,4 @@ public class GreekToValueGreekConverter extends Function1D<RiskFactorDataBundle,
     throw new IllegalArgumentException("Can currently only handle first-, mixed-second- and second-order greeks");// TODO
   }
 
-  class GreekToValueGreekVisitor extends AbstractGreekVisitor<Sensitivity> {
-
-    @Override
-    public Sensitivity visitDelta() {
-      return Sensitivity.VALUE_DELTA;
-    }
-
-    @Override
-    public Sensitivity visitGamma() {
-      return Sensitivity.VALUE_GAMMA;
-    }
-
-    @Override
-    public Sensitivity visitTheta() {
-      return Sensitivity.VALUE_THETA;
-    }
-
-    @Override
-    public Sensitivity visitVanna() {
-      return Sensitivity.VALUE_VANNA;
-    }
-
-    @Override
-    public Sensitivity visitVega() {
-      return Sensitivity.VALUE_VEGA;
-    }
-  }
 }

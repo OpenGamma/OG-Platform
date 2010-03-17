@@ -22,7 +22,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  *
  */
-public class GreekToPositionGreekConverter extends Function1D<RiskFactorDataBundle, RiskFactorResultCollection> {
+public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, RiskFactorResultCollection> {
   private final GreekVisitor<PositionGreek> _visitor = new GreekToPositionGreekVisitor();
 
   /*
@@ -31,7 +31,7 @@ public class GreekToPositionGreekConverter extends Function1D<RiskFactorDataBund
    * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
    */
   @Override
-  public RiskFactorResultCollection evaluate(final RiskFactorDataBundle data) {
+  public RiskFactorResultCollection evaluate(final GreekDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Risk factor data bundle was null");
     final GreekResultCollection greeks = data.getAllGreekValues();
@@ -109,5 +109,9 @@ public class GreekToPositionGreekConverter extends Function1D<RiskFactorDataBund
       return PositionGreek.POSITION_VEGA;
     }
 
+    @Override
+    public PositionGreek visitVanna() {
+      return PositionGreek.POSITION_VANNA;
+    }
   }
 }
