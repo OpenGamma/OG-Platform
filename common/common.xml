@@ -367,14 +367,14 @@
 		description="--> Generate Hibernate schema from mapping files">
 		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask"
 			classpathref="lib.path.id" />
-		<mkdir dir="${dbscript.dir}" />  
-		<java classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" failonerror="true" fork="true">
-			<arg value="--server=${jdbc.url}"/>
-			<arg value="--user=${hibernate.connection.username}"/>
-			<arg value="--password=${hibernate.connection.password}"/>
-			<arg value="--create"/>
-			<arg value="--database=blank"/>
-		</java>
+		<mkdir dir="${dbscript.dir}" />
+		<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
+		<dbtool dbServerHost="${jdbc.url}"
+			    user="${hibernate.connection.username}"
+				password="${hibernate.connection.password}"
+				create="true"
+			    catalog="blank"
+				basedir="${basedir}"/>
 		<hibernatetool destdir="${dbscript.dir}" >
 			<classpath>
 				<path location="${classes.dir}" />
