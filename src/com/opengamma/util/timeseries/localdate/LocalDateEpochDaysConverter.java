@@ -70,7 +70,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     final List<LocalDate> dates = new ArrayList<LocalDate>(dateTimes.size());
     final IntIterator iterator = dateTimes.iterator();
     while (iterator.hasNext()) {
-      LocalDate.fromEpochDays(iterator.next());
+      dates.add(LocalDate.fromEpochDays(iterator.next()));
     }
     return dates;
   }
