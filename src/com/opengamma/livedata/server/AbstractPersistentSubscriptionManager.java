@@ -12,7 +12,6 @@ import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
@@ -35,13 +34,11 @@ abstract public class AbstractPersistentSubscriptionManager {
   
   public static final long DEFAULT_SAVE_PERIOD = 60000;
   
-  @Autowired
   private final AbstractLiveDataServer _server;
   
   private Set<PersistentSubscription> _previousSavedState = null;
   private Set<PersistentSubscription> _persistentSubscriptions = new HashSet<PersistentSubscription>();
   private volatile boolean _initialised = false;
-  
   
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server) {
     this(server, new Timer("PersistentSubscriptionManager Timer"), DEFAULT_SAVE_PERIOD);

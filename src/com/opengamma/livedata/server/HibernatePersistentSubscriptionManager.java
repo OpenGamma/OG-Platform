@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.Timer;
 
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
@@ -21,7 +20,6 @@ public class HibernatePersistentSubscriptionManager extends AbstractPersistentSu
   
   private HibernateTemplate _hibernateTemplate = null;
 
-  @Autowired
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
