@@ -10,19 +10,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.After;
@@ -36,11 +36,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
-import com.opengamma.timeseries.MapDoubleTimeSeries;
 import com.opengamma.util.test.DBTest;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -64,6 +63,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public RowStoreTimeSeriesDaoTest(String databaseType) {
     super(databaseType);
     s_logger.info("running testcases for {}", databaseType);
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
   
   /**
@@ -386,21 +386,15 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
 
   @Test
   public void addTimeSeries() throws Exception {
-    
-    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
+    addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      tsMap.put(new DomainSpecificIdentifier("d" + i, "id" + i), makeRandomTimeSeries());
-    }
-        
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier domainSpecificIdentifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
+      DomainSpecificIdentifier domainSpecificIdentifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
     }
-    
     //test set of domain identifiers
     DomainSpecificIdentifier bbgtickerID = new DomainSpecificIdentifier("bbgTicker", "AAPL US Equity");
     DomainSpecificIdentifier cusipID = new DomainSpecificIdentifier("cusip", "123456789");
@@ -411,12 +405,12 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     domainSpeIdentifiers.add(cusipID);
     domainSpeIdentifiers.add(bbgUniqueID);
     
-    DoubleTimeSeries timeSeries = makeRandomTimeSeries();
+    DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
     
     _timeseriesDao.addTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
     
-    DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeSeries, actualTS);
     
     actualTS = _timeseriesDao.getTimeSeries(cusipID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
@@ -429,25 +423,21 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   
   @Test
   public void getTimeSeriesWithDateRange() throws Exception {
-    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
+    addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      tsMap.put(new DomainSpecificIdentifier("d" + i, "id" + i), makeRandomTimeSeries());
-    }
-        
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier domainSpecificIdentifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
+      DomainSpecificIdentifier domainSpecificIdentifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       
-      ZonedDateTime earliestTime = timeSeries.getEarliestTime();
-      ZonedDateTime latestTime = timeSeries.getLatestTime();
+      LocalDate earliestDate = timeSeries.getEarliestTime();
+      LocalDate latestDate = timeSeries.getLatestTime();
       //test end dates
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, earliestTime, latestTime);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, earliestDate, latestDate);
       assertEquals(timeSeries, actualTS);
       //test subSeries
-      ZonedDateTime start = earliestTime.plusDays(1);
-      ZonedDateTime end = latestTime.minusDays(1);
+      LocalDate start = earliestDate.plusDays(1);
+      LocalDate end = latestDate.minusDays(1);
       if (start.isBefore(end) || start.equals(end)) {
         timeSeries = timeSeries.subSeries(start, end);
         actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, start, end);
@@ -458,190 +448,111 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   
   @Test
   public void deleteTimeSeries() throws Exception {
-    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
+    addRandonTimeSeriesToDB(2);
     Set<DomainSpecificIdentifier> deletedIdentifiers = new HashSet<DomainSpecificIdentifier>();
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      tsMap.put(identifier, timeSeries);
+      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      //add timeseries to datastore and assert it is in datasource
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-    }
-    //assert timeseries are in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
+      deletedIdentifiers.add(identifier);
     }
-    //delete random timeseries
-    for (DomainSpecificIdentifier key : tsMap.keySet()) {
-      int delete = _random.nextInt(2);
-      if (delete == 1) {
-        deletedIdentifiers.add(key);
-        _timeseriesDao.deleteTimeSeries(key, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      }
-    }
-    //assert deleted timeseries return empty timeseries
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      if (deletedIdentifiers.contains(identifier)) {
-        assertEquals(ArrayDoubleTimeSeries.EMPTY_SERIES, actualTS);
-      } else {
-        assertEquals(timeSeries, actualTS);
-      }
+    for (DomainSpecificIdentifier identifier : deletedIdentifiers) {
+      _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
     }
   }
   
   @Test
   public void addTimeSeriesToExistingIdentifiers() throws Exception {
-    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
-    Set<DomainSpecificIdentifier> deletedIdentifiers = new HashSet<DomainSpecificIdentifier>();
+    addRandonTimeSeriesToDB(2);
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      tsMap.put(identifier, timeSeries);
+      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-    }
-    //assert timeseries are in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      //assert timeseries are in datastore
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
-    }
-    //delete random timeseries
-    for (DomainSpecificIdentifier key : tsMap.keySet()) {
-      int delete = _random.nextInt(2);
-      if (delete == 1) {
-        deletedIdentifiers.add(key);
-        _timeseriesDao.deleteTimeSeries(key, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      }
-    }
-    //assert deleted timeseries return empty timeseries
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      if (deletedIdentifiers.contains(identifier)) {
-        assertEquals(ArrayDoubleTimeSeries.EMPTY_SERIES, actualTS);
-      } else {
-        assertEquals(timeSeries, actualTS);
-      }
-    }
-    // add timeseries to existing identifiers in the datastore
-    for (DomainSpecificIdentifier domainSpecificIdentifier : deletedIdentifiers) {
-      DoubleTimeSeries timeSeries = tsMap.get(domainSpecificIdentifier);
-      _timeseriesDao.addTimeSeries(Collections.singleton(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      //delete timeseries
+      _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
+      // add timeseries to existing identifiers in the datastore
+      timeSeries = makeRandomTimeSeries();
+      _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-    }
-    //assert timeseries are in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
     }
   }
   
   @Test
   public void getEmptyTimeSeries() throws Exception {
+    addRandonTimeSeriesToDB(2);
     DomainSpecificIdentifier bbgtickerID = new DomainSpecificIdentifier("bbgTicker", "AAPL US Equity");
-    DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-    assertEquals(ArrayDoubleTimeSeries.EMPTY_SERIES, actualTS);
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
   }
   
   @Test
   public void updateDataPoint() throws Exception {
-    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
-    //add time series
+    addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      tsMap.put(identifier, timeSeries);
+      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-    }
-    //assert timeseries are in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
-    }
-    //update random datapoints
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
       
-      List<ZonedDateTime> times = timeSeries.times();
+      //update datapoint
+      List<LocalDate> dates = timeSeries.times();
       List<Double> values = timeSeries.values();
-      
       int updateIdx = _random.nextInt(timeSeries.size());
-      ZonedDateTime date = timeSeries.getTime(updateIdx);
+      LocalDate date = timeSeries.getTime(updateIdx);
       double newValue = _random.nextDouble();
       values.set(updateIdx, newValue);
       
-      // put updated timeseries in map
-      tsMap.put(identifier, new ArrayDoubleTimeSeries(times, values));
+      ArrayLocalDateDoubleTimeSeries updatedTS = new ArrayLocalDateDoubleTimeSeries(dates, values);
+      
       _timeseriesDao.updateDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, date, newValue);
-    }
-    //assert datapoints are updated in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      assertEquals(timeSeries, actualTS);
+      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      assertEquals(updatedTS, actualTS);
     }
   }
   
   @Test
   public void deleteDataPoint() throws Exception {
-    Map<DomainSpecificIdentifier, DoubleTimeSeries> tsMap = new HashMap<DomainSpecificIdentifier, DoubleTimeSeries>();
-    //add time series
+    addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      tsMap.put(identifier, timeSeries);
+      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      //add timeseries to datastore
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-    }
-    //assert timeseries are in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      //assert timeseries 
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
-    }
-    //delete random datapoints
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
       
-      SortedMap<ZonedDateTime, Double> ts = new TreeMap<ZonedDateTime, Double>();
-      for (int i = 0; i < timeSeries.size(); i++) {
-        ts.put(timeSeries.getTime(i), timeSeries.getValue(i));
-      }
-      
+      //delete random datapoints
+      List<LocalDate> dates = timeSeries.times();
+      List<Double> values = timeSeries.values();
       int deleteIdx = _random.nextInt(timeSeries.size());
-      ZonedDateTime date = timeSeries.getTime(deleteIdx);
+      LocalDate deletedDate = dates.remove(deleteIdx);
+      values.remove(deleteIdx);
       
-      ts.remove(date);
-      // put updated timeseries in map
-      tsMap.put(identifier, new MapDoubleTimeSeries(ts));
-      _timeseriesDao.deleteDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, date);
-    }
-    //assert datapoints are updated in datastore
-    for (Entry<DomainSpecificIdentifier, DoubleTimeSeries> entry : tsMap.entrySet()) {
-      DomainSpecificIdentifier identifier = entry.getKey();
-      DoubleTimeSeries timeSeries = entry.getValue();
-      DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      assertEquals(timeSeries, actualTS);
+      ArrayLocalDateDoubleTimeSeries deletedTS = new ArrayLocalDateDoubleTimeSeries(dates, values);
+      _timeseriesDao.deleteDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, deletedDate);
+      
+      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      assertEquals(deletedTS, actualTS);
     }
   }
   
@@ -649,52 +560,52 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void getTimeSeriesSnapShot() throws Exception {
     DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d1", "id1");
     
-    SortedMap<ZonedDateTime, DoubleTimeSeries> timeStampTSMap = new TreeMap<ZonedDateTime, DoubleTimeSeries>();
-    DoubleTimeSeries timeSeries = makeRandomTimeSeries();
+    SortedMap<ZonedDateTime, DoubleTimeSeries<LocalDate>> timeStampTSMap = new TreeMap<ZonedDateTime, DoubleTimeSeries<LocalDate>>();
+    DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
     
-    SortedMap<ZonedDateTime, Double> tsMap = new TreeMap<ZonedDateTime, Double>();
+    SortedMap<LocalDate, Double> currentTimeSeriesMap = new TreeMap<LocalDate, Double>();
     for (int i = 0; i < timeSeries.size(); i++) {
-      tsMap.put(timeSeries.getTime(i), timeSeries.getValue(i));
+      currentTimeSeriesMap.put(timeSeries.getTime(i), timeSeries.getValueAt(i));
     }
     
     _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
-    DoubleTimeSeries actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeSeries, actualTS);
     
-    timeStampTSMap.put(Clock.system(TimeZone.UTC).zonedDateTime(), timeSeries);
+    timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
-    //update a random datapoint 10 times
+    //update a random datapoint 3 times
     for (int i = 0; i < 3; i++) {
-      List<ZonedDateTime> times = timeSeries.times();
+      List<LocalDate> times = timeSeries.times();
       int ranIndx = _random.nextInt(times.size());
-      ZonedDateTime updateDate = times.get(ranIndx);
+      LocalDate updateDate = times.get(ranIndx);
       Double newValue = _random.nextDouble();
-      tsMap.put(updateDate, newValue);
+      currentTimeSeriesMap.put(updateDate, newValue);
       _timeseriesDao.updateDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, updateDate, newValue);
       actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      timeSeries = new MapDoubleTimeSeries(tsMap);
+      timeSeries = new ArrayLocalDateDoubleTimeSeries(new ArrayList<LocalDate>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
       assertEquals(timeSeries, actualTS); 
-      timeStampTSMap.put(Clock.system(TimeZone.UTC).zonedDateTime(), timeSeries);
+      timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     }
     
     //delete a datapoint
-    List<ZonedDateTime> times = timeSeries.times();
+    List<LocalDate> times = timeSeries.times();
     int ranIndx = _random.nextInt(times.size());
-    ZonedDateTime deleteDate = times.get(ranIndx);
-    tsMap.remove(deleteDate);
+    LocalDate deleteDate = times.get(ranIndx);
+    currentTimeSeriesMap.remove(deleteDate);
     _timeseriesDao.deleteDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, deleteDate);
     actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-    timeSeries = new MapDoubleTimeSeries(tsMap);
+    timeSeries = new ArrayLocalDateDoubleTimeSeries(new ArrayList<LocalDate>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
     assertEquals(timeSeries, actualTS); 
-    timeStampTSMap.put(Clock.system(TimeZone.UTC).zonedDateTime(), timeSeries);
+    timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //delete timeSeries
     _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-    timeSeries = ArrayDoubleTimeSeries.EMPTY_SERIES;
+    timeSeries = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     assertEquals(timeSeries, actualTS); 
-    timeStampTSMap.put(Clock.system(TimeZone.UTC).zonedDateTime(), timeSeries);
+    timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //add new timeseries
     timeSeries = makeRandomTimeSeries();
@@ -702,24 +613,24 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
         LCLOSE_OBSERVATION_TIME, timeSeries);
     actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeSeries, actualTS);
-    timeStampTSMap.put(Clock.system(TimeZone.UTC).zonedDateTime(), timeSeries);
+    timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //assert datasnapshots
-    for (Entry<ZonedDateTime, DoubleTimeSeries> entry : timeStampTSMap.entrySet()) {
+    for (Entry<ZonedDateTime, DoubleTimeSeries<LocalDate>> entry : timeStampTSMap.entrySet()) {
       ZonedDateTime timeStamp = entry.getKey();
-      DoubleTimeSeries expectedTS = entry.getValue();
-      DoubleTimeSeries snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, timeStamp);
+      DoubleTimeSeries<LocalDate> expectedTS = entry.getValue();
+      DoubleTimeSeries<LocalDate> snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, timeStamp);
       assertEquals(expectedTS, snapshotTS);
     }
     
     //assert before and after last deltas
     //before 1st delta should return empty timeseries
     ZonedDateTime beforeDelta = timeStampTSMap.firstKey().minusMinutes(1);
-    DoubleTimeSeries snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, beforeDelta);
-    assertEquals(ArrayDoubleTimeSeries.EMPTY_SERIES, snapshotTS);
+    DoubleTimeSeries<LocalDate> snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, beforeDelta);
+    assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, snapshotTS);
     //after last delta should return latest timeseries
     ZonedDateTime afterDelta = timeStampTSMap.lastKey().plusMinutes(1);
-    DoubleTimeSeries latestTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    DoubleTimeSeries<LocalDate> latestTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeStampTSMap.get(timeStampTSMap.lastKey()), latestTS);
     snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, afterDelta);
     assertEquals(latestTS, snapshotTS);
@@ -729,16 +640,23 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   /**
    * @return
    */
-  private DoubleTimeSeries makeRandomTimeSeries() {
-    
-    SortedMap<ZonedDateTime, Double> tsMap = new TreeMap<ZonedDateTime, Double>();
+  private DoubleTimeSeries<LocalDate> makeRandomTimeSeries() {
+    MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
     for (int i = 0; i < TS_MAX_SIZE; i++) {
       int year = 1970 + _random.nextInt(40);
-      int month = 1 + _random.nextInt(11);
-      int day = 1 + _random.nextInt(28);
-      tsMap.put(DateUtil.getUTCDate(year, month, day), _random.nextDouble());
+      int monthOfYear = 1 + _random.nextInt(12);
+      int dayOfMonth = 1 + _random.nextInt(28);
+      tsMap.putDataPoint(LocalDate.of(year, monthOfYear, dayOfMonth), _random.nextDouble());
     }
-    return new MapDoubleTimeSeries(tsMap);
+    return new ArrayLocalDateDoubleTimeSeries(tsMap);
+  }
+  
+  private void addRandonTimeSeriesToDB(int size) {
+    for (int i = 0; i < size; i++) {
+      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("t" + i, "tid" + i);
+      _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+          LCLOSE_OBSERVATION_TIME, makeRandomTimeSeries());
+    }
   }
 
 }

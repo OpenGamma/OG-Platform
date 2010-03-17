@@ -16,17 +16,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.sql.DataSource;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -37,11 +39,11 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.timeseries.ArrayDoubleTimeSeries;
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Pair;
-import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.MapSQLDateDoubleTimeSeries;
 
 /**
  * 
@@ -63,17 +65,15 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private static final String DATA_FIELD_TABLE = "data_field";
   private static final String OBSERVATION_TIME_TABLE = "observation_time";
   private static final String DOMAIN_TABLE = "domain";
+
+  private static final long MILLIS_IN_DAY = 86400000l;
   
   private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
-  private static SimpleDateFormat YEAR_FORMAT = new SimpleDateFormat("yyyy");
-  private static SimpleDateFormat MONTH_FORMAT = new SimpleDateFormat("MM");
-  private static SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("dd");
 
   private DataSourceTransactionManager _transactionManager;
   private SimpleJdbcTemplate _simpleJdbcTemplate;
   private TransactionDefinition _transactionDefinition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED);
   
-    
   public RowStoreJdbcDao(DataSourceTransactionManager transactionManager) {
     ArgumentChecker.checkNotNull(transactionManager, "transactionManager");
     _transactionManager = transactionManager;
@@ -81,26 +81,19 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     _simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);   
   }
 
-  private Date convertZonedDateTime(ZonedDateTime date) {
-    ArgumentChecker.checkNotNull(date, "date");
-    return new Date(date.toInstant().toEpochMillisLong());
-  }
-  
-  private ZonedDateTime convertZonedDateTime(Date date) {
-    ArgumentChecker.checkNotNull(date, "date");
-    return DateUtil.getUTCDate(Integer.parseInt(YEAR_FORMAT.format(date)), Integer.parseInt(MONTH_FORMAT.format(date)), Integer.parseInt(DAY_FORMAT.format(date)));
-  }
-
   @Override
   public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers,
       String dataSource, String dataProvider, String field,
-      String observationTime, final DoubleTimeSeries timeSeries) {
+      String observationTime, final DoubleTimeSeries<LocalDate> timeSeries) {
+
     ArgumentChecker.checkNotNull(domainIdentifiers, "domainIdentifiers");
     ArgumentChecker.checkNotNull(dataSource, "dataSource");
     ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
     ArgumentChecker.checkNotNull(field, "field");
     ArgumentChecker.checkNotNull(observationTime, "observationTime");
     ArgumentChecker.checkNotNull(timeSeries, "timeSeries");
+    
+    DoubleTimeSeries<Date> sqlDateDoubleTimeSeries = timeSeries.toSQLDateDoubleTimeSeries();
 
     s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime});
@@ -122,16 +115,18 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     Date now = new Date(System.currentTimeMillis());
     s_logger.debug("timeStamp = {}", DATE_FORMAT.format(now));
     
-    SqlParameterSource[] batchArgs = new MapSqlParameterSource[timeSeries.size()];
-    for (int i = 0; i < timeSeries.size(); i++) {
-      ZonedDateTime time = timeSeries.getTime(i);
-      Double value = timeSeries.getValue(i);
+    SqlParameterSource[] batchArgs = new MapSqlParameterSource[sqlDateDoubleTimeSeries.size()];
+    int index = 0;
+    
+    for (Entry<Date, Double> dataPoint : sqlDateDoubleTimeSeries) {
+      Date date = dataPoint.getKey();
+      Double value = dataPoint.getValue();
       MapSqlParameterSource parameterSource = new MapSqlParameterSource();
       parameterSource.addValue("timeSeriesID", timeSeriesKeyID, Types.INTEGER);
-      parameterSource.addValue("date", convertZonedDateTime(time), Types.DATE);
+      parameterSource.addValue("date", date, Types.DATE);
       parameterSource.addValue("value", value, Types.DOUBLE);
       parameterSource.addValue("timeStamp", now, Types.TIMESTAMP);
-      batchArgs[i] = parameterSource;
+      batchArgs[index++] = parameterSource;
     }
     
     if (!isTriggerSupported()) {
@@ -175,8 +170,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("inserting into table={} values({}, {})", new Object[]{tableName, name, description});
     String sql = "INSERT INTO " + tableName + " (" + NAME_COLUMN + ", " + DESCRIPTION_COLUMN + ") VALUES (:name, :description)";
     SqlParameterSource parameters = new MapSqlParameterSource()
-      .addValue("name", name)
-      .addValue("description", description);
+      .addValue("name", name, Types.VARCHAR)
+      .addValue("description", description, Types.VARCHAR);
 
     _simpleJdbcTemplate.update(sql, parameters);
   }
@@ -194,7 +189,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.checkNotNull(tableName, "table");
     s_logger.debug("looking up named dimension from table={} id={}", tableName, id);
     final StringBuffer sql = new StringBuffer("SELECT ").append(NAME_COLUMN).append(" FROM ").append(tableName).append(" WHERE ").append(ID_COLUMN).append(" = :id");
-    SqlParameterSource parameters = new MapSqlParameterSource("id", id);
+    SqlParameterSource parameters = new MapSqlParameterSource().addValue("id", id, Types.INTEGER);
     String result = null;
     try {
       result = _simpleJdbcTemplate.queryForObject(sql.toString(), String.class, parameters);
@@ -371,21 +366,15 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
    */
   private Set<String> getAllNamedDimensionNames(final String tableName) {
     ArgumentChecker.checkNotNull(tableName, "tableName");
-    
     s_logger.debug("gettting all names from table = {}", tableName);
-    
     final StringBuffer sql = new StringBuffer("SELECT ").append(NAME_COLUMN).append(" fROM ").append(tableName);
-
-    List<Map<String, Object>> queryForList = _simpleJdbcTemplate.queryForList(
-        sql.toString(), new Object[] {});
-    Set<String> result = new TreeSet<String>();
-
-    for (Map<String, Object> row : queryForList) {
-      String name = (String) row.get(NAME_COLUMN);
-      result.add(name);
-    }
-
-    return result;
+    List<String> queryResult = _simpleJdbcTemplate.query(sql.toString(), new ParameterizedRowMapper<String>() {
+      @Override
+      public String mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return rs.getString(NAME_COLUMN);
+      }
+    }, new Object[]{});
+    return new TreeSet<String>(queryResult);
   }
   
   @Override
@@ -466,7 +455,6 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   @Override
   public Set<DomainSpecificIdentifier> findDomainSpecIdentifiersByQuotedObject(String name) {
     ArgumentChecker.checkNotNull(name, "name");
-    
     s_logger.debug("looking up domainSpecIdentifiers using quotedObj={}", name);
     
     String sql = "SELECT d.name, dsi.identifier " +
@@ -476,15 +464,16 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     		         "AND qo.name = :quotedObject ORDER BY d.name";
     
     SqlParameterSource parameterSource = new MapSqlParameterSource("quotedObject", name);
-    
-    List<Map<String, Object>> queryForList = _simpleJdbcTemplate.queryForList(sql, parameterSource);
-    
-    Set<DomainSpecificIdentifier> result = new HashSet<DomainSpecificIdentifier>();
-    for (Map<String, Object> row : queryForList) {
-      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier((String)row.get(NAME_COLUMN), (String)row.get(IDENTIFIER_COLUMN));
-      result.add(identifier);
-    }
-    return result;
+    List<DomainSpecificIdentifier> queryResult = _simpleJdbcTemplate.query(sql, new ParameterizedRowMapper<DomainSpecificIdentifier>() {
+      @Override
+      public DomainSpecificIdentifier mapRow(ResultSet rs, int rowNum)
+          throws SQLException {
+        String domain = rs.getString(NAME_COLUMN);
+        String identifier = rs.getString(IDENTIFIER_COLUMN);
+        return new DomainSpecificIdentifier(domain, identifier);
+      }
+    }, parameterSource);  
+    return new HashSet<DomainSpecificIdentifier>(queryResult);
   }
   
   @Override
@@ -586,7 +575,13 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     .addValue("dataField", dataField, Types.VARCHAR)
     .addValue("observationTime", observationTime, Types.VARCHAR);
     
-    result = _simpleJdbcTemplate.queryForInt(sql, parameters);
+    try {
+      result = _simpleJdbcTemplate.queryForInt(sql, parameters);
+    } catch(EmptyResultDataAccessException e) {
+      s_logger.debug("Empty row returned for timeSeriesKeyID");
+      result = -1;
+    }
+    
     s_logger.debug("timeSeriesKeyID = {}", result);
     return result;
   }
@@ -704,16 +699,23 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
   
   @Override
-  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
+  public DoubleTimeSeries<LocalDate> getTimeSeries(DomainSpecificIdentifier domainSpecId,
       String dataSource, String dataProvider, String field,
       String observationTime) {
     return getTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
   }
 
   @Override
-  public DoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
+  public DoubleTimeSeries<LocalDate> getTimeSeries(DomainSpecificIdentifier domainSpecId,
       String dataSource, String dataProvider, String field,
-      String observationTime, ZonedDateTime start, ZonedDateTime end) {
+      String observationTime, LocalDate start, LocalDate end) {
+    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, start, end);
+    return timeSeries.toLocalDateDoubleTimeSeries();
+  }
+  
+  private DoubleTimeSeries<Date> loadTimeSeries(DomainSpecificIdentifier domainSpecId,
+      String dataSource, String dataProvider, String field,
+      String observationTime, LocalDate start, LocalDate end) {
     ArgumentChecker.checkNotNull(domainSpecId, "identifier");
     ArgumentChecker.checkNotNull(dataSource, "dataSource");
     ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
@@ -746,42 +748,37 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     sql.append(" ORDER BY ts_date");
        
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
-      .addValue("domain", domainSpecId.getDomain().getDomainName())
-      .addValue("dataSource", dataSource)
-      .addValue("dataProvider", dataProvider)
-      .addValue("dataField", field)
-      .addValue("observationTime", observationTime);
+      .addValue("domain", domainSpecId.getDomain().getDomainName(), Types.VARCHAR)
+      .addValue("dataSource", dataSource, Types.VARCHAR)
+      .addValue("dataProvider", dataProvider, Types.VARCHAR)
+      .addValue("dataField", field, Types.VARCHAR)
+      .addValue("observationTime", observationTime, Types.VARCHAR);
     if (start != null & end != null) {
-      parameters.addValue("startDate", convertZonedDateTime(start));
-      parameters.addValue("endDate", convertZonedDateTime(end));
+      parameters.addValue("startDate", toSQLDate(start), Types.DATE);
+      parameters.addValue("endDate", toSQLDate(end), Types.DATE);
     }
     
-    List<TimeSeriesData> queryResult = _simpleJdbcTemplate.query(sql.toString(), new ParameterizedRowMapper<TimeSeriesData>() {
-
+    final List<Date> dates = new ArrayList<Date>();
+    final List<Double> values = new ArrayList<Double>();
+    
+    NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
+    parameterJdbcOperations.query(sql.toString(), parameters, new RowCallbackHandler() {
+      
       @Override
-      public TimeSeriesData mapRow(ResultSet rs, int rowNum)
-          throws SQLException {
-        double tsValue = rs.getDouble("value");
-        Date tsDate = rs.getDate("ts_date");
-        return new TimeSeriesData(tsDate, tsValue);
+      public void processRow(ResultSet rs) throws SQLException {
+        values.add(rs.getDouble("value"));
+        dates.add(rs.getDate("ts_date"));
       }
-    }, parameters);
+    });
     
-    List<ZonedDateTime> times = new ArrayList<ZonedDateTime>();
-    List<Double> values = new ArrayList<Double>();
-    for (TimeSeriesData tsData : queryResult) {
-      double tsValue = tsData.getValue();
-      values.add(tsValue);
-      times.add(DateUtil.getUTCDate(tsData.getYear(), tsData.getMonth(), tsData.getDay()));
-    }
-    
-    return new ArrayDoubleTimeSeries(times, values);
+    return new ArraySQLDateDoubleTimeSeries(dates, values);
   }
 
   @Override
   public void updateDataPoint(DomainSpecificIdentifier domainSpecId,
       String dataSource, String dataProvider, String field,
-      String observationTime, ZonedDateTime date, Double value) {
+      String observationTime, LocalDate date, Double value) {
+    
     ArgumentChecker.checkNotNull(domainSpecId, "identifier");
     ArgumentChecker.checkNotNull(dataSource, "dataSource");
     ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
@@ -799,10 +796,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     MapSqlParameterSource parameters = new MapSqlParameterSource()
     .addValue("tsID", tsID, Types.INTEGER)
-    .addValue("date", convertZonedDateTime(date), Types.DATE);
+    .addValue("date", toSQLDate(date), Types.DATE);
     
     Double oldValue = _simpleJdbcTemplate.queryForObject(selectSQL, Double.class, parameters);
-    
     
     String updateSql = "UPDATE time_series_data " +
       " SET value = :newValue " +
@@ -832,12 +828,10 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
   }
   
-  
-  
   @Override
   public void deleteDataPoint(DomainSpecificIdentifier domainSpecId,
       String dataSource, String dataProvider, String field,
-      String observationTime, ZonedDateTime date) {
+      String observationTime, LocalDate date) {
     ArgumentChecker.checkNotNull(domainSpecId, "identifier");
     ArgumentChecker.checkNotNull(dataSource, "dataSource");
     ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
@@ -850,7 +844,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
     
-    Date sqlDate = convertZonedDateTime(date);
+    Date sqlDate = toSQLDate(date);
     
     String selectTSSQL = "SELECT value FROM time_series_data where time_series_id = :tsID AND ts_date = :date";
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("tsID", tsID, Types.INTEGER);
@@ -885,7 +879,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
 
   @Override
-  public DoubleTimeSeries getTimeSeriesSnapShot(
+  public DoubleTimeSeries<LocalDate> getTimeSeriesSnapShot(
       DomainSpecificIdentifier domainSpecId, String dataSource,
       String dataProvider, String field, String observationTime,
       ZonedDateTime timeStamp) {
@@ -897,77 +891,54 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.checkNotNull(observationTime, "observationTime");
     ArgumentChecker.checkNotNull(timeStamp, "time");
     
-    DoubleTimeSeries latestTimeSeries = getTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime);
-    
     int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
     
     String selectDeltaSql = "SELECT ts_date, old_value, operation FROM time_series_data_delta WHERE time_series_id = :tsID AND time_stamp >= :time ORDER BY time_stamp desc";
     
     MapSqlParameterSource parameterSource = new MapSqlParameterSource();
-    parameterSource.addValue("time", convertZonedDateTime(timeStamp), Types.TIMESTAMP);
+    parameterSource.addValue("time", toSQLDate(timeStamp), Types.TIMESTAMP);
     parameterSource.addValue("tsID", tsID, Types.INTEGER);
 
-    List<Map<String, Object>> deltas = _simpleJdbcTemplate.queryForList(selectDeltaSql, parameterSource);
+    final List<Date> deltaDates = new ArrayList<Date>();
+    final List<Double> deltaValues = new ArrayList<Double>();
+    final List<String> deltaOperations = new ArrayList<String>();
     
+    NamedParameterJdbcOperations jdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
     
-    Map<ZonedDateTime, Double> tsMap = new TreeMap<ZonedDateTime, Double>();
-    for (int i = 0; i < latestTimeSeries.size(); i++) {
-      tsMap.put(latestTimeSeries.getTime(i), latestTimeSeries.getValue(i));
-    }
+    jdbcOperations.query(selectDeltaSql, parameterSource, new RowCallbackHandler() {
+      @Override
+      public void processRow(ResultSet rs) throws SQLException {
+        deltaDates.add(rs.getDate("ts_date"));
+        deltaValues.add(rs.getDouble("old_value"));
+        deltaOperations.add(rs.getString("operation"));
+      }
+    });
+    
+    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
+    
+    MapSQLDateDoubleTimeSeries tsMap = new MapSQLDateDoubleTimeSeries(timeSeries);
     
     //reapply deltas
-    for (Map<String, Object> mapDelta : deltas) {
-      Date date = (Date)mapDelta.get("ts_date");
-      Double oldValue = (Double)mapDelta.get("old_value");
-      String operation = (String)mapDelta.get("operation");
+    for (int i = 0; i < deltaDates.size(); i++) {
+      Date date = deltaDates.get(i);
+      Double oldValue = deltaValues.get(i);
+      String operation = deltaOperations.get(i);
       if (operation.toUpperCase().equals("I")) {
-        tsMap.remove(convertZonedDateTime(date));
+        tsMap.removeDataPoint(date);
       }
       if (operation.toUpperCase().equals("D") || operation.toUpperCase().equals("U")) {
-        tsMap.put(convertZonedDateTime(date), oldValue);
+        tsMap.putDataPoint(date, oldValue);
       }
     }
     
-    List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    List<Double> values = new ArrayList<Double>();
-    
-    for (Entry<ZonedDateTime, Double> entry : tsMap.entrySet()) {
-      dates.add(entry.getKey());
-      values.add(entry.getValue());
-    }
-    
-    return new ArrayDoubleTimeSeries(dates, values);
-  }
-
-  private static class TimeSeriesData {
-    private Date _date;
-    private double _value;
-    
-   
-    public TimeSeriesData(Date date, double value) {
-      ArgumentChecker.checkNotNull(date, "date");
-      _date = date;
-      _value = value;
-    }
-    
-    public double getValue() {
-      return _value;
-    }
-    
-    public int getYear() {
-      return Integer.parseInt(YEAR_FORMAT.format(_date));
-    }
-    
-    public int getMonth() {
-      return Integer.parseInt(MONTH_FORMAT.format(_date));
-    }
-    
-    public int getDay() {
-      return Integer.parseInt(DAY_FORMAT.format(_date));
-    }
-    
-    
-    
+    return tsMap.toLocalDateDoubleTimeSeries();
   }
   
+  private Date toSQLDate(LocalDate localDate) {
+    return new Date(localDate.toEpochDays() * MILLIS_IN_DAY);
+  }
+  
+  private Date toSQLDate(ZonedDateTime date) {
+    return new Date(date.toInstant().toEpochMillisLong());
+  }
 }
