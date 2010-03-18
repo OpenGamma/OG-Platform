@@ -21,15 +21,44 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.RECIPROCAL
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
 
+import java.util.Date;
+import java.util.TimeZone;
+
+import javax.time.calendar.ZonedDateTime;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.UnaryOperator;
+import com.opengamma.util.timeseries.date.ArrayDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.ListDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.MutableDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.time.ArrayDateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.time.DateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.time.ListDateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.date.time.MutableDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.FastTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.ListSQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.MutableSQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.sqldate.SQLDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.ArrayYearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.ListYearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.MutableYearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ListZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
  * @author jim
@@ -464,6 +493,151 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
       System.arraycopy(values, 0, resultValues, 0, times.length - days);
       return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(times, values);
     }
+  }
+  
+  public javax.time.calendar.TimeZone getTimeZone310() {
+    return getConverter().getTimeZone310();
+  }
+  
+  public TimeZone getTimeZone() {
+    return getConverter().getTimeZone();
+  }
+  
+  public FastIntDoubleTimeSeries toFastIntDaysDTS() {
+    return getFastSeries().toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  }
+  
+  public FastMutableIntDoubleTimeSeries toFastMutableIntDaysDTS() {
+    return getFastSeries().toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  }
+  
+  public FastLongDoubleTimeSeries toFastLongMillisDTS() {
+    return getFastSeries().toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+  }
+  
+  public FastMutableLongDoubleTimeSeries toFastMutableLongMillisDTS() {
+    return getFastSeries().toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+  }
+  
+  @Override
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries() {
+    return new ArrayLocalDateDoubleTimeSeries(getTimeZone310(), toFastIntDaysDTS());
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+    return new ArrayLocalDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
+  }    
+  
+  @Override
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries() {
+    return new ListLocalDateDoubleTimeSeries(getTimeZone310(), toFastMutableIntDaysDTS());
+  }
+
+  @Override
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+    return new ListLocalDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
+  }
+  
+  @Override
+  public DateDoubleTimeSeries toDateDoubleTimeSeries() {
+    return new ArrayDateDoubleTimeSeries(getTimeZone(), toFastIntDaysDTS());
+  }
+
+  @Override
+  public DateDoubleTimeSeries toDateDoubleTimeSeries(TimeZone timeZone) {
+    return new ArrayDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
+  }
+  
+  @Override
+  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries() {
+    return new ListDateDoubleTimeSeries(getTimeZone(), toFastMutableIntDaysDTS());
+  }
+
+  @Override
+  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(TimeZone timeZone) {
+    return new ListDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
+  }
+
+  @Override
+  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries() {
+    return new ArrayDateTimeDoubleTimeSeries(getTimeZone(), toFastLongMillisDTS());
+  }
+
+  @Override
+  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(TimeZone timeZone) {
+    return new ArrayDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
+  }
+
+  @Override
+  public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries() {
+    return new ListDateTimeDoubleTimeSeries(getTimeZone(), toFastMutableLongMillisDTS());
+  }
+
+  @Override
+  public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries(
+      TimeZone timeZone) {
+    return new ListDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
+  }
+
+  @Override
+  public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries() {
+    return new ArraySQLDateDoubleTimeSeries(getTimeZone(), toFastIntDaysDTS());
+  }
+
+  @Override
+  public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone timeZone) {
+    return new ArraySQLDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
+  }
+
+  @Override
+  public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries() {
+    return new ListSQLDateDoubleTimeSeries(getTimeZone(), toFastMutableIntDaysDTS());
+  }
+
+  @Override
+  public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone timeZone) {
+    return new ListSQLDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
+  }
+
+  @Override
+  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries() {
+    return new ArrayZonedDateTimeDoubleTimeSeries(getTimeZone310(), toFastLongMillisDTS());
+  }
+  
+  @Override
+  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+    return new ArrayZonedDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
+  }
+
+  @Override
+  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries() {
+    return new ListZonedDateTimeDoubleTimeSeries(getTimeZone310(), toFastMutableLongMillisDTS());
+  }
+  
+  @Override
+  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+    return new ListZonedDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
+  }
+  
+  @Override
+  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
+    return new ArrayYearOffsetDoubleTimeSeries(zeroDate, toFastLongMillisDTS());
+  }
+
+  @Override
+  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
+    return new ArrayYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastLongMillisDTS());
+  }
+
+  @Override
+  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
+    return new ListYearOffsetDoubleTimeSeries(zeroDate, toFastMutableLongMillisDTS());
+  }
+  
+  @Override
+  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
+    return new ListYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastMutableLongMillisDTS());
   }
   
   @Override

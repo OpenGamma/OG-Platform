@@ -268,7 +268,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
         while (otherIterator.hasNext()) {
           final Int2DoubleMap.Entry otherNext = otherIterator.next();
           final Int2DoubleMap.Entry myNext = myIterator.next();
-          if (CompareUtils.closeEquals(otherNext.getDoubleValue(), myNext.getDoubleValue())) {
+          if (!CompareUtils.closeEquals(otherNext.getDoubleValue(), myNext.getDoubleValue())) {
             return false;
           }
           if (otherEncoding.convertToInt(otherNext.getIntKey(), myEncoding) != myNext.getIntKey()) {
@@ -289,7 +289,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
         while (otherIterator.hasNext()) {
           final Long2DoubleMap.Entry otherNext = otherIterator.next();
           final Int2DoubleMap.Entry myNext = myIterator.next();
-          if (CompareUtils.closeEquals(otherNext.getDoubleValue(), myNext.getDoubleValue())) {
+          if (!CompareUtils.closeEquals(otherNext.getDoubleValue(), myNext.getDoubleValue())) {
             return false;
           }
           if (otherEncoding.convertToInt(otherNext.getLongKey(), myEncoding) != myNext.getIntKey()) {
@@ -319,7 +319,7 @@ public class FastMapIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTime
         while (otherIterator.hasNext()) {
           final Int2DoubleMap.Entry otherNext = otherIterator.next();
           final Int2DoubleMap.Entry myNext = myIterator.next();
-          if (CompareUtils.closeEquals(otherNext.getDoubleValue(), myNext.getDoubleValue())) {
+          if (!CompareUtils.closeEquals(otherNext.getDoubleValue(), myNext.getDoubleValue())) {
             return false;
           }
           if (otherEncoding.convertToInt(otherNext.getIntKey(), myEncoding) != myNext.getIntKey()) {

@@ -181,11 +181,11 @@ public enum DateTimeNumericEncoding {
       case DATE_EPOCH_DAYS:
         return sourceValue;
       case TIME_EPOCH_SECONDS:
-        return sourceValue / SECONDS_PER_DAY;
+        return sourceValue * SECONDS_PER_DAY;
       case TIME_EPOCH_MILLIS:
-        return sourceValue / MILLIS_PER_DAY;
+        return sourceValue * MILLIS_PER_DAY;
       case TIME_EPOCH_NANOS:
-        return sourceValue / NANOS_PER_DAY;
+        return sourceValue * NANOS_PER_DAY;
       }
       throw new OpenGammaRuntimeException("Impossible");
     }

@@ -238,6 +238,8 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
     }
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, intDoubleTimeSeries);
   }
+  
+  
 
   @Override
   public boolean equals(final Object obj) {

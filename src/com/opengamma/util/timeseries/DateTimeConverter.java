@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
@@ -20,8 +21,12 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public interface DateTimeConverter<DATE_TYPE> {
 
+  // TimeZone methods.
+  TimeZone getTimeZone();
+  
+  javax.time.calendar.TimeZone getTimeZone310();
   // Long methods
-
+  
   long convertToLong(DATE_TYPE dateTime);
 
   FastLongDoubleTimeSeries convertToLong(FastLongDoubleTimeSeries templateTS, DoubleTimeSeries<DATE_TYPE> dts);
