@@ -70,7 +70,7 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
   }
   
   @Override
-  public void madePersistent(Subscription subscription) {
+  public void persistentChanged(Subscription subscription) {
   }
 
   @Override

@@ -42,9 +42,9 @@ public class HibernatePersistentSubscriptionManager extends AbstractPersistentSu
   }
 
   @Override
-  public void saveToStorage() {
-    Set<PersistentSubscription> subscriptions = getPersistentSubscriptions();
-    _hibernateTemplate.saveOrUpdateAll(subscriptions);
+  public void saveToStorage(Set<PersistentSubscription> newState) {
+    _hibernateTemplate.bulkUpdate("delete from PersistentSubscription");
+    _hibernateTemplate.saveOrUpdateAll(newState);
   }
   
   public static Class<?>[] getHibernateMappingClasses() {

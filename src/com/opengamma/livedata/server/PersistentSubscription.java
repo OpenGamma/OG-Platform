@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata.server;
 
+import java.io.Serializable;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -12,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class PersistentSubscription {
+public class PersistentSubscription implements Serializable {
   
   private String _id;
   

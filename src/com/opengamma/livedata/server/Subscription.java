@@ -7,6 +7,7 @@ package com.opengamma.livedata.server;
 
 import java.util.Date;
 
+import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,6 +19,9 @@ class Subscription {
   
   /** What was subscribed to. Bloomberg/Reuters/{your market data provider of choice} unique ID for a security. **/
   private final String _securityUniqueId;
+  
+  /** Again, what was subscribed to. One of the IDs will be the security unique ID, but there may be others. */
+  private final LiveDataSpecificationImpl _fullyQualifiedSpec;
   
   /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
   private final Object _handle;
@@ -52,14 +56,17 @@ class Subscription {
    */
   public Subscription(
       String securityUniqueId,
+      LiveDataSpecificationImpl fullyQualifiedSpec,
       Object handle,
       String distributionSpecification,
       boolean persistent) {
     ArgumentChecker.checkNotNull(securityUniqueId, "Security unique ID");
+    ArgumentChecker.checkNotNull(fullyQualifiedSpec, "Fully populated ID set");
     ArgumentChecker.checkNotNull(handle, "Subscription handle");
     ArgumentChecker.checkNotNull(distributionSpecification, "Distribution specification");
     
     _securityUniqueId = securityUniqueId;
+    _fullyQualifiedSpec = fullyQualifiedSpec;
     _handle = handle;
     _distributionSpecification = distributionSpecification;
     setPersistent(persistent);
@@ -81,6 +88,10 @@ class Subscription {
 
   public String getSecurityUniqueId() {
     return _securityUniqueId;
+  }
+  
+  public LiveDataSpecificationImpl getFullyQualifiedSpec() {
+    return _fullyQualifiedSpec;
   }
 
   public synchronized boolean isPersistent() {

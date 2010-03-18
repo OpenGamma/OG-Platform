@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.livedata.server;
@@ -22,35 +22,38 @@ import com.opengamma.util.ArgumentChecker;
  * the server crashes.
  * <p>
  * If you modify the list of persistent subscriptions in persistent storage by
- * editing the persistent storage (DB/file/whatever) using external tools
- * while the server is down, these changes will be reflected on the server
- * the next time it starts. 
+ * editing the persistent storage (DB/file/whatever) using external tools while
+ * the server is down, these changes will be reflected on the server the next
+ * time it starts.
  * 
  * @author pietari
  */
-abstract public class AbstractPersistentSubscriptionManager {
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractPersistentSubscriptionManager.class);
-  
+abstract public class AbstractPersistentSubscriptionManager implements
+    PersistentSubscriptionManagerMBean {
+
+  private static final Logger s_logger = LoggerFactory
+      .getLogger(AbstractPersistentSubscriptionManager.class);
+
   public static final long DEFAULT_SAVE_PERIOD = 60000;
-  
+
   private final AbstractLiveDataServer _server;
-  
+
   private Set<PersistentSubscription> _previousSavedState = null;
   private Set<PersistentSubscription> _persistentSubscriptions = new HashSet<PersistentSubscription>();
   private volatile boolean _initialised = false;
-  
+
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server) {
-    this(server, new Timer("PersistentSubscriptionManager Timer"), DEFAULT_SAVE_PERIOD);
+    this(server, new Timer("PersistentSubscriptionManager Timer"),
+        DEFAULT_SAVE_PERIOD);
   }
-  
-  public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server, Timer timer, long savePeriod) {
+
+  public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server,
+      Timer timer, long savePeriod) {
     ArgumentChecker.checkNotNull(server, "Live Data Server");
     _server = server;
     timer.schedule(new SaveTask(), savePeriod, savePeriod);
   }
 
-  
   private class SaveTask extends TimerTask {
     @Override
     public void run() {
@@ -65,81 +68,158 @@ abstract public class AbstractPersistentSubscriptionManager {
       }
     }
   }
-  
-  /**
-   * Read persistent subscriptions from persistent storage.
-   * Subscribes to any entries to which we are not yet subscribed.
-   */
+
+  @Override
   public synchronized void refresh() {
-    s_logger.debug("Refreshing persistent subscriptions from storage");
+    try {
+      s_logger.debug("Refreshing persistent subscriptions from storage");
+  
+      clear();
+      readFromStorage();
+      readFromServer();
+  
+      updateServer();
+  
+      s_logger.info("Refreshed persistent subscriptions from storage. There are currently "
+              + _persistentSubscriptions.size() + " persistent subscriptions.");
     
-    clear();    
-    readFromStorage();
-    readFromServer();
-    
+    } catch (RuntimeException e) {
+      // JMX
+      s_logger.error("refresh() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  /**
+   * Creates a persistent subscription on the server for any persistent
+   * subscriptions which are not yet there.
+   */
+  private void updateServer() {
     for (PersistentSubscription sub : _persistentSubscriptions) {
-      LiveDataSpecificationImpl spec = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_server.getUniqueIdDomain(), sub.getId()));
-      if (!_server.isSubscribedTo(spec)) {
-        s_logger.info("A persistent subscription added in storage, subscribing to " + spec);
+
+      LiveDataSpecificationImpl spec = new LiveDataSpecificationImpl(
+          new DomainSpecificIdentifier(_server.getUniqueIdDomain(), sub.getId()));
+      
+      Subscription existingSub = _server.getSubscription(spec);
+      
+      if (existingSub == null || !existingSub.isPersistent()) {
+        s_logger.info("Creating a persistent subscription on server for " + spec);
         _server.subscribe(spec, true);
       }
     }
-    
-    s_logger.debug("Refreshed persistent subscriptions from storage");
   }
-  
-  /**
-   * Saves all persistent subscriptions to persistent storage.
-   */
+
+  @Override
   public synchronized void save() {
-    s_logger.debug("Dumping persistent subscriptions to storage");
-    
-    clear();
-    readFromServer();
-    
-    // Only save if changed
-    if (_previousSavedState == null || !_previousSavedState.equals(_persistentSubscriptions)) {
-      s_logger.info("Persistent subscriptions changed on the server, saving " + _persistentSubscriptions.size() + " subscriptions to storage.");
-      saveToStorage();
-      _previousSavedState = _persistentSubscriptions;
-      _persistentSubscriptions = new HashSet<PersistentSubscription>();
+    try {
+      s_logger.debug("Dumping persistent subscriptions to storage");
+  
+      clear();
       readFromServer();
+  
+      // Only save if changed
+      if (_previousSavedState == null || !_previousSavedState.equals(_persistentSubscriptions)) {
+     
+        s_logger.info("A change to persistent subscriptions detected, saving "
+            + _persistentSubscriptions.size() + " subscriptions to storage.");
+        saveToStorage(_persistentSubscriptions);
+        _previousSavedState = new HashSet<PersistentSubscription>(_persistentSubscriptions);
+  
+      } else {
+        s_logger.debug("No changes to persistent subscriptions detected.");      
+      }
+  
+      s_logger.debug("Dumped persistent subscriptions to storage");
+    } catch (RuntimeException e) {
+      // JMX
+      s_logger.error("save() failed", e);
+      throw new RuntimeException(e.getMessage());
     }
+  }
+  
+  @Override
+  public synchronized Set<String> getPersistentSubscriptions() {
+    try {
+      clear();
+      readFromServer();
+      
+      HashSet<String> returnValue = new HashSet<String>();
+      for (PersistentSubscription ps : _persistentSubscriptions) {
+        returnValue.add(ps.getId());
+      }
+      
+      return returnValue;
     
-    s_logger.debug("Dumped persistent subscriptions to storage");
+    } catch (RuntimeException e) {
+      // JMX
+      s_logger.error("getPersistentSubscriptions() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
   }
+
+  @Override
+  public synchronized void addPersistentSubscription(String securityUniqueId) {
+    try {
+      addPersistentSubscription(new PersistentSubscription(securityUniqueId));
+      updateServer();
+    
+    } catch (RuntimeException e) {
+      // JMX
+      s_logger.error("addPersistentSubscription(" + securityUniqueId + ")  failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
+  @Override
+  public synchronized boolean removePersistentSubscription(
+      String securityUniqueId) {
+    try {
+      PersistentSubscription ps = new PersistentSubscription(securityUniqueId);
+      boolean removed = _persistentSubscriptions.remove(ps);
   
+      Subscription sub = _server.getSubscription(securityUniqueId);
+      if (sub != null && sub.isPersistent()) {
+        _server.changePersistent(sub, false);
+      }
+  
+      return removed;
+    
+    } catch (RuntimeException e) {
+      // JMX
+      s_logger.error("removePersistentSubscription(" + securityUniqueId + ") failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
   private void clear() {
-    _persistentSubscriptions.clear();    
+    _persistentSubscriptions.clear();
   }
-  
-  public synchronized Set<PersistentSubscription> getPersistentSubscriptions() {
-    return new HashSet<PersistentSubscription>(_persistentSubscriptions);
-  }
-  
+
   protected void addPersistentSubscription(PersistentSubscription sub) {
     _persistentSubscriptions.add(sub);
   }
-  
+
   /**
    * Refreshes persistent subscriptions from the latest status on the server.
    */
   private void readFromServer() {
     for (Subscription sub : _server.getSubscriptions()) {
       if (sub.isPersistent()) {
-        addPersistentSubscription(new PersistentSubscription(sub.getSecurityUniqueId()));
+        addPersistentSubscription(new PersistentSubscription(sub
+            .getSecurityUniqueId()));
       }
     }
   }
-  
+
   /**
-   * Reads entries from persistent storage (DB, flat file, ...) 
+   * Reads entries from persistent storage (DB, flat file, ...) and calls
+   * {@link addPersistentSubscription(PersistentSubscription sub)} for each one.
    */
   protected abstract void readFromStorage();
-  
+
   /**
    * Saves entries to persistent storage (DB, flat file, ...)
    */
-  public abstract void saveToStorage();
-    
+  public abstract void saveToStorage(Set<PersistentSubscription> newState);
+
 }
