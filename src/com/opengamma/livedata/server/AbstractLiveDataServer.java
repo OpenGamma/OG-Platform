@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
@@ -40,7 +41,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @author kirk
  */
-public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
+public abstract class AbstractLiveDataServer {
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractLiveDataServer.class);
 
@@ -152,21 +153,13 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
    *         type of server.
    */
   protected abstract IdentificationDomain getUniqueIdDomain();
+  
+  public String subscribe(String securityUniqueId) {
+    return subscribe(
+        new LiveDataSpecificationImpl(new DomainSpecificIdentifier(getUniqueIdDomain(), securityUniqueId)), 
+        false);    
+  }
 
-  /**
-   * Subscribes to market data.
-   * If the server already subscribes to the given market data, this method is a
-   * no-op.
-   * 
-   * @param specification
-   *          What to subscribe to. Will be resolved.
-   * @param persistent
-   *          <code>true</code> if the subscription should be persistent. A
-   *          persistent subscription never automatically expires.
-   *          Instead it lives on until explicitly cancelled by the user via
-   *          JMX.
-   * @return Tick distribution specification
-   */
   public String subscribe(LiveDataSpecificationImpl specification,
       boolean persistent) {
 
@@ -241,8 +234,7 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
 
   /**
    * Processes a market data subscription request by going through the steps of
-   * resolution,
-   * entitlement check, and subscription.
+   * resolution, entitlement check, and subscription.
    */
   public LiveDataSubscriptionResponseMsg subscriptionRequestMade(
       LiveDataSubscriptionRequest subscriptionRequest) {
@@ -431,7 +423,6 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
     }
   }
 
-  @Override
   public Set<String> getActiveDistributionSpecs() {
     Set<String> subscriptions = new HashSet<String>();
     for (Subscription subscription : _currentlyActiveSubscriptions) {
@@ -440,7 +431,6 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
     return subscriptions;
   }
 
-  @Override
   public Set<String> getActiveSubscriptionIds() {
     Set<String> subscriptions = new HashSet<String>();
     for (Subscription subscription : _currentlyActiveSubscriptions) {
@@ -449,12 +439,10 @@ public abstract class AbstractLiveDataServer implements LiveDataServerMBean {
     return subscriptions;
   }
 
-  @Override
   public int getNumActiveSubscriptions() {
     return _currentlyActiveSubscriptions.size();
   }
 
-  @Override
   public long getNumLiveDataUpdatesSent() {
     return _numUpdatesSent.get();
   }

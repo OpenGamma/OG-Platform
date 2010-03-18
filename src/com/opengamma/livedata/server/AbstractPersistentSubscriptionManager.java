@@ -28,8 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @author pietari
  */
-abstract public class AbstractPersistentSubscriptionManager implements
-    PersistentSubscriptionManagerMBean {
+abstract public class AbstractPersistentSubscriptionManager {
 
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractPersistentSubscriptionManager.class);
@@ -69,25 +68,17 @@ abstract public class AbstractPersistentSubscriptionManager implements
     }
   }
 
-  @Override
   public synchronized void refresh() {
-    try {
-      s_logger.debug("Refreshing persistent subscriptions from storage");
-  
-      clear();
-      readFromStorage();
-      readFromServer();
-  
-      updateServer();
-  
-      s_logger.info("Refreshed persistent subscriptions from storage. There are currently "
-              + _persistentSubscriptions.size() + " persistent subscriptions.");
-    
-    } catch (RuntimeException e) {
-      // JMX
-      s_logger.error("refresh() failed", e);
-      throw new RuntimeException(e.getMessage());
-    }
+    s_logger.debug("Refreshing persistent subscriptions from storage");
+
+    clear();
+    readFromStorage();
+    readFromServer();
+
+    updateServer();
+
+    s_logger.info("Refreshed persistent subscriptions from storage. There are currently "
+            + _persistentSubscriptions.size() + " persistent subscriptions.");
   }
 
   /**
@@ -109,86 +100,55 @@ abstract public class AbstractPersistentSubscriptionManager implements
     }
   }
 
-  @Override
   public synchronized void save() {
-    try {
-      s_logger.debug("Dumping persistent subscriptions to storage");
-  
-      clear();
-      readFromServer();
-  
-      // Only save if changed
-      if (_previousSavedState == null || !_previousSavedState.equals(_persistentSubscriptions)) {
-     
-        s_logger.info("A change to persistent subscriptions detected, saving "
-            + _persistentSubscriptions.size() + " subscriptions to storage.");
-        saveToStorage(_persistentSubscriptions);
-        _previousSavedState = new HashSet<PersistentSubscription>(_persistentSubscriptions);
-  
-      } else {
-        s_logger.debug("No changes to persistent subscriptions detected.");      
-      }
-  
-      s_logger.debug("Dumped persistent subscriptions to storage");
-    } catch (RuntimeException e) {
-      // JMX
-      s_logger.error("save() failed", e);
-      throw new RuntimeException(e.getMessage());
+    s_logger.debug("Dumping persistent subscriptions to storage");
+
+    clear();
+    readFromServer();
+
+    // Only save if changed
+    if (_previousSavedState == null || !_previousSavedState.equals(_persistentSubscriptions)) {
+   
+      s_logger.info("A change to persistent subscriptions detected, saving "
+          + _persistentSubscriptions.size() + " subscriptions to storage.");
+      saveToStorage(_persistentSubscriptions);
+      _previousSavedState = new HashSet<PersistentSubscription>(_persistentSubscriptions);
+
+    } else {
+      s_logger.debug("No changes to persistent subscriptions detected.");      
     }
+
+    s_logger.debug("Dumped persistent subscriptions to storage");
   }
   
-  @Override
   public synchronized Set<String> getPersistentSubscriptions() {
-    try {
-      clear();
-      readFromServer();
-      
-      HashSet<String> returnValue = new HashSet<String>();
-      for (PersistentSubscription ps : _persistentSubscriptions) {
-        returnValue.add(ps.getId());
-      }
-      
-      return returnValue;
-    
-    } catch (RuntimeException e) {
-      // JMX
-      s_logger.error("getPersistentSubscriptions() failed", e);
-      throw new RuntimeException(e.getMessage());
+    clear();
+    readFromServer();
+
+    HashSet<String> returnValue = new HashSet<String>();
+    for (PersistentSubscription ps : _persistentSubscriptions) {
+      returnValue.add(ps.getId());
     }
+
+    return returnValue;
   }
 
-  @Override
   public synchronized void addPersistentSubscription(String securityUniqueId) {
-    try {
-      addPersistentSubscription(new PersistentSubscription(securityUniqueId));
-      updateServer();
-    
-    } catch (RuntimeException e) {
-      // JMX
-      s_logger.error("addPersistentSubscription(" + securityUniqueId + ")  failed", e);
-      throw new RuntimeException(e.getMessage());
-    }
+    addPersistentSubscription(new PersistentSubscription(securityUniqueId));
+    updateServer();
   }
 
-  @Override
   public synchronized boolean removePersistentSubscription(
       String securityUniqueId) {
-    try {
-      PersistentSubscription ps = new PersistentSubscription(securityUniqueId);
-      boolean removed = _persistentSubscriptions.remove(ps);
-  
-      Subscription sub = _server.getSubscription(securityUniqueId);
-      if (sub != null && sub.isPersistent()) {
-        _server.changePersistent(sub, false);
-      }
-  
-      return removed;
-    
-    } catch (RuntimeException e) {
-      // JMX
-      s_logger.error("removePersistentSubscription(" + securityUniqueId + ") failed", e);
-      throw new RuntimeException(e.getMessage());
+    PersistentSubscription ps = new PersistentSubscription(securityUniqueId);
+    boolean removed = _persistentSubscriptions.remove(ps);
+
+    Subscription sub = _server.getSubscription(securityUniqueId);
+    if (sub != null && sub.isPersistent()) {
+      _server.changePersistent(sub, false);
     }
+
+    return removed;
   }
 
   private void clear() {
