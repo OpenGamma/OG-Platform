@@ -1,0 +1,7 @@
+DROP SCHEMA IF EXISTS public CASCADE;
+
+CREATE SCHEMA public AUTHORIZATION finowner;
+GRANT ALL ON SCHEMA public TO finowner;
+REVOKE ALL PRIVILEGES ON SCHEMA public FROM public;
+GRANT USAGE ON SCHEMA public TO public;
+COMMENT ON SCHEMA PUBLIC IS 'og_financial security storage';	
