@@ -14,7 +14,7 @@ import java.util.Arrays;
  * The implementation uses {@link System#currentTimeMillis()} so
  * the figures will only be approximate.
  * <p>
- * The implementation is not thread safe.   
+ * The implementation is thread-safe.   
  *
  * @author pietari
  */
@@ -49,7 +49,7 @@ public class PerformanceCounter {
     reset(timestamp);
   }
   
-  void reset(long timestamp) {
+  synchronized void reset(long timestamp) {
     _hits = 0;
     Arrays.fill(_hitsHistory, 0);
     _zeroTimestamp = timestamp;
@@ -79,7 +79,7 @@ public class PerformanceCounter {
     return (int) (getSecondsSinceInception(timestamp) % _secondsOfHistoryToKeep);   
   }
   
-  void hit(long timestamp) {
+  synchronized void hit(long timestamp) {
     int lastIndex = getIndex(_lastHitTimestamp);
     int index = getIndex(timestamp);
     
@@ -119,7 +119,7 @@ public class PerformanceCounter {
     return getHitsPerSecond(secsOfHistory, timestamp);
   }
   
-  double getHitsPerSecond(int secsOfHistory, long timestamp) {
+  synchronized double getHitsPerSecond(int secsOfHistory, long timestamp) {
     if (secsOfHistory <= 0) {
       throw new IllegalArgumentException("Please give positive secs of history: " + secsOfHistory);
     }
