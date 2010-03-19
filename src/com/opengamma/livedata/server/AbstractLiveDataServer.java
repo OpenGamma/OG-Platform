@@ -34,6 +34,7 @@ import com.opengamma.livedata.client.LiveDataEntitlementChecker;
 import com.opengamma.livedata.client.LiveDataSpecificationResolver;
 import com.opengamma.livedata.client.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PerformanceCounter;
 
 /**
  * The base class from which most OpenGamma Live Data feed servers should
@@ -52,6 +53,7 @@ public abstract class AbstractLiveDataServer {
   private final Map<LiveDataSpecificationImpl, Subscription> _fullyQualifiedSpec2Subscription = new ConcurrentHashMap<LiveDataSpecificationImpl, Subscription>();
 
   private final AtomicLong _numUpdatesSent = new AtomicLong(0);
+  private final PerformanceCounter _performanceCounter = new PerformanceCounter(60);
 
   private final Lock _subscriptionLock = new ReentrantLock();
 
@@ -416,6 +418,7 @@ public abstract class AbstractLiveDataServer {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numUpdatesSent.incrementAndGet();
+    _performanceCounter.hit();
 
     // TODO kirk 2009-10-29 -- This needs to be much better.
     for (MarketDataFieldReceiver receiver : _fieldReceivers) {
@@ -445,6 +448,10 @@ public abstract class AbstractLiveDataServer {
 
   public long getNumLiveDataUpdatesSent() {
     return _numUpdatesSent.get();
+  }
+  
+  public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
+    return _performanceCounter.getHitsPerSecond();
   }
 
   Set<Subscription> getSubscriptions() {

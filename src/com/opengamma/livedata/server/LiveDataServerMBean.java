@@ -77,6 +77,16 @@ public class LiveDataServerMBean {
     }
   }
   
+  @ManagedAttribute(description="# of market data updates/sec, calculated over the last 60 seconds")
+  public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
+    try {
+      return _server.getNumLiveDataUpdatesSentPerSecondOverLastMinute();            
+    } catch (RuntimeException e) {
+      s_logger.error("getNumLiveDataUpdatesSentPerSecondOverLastMinute() failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  
   @ManagedOperation(description="Subscribes to market data. The subscription will be non-persistent."
    + " If the server already subscribes to the given market data, this method is a "
    + " no-op. Returns the name of the JMS topic market data will be published on.")
