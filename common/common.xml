@@ -16,20 +16,20 @@
 	-->
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-        <!-- Load the environment variables first -->
-        <property environment="env" />
-        <!-- also, try a property file because some JVMs don't support env properly -->
-        <property file="${user.home}/.OG-Build-common.properties" />
+	<!-- Load the environment variables first -->
+	<property environment="env" />
+	<!-- also, try a property file because some JVMs don't support env properly -->
+	<property file="${user.home}/.OG-Build-common.properties" />
 
-        <!-- project detaults -->
-        <property file="${common.dir}/build.properties" />
+	<!-- project detaults -->
+	<property file="${common.dir}/build.properties" />
 
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
-        <available file="${ivy.jar.file}" property="skip.download"/>
+	<available file="${ivy.jar.file}" property="skip.download"/>
 
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
@@ -44,11 +44,11 @@
 	</target>
 
 	<target name="taskdef-ivy" depends="download-ivy" unless="og.build.invoked">
-                <path id="ivy.lib.path">
-                	<fileset dir="${ivy.jar.dir}" includes="*.jar" />
-                </path>
-                <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
-                <echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<echo file="${common.dir}/ivy.shared.default.root">&lt;ivysettings&gt;&lt;property name="ivy.shared.default.root" value="${env.IVY_SHARED_DEFAULT_ROOT}" /&gt;&lt;/ivysettings&gt;</echo>
 	</target>
 
 	<target name="load-ivy" depends="taskdef-ivy">
@@ -95,46 +95,46 @@
 	<target name="compile" depends="compile-src,compile-tests"
 		description="--> compile all source code" />
 
-        <target name="fudge-proto-present" depends="resolve">
-                <available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
-                <available property="fudge.proto.gitignore.exists" file="${fudge.proto.gitIgnoreFlag}" />
-        </target>
+	<target name="fudge-proto-present" depends="resolve">
+		<available classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" property="fudge.proto.present" />
+		<available property="fudge.proto.gitignore.exists" file="${fudge.proto.gitIgnoreFlag}" />
+	</target>
 
 	<target name="fudge-proto-gitignore" depends="fudge-proto-present" unless="fudge.proto.gitignore.exists">
 		<touch file="${fudge.proto.gitIgnoreFlag}" />
 		<property name="fudge.proto.gitIgnore" value="true" />
 	</target>
 
-        <target name="fudge-proto-compile" depends="fudge-proto-gitignore" if="fudge.proto.present">
-                 <path id="fudge.proto.project.path">
-                         <dirset dir="${projects.dir}">
-                                 <include name="**/src" />
-                         </dirset>
-                 </path>
-                 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
-                 <fudgeproto
-                        srcdir="${src.dir}"
-                        destdir="${src.dir}"
-                        searchdir="${toString:fudge.proto.project.path}"
-                        equals="${fudge.proto.equals}"
-                        toString="${fudge.proto.toString}"
-                        hashCode="${fudge.proto.hashCode}"
-                        verbose="${build.verbose}"
-                        fudgeContext="${fudge.proto.fudgeContext}"
-                        rebuildAll="${fudge.proto.rebuildall}"
-                        gitIgnore="${fudge.proto.gitIgnore}" />
-        </target>
+	<target name="fudge-proto-compile" depends="fudge-proto-gitignore" if="fudge.proto.present">
+		 <path id="fudge.proto.project.path">
+			 <dirset dir="${projects.dir}">
+				 <include name="**/src" />
+			 </dirset>
+		 </path>
+		 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
+		 <fudgeproto
+			srcdir="${src.dir}"
+			destdir="${src.dir}"
+			searchdir="${toString:fudge.proto.project.path}"
+			equals="${fudge.proto.equals}"
+			toString="${fudge.proto.toString}"
+			hashCode="${fudge.proto.hashCode}"
+			verbose="${build.verbose}"
+			fudgeContext="${fudge.proto.fudgeContext}"
+			rebuildAll="${fudge.proto.rebuildall}"
+			gitIgnore="${fudge.proto.gitIgnore}" />
+	</target>
 
-        <target name="fudge-proto" depends="fudge-proto-compile" 
-                description="--> compile any Fudge .proto files">
-        </target>
+	<target name="fudge-proto" depends="fudge-proto-compile" 
+		description="--> compile any Fudge .proto files">
+	</target>
 
 	<target name="compile-src" depends="fudge-proto"
 		description="--> compile the main project files">
 		<mkdir dir="${classes.dir}" />
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
 			classpathref="lib.path.id" debug="${build.debug}" optimize="${build.optimize}"
-                        memoryMaximumSize="512M" fork="true"
+			memoryMaximumSize="512M" fork="true"
 			verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${classes.dir}">
 			<fileset dir="${src.dir}">
@@ -151,23 +151,40 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 
-	<target name="compile-tests" description="--> compile the tests">
+	<target name="compile-tests-mkdir" depends="resolve">
 		<mkdir dir="${tests.classes.dir}" />
 		<path id="tests.build.classpath.id">
 			<path refid="lib.path.id" />
 			<pathelement path="${classes.dir}" />
 		</path>
+	</target>
+
+	<target name="compile-tests-main" depends="compile-tests-mkdir">
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
 			classpathref="tests.build.classpath.id" debug="${build.debug}"
-                        memoryMaximumSize="512M" fork="true"
+			memoryMaximumSize="512M" fork="true"
 			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+	</target>
+
+	<available property="tests.interop" file="${tests.dir}/interop" />
+	<target name="compile-tests-interop" depends="compile-tests-mkdir" if="tests.interop">
+		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
+			classpathref="tests.build.classpath.id" debug="${build.debug}"
+			memoryMaximumSize="512M" fork="true"
+			optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
+	</target>
+
+	<target name="compile-tests" depends="compile-tests-main,compile-tests-interop" description="--> compile the tests">
 		<copy todir="${tests.classes.dir}">
 			<fileset dir="${tests.src.dir}">
 				<exclude name="**/*.java" />
 			</fileset>
+			<fileset dir="${tests.dir}/interop" erroronmissingdir="false">
+				<exclude name="**/*.java" />
+			</fileset>
 		</copy>
 	</target>
-	
+
 	<property name="test.database.type" value="all"/>  <!-- derby, postgres, all. -->
 	
 	<target name="tests" depends="create-test-db,junit-batch,junit-report" description="--> run unit tests and generate report"/>
@@ -197,8 +214,7 @@
 			<formatter type="xml" />
 			<batchtest todir="${tests.junit.dir}/xml">
 				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
-				<!-- TODO: deal with interop, integration, etc -->
-				<!--fileset dir="${tests.dir}/interop" includes="**/*Test.java" /-->
+				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
 			<sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
 			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in HibernateTest.java -->
@@ -206,12 +222,12 @@
 	</target>
 
 	<target name="junit-report" depends="junit-batch">
-                <mkdir dir="${tests.junit.dir}/html" />
-                <mkdir dir="${tests.junit.dir}/xml" />
-                <junitreport todir="${tests.junit.dir}/xml">
-                        <fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
-                        <report todir="${tests.junit.dir}/html" />
-                </junitreport>
+		<mkdir dir="${tests.junit.dir}/html" />
+		<mkdir dir="${tests.junit.dir}/xml" />
+		<junitreport todir="${tests.junit.dir}/xml">
+			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
+			<report todir="${tests.junit.dir}/html" />
+		</junitreport>
 	</target>
 
 	<target name="run" depends="version, compile" description="--> compile and run the project">
