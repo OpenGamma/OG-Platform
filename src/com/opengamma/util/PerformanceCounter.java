@@ -21,7 +21,8 @@ import java.util.Arrays;
 public class PerformanceCounter {
   
   private final int _secondsOfHistoryToKeep;
-  private final int[] _hits;
+  private long _hits;
+  private final long[] _hitsHistory;
   private long _zeroTimestamp; 
   private long _lastHitTimestamp;
   
@@ -38,7 +39,7 @@ public class PerformanceCounter {
     }
     
     _secondsOfHistoryToKeep = secondsOfHistoryToKeep;
-    _hits = new int[secondsOfHistoryToKeep];
+    _hitsHistory = new long[_secondsOfHistoryToKeep];
     
     reset(zeroTimestamp);
   }
@@ -49,7 +50,8 @@ public class PerformanceCounter {
   }
   
   void reset(long timestamp) {
-    Arrays.fill(_hits, 0);
+    _hits = 0;
+    Arrays.fill(_hitsHistory, 0);
     _zeroTimestamp = timestamp;
     _lastHitTimestamp = _zeroTimestamp;
   }
@@ -65,7 +67,15 @@ public class PerformanceCounter {
     return (timestamp - _zeroTimestamp) / 1000;   
   }
   
+  private long getEarliestAvailableTime() {
+    long lastHitTimestampRoundedDownToSeconds = _lastHitTimestamp / 1000 * 1000;
+    return lastHitTimestampRoundedDownToSeconds - 1000 * _secondsOfHistoryToKeep; 
+  }
+  
   private int getIndex(long timestamp) {
+    if (timestamp < getEarliestAvailableTime()) {
+      throw new IllegalArgumentException("Earliest available is " + getEarliestAvailableTime() + ", tried to request " + timestamp);
+    }
     return (int) (getSecondsSinceInception(timestamp) % _secondsOfHistoryToKeep);   
   }
   
@@ -76,19 +86,17 @@ public class PerformanceCounter {
     long secondsSinceLastHit = getSecondsSinceInception(timestamp) - getSecondsSinceInception(_lastHitTimestamp);
     
     if (secondsSinceLastHit >= _secondsOfHistoryToKeep) {
-      Arrays.fill(_hits, 0);
+      Arrays.fill(_hitsHistory, _hits);
     } else {
       if (index > lastIndex) {
-        Arrays.fill(_hits, lastIndex + 1, index + 1, 0);
+        Arrays.fill(_hitsHistory, lastIndex, index, _hits);
       } else if (index < lastIndex) {
-        if (lastIndex < _hits.length) {
-          Arrays.fill(_hits, lastIndex + 1, _hits.length, 0);
-        }
-        Arrays.fill(_hits, 0, index + 1, 0);
+        Arrays.fill(_hitsHistory, lastIndex, _hitsHistory.length, _hits);
+        Arrays.fill(_hitsHistory, 0, index, _hits);
       }
     }
     
-    _hits[index]++;
+    _hits++;
     _lastHitTimestamp = timestamp;
   }
   
@@ -119,23 +127,33 @@ public class PerformanceCounter {
       throw new IllegalArgumentException("Max secs of history is " + _secondsOfHistoryToKeep + ", was given " + secsOfHistory);
     }
     
-    if (timestamp < _lastHitTimestamp) {
-      reset(timestamp); // could happen if the system clock is played with
+    long historicalTime = timestamp - 1000 * secsOfHistory;
+    if (historicalTime < getEarliestAvailableTime()) { // could happen if the system clock is played with
+      reset(timestamp); 
     }
     
-    int count = 0;
-    for (int i = 0; i < secsOfHistory; i++) {
-      long historicalTime = timestamp - 1000 * i;
-      long historicalTimeRoundedDownToSeconds = historicalTime / 1000 * 1000;
-      if (historicalTimeRoundedDownToSeconds <= _lastHitTimestamp 
-          && historicalTimeRoundedDownToSeconds >= _zeroTimestamp) {
-        int index = getIndex(historicalTimeRoundedDownToSeconds);
-        count += _hits[index];
-      } 
-      // else { count += 0; }
+    long currentHitCount;
+    if (timestamp < _zeroTimestamp) {
+      currentHitCount = 0;      
+    } else if (timestamp >= _lastHitTimestamp) {
+      currentHitCount = _hits;      
+    } else {
+      int currentIndex = getIndex(timestamp);
+      currentHitCount = _hitsHistory[currentIndex];
     }
     
-    double hitsPerSecond = ((double) count) / secsOfHistory;
+    long historicalHitCount;
+    if (historicalTime < _zeroTimestamp) {
+      historicalHitCount = 0;
+    } else if (historicalTime >= _lastHitTimestamp) {
+      historicalHitCount = _hits;
+    } else {
+      int historicalIndex = getIndex(historicalTime);
+      historicalHitCount = _hitsHistory[historicalIndex];
+    }
+    
+    long hits = currentHitCount - historicalHitCount;
+    double hitsPerSecond = ((double) hits) / secsOfHistory;
     return hitsPerSecond;
   }
 

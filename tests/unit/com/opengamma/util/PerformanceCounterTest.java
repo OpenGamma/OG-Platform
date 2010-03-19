@@ -68,7 +68,7 @@ public class PerformanceCounterTest {
     counter.hit(15000);
     counter.hit(15100);
     
-    assertEquals(4 / 1.0, counter.getHitsPerSecondAsOfLastHit(1), 0.001);
+    assertEquals(4 / 1.0, counter.getHitsPerSecondAsOfLastHit(1), 0.001); // 14999 ignored because it's on a different second to 15100
     assertEquals(5 / 2.0, counter.getHitsPerSecondAsOfLastHit(2), 0.001);
     assertEquals(10 / 30.0, counter.getHitsPerSecondAsOfLastHit(30), 0.001);
     assertEquals(10 / 60.0, counter.getHitsPerSecondAsOfLastHit(60), 0.001);
@@ -80,7 +80,7 @@ public class PerformanceCounterTest {
     counter.hit(63002);
     counter.hit(63003);
     
-    assertEquals(4 / 1.0, counter.getHitsPerSecondAsOfLastHit(1), 0.001);
+    assertEquals(4 / 1.0, counter.getHitsPerSecondAsOfLastHit(1), 0.001); // 62999 ignored
     assertEquals(5 / 2.0, counter.getHitsPerSecondAsOfLastHit(2), 0.001);
     assertEquals(5 / 30.0, counter.getHitsPerSecondAsOfLastHit(30), 0.001);
     assertEquals(12 / 60.0, counter.getHitsPerSecondAsOfLastHit(60), 0.001); // the first 3 will have dropped off
