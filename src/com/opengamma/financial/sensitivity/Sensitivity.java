@@ -74,14 +74,12 @@ public enum Sensitivity {
 
     @Override
     public <T> T accept(final SensitivityVisitor<T> visitor) {
-      // TODO Auto-generated method stub
-      return null;
+      return visitor.visitDV01();
     }
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new FirstOrder(Underlying.YIELD_CURVE);
     }
 
   },
@@ -94,8 +92,20 @@ public enum Sensitivity {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new FirstOrder(Underlying.YIELD_CURVE);
+    }
+
+  },
+  DURATION {
+
+    @Override
+    public <T> T accept(final SensitivityVisitor<T> visitor) {
+      return visitor.visitDuration();
+    }
+
+    @Override
+    public Order getOrder() {
+      return new FirstOrder(Underlying.BOND_YIELD);
     }
 
   },
@@ -108,8 +118,7 @@ public enum Sensitivity {
 
     @Override
     public Order getOrder() {
-      // TODO Auto-generated method stub
-      return null;
+      return new SecondOrder(Underlying.BOND_YIELD);
     }
   };
 
