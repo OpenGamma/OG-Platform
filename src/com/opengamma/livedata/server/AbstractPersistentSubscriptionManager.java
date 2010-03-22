@@ -12,6 +12,7 @@ import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.livedata.LiveDataSpecificationImpl;
@@ -25,10 +26,13 @@ import com.opengamma.util.ArgumentChecker;
  * editing the persistent storage (DB/file/whatever) using external tools while
  * the server is down, these changes will be reflected on the server the next
  * time it starts.
+ * <p>
+ * This beans depends-on the Live Data Server, and any Spring configuration must reflect 
+ * this. See {@link http://jira.springframework.org/browse/SPR-2325}.
  * 
  * @author pietari
  */
-abstract public class AbstractPersistentSubscriptionManager {
+abstract public class AbstractPersistentSubscriptionManager implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractPersistentSubscriptionManager.class);
@@ -36,10 +40,13 @@ abstract public class AbstractPersistentSubscriptionManager {
   public static final long DEFAULT_SAVE_PERIOD = 60000;
 
   private final AbstractLiveDataServer _server;
+  private final Timer _timer;
+  private final long _savePeriod;
+  private final SaveTask _saveTask = new SaveTask();
 
   private Set<PersistentSubscription> _previousSavedState = null;
   private Set<PersistentSubscription> _persistentSubscriptions = new HashSet<PersistentSubscription>();
-  private volatile boolean _initialised = false;
+  private volatile boolean _isRunning = false;
 
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server) {
     this(server, new Timer("PersistentSubscriptionManager Timer"),
@@ -49,23 +56,44 @@ abstract public class AbstractPersistentSubscriptionManager {
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server,
       Timer timer, long savePeriod) {
     ArgumentChecker.checkNotNull(server, "Live Data Server");
+    ArgumentChecker.checkNotNull(timer, "Timer");
+    if (savePeriod <= 0) {
+      throw new IllegalArgumentException("Please give positive save period");
+    }
+    
     _server = server;
-    timer.schedule(new SaveTask(), savePeriod, savePeriod);
+    _timer = timer;
+    _savePeriod = savePeriod;
   }
 
   private class SaveTask extends TimerTask {
     @Override
     public void run() {
       try {
-        if (!_initialised) {
-          refresh();
-          _initialised = true;
-        }
         save();
       } catch (RuntimeException e) {
         s_logger.error("Saving persistent subscriptions to storage failed", e);
       }
     }
+  }
+  
+  
+  @Override
+  public boolean isRunning() {
+    return _isRunning;
+  }
+
+  @Override
+  public void start() {
+    refresh();
+    _timer.schedule(_saveTask, _savePeriod, _savePeriod);
+    _isRunning = true;
+  }
+
+  @Override
+  public void stop() {
+    _saveTask.cancel();
+    _isRunning = false;
   }
 
   public synchronized void refresh() {
