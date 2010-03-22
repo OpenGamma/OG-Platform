@@ -91,9 +91,24 @@ public class PerformanceCounterTest {
     assertEquals(10 / 60.0, counter.getHitsPerSecond(60, 68000), 0.001);
     
     assertEquals(0 / 60.0, counter.getHitsPerSecond(60, 2000000), 0.001);
+  }
+  
+  @Test
+  public void clockGoingBackwards() {
+    PerformanceCounter counter = new PerformanceCounter(60, 0);
     
-    assertEquals(0, counter.getHitsPerSecond(60, 4000), 0.001); // historical timestamp passed in - will reset
-    assertEquals(0, counter.getHitsPerSecond(60, 64000), 0.001);
+    counter.hit(1000);
+    counter.hit(2000);
+    
+    assertEquals(2 / 60.0, counter.getHitsPerSecond(60, 3000), 0.001);
+    assertEquals(0, counter.getHitsPerSecond(60, 1500), 0.001); // historical timestamp passed in - will reset
+    
+    counter.hit(4000);
+    counter.hit(5000);
+    assertEquals(2 / 60.0, counter.getHitsPerSecond(60, 6000), 0.001);
+    
+    counter.hit(1000); // historical timestamp passed in - will reset
+    assertEquals(1 / 60.0, counter.getHitsPerSecond(60, 7000), 0.001);
   }
   
   @Test(expected=IllegalArgumentException.class)
