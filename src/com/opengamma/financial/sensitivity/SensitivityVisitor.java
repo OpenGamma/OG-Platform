@@ -14,8 +14,6 @@ public interface SensitivityVisitor<T> {
 
   public T visitPV01();
 
-  public T visitDV01();
-
   public T visitDuration();
 
   public T visitConvexity();

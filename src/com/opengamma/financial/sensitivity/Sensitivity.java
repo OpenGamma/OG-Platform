@@ -70,19 +70,6 @@ public enum Sensitivity {
     }
 
   },
-  DV01 {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitDV01();
-    }
-
-    @Override
-    public Order getOrder() {
-      return new FirstOrder(Underlying.YIELD_CURVE);
-    }
-
-  },
   PV01 {
 
     @Override
