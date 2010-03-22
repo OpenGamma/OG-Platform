@@ -6,6 +6,7 @@
 package com.opengamma.livedata.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -55,9 +56,21 @@ public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
     
     manager.save();
     assertEquals(2, manager.getPersistentSubscriptions().size());
+    assertTrue(server.getSubscription("testsub1").isPersistent());
 
     manager.refresh();
     assertEquals(2, manager.getPersistentSubscriptions().size());
+    assertTrue(server.getSubscription("testsub1").isPersistent());
     
+    boolean removed = manager.removePersistentSubscription("testsub1");
+    assertTrue(removed);
+    assertEquals(1, manager.getPersistentSubscriptions().size());
+    assertFalse(server.getSubscription("testsub1").isPersistent());
+    
+    assertFalse(manager.removePersistentSubscription("nonexistentsub"));
+    
+    manager.addPersistentSubscription("testsub6");
+    assertEquals(2, manager.getPersistentSubscriptions().size());
+    assertTrue(server.getSubscription("testsub6").isPersistent());
   }
 }

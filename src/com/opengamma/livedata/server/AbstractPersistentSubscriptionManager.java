@@ -95,7 +95,11 @@ abstract public class AbstractPersistentSubscriptionManager {
       
       if (existingSub == null || !existingSub.isPersistent()) {
         s_logger.info("Creating a persistent subscription on server for " + spec);
-        _server.subscribe(spec, true);
+        try {
+          _server.subscribe(spec, true);
+        } catch (Exception e) {
+          s_logger.error("Creating a persistent subscription failed for " + spec, e);
+        }
       }
     }
   }
