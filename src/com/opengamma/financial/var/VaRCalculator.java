@@ -11,7 +11,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  * 
  */
-public abstract class VaRCalculator<T extends NormalStatistics<?>> extends Function1D<T, Double> {
+public abstract class VaRCalculator<T> extends Function1D<T, Double> {
   private double _horizon;
   private double _periods;
   private double _quantile;
