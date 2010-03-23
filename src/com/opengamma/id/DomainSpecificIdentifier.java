@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public final class DomainSpecificIdentifier implements Serializable, Cloneable {
+public final class DomainSpecificIdentifier implements Identifiable, Serializable, Cloneable, Comparable<DomainSpecificIdentifier> {
   public static final String DOMAIN_FUDGE_FIELD_NAME = "Domain";
   public static final String VALUE_FUDGE_FIELD_NAME = "Value";
   private final IdentificationDomain _domain;
@@ -108,4 +108,17 @@ public final class DomainSpecificIdentifier implements Serializable, Cloneable {
     return msg;
   }
 
+  @Override
+  public int compareTo(DomainSpecificIdentifier o) {
+    if (_domain.compareTo(o._domain) != 0) {
+      return _domain.compareTo(o._domain);
+    }
+    return _value.compareTo(o._value);
+  }
+
+  @Override
+  public DomainSpecificIdentifier getIdentityKey() {
+    return this;
+  }
+ 
 }
