@@ -12,6 +12,8 @@ public interface SensitivityVisitor<T> {
 
   public T visitValueTheta();
 
+  public T visitValueSpeed();
+
   public T visitPV01();
 
   public T visitDuration();

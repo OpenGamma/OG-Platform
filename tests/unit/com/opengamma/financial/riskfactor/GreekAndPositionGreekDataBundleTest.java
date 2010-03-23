@@ -7,6 +7,7 @@ package com.opengamma.financial.riskfactor;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import com.opengamma.financial.pnl.Underlying;
 public class GreekAndPositionGreekDataBundleTest {
   private static final Map<Object, Double> D;
   private static final GreekResultCollection GREEKS = new GreekResultCollection();
-  private static final RiskFactorResultCollection RISK_FACTOR = new RiskFactorResultCollection();
+  private static final Map<PositionGreek, RiskFactorResult<?>> RISK_FACTOR = new HashMap<PositionGreek, RiskFactorResult<?>>();
   private static final Map<Greek, Map<Object, Double>> UNDERLYING = new HashMap<Greek, Map<Object, Double>>();
   private static final GreekDataBundle GREEKS_DATA;
   private static final PositionGreekDataBundle POSITION_GREEKS_DATA;
@@ -86,7 +87,7 @@ public class GreekAndPositionGreekDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyRiskFactors() {
-    new PositionGreekDataBundle(new RiskFactorResultCollection(), UNDERLYING);
+    new PositionGreekDataBundle(Collections.<PositionGreek, RiskFactorResult<?>> emptyMap(), UNDERLYING);
   }
 
   @Test(expected = IllegalArgumentException.class)

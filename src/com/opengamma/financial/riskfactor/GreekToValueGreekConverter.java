@@ -27,7 +27,7 @@ import com.opengamma.math.function.Function1D;
  * @author emcleod
  *
  */
-public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, RiskFactorResultCollection> {
+public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<Sensitivity, RiskFactorResult<?>>> {
   private final GreekVisitor<Sensitivity> _visitor = new GreekToValueGreekVisitor();
 
   /*
@@ -36,11 +36,11 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Risk
    * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
    */
   @Override
-  public RiskFactorResultCollection evaluate(final GreekDataBundle data) {
+  public Map<Sensitivity, RiskFactorResult<?>> evaluate(final GreekDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Risk factor data bundle was null");
     final GreekResultCollection greeks = data.getAllGreekValues();
-    final RiskFactorResultCollection riskFactors = new RiskFactorResultCollection();
+    final Map<Sensitivity, RiskFactorResult<?>> riskFactors = new HashMap<Sensitivity, RiskFactorResult<?>>();
     Map<String, Double> multipleGreekResult;
     Map<Object, Double> riskFactorResultMap;
     Greek key;

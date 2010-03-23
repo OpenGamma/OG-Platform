@@ -54,4 +54,55 @@ public class MixedSecondOrder extends Order {
   public FirstOrder getSecondVariable() {
     return _secondVariable;
   }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return "MixedSecondOrder[" + _firstVariable + ", " + _secondVariable + "]";
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_firstVariable == null) ? 0 : _firstVariable.hashCode());
+    result = prime * result + ((_secondVariable == null) ? 0 : _secondVariable.hashCode());
+    return result;
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final MixedSecondOrder other = (MixedSecondOrder) obj;
+    if (_firstVariable == null) {
+      if (other._firstVariable != null)
+        return false;
+    } else if (!_firstVariable.equals(other._firstVariable))
+      return false;
+    if (_secondVariable == null) {
+      if (other._secondVariable != null)
+        return false;
+    } else if (!_secondVariable.equals(other._secondVariable))
+      return false;
+    return true;
+  }
 }
