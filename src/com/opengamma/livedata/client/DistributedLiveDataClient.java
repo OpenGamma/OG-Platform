@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
@@ -142,9 +141,9 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   protected LiveDataSubscriptionRequest composeSubscriptionRequestMessage(Collection<SubscriptionHandle> subHandles) {
     String username = null;
     
-    ArrayList<LiveDataSpecificationImpl> specs = new ArrayList<LiveDataSpecificationImpl>();
+    ArrayList<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
     for (SubscriptionHandle subHandle : subHandles) {
-      specs.add(new LiveDataSpecificationImpl(subHandle.getRequestedSpecification()));
+      specs.add(new LiveDataSpecification(subHandle.getRequestedSpecification()));
       
       if (username == null) {
         username = subHandle.getUserName();

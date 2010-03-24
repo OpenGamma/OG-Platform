@@ -24,7 +24,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
@@ -49,8 +48,8 @@ public abstract class AbstractLiveDataServer {
   private final Set<MarketDataFieldReceiver> _fieldReceivers = new CopyOnWriteArraySet<MarketDataFieldReceiver>();
   private final Set<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArraySet<SubscriptionListener>();
   private final Set<Subscription> _currentlyActiveSubscriptions = new CopyOnWriteArraySet<Subscription>();
-  private final Map<String, LiveDataSpecificationImpl> _securityUniqueId2FullyQualifiedSpecification = new ConcurrentHashMap<String, LiveDataSpecificationImpl>();
-  private final Map<LiveDataSpecificationImpl, Subscription> _fullyQualifiedSpec2Subscription = new ConcurrentHashMap<LiveDataSpecificationImpl, Subscription>();
+  private final Map<String, LiveDataSpecification> _securityUniqueId2FullyQualifiedSpecification = new ConcurrentHashMap<String, LiveDataSpecification>();
+  private final Map<LiveDataSpecification, Subscription> _fullyQualifiedSpec2Subscription = new ConcurrentHashMap<LiveDataSpecification, Subscription>();
 
   private final AtomicLong _numUpdatesSent = new AtomicLong(0);
   private final PerformanceCounter _performanceCounter = new PerformanceCounter(60);
@@ -158,11 +157,11 @@ public abstract class AbstractLiveDataServer {
   
   public String subscribe(String securityUniqueId) {
     return subscribe(
-        new LiveDataSpecificationImpl(new DomainSpecificIdentifier(getUniqueIdDomain(), securityUniqueId)), 
+        new LiveDataSpecification(new DomainSpecificIdentifier(getUniqueIdDomain(), securityUniqueId)), 
         false);    
   }
 
-  public String subscribe(LiveDataSpecificationImpl specification,
+  public String subscribe(LiveDataSpecification specification,
       boolean persistent) {
 
     // Resolve
@@ -172,7 +171,7 @@ public abstract class AbstractLiveDataServer {
       throw new OpenGammaRuntimeException(
           "Unable to resolve requested specification " + specification);
     }
-    LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(
+    LiveDataSpecification localFullyQualifiedSpecification = new LiveDataSpecification(
         fullyQualifiedSpecification);
 
     // Subscribe
@@ -181,7 +180,7 @@ public abstract class AbstractLiveDataServer {
   }
 
   private String subscribeToFullyQualifiedSpecification(
-      LiveDataSpecificationImpl qualifiedSpecification, boolean persistent) {
+      LiveDataSpecification qualifiedSpecification, boolean persistent) {
     String tickDistributionSpec = getDistributionSpecificationResolver()
         .getDistributionSpecification(qualifiedSpecification);
 
@@ -242,7 +241,7 @@ public abstract class AbstractLiveDataServer {
       LiveDataSubscriptionRequest subscriptionRequest) {
 
     ArrayList<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>();
-    for (LiveDataSpecificationImpl requestedSpecification : subscriptionRequest
+    for (LiveDataSpecification requestedSpecification : subscriptionRequest
         .getSpecifications()) {
 
       try {
@@ -258,7 +257,7 @@ public abstract class AbstractLiveDataServer {
               LiveDataSubscriptionResult.NOT_PRESENT, null, null));
           continue;
         }
-        LiveDataSpecificationImpl localFullyQualifiedSpecification = new LiveDataSpecificationImpl(
+        LiveDataSpecification localFullyQualifiedSpecification = new LiveDataSpecification(
             qualifiedSpecification);
 
         // Entitlement check
@@ -269,7 +268,7 @@ public abstract class AbstractLiveDataServer {
           // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to
           // get a user message.
           responses.add(new LiveDataSubscriptionResponse(
-              requestedSpecification, new LiveDataSpecificationImpl(
+              requestedSpecification, new LiveDataSpecification(
                   qualifiedSpecification),
               LiveDataSubscriptionResult.NOT_AUTHORIZED, null, null));
           continue;
@@ -281,7 +280,7 @@ public abstract class AbstractLiveDataServer {
                 .getPersistent());
 
         LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(
-            requestedSpecification, new LiveDataSpecificationImpl(
+            requestedSpecification, new LiveDataSpecification(
                 qualifiedSpecification), LiveDataSubscriptionResult.SUCCESS,
             null, tickDistributionSpec);
         responses.add(response);
@@ -402,14 +401,14 @@ public abstract class AbstractLiveDataServer {
 
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
     return _fullyQualifiedSpec2Subscription
-        .containsKey(new LiveDataSpecificationImpl(fullyQualifiedSpec));
+        .containsKey(new LiveDataSpecification(fullyQualifiedSpec));
   }
 
   boolean isSubscribedTo(Subscription subscription) {
     return _currentlyActiveSubscriptions.contains(subscription);
   }
 
-  public LiveDataSpecificationImpl getFullyQualifiedSpec(String securityUniqueId) {
+  public LiveDataSpecification getFullyQualifiedSpec(String securityUniqueId) {
     return _securityUniqueId2FullyQualifiedSpecification.get(securityUniqueId);
   }
 
@@ -458,12 +457,12 @@ public abstract class AbstractLiveDataServer {
     return _currentlyActiveSubscriptions;
   }
 
-  Subscription getSubscription(LiveDataSpecificationImpl spec) {
+  Subscription getSubscription(LiveDataSpecification spec) {
     return _fullyQualifiedSpec2Subscription.get(spec);
   }
 
   Subscription getSubscription(String securityUniqueId) {
-    LiveDataSpecificationImpl spec = getFullyQualifiedSpec(securityUniqueId);
+    LiveDataSpecification spec = getFullyQualifiedSpec(securityUniqueId);
     if (spec == null) {
       return null;
     }

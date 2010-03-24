@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.security.user.Authority;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserGroup;
@@ -59,8 +59,8 @@ public class UserEntitlementCheckerTest {
         bbguidDomain
         );
     
-    LiveDataSpecificationImpl appleStockMarketDataOnBloomberg = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(bbguidDomain, "EQ0010169500001000"));
-    LiveDataSpecificationImpl someFxDataOnBloomberg = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(bbguidDomain, "FX123456"));
+    LiveDataSpecification appleStockMarketDataOnBloomberg = new LiveDataSpecification(new DomainSpecificIdentifier(bbguidDomain, "EQ0010169500001000"));
+    LiveDataSpecification someFxDataOnBloomberg = new LiveDataSpecification(new DomainSpecificIdentifier(bbguidDomain, "FX123456"));
     
     Assert.assertTrue(userEntitlementChecker.isEntitled("john", appleStockMarketDataOnBloomberg));
     Assert.assertFalse(userEntitlementChecker.isEntitled("john", someFxDataOnBloomberg));

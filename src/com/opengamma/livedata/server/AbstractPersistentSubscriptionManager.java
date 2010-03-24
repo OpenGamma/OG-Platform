@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -116,7 +116,7 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
   private void updateServer() {
     for (PersistentSubscription sub : _persistentSubscriptions) {
 
-      LiveDataSpecificationImpl spec = new LiveDataSpecificationImpl(
+      LiveDataSpecification spec = new LiveDataSpecification(
           new DomainSpecificIdentifier(_server.getUniqueIdDomain(), sub.getId()));
       
       Subscription existingSub = _server.getSubscription(spec);

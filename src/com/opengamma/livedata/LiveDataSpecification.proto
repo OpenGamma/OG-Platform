@@ -6,6 +6,6 @@
 
 namespace com.opengamma.livedata {
 
-  extern message LiveDataSpecificationImpl;
+  extern message LiveDataSpecification;
 
 }

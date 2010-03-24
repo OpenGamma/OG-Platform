@@ -8,7 +8,7 @@ package com.opengamma.livedata.server;
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -23,7 +23,7 @@ public class CachingDistributionSpecificationResolverTest {
   @Test
   public void testCaching() {
     
-    LiveDataSpecificationImpl testSpec = new LiveDataSpecificationImpl(new DomainSpecificIdentifier("foo", "bar"));
+    LiveDataSpecification testSpec = new LiveDataSpecification(new DomainSpecificIdentifier("foo", "bar"));
     
     DistributionSpecificationResolver underlying = mock(DistributionSpecificationResolver.class);
     when(underlying.getDistributionSpecification(testSpec)).thenReturn("myDistSpec");

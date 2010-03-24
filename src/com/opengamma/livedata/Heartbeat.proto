@@ -7,7 +7,7 @@
 namespace com.opengamma.livedata {
 
   message Heartbeat {
-    required repeated LiveDataSpecificationImpl liveDataSpecifications;
+    required repeated LiveDataSpecification liveDataSpecifications;
   }
   
 }

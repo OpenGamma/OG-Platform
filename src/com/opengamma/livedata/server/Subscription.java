@@ -7,7 +7,7 @@ package com.opengamma.livedata.server;
 
 import java.util.Date;
 
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,7 +21,7 @@ class Subscription {
   private final String _securityUniqueId;
   
   /** Again, what was subscribed to. One of the IDs will be the security unique ID, but there may be others. */
-  private final LiveDataSpecificationImpl _fullyQualifiedSpec;
+  private final LiveDataSpecification _fullyQualifiedSpec;
   
   /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
   private final Object _handle;
@@ -56,7 +56,7 @@ class Subscription {
    */
   public Subscription(
       String securityUniqueId,
-      LiveDataSpecificationImpl fullyQualifiedSpec,
+      LiveDataSpecification fullyQualifiedSpec,
       Object handle,
       String distributionSpecification,
       boolean persistent) {
@@ -90,7 +90,7 @@ class Subscription {
     return _securityUniqueId;
   }
   
-  public LiveDataSpecificationImpl getFullyQualifiedSpec() {
+  public LiveDataSpecification getFullyQualifiedSpec() {
     return _fullyQualifiedSpec;
   }
 

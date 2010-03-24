@@ -26,7 +26,6 @@ import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
 
 /**
@@ -52,8 +51,8 @@ public class HeartbeatSenderTest {
     CollectingByteArrayMessageSender messageSender = new CollectingByteArrayMessageSender();
     ValueDistributor valueDistributor = new ValueDistributor();
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
-    LiveDataSpecification spec1 = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
-    LiveDataSpecification spec2 = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "baz"));
+    LiveDataSpecification spec1 = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
+    LiveDataSpecification spec2 = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "baz"));
     valueDistributor.addListener(spec1, listener1);
     valueDistributor.addListener(spec2, listener1);
     
@@ -75,7 +74,7 @@ public class HeartbeatSenderTest {
       for(FudgeField field : fudgeMsg.getAllFields()) {
         assertNull(field.getOrdinal());
         assertTrue(field.getValue() instanceof FudgeFieldContainer);
-        LiveDataSpecificationImpl lsdi = new LiveDataSpecificationImpl((FudgeFieldContainer)field.getValue());
+        LiveDataSpecification lsdi = new LiveDataSpecification((FudgeFieldContainer)field.getValue());
         assertTrue(lsdi.equals(spec1) || lsdi.equals(spec2));
       }
     }

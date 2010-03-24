@@ -11,7 +11,7 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -77,7 +77,7 @@ public class ActiveSecurityPublicationManager implements SubscriptionListener {
   public void unsubscribed(Subscription subscription) {
   }
 
-  public void extendPublicationTimeout(LiveDataSpecificationImpl spec) {
+  public void extendPublicationTimeout(LiveDataSpecification spec) {
     Subscription subscription = _dataServer.getSubscription(spec);
     if (subscription != null) {
       extendPublicationTimeout(subscription);

@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.ResolveRequest;
 import com.opengamma.livedata.ResolveResponse;
 import com.opengamma.livedata.client.LiveDataSpecificationResolver;
@@ -43,7 +42,7 @@ public class SpecificationResolverServer implements FudgeRequestReceiver {
     s_logger.debug("Received resolve request for {}", resolveRequest.getRequestedSpecification());
     
     LiveDataSpecification resolvedSpec = _delegate.resolve(resolveRequest.getRequestedSpecification());
-    ResolveResponse response = new ResolveResponse(new LiveDataSpecificationImpl(resolvedSpec));
+    ResolveResponse response = new ResolveResponse(new LiveDataSpecification(resolvedSpec));
     FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
     return responseFudgeMsg;
   }

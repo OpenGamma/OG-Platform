@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.CollectingLiveDataListener;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
@@ -42,7 +42,7 @@ public class ActiveSecurityPublicationManagerTest {
     new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 100);
     
     // subscribe on the client side - starts sending heartbeats
-    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
+    LiveDataSpecification subscription = new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     valueDistributor.addListener(subscription, listener);
     
@@ -72,7 +72,7 @@ public class ActiveSecurityPublicationManagerTest {
     new ActiveSecurityPublicationManager(dataServer, 100, 500);
     
     // subscribe on the server side
-    LiveDataSpecificationImpl subscription = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
+    LiveDataSpecification subscription = new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", false, Collections.singleton(subscription)));
     
     assertEquals(1, dataServer.getActualSubscriptions().size());

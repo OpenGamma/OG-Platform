@@ -18,7 +18,7 @@ namespace com.opengamma.livedata {
       */  
     required boolean persistent;
     
-    required repeated LiveDataSpecificationImpl specifications;
+    required repeated LiveDataSpecification specifications;
     
     binding Java {
       methods "equals, hashCode";

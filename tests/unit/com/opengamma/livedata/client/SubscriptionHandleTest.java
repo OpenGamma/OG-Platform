@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.livedata.CollectingLiveDataListener;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 
 /**
  * 
@@ -23,8 +23,8 @@ public class SubscriptionHandleTest {
 
   @Test
   public void equalsDifferentRequestedSpecification() {
-    LiveDataSpecificationImpl requestedSpecification1 =
-      new LiveDataSpecificationImpl(
+    LiveDataSpecification requestedSpecification1 =
+      new LiveDataSpecification(
           new DomainSpecificIdentifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle("kirk", requestedSpecification1, listener);
@@ -34,8 +34,8 @@ public class SubscriptionHandleTest {
 
   @Test
   public void hashCodeDifferentRequestedSpecification() {
-    LiveDataSpecificationImpl requestedSpecification1 =
-      new LiveDataSpecificationImpl(
+    LiveDataSpecification requestedSpecification1 =
+      new LiveDataSpecification(
           new DomainSpecificIdentifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle("kirk", requestedSpecification1, listener);

@@ -10,7 +10,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -47,10 +46,10 @@ public class CachingDistributionSpecificationResolver implements DistributionSpe
   public String getDistributionSpecification(
       LiveDataSpecification fullyResolvedSpec) {
     
-    Element cachedDistSpec = _cache.get(new LiveDataSpecificationImpl(fullyResolvedSpec));
+    Element cachedDistSpec = _cache.get(new LiveDataSpecification(fullyResolvedSpec));
     if (cachedDistSpec == null) {
       String distSpec = _underlying.getDistributionSpecification(fullyResolvedSpec);
-      cachedDistSpec = new Element(new LiveDataSpecificationImpl(fullyResolvedSpec), distSpec);
+      cachedDistSpec = new Element(new LiveDataSpecification(fullyResolvedSpec), distSpec);
       _cache.put(cachedDistSpec);
     }
     return (String) cachedDistSpec.getValue();

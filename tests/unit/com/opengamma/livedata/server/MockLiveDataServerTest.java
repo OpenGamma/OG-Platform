@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 
 /**
  * 
@@ -32,8 +32,8 @@ public class MockLiveDataServerTest {
   
   @Test
   public void getSubscription() {
-    _server.subscribe(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "nonpersistent")), false);
-    _server.subscribe(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "persistent")), true);
+    _server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "nonpersistent")), false);
+    _server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "persistent")), true);
     
     Subscription nonpersistent = _server.getSubscription("nonpersistent"); 
     Subscription persistent = _server.getSubscription("persistent");
@@ -50,8 +50,8 @@ public class MockLiveDataServerTest {
     assertEquals("nonpersistent", nonpersistent.getSecurityUniqueId());
     assertEquals("persistent", persistent.getSecurityUniqueId());
     
-    Subscription nonpersistentB = _server.getSubscription(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "nonpersistent"))); 
-    Subscription persistentB = _server.getSubscription(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "persistent")));
+    Subscription nonpersistentB = _server.getSubscription(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "nonpersistent"))); 
+    Subscription persistentB = _server.getSubscription(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "persistent")));
     
     assertSame(nonpersistent, nonpersistentB);
     assertSame(persistent, persistentB);
@@ -59,8 +59,8 @@ public class MockLiveDataServerTest {
 
   @Test
   public void subscribeUnsubscribeA() {
-    _server.subscribe(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "nonpersistent")), false);
-    _server.subscribe(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "persistent")), true);
+    _server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "nonpersistent")), false);
+    _server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "persistent")), true);
     
     assertTrue(_server.unsubscribe("nonpersistent"));
     assertTrue(_server.unsubscribe("persistent"));
@@ -68,8 +68,8 @@ public class MockLiveDataServerTest {
   
   @Test
   public void subscribeUnsubscribeB() {
-    _server.subscribe(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "nonpersistent")), false);
-    _server.subscribe(new LiveDataSpecificationImpl(new DomainSpecificIdentifier(_domain, "persistent")), true);
+    _server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "nonpersistent")), false);
+    _server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(_domain, "persistent")), true);
     
     Subscription nonpersistent = _server.getSubscription("nonpersistent"); 
     Subscription persistent = _server.getSubscription("persistent");

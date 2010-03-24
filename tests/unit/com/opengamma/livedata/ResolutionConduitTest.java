@@ -37,7 +37,7 @@ public class ResolutionConduitTest {
     
     DistributedSpecificationResolver client = new DistributedSpecificationResolver(fudgeRequestSender);
     
-    LiveDataSpecification testSpec = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("test1"), "test1"));
+    LiveDataSpecification testSpec = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("test1"), "test1"));
     LiveDataSpecification resolvedSpec = client.resolve(testSpec);
     assertEquals(resolvedSpec, testSpec);
     

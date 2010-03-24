@@ -37,7 +37,7 @@ public class EntitlementCheckerConduitTest {
     
     DistributedEntitlementChecker client = new DistributedEntitlementChecker(fudgeRequestSender);
     
-    LiveDataSpecification testSpec = new LiveDataSpecificationImpl(new DomainSpecificIdentifier(new IdentificationDomain("test1"), "test1"));
+    LiveDataSpecification testSpec = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("test1"), "test1"));
     assertTrue(client.isEntitled("megan", testSpec));
     
   }

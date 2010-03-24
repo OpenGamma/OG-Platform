@@ -18,7 +18,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.EntitlementRequest;
 import com.opengamma.livedata.EntitlementResponse;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
@@ -89,7 +88,7 @@ public class DistributedEntitlementChecker implements
    */
   protected FudgeFieldContainer composeRequestMessage(String userName,
       LiveDataSpecification fullyQualifiedSpecification) {
-    EntitlementRequest request = new EntitlementRequest(userName, new LiveDataSpecificationImpl(fullyQualifiedSpecification));
+    EntitlementRequest request = new EntitlementRequest(userName, new LiveDataSpecification(fullyQualifiedSpecification));
     return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
   }
 

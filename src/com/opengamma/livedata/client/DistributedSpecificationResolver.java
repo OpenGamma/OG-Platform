@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.livedata.ResolveRequest;
 import com.opengamma.livedata.ResolveResponse;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -51,7 +50,7 @@ public class DistributedSpecificationResolver implements LiveDataSpecificationRe
   @Override
   public LiveDataSpecification resolve(LiveDataSpecification requestedSpecification) {
     s_logger.info("Sending message to resolve ", requestedSpecification);
-    ResolveRequest resolveRequest = new ResolveRequest(new LiveDataSpecificationImpl(requestedSpecification));
+    ResolveRequest resolveRequest = new ResolveRequest(new LiveDataSpecification(requestedSpecification));
     FudgeFieldContainer requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicReference<LiveDataSpecification> resolved = new AtomicReference<LiveDataSpecification>();

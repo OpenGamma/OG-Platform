@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.Heartbeat;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -81,9 +80,9 @@ public class HeartbeatSender {
         return;
       }
       s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
-      ArrayList<LiveDataSpecificationImpl> liveDataSpecImpls = new ArrayList<LiveDataSpecificationImpl>();
+      ArrayList<LiveDataSpecification> liveDataSpecImpls = new ArrayList<LiveDataSpecification>();
       for (LiveDataSpecification spec : liveDataSpecs) {
-        liveDataSpecImpls.add(new LiveDataSpecificationImpl(spec));               
+        liveDataSpecImpls.add(new LiveDataSpecification(spec));               
       }
       Heartbeat heartbeat = new Heartbeat(liveDataSpecImpls);
       FudgeFieldContainer heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));

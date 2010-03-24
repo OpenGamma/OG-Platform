@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.Heartbeat;
-import com.opengamma.livedata.LiveDataSpecificationImpl;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.transport.ByteArrayMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,7 +60,7 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   
   public void messageReceived(FudgeFieldContainer msg) {
     Heartbeat heartbeat = Heartbeat.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
-    for (LiveDataSpecificationImpl liveDataSpec : heartbeat.getLiveDataSpecifications()) {
+    for (LiveDataSpecification liveDataSpec : heartbeat.getLiveDataSpecifications()) {
       s_logger.debug("Heartbeat received on live data specification {}", liveDataSpec);
       getActiveSecurityPublicationManager().extendPublicationTimeout(liveDataSpec);
     }

@@ -43,8 +43,8 @@ namespace com.opengamma.livedata {
   }
   
   message LiveDataSubscriptionResponse {
-    required LiveDataSpecificationImpl requestedSpecification;
-    LiveDataSpecificationImpl fullyQualifiedSpecification;
+    required LiveDataSpecification requestedSpecification;
+    LiveDataSpecification fullyQualifiedSpecification;
     required LiveDataSubscriptionResult subscriptionResult;
     string userMessage;
     string tickDistributionSpecification;
