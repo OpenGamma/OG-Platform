@@ -351,7 +351,7 @@
 
 	<target name="clean-build" description="--> clean the project build files">
 		<delete includeemptydirs="true" dir="${build.dir}" />
-		<delete includeemptydirs="true" dir="${tests.build.dir}" />
+		<delete includeemptydirs="true" dir="${tests.classes.dir}" />
 	</target>
 	
 	<target name="clean-dist" description="--> clean the project distribution files">
