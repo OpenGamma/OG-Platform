@@ -22,6 +22,8 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.Currency;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
@@ -31,13 +33,15 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  */
 public class DiscountCurveFunctionTest {
   
+  private final static IdentificationDomain TEST_DOMAIN = new IdentificationDomain("test");
+  
   protected static DiscountCurveDefinition constructDefinition() {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
     DiscountCurveDefinition definition = new DiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
-    definition.addStrip(new FixedIncomeStrip(1, "USSW1 Curncy"));
-    definition.addStrip(new FixedIncomeStrip(2, "USSW2 Curncy"));
-    definition.addStrip(new FixedIncomeStrip(3, "USSW3 Curncy"));
+    definition.addStrip(new FixedIncomeStrip(1, new DomainSpecificIdentifier(TEST_DOMAIN, "USSW1 Curncy")));
+    definition.addStrip(new FixedIncomeStrip(2, new DomainSpecificIdentifier(TEST_DOMAIN, "USSW2 Curncy")));
+    definition.addStrip(new FixedIncomeStrip(3, new DomainSpecificIdentifier(TEST_DOMAIN, "USSW3 Curncy")));
     return definition;
   }
   
@@ -53,10 +57,10 @@ public class DiscountCurveFunctionTest {
     
     function.init(context);
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
-    Set<String> foundKeys = new TreeSet<String>();
+    Set<DomainSpecificIdentifier> foundKeys = new TreeSet<DomainSpecificIdentifier>();
     for(ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
       assertEquals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName());
@@ -83,10 +87,7 @@ public class DiscountCurveFunctionTest {
     
     function.init(context);
     
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
-    assertNull(requirements);
-    
-    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, "EUR"));
+    requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
     assertNull(requirements);
 
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));

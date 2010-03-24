@@ -9,6 +9,7 @@ import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.EquityOptionSecurity;
 import com.opengamma.financial.security.EquityOptionSecurityVisitor;
@@ -33,7 +34,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            bean.getUnderlyingIdentityKey (),
+            new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency ()),
             bean.getExchange ().getName ()
             );
@@ -45,7 +46,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            bean.getUnderlyingIdentityKey (),
+            new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency ()),
             bean.getExchange ().getName ()
             );
@@ -58,7 +59,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
             bean.getPower (),
-            bean.getUnderlyingIdentityKey (),
+            new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency ()),
             bean.getExchange ().getName ()
             );
@@ -112,7 +113,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
         equityOption.setOptionType(security.getOptionType ());
         equityOption.setStrike(security.getStrike ());
         equityOption.setExpiry(new Date (security.getExpiry ().toInstant ().toEpochMillisLong ()));
-        equityOption.setUnderlyingIdentityKey(security.getUnderlyingIdentityKey ());
+        equityOption.setUnderlyingIdentityKey(security.getUnderlyingIdentityKey().getValue());
         equityOption.setCurrency(secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()));
         equityOption.setExchange(secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""));
         return equityOption;

@@ -45,6 +45,7 @@ import com.opengamma.financial.security.EuropeanVanillaOption;
 import com.opengamma.financial.security.OptionType;
 import com.opengamma.financial.security.OptionVisitor;
 import com.opengamma.financial.security.PoweredOption;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -154,7 +155,7 @@ implements FunctionInvoker {
       return null;
     }
     EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
-    ValueRequirement discountCurveReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, equityOptionSec.getCurrency().getISOCode());
+    ValueRequirement discountCurveReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, equityOptionSec.getCurrency().getIdentityKey());
     ValueRequirement volatilitySurfaceReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey());
     ValueRequirement underlyingMarketDataReq = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equityOptionSec.getUnderlyingIdentityKey());
     // No need to do a visitor as of this stage.
@@ -182,7 +183,7 @@ implements FunctionInvoker {
    */
   protected static void addAllPotentialGreeks(
       Set<ValueSpecification> results,
-      String identityKey) {
+      DomainSpecificIdentifier identityKey) {
     for(String valueName : s_greeksByValueName.keySet()) {
       results.add(new ValueSpecification(new ValueRequirement(valueName, ComputationTargetType.SECURITY, identityKey)));
     }

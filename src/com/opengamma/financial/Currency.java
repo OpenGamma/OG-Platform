@@ -8,6 +8,9 @@ package com.opengamma.financial;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifiable;
+import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2009-09-15 -- This REALLY needs to be renamed.
@@ -16,15 +19,23 @@ import com.opengamma.util.ArgumentChecker;
 // It's really not serialization clean, and everything at this level needs to be
 // serialization friendly.
 
-public class Currency {
-  private String _isoCode;
+public class Currency implements Identifiable {
+  
+  public static final IdentificationDomain IDENTIFICATION_DOMAIN = new IdentificationDomain("CurrencyISO"); 
+  
+  private DomainSpecificIdentifier _identifier;
 
   private Currency(String isoCode) {
-    _isoCode = isoCode;
+    _identifier = new DomainSpecificIdentifier(IDENTIFICATION_DOMAIN, isoCode);
   }
   
   public String getISOCode() {
-    return _isoCode;
+    return _identifier.getValue();
+  }
+  
+  @Override
+  public DomainSpecificIdentifier getIdentityKey() {
+    return _identifier;
   }
   
   public static Map<String, Currency> s_instanceMap = new HashMap<String, Currency>();
@@ -50,10 +61,10 @@ public class Currency {
   }
   
   public int hashCode() {
-    return _isoCode.hashCode();
+    return _identifier.hashCode();
   }
   
   public String toString() {
-    return _isoCode;
+    return getISOCode();
   }
 }
