@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * A simple implementation of {@link PortfolioNode}. 
  *
@@ -20,7 +23,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   private final List<Position> _positions = new ArrayList<Position>();
   private final List<PortfolioNode> _subNodes = new ArrayList<PortfolioNode>();
   private final String _name;
-  private String _identityKey;
+  private DomainSpecificIdentifier _identityKey;
   
   public PortfolioNodeImpl() {
     _name = null;
@@ -33,17 +36,22 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   /**
    * @return the identityKey
    */
-  public String getIdentityKey() {
+  public DomainSpecificIdentifier getIdentityKey() {
     return _identityKey;
   }
 
-  /**
-   * @param identityKey the identityKey to set
-   */
   public void setIdentityKey(String identityKey) {
-    _identityKey = identityKey;
+    _identityKey = new DomainSpecificIdentifier(PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, identityKey);
   }
-
+  
+  public void setIdentityKey(DomainSpecificIdentifier identityKey) {
+    ArgumentChecker.checkNotNull(identityKey, "Identity key");
+    if (!PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN.equals(identityKey.getDomain())) {
+      throw new IllegalArgumentException("Wrong domain specified");
+    }
+    _identityKey = identityKey; 
+  }
+  
   @Override
   public Collection<Position> getPositions() {
     return Collections.unmodifiableList(_positions);

@@ -51,8 +51,8 @@ public class InMemorySecurityMaster implements SecurityMaster {
   //     mapping from SecurityIdentifier to Security.
   private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
   private final List<Security> _securities = new ArrayList<Security>();
-  private final Map<String, Security> _securitiesByIdentityKey =
-    new HashMap<String, Security>();
+  private final Map<DomainSpecificIdentifier, Security> _securitiesByIdentityKey =
+    new HashMap<DomainSpecificIdentifier, Security>();
   
   public InMemorySecurityMaster() {
   }
@@ -119,7 +119,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Security getSecurity(String identityKey) {
+  public Security getSecurity(DomainSpecificIdentifier identityKey) {
     return _securitiesByIdentityKey.get(identityKey);
   }
   

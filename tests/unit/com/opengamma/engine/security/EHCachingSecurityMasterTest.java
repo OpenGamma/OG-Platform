@@ -87,7 +87,7 @@ public class EHCachingSecurityMasterTest {
     element = multiSecCache.get(secKey);
     assertNull(element);
     
-    String identityKey = _security1.getIdentityKey();
+    DomainSpecificIdentifier identityKey = _security1.getIdentityKey();
     cachedSec = _cachingSecMaster.getSecurity(identityKey);
     assertEquals(0, singleSecCache.getSize());
     element = singleSecCache.get(identityKey);
@@ -157,7 +157,7 @@ public class EHCachingSecurityMasterTest {
   public void getSecurityByIdentityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    String identityKey1 = _security1.getIdentityKey();
+    DomainSpecificIdentifier identityKey1 = _security1.getIdentityKey();
     Security underlyingSec = _underlyingSecMaster.getSecurity(identityKey1);
     Security cachedSec = _cachingSecMaster.getSecurity(identityKey1);
     assertNotNull(underlyingSec);
@@ -209,7 +209,7 @@ public class EHCachingSecurityMasterTest {
   @Test
   public void refreshGetSecurityByIdentityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    String identityKey1 = _security1.getIdentityKey();
+    DomainSpecificIdentifier identityKey1 = _security1.getIdentityKey();
     _cachingSecMaster.getSecurity(identityKey1);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());

@@ -8,13 +8,17 @@ package com.opengamma.engine.security;
 import java.util.Collection;
 
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifiable;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * 
  *
  * @author kirk
  */
-public interface Security {
+public interface Security extends Identifiable {
+  
+  public static final IdentificationDomain SECURITY_IDENTITY_KEY_DOMAIN = new IdentificationDomain("SecurityIdentityKey"); 
 
   /**
    * Obtain all the security identifiers which are part of this
@@ -23,11 +27,6 @@ public interface Security {
    * @return All identifiers for this security.
    */
   Collection<DomainSpecificIdentifier> getIdentifiers();
-  
-  /**
-   * Obtain a SecurityKey that uniquely identifies the security in question
-   */
-  String getIdentityKey();
   
   /**
    * Obtain the dedicated market data definition for this security.

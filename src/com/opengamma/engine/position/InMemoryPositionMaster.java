@@ -11,6 +11,8 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+
 /**
  * 
  *
@@ -18,8 +20,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class InMemoryPositionMaster implements PositionMaster {
   private final Map<String, Portfolio> _portfoliosByName = new ConcurrentHashMap<String, Portfolio>();
-  private final Map<String, Position> _positionsByIdentityKey = new ConcurrentHashMap<String, Position>();
-  private final Map<String, PortfolioNode> _portfolioNodesByIdentityKey = new ConcurrentHashMap<String, PortfolioNode>();
+  private final Map<DomainSpecificIdentifier, Position> _positionsByIdentityKey = new ConcurrentHashMap<DomainSpecificIdentifier, Position>();
+  private final Map<DomainSpecificIdentifier, PortfolioNode> _portfolioNodesByIdentityKey = new ConcurrentHashMap<DomainSpecificIdentifier, PortfolioNode>();
   private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
 
   @Override
@@ -62,12 +64,12 @@ public class InMemoryPositionMaster implements PositionMaster {
   }
 
   @Override
-  public Position getPosition(String identityKey) {
+  public Position getPosition(DomainSpecificIdentifier identityKey) {
     return _positionsByIdentityKey.get(identityKey);
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(String identityKey) {
+  public PortfolioNode getPortfolioNode(DomainSpecificIdentifier identityKey) {
     return _portfolioNodesByIdentityKey.get(identityKey);
   }
 

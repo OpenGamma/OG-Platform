@@ -23,7 +23,7 @@ public class DefaultSecurity implements Security, Serializable {
   private DomainSpecificIdentifiersImpl _identifiers;
   private String _securityType;
   //private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
-  private String _identityKey;
+  private DomainSpecificIdentifier _identityKey;
   
   public DefaultSecurity() {
     _identifiers = new DomainSpecificIdentifiersImpl();
@@ -48,14 +48,15 @@ public class DefaultSecurity implements Security, Serializable {
   }
   
   @Override
-  public String getIdentityKey() {
+  public DomainSpecificIdentifier getIdentityKey() {
     return _identityKey;
   }
 
-  /**
-   * @param identityKey the identityKey to set
-   */
   public void setIdentityKey(String identityKey) {
+    _identityKey = new DomainSpecificIdentifier(SECURITY_IDENTITY_KEY_DOMAIN, identityKey);
+  }
+  
+  public void setIdentityKey(DomainSpecificIdentifier identityKey) {
     _identityKey = identityKey;
   }
 

@@ -18,6 +18,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,9 +31,9 @@ public class PositionReference implements Serializable, Cloneable {
   public static final String QUANTITY_FIELD_NAME = "quantity";
   public static final String SECURITY_IDENTITY_KEY_FIELD_NAME = "securityIdentityKey";
   private final BigDecimal _quantity;
-  private final String _securityIdentityKey;
+  private final DomainSpecificIdentifier _securityIdentityKey;
   
-  public PositionReference(BigDecimal quantity, String securityIdentityKey) {
+  public PositionReference(BigDecimal quantity, DomainSpecificIdentifier securityIdentityKey) {
     ArgumentChecker.checkNotNull(quantity, "Quantity");
     ArgumentChecker.checkNotNull(securityIdentityKey, "Security IdentityKey");
     _quantity = quantity;
@@ -57,7 +58,7 @@ public class PositionReference implements Serializable, Cloneable {
   /**
    * @return the securityIdentityKey
    */
-  public String getSecurityIdentityKey() {
+  public DomainSpecificIdentifier getSecurityIdentityKey() {
     return _securityIdentityKey;
   }
 
@@ -110,14 +111,16 @@ public class PositionReference implements Serializable, Cloneable {
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(QUANTITY_FIELD_NAME, getQuantity().toString());
-    msg.add(SECURITY_IDENTITY_KEY_FIELD_NAME, getSecurityIdentityKey());
+    FudgeFieldContainer identityKey = _securityIdentityKey.toFudgeMsg(fudgeMessageFactory); 
+    msg.add(SECURITY_IDENTITY_KEY_FIELD_NAME, identityKey);
     return msg;
   }
 
   public static PositionReference fromFudgeMsg(FudgeMsgEnvelope envelope) {
     FudgeFieldContainer msg = envelope.getMessage();
     BigDecimal quantity = new BigDecimal(msg.getString(QUANTITY_FIELD_NAME));
-    String identityKey = msg.getString(SECURITY_IDENTITY_KEY_FIELD_NAME);
+    FudgeFieldContainer identityKeyMsg = msg.getMessage(SECURITY_IDENTITY_KEY_FIELD_NAME);
+    DomainSpecificIdentifier identityKey = new DomainSpecificIdentifier(identityKeyMsg);
     return new PositionReference(quantity, identityKey);
   }
 }

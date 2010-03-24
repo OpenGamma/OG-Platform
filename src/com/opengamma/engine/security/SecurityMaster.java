@@ -8,6 +8,8 @@ package com.opengamma.engine.security;
 import java.util.Collection;
 import java.util.Set;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+
 
 /**
  * The base interface through which {@link Security} details can
@@ -39,7 +41,7 @@ public interface SecurityMaster {
    */
   Security getSecurity(SecurityKey secKey);
   
-  Security getSecurity(String identityKey);
+  Security getSecurity(DomainSpecificIdentifier identityKey);
   
   /**
    * Obtain all security types in this security master.

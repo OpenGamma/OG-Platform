@@ -9,13 +9,19 @@ import java.math.BigDecimal;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifiable;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * This class represents either a resolved or unresolved position.  An unresolved position is where we only have the reference to the underlying
  * security and not the fully resolved security data itself.  An unresolved position will return null when the getSecurity() method is called.
  * @author kirk
  */
-public interface Position {
+public interface Position extends Identifiable {
+  
+  public static final IdentificationDomain POSITION_IDENTITY_KEY_DOMAIN = new IdentificationDomain("PositionIdentityKey");
+  
   /**
    * Returns the size of the position
    * @return the size of the position
@@ -35,5 +41,4 @@ public interface Position {
    */
   Security getSecurity(); 
   
-  String getIdentityKey();
 }

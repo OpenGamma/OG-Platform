@@ -16,6 +16,7 @@ import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,13 +26,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ValueRequirement implements Serializable {
   public static final String VALUE_NAME_FIELD_NAME = "valueName";
-  public static final String TARGET_TYPE_FIELD_NAME = "targetType";
-  public static final String TARGET_ID_FIELD_NAME = "targetIdentifier";
   
   private final String _valueName;
   private final ComputationTargetSpecification _targetSpecification;
   
-  public ValueRequirement(String valueName, ComputationTargetType targetType, String targetKey) {
+  public ValueRequirement(String valueName, ComputationTargetType targetType, DomainSpecificIdentifier targetKey) {
     this(valueName, new ComputationTargetSpecification(targetType, targetKey));
   }
   
@@ -94,15 +93,13 @@ public class ValueRequirement implements Serializable {
   
   public void toFudgeMsg (FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(VALUE_NAME_FIELD_NAME, _valueName);
-    msg.add(TARGET_TYPE_FIELD_NAME, _targetSpecification.getType().name());
-    msg.add(TARGET_ID_FIELD_NAME, _targetSpecification.getIdentifier());
+    _targetSpecification.toFudgeMsg(fudgeContext, msg);
   }
   
   public static ValueRequirement fromFudgeMsg(FudgeFieldContainer msg) {
     String valueName = msg.getString(VALUE_NAME_FIELD_NAME);
-    ComputationTargetType targetType = ComputationTargetType.valueOf(msg.getString(TARGET_TYPE_FIELD_NAME));
-    String targetIdentifier = msg.getString(TARGET_ID_FIELD_NAME);
-    return new ValueRequirement(valueName, targetType, targetIdentifier);
+    ComputationTargetSpecification targetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg); 
+    return new ValueRequirement(valueName, targetSpecification);
   }
   
 }

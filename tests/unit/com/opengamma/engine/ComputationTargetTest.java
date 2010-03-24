@@ -5,7 +5,12 @@
  */
 package com.opengamma.engine;
 
+import java.util.Currency;
+
 import org.junit.Test;
+
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * 
@@ -16,11 +21,12 @@ public class ComputationTargetTest {
   
   @Test(expected=NullPointerException.class)
   public void nullType() {
-    new ComputationTarget(null, "Foo");
+    DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar");
+    new ComputationTarget(null, id);
   }
   
   @Test(expected=NullPointerException.class)
-  public void nullValueButRequired() {
+  public void nullValue() {
     ComputationTarget.checkValueValid(ComputationTargetType.POSITION, null);
   }
   
@@ -41,8 +47,8 @@ public class ComputationTargetTest {
   
   @Test
   public void legalPrimitives() {
-    new ComputationTarget(ComputationTargetType.PRIMITIVE, null);
-    new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+    DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar");
+    new ComputationTarget(ComputationTargetType.PRIMITIVE, id);
   }
 
 }

@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -220,19 +221,19 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     if (e != null) {
       Serializable value = e.getValue();
       if (value instanceof Set<?>) {
-        Set<String> identityKeys = (Set<String>) value;
-        for (String identityKey : identityKeys) {
+        Set<DomainSpecificIdentifier> identityKeys = (Set<DomainSpecificIdentifier>) value;
+        for (DomainSpecificIdentifier identityKey : identityKeys) {
           securities.add(getSecurity(identityKey));
         }
       } else {
         s_logger.warn("returned object {} from cache is not a Set<SecurityKey> type", value);
       }
     } else {
-      Set<String> identityKeys = new HashSet<String>();
+      Set<DomainSpecificIdentifier> identityKeys = new HashSet<DomainSpecificIdentifier>();
       securities = getUnderlying().getSecurities(secKey);
       if (securities != null && !securities.isEmpty()) {
         for (Security security : securities) {
-          String identityKey = security.getIdentityKey();
+          DomainSpecificIdentifier identityKey = security.getIdentityKey();
           _singleSecurityCache.put(new Element(identityKey, security));
           identityKeys.add(identityKey);
         }
@@ -273,8 +274,8 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     if (element != null) {
       Serializable value = element.getValue();
       if (value instanceof Set<?>) {
-        Set<String> keys = (Set<String>) value;
-        for (String key : keys) {
+        Set<DomainSpecificIdentifier> keys = (Set<DomainSpecificIdentifier>) value;
+        for (DomainSpecificIdentifier key : keys) {
           _singleSecurityCache.remove(key);
         }
       }
@@ -294,7 +295,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Security getSecurity(String identityKey) {
+  public Security getSecurity(DomainSpecificIdentifier identityKey) {
     Element e = _singleSecurityCache.get(identityKey);
     Security sec = null;
     if (e != null) {

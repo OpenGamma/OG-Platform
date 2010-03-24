@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+
 /**
  * 
  *
@@ -18,7 +20,7 @@ import java.util.Set;
 public class CachingSecurityMaster implements SecurityMaster {
   private final SecurityMaster _underlying;
   private final Map<SecurityKey, Security> _cache = new HashMap<SecurityKey, Security>();
-  private final Map<String, Security> _cacheByIdentityKey = new HashMap<String, Security>();
+  private final Map<DomainSpecificIdentifier, Security> _cacheByIdentityKey = new HashMap<DomainSpecificIdentifier, Security>();
   
   public CachingSecurityMaster(SecurityMaster underlying) {
     assert underlying != null;
@@ -53,7 +55,7 @@ public class CachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public synchronized Security getSecurity(String identityKey) {
+  public synchronized Security getSecurity(DomainSpecificIdentifier identityKey) {
     if(_cacheByIdentityKey.containsKey(identityKey)) {
       return _cacheByIdentityKey.get(identityKey);
     }

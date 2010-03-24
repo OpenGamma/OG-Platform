@@ -14,6 +14,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,10 +25,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ComputationTarget implements Serializable {
   private final ComputationTargetType _type;
-  private final Object _value;
+  private final Identifiable _value;
   
-  public ComputationTarget(ComputationTargetType type, Object value) {
-    ArgumentChecker.checkNotNull(type, "Computation Target Type");
+  public ComputationTarget(ComputationTargetType type, Identifiable value) {
     checkValueValid(type, value);
     
     _type = type;
@@ -45,22 +46,7 @@ public class ComputationTarget implements Serializable {
    */
   public static void checkValueValid(ComputationTargetType type, Object value) {
     ArgumentChecker.checkNotNull(type, "Computation Target Type");
-    // Check nullability first.
-    switch(type) {
-    case PRIMITIVE:
-      // Value can be null or anything else for a primitive. No constraints apply.
-      break;
-    case SECURITY:
-    case POSITION:
-    case MULTIPLE_POSITIONS:
-      if(value == null) {
-        // Yes, we intend to use .name() here.
-        throw new NullPointerException("Values required for " + type.name() + " target type.");
-      }
-      break;
-    default:
-      throw new AssertionError("Unimplemented ComputationTargetType");
-    }
+    ArgumentChecker.checkNotNull(value, "Value");
     
     // Now check argument assignment.
     switch(type) {
@@ -96,24 +82,12 @@ public class ComputationTarget implements Serializable {
   /**
    * @return the value
    */
-  public Object getValue() {
+  public Identifiable getValue() {
     return _value;
   }
   
-  public String getUniqueIdentifier() {
-    switch(getType()) {
-    case PRIMITIVE:
-      // TODO kirk 2009-12-30 -- Have to have some way to deal with this better.
-      return getValue() == null ? null : getValue().toString();
-    case SECURITY:
-      return ((Security)getValue()).getIdentityKey();
-    case POSITION:
-      return ((Position)getValue()).getIdentityKey();
-    case MULTIPLE_POSITIONS:
-      return ((PortfolioNode)getValue()).getIdentityKey();
-    default:
-      throw new IllegalStateException("Unhandled ComputationTargetType");
-    }
+  public DomainSpecificIdentifier getUniqueIdentifier() {
+    return getValue().getIdentityKey();
   }
   
   public Security getSecurity() {

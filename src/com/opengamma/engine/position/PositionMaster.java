@@ -7,6 +7,8 @@ package com.opengamma.engine.position;
 
 import java.util.Collection;
 
+import com.opengamma.id.DomainSpecificIdentifier;
+
 /**
  * 
  *
@@ -23,7 +25,7 @@ public interface PositionMaster {
   
   Portfolio getRootPortfolio(String portfolioName);
   
-  Position getPosition(String identityKey);
+  Position getPosition(DomainSpecificIdentifier identityKey);
   
-  PortfolioNode getPortfolioNode(String identityKey);
+  PortfolioNode getPortfolioNode(DomainSpecificIdentifier identityKey);
 }

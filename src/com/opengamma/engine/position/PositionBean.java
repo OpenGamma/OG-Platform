@@ -15,6 +15,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityKeyImpl;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -26,7 +28,7 @@ public class PositionBean implements Position, Serializable {
   private final BigDecimal _quantity;
   private final SecurityKey _securityKey;
   private Security _security;
-  private String _identityKey;
+  private DomainSpecificIdentifier _identityKey;
   
   public PositionBean(BigDecimal quantity, SecurityKey securityKey) {
     _quantity = quantity;
@@ -70,7 +72,7 @@ public class PositionBean implements Position, Serializable {
   /**
    * @return the identityKey
    */
-  public String getIdentityKey() {
+  public DomainSpecificIdentifier getIdentityKey() {
     return _identityKey;
   }
 
@@ -78,7 +80,15 @@ public class PositionBean implements Position, Serializable {
    * @param identityKey the identityKey to set
    */
   public void setIdentityKey(String identityKey) {
-    _identityKey = identityKey;
+    _identityKey = new DomainSpecificIdentifier(POSITION_IDENTITY_KEY_DOMAIN, identityKey);
+  }
+  
+  public void setIdentityKey(DomainSpecificIdentifier identityKey) {
+    ArgumentChecker.checkNotNull(identityKey, "Identity key");
+    if (!POSITION_IDENTITY_KEY_DOMAIN.equals(identityKey.getDomain())) {
+      throw new IllegalArgumentException("Wrong domain specified:" + identityKey.getDomain());
+    }
+    _identityKey = identityKey; 
   }
 
   @Override

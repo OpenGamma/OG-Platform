@@ -12,6 +12,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.IdentificationDomain;
 
 /**
  * 
@@ -20,25 +22,28 @@ import com.opengamma.engine.ComputationTargetType;
  */
 public class ValueRequirementTest {
   
+  private final static DomainSpecificIdentifier USD = new DomainSpecificIdentifier(new IdentificationDomain("currency"), "USD");  
+  private final static DomainSpecificIdentifier GBP = new DomainSpecificIdentifier(new IdentificationDomain("currency"), "GBP");
+  
   @Test(expected=NullPointerException.class)
   public void nullValueType() {
-    new ValueRequirement(null, ComputationTargetType.PRIMITIVE, "USD");
+    new ValueRequirement(null, ComputationTargetType.PRIMITIVE, USD);
   }
 
   @Test(expected=NullPointerException.class)
   public void nullComputationTargetType() {
-    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, null, "USD");
+    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, null, USD);
   }
   
   @Test
   public void validConstructors() {
-    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "USD");
+    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, null);
   }
   
   @Test
   public void toStringTest() {
-    ValueRequirement valueReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "USD");
+    ValueRequirement valueReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     String toString = valueReq.toString();
     assertNotNull(toString);
     assertTrue(toString.contains("USD"));
@@ -48,15 +53,15 @@ public class ValueRequirementTest {
   
   @Test
   public void hashCodeTest() {
-    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "USD");
-    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "USD");
+    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
+    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     
     assertTrue(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, "USD");
+    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
     assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.SECURITY, "USD");
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.SECURITY, USD);
     assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "GBP");
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.hashCode() == req2.hashCode());
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, null);
     assertFalse(req1.hashCode() == req2.hashCode());
@@ -64,19 +69,19 @@ public class ValueRequirementTest {
   
   @Test
   public void equalsTest() {
-    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "USD");
+    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     
     assertTrue(req1.equals(req1));
     assertFalse(req1.equals(null));
     
-    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "USD");
+    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     assertTrue(req1.equals(req2));
     
-    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, "USD");
+    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
     assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.SECURITY, "USD");
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.SECURITY, USD);
     assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, "GBP");
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.equals(req2));
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, null);
     assertFalse(req1.equals(req2));

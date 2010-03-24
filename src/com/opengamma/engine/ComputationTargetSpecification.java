@@ -14,6 +14,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,9 +28,9 @@ public class ComputationTargetSpecification implements Serializable {
   public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
   
   private final ComputationTargetType _type;
-  private final String _identifier;
+  private final DomainSpecificIdentifier _identifier;
 
-  public ComputationTargetSpecification(ComputationTargetType targetType, String identifier) {
+  public ComputationTargetSpecification(ComputationTargetType targetType, DomainSpecificIdentifier identifier) {
     ArgumentChecker.checkNotNull(targetType, "Computation Target Type");
     switch(targetType) {
     case SECURITY:
@@ -55,7 +56,7 @@ public class ComputationTargetSpecification implements Serializable {
   /**
    * @return the identifier
    */
-  public String getIdentifier() {
+  public DomainSpecificIdentifier getIdentifier() {
     return _identifier;
   }
 
@@ -96,15 +97,11 @@ public class ComputationTargetSpecification implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
   
-  @Deprecated
-  public void writeFields(MutableFudgeFieldContainer msg) {
-    msg.add(TYPE_FIELD_NAME, _type.name());
-    msg.add(IDENTIFIER_FIELD_NAME, _identifier);
-  }
-  
   public void toFudgeMsg (FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(TYPE_FIELD_NAME, _type.name());
-    msg.add(IDENTIFIER_FIELD_NAME, _identifier);
+    
+    FudgeFieldContainer identifierMsg = _identifier.toFudgeMsg(fudgeContext);
+    msg.add(IDENTIFIER_FIELD_NAME, identifierMsg);
   }
   
   public static ComputationTargetSpecification fromFudgeMsg(FudgeFieldContainer msg) {
@@ -112,6 +109,7 @@ public class ComputationTargetSpecification implements Serializable {
       return null;
     }
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
-    return new ComputationTargetSpecification(type, msg.getString(IDENTIFIER_FIELD_NAME));
+    DomainSpecificIdentifier identifier = new DomainSpecificIdentifier(msg.getMessage(IDENTIFIER_FIELD_NAME));
+    return new ComputationTargetSpecification(type, identifier);
   }
 }

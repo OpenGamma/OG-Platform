@@ -44,8 +44,8 @@ public class CSVPositionMaster implements PositionMaster {
   private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionMaster.class);
   private final File _baseDirectory;
   private final Map<String, File> _portfolioFilesByName = new TreeMap<String, File>();
-  private final Map<String, Position> _positionsByIdentityKey = new TreeMap<String, Position>();
-  private final Map<String, PortfolioNode> _nodesByIdentityKey = new TreeMap<String, PortfolioNode>();
+  private final Map<DomainSpecificIdentifier, Position> _positionsByIdentityKey = new TreeMap<DomainSpecificIdentifier, Position>();
+  private final Map<DomainSpecificIdentifier, PortfolioNode> _nodesByIdentityKey = new TreeMap<DomainSpecificIdentifier, PortfolioNode>();
   
   public CSVPositionMaster() {
     _baseDirectory = null;
@@ -141,7 +141,7 @@ public class CSVPositionMaster implements PositionMaster {
     int currPosition = 0;
     PortfolioImpl portfolio = new PortfolioImpl(portfolioName);
     portfolio.setIdentityKey(portfolioName);
-    _nodesByIdentityKey.put(portfolioName, portfolio);
+    _nodesByIdentityKey.put(portfolio.getIdentityKey(), portfolio);
     
     BufferedReader br = new BufferedReader(new InputStreamReader(portfolioStream));
     String line = null;
@@ -152,7 +152,7 @@ public class CSVPositionMaster implements PositionMaster {
         String identityKey = portfolioName + "-" + currPosition;
         position.setIdentityKey(identityKey);
         portfolio.addPosition(position);
-        _positionsByIdentityKey.put(identityKey, position);
+        _positionsByIdentityKey.put(position.getIdentityKey(), position);
       }
     }
     s_logger.info("{} parsed stream with {} positions", portfolioName, portfolio.getPositions().size());
@@ -190,12 +190,12 @@ public class CSVPositionMaster implements PositionMaster {
   }
 
   @Override
-  public Position getPosition(String identityKey) {
+  public Position getPosition(DomainSpecificIdentifier identityKey) {
     return _positionsByIdentityKey.get(identityKey);
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(String identityKey) {
+  public PortfolioNode getPortfolioNode(DomainSpecificIdentifier identityKey) {
     return _nodesByIdentityKey.get(identityKey);
   }
   
