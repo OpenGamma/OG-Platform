@@ -44,15 +44,15 @@ public class CollectingLiveDataListener implements LiveDataListener {
     _valueUpdates.add(valueUpdate);
   }
   
-  public List<LiveDataSubscriptionResponse> getSubscriptionResponses() {
+  public synchronized List<LiveDataSubscriptionResponse> getSubscriptionResponses() {
     return new ArrayList<LiveDataSubscriptionResponse>(_subscriptionResponses);
   }
   
-  public List<LiveDataSpecification> getStoppedSubscriptions() {
+  public synchronized List<LiveDataSpecification> getStoppedSubscriptions() {
     return new ArrayList<LiveDataSpecification>(_stoppedSubscriptions);
   }
   
-  public List<LiveDataValueUpdate> getValueUpdates() {
+  public synchronized List<LiveDataValueUpdate> getValueUpdates() {
     return new ArrayList<LiveDataValueUpdate>(_valueUpdates);
   }
 
