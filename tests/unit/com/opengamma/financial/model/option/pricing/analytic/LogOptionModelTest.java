@@ -31,7 +31,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class LogOptionModelTest {
   private static final AnalyticOptionModel<LogOptionDefinition, StandardOptionDataBundle> MODEL = new LogOptionModel();
-  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
@@ -58,7 +58,7 @@ public class LogOptionModelTest {
   private void assertPriceEquals(final LogOptionDefinition definition, final double sigma, final double price) {
     final StandardOptionDataBundle bundle = getBundle(sigma);
     final GreekResultCollection actual = MODEL.getGreeks(definition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult) actual.get(Greek.PRICE)).getResult(), price, EPS);
+    assertEquals(((SingleGreekResult) actual.get(Greek.FAIR_PRICE)).getResult(), price, EPS);
   }
 
   private StandardOptionDataBundle getBundle(final double sigma) {

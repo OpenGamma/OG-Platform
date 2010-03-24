@@ -36,8 +36,8 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
-      final double callPrice = ((SingleGreekResult) BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.PRICE)).getResult();
-      final double putPrice = ((SingleGreekResult) BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.PRICE)).getResult();
+      final double callPrice = ((SingleGreekResult) BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.FAIR_PRICE)).getResult();
+      final double putPrice = ((SingleGreekResult) BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.FAIR_PRICE)).getResult();
       return Math.max(callPrice, putPrice);
     }
   };
@@ -56,7 +56,7 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
   private final OptionDefinition _callDefinition;
   private final OptionDefinition _putDefinition;
   protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final Set<Greek> GREEKS = Collections.singleton(Greek.PRICE);
+  protected final Set<Greek> GREEKS = Collections.singleton(Greek.FAIR_PRICE);
 
   /**
    * 

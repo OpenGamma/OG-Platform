@@ -36,7 +36,7 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
       new ConstantVolatilitySurface(0.3), 10., DATE, 0., 3.);
   private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3),
       10., DATE, 1., 3.);
-  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.PRICE);
+  private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.FAIR_PRICE);
 
   @Test
   public void testNormal() {

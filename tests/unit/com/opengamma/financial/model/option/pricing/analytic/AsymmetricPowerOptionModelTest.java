@@ -39,7 +39,7 @@ public class AsymmetricPowerOptionModelTest {
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
-  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final double EPS = 1e-4;
 
   @Test
@@ -57,7 +57,7 @@ public class AsymmetricPowerOptionModelTest {
   }
 
   private double getPrice(final double power, final boolean isCall) {
-    return ((SingleGreekResult) MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.PRICE)).getResult();
+    return ((SingleGreekResult) MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE)).getResult();
   }
 
   private AsymmetricPowerOptionDefinition getDefinition(final double power, final boolean isCall) {

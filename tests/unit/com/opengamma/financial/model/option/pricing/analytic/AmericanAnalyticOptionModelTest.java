@@ -41,7 +41,7 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   private static final double SIGMA1 = 0.15;
   private static final double SIGMA2 = 0.25;
   private static final double SIGMA3 = 0.35;
-  private static final Set<Greek> GREEK_SET = Collections.singleton(Greek.PRICE);
+  private static final Set<Greek> GREEK_SET = Collections.singleton(Greek.FAIR_PRICE);
 
   public void test(final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model, final double eps) {
     final AmericanVanillaOptionDefinition definition = new AmericanVanillaOptionDefinition(1., NINE_MONTHS, true);
@@ -129,7 +129,7 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   }
 
   private void testResult(final GreekResultCollection result, final double value, final double eps) {
-    assertEquals(((Double) result.get(Greek.PRICE).getResult()), value, eps);
+    assertEquals(((Double) result.get(Greek.FAIR_PRICE).getResult()), value, eps);
   }
 
 }

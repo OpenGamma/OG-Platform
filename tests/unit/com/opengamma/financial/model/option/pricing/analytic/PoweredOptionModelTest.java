@@ -36,7 +36,7 @@ import com.opengamma.util.time.Expiry;
 public class PoweredOptionModelTest {
   private static final AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> POWERED_MODEL = new PoweredOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.1);
@@ -94,13 +94,13 @@ public class PoweredOptionModelTest {
     final StandardOptionDataBundle bundle = getBundle(sigma);
     final GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
     final GreekResultCollection expected = BSM.getGreeks(vanillaDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult) actual.get(Greek.PRICE)).getResult(), ((SingleGreekResult) expected.get(Greek.PRICE)).getResult(), SMALL_EPS);
+    assertEquals(((SingleGreekResult) actual.get(Greek.FAIR_PRICE)).getResult(), ((SingleGreekResult) expected.get(Greek.FAIR_PRICE)).getResult(), SMALL_EPS);
   }
 
   private void assertPriceEquals(final PoweredOptionDefinition poweredDefinition, final double sigma, final double price) {
     final StandardOptionDataBundle bundle = getBundle(sigma);
     final GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult) actual.get(Greek.PRICE)).getResult(), price, BIG_EPS * price);
+    assertEquals(((SingleGreekResult) actual.get(Greek.FAIR_PRICE)).getResult(), price, BIG_EPS * price);
   }
 
   private StandardOptionDataBundle getBundle(final double sigma) {

@@ -39,7 +39,7 @@ public class CappedPowerOptionModelTest {
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
   private static final AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> CAPPED_MODEL = new CappedPowerOptionModel();
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> UNCAPPED_MODEL = new AsymmetricPowerOptionModel();
-  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.PRICE);
+  private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final double HIGH_CAP = 1e20;
   private static final double EPS = 1e-4;
 
@@ -68,11 +68,11 @@ public class CappedPowerOptionModelTest {
   }
 
   private double getCappedPrice(final double power, final double cap, final boolean isCall) {
-    return ((SingleGreekResult) CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.PRICE)).getResult();
+    return ((SingleGreekResult) CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE)).getResult();
   }
 
   private double getUncappedPrice(final double power, final boolean isCall) {
-    return ((SingleGreekResult) UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.PRICE)).getResult();
+    return ((SingleGreekResult) UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE)).getResult();
   }
 
   private CappedPowerOptionDefinition getDefinition(final double power, final double cap, final boolean isCall) {

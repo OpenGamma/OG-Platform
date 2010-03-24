@@ -9,7 +9,7 @@ import com.opengamma.financial.pnl.Underlying;
 
 public enum Greek {
 
-  PRICE {
+  FAIR_PRICE {
     @Override
     public <T> T accept(final GreekVisitor<T> visitor) {
       return visitor.visitPrice();

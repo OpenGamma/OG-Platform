@@ -51,7 +51,7 @@ public class VanillaOptionCrossModelPricingTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
-  private static final Set<Greek> REQUIRED_GREEKS = SetUtils.asSet(Greek.PRICE, Greek.DELTA, Greek.GAMMA);
+  private static final Set<Greek> REQUIRED_GREEKS = SetUtils.asSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
   private static final double EPS = 0.02;
 
   @Test

@@ -48,13 +48,13 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
 
   @Test
   public void testModels() {
-    final Set<Greek> greeks = Collections.singleton(Greek.PRICE);
-    testPrices(greeks, 65, THREE_MONTHS, true, 0.08, 0.08, 0.3, 60, getCollection(Greek.PRICE, 2.1334));
-    testPrices(greeks, 95, SIX_MONTHS, false, 0.1, 0.05, 0.2, 100, getCollection(Greek.PRICE, 2.4648));
-    testPrices(greeks, 19, NINE_MONTHS, true, 0.1, 0, 0.28, 19, getCollection(Greek.PRICE, 1.7011));
-    testPrices(greeks, 19, NINE_MONTHS, false, 0.1, 0, 0.28, 19, getCollection(Greek.PRICE, 1.7011));
-    testPrices(greeks, 3800, NINE_MONTHS, false, 0, 0, 0.15, 4200, getCollection(Greek.PRICE, 65.6185));
-    testPrices(greeks, 1.6, SIX_MONTHS, true, 0.06, -0.02, 0.12, 1.56, getCollection(Greek.PRICE, 0.0291));
+    final Set<Greek> greeks = Collections.singleton(Greek.FAIR_PRICE);
+    testPrices(greeks, 65, THREE_MONTHS, true, 0.08, 0.08, 0.3, 60, getCollection(Greek.FAIR_PRICE, 2.1334));
+    testPrices(greeks, 95, SIX_MONTHS, false, 0.1, 0.05, 0.2, 100, getCollection(Greek.FAIR_PRICE, 2.4648));
+    testPrices(greeks, 19, NINE_MONTHS, true, 0.1, 0, 0.28, 19, getCollection(Greek.FAIR_PRICE, 1.7011));
+    testPrices(greeks, 19, NINE_MONTHS, false, 0.1, 0, 0.28, 19, getCollection(Greek.FAIR_PRICE, 1.7011));
+    testPrices(greeks, 3800, NINE_MONTHS, false, 0, 0, 0.15, 4200, getCollection(Greek.FAIR_PRICE, 65.6185));
+    testPrices(greeks, 1.6, SIX_MONTHS, true, 0.06, -0.02, 0.12, 1.56, getCollection(Greek.FAIR_PRICE, 0.0291));
   }
 
   @Test
@@ -112,7 +112,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   }
 
   private void testPutCallParity(final double strike, final Expiry expiry, final double r, final double b, final double sigma, final double spot) {
-    final Set<Greek> greeks = Collections.singleton(Greek.PRICE);
+    final Set<Greek> greeks = Collections.singleton(Greek.FAIR_PRICE);
     final EuropeanVanillaOptionDefinition call = new EuropeanVanillaOptionDefinition(strike, expiry, true);
     final EuropeanVanillaOptionDefinition put = new EuropeanVanillaOptionDefinition(strike, expiry, false);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);

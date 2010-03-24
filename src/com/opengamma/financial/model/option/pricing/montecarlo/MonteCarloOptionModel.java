@@ -50,7 +50,7 @@ public abstract class MonteCarloOptionModel<T extends OptionDefinition, U extend
   public GreekResultCollection getGreeks(final T definition, final U data, final Set<Greek> requiredGreeks) {
     final GreekResultCollection greeks = new GreekResultCollection();
     final Function1D<U, Double> price = getPrice(definition);
-    greeks.put(Greek.PRICE, new SingleGreekResult(price.evaluate(data)));
+    greeks.put(Greek.FAIR_PRICE, new SingleGreekResult(price.evaluate(data)));
     return greeks;
   }
 
