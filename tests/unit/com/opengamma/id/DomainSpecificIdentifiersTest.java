@@ -22,7 +22,7 @@ import org.junit.Test;
  *
  * @author kirk
  */
-public class DomainSpecificIdentifiersImplTest {
+public class DomainSpecificIdentifiersTest {
   private DomainSpecificIdentifier _id11 = new DomainSpecificIdentifier(new IdentificationDomain("D1"), "V1");
   private DomainSpecificIdentifier _id21 = new DomainSpecificIdentifier(new IdentificationDomain("D2"), "V1");
   private DomainSpecificIdentifier _id12 = new DomainSpecificIdentifier(new IdentificationDomain("D1"), "V2");
@@ -30,8 +30,8 @@ public class DomainSpecificIdentifiersImplTest {
 
   @Test
   public void noIdentifiers() {
-    DomainSpecificIdentifiersImpl dsi1 = new DomainSpecificIdentifiersImpl();
-    DomainSpecificIdentifiersImpl dsi2 = new DomainSpecificIdentifiersImpl();
+    DomainSpecificIdentifiers dsi1 = new DomainSpecificIdentifiers();
+    DomainSpecificIdentifiers dsi2 = new DomainSpecificIdentifiers();
     
     assertTrue(dsi1.equals(dsi1));
     assertTrue(dsi1.equals(dsi2));
@@ -39,33 +39,33 @@ public class DomainSpecificIdentifiersImplTest {
   
   @Test
   public void singleIdentifier() {
-    assertTrue(new DomainSpecificIdentifiersImpl(_id11).equals(new DomainSpecificIdentifiersImpl(_id11)));
-    assertFalse(new DomainSpecificIdentifiersImpl(_id11).equals(new DomainSpecificIdentifiersImpl(_id21)));
-    assertFalse(new DomainSpecificIdentifiersImpl(_id11).equals(new DomainSpecificIdentifiersImpl(_id12)));
-    assertFalse(new DomainSpecificIdentifiersImpl(_id11).equals(new DomainSpecificIdentifiersImpl(_id22)));
+    assertTrue(new DomainSpecificIdentifiers(_id11).equals(new DomainSpecificIdentifiers(_id11)));
+    assertFalse(new DomainSpecificIdentifiers(_id11).equals(new DomainSpecificIdentifiers(_id21)));
+    assertFalse(new DomainSpecificIdentifiers(_id11).equals(new DomainSpecificIdentifiers(_id12)));
+    assertFalse(new DomainSpecificIdentifiers(_id11).equals(new DomainSpecificIdentifiers(_id22)));
   }
 
   @Test
   public void singleIdentifierDifferentConstructors() {
-    assertTrue(new DomainSpecificIdentifiersImpl(_id11).equals(new DomainSpecificIdentifiersImpl(Collections.singleton(_id11))));
+    assertTrue(new DomainSpecificIdentifiers(_id11).equals(new DomainSpecificIdentifiers(Collections.singleton(_id11))));
   }
 
   @Test
   public void singleVersusMultipleIdentifier() {
-    assertFalse(new DomainSpecificIdentifiersImpl(_id11).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
-    assertFalse(new DomainSpecificIdentifiersImpl(_id11, _id12).equals(new DomainSpecificIdentifiersImpl(_id11)));
+    assertFalse(new DomainSpecificIdentifiers(_id11).equals(new DomainSpecificIdentifiers(_id11, _id12)));
+    assertFalse(new DomainSpecificIdentifiers(_id11, _id12).equals(new DomainSpecificIdentifiers(_id11)));
   }
 
   @Test
   public void multipleIdentifier() {
-    assertTrue(new DomainSpecificIdentifiersImpl(_id11, _id12).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
-    assertFalse(new DomainSpecificIdentifiersImpl(_id11, _id22).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
-    assertFalse(new DomainSpecificIdentifiersImpl(_id21, _id22).equals(new DomainSpecificIdentifiersImpl(_id11, _id12)));
+    assertTrue(new DomainSpecificIdentifiers(_id11, _id12).equals(new DomainSpecificIdentifiers(_id11, _id12)));
+    assertFalse(new DomainSpecificIdentifiers(_id11, _id22).equals(new DomainSpecificIdentifiers(_id11, _id12)));
+    assertFalse(new DomainSpecificIdentifiers(_id21, _id22).equals(new DomainSpecificIdentifiers(_id11, _id12)));
   }
   
   @Test
   public void fudgeEncoding() {
-    DomainSpecificIdentifiersImpl input = new DomainSpecificIdentifiersImpl(
+    DomainSpecificIdentifiers input = new DomainSpecificIdentifiers(
         new DomainSpecificIdentifier(new IdentificationDomain("id1"), "value1"),
         new DomainSpecificIdentifier(new IdentificationDomain("id2"), "value2")
       );
@@ -73,7 +73,7 @@ public class DomainSpecificIdentifiersImplTest {
     assertNotNull(msg);
     assertEquals(2, msg.getNumFields());
     
-    DomainSpecificIdentifiersImpl decoded = new DomainSpecificIdentifiersImpl(msg);
+    DomainSpecificIdentifiers decoded = new DomainSpecificIdentifiers(msg);
     assertEquals(input, decoded);
   }
 }
