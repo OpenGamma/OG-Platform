@@ -59,7 +59,7 @@ implements FunctionInvoker {
   
   static {
     Map<String, Greek> greeksMap = new TreeMap<String,Greek>();
-    greeksMap.put(ValueRequirementNames.FAIR_VALUE, Greek.PRICE);
+    greeksMap.put(ValueRequirementNames.FAIR_VALUE, Greek.FAIR_PRICE);
     greeksMap.put(ValueRequirementNames.DELTA, Greek.DELTA);
     greeksMap.put(ValueRequirementNames.DELTA_BLEED, Greek.DELTA_BLEED);
     greeksMap.put(ValueRequirementNames.STRIKE_DELTA, Greek.STRIKE_DELTA);
