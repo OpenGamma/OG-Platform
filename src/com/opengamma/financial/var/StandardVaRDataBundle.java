@@ -12,7 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -21,9 +21,9 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class StandardVaRDataBundle {
   private static final Logger s_Log = LoggerFactory.getLogger(StandardVaRDataBundle.class);
-  private final Map<SecurityKey, DoubleTimeSeries> _riskFactorReturns;
+  private final Map<DomainSpecificIdentifiers, DoubleTimeSeries> _riskFactorReturns;
 
-  public StandardVaRDataBundle(final Map<SecurityKey, DoubleTimeSeries> riskFactorReturns) {
+  public StandardVaRDataBundle(final Map<DomainSpecificIdentifiers, DoubleTimeSeries> riskFactorReturns) {
     if (riskFactorReturns == null)
       throw new IllegalArgumentException("Data map was null");
     if (riskFactorReturns.isEmpty())
@@ -31,27 +31,27 @@ public class StandardVaRDataBundle {
     _riskFactorReturns = riskFactorReturns;
   }
 
-  public Map<SecurityKey, DoubleTimeSeries> getAllReturnData() {
+  public Map<DomainSpecificIdentifiers, DoubleTimeSeries> getAllReturnData() {
     return _riskFactorReturns;
   }
 
-  public DoubleTimeSeries getReturnSeries(final SecurityKey key) {
+  public DoubleTimeSeries getReturnSeries(final DomainSpecificIdentifiers key) {
     if (key == null)
       throw new IllegalArgumentException("Key was null");
-    final Map<SecurityKey, DoubleTimeSeries> map = getAllReturnData();
+    final Map<DomainSpecificIdentifiers, DoubleTimeSeries> map = getAllReturnData();
     if (!map.containsKey(key))
       throw new IllegalArgumentException("Could not find return series for " + key + " in data map");
     return map.get(key);
   }
 
-  public <T extends StandardVaRDataBundle> StandardVaRDataBundle getSubSetBundle(final Set<SecurityKey> keys) {
+  public <T extends StandardVaRDataBundle> StandardVaRDataBundle getSubSetBundle(final Set<DomainSpecificIdentifiers> keys) {
     if (keys == null)
       throw new IllegalArgumentException("Set of keys was null");
     if (keys.isEmpty())
       throw new IllegalArgumentException("Set of keys was empty");
-    final Map<SecurityKey, DoubleTimeSeries> map = getAllReturnData();
-    final Map<SecurityKey, DoubleTimeSeries> subSetData = new HashMap<SecurityKey, DoubleTimeSeries>();
-    for (final SecurityKey key : keys) {
+    final Map<DomainSpecificIdentifiers, DoubleTimeSeries> map = getAllReturnData();
+    final Map<DomainSpecificIdentifiers, DoubleTimeSeries> subSetData = new HashMap<DomainSpecificIdentifiers, DoubleTimeSeries>();
+    for (final DomainSpecificIdentifiers key : keys) {
       if (!map.containsKey(key)) {
         s_Log.warn("Super set does not contain key " + key);
       } else {

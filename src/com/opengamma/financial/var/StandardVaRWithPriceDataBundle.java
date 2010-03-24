@@ -12,7 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.security.SecurityKey;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
@@ -22,20 +22,20 @@ import com.opengamma.timeseries.DoubleTimeSeries;
  */
 public class StandardVaRWithPriceDataBundle extends StandardVaRDataBundle {
   private static final Logger s_Log = LoggerFactory.getLogger(StandardVaRWithPriceDataBundle.class);
-  private final Map<SecurityKey, Double> _riskFactorPrices;
+  private final Map<DomainSpecificIdentifiers, Double> _riskFactorPrices;
 
-  public StandardVaRWithPriceDataBundle(final Map<SecurityKey, DoubleTimeSeries> riskFactorReturns, final Map<SecurityKey, Double> riskFactorPrices) {
+  public StandardVaRWithPriceDataBundle(final Map<DomainSpecificIdentifiers, DoubleTimeSeries> riskFactorReturns, final Map<DomainSpecificIdentifiers, Double> riskFactorPrices) {
     super(riskFactorReturns);
     if (riskFactorPrices == null)
       throw new IllegalArgumentException("Map of prices was null");
     if (riskFactorPrices.isEmpty())
       throw new IllegalArgumentException("Map of prices was empty");
-    for (final SecurityKey key : riskFactorReturns.keySet()) {
+    for (final DomainSpecificIdentifiers key : riskFactorReturns.keySet()) {
       if (!riskFactorPrices.containsKey(key)) {
         s_Log.info("Have a SecurityKey in the return data map (" + key + ") that is not in the price data map");
       }
     }
-    for (final SecurityKey key : riskFactorPrices.keySet()) {
+    for (final DomainSpecificIdentifiers key : riskFactorPrices.keySet()) {
       if (!riskFactorReturns.containsKey(key)) {
         s_Log.info("Have a SecurityKey in the price data map (" + key + ") that is not in the return data map");
       }
@@ -43,23 +43,23 @@ public class StandardVaRWithPriceDataBundle extends StandardVaRDataBundle {
     _riskFactorPrices = riskFactorPrices;
   }
 
-  public Map<SecurityKey, Double> getAllPriceData() {
+  public Map<DomainSpecificIdentifiers, Double> getAllPriceData() {
     return _riskFactorPrices;
   }
 
-  public Double getPrice(final SecurityKey key) {
-    final Map<SecurityKey, Double> map = getAllPriceData();
+  public Double getPrice(final DomainSpecificIdentifiers key) {
+    final Map<DomainSpecificIdentifiers, Double> map = getAllPriceData();
     if (!map.containsKey(key))
       throw new IllegalArgumentException("Could not find price for " + key + " in data map");
     return map.get(key);
   }
 
   @Override
-  public <T extends StandardVaRDataBundle> StandardVaRWithPriceDataBundle getSubSetBundle(final Set<SecurityKey> keys) {
+  public <T extends StandardVaRDataBundle> StandardVaRWithPriceDataBundle getSubSetBundle(final Set<DomainSpecificIdentifiers> keys) {
     final StandardVaRDataBundle returnBundle = super.getSubSetBundle(keys);
-    final Map<SecurityKey, Double> map = getAllPriceData();
-    final Map<SecurityKey, Double> subSetData = new HashMap<SecurityKey, Double>();
-    for (final SecurityKey key : keys) {
+    final Map<DomainSpecificIdentifiers, Double> map = getAllPriceData();
+    final Map<DomainSpecificIdentifiers, Double> subSetData = new HashMap<DomainSpecificIdentifiers, Double>();
+    for (final DomainSpecificIdentifiers key : keys) {
       if (!map.containsKey(key)) {
         s_Log.warn("Super set does not contain key " + key);
       } else {

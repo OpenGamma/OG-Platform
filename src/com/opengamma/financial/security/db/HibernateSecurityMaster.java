@@ -22,10 +22,10 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.id.IdentificationDomain;
 
 //import com.opengamma.engine.security.Security;
@@ -197,7 +197,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
 
   // TODO: consider if this needs to take a date
   @Override
-  public Collection<Security> getSecurities(SecurityKey secKey) {
+  public Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
     Collection<DomainSpecificIdentifier> identifiers = secKey.getIdentifiers();
     Collection<Security> results = new HashSet<Security>();
     for (DomainSpecificIdentifier dsi : identifiers) {
@@ -211,7 +211,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
 
   // TODO: consider if this needs to take a date
   @Override
-  public Security getSecurity(SecurityKey secKey) {
+  public Security getSecurity(DomainSpecificIdentifiers secKey) {
     Collection<DomainSpecificIdentifier> identifiers = secKey.getIdentifiers();
     for (DomainSpecificIdentifier dsi : identifiers) {
       Security security = getSecurity(new Date(), dsi, true);

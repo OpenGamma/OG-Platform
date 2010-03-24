@@ -12,7 +12,6 @@ import java.util.Set;
 
 import cern.colt.matrix.DoubleMatrix2D;
 
-import com.opengamma.engine.security.SecurityKey;
 import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
 import com.opengamma.financial.var.StandardVaRDataBundle;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -27,7 +26,7 @@ public class StandardVaRCovarianceMatrix {
  *   private final StandardVaRDataBundle _data;
   private final CovarianceMatrixCalculator _calculator;
   private DoubleMatrix2D _matrix;
-  private List<SecurityKey> _keys;
+  private List<DomainSpecificIdentifiers> _keys;
 
 
  *   public StandardVaRCovarianceMatrix(final StandardVaRDataBundle data, final CovarianceMatrixCalculator calculator) {
@@ -42,11 +41,11 @@ public class StandardVaRCovarianceMatrix {
   }
 
   private void init(final StandardVaRDataBundle data, final CovarianceMatrixCalculator calculator) {
-    final Map<SecurityKey, DoubleTimeSeries> map = data.getAllReturnData();
-    _keys = new ArrayList<SecurityKey>();
+    final Map<DomainSpecificIdentifiers, DoubleTimeSeries> map = data.getAllReturnData();
+    _keys = new ArrayList<DomainSpecificIdentifiers>();
     final DoubleTimeSeries[] ts = new DoubleTimeSeries[map.size()];
     int count = 0;
-    for (final Map.Entry<SecurityKey, DoubleTimeSeries> entry : map.entrySet()) {
+    for (final Map.Entry<DomainSpecificIdentifiers, DoubleTimeSeries> entry : map.entrySet()) {
       _keys.add(entry.getKey());
       ts[count++] = entry.getValue();
       count++;
@@ -66,15 +65,15 @@ public class StandardVaRCovarianceMatrix {
     return _matrix;
   }
 
-  public List<SecurityKey> getSecurityKeys() {
+  public List<DomainSpecificIdentifiers> getSecurityKeys() {
     return _keys;
   }
 
-  public StandardVaRCovarianceMatrix getSubSetMatrix(final Set<SecurityKey> keys) {
+  public StandardVaRCovarianceMatrix getSubSetMatrix(final Set<DomainSpecificIdentifiers> keys) {
     return new StandardVaRCovarianceMatrix(getData().getSubSetBundle(keys), getCalculator());
   }
 
-  public Double getCovariance(final SecurityKey key1, final SecurityKey key2) {
+  public Double getCovariance(final DomainSpecificIdentifiers key1, final DomainSpecificIdentifiers key2) {
     final int index1 = _keys.indexOf(key1);
     if (index1 == -1)
       throw new IllegalArgumentException("Security " + key1 + " was not in the data set");
