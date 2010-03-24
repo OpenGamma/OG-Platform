@@ -22,7 +22,7 @@ import org.junit.Test;
  *
  * @author kirk
  */
-public class DomainSpecificIdentifiersImplTest {
+public class DomainSpecificIdentifiersTest {
   private DomainSpecificIdentifier _id11 = new DomainSpecificIdentifier(new IdentificationDomain("D1"), "V1");
   private DomainSpecificIdentifier _id21 = new DomainSpecificIdentifier(new IdentificationDomain("D2"), "V1");
   private DomainSpecificIdentifier _id12 = new DomainSpecificIdentifier(new IdentificationDomain("D1"), "V2");
