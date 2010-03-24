@@ -30,8 +30,8 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.id.IdentificationDomain;
 
 /**
@@ -182,7 +182,7 @@ public class CSVPositionMaster implements PositionMaster {
       DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain(idDomain), idValue);
       securityIdentifiers.add(id);
     }
-    SecurityKeyImpl securityKey = new SecurityKeyImpl(securityIdentifiers);
+    DomainSpecificIdentifiers securityKey = new DomainSpecificIdentifiers(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
     PositionBean position = new PositionBean(quantity, securityKey);

@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -215,7 +216,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(SecurityKey secKey) {
+  public Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
     Element e = _multiSecuritiesCache.get(secKey);
     Collection<Security> securities = new HashSet<Security>();
     if (e != null) {
@@ -244,7 +245,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Security getSecurity(SecurityKey secKey) {
+  public Security getSecurity(DomainSpecificIdentifiers secKey) {
     Element e = _singleSecurityCache.get(secKey);
     Security sec = null;
     if (e != null) {

@@ -8,8 +8,7 @@ package com.opengamma.engine.position;
 import java.math.BigDecimal;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.IdentificationDomain;
 
@@ -32,7 +31,7 @@ public interface Position extends Identifiable {
    * Returns a key which can be used to uniquely identify a security to the security master.
    * @return the security key
    */
-  SecurityKey getSecurityKey();
+  DomainSpecificIdentifiers getSecurityKey();
   
   /**
    * <em>May</em> return a security, if the position has been resolved.  If it hasn't been resolved in will return null.

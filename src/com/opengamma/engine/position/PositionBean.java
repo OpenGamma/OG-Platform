@@ -13,9 +13,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityKey;
-import com.opengamma.engine.security.SecurityKeyImpl;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
@@ -26,17 +25,17 @@ import com.opengamma.util.CompareUtils;
  */
 public class PositionBean implements Position, Serializable {
   private final BigDecimal _quantity;
-  private final SecurityKey _securityKey;
+  private final DomainSpecificIdentifiers _securityKey;
   private Security _security;
   private DomainSpecificIdentifier _identityKey;
   
-  public PositionBean(BigDecimal quantity, SecurityKey securityKey) {
+  public PositionBean(BigDecimal quantity, DomainSpecificIdentifiers securityKey) {
     _quantity = quantity;
     _securityKey = securityKey;
     _security = null;
   }
   
-  public PositionBean(BigDecimal quantity, SecurityKey securityKey, Security security) {
+  public PositionBean(BigDecimal quantity, DomainSpecificIdentifiers securityKey, Security security) {
     _quantity = quantity;
     _securityKey = securityKey;
     _security = security;
@@ -47,7 +46,7 @@ public class PositionBean implements Position, Serializable {
     _security = security;
     // REVIEW kirk 2009-11-04 -- Is this right?
     // NOTE jim 2010-03-04 -- No it wasn't (it was being set to null)
-    _securityKey = security.getIdentifiers() != null ? new SecurityKeyImpl(security.getIdentifiers()) : null;
+    _securityKey = security.getIdentifiers() != null ? new DomainSpecificIdentifiers(security.getIdentifiers()) : null;
   }
 
   @Override
@@ -56,7 +55,7 @@ public class PositionBean implements Position, Serializable {
   }
 
   @Override
-  public SecurityKey getSecurityKey() {
+  public DomainSpecificIdentifiers getSecurityKey() {
     return _securityKey;
   }
   

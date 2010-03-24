@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 
 
 /**
@@ -76,7 +77,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public synchronized Collection<Security> getSecurities(SecurityKey secKey) {
+  public synchronized Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
     List<Security> result = new ArrayList<Security>();
     if(secKey == null) {
       return result;
@@ -92,7 +93,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public synchronized Security getSecurity(SecurityKey secKey) {
+  public synchronized Security getSecurity(DomainSpecificIdentifiers secKey) {
     if(secKey == null) {
       return null;
     }

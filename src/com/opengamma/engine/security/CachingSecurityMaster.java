@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 
 /**
  * 
@@ -19,7 +20,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
  */
 public class CachingSecurityMaster implements SecurityMaster {
   private final SecurityMaster _underlying;
-  private final Map<SecurityKey, Security> _cache = new HashMap<SecurityKey, Security>();
+  private final Map<DomainSpecificIdentifiers, Security> _cache = new HashMap<DomainSpecificIdentifiers, Security>();
   private final Map<DomainSpecificIdentifier, Security> _cacheByIdentityKey = new HashMap<DomainSpecificIdentifier, Security>();
   
   public CachingSecurityMaster(SecurityMaster underlying) {
@@ -40,12 +41,12 @@ public class CachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Collection<Security> getSecurities(SecurityKey secKey) {
+  public Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
     return getUnderlying().getSecurities(secKey);
   }
 
   @Override
-  public synchronized Security getSecurity(SecurityKey secKey) {
+  public synchronized Security getSecurity(DomainSpecificIdentifiers secKey) {
     if(_cache.containsKey(secKey)) {
       return _cache.get(secKey);
     }

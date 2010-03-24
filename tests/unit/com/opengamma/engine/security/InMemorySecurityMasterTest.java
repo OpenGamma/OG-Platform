@@ -17,6 +17,7 @@ import java.util.Collections;
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.id.IdentificationDomain;
 
 /**
@@ -29,7 +30,7 @@ public class InMemorySecurityMasterTest {
   @Test
   public void empty() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    SecurityKey secKey = new SecurityKeyImpl(new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1"));
+    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1"));
     assertNull(secMaster.getSecurity(secKey));
     Collection<Security> securities = secMaster.getSecurities(secKey);
     assertNotNull(securities);
@@ -41,9 +42,9 @@ public class InMemorySecurityMasterTest {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     DomainSpecificIdentifier secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
     DomainSpecificIdentifier secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
-    SecurityKey secKey1 = new SecurityKeyImpl(secId1);
-    SecurityKey secKey2 = new SecurityKeyImpl(secId2);
-    SecurityKey secKey3 = new SecurityKeyImpl(secId1, secId2);
+    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(secId1);
+    DomainSpecificIdentifiers secKey2 = new DomainSpecificIdentifiers(secId2);
+    DomainSpecificIdentifiers secKey3 = new DomainSpecificIdentifiers(secId1, secId2);
     
     DefaultSecurity sec = new DefaultSecurity();
     sec.setIdentifiers(Collections.singleton(secId1));
@@ -70,9 +71,9 @@ public class InMemorySecurityMasterTest {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     DomainSpecificIdentifier secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
     DomainSpecificIdentifier secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
-    SecurityKey secKey1 = new SecurityKeyImpl(secId1);
-    SecurityKey secKey2 = new SecurityKeyImpl(secId2);
-    SecurityKey secKey3 = new SecurityKeyImpl(secId1, secId2);
+    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(secId1);
+    DomainSpecificIdentifiers secKey2 = new DomainSpecificIdentifiers(secId2);
+    DomainSpecificIdentifiers secKey3 = new DomainSpecificIdentifiers(secId1, secId2);
     
     DefaultSecurity sec1 = new DefaultSecurity();
     sec1.setIdentifiers(Collections.singleton(secId1));

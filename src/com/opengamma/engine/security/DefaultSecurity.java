@@ -12,7 +12,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiersImpl;
+import com.opengamma.id.DomainSpecificIdentifiers;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
@@ -20,13 +20,13 @@ import com.opengamma.id.DomainSpecificIdentifiersImpl;
  * @author kirk
  */
 public class DefaultSecurity implements Security, Serializable {
-  private DomainSpecificIdentifiersImpl _identifiers;
+  private DomainSpecificIdentifiers _identifiers;
   private String _securityType;
   //private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
   private DomainSpecificIdentifier _identityKey;
   
   public DefaultSecurity() {
-    _identifiers = new DomainSpecificIdentifiersImpl();
+    _identifiers = new DomainSpecificIdentifiers();
   }
   
   public DefaultSecurity(String securityType, Collection<? extends DomainSpecificIdentifier> identifiers) {
@@ -44,7 +44,7 @@ public class DefaultSecurity implements Security, Serializable {
    * @param identifiers the identifiers to set
    */
   public void setIdentifiers(Collection<? extends DomainSpecificIdentifier> identifiers) {
-    _identifiers = new DomainSpecificIdentifiersImpl(identifiers);
+    _identifiers = new DomainSpecificIdentifiers(identifiers);
   }
   
   @Override

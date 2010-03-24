@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.id.IdentificationDomain;
 
 /**
@@ -65,7 +66,7 @@ public class EHCachingSecurityMasterTest {
   
   @Test
   public void emptyCache() {
-    SecurityKey secKey = new SecurityKeyImpl(_secId1);
+    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(_secId1);
     
     Security cachedSec = _cachingSecMaster.getSecurity(secKey);
     assertNull(cachedSec);
@@ -97,7 +98,7 @@ public class EHCachingSecurityMasterTest {
   @Test
   public void getSecurities() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    SecurityKey secKey = new SecurityKeyImpl(_secId1, _secId2);
+    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(_secId1, _secId2);
     
     Collection<Security> underlyingSecurities = _underlyingSecMaster.getSecurities(secKey);
     assertNotNull(underlyingSecurities);
@@ -132,7 +133,7 @@ public class EHCachingSecurityMasterTest {
   public void getSecurityBySecurityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    SecurityKey secKey1 = new SecurityKeyImpl(_secId1);
+    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(_secId1);
     Security underlyingSec = _underlyingSecMaster.getSecurity(secKey1);
     Security cachedSec = _cachingSecMaster.getSecurity(secKey1);
     assertNotNull(underlyingSec);
@@ -182,7 +183,7 @@ public class EHCachingSecurityMasterTest {
   public void refreshGetSecurityBySecurityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    SecurityKey secKey1 = new SecurityKeyImpl(_secId1);
+    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(_secId1);
     _cachingSecMaster.getSecurity(secKey1);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
@@ -236,7 +237,7 @@ public class EHCachingSecurityMasterTest {
   @Test
   public void refreshGetSecuritiesBySecurityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    SecurityKey secKey = new SecurityKeyImpl(_secId1, _secId2);
+    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(_secId1, _secId2);
     _cachingSecMaster.getSecurities(secKey);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
