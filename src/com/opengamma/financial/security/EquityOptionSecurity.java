@@ -6,6 +6,7 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -18,12 +19,12 @@ public abstract class EquityOptionSecurity extends FinancialSecurity implements 
   private final OptionType _optionType;
   private final double _strike;
   private final Expiry _expiry;
-  private final String _underlyingIdentityKey;
+  private final DomainSpecificIdentifier _underlyingIdentityKey;
   private final Currency _currency;
   private final String _exchange;
   // TODO: jim 23-Sep-2009 -- Add support for regions/countries
 
-  public EquityOptionSecurity(OptionType optionType, double strike, Expiry expiry, String underlyingIdentityKey, Currency currency, final String exchange) {
+  public EquityOptionSecurity(OptionType optionType, double strike, Expiry expiry, DomainSpecificIdentifier underlyingIdentityKey, Currency currency, final String exchange) {
     _optionType = optionType;
     _strike = strike;
     _expiry = expiry;
@@ -54,7 +55,7 @@ public abstract class EquityOptionSecurity extends FinancialSecurity implements 
     return _expiry;
   }
   
-  public String getUnderlyingIdentityKey() {
+  public DomainSpecificIdentifier getUnderlyingIdentityKey() {
     return _underlyingIdentityKey;
   }
   

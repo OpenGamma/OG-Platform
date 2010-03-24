@@ -310,15 +310,30 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Currency dollar = Currency.getInstance ("USD");
     Currency sterling = Currency.getInstance ("GBP");
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+
     DomainSpecificIdentifier americanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "American equity option");
+    DomainSpecificIdentifier americanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying american option id");
+    
     DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European equity option");
+    DomainSpecificIdentifier europeanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european option id");
+    
     Date now = new Date ();
     // create an American equity option
-    EquityOptionSecurity equityOption = new AmericanVanillaEquityOptionSecurity (OptionType.PUT, 1.23, expiry, "underlying american option id", dollar, "DJX");
+    EquityOptionSecurity equityOption = new AmericanVanillaEquityOptionSecurity (OptionType.PUT, 
+        1.23, 
+        expiry, 
+        americanUnderlyingIdentifier, 
+        dollar, 
+        "DJX");
     equityOption.setIdentifiers (Collections.singleton (americanIdentifier));
     _secMaster.persistSecurity (now, equityOption);
     // create a European equity option
-    equityOption = new EuropeanVanillaEquityOptionSecurity (OptionType.CALL, 4.56, expiry, "underlying european option id", sterling, "UKX");
+    equityOption = new EuropeanVanillaEquityOptionSecurity (OptionType.CALL, 
+        4.56, 
+        expiry, 
+        europeanUnderlyingIdentifier, 
+        sterling, 
+        "UKX");
     equityOption.setIdentifiers (Collections.singleton (europeanIdentifier));
     _secMaster.persistSecurity (now, equityOption);
     // retrieve the American option
@@ -329,7 +344,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (OptionType.PUT, american.getOptionType ());
     Assert.assertEquals (1.23, american.getStrike (), 0);
     Assert.assertEquals (expiry, american.getExpiry ());
-    Assert.assertEquals ("underlying american option id", american.getUnderlyingIdentityKey ());
+    Assert.assertEquals (americanUnderlyingIdentifier, american.getUnderlyingIdentityKey());
     Assert.assertEquals (dollar, american.getCurrency ());
     Assert.assertEquals ("DJX", american.getExchange ());
     // retrieve the European option
@@ -340,7 +355,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (OptionType.CALL, european.getOptionType ());
     Assert.assertEquals (4.56, european.getStrike (), 0);
     Assert.assertEquals (expiry, european.getExpiry ());
-    Assert.assertEquals ("underlying european option id", european.getUnderlyingIdentityKey ());
+    Assert.assertEquals (europeanUnderlyingIdentifier, european.getUnderlyingIdentityKey ());
     Assert.assertEquals (sterling, european.getCurrency ());
     Assert.assertEquals ("UKX", european.getExchange ());
   }
@@ -597,9 +612,9 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     _secMaster.persistSecurity(yesterYear2003, generalMotors);
     _secMaster.persistSecurity(yesterYear2003, nomura);
     
-    Security shouldBeNomura = _secMaster.getSecurity("1311 JP Equity");
+    Security shouldBeNomura = _secMaster.getSecurity(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity"));
     Assert.assertEquals(nomura, shouldBeNomura);
-    Security shouldBeGM = _secMaster.getSecurity("GM US Equity");
+    Security shouldBeGM = _secMaster.getSecurity(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity"));
     Assert.assertEquals(generalMotors, shouldBeGM);
 
     EquitySecurity generalMotors2 = new EquitySecurity();

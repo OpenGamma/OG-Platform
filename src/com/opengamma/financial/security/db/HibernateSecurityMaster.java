@@ -222,11 +222,10 @@ public class HibernateSecurityMaster implements SecurityMaster {
     return null;
   }
   
-  // TODO: remove this once we've got rid of the string Bloomberg only identities floating around.
   @Override
-  public Security getSecurity(String identityKey) {
-    return getSecurity(new Date(), new DomainSpecificIdentifier(DEFAULT_DOMAIN, identityKey), true);
+  public Security getSecurity(DomainSpecificIdentifier identityKey) {
+    return getSecurity(new Date(), identityKey, true);
   }
-
+  
 }
  

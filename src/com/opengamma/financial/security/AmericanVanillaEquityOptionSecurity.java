@@ -6,6 +6,7 @@
 package com.opengamma.financial.security;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -21,7 +22,7 @@ public class AmericanVanillaEquityOptionSecurity extends EquityOptionSecurity im
    * @param expiry
    */
   public AmericanVanillaEquityOptionSecurity(OptionType optionType,
-      double strike, Expiry expiry, String underlyingUniqueId, Currency currency, final String exchange) {
+      double strike, Expiry expiry, DomainSpecificIdentifier underlyingUniqueId, Currency currency, final String exchange) {
     super(optionType, strike, expiry, underlyingUniqueId, currency, exchange);
   }
 

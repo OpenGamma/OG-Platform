@@ -68,7 +68,7 @@ implements FunctionInvoker {
     _definition = curveSource.getDefinition(_curveCurrency, _curveName);
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getISOCode()));
+    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getIdentityKey()));
     _results = Collections.singleton(_result);
   }
   
@@ -97,11 +97,9 @@ implements FunctionInvoker {
     if(target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if(target.getValue() instanceof String) {
-      String currencyKey = (String) target.getValue();
-      return ObjectUtils.equals(currencyKey, getDefinition().getCurrency().getISOCode());
-    }
-    return false;
+    return ObjectUtils.equals(
+        target.getUniqueIdentifier(),
+        getDefinition().getCurrency().getIdentityKey());
   }
 
   @Override

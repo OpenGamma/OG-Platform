@@ -109,7 +109,7 @@ implements FunctionInvoker {
     final EquityOptionSecurity equityOptionSec = (EquityOptionSecurity)target.getSecurity();
     ValueRequirement equityOptionMarketDataReq = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey());
     ValueRequirement underlyingMarketDataReq = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equityOptionSec.getUnderlyingIdentityKey());
-    ValueRequirement discountCurveReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, equityOptionSec.getCurrency().getISOCode());
+    ValueRequirement discountCurveReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, equityOptionSec.getCurrency().getIdentityKey());
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
     optionRequirements.add(equityOptionMarketDataReq);
     optionRequirements.add(underlyingMarketDataReq);
@@ -138,7 +138,7 @@ implements FunctionInvoker {
     // Get inputs:
     ValueRequirement equityOptionMarketDataReq = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equityOptionSec.getIdentityKey());
     ValueRequirement underlyingMarketDataReq = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equityOptionSec.getUnderlyingIdentityKey());
-    ValueRequirement discountCurveReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, equityOptionSec.getCurrency().getISOCode());
+    ValueRequirement discountCurveReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, equityOptionSec.getCurrency().getIdentityKey());
     
     FudgeFieldContainer equityOptionMarketData = (FudgeFieldContainer)inputs.getValue(equityOptionMarketDataReq);
     FudgeFieldContainer underlyingMarketData = (FudgeFieldContainer)inputs.getValue(underlyingMarketDataReq);
