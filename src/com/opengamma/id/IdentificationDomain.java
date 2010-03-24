@@ -27,7 +27,14 @@ import org.apache.commons.lang.builder.ToStringStyle;
  *
  * @author kirk
  */
-public class IdentificationDomain implements Serializable, Cloneable {
+public class IdentificationDomain implements Serializable, Cloneable, Comparable<IdentificationDomain> {
+
+  public static final IdentificationDomain BLOOMBERG_BUID = new IdentificationDomain("BLOOMBERG_BUID");
+  public static final IdentificationDomain BLOOMBERG_TICKER = new IdentificationDomain("BLOOMBERG_TICKER");
+  public static final IdentificationDomain CUSIP = new IdentificationDomain("CUSIP");
+  public static final IdentificationDomain ISIN = new IdentificationDomain("ISIN");
+  public static final IdentificationDomain RIC = new IdentificationDomain("RIC");
+
   private final String _domainName;
   
   public IdentificationDomain(String domainName) {
@@ -80,5 +87,11 @@ public class IdentificationDomain implements Serializable, Cloneable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
+
+  @Override
+  public int compareTo(IdentificationDomain o) {
+    return _domainName.compareTo(o._domainName);
+  }
+  
   
 }

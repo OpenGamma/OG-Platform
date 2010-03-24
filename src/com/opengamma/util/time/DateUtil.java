@@ -8,6 +8,7 @@ package com.opengamma.util.time;
 import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.calendar.Calendrical;
 import javax.time.calendar.Clock;
 import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.LocalDate;
@@ -272,7 +273,7 @@ public class DateUtil {
    * @param startDate
    * @return date in "yyyymmdd" format
    */
-  public static String printYYYYMMDD(ZonedDateTime date) {
+  public static String printYYYYMMDD(Calendrical date) {
     if (date == null)
       throw new IllegalArgumentException("date was null");
     String formatted = DateTimeFormatters.isoLocalDate().print(date);
@@ -335,6 +336,17 @@ public class DateUtil {
     ZonedDateTime zonedDateTime = getUTCDate(localDate.getYear(), localDate.getMonthOfYear().getValue(), localDate.getDayOfMonth());
     return zonedDateTime;
   }
+  
+  /**
+   * 
+   * @param date in YYYYMMDD
+   * @return
+   */
+  public static LocalDate toLocalDate(int date) {
+    LocalDate localDate = DateTimeFormatters.basicIsoDate().parse(String.valueOf(date), LocalDate.rule());
+    return localDate;
+  }
+
 
   // TODO useful to have methods such as # weeks between.
 }

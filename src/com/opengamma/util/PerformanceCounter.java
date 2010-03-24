@@ -61,9 +61,6 @@ public class PerformanceCounter {
   }
   
   private long getSecondsSinceInception(long timestamp) {
-    if (timestamp < _zeroTimestamp) { // could happen if the system clock is played with 
-      reset(timestamp);      
-    }
     return (timestamp - _zeroTimestamp) / 1000;   
   }
   
@@ -80,14 +77,21 @@ public class PerformanceCounter {
   }
   
   synchronized void hit(long timestamp) {
-    int lastIndex = getIndex(_lastHitTimestamp);
-    int index = getIndex(timestamp);
-    
+    if (timestamp < _lastHitTimestamp) { // could happen if the system clock is played with 
+      reset(timestamp);      
+    }
+
     long secondsSinceLastHit = getSecondsSinceInception(timestamp) - getSecondsSinceInception(_lastHitTimestamp);
+    if (secondsSinceLastHit < 0) {
+      throw new RuntimeException("Seconds since last hit should never be negative" + secondsSinceLastHit);
+    }
     
     if (secondsSinceLastHit >= _secondsOfHistoryToKeep) {
       Arrays.fill(_hitsHistory, _hits);
     } else {
+      int lastIndex = getIndex(_lastHitTimestamp);
+      int index = getIndex(timestamp);
+
       if (index > lastIndex) {
         Arrays.fill(_hitsHistory, lastIndex, index, _hits);
       } else if (index < lastIndex) {
