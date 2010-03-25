@@ -21,19 +21,18 @@ public class AmericanVanillaEquityOptionSecurity extends EquityOptionSecurity im
    * @param strike
    * @param expiry
    */
-  public AmericanVanillaEquityOptionSecurity(OptionType optionType,
-      double strike, Expiry expiry, DomainSpecificIdentifier underlyingUniqueId, Currency currency, final String exchange) {
+  public AmericanVanillaEquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final DomainSpecificIdentifier underlyingUniqueId,
+      final Currency currency, final String exchange) {
     super(optionType, strike, expiry, underlyingUniqueId, currency, exchange);
   }
 
   @Override
-  public <T> T accept(OptionVisitor<T> visitor) {
+  public <T> T accept(final OptionVisitor<T> visitor) {
     return visitor.visitAmericanVanillaOption(this);
   }
 
   @Override
-  public <T> T accept(EquityOptionSecurityVisitor<T> visitor) {
+  public <T> T accept(final EquityOptionSecurityVisitor<T> visitor) {
     return visitor.visitAmericanVanillaEquityOptionSecurity(this);
   }
-
 }
