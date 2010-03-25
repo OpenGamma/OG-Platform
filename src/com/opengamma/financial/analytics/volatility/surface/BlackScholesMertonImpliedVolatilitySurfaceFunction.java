@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics;
+package com.opengamma.financial.analytics.volatility.surface;
 
 import java.util.Collections;
 import java.util.HashMap;
