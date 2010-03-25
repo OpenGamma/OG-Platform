@@ -103,7 +103,7 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
     readFromStorage();
     readFromServer();
 
-    updateServer();
+    updateServer(true);
 
     s_logger.info("Refreshed persistent subscriptions from storage. There are currently "
             + _persistentSubscriptions.size() + " persistent subscriptions.");
@@ -113,7 +113,7 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
    * Creates a persistent subscription on the server for any persistent
    * subscriptions which are not yet there.
    */
-  private void updateServer() {
+  private void updateServer(boolean catchExceptions) {
     for (PersistentSubscription sub : _persistentSubscriptions) {
 
       LiveDataSpecification spec = new LiveDataSpecification(
@@ -125,8 +125,12 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
         s_logger.info("Creating a persistent subscription on server for " + spec);
         try {
           _server.subscribe(spec, true);
-        } catch (Exception e) {
-          s_logger.error("Creating a persistent subscription failed for " + spec, e);
+        } catch (RuntimeException e) {
+          if (catchExceptions) {
+            s_logger.error("Creating a persistent subscription failed for " + spec, e);
+          } else {
+            throw e;            
+          }
         }
       }
     }
@@ -167,7 +171,7 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
 
   public synchronized void addPersistentSubscription(String securityUniqueId) {
     addPersistentSubscription(new PersistentSubscription(securityUniqueId));
-    updateServer();
+    updateServer(false);
   }
 
   public synchronized boolean removePersistentSubscription(
