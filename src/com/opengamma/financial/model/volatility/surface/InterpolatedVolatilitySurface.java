@@ -29,7 +29,8 @@ import com.opengamma.util.Pair;
 
 public class InterpolatedVolatilitySurface extends VolatilitySurface {
   private static final Logger s_Log = LoggerFactory.getLogger(InterpolatedVolatilitySurface.class);
-  private final SortedMap<Pair<Double, Double>, Double> _data;
+  private final SortedMap<Pair<Double, Double>, Double> _volatilityData;
+  private final SortedMap<Pair<Double, Double>, Double> _varianceData;
   private final Interpolator2D _interpolator;
 
   /**
@@ -54,9 +55,14 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
       if (sigma < 0)
         throw new IllegalArgumentException("Cannot have negative volatility");
     }
-    final SortedMap<Pair<Double, Double>, Double> sorted = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
-    sorted.putAll(data);
-    _data = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sorted);
+    final SortedMap<Pair<Double, Double>, Double> sortedVolatility = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
+    sortedVolatility.putAll(data);
+    final SortedMap<Pair<Double, Double>, Double> sortedVariance = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
+    for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
+      sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
+    }
+    _volatilityData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVolatility);
+    _varianceData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVariance);
     _interpolator = interpolator;
   }
 
@@ -67,7 +73,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    * @see com.opengamma.util.FirstThenSecondPairComparator
    */
   public SortedMap<Pair<Double, Double>, Double> getData() {
-    return _data;
+    return _volatilityData;
   }
 
   /**
@@ -90,12 +96,12 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
       throw new IllegalArgumentException("x-value was null");
     if (xy.getSecond() == null)
       throw new IllegalArgumentException("y-value was null");
-    return _interpolator.interpolate(_data, new Pair<Double, Double>(xy.getFirst(), xy.getSecond())).getResult();
+    return Math.sqrt(_interpolator.interpolate(_varianceData, xy).getResult());
   }
 
   @Override
   public Set<Pair<Double, Double>> getXYData() {
-    return _data.keySet();
+    return _volatilityData.keySet();
   }
 
   @Override
@@ -158,7 +164,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + (_data == null ? 0 : _data.hashCode());
+    result = prime * result + (_volatilityData == null ? 0 : _volatilityData.hashCode());
     result = prime * result + (_interpolator == null ? 0 : _interpolator.hashCode());
     return result;
   }
@@ -172,10 +178,10 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     if (getClass() != obj.getClass())
       return false;
     final InterpolatedVolatilitySurface other = (InterpolatedVolatilitySurface) obj;
-    if (_data == null) {
-      if (other._data != null)
+    if (_volatilityData == null) {
+      if (other._volatilityData != null)
         return false;
-    } else if (!_data.equals(other._data))
+    } else if (!_volatilityData.equals(other._volatilityData))
       return false;
     if (_interpolator == null) {
       if (other._interpolator != null)

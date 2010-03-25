@@ -7,7 +7,6 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,10 +18,8 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function2D;
-import com.opengamma.math.regression.AdaptiveLeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
-import com.opengamma.math.regression.NamedVariableLeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
 import com.opengamma.util.Pair;
 
@@ -34,7 +31,6 @@ import com.opengamma.util.Pair;
 public class PractitionerBlackScholesVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
   private static final Logger s_Log = LoggerFactory.getLogger(PractitionerBlackScholesVolatilitySurfaceModel.class);
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _bsmVolatilityModel = new BlackScholesMertonImpliedVolatilitySurfaceModel();
-  private final double DEFAULT_SIGNIFICANCE = 0.05;
   private final int DEGREE = 5;
   private final LeastSquaresRegression _regression;
   protected final Function<Double, Double[]> _independentVariableFunction = new Function2D<Double, Double[]>() {
@@ -52,23 +48,8 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
 
   };
 
-  public PractitionerBlackScholesVolatilitySurfaceModel(final boolean useAdaptiveModel) {
-    final LeastSquaresRegression ols = new OrdinaryLeastSquaresRegression();
-    if (useAdaptiveModel) {
-      _regression = new AdaptiveLeastSquaresRegression(ols, DEFAULT_SIGNIFICANCE);
-    } else {
-      _regression = ols;
-    }
-  }
-
-  public PractitionerBlackScholesVolatilitySurfaceModel(final boolean useAdaptiveModel, final double significanceLevel) {
-    final LeastSquaresRegression ols = new OrdinaryLeastSquaresRegression();
-    if (useAdaptiveModel) {
-      _regression = new AdaptiveLeastSquaresRegression(ols, significanceLevel);
-    } else {
-      s_Log.info("Significance level was provided, but model being used is not adaptive");
-      _regression = ols;
-    }
+  public PractitionerBlackScholesVolatilitySurfaceModel() {
+    _regression = new OrdinaryLeastSquaresRegression();
   }
 
   @Override
@@ -106,7 +87,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
 
   private LeastSquaresRegressionResult getRegressionResult(final Double[] kArray, final Double[] tArray, final Double[] sigmaArray) {
     final int length = kArray.length;
-    final Double[][] x = new Double[length][5];
+    final Double[][] x = new Double[length][DEGREE];
     final Double[] y = new Double[length];
     Double k;
     Double t;
@@ -122,44 +103,6 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
   }
 
   private VolatilitySurface getVolatilitySurfaceForRegression(final LeastSquaresRegressionResult result) {
-    if (result instanceof NamedVariableLeastSquaresRegressionResult)
-      return new VolatilitySurface() {
-
-        @Override
-        public Double getVolatility(final Pair<Double, Double> tk) {
-          final Double[] values = _independentVariableFunction.evaluate(tk.getFirst(), tk.getSecond());
-          final Map<String, Double> namesAndValues = new HashMap<String, Double>();
-          for (int i = 0; i < values.length; i++) {
-            namesAndValues.put(Integer.toString(i), values[i]);
-          }
-          return ((NamedVariableLeastSquaresRegressionResult) result).getPredictedValue(namesAndValues);
-        }
-
-        @Override
-        public Set<Pair<Double, Double>> getXYData() {
-          // TODO Auto-generated method stub
-          return null;
-        }
-
-        @Override
-        public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
-          // TODO Auto-generated method stub
-          return null;
-        }
-
-        @Override
-        public VolatilitySurface withParallelShift(final Double shift) {
-          // TODO Auto-generated method stub
-          return null;
-        }
-
-        @Override
-        public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
-          // TODO Auto-generated method stub
-          return null;
-        }
-
-      };
     return new VolatilitySurface() {
 
       @Override
@@ -169,26 +112,22 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
 
       @Override
       public Set<Pair<Double, Double>> getXYData() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
 
       @Override
       public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
 
       @Override
       public VolatilitySurface withParallelShift(final Double shift) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
 
       @Override
       public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
       }
 
     };
