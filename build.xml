@@ -84,44 +84,56 @@
 		</ivy:buildlist>
 	</target>
 
+	<macrodef name="og-subant">
+		<attribute name="target" />
+		<attribute name="buildpathref" />
+		<sequential>
+			<subant target="@{target}" buildpathref="@{buildpathref}">
+				<property name="og.build.invoked" value="true" />
+			</subant>
+		</sequential>
+	</macrodef>
+
 	<target name="publish-all" depends="buildlist"
 		description="compile, jar and publish all projects in the right order">
-		<subant target="publish" buildpathref="build-path" />
+		<og-subant target="publish" buildpathref="build-path" />
 	</target>
 
 	<target name="publish-all-local" depends="buildlist"
 		description="compile, jar and publish all projects in the right order">
-		<subant target="publish-local" buildpathref="build-path" />
+		<og-subant target="publish-local" buildpathref="build-path" />
 	</target>
 
 	<target name="compile" depends="buildlist"
 		description="compile all projects in the right order">
-		<subant target="compile" buildpathref="build-path" />
+		<og-subant target="compile" buildpathref="build-path" />
 	</target>
 
 	<target name="tarball" depends="buildlist"
 		description="build tarballs for all projects">
-		<subant target="tarball" buildpathref="build-path" />
+		<og-subant target="tarball" buildpathref="build-path" />
 	</target>
 
 	<target name="zipfile" depends="buildlist"
 		description="build zip files for all projects">
-		<subant target="zipfile" buildpathref="build-path" />
+		<og-subant target="zipfile" buildpathref="build-path" />
 	</target>
 	
 	<target name="tests" depends="buildlist"
 		description="run unit tests for all projects">
-		<subant target="tests" buildpathref="build-path">
-			<!-- property name="tests.dir" value="${basedir}/tests"/ -->
-		</subant>
+		<og-subant target="tests" buildpathref="build-path" />
 	</target>
 	
 	<target name="clean-all" depends="buildlist" description="clean all projects">
-		<subant target="clean" buildpathref="build-path" />
+		<og-subant target="clean" buildpathref="build-path" />
 	</target>
 
 	<target name="clean-src" depends="buildlist">
-		<subant target="clean-src" buildpathref="build-path" />
+		<og-subant target="clean-src" buildpathref="build-path" />
+	</target>
+
+	<target name="fudge-proto" depends="clean-src">
+		<og-subant target="fudge-proto" buildpathref="build-path" />
 	</target>
 
 	<target name="clean" depends="clean-all, load-ivy"
