@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -24,15 +25,18 @@ public abstract class AbstractCalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
   private final FunctionRepository _functionRepository;
+  private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
 
   protected AbstractCalculationNode(
       ViewComputationCacheSource cacheSource,
       FunctionRepository functionRepository,
+      FunctionExecutionContext functionExecutionContext,
       ComputationTargetResolver targetResolver) {
     // TODO kirk 2009-09-25 -- Check inputs
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
+    _functionExecutionContext = functionExecutionContext;
     _targetResolver = targetResolver;
   }
 
@@ -48,6 +52,13 @@ public abstract class AbstractCalculationNode {
    */
   public FunctionRepository getFunctionRepository() {
     return _functionRepository;
+  }
+  
+  /**
+   * @return the function execution context
+   */
+  public FunctionExecutionContext getFunctionExecutionContext() {
+    return _functionExecutionContext;
   }
 
   /**
@@ -65,7 +76,8 @@ public abstract class AbstractCalculationNode {
     if(target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
     }
-    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository(), target, job.getDesiredValues());
+    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository(), getFunctionExecutionContext(), 
+                                                                    target, job.getDesiredValues());
     long startTS = System.currentTimeMillis();
     boolean wasException = false;
     try {

@@ -27,6 +27,7 @@ import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
@@ -56,6 +57,7 @@ public class ViewProcessor implements Lifecycle {
   private PositionMaster _positionMaster;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
+  private HistoricalDataProvider _historicalDataProvider;
   private ViewComputationCacheSource _computationCacheSource;
   private FudgeRequestSender _computationJobRequestSender;
   // State:
@@ -167,6 +169,21 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
   }
+  
+  /**
+   * @return the historicalDataProvider
+   */
+  public HistoricalDataProvider getHistoricalDataProvider() {
+    return _historicalDataProvider;
+  }
+  
+  /**
+   * @param historicalDataProvider the HistoricalDataProvider to set
+   */
+  public void setHistoricalDataProvider(HistoricalDataProvider historicalDataProvider) {
+    assertNotStarted();
+    _historicalDataProvider = historicalDataProvider;
+  }
 
   /**
    * @return the computationCacheSource
@@ -270,6 +287,7 @@ public class ViewProcessor implements Lifecycle {
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataAvailabilityProvider(),
         getLiveDataSnapshotProvider(),
+        getHistoricalDataProvider(),
         getFunctionRepository(),
         new DefaultFunctionResolver(getFunctionRepository()),
         getPositionMaster(),
@@ -478,6 +496,7 @@ public class ViewProcessor implements Lifecycle {
     ArgumentChecker.checkNotNullInjected(getPositionMaster(), "positionMaster");
     ArgumentChecker.checkNotNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
     ArgumentChecker.checkNotNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
+    ArgumentChecker.checkNotNullInjected(getHistoricalDataProvider(), "historicalDataProvider");
     ArgumentChecker.checkNotNullInjected(getComputationCacheSource(), "computationCacheSource");
     ArgumentChecker.checkNotNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
   }

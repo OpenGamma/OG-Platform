@@ -33,12 +33,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FunctionInvocationJob implements Runnable {
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationJob.class);
-  private static final FunctionExecutionContext EXECUTION_CONTEXT = new FunctionExecutionContext() {
-  };
   private final String _functionUniqueIdentifier;
   private final Collection<ValueSpecification> _resolvedInputs;
   private final ViewComputationCache _computationCache;
   private final FunctionRepository _functionRepository;
+  private final FunctionExecutionContext _executionContext;
   private final ComputationTarget _target;
   private final Set<ValueRequirement> _desiredValues;
   
@@ -47,18 +46,21 @@ public class FunctionInvocationJob implements Runnable {
       Collection<ValueSpecification> resolvedInputs,
       ViewComputationCache computationCache,
       FunctionRepository functionRepository,
+      FunctionExecutionContext executionContext,
       ComputationTarget computationTarget,
       Set<ValueRequirement> desiredValues) {
     ArgumentChecker.checkNotNull(functionUniqueIdentifier, "Function identifier");
     ArgumentChecker.checkNotNull(resolvedInputs, "Resolved inputs");
     ArgumentChecker.checkNotNull(computationCache, "Computation Cache");
     ArgumentChecker.checkNotNull(functionRepository, "Function repository");
+    ArgumentChecker.checkNotNull(functionRepository, "Execution Context");
     ArgumentChecker.checkNotNull(computationTarget, "Computation target");
     ArgumentChecker.checkNotNull(desiredValues, "Desired value requirements");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _resolvedInputs = resolvedInputs;
     _computationCache = computationCache;
     _functionRepository = functionRepository;
+    _executionContext = executionContext;
     _target = computationTarget;
     _desiredValues = desiredValues;
   }
@@ -92,6 +94,13 @@ public class FunctionInvocationJob implements Runnable {
   }
 
   /**
+   * @return the execution context
+   */
+  public FunctionExecutionContext getFunctionExecutionContext() {
+    return _executionContext;
+  }
+  
+  /**
    * @return the target
    */
   public ComputationTarget getTarget() {
@@ -115,7 +124,7 @@ public class FunctionInvocationJob implements Runnable {
     
     FunctionInputs functionInputs = assembleInputs();
     
-    Set<ComputedValue> results = invoker.execute(EXECUTION_CONTEXT, functionInputs, getTarget(), getDesiredValues());
+    Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, getTarget(), getDesiredValues());
     cacheResults(results);
   }
 
