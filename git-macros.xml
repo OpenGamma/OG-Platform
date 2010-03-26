@@ -36,7 +36,13 @@
         <macrodef name="git-pull">
 		<attribute name="dest" />
 		<sequential>
-			<git command="pull" dir="@{dest}" />
+			<echo message="pulling @{dest} ------------------------------" />
+			<git command="pull" dir="@{dest}">
+				<args>
+					<arg value="origin"/>
+					<arg value="master"/>
+				</args>
+			</git>
 		</sequential>
         </macrodef>
 
@@ -49,6 +55,14 @@
 				<property name="repository" value="@{repository}" />
 				<property name="dest" value="@{dest}" />
 			</subant>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="git-status">
+		<attribute name="dest" />
+                <sequential>
+			<echo message="getting status for @{dest} ---------------------------" />
+			<git command="status" dir="@{dest}"/>
 		</sequential>
 	</macrodef>
 
