@@ -3,7 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.option;
+
 
 public interface EquityOptionSecurityVisitor<T> {
   public T visitAmericanVanillaEquityOptionSecurity(AmericanVanillaEquityOptionSecurity security);

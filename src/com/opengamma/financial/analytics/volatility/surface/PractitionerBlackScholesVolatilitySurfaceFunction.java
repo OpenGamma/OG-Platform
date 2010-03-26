@@ -30,7 +30,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.financial.security.OptionSecurity;
+import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;

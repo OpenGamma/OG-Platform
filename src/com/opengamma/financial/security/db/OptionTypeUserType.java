@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.db;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.security.OptionType;
+import com.opengamma.financial.security.option.OptionType;
 
 /**
  * Custom Hibernate usertype for the OptionType enum

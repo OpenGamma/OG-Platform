@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.option;
+
 
 /**
  * 
  *
  * @author jim
  */
-public interface PoweredOption extends Option {
-  public double getPower();
+public interface AmericanVanillaOption extends Option {
+
 }

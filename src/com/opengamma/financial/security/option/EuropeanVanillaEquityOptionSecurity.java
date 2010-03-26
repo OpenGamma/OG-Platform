@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -14,34 +14,27 @@ import com.opengamma.util.time.Expiry;
  *
  * @author jim
  */
-public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements PoweredOption {
-
-  private double _power;
+public class EuropeanVanillaEquityOptionSecurity extends EquityOptionSecurity
+    implements EuropeanVanillaOption {
 
   /**
    * @param optionType
    * @param strike
    * @param expiry
    */
-  public PoweredEquityOptionSecurity(OptionType optionType, double strike,
-      Expiry expiry, double power, DomainSpecificIdentifier underlyingIdentityKey, Currency currency, final String exchange) {
+  public EuropeanVanillaEquityOptionSecurity(OptionType optionType,
+      double strike, Expiry expiry, DomainSpecificIdentifier underlyingIdentityKey, Currency currency, final String exchange) {
     super(optionType, strike, expiry, underlyingIdentityKey, currency, exchange);
-    _power = power;
   }
 
   @Override
   public <T> T accept(OptionVisitor<T> visitor) {
-    return visitor.visitPoweredOption(this);
-  }
-
-  @Override
-  public double getPower() {
-    return _power;
+    return visitor.visitEuropeanVanillaOption(this);
   }
 
   @Override
   public <T> T accept(EquityOptionSecurityVisitor<T> visitor) {
-    return visitor.visitPoweredEquityOptionSecurity(this);
+    return visitor.visitEuropeanVanillaEquityOptionSecurity(this);
   }
 
 }

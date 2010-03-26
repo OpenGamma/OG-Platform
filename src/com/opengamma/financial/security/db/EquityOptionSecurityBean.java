@@ -11,8 +11,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.financial.security.EquityOptionSecurity;
-import com.opengamma.financial.security.OptionType;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.OptionType;
 
 /**
  * A bean representation of a {@link EquityOptionSecurity}.

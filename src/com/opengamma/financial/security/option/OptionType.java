@@ -3,13 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.option;
 
 /**
  * 
  *
  * @author jim
  */
-public interface EuropeanVanillaOption extends Option {
-  
+public enum OptionType {
+  PUT, CALL
 }

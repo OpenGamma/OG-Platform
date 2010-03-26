@@ -8,12 +8,10 @@ package com.opengamma.financial.aggregation;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.AgricultureFutureSecurity;
-import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -21,7 +19,9 @@ import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
-import com.opengamma.financial.security.PoweredEquityOptionSecurity;
+import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 
 /**
  * 

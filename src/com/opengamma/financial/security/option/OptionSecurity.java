@@ -3,9 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.security;
+package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 

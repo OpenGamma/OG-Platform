@@ -10,11 +10,11 @@ import java.util.Date;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
-import com.opengamma.financial.security.EquityOptionSecurity;
-import com.opengamma.financial.security.EquityOptionSecurityVisitor;
-import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
-import com.opengamma.financial.security.PoweredEquityOptionSecurity;
+import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
+import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /* package */ class EquityOptionSecurityBeanOperation extends Converters implements BeanOperation<EquityOptionSecurity,EquityOptionSecurityBean> {

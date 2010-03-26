@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
+
 /**
  * General visitor for securities.  This is specifically divorced from the Security definition in the engine.
  * Note how we've just got the concrete classes here.

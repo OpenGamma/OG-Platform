@@ -27,10 +27,10 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.security.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.financial.security.EuropeanVanillaEquityOptionSecurity;
-import com.opengamma.financial.security.OptionType;
+import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.util.time.Expiry;
 
 
