@@ -11,7 +11,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -74,11 +74,11 @@ public interface TimeSeriesDao {
   
   public Set<DomainSpecificIdentifier> findDomainSpecIdentifiersByQuotedObject(String name);
 
-  public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, DoubleTimeSeries<LocalDate> timeSeries);
+  public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
   
-  public DoubleTimeSeries<LocalDate> getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
+  public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
 
-  public DoubleTimeSeries<LocalDate> getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate start, LocalDate end);
+  public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate start, LocalDate end);
   
   public void deleteTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
   
@@ -86,6 +86,6 @@ public interface TimeSeriesDao {
   
   public void deleteDataPoint(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date);
   
-  public DoubleTimeSeries<LocalDate> getTimeSeriesSnapShot(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
-  
+  public LocalDateDoubleTimeSeries getTimeSeriesSnapShot(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
+
 }

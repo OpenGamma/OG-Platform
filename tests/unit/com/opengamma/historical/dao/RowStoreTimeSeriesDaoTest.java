@@ -39,6 +39,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 
 /**
@@ -389,7 +390,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier domainSpecificIdentifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
@@ -405,7 +406,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     domainSpeIdentifiers.add(cusipID);
     domainSpeIdentifiers.add(bbgUniqueID);
     
-    DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
     
     _timeseriesDao.addTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
@@ -426,7 +427,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier domainSpecificIdentifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       
@@ -439,7 +440,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       LocalDate start = earliestDate.plusDays(1);
       LocalDate end = latestDate.minusDays(1);
       if (start.isBefore(end) || start.equals(end)) {
-        timeSeries = timeSeries.subSeries(start, end);
+        timeSeries = (LocalDateDoubleTimeSeries)timeSeries.subSeries(start, end);
         actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, start, end);
         assertEquals(timeSeries, actualTS);
       }
@@ -453,7 +454,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       //add timeseries to datastore and assert it is in datasource
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
@@ -474,7 +475,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       //assert timeseries are in datastore
@@ -506,7 +507,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
@@ -533,7 +534,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
       DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
-      DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       //add timeseries to datastore
       _timeseriesDao.addTimeSeries(Collections.singleton(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
@@ -561,7 +562,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d1", "id1");
     
     SortedMap<ZonedDateTime, DoubleTimeSeries<LocalDate>> timeStampTSMap = new TreeMap<ZonedDateTime, DoubleTimeSeries<LocalDate>>();
-    DoubleTimeSeries<LocalDate> timeSeries = makeRandomTimeSeries();
+    LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
     
     SortedMap<LocalDate, Double> currentTimeSeriesMap = new TreeMap<LocalDate, Double>();
     for (int i = 0; i < timeSeries.size(); i++) {
@@ -640,7 +641,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   /**
    * @return
    */
-  private DoubleTimeSeries<LocalDate> makeRandomTimeSeries() {
+  private LocalDateDoubleTimeSeries makeRandomTimeSeries() {
     MapLocalDateDoubleTimeSeries tsMap = new MapLocalDateDoubleTimeSeries();
     for (int i = 0; i < TS_MAX_SIZE; i++) {
       int year = 1970 + _random.nextInt(40);

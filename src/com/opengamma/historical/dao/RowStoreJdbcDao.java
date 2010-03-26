@@ -42,6 +42,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateDoubleTimeSeries;
 
@@ -80,11 +81,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     DataSource dataSource = _transactionManager.getDataSource();
     _simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);   
   }
-
+  
   @Override
   public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers,
       String dataSource, String dataProvider, String field,
-      String observationTime, final DoubleTimeSeries<LocalDate> timeSeries) {
+      String observationTime, final LocalDateDoubleTimeSeries timeSeries) {
 
     ArgumentChecker.checkNotNull(domainIdentifiers, "domainIdentifiers");
     ArgumentChecker.checkNotNull(dataSource, "dataSource");
@@ -698,15 +699,17 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
   }
   
+  
+  
   @Override
-  public DoubleTimeSeries<LocalDate> getTimeSeries(DomainSpecificIdentifier domainSpecId,
+  public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
       String dataSource, String dataProvider, String field,
       String observationTime) {
     return getTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
   }
 
   @Override
-  public DoubleTimeSeries<LocalDate> getTimeSeries(DomainSpecificIdentifier domainSpecId,
+  public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId,
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate start, LocalDate end) {
     DoubleTimeSeries<Date> timeSeries = loadTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, start, end);
@@ -879,7 +882,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
 
   @Override
-  public DoubleTimeSeries<LocalDate> getTimeSeriesSnapShot(
+  public LocalDateDoubleTimeSeries getTimeSeriesSnapShot(
       DomainSpecificIdentifier domainSpecId, String dataSource,
       String dataProvider, String field, String observationTime,
       ZonedDateTime timeStamp) {
