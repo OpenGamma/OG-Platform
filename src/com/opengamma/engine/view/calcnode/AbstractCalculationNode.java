@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -27,17 +28,26 @@ public abstract class AbstractCalculationNode {
   private final FunctionRepository _functionRepository;
   private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
+  private final ViewProcessorQuerySender _viewProcessorQuerySender;
+
+
 
   protected AbstractCalculationNode(
       ViewComputationCacheSource cacheSource,
       FunctionRepository functionRepository,
       FunctionExecutionContext functionExecutionContext,
-      ComputationTargetResolver targetResolver) {
-    // TODO kirk 2009-09-25 -- Check inputs
+      ComputationTargetResolver targetResolver, 
+      ViewProcessorQuerySender calcNodeQuerySender) {
+    ArgumentChecker.checkNotNull(cacheSource, "Cache Source");
+    ArgumentChecker.checkNotNull(functionRepository, "Function Repository");
+    ArgumentChecker.checkNotNull(functionExecutionContext, "Function Execution Context");
+    ArgumentChecker.checkNotNull(targetResolver, "Target Resolver");
+    ArgumentChecker.checkNotNull(calcNodeQuerySender, "Calc Node Query Sender");
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
     _functionExecutionContext = functionExecutionContext;
     _targetResolver = targetResolver;
+    _viewProcessorQuerySender = calcNodeQuerySender;
   }
 
   /**
@@ -67,6 +77,13 @@ public abstract class AbstractCalculationNode {
   public ComputationTargetResolver getTargetResolver() {
     return _targetResolver;
   }
+  
+  /**
+   * @return the calcNodeQuerySender
+   */
+  protected ViewProcessorQuerySender getViewProcessorQuerySender() {
+    return _viewProcessorQuerySender;
+  }
 
   protected CalculationJobResult executeJob(CalculationJob job) {
     CalculationJobSpecification spec = job.getSpecification();
@@ -76,7 +93,9 @@ public abstract class AbstractCalculationNode {
     if(target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
     }
-    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository(), getFunctionExecutionContext(), 
+    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, 
+                                                                    getFunctionRepository(), getFunctionExecutionContext(), 
+                                                                    new ViewProcessorQuery(getViewProcessorQuerySender(), spec),
                                                                     target, job.getDesiredValues());
     long startTS = System.currentTimeMillis();
     boolean wasException = false;

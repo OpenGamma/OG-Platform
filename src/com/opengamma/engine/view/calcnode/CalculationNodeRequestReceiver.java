@@ -28,6 +28,7 @@ implements FudgeRequestReceiver {
   /**
    * @param cacheSource
    * @param functionRepository
+   * @param calcNodeQuerySender 
    * @param securityMaster
    * @param jobSource
    * @param completionNotifier
@@ -36,8 +37,9 @@ implements FudgeRequestReceiver {
       ViewComputationCacheSource cacheSource,
       FunctionRepository functionRepository,
       FunctionExecutionContext functionExecutionContext,
-      ComputationTargetResolver targetResolver) {
-    super(cacheSource, functionRepository, functionExecutionContext, targetResolver);
+      ComputationTargetResolver targetResolver, 
+      ViewProcessorQuerySender calcNodeQuerySender) {
+    super(cacheSource, functionRepository, functionExecutionContext, targetResolver, calcNodeQuerySender);
   }
 
   @Override

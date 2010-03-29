@@ -1,0 +1,20 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+extern message com.opengamma.engine.view.calcnode.CalculationJobSpecification;
+
+namespace com.opengamma.engine.view.calcnode {
+
+  message ViewProcessorQueryMessage {
+  
+    CalculationJobSpecification jobSpec;
+    
+    binding Java {
+      methods "toString";
+    }
+  }
+
+}

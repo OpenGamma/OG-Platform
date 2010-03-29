@@ -7,20 +7,20 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +55,7 @@ public class DependencyGraphExecutor {
   private final Set<DependencyNode> _nodesToExecute = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
   private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
-    new HashMap<CalculationJobSpecification, DependencyNode>();
+    new ConcurrentHashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final BlockingQueue<CalculationJobResult> _pendingResults = new LinkedBlockingQueue<CalculationJobResult>();
   
@@ -72,6 +72,7 @@ public class DependencyGraphExecutor {
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
     _cycleState = cycle;
+    getProcessingContext().getViewProcessorQueryReceiver().setJobToDepNodeMap(_executingSpecifications);
   }
   
   /**

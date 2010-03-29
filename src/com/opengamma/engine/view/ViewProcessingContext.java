@@ -17,6 +17,7 @@ import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,6 +36,7 @@ public class ViewProcessingContext {
   private final HistoricalDataProvider _historicalDataProvider;
   private final ViewComputationCacheSource _computationCacheSource;
   private final FudgeRequestSender _computationJobRequestSender;
+  private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final DefaultComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
@@ -49,6 +51,7 @@ public class ViewProcessingContext {
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
       FudgeRequestSender computationJobRequestSender,
+      ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService
       ) {
@@ -61,6 +64,7 @@ public class ViewProcessingContext {
     ArgumentChecker.checkNotNull(securityMaster, "SecurityMaster");
     ArgumentChecker.checkNotNull(computationCacheSource, "ComputationCacheSource");
     ArgumentChecker.checkNotNull(computationJobRequestSender, "ComputationJobRequestSender");
+    ArgumentChecker.checkNotNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
     ArgumentChecker.checkNotNull(compilationContext, "CompilationContext");
     ArgumentChecker.checkNotNull(executorService, "ExecutorService");
     
@@ -73,6 +77,7 @@ public class ViewProcessingContext {
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
+    _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _compilationContext = compilationContext;
     _executorService = executorService;
     
@@ -140,6 +145,13 @@ public class ViewProcessingContext {
    */
   public FudgeRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
+  }
+  
+  /**
+   * @return the viewProcessorQueryReceiver
+   */
+  public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
+    return _viewProcessorQueryReceiver;
   }
 
   /**

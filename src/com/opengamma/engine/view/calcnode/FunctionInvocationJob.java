@@ -38,8 +38,10 @@ public class FunctionInvocationJob implements Runnable {
   private final ViewComputationCache _computationCache;
   private final FunctionRepository _functionRepository;
   private final FunctionExecutionContext _executionContext;
+  private final ViewProcessorQuery _viewProcessorQuery;
   private final ComputationTarget _target;
   private final Set<ValueRequirement> _desiredValues;
+  
   
   public FunctionInvocationJob(
       String functionUniqueIdentifier,
@@ -47,6 +49,7 @@ public class FunctionInvocationJob implements Runnable {
       ViewComputationCache computationCache,
       FunctionRepository functionRepository,
       FunctionExecutionContext executionContext,
+      ViewProcessorQuery viewProcessorQuery,
       ComputationTarget computationTarget,
       Set<ValueRequirement> desiredValues) {
     ArgumentChecker.checkNotNull(functionUniqueIdentifier, "Function identifier");
@@ -54,6 +57,7 @@ public class FunctionInvocationJob implements Runnable {
     ArgumentChecker.checkNotNull(computationCache, "Computation Cache");
     ArgumentChecker.checkNotNull(functionRepository, "Function repository");
     ArgumentChecker.checkNotNull(functionRepository, "Execution Context");
+    ArgumentChecker.checkNotNull(viewProcessorQuery, "ViewProcessorQuery");
     ArgumentChecker.checkNotNull(computationTarget, "Computation target");
     ArgumentChecker.checkNotNull(desiredValues, "Desired value requirements");
     _functionUniqueIdentifier = functionUniqueIdentifier;
@@ -61,6 +65,7 @@ public class FunctionInvocationJob implements Runnable {
     _computationCache = computationCache;
     _functionRepository = functionRepository;
     _executionContext = executionContext;
+    _viewProcessorQuery = viewProcessorQuery;
     _target = computationTarget;
     _desiredValues = desiredValues;
   }
@@ -114,6 +119,13 @@ public class FunctionInvocationJob implements Runnable {
     return _desiredValues;
   }
 
+  /**
+   * @return the view processor query interface
+   */
+  public ViewProcessorQuery getViewProcessorQuery() {
+    return _viewProcessorQuery;
+  }
+  
   @Override
   public void run() {
     s_logger.debug("Invoking {} on target {}", getFunctionUniqueIdentifier(), getTarget());
@@ -123,7 +135,7 @@ public class FunctionInvocationJob implements Runnable {
     }
     
     FunctionInputs functionInputs = assembleInputs();
-    
+    getFunctionExecutionContext().setViewProcessorQuery(getViewProcessorQuery());
     Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, getTarget(), getDesiredValues());
     cacheResults(results);
   }

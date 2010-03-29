@@ -33,6 +33,7 @@ import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
@@ -60,6 +61,7 @@ public class ViewProcessor implements Lifecycle {
   private HistoricalDataProvider _historicalDataProvider;
   private ViewComputationCacheSource _computationCacheSource;
   private FudgeRequestSender _computationJobRequestSender;
+  private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
@@ -216,6 +218,21 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _computationJobRequestSender = computationJobRequestSender;
   }
+  
+  /**
+   * @return the calculation node query receiver (for messages back from the calc node).
+   */
+  public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
+    return _viewProcessorQueryReceiver;
+  }
+  
+  /**
+   * @param calculationNodeQueryReceiver the calculation node query receiver to set
+   */
+  public void setViewProcessorQueryReceiver(ViewProcessorQueryReceiver calcNodeQueryReceiver) {
+    assertNotStarted();
+    _viewProcessorQueryReceiver = calcNodeQueryReceiver;
+  }
 
   /**
    * @return the executorService
@@ -294,6 +311,7 @@ public class ViewProcessor implements Lifecycle {
         getSecurityMaster(),
         getComputationCacheSource(),
         getComputationJobRequestSender(),
+        getViewProcessorQueryReceiver(),
         getCompilationContext(),
         getExecutorService()
         );
