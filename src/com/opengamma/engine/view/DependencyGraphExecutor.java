@@ -47,7 +47,8 @@ import com.opengamma.util.ArgumentChecker;
 public class DependencyGraphExecutor {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
-  private final String _viewName; 
+  private final String _viewName;
+  private final String _calcConfigName;
   private final DependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
   private final SingleComputationCycle _cycleState;
@@ -61,14 +62,17 @@ public class DependencyGraphExecutor {
   
   public DependencyGraphExecutor(
       String viewName,
+      String calcConfigName,
       DependencyGraph dependencyGraph,
       ViewProcessingContext processingContext,
       SingleComputationCycle cycle) {
     ArgumentChecker.checkNotNull(viewName, "View Name");
+    ArgumentChecker.checkNotNull(calcConfigName, "Calculation configuration name");
     ArgumentChecker.checkNotNull(dependencyGraph, "Dependency Graph");
     ArgumentChecker.checkNotNull(processingContext, "View Processing Context");
     ArgumentChecker.checkNotNull(cycle, "Computation cycle");
     _viewName = viewName;
+    _calcConfigName = calcConfigName;
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
     _cycleState = cycle;
@@ -80,6 +84,13 @@ public class DependencyGraphExecutor {
    */
   public String getViewName() {
     return _viewName;
+  }
+
+  /**
+   * @return the calcConfigName
+   */
+  public String getCalcConfigName() {
+    return _calcConfigName;
   }
 
   /**
@@ -267,7 +278,7 @@ public class DependencyGraphExecutor {
     assert !(depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction);
     
     long jobId = jobIdSource.addAndGet(1l);
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), getCalcConfigName(), iterationTimestamp, jobId);
     s_logger.info("Enqueuing job {} to invoke {} on {}",
         new Object[]{jobId, depNode.getFunctionDefinition().getShortName(), depNode.getComputationTarget()});
     
@@ -282,9 +293,7 @@ public class DependencyGraphExecutor {
     }
 
     CalculationJob job = new CalculationJob(
-        getViewName(),
-        iterationTimestamp,
-        jobId,
+        jobSpec,
         depNode.getFunctionDefinition().getUniqueIdentifier(),
         depNode.getComputationTarget().getSpecification(),
         resolvedInputs,

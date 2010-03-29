@@ -6,7 +6,10 @@
 package com.opengamma.engine.view.cache;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+
+import com.opengamma.util.Pair;
 
 
 /**
@@ -17,34 +20,41 @@ import java.util.Map;
  */
 public class MapViewComputationCacheSource
 implements ViewComputationCacheSource {
-  private final Map<String, Map<Long, MapViewComputationCache>> _currentCaches =
-    new HashMap<String, Map<Long, MapViewComputationCache>>();
+  private final Map<String, Map<Pair<String,Long>, MapViewComputationCache>> _currentCaches =
+    new HashMap<String, Map<Pair<String,Long>, MapViewComputationCache>>();
 
   @Override
-  public synchronized ViewComputationCache getCache(String viewName, long timestamp) {
-    Map<Long, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
+  public synchronized ViewComputationCache getCache(String viewName, String calcConfigName, long timestamp) {
+    Map<Pair<String,Long>, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
     if(viewCaches == null) {
-      viewCaches = new HashMap<Long, MapViewComputationCache>();
+      viewCaches = new HashMap<Pair<String,Long>, MapViewComputationCache>();
       _currentCaches.put(viewName, viewCaches);
     }
-    MapViewComputationCache cache = viewCaches.get(timestamp);
+    Pair<String,Long> cacheKey = new Pair<String,Long>(calcConfigName,timestamp);
+    MapViewComputationCache cache = viewCaches.get(cacheKey);
     if(cache == null) {
       cache = new MapViewComputationCache();
-      viewCaches.put(timestamp, cache);
+      viewCaches.put(cacheKey, cache);
     }
     return cache;
   }
   
-  public synchronized ViewComputationCache cloneCache(String viewName, long timestamp) {
-    MapViewComputationCache cache = (MapViewComputationCache) getCache(viewName, timestamp);
+  public synchronized ViewComputationCache cloneCache(String viewName, String calcConfigName, long timestamp) {
+    MapViewComputationCache cache = (MapViewComputationCache) getCache(viewName, calcConfigName, timestamp); 
     return cache.clone();
   }
 
   @Override
-  public synchronized void releaseCache(String viewName, long timestamp) {
-    Map<Long, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
+  public synchronized void releaseCaches(String viewName, long timestamp) {
+    Map<Pair<String,Long>, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
     if(viewCaches != null) {
-      viewCaches.remove(timestamp);
+      Iterator<Map.Entry<Pair<String,Long>, MapViewComputationCache>> entryIter = viewCaches.entrySet().iterator();
+      while(entryIter.hasNext()) {
+        Map.Entry<Pair<String,Long>, MapViewComputationCache> entry = entryIter.next();
+        if(entry.getKey().getSecond() == timestamp) {
+          entryIter.remove();
+        }
+      }
     }
   }
 

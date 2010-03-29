@@ -6,19 +6,17 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.view.cache.ViewComputationCache;
 
 /**
  * A simple in-memory implementation of {@link ViewComputationResultModel}.
@@ -26,13 +24,10 @@ import com.opengamma.engine.view.cache.ViewComputationCache;
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
-  private final Map<ComputationTargetSpecification, Map<String, ComputedValue>> _values =
-    new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
   private long _inputDataTimestamp;
   private long _resultTimestamp;
-  private ViewComputationCache _cache;
-  private DependencyGraphModel _dependencyGraphModel;
-  private Portfolio _portfolio;
+  private final Map<String, ViewCalculationResultModelImpl> _resultModels =
+    new TreeMap<String, ViewCalculationResultModelImpl>();
   
   @Override
   public long getInputDataTimestamp() {
@@ -57,65 +52,42 @@ public class ViewComputationResultModelImpl implements
   public void setResultTimestamp(long resultTimestamp) {
     _resultTimestamp = resultTimestamp;
   }
+  
+  public void setCalculationConfigurationNames(Collection<String> calcConfigNames) {
+    for(String calcConfigName : calcConfigNames) {
+      _resultModels.put(calcConfigName, new ViewCalculationResultModelImpl());
+    }
+  }
 
   public void setPortfolio(Portfolio portfolio, PortfolioNode populatedRootNode) {
-    _portfolio = portfolio; 
-    recursiveAddPortfolio(populatedRootNode);
-  }
-  
-  public Portfolio getPortfolio() {
-    return _portfolio;
-  }
-  
-  private void recursiveAddPortfolio(PortfolioNode node) {
-    for (Position position : node.getPositions()) {
-      ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getIdentityKey());
-      if(!_values.containsKey(targetSpec)) {
-        _values.put(targetSpec, new HashMap<String, ComputedValue>());
-      }
-    }
-    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey());
-    if(!_values.containsKey(targetSpec)) {
-      _values.put(targetSpec, new HashMap<String, ComputedValue>());
-    }
-    for (PortfolioNode subNode : node.getSubNodes()) {
-      recursiveAddPortfolio(subNode);
+    for(ViewCalculationResultModelImpl calcResultModel: _resultModels.values()) {
+      calcResultModel.recursiveAddPortfolio(populatedRootNode);
     }
   }
   
-  public void setComputationCache(ViewComputationCache cache) {
-    _cache = cache;
-  }  
-  
-  public ViewComputationCache getComputationCache() {
-    return _cache;  
-  }
-
-  /**
-   * @param dependencyGraphModel
-   */
-  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
-    _dependencyGraphModel = dependencyGraphModel;
-  }
-  
-  public DependencyGraphModel getDependencyGraphModel() {
-    return _dependencyGraphModel;
-  }
-
   @Override
   public Collection<ComputationTargetSpecification> getAllTargets() {
-    return new ArrayList<ComputationTargetSpecification>(_values.keySet());
+    Set<ComputationTargetSpecification> allTargetSpecs = new HashSet<ComputationTargetSpecification>();
+    for(ViewCalculationResultModelImpl calcResultModel : _resultModels.values()) {
+      allTargetSpecs.addAll(calcResultModel.getAllTargets());
+    }
+    return allTargetSpecs;
+  }
+
+  public void addValue(String calcConfigName, ComputedValue value) {
+    ViewCalculationResultModelImpl resultModel = _resultModels.get(calcConfigName);
+    resultModel.addValue(value);
   }
 
   @Override
-  public Map<String, ComputedValue> getValues(
-      ComputationTargetSpecification target) {
-    return new HashMap<String, ComputedValue>(_values.get(target));
+  public Collection<String> getCalculationConfigurationNames() {
+    return Collections.unmodifiableSet(_resultModels.keySet());
   }
-  
-  public void addValue(ComputedValue value) {
-    ComputationTargetSpecification targetSpec = value.getSpecification().getRequirementSpecification().getTargetSpecification();
-    _values.get(targetSpec).put(value.getSpecification().getRequirementSpecification().getValueName(), value);
+
+  @Override
+  public ViewCalculationResultModel getCalculationResult(
+      String calcConfigurationName) {
+    return _resultModels.get(calcConfigurationName);
   }
 
 }

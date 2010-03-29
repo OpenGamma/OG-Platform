@@ -16,29 +16,31 @@ public interface ViewComputationCacheSource {
    * Generate a new source, or return the existing one for the
    * specified timestamp.
    * 
+   * @param viewName The name of the view.
+   * @param calculationConfigurationName The name of the calculation configuration within that view. 
    * @param timestamp The timestamp for the computation cache.
-   * @param viewName The name of the view. 
    * @return The cache for that timestamp.
    */
-  ViewComputationCache getCache(String viewName, long timestamp);
+  ViewComputationCache getCache(String viewName, String calculationConfigurationName, long timestamp);
   
   /**
    * Take a deep copy of a cache, usually, to pass it over to a viewer
    * or other tool.  This doens't need to be released once you're through 
    * with it.
    * 
-   * @param timestamp The timestamp for the computation cache
    * @param viewName The name of the view.
+   * @param calculationConfigurationName The name of the calculation configuration within that view. 
+   * @param timestamp The timestamp for the computation cache
    */
-  ViewComputationCache cloneCache(String viewName, long timestamp);
+  ViewComputationCache cloneCache(String viewName, String calculationConfigurationName, long timestamp);
   
   /**
-   * Release a cache that was previously generated using
-   * {@link #getCache(long)}.
+   * Release all caches previously generated using {@link #getCache(String, String, long)}
+   * for the view name specified.
    * 
-   * @param timestamp The timestamp for the cache.
    * @param viewName The name of the view.
+   * @param timestamp The timestamp for the cache.
    */
-  void releaseCache(String viewName, long timestamp);
+  void releaseCaches(String viewName, long timestamp);
   
 }
