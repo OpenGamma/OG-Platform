@@ -14,6 +14,7 @@
 		<dependency org="org.apache.commons" name="commons-dbcp" rev="[1.4,2.0["/>
 		<dependency org="org.apache.commons" name="commons-io" rev="1.4"/>
 		<dependency org="org.apache.commons" name="commons-cli" rev="1.2"/>
+		<dependency org="org.apache.httpcomponents" name="httpclient" rev="4.0" />
 		<dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0[" conf="core->*" />
 		<dependency org="org.apache.cxf" name="cxf" rev="2.2.7" conf="*->jaxrs" />
 		<dependency org="org.junit" name="junit" rev="[4.7,5.0["/>
