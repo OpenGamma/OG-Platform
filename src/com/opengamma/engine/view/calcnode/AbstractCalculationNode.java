@@ -71,7 +71,7 @@ public abstract class AbstractCalculationNode {
   protected CalculationJobResult executeJob(CalculationJob job) {
     CalculationJobSpecification spec = job.getSpecification();
     assert spec != null;
-    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
+    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
     ComputationTarget target = getTargetResolver().resolve(job.getComputationTargetSpecification());
     if(target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
