@@ -5,10 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
-
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
 
 
 /**
@@ -29,12 +25,8 @@ import com.opengamma.engine.value.ComputedValue;
  *
  * @author kirk
  */
-public interface ViewDeltaResultModel {
+public interface ViewDeltaResultModel extends ViewComputationResultModel {
 
-  long getInputDataTimestamp();
-  
-  long getResultTimestamp();
-  
   /**
    * The result timestamp for the previous delta, to chain them together
    * properly.
@@ -45,8 +37,8 @@ public interface ViewDeltaResultModel {
    * @return
    */
   long getPreviousResultTimestamp();
-
-  Collection<ComputationTargetSpecification> getAllTargets();
   
-  Collection<ComputedValue> getDeltaValues(ComputationTargetSpecification target);
+  // TODO kirk 2010-03-29 -- Notify on new nodes/positions
+  // TODO kirk 2010-03-29 -- Notify on removed nodes/positions
+  // TODO kirk 2010-03-29 -- Notify on removed calculation configurations
 }
