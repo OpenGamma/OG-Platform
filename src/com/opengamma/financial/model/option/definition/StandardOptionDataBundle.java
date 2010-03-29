@@ -23,7 +23,7 @@ public class StandardOptionDataBundle {
   private final Double _spot;
   private final ZonedDateTime _date;
 
-  // TODO probably need a cost of carry model
+  // TODO need a cost of carry model
   public StandardOptionDataBundle(final DiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final Double spot, final ZonedDateTime date) {
     _discountCurve = discountCurve;
     _b = b;
