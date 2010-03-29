@@ -52,6 +52,9 @@ public class ViewRecalculationJob extends TerminatableJob {
   protected void runOneCycle() {
     PortfolioEvaluationModel portfolioEvaluationModel = getView().getPortfolioEvaluationModel();
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
+    // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
+    // the constructor.
+    result.setCalculationConfigurationNames(portfolioEvaluationModel.getAllCalculationConfigurationNames());
     result.setPortfolio(portfolioEvaluationModel.getPortfolio(), portfolioEvaluationModel.getPopulatedRootNode());
     
     SingleComputationCycle cycle = new SingleComputationCycle(
@@ -59,18 +62,11 @@ public class ViewRecalculationJob extends TerminatableJob {
         getView().getProcessingContext(),
         portfolioEvaluationModel,
         result, getView().getDefinition());
-    if(!cycle.prepareInputs()) {
-      s_logger.info("Not executing as couldn't snapshot market data. Probably waiting for source data to finish populating.");
-      try {
-        Thread.sleep(100l);
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-      }
-    } else {
-      cycle.executePlans();
-      cycle.populateResultModel();
-      cycle.releaseResources();
-    }
+    
+    cycle.prepareInputs();
+    cycle.executePlans();
+    cycle.populateResultModel();
+    cycle.releaseResources();
     
     long endTime = System.currentTimeMillis();
     result.setResultTimestamp(endTime);

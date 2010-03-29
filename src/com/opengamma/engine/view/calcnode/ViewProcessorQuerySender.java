@@ -1,0 +1,53 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.view.calcnode;
+
+import java.util.Collection;
+import java.util.concurrent.SynchronousQueue;
+
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.transport.FudgeRequestSender;
+import com.opengamma.OpenGammaRuntimeException;
+/**
+ * 
+ *
+ * @author jim
+ */
+public class ViewProcessorQuerySender implements FudgeMessageReceiver {
+  private FudgeRequestSender _sender;
+  private SynchronousQueue<DependentValueSpecificationsReply> _specsQueue = new SynchronousQueue<DependentValueSpecificationsReply>();
+  public ViewProcessorQuerySender(FudgeRequestSender sender) {
+    _sender = sender;
+  }
+  
+  public Collection<ValueSpecification> getDependentValueSpecifications(CalculationJobSpecification jobSpec) {
+    synchronized (this) {
+      // REVIEW: jim 29-March-2010 -- Is it okay to create the serialization context in line like this?
+      _sender.sendRequest(new DependentValueSpecificationsRequest(jobSpec).toFudgeMsg(new FudgeSerializationContext(_sender.getFudgeContext())), this);
+      DependentValueSpecificationsReply reply = _specsQueue.remove();
+      assert reply.getJobSpec() == jobSpec;
+      return reply.getValueSpecification();
+    }
+  }
+
+  @Override
+  public void messageReceived(FudgeContext context,
+      FudgeMsgEnvelope msgEnvelope) {
+    Object reply = context.fromFudgeMsg(msgEnvelope.getMessage());
+    if (reply instanceof DependentValueSpecificationsReply) {
+      try {
+        _specsQueue.put((DependentValueSpecificationsReply)reply);
+      } catch (InterruptedException e) {
+        throw new OpenGammaRuntimeException("Interrupted while queuing reply", e);
+      }
+    }
+  }
+}

@@ -11,12 +11,15 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
+import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.transport.FudgeRequestSender;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A collection for everything relating to processing a particular view.
@@ -30,8 +33,10 @@ public class ViewProcessingContext {
   private final FunctionResolver _functionResolver;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
+  private final HistoricalDataProvider _historicalDataProvider;
   private final ViewComputationCacheSource _computationCacheSource;
   private final FudgeRequestSender _computationJobRequestSender;
+  private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final DefaultComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
@@ -39,24 +44,40 @@ public class ViewProcessingContext {
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
+      HistoricalDataProvider historicalDataProvider,
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
       FudgeRequestSender computationJobRequestSender,
+      ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService
       ) {
-    // TODO kirk 2009-09-25 -- Check Inputs
+    ArgumentChecker.checkNotNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
+    ArgumentChecker.checkNotNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
+    ArgumentChecker.checkNotNull(historicalDataProvider, "HistoricalDataProvider");
+    ArgumentChecker.checkNotNull(functionRepository, "FunctionRepository");
+    ArgumentChecker.checkNotNull(functionResolver, "FunctionResolver");
+    ArgumentChecker.checkNotNull(positionMaster, "PositionMaster");
+    ArgumentChecker.checkNotNull(securityMaster, "SecurityMaster");
+    ArgumentChecker.checkNotNull(computationCacheSource, "ComputationCacheSource");
+    ArgumentChecker.checkNotNull(computationJobRequestSender, "ComputationJobRequestSender");
+    ArgumentChecker.checkNotNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
+    ArgumentChecker.checkNotNull(compilationContext, "CompilationContext");
+    ArgumentChecker.checkNotNull(executorService, "ExecutorService");
+    
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
+    _historicalDataProvider = historicalDataProvider;
     _functionRepository = functionRepository;
     _functionResolver = functionResolver;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _computationCacheSource = computationCacheSource;
     _computationJobRequestSender = computationJobRequestSender;
+    _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _compilationContext = compilationContext;
     _executorService = executorService;
     
@@ -75,6 +96,13 @@ public class ViewProcessingContext {
    */
   public LiveDataSnapshotProvider getLiveDataSnapshotProvider() {
     return _liveDataSnapshotProvider;
+  }
+  
+  /**
+   * @return the historical data provider
+   */
+  public HistoricalDataProvider getHistoricalDataProvider() {
+    return _historicalDataProvider;
   }
 
   /**
@@ -117,6 +145,13 @@ public class ViewProcessingContext {
    */
   public FudgeRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
+  }
+  
+  /**
+   * @return the viewProcessorQueryReceiver
+   */
+  public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
+    return _viewProcessorQueryReceiver;
   }
 
   /**

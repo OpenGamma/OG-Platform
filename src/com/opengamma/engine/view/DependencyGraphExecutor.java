@@ -7,20 +7,20 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,8 @@ import com.opengamma.util.ArgumentChecker;
 public class DependencyGraphExecutor {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
-  private final String _viewName; 
+  private final String _viewName;
+  private final String _calcConfigName;
   private final DependencyGraph _dependencyGraph;
   private final ViewProcessingContext _processingContext;
   private final SingleComputationCycle _cycleState;
@@ -55,23 +56,27 @@ public class DependencyGraphExecutor {
   private final Set<DependencyNode> _nodesToExecute = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
   private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
-    new HashMap<CalculationJobSpecification, DependencyNode>();
+    new ConcurrentHashMap<CalculationJobSpecification, DependencyNode>();
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final BlockingQueue<CalculationJobResult> _pendingResults = new LinkedBlockingQueue<CalculationJobResult>();
   
   public DependencyGraphExecutor(
       String viewName,
+      String calcConfigName,
       DependencyGraph dependencyGraph,
       ViewProcessingContext processingContext,
       SingleComputationCycle cycle) {
     ArgumentChecker.checkNotNull(viewName, "View Name");
+    ArgumentChecker.checkNotNull(calcConfigName, "Calculation configuration name");
     ArgumentChecker.checkNotNull(dependencyGraph, "Dependency Graph");
     ArgumentChecker.checkNotNull(processingContext, "View Processing Context");
     ArgumentChecker.checkNotNull(cycle, "Computation cycle");
     _viewName = viewName;
+    _calcConfigName = calcConfigName;
     _dependencyGraph = dependencyGraph;
     _processingContext = processingContext;
     _cycleState = cycle;
+    getProcessingContext().getViewProcessorQueryReceiver().setJobToDepNodeMap(_executingSpecifications);
   }
   
   /**
@@ -79,6 +84,13 @@ public class DependencyGraphExecutor {
    */
   public String getViewName() {
     return _viewName;
+  }
+
+  /**
+   * @return the calcConfigName
+   */
+  public String getCalcConfigName() {
+    return _calcConfigName;
   }
 
   /**
@@ -266,7 +278,7 @@ public class DependencyGraphExecutor {
     assert !(depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction);
     
     long jobId = jobIdSource.addAndGet(1l);
-    CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), iterationTimestamp, jobId);
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), getCalcConfigName(), iterationTimestamp, jobId);
     s_logger.info("Enqueuing job {} to invoke {} on {}",
         new Object[]{jobId, depNode.getFunctionDefinition().getShortName(), depNode.getComputationTarget()});
     
@@ -281,9 +293,7 @@ public class DependencyGraphExecutor {
     }
 
     CalculationJob job = new CalculationJob(
-        getViewName(),
-        iterationTimestamp,
-        jobId,
+        jobSpec,
         depNode.getFunctionDefinition().getUniqueIdentifier(),
         depNode.getComputationTarget().getSpecification(),
         resolvedInputs,

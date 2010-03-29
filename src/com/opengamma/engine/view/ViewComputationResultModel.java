@@ -6,10 +6,8 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
-import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ComputedValue;
 
 /**
  * The data model represents the sum total of analytic functions applied to positions
@@ -30,5 +28,7 @@ public interface ViewComputationResultModel {
   // so has to be at the level of specifications.
   Collection<ComputationTargetSpecification> getAllTargets();
   
-  Map<String, ComputedValue> getValues(ComputationTargetSpecification target);
+  Collection<String> getCalculationConfigurationNames();
+  
+  ViewCalculationResultModel getCalculationResult(String calcConfigurationName);
 }

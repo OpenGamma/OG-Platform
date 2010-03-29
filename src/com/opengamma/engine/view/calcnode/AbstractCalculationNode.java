@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
@@ -24,16 +26,28 @@ public abstract class AbstractCalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
   private final ViewComputationCacheSource _cacheSource;
   private final FunctionRepository _functionRepository;
+  private final FunctionExecutionContext _functionExecutionContext;
   private final ComputationTargetResolver _targetResolver;
+  private final ViewProcessorQuerySender _viewProcessorQuerySender;
+
+
 
   protected AbstractCalculationNode(
       ViewComputationCacheSource cacheSource,
       FunctionRepository functionRepository,
-      ComputationTargetResolver targetResolver) {
-    // TODO kirk 2009-09-25 -- Check inputs
+      FunctionExecutionContext functionExecutionContext,
+      ComputationTargetResolver targetResolver, 
+      ViewProcessorQuerySender calcNodeQuerySender) {
+    ArgumentChecker.checkNotNull(cacheSource, "Cache Source");
+    ArgumentChecker.checkNotNull(functionRepository, "Function Repository");
+    ArgumentChecker.checkNotNull(functionExecutionContext, "Function Execution Context");
+    ArgumentChecker.checkNotNull(targetResolver, "Target Resolver");
+    ArgumentChecker.checkNotNull(calcNodeQuerySender, "Calc Node Query Sender");
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
+    _functionExecutionContext = functionExecutionContext;
     _targetResolver = targetResolver;
+    _viewProcessorQuerySender = calcNodeQuerySender;
   }
 
   /**
@@ -49,6 +63,13 @@ public abstract class AbstractCalculationNode {
   public FunctionRepository getFunctionRepository() {
     return _functionRepository;
   }
+  
+  /**
+   * @return the function execution context
+   */
+  public FunctionExecutionContext getFunctionExecutionContext() {
+    return _functionExecutionContext;
+  }
 
   /**
    * @return the targetResolver
@@ -56,16 +77,26 @@ public abstract class AbstractCalculationNode {
   public ComputationTargetResolver getTargetResolver() {
     return _targetResolver;
   }
+  
+  /**
+   * @return the calcNodeQuerySender
+   */
+  protected ViewProcessorQuerySender getViewProcessorQuerySender() {
+    return _viewProcessorQuerySender;
+  }
 
   protected CalculationJobResult executeJob(CalculationJob job) {
     CalculationJobSpecification spec = job.getSpecification();
     assert spec != null;
-    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getIterationTimestamp());
+    ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
     ComputationTarget target = getTargetResolver().resolve(job.getComputationTargetSpecification());
     if(target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
     }
-    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, getFunctionRepository(), target, job.getDesiredValues());
+    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, 
+                                                                    getFunctionRepository(), getFunctionExecutionContext(), 
+                                                                    new ViewProcessorQuery(getViewProcessorQuerySender(), spec),
+                                                                    target, job.getDesiredValues());
     long startTS = System.currentTimeMillis();
     boolean wasException = false;
     try {

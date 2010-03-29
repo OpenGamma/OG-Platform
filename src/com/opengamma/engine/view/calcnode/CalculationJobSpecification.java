@@ -23,22 +23,25 @@ import org.fudgemsg.FudgeMsgEnvelope;
  */
 public class CalculationJobSpecification implements Serializable {
   public static final String VIEW_NAME_FIELD_NAME = "viewName";
+  public static final String CALCULATION_CONFIGURATION_FIELD_NAME = "calcConfig";
   public static final String ITERATION_TIMESTAMP_FIELD_NAME = "iterationTimestamp";
   public static final String JOB_ID_FIELD_NAME = "jobId";
   
   private final String _viewName;
+  private final String _calcConfigName;
   private final long _iterationTimestamp;
   private final long _jobId;
   
-  public CalculationJobSpecification(String viewName, long iterationTimestamp, long jobId) {
+  public CalculationJobSpecification(String viewName, String calcConfigName, long iterationTimestamp, long jobId) {
     // TODO kirk 2009-09-25 -- Check Inputs
     _viewName = viewName;
+    _calcConfigName = calcConfigName;
     _iterationTimestamp = iterationTimestamp;
     _jobId = jobId;
   }
   
   public CalculationJobSpecification(CalculationJobSpecification other) {
-    this(other._viewName, other._iterationTimestamp, other._jobId);
+    this(other._viewName, other._calcConfigName, other._iterationTimestamp, other._jobId);
   }
 
   /**
@@ -46,6 +49,13 @@ public class CalculationJobSpecification implements Serializable {
    */
   public String getViewName() {
     return _viewName;
+  }
+
+  /**
+   * @return the calcConfigName
+   */
+  public String getCalcConfigName() {
+    return _calcConfigName;
   }
 
   /**
@@ -70,6 +80,7 @@ public class CalculationJobSpecification implements Serializable {
         + (int) (_iterationTimestamp ^ (_iterationTimestamp >>> 32));
     result = prime * result + (int) (_jobId ^ (_jobId >>> 32));
     result = prime * result + ((_viewName == null) ? 0 : _viewName.hashCode());
+    result = prime * result + ((_calcConfigName == null) ? 0 : _calcConfigName.hashCode());
     return result;
   }
 
@@ -92,6 +103,9 @@ public class CalculationJobSpecification implements Serializable {
     if(!ObjectUtils.equals(_viewName, other._viewName)) {
       return false;
     }
+    if(!ObjectUtils.equals(_calcConfigName, other._calcConfigName)) {
+      return false;
+    }
     return true;
   }
 
@@ -102,6 +116,7 @@ public class CalculationJobSpecification implements Serializable {
   
   public void writeFields(MutableFudgeFieldContainer fudgeMsg) {
     fudgeMsg.add(VIEW_NAME_FIELD_NAME, getViewName());
+    fudgeMsg.add(CALCULATION_CONFIGURATION_FIELD_NAME, getCalcConfigName());
     fudgeMsg.add(ITERATION_TIMESTAMP_FIELD_NAME, getIterationTimestamp());
     fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
   }
@@ -109,9 +124,10 @@ public class CalculationJobSpecification implements Serializable {
   public static CalculationJobSpecification fromFudgeMsg(FudgeMsgEnvelope envelope) {
     FudgeFieldContainer msg = envelope.getMessage();
     String viewName = msg.getString(VIEW_NAME_FIELD_NAME);
+    String calcConfigName = msg.getString(CALCULATION_CONFIGURATION_FIELD_NAME);
     long iterationTimestamp = msg.getLong(ITERATION_TIMESTAMP_FIELD_NAME);
     long jobId = msg.getLong(JOB_ID_FIELD_NAME);
     
-    return new CalculationJobSpecification(viewName, iterationTimestamp, jobId);
+    return new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId);
   }
 }

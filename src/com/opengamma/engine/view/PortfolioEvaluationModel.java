@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +27,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -58,7 +59,9 @@ public class PortfolioEvaluationModel {
   private final Portfolio _portfolio;
 
   private PortfolioNode _populatedRootNode;
-  private DependencyGraphModel _dependencyGraphModel;
+  // REVIEW kirk 2010-03-29 -- Use a sorted map here?
+  private final Map<String, DependencyGraphModel> _graphModelsByConfiguration =
+    new ConcurrentHashMap<String, DependencyGraphModel>();
   private final Map<DomainSpecificIdentifiers, Security> _securitiesByKey = new ConcurrentHashMap<DomainSpecificIdentifiers, Security>();
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
@@ -103,19 +106,17 @@ public class PortfolioEvaluationModel {
   public Set<Security> getSecurities() {
     return _securities;
   }
-
-  /**
-   * @return the dependencyGraphModel
-   */
-  public DependencyGraphModel getDependencyGraphModel() {
-    return _dependencyGraphModel;
+  
+  public Set<String> getAllCalculationConfigurationNames() {
+    return new TreeSet<String>(_graphModelsByConfiguration.keySet());
   }
-
-  /**
-   * @param dependencyGraphModel the dependencyGraphModel to set
-   */
-  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
-    _dependencyGraphModel = dependencyGraphModel;
+  
+  public Collection<DependencyGraphModel> getAllDependencyGraphModels() {
+    return new ArrayList<DependencyGraphModel>(_graphModelsByConfiguration.values());
+  }
+  
+  public DependencyGraphModel getDependencyGraphModel(String calcConfigName) {
+    return _graphModelsByConfiguration.get(calcConfigName);
   }
 
   public void init(
@@ -139,7 +140,7 @@ public class PortfolioEvaluationModel {
         viewProcessingContext.getLiveDataAvailabilityProvider(),
         viewProcessingContext.getComputationTargetResolver(),
         viewDefinition);
-    addLiveDataSubscriptions(viewProcessingContext.getLiveDataSnapshotProvider());
+    addLiveDataSubscriptions(viewProcessingContext, viewDefinition);
   }
   
   protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
@@ -280,40 +281,63 @@ public class PortfolioEvaluationModel {
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       ComputationTargetResolver computationTargetResolver,
       ViewDefinition viewDefinition) {
-    DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
-    dependencyGraphModel.setFunctionRepository(functionRepository);
-    dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
-    dependencyGraphModel.setTargetResolver(computationTargetResolver);
-    dependencyGraphModel.setFunctionResolver(functionResolver);
-    dependencyGraphModel.setCompilationContext(compilationContext);
+    // REVIEW kirk 2010-03-29 -- Much like the inner loop, the outer loop is chock-full
+    // of potentially expensive operations for parallelism. In fact, perhaps more so
+    // than the inner loop.
+    for(Map.Entry<String, ViewCalculationConfiguration> entry : viewDefinition.getAllCalculationConfigurationsByName().entrySet()) {
+      String configName = entry.getKey();
+      ViewCalculationConfiguration calcConfig = entry.getValue();
+      
+      DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
+      dependencyGraphModel.setFunctionRepository(functionRepository);
+      dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
+      dependencyGraphModel.setTargetResolver(computationTargetResolver);
+      dependencyGraphModel.setFunctionResolver(functionResolver);
+      dependencyGraphModel.setCompilationContext(compilationContext);
+      dependencyGraphModel.setCalculationConfigurationName(configName);
 
-    Map<String, Set<String>> outputsBySecurityType = viewDefinition.getValueDefinitionsBySecurityTypes();
-    for(Position position : getPopulatedPositions()) {
-      // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
-      // operation. We could/should do them in parallel.
-      Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
-      Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      for(String requirementName : requiredOutputValues) {
-        ValueRequirement requirement = new ValueRequirement(requirementName, ComputationTargetType.POSITION, position.getIdentityKey());
-        requirements.add(requirement);
+      Map<String, Set<String>> outputsBySecurityType = calcConfig.getValueRequirementsBySecurityTypes();
+      for(Position position : getPopulatedPositions()) {
+        // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
+        // operation. We could/should do them in parallel.
+        Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
+        Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+        for(String requirementName : requiredOutputValues) {
+          ValueRequirement requirement = new ValueRequirement(requirementName, ComputationTargetType.POSITION, position.getIdentityKey());
+          requirements.add(requirement);
+        }
+        dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
       }
-      dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
+      PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, calcConfig);
+      new PortfolioNodeTraverser(compiler).traverse(getPopulatedRootNode());
+      
+      dependencyGraphModel.removeUnnecessaryOutputs();
+      
+      _graphModelsByConfiguration.put(configName, dependencyGraphModel);
     }
-    PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, viewDefinition);
-    new PortfolioNodeTraverser(compiler).traverse(getPopulatedRootNode());
-    
-    dependencyGraphModel.removeUnnecessaryOutputs();
-    
-    setDependencyGraphModel(dependencyGraphModel);
   }
   
-  public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {
-    assert liveDataSnapshotProvider != null;
-    Set<ValueRequirement> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
-    s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
-    for(ValueRequirement liveDataRequirement : requiredLiveData) {
-      liveDataSnapshotProvider.addSubscription(liveDataRequirement);
+  public void addLiveDataSubscriptions(
+      ViewProcessingContext viewProcessingContext,
+      ViewDefinition viewDefinition) {
+    ArgumentChecker.checkNotNull(viewProcessingContext, "view processing context");
+    for(DependencyGraphModel dependencyGraphModel : _graphModelsByConfiguration.values()) {
+      Set<ValueRequirement> requiredLiveData = dependencyGraphModel.getAllRequiredLiveData();
+      s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
+      viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), requiredLiveData);
+      for(ValueRequirement liveDataRequirement : requiredLiveData) {
+        viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), liveDataRequirement);
+      }
     }
+  }
+  
+  public Set<ValueRequirement> getAllLiveDataRequirements() {
+    Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    for(DependencyGraphModel dependencyGraphModel : _graphModelsByConfiguration.values()) {
+      Set<ValueRequirement> requiredLiveData = dependencyGraphModel.getAllRequiredLiveData();
+      result.addAll(requiredLiveData);
+    }
+    return result;
   }
   
   protected static class SubNodeSecurityTypeAccumulator
@@ -336,13 +360,13 @@ public class PortfolioEvaluationModel {
   protected static class PortfolioNodeCompiler
   extends AbstractPortfolioNodeTraversalCallback {
     private final DependencyGraphModel _dependencyGraphModel;
-    private final ViewDefinition _viewDefinition;
+    private final ViewCalculationConfiguration _calculationConfiguration;
     
     public PortfolioNodeCompiler(
         DependencyGraphModel dependencyGraphModel,
-        ViewDefinition viewDefinition) {
+        ViewCalculationConfiguration calculationConfiguration) {
       _dependencyGraphModel = dependencyGraphModel;
-      _viewDefinition = viewDefinition;
+      _calculationConfiguration = calculationConfiguration;
     }
 
     @Override
@@ -351,7 +375,7 @@ public class PortfolioEvaluationModel {
       // callbacks, but it might have gotten hairy, so for the first pass I just
       // did it this way.
       Set<String> subNodeSecurityTypes = getSubNodeSecurityTypes(portfolioNode);
-      Map<String, Set<String>> outputsBySecurityType = _viewDefinition.getValueDefinitionsBySecurityTypes();
+      Map<String, Set<String>> outputsBySecurityType = _calculationConfiguration.getValueRequirementsBySecurityTypes();
       for(String secType : subNodeSecurityTypes) {
         Set<String> requiredOutputs = outputsBySecurityType.get(secType);
         if((requiredOutputs == null) || requiredOutputs.isEmpty()) {
