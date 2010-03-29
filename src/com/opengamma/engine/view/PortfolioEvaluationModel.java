@@ -25,7 +25,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
-import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -139,7 +138,7 @@ public class PortfolioEvaluationModel {
         viewProcessingContext.getLiveDataAvailabilityProvider(),
         viewProcessingContext.getComputationTargetResolver(),
         viewDefinition);
-    addLiveDataSubscriptions(viewProcessingContext.getLiveDataSnapshotProvider());
+    addLiveDataSubscriptions(viewProcessingContext, viewDefinition);
   }
   
   protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
@@ -307,13 +306,12 @@ public class PortfolioEvaluationModel {
     setDependencyGraphModel(dependencyGraphModel);
   }
   
-  public void addLiveDataSubscriptions(LiveDataSnapshotProvider liveDataSnapshotProvider) {
-    assert liveDataSnapshotProvider != null;
+  public void addLiveDataSubscriptions(
+      ViewProcessingContext viewProcessingContext,
+      ViewDefinition viewDefinition) {
     Set<ValueRequirement> requiredLiveData = getDependencyGraphModel().getAllRequiredLiveData();
     s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
-    for(ValueRequirement liveDataRequirement : requiredLiveData) {
-      liveDataSnapshotProvider.addSubscription(liveDataRequirement);
-    }
+    viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), requiredLiveData);
   }
   
   protected static class SubNodeSecurityTypeAccumulator

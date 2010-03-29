@@ -137,7 +137,7 @@ public class SingleComputationCycle {
     return _resultModel;
   }
 
-  public boolean prepareInputs() {
+  public void prepareInputs() {
     setSnapshotTime(getProcessingContext().getLiveDataSnapshotProvider().snapshot());
     ViewComputationCache cache = getProcessingContext().getComputationCacheSource().getCache(getViewName(), getSnapshotTime());
     assert cache != null;
@@ -162,7 +162,6 @@ public class SingleComputationCycle {
     if(!missingLiveData.isEmpty()) {
       s_logger.warn("Missing live data: {}", missingLiveData);
     }
-    return true;
   }
   
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.

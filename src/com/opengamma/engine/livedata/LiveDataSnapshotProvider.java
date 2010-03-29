@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.livedata;
 
+import java.util.Set;
+
 import com.opengamma.engine.value.ValueRequirement;
 
 /**
@@ -14,7 +16,8 @@ import com.opengamma.engine.value.ValueRequirement;
  */
 public interface LiveDataSnapshotProvider {
 
-  void addSubscription(ValueRequirement valueRequirement);
+  void addSubscription(String userName, ValueRequirement valueRequirement);
+  void addSubscription(String userName, Set<ValueRequirement> valueRequirements);
   
   long snapshot();
 

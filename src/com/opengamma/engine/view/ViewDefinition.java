@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * A simple in-memory implementation of {@link ViewDefinition}. 
  *
@@ -20,15 +22,18 @@ import java.util.TreeSet;
 public class ViewDefinition implements Serializable {
   private final String _name;
   private final String _rootPortfolioName;
+  private final String _userName;
   private final Map<String, Set<String>> _definitionsBySecurityType =
     new TreeMap<String, Set<String>>();
   
-  public ViewDefinition(String name, String rootPortfolioName) {
-    assert name != null;
-    assert rootPortfolioName != null;
+  public ViewDefinition(String name, String rootPortfolioName, String userName) {
+    ArgumentChecker.checkNotNull(name, "View name");
+    ArgumentChecker.checkNotNull(rootPortfolioName, "Root portfolio name");
+    ArgumentChecker.checkNotNull(userName, "User name");
     
     _name = name;
     _rootPortfolioName = rootPortfolioName;
+    _userName = userName;
   }
 
   public Set<String> getAllValueDefinitions() {
@@ -45,6 +50,10 @@ public class ViewDefinition implements Serializable {
 
   public String getRootPortfolioName() {
     return _rootPortfolioName;
+  }
+  
+  public String getUserName() {
+    return _userName;
   }
 
   public Map<String, Set<String>> getValueDefinitionsBySecurityTypes() {

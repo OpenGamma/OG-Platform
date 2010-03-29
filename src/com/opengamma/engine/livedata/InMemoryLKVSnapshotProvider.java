@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +32,16 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
     new HashMap<Long, Map<ValueRequirement, ComputedValue>>();
 
   @Override
-  public void addSubscription(ValueRequirement valueRequirement) {
+  public void addSubscription(String userName, ValueRequirement valueRequirement) {
     // Do nothing. All values are externally provided.
     s_logger.debug("Added subscription to {}", valueRequirement);
+  }
+  
+  @Override
+  public void addSubscription(String userName, Set<ValueRequirement> valueRequirements) {
+    for (ValueRequirement requirement : valueRequirements) {
+      addSubscription(userName, requirement);      
+    }
   }
 
   @Override

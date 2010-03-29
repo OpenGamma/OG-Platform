@@ -59,18 +59,11 @@ public class ViewRecalculationJob extends TerminatableJob {
         getView().getProcessingContext(),
         portfolioEvaluationModel,
         result, getView().getDefinition());
-    if(!cycle.prepareInputs()) {
-      s_logger.info("Not executing as couldn't snapshot market data. Probably waiting for source data to finish populating.");
-      try {
-        Thread.sleep(100l);
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-      }
-    } else {
-      cycle.executePlans();
-      cycle.populateResultModel();
-      cycle.releaseResources();
-    }
+    
+    cycle.prepareInputs();
+    cycle.executePlans();
+    cycle.populateResultModel();
+    cycle.releaseResources();
     
     long endTime = System.currentTimeMillis();
     result.setResultTimestamp(endTime);
