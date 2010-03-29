@@ -17,12 +17,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
 
 @Ignore
 public abstract class DoubleTimeSeriesTest<E> {
   
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DoubleTimeSeriesTest.class);
    
   public abstract DoubleTimeSeries<E> createEmptyTimeSeries();
@@ -305,7 +305,6 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(createEmptyTimeSeries().hashCode(), createEmptyTimeSeries().hashCode());
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testEquals() {
     assertEquals(createStandardTimeSeries(), createStandardTimeSeries());
