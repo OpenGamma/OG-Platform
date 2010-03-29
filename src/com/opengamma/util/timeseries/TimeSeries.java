@@ -1,11 +1,12 @@
 package com.opengamma.util.timeseries;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DATE_TYPE, VALUE_TYPE>> {
+public interface TimeSeries<DATE_TYPE, VALUE_TYPE> extends Iterable<Map.Entry<DATE_TYPE, VALUE_TYPE>>, Serializable {
   /**
    * Get the size of the time series, the number of data points.
    * 

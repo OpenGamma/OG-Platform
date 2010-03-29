@@ -97,6 +97,10 @@ public class DomainSpecificIdentifiers implements Serializable {
     }
     return msg;
   }
+  
+  public int size() {
+    return _identifiers.size();
+  }
 
   protected int calcHashCode() {
     final int prime = 31;
