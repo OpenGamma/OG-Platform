@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine;
 
-import java.util.Currency;
-
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
