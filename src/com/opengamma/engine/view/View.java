@@ -212,7 +212,9 @@ public class View implements Lifecycle {
     deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    
+
+    // TODO kirk 2010-03-29 -- Fix this and re-implement as part of ENG-25.
+    /*
     for(ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       deltaModel.addTarget(targetSpec);
       
@@ -231,6 +233,7 @@ public class View implements Lifecycle {
         }
       }
     }
+    */
     return deltaModel;
   }
 

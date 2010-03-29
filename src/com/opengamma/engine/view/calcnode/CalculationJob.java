@@ -51,17 +51,21 @@ public class CalculationJob implements Serializable {
    * @param iterationTimestamp
    * @param jobId
    */
-  public CalculationJob(String viewName, long iterationTimestamp, long jobId,
+  public CalculationJob(
+      String viewName,
+      String calcConfigName,
+      long iterationTimestamp,
+      long jobId,
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
       Collection<ValueSpecification> inputs,
       Collection<ValueRequirement> desiredValues) {
-    this(new CalculationJobSpecification(viewName, iterationTimestamp, jobId),
+    this(new CalculationJobSpecification(viewName, calcConfigName, iterationTimestamp, jobId),
         functionUniqueIdentifier, computationTargetSpecification, inputs,
         desiredValues);
   }
   
-  protected CalculationJob(
+  public CalculationJob(
       CalculationJobSpecification specification,
       String functionUniqueIdentifier,
       ComputationTargetSpecification computationTargetSpecification,
@@ -137,6 +141,7 @@ public class CalculationJob implements Serializable {
   //public static CalculationJob fromFudgeMsg(FudgeMsgEnvelope envelope) {
   public static CalculationJob fromFudgeMsg (FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
     String viewName = msg.getString(CalculationJobSpecification.VIEW_NAME_FIELD_NAME);
+    String calcConfigName = msg.getString(CalculationJobSpecification.CALCULATION_CONFIGURATION_FIELD_NAME);
     long iterationTimestamp = msg.getLong(CalculationJobSpecification.ITERATION_TIMESTAMP_FIELD_NAME);
     long jobId = msg.getLong(CalculationJobSpecification.JOB_ID_FIELD_NAME);
     String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
@@ -156,6 +161,6 @@ public class CalculationJob implements Serializable {
       desiredValues.add(desiredValue);
     }
     
-    return new CalculationJob(viewName, iterationTimestamp, jobId, functionUniqueId, computationTargetSpecification, inputs, desiredValues);
+    return new CalculationJob(viewName, calcConfigName, iterationTimestamp, jobId, functionUniqueId, computationTargetSpecification, inputs, desiredValues);
   }
 }

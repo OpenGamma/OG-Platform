@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -145,7 +146,7 @@ public class SingleComputationCycle {
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     //getResultModel().setRootPopulatedNode(getPortfolioEvaluationModel().getPopulatedRootNode());
     
-    Set<ValueRequirement> allLiveDataRequirements = getPortfolioEvaluationModel().getDependencyGraphModel().getAllRequiredLiveData();
+    Set<ValueRequirement> allLiveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getSnapshotTime());
     
     Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
@@ -167,21 +168,25 @@ public class SingleComputationCycle {
   
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {
-    executePlans(ComputationTargetType.PRIMITIVE);
-    executePlans(ComputationTargetType.SECURITY);
-    executePlans(ComputationTargetType.POSITION);
-    executePlans(ComputationTargetType.MULTIPLE_POSITIONS);
+    for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
+      s_logger.info("Executing plans for calculation configuration {}", depGraphModel.getCalculationConfigurationName());
+      executePlans(depGraphModel, ComputationTargetType.PRIMITIVE);
+      executePlans(depGraphModel, ComputationTargetType.SECURITY);
+      executePlans(depGraphModel, ComputationTargetType.POSITION);
+      executePlans(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+    }
   }
   
   /**
    * @param primitive
    */
-  protected void executePlans(ComputationTargetType targetType) {
-    Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(targetType);
+  protected void executePlans(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+    Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
     for(DependencyGraph depGraph : depGraphs) {
-      s_logger.info("Executing dependency graph for {}", depGraph.getComputationTarget());
+      s_logger.info("{} - Executing dependency graph for {}", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
       DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
+          depGraphModel.getCalculationConfigurationName(),
           depGraph,
           getProcessingContext(),
           this);
@@ -191,17 +196,19 @@ public class SingleComputationCycle {
 
   
   public void populateResultModel() {
-    populateResultModel(ComputationTargetType.POSITION);
-    populateResultModel(ComputationTargetType.MULTIPLE_POSITIONS);
+    for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
+      populateResultModel(depGraphModel, ComputationTargetType.POSITION);
+      populateResultModel(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+    }
   }
   
-  protected void populateResultModel(ComputationTargetType targetType) {
-    Collection<DependencyGraph> depGraphs = getPortfolioEvaluationModel().getDependencyGraphModel().getDependencyGraphs(targetType);
+  protected void populateResultModel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+    Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
     for(DependencyGraph depGraph : depGraphs) {
       for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
         ComputedValue value = getComputationCache().getValue(outputSpec);
         if(value != null) {
-          getResultModel().addValue(value);
+          getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), value);
         }
       }
     }
