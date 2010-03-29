@@ -18,19 +18,12 @@ import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
-import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -41,7 +34,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -50,7 +42,7 @@ import com.opengamma.util.time.Expiry;
  *
  * @author emcleod
  */
-public class BlackScholesMertonModelFunction extends AbstractFunction implements FunctionInvoker {
+public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _model = new BlackScholesMertonModel();
   private static final Map<String, Greek> AVAILABLE_GREEKS;
 
@@ -104,42 +96,6 @@ public class BlackScholesMertonModelFunction extends AbstractFunction implements
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()))))
-        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
-    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
-    // TODO cost of carry model
-    final Expiry expiry = option.getExpiry();
-    final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
-    final OptionDefinition definition = new EuropeanVanillaOptionDefinition(option.getStrike(), expiry, option.getOptionType() == OptionType.CALL);
-    final Set<Greek> requiredGreeks = new HashSet<Greek>();
-    for (final ValueRequirement dV : desiredValues) {
-      final Greek desiredGreek = AVAILABLE_GREEKS.get(dV.getValueName());
-      if (desiredGreek == null) {
-        throw new IllegalArgumentException("Told to produce " + dV + " but couldn't be mapped to a Greek.");
-      }
-      requiredGreeks.add(desiredGreek);
-    }
-    final GreekResultCollection greeks = _model.getGreeks(definition, data, requiredGreeks);
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    for (final ValueRequirement dV : desiredValues) {
-      final Greek greek = AVAILABLE_GREEKS.get(dV.getValueName());
-      assert greek != null : "Should have thrown IllegalArgumentException above.";
-      final GreekResult<?> greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), ComputationTargetType.SECURITY, option.getIdentityKey()));
-      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
-      results.add(resultValue);
-    }
-    return results;
-  }
-
-  @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY)
       return false;
@@ -163,36 +119,32 @@ public class BlackScholesMertonModelFunction extends AbstractFunction implements
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
   public String getShortName() {
     return "BlackScholesMertonModel";
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+  protected AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> getModel() {
+    return _model;
   }
 
-  private ValueRequirement getUnderlyingMarketDataRequirement(final DomainSpecificIdentifier id) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
+  @Override
+  protected OptionDefinition getOptionDefinition(final OptionSecurity option) {
+    return new EuropeanVanillaOptionDefinition(option.getStrike(), option.getExpiry(), option.getOptionType() == OptionType.CALL);
   }
 
-  private ValueRequirement getDiscountCurveMarketDataRequirement(final DomainSpecificIdentifier id) {
-    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, id);
-  }
-
-  private ValueRequirement getCostOfCarryMarketDataRequirement() {
-    // TODO
-    return null;
-  }
-
-  private ValueRequirement getVolatilitySurfaceMarketDataRequirement(final DomainSpecificIdentifier id) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, id);
+  @Override
+  protected StandardOptionDataBundle getDataBundle(final OptionSecurity option, final FunctionInputs inputs) {
+    final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
+    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()))))
+        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
+    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
+    // TODO cost of carry model
+    final Expiry expiry = option.getExpiry();
+    final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double b = discountCurve.getInterestRate(t);// TODO
+    return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
 
 }

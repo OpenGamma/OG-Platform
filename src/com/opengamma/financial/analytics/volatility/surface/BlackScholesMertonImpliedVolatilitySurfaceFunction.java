@@ -50,7 +50,6 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction implements FunctionInvoker {
-  public static final String PRICE_FIELD_NAME = "PRICE";
 
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
 
