@@ -18,7 +18,15 @@ public interface LiveDataClient {
   // REVIEW kirk 2009-09-29 -- When we have a better handle on security
   // principals, this needs to be changed.
   
+  /**
+   * If already subscribed under this user name, will not do anything.
+   */
   void subscribe(String userName, LiveDataSpecification requestedSpecification, LiveDataListener listener);
+  
+  /**
+   * Equivalent to calling {@link #subscribe(String userName, LiveDataSpecification requestedSpecification, LiveDataListener listener)}
+   * for each specification individually, but may be more efficient. 
+   */
   void subscribe(String userName, Collection<LiveDataSpecification> requestedSpecifications, LiveDataListener listener);
   
   
