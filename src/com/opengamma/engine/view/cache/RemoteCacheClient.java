@@ -88,6 +88,7 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     long specificationId = getValueSpecificationId(valueSpecification);
     
     ValueLookupRequest request = new ValueLookupRequest();
+    request.setCorrelationId(correlationId);
     request.setViewName(viewName);
     request.setCalculationConfigurationName(calcConfigName);
     request.setSnapshot(timestamp);
@@ -110,6 +111,7 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     long specificationId = getValueSpecificationId(value.getSpecification());
     
     ValuePutRequest request = new ValuePutRequest();
+    request.setCorrelationId(correlationId);
     request.setViewName(viewName);
     request.setCalculationConfigurationName(calcConfigName);
     request.setSnapshot(timestamp);

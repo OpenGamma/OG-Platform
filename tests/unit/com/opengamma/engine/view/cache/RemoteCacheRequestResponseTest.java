@@ -7,6 +7,7 @@ package com.opengamma.engine.view.cache;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -160,5 +162,20 @@ public class RemoteCacheRequestResponseTest {
       t.join();
     }
     assertFalse("One thread failed. Check logs.", failed.get());
+  }
+  
+  @Test(timeout=10000l)
+  public void singleThreadPutLoad() throws InterruptedException {
+    RemoteCacheServer server = new RemoteCacheServer();
+    FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
+    RemoteCacheClient client = new RemoteCacheClient(conduit);
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(new IdentificationDomain("Kirk"), "Value"))));
+    ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
+    
+    long timestamp = System.currentTimeMillis();
+    client.putValue("View1", "Config1", timestamp, inputValue);
+    
+    ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNotNull(resultValue);
   }
 }
