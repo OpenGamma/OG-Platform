@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,6 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 
@@ -31,6 +33,8 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
   private final AtomicLong _nextValueSpecificationId = new AtomicLong(1l);
   private final ConcurrentMap<ValueSpecification, Long> _valueSpecificationIds =
     new ConcurrentHashMap<ValueSpecification, Long>();
+  private final ConcurrentMap<ViewComputationCacheKey, Map<Long, ComputedValue>> _values =
+    new ConcurrentHashMap<ViewComputationCacheKey, Map<Long, ComputedValue>>();
 
   @Override
   public FudgeFieldContainer requestReceived(
@@ -40,6 +44,10 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     Object response = null;
     if(request instanceof ValueSpecificationLookupRequest) {
       response = handleValueSpecificationLookupRequest(context.getFudgeContext(), (ValueSpecificationLookupRequest) request);
+    } else if(request instanceof ValueLookupRequest) {
+      response = handleValueLookupRequest(context.getFudgeContext(), (ValueLookupRequest) request);
+    } else if(request instanceof ValuePutRequest) {
+      response = handleValuePutRequest(context.getFudgeContext(), (ValuePutRequest) request);
     } else {
       s_logger.warn("Got an unhandled request type: {}", request);
     }
@@ -71,6 +79,44 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     }
     ValueSpecificationLookupResponse response = new ValueSpecificationLookupResponse(request.getCorrelationId(), request.getRequest(), currentValue);
     return response;
+  }
+
+  /**
+   * @param fudgeContext
+   * @param request
+   * @return
+   */
+  private Object handleValueLookupRequest(FudgeContext fudgeContext,
+      ValueLookupRequest request) {
+    ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
+    Map<Long, ComputedValue> cacheMap = _values.get(cacheKey);
+    ComputedValue computedValue = null;
+    if(cacheMap != null) {
+      computedValue = cacheMap.get(request.getSpecificationId());
+    }
+    ValueLookupResponse lookupResponse = new ValueLookupResponse(request.getCorrelationId(), computedValue);
+    return lookupResponse;
+  }
+
+  /**
+   * @param fudgeContext
+   * @param request
+   * @return
+   */
+  private Object handleValuePutRequest(FudgeContext fudgeContext,
+      ValuePutRequest request) {
+    ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
+    Map<Long, ComputedValue> cacheMap = _values.get(cacheKey);
+    if(cacheMap == null) {
+      Map<Long, ComputedValue> freshMap = new ConcurrentHashMap<Long, ComputedValue>();
+      cacheMap = _values.putIfAbsent(cacheKey, freshMap);
+      if(cacheMap == null) {
+        cacheMap = freshMap;
+      }
+    }
+    cacheMap.put(request.getSpecificationId(), request.getValue());
+    ValuePutResponse putResponse = new ValuePutResponse(request.getCorrelationId());
+    return putResponse;
   }
 
 }

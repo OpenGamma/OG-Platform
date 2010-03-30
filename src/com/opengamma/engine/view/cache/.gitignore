@@ -1,3 +1,7 @@
 RemoteCacheMessage.java
+ValueLookupRequest.java
+ValueLookupResponse.java
+ValuePutRequest.java
+ValuePutResponse.java
 ValueSpecificationLookupRequest.java
 ValueSpecificationLookupResponse.java
