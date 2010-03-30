@@ -21,10 +21,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.jms.ConnectionFactory;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 
@@ -45,13 +48,17 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
   
   private final ConcurrentMap<String,RemoteViewClient> _remoteViewClients = new ConcurrentHashMap<String,RemoteViewClient> ();
   
-  public RemoteViewProcessorClient (final FudgeContext fudgeContext, final RestTarget baseTarget) {
+  private final JmsTemplate _jmsTemplate = new JmsTemplate ();
+  
+  public RemoteViewProcessorClient (final FudgeContext fudgeContext, final ConnectionFactory connectionFactory, final RestTarget baseTarget) {
     _restClient = RestClient.getInstance (fudgeContext, null);
     _targetAvailableViewNames = baseTarget.resolve (VIEWPROCESSOR_AVAILABLEVIEWNAMES);
     _targetLiveComputingViewNames = baseTarget.resolve (VIEWPROCESSOR_LIVECOMPUTINGVIEWNAMES);
     _targetSupported = baseTarget.resolve (VIEWPROCESSOR_SUPPORTED);
     _targetLiveCalculation = baseTarget.resolveBase (VIEWPROCESSOR_LIVECALCULATION);
     _targetViewBase = baseTarget.resolveBase (VIEWPROCESSOR_VIEW);
+    getJmsTemplate ().setConnectionFactory (connectionFactory);
+    getJmsTemplate ().setPubSubDomain (true);
   }
   
   protected FudgeContext getFudgeContext () {
@@ -94,6 +101,11 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
     }
   }
   
+  // TODO 2010-03-29 Andrew -- this is a hack; both ends should have a ViewDefinitionRepository they should be referring to (or share one)
+  public ViewDefinition getViewDefinition (String viewName) {
+    return getRestClient ().getSingleValueNotNull (ViewDefinition.class, _targetViewBase.resolveBase (viewName).resolve ("viewDefinition"), "viewDefinition");
+  }
+  
   protected ConcurrentMap<String,RemoteViewClient> getRemoteViewClients () {
     return _remoteViewClients;
   }
@@ -125,8 +137,7 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
   }
   
   protected JmsTemplate getJmsTemplate () {
-    // TODO
-    return null;
+    return _jmsTemplate;
   }
   
 }

@@ -11,6 +11,10 @@ import org.fudgemsg.mapping.FudgeObjectDictionary;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.view.ViewCalculationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewDeltaResultModel;
 
 /**
  * Registers custom builders for Portfolio, PortfolioNode, and Position with a FudgeContext
@@ -25,6 +29,10 @@ public class EngineFudgeContextConfiguration extends FudgeContextConfiguration {
     dictionary.getDefaultBuilderFactory ().addGenericBuilder (Portfolio.class, new PortfolioBuilder ());
     dictionary.getDefaultBuilderFactory ().addGenericBuilder (PortfolioNode.class, new PortfolioNodeBuilder ());
     dictionary.getDefaultBuilderFactory ().addGenericBuilder (Position.class, new PositionBuilder ());
+    dictionary.addBuilder (ViewDefinition.class, new ViewDefinitionBuilder ());
+    dictionary.getDefaultBuilderFactory ().addGenericBuilder (ViewCalculationResultModel.class, new ViewCalculationResultModelBuilder ());
+    dictionary.getDefaultBuilderFactory ().addGenericBuilder (ViewComputationResultModel.class, new ViewComputationResultModelBuilder ());
+    dictionary.getDefaultBuilderFactory ().addGenericBuilder (ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder ());
   }
   
 }

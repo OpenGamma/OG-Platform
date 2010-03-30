@@ -21,14 +21,20 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
+import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -55,6 +61,9 @@ import com.opengamma.util.ArgumentChecker;
   
   private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener> ();
   private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener> ();
+  
+  private DefaultMessageListenerContainer _resultListenerContainer;
+  private DefaultMessageListenerContainer _deltaListenerContainer;
   
   protected RemoteViewClient (final RemoteViewProcessorClient viewProcessorClient, final String name, final RestTarget target) {
     _viewProcessorClient = viewProcessorClient;
@@ -87,10 +96,20 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.checkNotNull (listener, "listener");
     synchronized (_resultListeners) {
       if (_resultListeners.isEmpty ()) {
-        final String channelName = getRestClient ().getSingleValueNotNull (String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
-        System.out.println ("Set up JMS subscription to " + channelName);
-        JmsTemplate jmsTemplate = getViewProcessorClient ().getJmsTemplate ();
-        // TODO JMS subscription to the channel
+        final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
+        System.out.println ("Set up JMS subscription to " + topicName);
+        _resultListenerContainer = new DefaultMessageListenerContainer ();
+        _resultListenerContainer.setConnectionFactory (getViewProcessorClient ().getJmsTemplate ().getConnectionFactory ());
+        _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher (new ByteArrayFudgeMessageReceiver (new FudgeMessageReceiver () {
+          @Override
+          public void messageReceived (FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+            dispatchComputationResult (fudgeContext.fromFudgeMsg (ViewComputationResultModel.class, msgEnvelope.getMessage ()));
+          }
+        }, getFudgeContext ())));
+        _resultListenerContainer.setDestinationName(topicName);
+        _resultListenerContainer.setPubSubDomain(true);
+        _resultListenerContainer.afterPropertiesSet();
+        _resultListenerContainer.start();
       }
       _resultListeners.add (listener);
     }
@@ -101,9 +120,20 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.checkNotNull (listener, "listener");
     synchronized (_deltaListeners) {
       if (_deltaListeners.isEmpty ()) {
-        final String channelName = getRestClient ().getSingleValueNotNull (String.class, _targetDeltaResult, VIEW_DELTARESULT);
-        System.out.println ("Set up JMS subscription to " + channelName);
-        // TODO JMS subscription to the channel
+        final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetDeltaResult, VIEW_DELTARESULT);
+        System.out.println ("Set up JMS subscription to " + topicName);
+        _deltaListenerContainer = new DefaultMessageListenerContainer ();
+        _deltaListenerContainer.setConnectionFactory (getViewProcessorClient ().getJmsTemplate ().getConnectionFactory ());
+        _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher (new ByteArrayFudgeMessageReceiver (new FudgeMessageReceiver () {
+          @Override
+          public void messageReceived (FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+            dispatchDeltaResult (fudgeContext.fromFudgeMsg (ViewDeltaResultModel.class, msgEnvelope.getMessage ()));
+          }
+        }, getFudgeContext ())));
+        _deltaListenerContainer.setDestinationName(topicName);
+        _deltaListenerContainer.setPubSubDomain(true);
+        _deltaListenerContainer.afterPropertiesSet();
+        _deltaListenerContainer.start();
       }
       _deltaListeners.add (listener);
     }
@@ -115,7 +145,9 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_resultListeners) {
       _resultListeners.remove (listener);
       if (_resultListeners.isEmpty ()) {
-        // TODO remove the JMS subscription
+        _resultListenerContainer.stop ();
+        _resultListenerContainer.destroy ();
+        _resultListenerContainer = null;
       }
     }
   }
@@ -126,7 +158,9 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_deltaListeners) {
       _deltaListeners.remove (listener);
       if (_deltaListeners.isEmpty ()) {
-        // TODO remove the JMS subscription
+        _deltaListenerContainer.stop ();
+        _deltaListenerContainer.destroy ();
+        _deltaListenerContainer = null;
       }
     }
   }

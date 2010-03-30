@@ -1,0 +1,66 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.engine.view.server;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
+import com.opengamma.engine.view.ViewCalculationConfiguration;
+import com.opengamma.engine.view.ViewDefinition;
+
+public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
+  
+  public static final String FIELD_NAME = "name";
+  public static final String FIELD_ROOTPORTFOLIONAME = "rootPortfolioName";
+  public static final String FIELD_USERNAME = "userName";
+  public static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
+  public static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
+  
+  @Override
+  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, ViewDefinition viewDefinition) {
+    final MutableFudgeFieldContainer message = context.newMessage ();
+    message.add (FIELD_NAME, null, viewDefinition.getName ());
+    message.add (FIELD_ROOTPORTFOLIONAME, null, viewDefinition.getRootPortfolioName ());
+    message.add (FIELD_USERNAME, null, viewDefinition.getUserName ());
+    Map<String,ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName ();
+    for (ViewCalculationConfiguration calculationConfiguration: calculationConfigurations.values ()) {
+      final MutableFudgeFieldContainer config = context.newMessage ();
+      config.add (FIELD_NAME, null, calculationConfiguration.getName ());
+      context.objectToFudgeMsg (config, FIELD_VALUEREQUIREMENTS, null, calculationConfiguration.getValueRequirementsBySecurityTypes ());
+      message.add (FIELD_CALCULATIONCONFIGURATION, null, config);
+    }
+    return message;
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public ViewDefinition buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
+    final ViewDefinition viewDefinition = new ViewDefinition (
+        message.getFieldValue (String.class, message.getByName (FIELD_NAME)),
+        message.getFieldValue (String.class, message.getByName (FIELD_ROOTPORTFOLIONAME)),
+        message.getFieldValue (String.class, message.getByName (FIELD_USERNAME)));
+    final List<FudgeField> calcConfigs = message.getAllByName (FIELD_CALCULATIONCONFIGURATION);
+    for (FudgeField calcConfigField : calcConfigs) {
+      final FudgeFieldContainer calcConfig = message.getFieldValue (FudgeFieldContainer.class, calcConfigField);
+      final ViewCalculationConfiguration viewCalculationConfiguration = new ViewCalculationConfiguration (viewDefinition, message.getFieldValue (String.class, calcConfig.getByName (FIELD_NAME)));
+      final Map<String,Set<String>> data = context.fieldValueToObject (Map.class, calcConfig.getByName (FIELD_VALUEREQUIREMENTS));
+      for (Map.Entry<String,Set<String>> d : data.entrySet ()) {
+        viewCalculationConfiguration.addValueRequirements (d.getKey (), d.getValue ());
+      }
+      viewDefinition.addViewCalculationConfiguration (viewCalculationConfiguration);
+    }
+    return viewDefinition;
+  }
+ 
+}

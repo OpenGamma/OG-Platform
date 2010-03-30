@@ -8,14 +8,14 @@ package com.opengamma.engine.view.server;
 
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_ALLSECURITYTYPES;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_ALLVALUENAMES;
+import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_COMPUTATIONRESULT;
+import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_DELTARESULT;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_LIVECOMPUTATIONRUNNING;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_MOSTRECENTRESULT;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_NAME;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_PORTFOLIO;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_REQUIREMENTNAMES;
 import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_RESULTAVAILABLE;
-import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_COMPUTATIONRESULT;
-import static com.opengamma.engine.view.server.ViewProcessorServiceNames.VIEW_DELTARESULT;
 
 import java.util.Set;
 
@@ -29,6 +29,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.LocalViewClient;
 import com.opengamma.engine.view.client.ViewClient;
 
 /**
@@ -149,6 +150,16 @@ public class ViewResource {
   public FudgeMsgEnvelope getDeltaResultChannel () {
     final MutableFudgeFieldContainer msg = getFudgeContext ().newMessage ();
     msg.add (VIEW_DELTARESULT, getViewProcessor ().getDeltaResultChannel (getViewClient ()));
+    return new FudgeMsgEnvelope (msg);
+  }
+  
+  // TODO 2010-03-29 Andrew -- this is a hack; both side should be sharing a ViewDefinitionRepository
+  @GET
+  @Path ("viewDefinition")
+  public FudgeMsgEnvelope getViewDefinition () {
+    final FudgeSerializationContext context = getFudgeSerializationContext ();
+    final MutableFudgeFieldContainer msg = context.newMessage ();
+    context.objectToFudgeMsg (msg, "viewDefinition", null, ((LocalViewClient)getViewClient ()).getView ().getDefinition ());
     return new FudgeMsgEnvelope (msg);
   }
 

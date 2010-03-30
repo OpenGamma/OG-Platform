@@ -10,6 +10,11 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,6 +33,9 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class ComputedValue implements Serializable {
+  private static final String SPECIFICATION_KEY = "specification";
+  private static final String VALUE_KEY = "value";
+  
   private final ValueSpecification _specification;
   private final Object _value;
   
@@ -85,6 +93,19 @@ public class ComputedValue implements Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  public FudgeFieldContainer toFudgeMsg (final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer message = context.newMessage ();
+    message.add (SPECIFICATION_KEY, getSpecification ().toFudgeMsg (context));
+    context.objectToFudgeMsg (message, VALUE_KEY, null, getValue ());
+    return message;
+  }
+  
+  public static ComputedValue fromFudgeMsg (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final FudgeField specification = message.getByName (SPECIFICATION_KEY);
+    final FudgeField value = message.getByName (VALUE_KEY);
+    return new ComputedValue (context.fieldValueToObject (ValueSpecification.class, specification), context.fieldValueToObject (value));
   }
   
 }
