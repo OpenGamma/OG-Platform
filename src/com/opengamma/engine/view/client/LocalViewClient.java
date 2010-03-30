@@ -48,7 +48,7 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public Set<String> getAllValueNames() {
-    return getView().getDefinition().getAllValueDefinitions();
+    return getView().getDefinition().getAllValueRequirements();
   }
 
   @Override

@@ -6,6 +6,8 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +17,8 @@ import java.util.TreeSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A simple in-memory implementation of {@link ViewDefinition}. 
+ * The encapsulated logic that controls how precisely a view is to be constructed
+ * and computed.
  *
  * @author kirk
  */
@@ -23,8 +26,8 @@ public class ViewDefinition implements Serializable {
   private final String _name;
   private final String _rootPortfolioName;
   private final String _userName;
-  private final Map<String, Set<String>> _definitionsBySecurityType =
-    new TreeMap<String, Set<String>>();
+  private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
+    new TreeMap<String, ViewCalculationConfiguration>();
   
   public ViewDefinition(String name, String rootPortfolioName, String userName) {
     ArgumentChecker.checkNotNull(name, "View name");
@@ -35,13 +38,13 @@ public class ViewDefinition implements Serializable {
     _rootPortfolioName = rootPortfolioName;
     _userName = userName;
   }
-
-  public Set<String> getAllValueDefinitions() {
-    Set<String> definitions = new TreeSet<String>();
-    for(Set<String> secTypeDefinitions : _definitionsBySecurityType.values()) {
-      definitions.addAll(secTypeDefinitions);
+  
+  public Set<String> getAllValueRequirements() {
+    Set<String> requirements = new TreeSet<String>();
+    for(ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
+      requirements.addAll(calcConfig.getAllValueRequirements());
     }
-    return definitions;
+    return requirements;
   }
 
   public String getName() {
@@ -55,23 +58,35 @@ public class ViewDefinition implements Serializable {
   public String getUserName() {
     return _userName;
   }
-
-  public Map<String, Set<String>> getValueDefinitionsBySecurityTypes() {
-    return Collections.unmodifiableMap(_definitionsBySecurityType);
+  public Collection<ViewCalculationConfiguration> getAllCalculationConfigurations() {
+    return new ArrayList<ViewCalculationConfiguration>(_calculationConfigurationsByName.values());
   }
   
-  public void addValueDefinitions(String securityType, Set<String> definitions) {
-    assert securityType != null;
-    Set<String> secTypeDefinitions = _definitionsBySecurityType.get(securityType);
-    if(secTypeDefinitions == null) {
-      secTypeDefinitions = new TreeSet<String>();
-      _definitionsBySecurityType.put(securityType, secTypeDefinitions);
+  public Set<String> getAllCalculationConfigurationNames() {
+    return Collections.unmodifiableSet(_calculationConfigurationsByName.keySet());
+  }
+  
+  public Map<String, ViewCalculationConfiguration> getAllCalculationConfigurationsByName() {
+    return Collections.unmodifiableMap(_calculationConfigurationsByName);
+  }
+  
+  public ViewCalculationConfiguration getCalculationConfiguration(String configurationName) {
+    return _calculationConfigurationsByName.get(configurationName);
+  }
+  
+  public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
+    ArgumentChecker.checkNotNull(calcConfig, "calculation configuration");
+    ArgumentChecker.checkNotNull(calcConfig.getName(), "Configuration name");
+    _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
+  }
+  
+  public void addValueDefinition(String calculationConfigurationName, String securityType, String requirementName) {
+    ViewCalculationConfiguration calcConfig = _calculationConfigurationsByName.get(calculationConfigurationName);
+    if(calcConfig == null) {
+      calcConfig = new ViewCalculationConfiguration(this, calculationConfigurationName);
+      _calculationConfigurationsByName.put(calculationConfigurationName, calcConfig);
     }
-    secTypeDefinitions.addAll(definitions);
-  }
-  
-  public void addValueDefinition(String securityType, String definition) {
-    addValueDefinitions(securityType, Collections.singleton(definition));
+    calcConfig.addValueRequirement(securityType, requirementName);
   }
 
 }

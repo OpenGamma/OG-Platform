@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +19,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ThreadUtil;
 
 /**
@@ -212,26 +210,64 @@ public class View implements Lifecycle {
     deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    
+
     for(ComputationTargetSpecification targetSpec : result.getAllTargets()) {
-      deltaModel.addTarget(targetSpec);
+      computeDeltaModel(deltaModel, targetSpec, previousResult, result);
+    }
+    
+    return deltaModel;
+  }
+  
+  private void computeDeltaModel(
+      ViewDeltaResultModelImpl deltaModel,
+      ComputationTargetSpecification targetSpec,
+      ViewComputationResultModelImpl previousResult,
+      ViewComputationResultModelImpl result) {
+    for(String calcConfigName : result.getCalculationConfigurationNames()) {
+      ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
+      ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);
       
-      Map<String, ComputedValue> resultValues = result.getValues(targetSpec);
-      Map<String, ComputedValue> previousValues = previousResult.getValues(targetSpec);
-      Map<ValueSpecification, ComputedValue> previousValueMap = new HashMap<ValueSpecification, ComputedValue>();
-      for(ComputedValue previousValue : previousValues.values()) {
-        previousValueMap.put(previousValue.getSpecification(), previousValue);
+      computeDeltaModel(deltaModel, targetSpec, calcConfigName, previousCalcModel, resultCalcModel);
+    }
+  }
+
+  private void computeDeltaModel(
+      ViewDeltaResultModelImpl deltaModel,
+      ComputationTargetSpecification targetSpec,
+      String calcConfigName,
+      ViewCalculationResultModel previousCalcModel,
+      ViewCalculationResultModel resultCalcModel) {
+    if(previousCalcModel == null) {
+      // Everything is new/delta because this is a new calculation context.
+      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
+      for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+        deltaModel.addValue(calcConfigName, resultEntry.getValue());
       }
-      for(ComputedValue resultValue : resultValues.values()) {
-        ComputedValue previousValue = previousValueMap.get(resultValue.getSpecification());
-        if(previousValue == null) {
-          deltaModel.addValue(resultValue);
-        } else if(!ObjectUtils.equals(previousValue.getValue(), resultValue.getValue())) {
-          deltaModel.addValue(resultValue);
+    } else {
+      Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
+      Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
+      
+      if(previousValues == null) {
+        // Everything is new/delta because this is a new target.
+        for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+          deltaModel.addValue(calcConfigName, resultEntry.getValue());
+        }
+      } else {
+        // Have to individual delta.
+        for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+          ComputedValue resultValue = resultEntry.getValue();
+          ComputedValue previousValue = previousValues.get(resultEntry.getKey());
+          if(previousValue == null) {
+            deltaModel.addValue(calcConfigName, resultEntry.getValue());
+          } else if(!ObjectUtils.equals(resultValue, previousValue)) {
+            // That comparison INTENTIONALLY checks the whole value rather than value.getValue().
+            // This is so that we can capture changes to the ValueSpecification metadata
+            // in between invocations.
+            deltaModel.addValue(calcConfigName, resultEntry.getValue());
+          }
         }
       }
     }
-    return deltaModel;
   }
 
   // REVIEW kirk 2009-09-11 -- Need to resolve the synchronization on the lifecycle

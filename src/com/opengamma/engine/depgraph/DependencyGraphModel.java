@@ -39,6 +39,7 @@ import com.opengamma.util.Pair;
 public class DependencyGraphModel {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
   // Injected Inputs:
+  private String _calculationConfigurationName;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private FunctionRepository _functionRepository;
   private ComputationTargetResolver _targetResolver;
@@ -49,6 +50,18 @@ public class DependencyGraphModel {
     new HashMap<ComputationTarget, DependencyGraph>();
   private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
     
+  /**
+   * @return the calculationConfigurationName
+   */
+  public String getCalculationConfigurationName() {
+    return _calculationConfigurationName;
+  }
+  /**
+   * @param calculationConfigurationName the calculationConfigurationName to set
+   */
+  public void setCalculationConfigurationName(String calculationConfigurationName) {
+    _calculationConfigurationName = calculationConfigurationName;
+  }
   /**
    * @return the liveDataAvailabilityProvider
    */
