@@ -12,8 +12,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,12 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     long correlationId = _nextCorrelationId.getAndIncrement();
     s_logger.info("Requesting value specification ID for {} - Correlation {}", valueSpec, correlationId);
     ValueSpecificationLookupRequest request = new ValueSpecificationLookupRequest(correlationId, valueSpec);
-    FudgeFieldContainer requestMsg = request.toFudgeMsg(new FudgeSerializationContext(getRequestSender().getFudgeContext()));
+    
+    FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
+    MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
+    FudgeSerializationContext.addClassHeader (requestMsg, ValueSpecificationLookupRequest.class);
+    
+    //FudgeFieldContainer requestMsg = request.toFudgeMsg(new FudgeSerializationContext(getRequestSender().getFudgeContext()));
     ClientRequestHolder requestHolder = new ClientRequestHolder();
     _pendingRequests.put(correlationId, requestHolder);
     getRequestSender().sendRequest(requestMsg, this);
