@@ -14,4 +14,8 @@
 
 	<target name="git-repo" depends="clone-repo,pull-repo" />
 
+	<target name="status-repo">
+		<git-status dest="${dest}" />
+        </target>
+
 </project>

@@ -77,7 +77,7 @@
 				<exclude name="Fudge-CSharp/**" />
 				<exclude name="fudgemsg-dist/**" />
 				<exclude name="Hermit/**" />
-				<exclude name="jsr-310-ri-20090901/**" />
+				<exclude name="jsr-310*/**" />
 				<exclude name="OG-PrivateIvy/**" />
 				<exclude name="sysadmin/**" />
 			</fileset>
@@ -142,8 +142,7 @@
 		<ivy:cleancache />
 	</target>
 
-	<target name="clone-or-pull"
-		description="clone or pull all projects from git">
+	<target name="clone-or-pull" description="clone or pull all projects from git">
 		<mkdir dir="projects" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
@@ -157,6 +156,36 @@
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Security.git" dest="projects/OG-Security" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-TimeSeriesStorage.git" dest="projects/OG-TimeSeriesStorage" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Reuters.git" dest="projects/OG-Reuters" />
+	</target>
+
+	<target name="pull" description="pull origin master all projects from git">
+		<git-pull dest="projects/Fudge-Java" />
+		<git-pull dest="projects/Fudge-Proto" />
+		<git-pull dest="projects/OG-Analytics" />
+		<git-pull dest="projects/OG-Bloomberg" />
+		<git-pull dest="projects/OG-Engine" />
+		<git-pull dest="projects/OG-Financial" />
+		<git-pull dest="projects/OG-LiveData" />
+		<git-pull dest="projects/OG-Util" />
+		<git-pull dest="projects/OG-Integration" />
+		<git-pull dest="projects/OG-Security" />
+		<git-pull dest="projects/OG-TimeSeriesStorage" />
+		<git-pull dest="projects/OG-Reuters" />
+	</target>
+
+	<target name="status" description="display the status of all projects from git">
+		<git-status dest="projects/Fudge-Java" />
+		<git-status dest="projects/Fudge-Proto" />
+		<git-status dest="projects/OG-Analytics" />
+		<git-status dest="projects/OG-Bloomberg" />
+		<git-status dest="projects/OG-Engine" />
+		<git-status dest="projects/OG-Financial" />
+		<git-status dest="projects/OG-LiveData" />
+		<git-status dest="projects/OG-Util" />
+		<git-status dest="projects/OG-Integration" />
+		<git-status dest="projects/OG-Security" />
+		<git-status dest="projects/OG-TimeSeriesStorage" />
+		<git-status dest="projects/OG-Reuters" />
 	</target>
 </project>
 
