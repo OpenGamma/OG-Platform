@@ -29,14 +29,14 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class RemoteComputationCacheClient implements FudgeMessageReceiver {
-  private static final Logger s_logger = LoggerFactory.getLogger(RemoteComputationCacheClient.class);
+public class RemoteCacheClient implements FudgeMessageReceiver {
+  private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheClient.class);
   private final FudgeRequestSender _requestSender;
   private final AtomicLong _nextCorrelationId = new AtomicLong(1l);
   private final Map<Long, ClientRequestHolder> _pendingRequests = new ConcurrentHashMap<Long, ClientRequestHolder>();
   private final ConcurrentMap<ValueSpecification, Long> _specificationIds = new ConcurrentHashMap<ValueSpecification, Long>();
   
-  public RemoteComputationCacheClient(FudgeRequestSender requestSender) {
+  public RemoteCacheClient(FudgeRequestSender requestSender) {
     ArgumentChecker.checkNotNull(requestSender, "Fudge request sender");
     _requestSender = requestSender;
   }

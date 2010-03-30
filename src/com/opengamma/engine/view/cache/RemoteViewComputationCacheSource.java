@@ -14,9 +14,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class RemoteViewComputationCacheSource implements
     ViewComputationCacheSource {
-  private final RemoteComputationCacheClient _remoteClient;
+  private final RemoteCacheClient _remoteClient;
   
-  public RemoteViewComputationCacheSource(RemoteComputationCacheClient remoteClient) {
+  public RemoteViewComputationCacheSource(RemoteCacheClient remoteClient) {
     ArgumentChecker.checkNotNull(remoteClient, "Remote computation cache client");
     _remoteClient = remoteClient;
   }
@@ -24,7 +24,7 @@ public class RemoteViewComputationCacheSource implements
   /**
    * @return the remoteClient
    */
-  public RemoteComputationCacheClient getRemoteClient() {
+  public RemoteCacheClient getRemoteClient() {
     return _remoteClient;
   }
 
