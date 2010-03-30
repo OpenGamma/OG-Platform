@@ -11,10 +11,12 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  *
  */
-public abstract class ForwardDefinition {
+public class ForwardDefinition {
   private final Expiry _expiry;
 
   public ForwardDefinition(final Expiry expiry) {
+    if (expiry == null)
+      throw new IllegalArgumentException("Expiry was null");
     _expiry = expiry;
   }
 

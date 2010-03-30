@@ -18,6 +18,8 @@ public class FXForwardDataBundle extends ForwardDataBundle {
 
   public FXForwardDataBundle(final DiscountCurve domesticCurve, final DiscountCurve foreignCurve, final double spot, final ZonedDateTime date) {
     super(domesticCurve, spot, date);
+    if (foreignCurve == null)
+      throw new IllegalArgumentException("Foreign curve was null");
     _foreignCurve = foreignCurve;
   }
 
@@ -27,20 +29,28 @@ public class FXForwardDataBundle extends ForwardDataBundle {
 
   @Override
   public FXForwardDataBundle withDiscountCurve(final DiscountCurve newCurve) {
+    if (newCurve == null)
+      throw new IllegalArgumentException("New curve was null");
     return new FXForwardDataBundle(newCurve, getForeignCurve(), getSpot(), getDate());
   }
 
   public FXForwardDataBundle withForeignCurve(final DiscountCurve newCurve) {
+    if (newCurve == null)
+      throw new IllegalArgumentException("New curve was null");
     return new FXForwardDataBundle(getDiscountCurve(), newCurve, getSpot(), getDate());
   }
 
   @Override
   public FXForwardDataBundle withSpot(final double newSpot) {
+    if (newSpot < 0)
+      throw new IllegalArgumentException("New spot was negative");
     return new FXForwardDataBundle(getDiscountCurve(), getForeignCurve(), newSpot, getDate());
   }
 
   @Override
   public FXForwardDataBundle withDate(final ZonedDateTime newDate) {
+    if (newDate == null)
+      throw new IllegalArgumentException("New date was null");
     return new FXForwardDataBundle(getDiscountCurve(), getForeignCurve(), getSpot(), newDate);
   }
 

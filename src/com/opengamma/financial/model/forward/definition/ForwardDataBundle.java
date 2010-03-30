@@ -19,6 +19,12 @@ public abstract class ForwardDataBundle {
   private final ZonedDateTime _date;
 
   public ForwardDataBundle(final DiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
+    if (discountCurve == null)
+      throw new IllegalArgumentException("Discount curve was null");
+    if (spot < 0)
+      throw new IllegalArgumentException("Spot was negative");
+    if (date == null)
+      throw new IllegalArgumentException("Date was null");
     _discountCurve = discountCurve;
     _spot = spot;
     _date = date;
