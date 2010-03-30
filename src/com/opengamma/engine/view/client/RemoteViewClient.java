@@ -22,7 +22,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.springframework.jms.core.JmsTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.engine.position.Portfolio;
@@ -44,6 +45,8 @@ import com.opengamma.util.ArgumentChecker;
  * @author Andrew Griffin
  */
 /* package */ class RemoteViewClient implements ViewClient {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewClient.class);
   
   private final RemoteViewProcessorClient _viewProcessorClient;
   
@@ -91,18 +94,21 @@ import com.opengamma.util.ArgumentChecker;
     return getViewProcessorClient ().getRestClient ();
   }
   
+  // TODO 2010-03-30 Andrew -- needs to detect failure of the server (e.g. a lack of messages for a timeout) and reconnect by re-requesting the URL. Failure of the MOM and/or the other server can be recovered from that way. 
+  
   @Override
   public void addComputationResultListener(ComputationResultListener listener) {
     ArgumentChecker.checkNotNull (listener, "listener");
     synchronized (_resultListeners) {
       if (_resultListeners.isEmpty ()) {
         final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
-        System.out.println ("Set up JMS subscription to " + topicName);
+        s_logger.info ("Set up JMS subscription to {}", topicName);
         _resultListenerContainer = new DefaultMessageListenerContainer ();
         _resultListenerContainer.setConnectionFactory (getViewProcessorClient ().getJmsTemplate ().getConnectionFactory ());
         _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher (new ByteArrayFudgeMessageReceiver (new FudgeMessageReceiver () {
           @Override
           public void messageReceived (FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+            s_logger.debug ("Message received on {}", topicName);
             dispatchComputationResult (fudgeContext.fromFudgeMsg (ViewComputationResultModel.class, msgEnvelope.getMessage ()));
           }
         }, getFudgeContext ())));
@@ -121,12 +127,13 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_deltaListeners) {
       if (_deltaListeners.isEmpty ()) {
         final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetDeltaResult, VIEW_DELTARESULT);
-        System.out.println ("Set up JMS subscription to " + topicName);
+        s_logger.info ("Set up JMS subscription to {}", topicName);
         _deltaListenerContainer = new DefaultMessageListenerContainer ();
         _deltaListenerContainer.setConnectionFactory (getViewProcessorClient ().getJmsTemplate ().getConnectionFactory ());
         _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher (new ByteArrayFudgeMessageReceiver (new FudgeMessageReceiver () {
           @Override
           public void messageReceived (FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+            s_logger.debug ("Message received on {}", topicName);
             dispatchDeltaResult (fudgeContext.fromFudgeMsg (ViewDeltaResultModel.class, msgEnvelope.getMessage ()));
           }
         }, getFudgeContext ())));
@@ -145,6 +152,7 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_resultListeners) {
       _resultListeners.remove (listener);
       if (_resultListeners.isEmpty ()) {
+        s_logger.info ("Stopping JMS subscription");
         _resultListenerContainer.stop ();
         _resultListenerContainer.destroy ();
         _resultListenerContainer = null;
@@ -158,6 +166,7 @@ import com.opengamma.util.ArgumentChecker;
     synchronized (_deltaListeners) {
       _deltaListeners.remove (listener);
       if (_deltaListeners.isEmpty ()) {
+        s_logger.info ("Stopping JMS subscription");
         _deltaListenerContainer.stop ();
         _deltaListenerContainer.destroy ();
         _deltaListenerContainer = null;
