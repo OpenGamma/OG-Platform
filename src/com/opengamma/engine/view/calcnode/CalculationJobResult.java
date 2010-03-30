@@ -64,9 +64,8 @@ public class CalculationJobResult implements Serializable {
     return msg;
   }
   
-  public static CalculationJobResult fromFudgeMsg(FudgeMsgEnvelope envelope) {
-    FudgeFieldContainer msg = envelope.getMessage();
-    CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(envelope);
+  public static CalculationJobResult fromFudgeMsg(FudgeFieldContainer msg) {
+    CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(msg);
     
     InvocationResult result = InvocationResult.valueOf(msg.getString(INVOCATION_RESULT_FIELD_NAME));
     long duration = msg.getLong(DURATION_FIELD_NAME);

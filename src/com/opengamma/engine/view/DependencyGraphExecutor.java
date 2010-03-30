@@ -222,7 +222,6 @@ public class DependencyGraphExecutor {
         enqueued = true;
         _executingNodes.add(depNode);
         CalculationJobSpecification jobSpec = submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
-        _executingSpecifications.put(jobSpec, depNode);
       }
     }
     return enqueued;
@@ -300,6 +299,7 @@ public class DependencyGraphExecutor {
         desiredValues);
     
     s_logger.debug("Enqueuing job with specification {}", jobSpec);
+    _executingSpecifications.put(jobSpec, depNode);
     invokeJob(job);
     return jobSpec;
   }
@@ -314,7 +314,7 @@ public class DependencyGraphExecutor {
       public void messageReceived(
           FudgeContext fudgeContext,
           FudgeMsgEnvelope msgEnvelope) {
-        CalculationJobResult jobResult = CalculationJobResult.fromFudgeMsg(msgEnvelope);
+        CalculationJobResult jobResult = CalculationJobResult.fromFudgeMsg(msgEnvelope.getMessage());
         jobResultReceived(jobResult);
       }
       
