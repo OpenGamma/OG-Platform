@@ -12,8 +12,11 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.transport.FudgeRequestReceiver;
@@ -28,7 +31,7 @@ import com.opengamma.OpenGammaRuntimeException;
  * @author jim
  */
 public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
-  
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorQueryReceiver.class);
   private Map<CalculationJobSpecification, DependencyNode> _jobToDepNodeMap;
 
   @Override
@@ -39,7 +42,10 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
       DependentValueSpecificationsRequest request = (DependentValueSpecificationsRequest) message;
       DependencyNode dependencyNode = _jobToDepNodeMap.get(request.getJobSpec());
       Collection<ValueSpecification> valueSpecs = collectAllValueSpecifications(dependencyNode, new HashSet<ValueSpecification>());
-      return new DependentValueSpecificationsReply(request.getJobSpec(), valueSpecs).toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+      FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext(context.getFudgeContext());
+      MutableFudgeFieldContainer msg = fudgeSerializationContext.objectToFudgeMsg(new DependentValueSpecificationsReply(request.getJobSpec(), valueSpecs));
+      FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsReply.class);
+      return msg;
     } else {
       throw new OpenGammaRuntimeException("Unrecognized message object "+message);
     }
@@ -62,7 +68,6 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
    */
   public void setJobToDepNodeMap(Map<CalculationJobSpecification, DependencyNode> executingSpecifications) {
     _jobToDepNodeMap = executingSpecifications;
-    
   }
 
 }

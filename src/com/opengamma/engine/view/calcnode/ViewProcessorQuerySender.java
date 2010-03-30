@@ -6,10 +6,13 @@
 package com.opengamma.engine.view.calcnode;
 
 import java.util.Collection;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.value.ValueSpecification;
@@ -23,7 +26,7 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class ViewProcessorQuerySender implements FudgeMessageReceiver {
   private FudgeRequestSender _sender;
-  private SynchronousQueue<DependentValueSpecificationsReply> _specsQueue = new SynchronousQueue<DependentValueSpecificationsReply>();
+  private BlockingQueue<DependentValueSpecificationsReply> _specsQueue = new LinkedBlockingQueue<DependentValueSpecificationsReply>();
   public ViewProcessorQuerySender(FudgeRequestSender sender) {
     _sender = sender;
   }
@@ -31,7 +34,10 @@ public class ViewProcessorQuerySender implements FudgeMessageReceiver {
   public Collection<ValueSpecification> getDependentValueSpecifications(CalculationJobSpecification jobSpec) {
     synchronized (this) {
       // REVIEW: jim 29-March-2010 -- Is it okay to create the serialization context in line like this?
-      _sender.sendRequest(new DependentValueSpecificationsRequest(jobSpec).toFudgeMsg(new FudgeSerializationContext(_sender.getFudgeContext())), this);
+      FudgeSerializationContext ctx = new FudgeSerializationContext(_sender.getFudgeContext());
+      MutableFudgeFieldContainer msg = ctx.objectToFudgeMsg(new DependentValueSpecificationsRequest(jobSpec));
+      FudgeSerializationContext.addClassHeader (msg, DependentValueSpecificationsRequest.class);
+      _sender.sendRequest(msg, this);
       DependentValueSpecificationsReply reply = _specsQueue.remove();
       assert reply.getJobSpec() == jobSpec;
       return reply.getValueSpecification();
@@ -48,6 +54,8 @@ public class ViewProcessorQuerySender implements FudgeMessageReceiver {
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted while queuing reply", e);
       }
+    } else {
+      throw new OpenGammaRuntimeException("Unknown type of reply");
     }
   }
 }
