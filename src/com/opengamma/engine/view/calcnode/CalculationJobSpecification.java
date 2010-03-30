@@ -106,8 +106,9 @@ public class CalculationJobSpecification implements Serializable {
     fudgeMsg.add(JOB_ID_FIELD_NAME, getJobId());
   }
   
-  public static CalculationJobSpecification fromFudgeMsg(FudgeMsgEnvelope envelope) {
-    FudgeFieldContainer msg = envelope.getMessage();
+//  public static CalculationJobSpecification fromFudgeMsg(FudgeMsgEnvelope envelope) {
+//    FudgeFieldContainer msg = envelope.getMessage();
+  public static CalculationJobSpecification fromFudgeMsg(FudgeFieldContainer msg) {
     String viewName = msg.getString(VIEW_NAME_FIELD_NAME);
     long iterationTimestamp = msg.getLong(ITERATION_TIMESTAMP_FIELD_NAME);
     long jobId = msg.getLong(JOB_ID_FIELD_NAME);
