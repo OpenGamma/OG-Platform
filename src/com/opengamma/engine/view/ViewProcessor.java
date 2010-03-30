@@ -6,6 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -42,8 +43,6 @@ import com.opengamma.util.NamedThreadPoolFactory;
 // asynchronous support in any type of RESTful call for a super-slow (1-2 minutes) call.
 // Should we pre-load all views? Have an option for pre-loaded ones? What?
 
-// TODO kirk 2010-03-04 -- Needs a way to Spring-based inject things into the
-// compilation context.
 /**
  * 
  *
@@ -263,6 +262,11 @@ public class ViewProcessor implements Lifecycle {
     assertNotStarted();
     _localExecutorService = localExecutorService;
   }
+  
+  public void setViewProcessorConfigBean (final ViewProcessorConfigBean configBean) {
+    if (configBean == null) throw new NullPointerException ("configBean cannot be null");
+    configBean.visitCompilationContext (getCompilationContext ());
+  }
 
   /**
    * @return the compilationContext
@@ -290,6 +294,10 @@ public class ViewProcessor implements Lifecycle {
     return view;
   }
   
+  /**
+   * 
+   * @throws NoSuchElementException if a view with the name is not available
+   */
   public View initializeView(String viewName) {
     ArgumentChecker.checkNotNull(viewName, "View name");
     if(_viewsByName.containsKey(viewName)) {
@@ -297,7 +305,7 @@ public class ViewProcessor implements Lifecycle {
     }
     ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
     if(viewDefinition == null) {
-      throw new IllegalArgumentException("No view available with name \"" + viewName + "\"");
+      throw new NoSuchElementException("No view available with name \"" + viewName + "\"");
     }
     // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
     // might be based on the view definition (particularly for functions and the like).
@@ -407,6 +415,7 @@ public class ViewProcessor implements Lifecycle {
   public void start() {
     _lifecycleLock.lock();
     try {
+      s_logger.info("Starting on lifecycle call.");
       checkInjectedInputs();
       initializeExecutorService();
       initializeAllFunctionDefinitions();
@@ -432,7 +441,9 @@ public class ViewProcessor implements Lifecycle {
         }
       }
       _viewsByName.clear();
+      s_logger.info("All views terminated.");
       if(isLocalExecutorService()) {
+        s_logger.info("Shutting down local executor service.");
         getExecutorService().shutdown();
         try {
           getExecutorService().awaitTermination(90, TimeUnit.SECONDS);
@@ -440,8 +451,10 @@ public class ViewProcessor implements Lifecycle {
           s_logger.info("Interrupted while attempting to shutdown local executor service");
           Thread.interrupted();
         }
+        s_logger.info("Executor service shut down.");
       }
       _isStarted = false;
+      // REVIEW Andrew 2010-03-25 -- It might be coincidence, but if this gets called during undeploy/stop within a container the Bloomberg API explodes with a ton of NPEs.
     } finally {
       _lifecycleLock.unlock();
     }
