@@ -33,6 +33,11 @@ public class DependencyNode {
   private final ComputationTarget _computationTarget;
   private final Set<ValueRequirement> _inputRequirements = new HashSet<ValueRequirement>();
   private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+  /**
+   * The final output values that cannot be stripped from the {@link #_outputValues} set no matter
+   * whether there are no dependent nodes.
+   */
+  private final Set<ValueSpecification> _terminalOutputValues = new HashSet<ValueSpecification>();
   private final Set<DependencyNode> _inputNodes = new HashSet<DependencyNode>();
   private final Map<ValueRequirement, ValueSpecification> _requirementMapping =
     new HashMap<ValueRequirement, ValueSpecification>();
@@ -135,6 +140,9 @@ public class DependencyNode {
   public Set<ValueSpecification> removeUnnecessaryOutputs() {
     Set<ValueSpecification> unnecessaryOutputs = new HashSet<ValueSpecification>();
     for(ValueSpecification outputSpec : _outputValues) {
+      if(_terminalOutputValues.contains(outputSpec)) {
+        continue;
+      }
       boolean isUsed = false;
       for(DependencyNode dependantNode : _dependentNodes) {
         if(dependantNode.getInputRequirements().contains(outputSpec.getRequirementSpecification())) {
@@ -148,6 +156,10 @@ public class DependencyNode {
     }
     _outputValues.removeAll(unnecessaryOutputs);
     return unnecessaryOutputs;
+  }
+  
+  public void addTerminalOutputValue(ValueSpecification terminalOutput) {
+    _terminalOutputValues.add(terminalOutput);
   }
 
   @Override

@@ -148,8 +148,8 @@ public class DependencyGraphModel {
     ArgumentChecker.checkNotNull(requirements, "Value requirements");
     
     for(ValueRequirement requirement : requirements) {
-      // TODO kirk 2009-12-30 -- Need to do something with the top-most mappings.
-      addTargetRequirement(target, requirement);
+      Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
+      requirementPair.getFirst().addTerminalOutputValue(requirementPair.getSecond());
     }
   }
   

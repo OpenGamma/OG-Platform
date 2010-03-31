@@ -213,10 +213,11 @@ public class SingleComputationCycle {
   }
   
   protected void populateResultModel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+    ViewComputationCache computationCache = getComputationCache(depGraphModel.getCalculationConfigurationName());
     Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
     for(DependencyGraph depGraph : depGraphs) {
       for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
-        ComputedValue value = getComputationCache(depGraphModel.getCalculationConfigurationName()).getValue(outputSpec);
+        ComputedValue value = computationCache.getValue(outputSpec);
         if(value != null) {
           getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), value);
         }
