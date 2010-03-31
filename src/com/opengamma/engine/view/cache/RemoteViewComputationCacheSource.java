@@ -31,20 +31,17 @@ public class RemoteViewComputationCacheSource implements
   @Override
   public ViewComputationCache cloneCache(String viewName,
       String calculationConfigurationName, long timestamp) {
-    // TODO Auto-generated method stub
-    return null;
+    throw new UnsupportedOperationException("Cloning not yet supported.");
   }
 
   @Override
   public ViewComputationCache getCache(String viewName,
       String calculationConfigurationName, long timestamp) {
-    // TODO Auto-generated method stub
-    return null;
+    return new RemoteViewComputationCache(getRemoteClient(), new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp));
   }
 
   @Override
   public void releaseCaches(String viewName, long timestamp) {
-    // TODO Auto-generated method stub
-
+    getRemoteClient().purgeCache(viewName, null, timestamp);
   }
 }

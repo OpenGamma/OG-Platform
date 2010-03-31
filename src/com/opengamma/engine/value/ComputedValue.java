@@ -99,13 +99,32 @@ public class ComputedValue implements Serializable {
     MutableFudgeFieldContainer message = context.newMessage ();
     message.add (SPECIFICATION_KEY, getSpecification ().toFudgeMsg (context));
     context.objectToFudgeMsg (message, VALUE_KEY, null, getValue ());
+    // TODO kirk 2010-03-31 -- This needs to be enhanced to add in the class headers
+    // as appropriate.
     return message;
   }
   
   public static ComputedValue fromFudgeMsg (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     final FudgeField specification = message.getByName (SPECIFICATION_KEY);
-    final FudgeField value = message.getByName (VALUE_KEY);
-    return new ComputedValue (context.fieldValueToObject (ValueSpecification.class, specification), context.fieldValueToObject (value));
+    final FudgeField valueField = message.getByName (VALUE_KEY);
+    
+    // HOLY GROSS HACK BATMAN
+    // This is just to handle the very particular case of market data values (perhaps the most important
+    // ones) where we KNOW we just want a raw fudge message, rather than one which is going to represent
+    // a larger object. Just to get me up and running, this gross hack.
+    // And other stuff. Lord this is a problem.
+    
+    // FIXME kirk 2010-03-31 -- This needs to be properly fixed by someone who understands the context
+    // situation better than me.
+    ValueSpecification valueSpec = context.fieldValueToObject(ValueSpecification.class, specification);
+    Object valueObject = null;
+    if(ObjectUtils.equals(ValueRequirementNames.MARKET_DATA_HEADER, valueSpec.getRequirementSpecification().getValueName())) {
+      valueObject = valueField.getValue();
+    } else {
+      valueObject = context.fieldValueToObject (valueField);
+    }
+    
+    return new ComputedValue(valueSpec, valueObject);
   }
   
 }
