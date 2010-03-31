@@ -8,6 +8,8 @@ package com.opengamma.engine.view.server;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
@@ -17,6 +19,10 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 
 /* package */ class ResultListener implements ComputationResultListener, DeltaComputationResultListener {
+  
+  // TODO 2010-03-30 Andrew -- needs to give up if no clients are subscribing to a topic (and get itself unregistered with the underlying View)
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(ResultListener.class);
   
   private ViewProcessorResource _viewProcessor;
   private JmsByteArrayMessageSender _computationResults;
@@ -40,13 +46,13 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    System.out.println ("Write " + resultModel + " to JMS topic " + _computationResults);
+    s_logger.info ("Write {} to JMS {}", resultModel, _computationResults);
     _computationResults.send (getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (resultModel)));
   }
 
   @Override
   public void deltaResultAvailable(ViewDeltaResultModel deltaModel) {
-    System.out.println ("Write " + deltaModel + " to JMS topic " + _deltaResults);
+    s_logger.info ("Write {} to JMS {}", deltaModel, _deltaResults);
     _deltaResults.send (getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (deltaModel)));
   }
   
@@ -57,7 +63,7 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   public synchronized String getComputationResultChannel (final ViewClient viewClient) {
     if (_computationResults == null) {
       final String topic = getTopicName (viewClient, "computation");
-      System.out.println ("Set up JMS topic " + topic);
+      s_logger.info ("Set up JMS {}", topic);
       _computationResults = new JmsByteArrayMessageSender (topic, getViewProcessor ().getJmsTemplate ());
       viewClient.addComputationResultListener (this);
     }
@@ -67,7 +73,7 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   public synchronized String getDeltaResultChannel (final ViewClient viewClient) {
     if (_deltaResults == null) {
       final String topic = getTopicName (viewClient, "delta");
-      System.out.println ("Set up JMS topic " + topic);
+      s_logger.info ("Set up JMS {}", topic);
       _deltaResults = new JmsByteArrayMessageSender (topic, getViewProcessor ().getJmsTemplate ());
       viewClient.addDeltaResultListener (this);
     }
