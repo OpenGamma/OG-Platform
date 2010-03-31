@@ -133,7 +133,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   protected static ValueSpecification createResultSpecification(final Security security) {
-    final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, security.getIdentityKey());
+    final ValueRequirement resultRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, security);
     final ValueSpecification resultSpec = new ValueSpecification(resultRequirement);
     return resultSpec;
   }
