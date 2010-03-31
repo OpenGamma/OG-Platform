@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.forward.definition;
+package com.opengamma.financial.model.future.definition;
 
 import com.opengamma.util.time.Expiry;
 
@@ -11,10 +11,10 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  *
  */
-public class ForwardDefinition {
+public abstract class FutureDefinition {
   private final Expiry _expiry;
 
-  public ForwardDefinition(final Expiry expiry) {
+  public FutureDefinition(final Expiry expiry) {
     if (expiry == null)
       throw new IllegalArgumentException("Expiry was null");
     _expiry = expiry;
@@ -50,7 +50,7 @@ public class ForwardDefinition {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final ForwardDefinition other = (ForwardDefinition) obj;
+    final FutureDefinition other = (FutureDefinition) obj;
     if (_expiry == null) {
       if (other._expiry != null)
         return false;

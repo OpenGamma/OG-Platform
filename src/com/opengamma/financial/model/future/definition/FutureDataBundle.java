@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.forward.definition;
+package com.opengamma.financial.model.future.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -13,12 +13,12 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
  * @author emcleod
  *
  */
-public abstract class ForwardDataBundle {
+public abstract class FutureDataBundle {
   private final DiscountCurve _discountCurve;
   private final double _spot;
   private final ZonedDateTime _date;
 
-  public ForwardDataBundle(final DiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
+  public FutureDataBundle(final DiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
     if (discountCurve == null)
       throw new IllegalArgumentException("Discount curve was null");
     if (spot < 0)
@@ -42,11 +42,11 @@ public abstract class ForwardDataBundle {
     return _date;
   }
 
-  public abstract ForwardDataBundle withSpot(double newSpot);
+  public abstract FutureDataBundle withSpot(double newSpot);
 
-  public abstract ForwardDataBundle withDate(ZonedDateTime newDate);
+  public abstract FutureDataBundle withDate(ZonedDateTime newDate);
 
-  public abstract ForwardDataBundle withDiscountCurve(DiscountCurve newCurve);
+  public abstract FutureDataBundle withDiscountCurve(DiscountCurve newCurve);
 
   /*
    * (non-Javadoc)
@@ -78,7 +78,7 @@ public abstract class ForwardDataBundle {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final ForwardDataBundle other = (ForwardDataBundle) obj;
+    final FutureDataBundle other = (FutureDataBundle) obj;
     if (_date == null) {
       if (other._date != null)
         return false;
@@ -93,4 +93,5 @@ public abstract class ForwardDataBundle {
       return false;
     return true;
   }
+
 }

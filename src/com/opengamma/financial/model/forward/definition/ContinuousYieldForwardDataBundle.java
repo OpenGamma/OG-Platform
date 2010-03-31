@@ -32,6 +32,8 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public ForwardDataBundle withDate(final ZonedDateTime newDate) {
+    if (newDate == null)
+      throw new IllegalArgumentException("New date was null");
     return new ContinuousYieldForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), newDate);
   }
 
@@ -44,6 +46,8 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public ForwardDataBundle withDiscountCurve(final DiscountCurve newCurve) {
+    if (newCurve == null)
+      throw new IllegalArgumentException("New curve was null");
     return new ContinuousYieldForwardDataBundle(getYield(), newCurve, getSpot(), getDate());
   }
 
@@ -54,6 +58,8 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public ForwardDataBundle withSpot(final double newSpot) {
+    if (newSpot < 0)
+      throw new IllegalArgumentException("New spot was negative");
     return new ContinuousYieldForwardDataBundle(getYield(), getDiscountCurve(), newSpot, getDate());
   }
 
