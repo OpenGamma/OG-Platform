@@ -1,27 +1,36 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
  * 
  * @author emcleod
  */
 public class InterpolatedDiscountCurve extends DiscountCurve {
+  private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
+  private static final String RATE_DATA_FIELD_NAME = "rateData";
+  private static final String DF_DATA_FIELD_NAME = "dfData";
   private static final Logger s_Log = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
   private final SortedMap<Double, Double> _dfData;
@@ -54,6 +63,12 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
       sortedRates.put(entry.getKey(), entry.getValue());
       sortedDF.put(entry.getKey(), Math.exp(-entry.getValue() * entry.getKey()));
     }
+    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
+    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
+    _interpolator = interpolator;
+  }
+
+  protected InterpolatedDiscountCurve(final SortedMap<Double, Double> sortedRates, final SortedMap<Double, Double> sortedDF, final Interpolator1D interpolator) {
     _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
     _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
     _interpolator = interpolator;
@@ -192,4 +207,44 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
       return false;
     return true;
   }
+
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    message.add(INTERPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(getInterpolator()));
+    message.add(RATE_DATA_FIELD_NAME, encodeDoubleDoubleMap(context, _rateData));
+    message.add(DF_DATA_FIELD_NAME, encodeDoubleDoubleMap(context, _dfData));
+    return message;
+  }
+
+  public static InterpolatedDiscountCurve fromFudgeMsg(final FudgeFieldContainer message) {
+    final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(message.getString(INTERPOLATOR_FIELD_NAME));
+    final SortedMap<Double, Double> rateData = decodeSortedDoubleDoubleMap(message.getMessage(RATE_DATA_FIELD_NAME));
+    final SortedMap<Double, Double> dfData = decodeSortedDoubleDoubleMap(message.getMessage(DF_DATA_FIELD_NAME));
+    return new InterpolatedDiscountCurve(rateData, dfData, interpolator);
+  }
+
+  // REVIEW kirk 2010-03-31 -- These probably belong in a utility class
+  // methinks.
+  public static MutableFudgeFieldContainer encodeDoubleDoubleMap(final FudgeSerializationContext context, final Map<Double, Double> data) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    for (final Map.Entry<Double, Double> entry : data.entrySet()) {
+      message.add("key", entry.getKey());
+      message.add("value", entry.getValue());
+    }
+    return message;
+  }
+
+  public static SortedMap<Double, Double> decodeSortedDoubleDoubleMap(final FudgeFieldContainer msg) {
+    final SortedMap<Double, Double> result = new TreeMap<Double, Double>();
+    final Iterator<FudgeField> keyIter = msg.getAllByName("key").iterator();
+    final Iterator<FudgeField> valueIter = msg.getAllByName("value").iterator();
+    while (keyIter.hasNext()) {
+      assert valueIter.hasNext();
+      final FudgeField keyField = keyIter.next();
+      final FudgeField valueField = valueIter.next();
+      result.put((Double) keyField.getValue(), (Double) valueField.getValue());
+    }
+    return result;
+  }
+
 }
