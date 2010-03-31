@@ -1,3 +1,5 @@
+CachePurgeRequest.java
+CachePurgeResponse.java
 RemoteCacheMessage.java
 ValueLookupRequest.java
 ValueLookupResponse.java

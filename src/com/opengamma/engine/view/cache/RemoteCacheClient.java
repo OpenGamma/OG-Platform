@@ -127,6 +127,31 @@ public class RemoteCacheClient implements FudgeMessageReceiver {
     // Nothing to check.
   }
   
+  public int purgeCache(String viewName, String calcConfigName, long timestamp) {
+    long correlationId = _nextCorrelationId.getAndIncrement();
+    s_logger.info("Submitting Purge {} {} {} - Correlation {}",
+        new Object[] {viewName, calcConfigName, timestamp, correlationId} );
+    
+    CachePurgeRequest request = new CachePurgeRequest();
+    request.setCorrelationId(correlationId);
+    request.setViewName(viewName);
+    if(calcConfigName != null) {
+      request.setCalculationConfigurationName(calcConfigName);
+    }
+    request.setSnapshot(timestamp);
+
+    FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
+    MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
+    FudgeSerializationContext.addClassHeader (requestMsg, CachePurgeRequest.class);
+    
+    RemoteCacheMessage resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
+    assert resultValue instanceof CachePurgeResponse;
+    CachePurgeResponse purgeResponse = (CachePurgeResponse) resultValue;
+    s_logger.info("Purge {} {} {} purged {} caches - Correlation {}",
+        new Object[] {viewName, calcConfigName, timestamp, purgeResponse.getNumPurged(), correlationId} );
+    return purgeResponse.getNumPurged();
+  }
+  
   @Override
   public void messageReceived(FudgeContext fudgeContext,
       FudgeMsgEnvelope msgEnvelope) {

@@ -5,11 +5,15 @@
  */
 package com.opengamma.engine.view.cache;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -35,6 +39,7 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     new ConcurrentHashMap<ValueSpecification, Long>();
   private final ConcurrentMap<ViewComputationCacheKey, Map<Long, ComputedValue>> _values =
     new ConcurrentHashMap<ViewComputationCacheKey, Map<Long, ComputedValue>>();
+  private final Lock _purgeLock = new ReentrantLock();
 
   @Override
   public FudgeFieldContainer requestReceived(
@@ -48,6 +53,8 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
       response = handleValueLookupRequest(context.getFudgeContext(), (ValueLookupRequest) request);
     } else if(request instanceof ValuePutRequest) {
       response = handleValuePutRequest(context.getFudgeContext(), (ValuePutRequest) request);
+    } else if(request instanceof CachePurgeRequest) {
+      response = handleCachePurgeRequest(context.getFudgeContext(), (CachePurgeRequest) request);
     } else {
       s_logger.warn("Got an unhandled request type: {}", request);
     }
@@ -117,6 +124,42 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     cacheMap.put(request.getSpecificationId(), request.getValue());
     ValuePutResponse putResponse = new ValuePutResponse(request.getCorrelationId());
     return putResponse;
+  }
+
+  /**
+   * @param fudgeContext
+   * @param request
+   * @return
+   */
+  private Object handleCachePurgeRequest(FudgeContext fudgeContext,
+      CachePurgeRequest request) {
+    s_logger.info("Purging on request {}", request);
+    int nPurged = 0;
+    _purgeLock.lock();
+    try {
+      Iterator<Map.Entry<ViewComputationCacheKey, Map<Long, ComputedValue>>> entryIter = _values.entrySet().iterator();
+      while(entryIter.hasNext()) {
+        Map.Entry<ViewComputationCacheKey, Map<Long, ComputedValue>> entry = entryIter.next();
+        ViewComputationCacheKey cacheKey = entry.getKey();
+        if(!ObjectUtils.equals(request.getViewName(), cacheKey.getViewName())) {
+          continue;
+        }
+        if(cacheKey.getSnapshotTimestamp() != request.getSnapshot()) {
+          continue;
+        }
+        if(request.getCalculationConfigurationName() != null) {
+          if(!ObjectUtils.equals(request.getCalculationConfigurationName(), cacheKey.getCalculationConfigurationName())) {
+            continue;
+          }
+        }
+        entryIter.remove();
+        nPurged++;
+      }
+    } finally {
+      _purgeLock.unlock();
+    }
+    CachePurgeResponse purgeResponse = new CachePurgeResponse(request.getCorrelationId(), nPurged);
+    return purgeResponse;
   }
 
 }

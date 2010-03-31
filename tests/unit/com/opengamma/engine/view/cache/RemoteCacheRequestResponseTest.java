@@ -8,6 +8,7 @@ package com.opengamma.engine.view.cache;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -177,5 +178,44 @@ public class RemoteCacheRequestResponseTest {
     
     ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
+    // TODO kirk 2010-03-31 -- More Checks
+  }
+
+  @Test(timeout=10000l)
+  public void singleThreadPutLoadPurgeCalcConfigSpecifiedLoad() throws InterruptedException {
+    RemoteCacheServer server = new RemoteCacheServer();
+    FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
+    RemoteCacheClient client = new RemoteCacheClient(conduit);
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(new IdentificationDomain("Kirk"), "Value"))));
+    ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
+    
+    long timestamp = System.currentTimeMillis();
+    client.putValue("View1", "Config1", timestamp, inputValue);
+    
+    ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNotNull(resultValue);
+    
+    client.purgeCache("View1", "Config1", timestamp);
+    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNull(resultValue);
+  }
+
+  @Test(timeout=10000l)
+  public void singleThreadPutLoadPurgeCalcConfigUnspecifiedLoad() throws InterruptedException {
+    RemoteCacheServer server = new RemoteCacheServer();
+    FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
+    RemoteCacheClient client = new RemoteCacheClient(conduit);
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(new IdentificationDomain("Kirk"), "Value"))));
+    ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
+    
+    long timestamp = System.currentTimeMillis();
+    client.putValue("View1", "Config1", timestamp, inputValue);
+    
+    ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNotNull(resultValue);
+    
+    client.purgeCache("View1", null, timestamp);
+    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNull(resultValue);
   }
 }
