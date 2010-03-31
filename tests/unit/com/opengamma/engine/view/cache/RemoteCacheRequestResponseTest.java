@@ -179,6 +179,12 @@ public class RemoteCacheRequestResponseTest {
     ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
     // TODO kirk 2010-03-31 -- More Checks
+    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNotNull(resultValue);
+    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNotNull(resultValue);
+    resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    assertNotNull(resultValue);
   }
 
   @Test(timeout=10000l)
