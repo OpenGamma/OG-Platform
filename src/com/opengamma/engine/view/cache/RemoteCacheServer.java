@@ -27,6 +27,9 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 
+// REVIEW kirk 2010-03-31 -- This is a candidate for movement into com.og.u.transport
+// per the initial work on UTL-26 if we can come up with a better (non-Closure) way to
+// handle the dispatches.
 /**
  * 
  *
