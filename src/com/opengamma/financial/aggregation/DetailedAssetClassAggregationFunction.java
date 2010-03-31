@@ -16,9 +16,11 @@ import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
@@ -44,6 +46,8 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /*package*/ static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
   /*package*/ static final String METAL_FUTURES = "Metal Futures";
   /*package*/ static final String ENERGY_FUTURES = "Energy Futures";
+  static final String INDEX_FUTURES = "Index Futures";
+  static final String STOCK_FUTURES = "Stock Futures";
   
   @Override
   public String classifyPosition(Position position) {
@@ -120,6 +124,16 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitMetalFutureSecurity(MetalFutureSecurity security) {
           return METAL_FUTURES;
+        }
+
+        @Override
+        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+          return INDEX_FUTURES;
+        }
+
+        @Override
+        public String visitStockFutureSecurity(StockFutureSecurity security) {
+          return STOCK_FUTURES;
         }
       });
     } else {

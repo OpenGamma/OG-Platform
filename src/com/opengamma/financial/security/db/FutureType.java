@@ -12,8 +12,10 @@ import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.FutureSecurityVisitor;
+import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
+import com.opengamma.financial.security.StockFutureSecurity;
 
 public enum FutureType {
   AGRICULTURE,
@@ -21,7 +23,9 @@ public enum FutureType {
   FX,
   ENERGY,
   INTEREST_RATE,
-  METAL;
+  METAL,
+  STOCK,
+  INDEX;
   
   public static FutureType identify (final FutureSecurity object) {
     return object.accept (new FutureSecurityVisitor<FutureType> () {
@@ -59,6 +63,16 @@ public enum FutureType {
         return METAL;
       }
 
+      @Override
+      public FutureType visitIndexFutureSecurity(IndexFutureSecurity security) {
+        return INDEX;
+      }
+
+      @Override
+      public FutureType visitStockFutureSecurity(StockFutureSecurity security) {
+        return STOCK;
+      }
+
     });
   }
   
@@ -69,6 +83,8 @@ public enum FutureType {
     public T visitEnergyFutureType ();
     public T visitInterestRateFutureType ();
     public T visitMetalFutureType ();
+    public T visitIndexFutureType();
+    public T visitStockFutureType();
   }
   
   public <T> T accept (final Visitor<T> visitor) {
@@ -79,6 +95,8 @@ public enum FutureType {
     case FX : return visitor.visitCurrencyFutureType ();
     case INTEREST_RATE : return visitor.visitInterestRateFutureType ();
     case METAL : return visitor.visitMetalFutureType ();
+    case INDEX : return visitor.visitIndexFutureType();
+    case STOCK : return visitor.visitStockFutureType();
     default : throw new OpenGammaRuntimeException ("unexpected FutureType: " + this);
     }
   }

@@ -6,9 +6,7 @@
 package com.opengamma.financial.analytics.model.option;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
@@ -22,8 +20,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -44,56 +40,6 @@ import com.opengamma.util.time.Expiry;
  */
 public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _model = new BlackScholesMertonModel();
-  private static final Map<String, Greek> AVAILABLE_GREEKS;
-
-  static {
-    AVAILABLE_GREEKS = new TreeMap<String, Greek>();
-    AVAILABLE_GREEKS.put(ValueRequirementNames.FAIR_VALUE, Greek.FAIR_PRICE);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.DELTA, Greek.DELTA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.DELTA_BLEED, Greek.DELTA_BLEED);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.STRIKE_DELTA, Greek.STRIKE_DELTA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.DRIFTLESS_DELTA, Greek.DRIFTLESS_THETA);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.GAMMA, Greek.GAMMA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.GAMMA_P, Greek.GAMMA_P);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.STRIKE_GAMMA, Greek.STRIKE_GAMMA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.GAMMA_BLEED, Greek.GAMMA_BLEED);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.GAMMA_P_BLEED, Greek.GAMMA_P_BLEED);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VEGA, Greek.VEGA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VEGA_P, Greek.VEGA_P);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VARIANCE_VEGA, Greek.VARIANCE_VEGA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VEGA_BLEED, Greek.VEGA_BLEED);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.THETA, Greek.THETA);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.RHO, Greek.RHO);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.CARRY_RHO, Greek.CARRY_RHO);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.ZETA, Greek.ZETA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.ZETA_BLEED, Greek.ZETA_BLEED);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.DZETA_DVOL, Greek.DZETA_DVOL);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.ELASTICITY, Greek.ELASTICITY);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.PHI, Greek.PHI);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.ZOMMA, Greek.ZOMMA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.ZOMMA_P, Greek.ZOMMA_P);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.ULTIMA, Greek.ULTIMA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VARIANCE_ULTIMA, Greek.VARIANCE_ULTIMA);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.SPEED, Greek.SPEED);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.SPEED_P, Greek.SPEED_P);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VANNA, Greek.VANNA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VARIANCE_VANNA, Greek.VARIANCE_VANNA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.DVANNA_DVOL, Greek.DVANNA_DVOL);
-
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VOMMA, Greek.VOMMA);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VOMMA_P, Greek.VOMMA_P);
-    AVAILABLE_GREEKS.put(ValueRequirementNames.VARIANCE_VOMMA, Greek.VARIANCE_VOMMA);
-  }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
