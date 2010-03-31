@@ -17,8 +17,10 @@ import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.FutureSecurityVisitor;
+import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
+import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 
 /* package */ class FutureSecurityBeanOperation extends Converters implements BeanOperation<FutureSecurity,FutureSecurityBean> {
@@ -109,6 +111,18 @@ import com.opengamma.id.DomainSpecificIdentifier;
             );
       }
 
+      @Override
+      public FutureSecurity visitIndexFutureType() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public FutureSecurity visitStockFutureType() {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
     });
   }
 
@@ -181,6 +195,18 @@ import com.opengamma.id.DomainSpecificIdentifier;
       @Override
       public Boolean visitMetalFutureSecurity(MetalFutureSecurity security) {
         return beanEquals (security);
+      }
+
+      @Override
+      public Boolean visitIndexFutureSecurity(IndexFutureSecurity security) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public Boolean visitStockFutureSecurity(StockFutureSecurity security) {
+        // TODO Auto-generated method stub
+        return null;
       }
       
     });
@@ -258,6 +284,18 @@ import com.opengamma.id.DomainSpecificIdentifier;
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
         return createBean (security);
+      }
+
+      @Override
+      public FutureSecurityBean visitIndexFutureSecurity(IndexFutureSecurity security) {
+        // TODO Auto-generated method stub
+        return null;
+      }
+
+      @Override
+      public FutureSecurityBean visitStockFutureSecurity(StockFutureSecurity security) {
+        // TODO Auto-generated method stub
+        return null;
       }
     });
   }

@@ -18,9 +18,11 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
@@ -121,6 +123,16 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitMetalFutureSecurity(MetalFutureSecurity security) {
           return visitFuture (security);
+        }
+
+        @Override
+        public String visitIndexFutureSecurity(IndexFutureSecurity security) {
+          return visitFuture(security);
+        }
+
+        @Override
+        public String visitStockFutureSecurity(StockFutureSecurity security) {
+          return visitFuture(security);
         }
       });
     } else {
