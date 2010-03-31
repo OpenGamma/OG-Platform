@@ -53,12 +53,12 @@ public class ViewCalculationResultModelImpl implements Serializable,
 
   protected void recursiveAddPortfolio(PortfolioNode node) {
     for (Position position : node.getPositions()) {
-      ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getIdentityKey());
+      ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(position);
       if(!_values.containsKey(targetSpec)) {
         _values.put(targetSpec, new HashMap<String, ComputedValue>());
       }
     }
-    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey());
+    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(node);
     if(!_values.containsKey(targetSpec)) {
       _values.put(targetSpec, new HashMap<String, ComputedValue>());
     }

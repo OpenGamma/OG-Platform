@@ -5,9 +5,8 @@
  */
 package com.opengamma.engine;
 
-import java.util.Collection;
-
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 
@@ -22,7 +21,6 @@ public enum ComputationTargetType {
   POSITION,
   MULTIPLE_POSITIONS;
   
-  @SuppressWarnings("unchecked")
   public static boolean isCompatible(ComputationTargetType computationTargetType, Object computationTarget) {
     switch(computationTargetType) {
     case PRIMITIVE:
@@ -32,16 +30,7 @@ public enum ComputationTargetType {
     case POSITION:
       return (computationTarget instanceof Position);
     case MULTIPLE_POSITIONS:
-      if(!(computationTarget instanceof Collection)) {
-        return false;
-      }
-      Collection collection = (Collection) computationTarget;
-      for(Object obj : collection) {
-        if(!(obj instanceof Position)) {
-          return false;
-        }
-      }
-      return true;
+      return (computationTarget instanceof PortfolioNode);
     default:
       throw new OpenGammaRuntimeException("Unhandled computation target type");
     }
@@ -57,7 +46,7 @@ public enum ComputationTargetType {
     if(computationTarget instanceof Position) {
       return POSITION;
     }
-    if(computationTarget instanceof Collection<?>) {
+    if(computationTarget instanceof PortfolioNode) {
       return MULTIPLE_POSITIONS;
     }
     return null;
