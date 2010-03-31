@@ -14,7 +14,7 @@ import com.opengamma.util.time.Expiry;
  * @author Andrew
  */
 public class FXFutureSecurity extends FutureSecurity {
-  
+  //TODO there's no reason why this shouldn't be used for FX cross futures, which means it will also need a currency for the trade itself
   private final Currency _numerator;
   private final Currency _denominator;
   private final double _multiplicationFactor;
