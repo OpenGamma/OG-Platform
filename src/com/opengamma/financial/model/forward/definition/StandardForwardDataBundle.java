@@ -13,16 +13,24 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
  * @author emcleod
  *
  */
-public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
+public class StandardForwardDataBundle extends ForwardDataBundle {
   private final double _yield;
+  private final double _storageCost;
 
-  public ContinuousYieldForwardDataBundle(final double yield, final DiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
+  public StandardForwardDataBundle(final double yield, final DiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
     super(discountCurve, spot, date);
+    if (storageCost < 0)
+      throw new IllegalArgumentException("Storage cost cannot be negative");
     _yield = yield;
+    _storageCost = storageCost;
   }
 
   public double getYield() {
     return _yield;
+  }
+
+  public double getStorageCost() {
+    return _storageCost;
   }
 
   /*
@@ -34,7 +42,7 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
   public ForwardDataBundle withDate(final ZonedDateTime newDate) {
     if (newDate == null)
       throw new IllegalArgumentException("New date was null");
-    return new ContinuousYieldForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), newDate);
+    return new StandardForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), newDate, getStorageCost());
   }
 
   /*
@@ -48,7 +56,7 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
   public ForwardDataBundle withDiscountCurve(final DiscountCurve newCurve) {
     if (newCurve == null)
       throw new IllegalArgumentException("New curve was null");
-    return new ContinuousYieldForwardDataBundle(getYield(), newCurve, getSpot(), getDate());
+    return new StandardForwardDataBundle(getYield(), newCurve, getSpot(), getDate(), getStorageCost());
   }
 
   /*
@@ -60,11 +68,17 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
   public ForwardDataBundle withSpot(final double newSpot) {
     if (newSpot < 0)
       throw new IllegalArgumentException("New spot was negative");
-    return new ContinuousYieldForwardDataBundle(getYield(), getDiscountCurve(), newSpot, getDate());
+    return new StandardForwardDataBundle(getYield(), getDiscountCurve(), newSpot, getDate(), getStorageCost());
+  }
+
+  public ForwardDataBundle withStorageCost(final double newStorageCost) {
+    if (newStorageCost < 0)
+      throw new IllegalArgumentException("New storage cost was negative");
+    return new StandardForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), getDate(), newStorageCost);
   }
 
   public ForwardDataBundle withYield(final double newYield) {
-    return new ContinuousYieldForwardDataBundle(newYield, getDiscountCurve(), getSpot(), getDate());
+    return new StandardForwardDataBundle(newYield, getDiscountCurve(), getSpot(), getDate(), getStorageCost());
   }
 
   /*
@@ -77,6 +91,8 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
     final int prime = 31;
     int result = super.hashCode();
     long temp;
+    temp = Double.doubleToLongBits(_storageCost);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_yield);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -95,7 +111,9 @@ public class ContinuousYieldForwardDataBundle extends ForwardDataBundle {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final ContinuousYieldForwardDataBundle other = (ContinuousYieldForwardDataBundle) obj;
+    final StandardForwardDataBundle other = (StandardForwardDataBundle) obj;
+    if (Double.doubleToLongBits(_storageCost) != Double.doubleToLongBits(other._storageCost))
+      return false;
     if (Double.doubleToLongBits(_yield) != Double.doubleToLongBits(other._yield))
       return false;
     return true;

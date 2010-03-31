@@ -13,19 +13,19 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.SingleGreekResult;
-import com.opengamma.financial.model.forward.definition.ContinuousYieldForwardDataBundle;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
+import com.opengamma.financial.model.forward.definition.StandardForwardDataBundle;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * @author emcleod
  *
  */
-public class ContinuousYieldForwardModel implements ForwardModel<ContinuousYieldForwardDataBundle> {
-  private static final Logger s_Log = LoggerFactory.getLogger(ContinuousYieldForwardModel.class);
+public class CostOfCarryForwardModel implements ForwardModel<StandardForwardDataBundle> {
+  private static final Logger s_Log = LoggerFactory.getLogger(CostOfCarryForwardModel.class);
 
   @Override
-  public GreekResultCollection getGreeks(final ForwardDefinition definition, final ContinuousYieldForwardDataBundle data, final Set<Greek> requiredGreeks) {
+  public GreekResultCollection getGreeks(final ForwardDefinition definition, final StandardForwardDataBundle data, final Set<Greek> requiredGreeks) {
     if (definition == null)
       throw new IllegalArgumentException("Forward definition was null");
     if (data == null)
@@ -43,8 +43,9 @@ public class ContinuousYieldForwardModel implements ForwardModel<ContinuousYield
     final GreekResultCollection result = new GreekResultCollection();
     final double t = DateUtil.getDifferenceInYears(data.getDate(), definition.getExpiry().getExpiry());
     final double r = data.getDiscountCurve().getInterestRate(t);
-    final double d = data.getYield();
-    result.put(Greek.FAIR_PRICE, new SingleGreekResult(data.getSpot() * Math.exp(t * (r - d))));
+    final double q = data.getYield();
+    final double s = data.getStorageCost();
+    result.put(Greek.FAIR_PRICE, new SingleGreekResult((data.getSpot() + s) * Math.exp(t * (r - q))));
     return result;
   }
 }

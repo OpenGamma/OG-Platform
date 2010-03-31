@@ -11,7 +11,7 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  *
  */
-public abstract class FutureDefinition {
+public class FutureDefinition {
   private final Expiry _expiry;
 
   public FutureDefinition(final Expiry expiry) {

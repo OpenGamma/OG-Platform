@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.forward.definition;
+package com.opengamma.financial.model.future.definition;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,31 +20,31 @@ import com.opengamma.util.time.DateUtil;
  * @author emcleod
  *
  */
-public class FXForwardDataBundleTest {
+public class FXFutureDataBundleTest {
   private static final DiscountCurve FOREIGN = new ConstantInterestRateDiscountCurve(0.03);
   private static final DiscountCurve DOMESTIC = new ConstantInterestRateDiscountCurve(0.05);
   private static final double SPOT = 1.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
-  private static final FXForwardDataBundle DATA = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
+  private static final FXFutureDataBundle DATA = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDomesticCurveConstructor() {
-    new FXForwardDataBundle(null, FOREIGN, SPOT, DATE);
+    new FXFutureDataBundle(null, FOREIGN, SPOT, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testForeignCurveConstructor() {
-    new FXForwardDataBundle(DOMESTIC, null, -SPOT, DATE);
+    new FXFutureDataBundle(DOMESTIC, null, -SPOT, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeSpotConstructor() {
-    new FXForwardDataBundle(DOMESTIC, FOREIGN, -SPOT, DATE);
+    new FXFutureDataBundle(DOMESTIC, FOREIGN, -SPOT, DATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDateConstructor() {
-    new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, null);
+    new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -69,16 +69,16 @@ public class FXForwardDataBundleTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    ForwardDataBundle data = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
+    FutureDataBundle data = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
     assertEquals(data, DATA);
     assertEquals(data.hashCode(), DATA.hashCode());
-    data = new FXForwardDataBundle(new ConstantInterestRateDiscountCurve(0.12), FOREIGN, SPOT, DATE);
+    data = new FXFutureDataBundle(new ConstantInterestRateDiscountCurve(0.12), FOREIGN, SPOT, DATE);
     assertFalse(data.equals(DATA));
-    data = new FXForwardDataBundle(DOMESTIC, new ConstantInterestRateDiscountCurve(0.07), SPOT, DATE);
+    data = new FXFutureDataBundle(DOMESTIC, new ConstantInterestRateDiscountCurve(0.07), SPOT, DATE);
     assertFalse(data.equals(DATA));
-    data = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT - 1, DATE);
+    data = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT - 1, DATE);
     assertFalse(data.equals(DATA));
-    data = new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, DATE.plusDays(4));
+    data = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, DATE.plusDays(4));
     assertFalse(data.equals(DATA));
 
   }
@@ -88,9 +88,9 @@ public class FXForwardDataBundleTest {
     final DiscountCurve curve = new ConstantInterestRateDiscountCurve(0.02);
     final double spot = 2;
     final ZonedDateTime date = DateUtil.getUTCDate(2010, 2, 1);
-    assertEquals(DATA.withDate(date), new FXForwardDataBundle(DOMESTIC, FOREIGN, SPOT, date));
-    assertEquals(DATA.withDiscountCurve(curve), new FXForwardDataBundle(curve, FOREIGN, SPOT, DATE));
-    assertEquals(DATA.withForeignCurve(curve), new FXForwardDataBundle(DOMESTIC, curve, SPOT, DATE));
-    assertEquals(DATA.withSpot(spot), new FXForwardDataBundle(DOMESTIC, FOREIGN, spot, DATE));
+    assertEquals(DATA.withDate(date), new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, date));
+    assertEquals(DATA.withDiscountCurve(curve), new FXFutureDataBundle(curve, FOREIGN, SPOT, DATE));
+    assertEquals(DATA.withForeignCurve(curve), new FXFutureDataBundle(DOMESTIC, curve, SPOT, DATE));
+    assertEquals(DATA.withSpot(spot), new FXFutureDataBundle(DOMESTIC, FOREIGN, spot, DATE));
   }
 }

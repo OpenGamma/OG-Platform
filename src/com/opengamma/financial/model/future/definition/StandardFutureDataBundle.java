@@ -17,8 +17,10 @@ public class StandardFutureDataBundle extends FutureDataBundle {
   private final double _yield;
   private final double _storageCost;
 
-  public StandardFutureDataBundle(final DiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double yield, final double storageCost) {
+  public StandardFutureDataBundle(final double yield, final DiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
     super(discountCurve, spot, date);
+    if (storageCost < 0)
+      throw new IllegalArgumentException("Storage cost cannot be negative");
     _yield = yield;
     _storageCost = storageCost;
   }
@@ -31,27 +33,35 @@ public class StandardFutureDataBundle extends FutureDataBundle {
     return _storageCost;
   }
 
-  public FutureDataBundle withyield(final double newYield) {
-    return new StandardFutureDataBundle(getDiscountCurve(), getSpot(), getDate(), newYield, getStorageCost());
+  public FutureDataBundle withYield(final double newYield) {
+    return new StandardFutureDataBundle(newYield, getDiscountCurve(), getSpot(), getDate(), getStorageCost());
   }
 
   @Override
   public FutureDataBundle withDate(final ZonedDateTime newDate) {
-    return new StandardFutureDataBundle(getDiscountCurve(), getSpot(), newDate, getYield(), getStorageCost());
+    if (newDate == null)
+      throw new IllegalArgumentException("New date was null");
+    return new StandardFutureDataBundle(getYield(), getDiscountCurve(), getSpot(), newDate, getStorageCost());
   }
 
   @Override
   public FutureDataBundle withDiscountCurve(final DiscountCurve newCurve) {
-    return new StandardFutureDataBundle(newCurve, getSpot(), getDate(), getYield(), getStorageCost());
+    if (newCurve == null)
+      throw new IllegalArgumentException("New curve was null");
+    return new StandardFutureDataBundle(getYield(), newCurve, getSpot(), getDate(), getStorageCost());
   }
 
   @Override
   public FutureDataBundle withSpot(final double newSpot) {
-    return new StandardFutureDataBundle(getDiscountCurve(), newSpot, getDate(), getYield(), getStorageCost());
+    if (newSpot < 0)
+      throw new IllegalArgumentException("New spot was negative");
+    return new StandardFutureDataBundle(getYield(), getDiscountCurve(), newSpot, getDate(), getStorageCost());
   }
 
   public FutureDataBundle withStorageCost(final double newStorageCost) {
-    return new StandardFutureDataBundle(getDiscountCurve(), getSpot(), getDate(), getYield(), newStorageCost);
+    if (newStorageCost < 0)
+      throw new IllegalArgumentException("New storage cost was negative");
+    return new StandardFutureDataBundle(getYield(), getDiscountCurve(), getSpot(), getDate(), newStorageCost);
   }
 
   /*

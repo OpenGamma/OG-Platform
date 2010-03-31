@@ -12,17 +12,20 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
+import com.opengamma.financial.model.forward.definition.ForwardDefinition;
+import com.opengamma.financial.model.forward.definition.StandardForwardDataBundle;
+import com.opengamma.financial.model.forward.pricing.CostOfCarryForwardModel;
+import com.opengamma.financial.model.forward.pricing.ForwardModel;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.definition.StandardFutureDataBundle;
-import com.opengamma.util.time.DateUtil;
 
 /**
  * @author emcleod
  *
  */
-public class CostOfCarryFutureModel implements FutureModel<StandardFutureDataBundle> {
-  private static final Logger s_Log = LoggerFactory.getLogger(CostOfCarryFutureModel.class);
+public class CostOfCarryFutureAsForwardModel implements FutureModel<StandardFutureDataBundle> {
+  private static final Logger s_Log = LoggerFactory.getLogger(CostOfCarryFutureAsForwardModel.class);
+  private final ForwardModel<StandardForwardDataBundle> _forwardModel = new CostOfCarryForwardModel();
 
   @Override
   public GreekResultCollection getGreeks(final FutureDefinition definition, final StandardFutureDataBundle data, final Set<Greek> requiredGreeks) {
@@ -38,14 +41,8 @@ public class CostOfCarryFutureModel implements FutureModel<StandardFutureDataBun
       s_Log.warn("Currently only fair price is calculated for futures");
       return new GreekResultCollection();
     }
-    if (requiredGreeks.size() > 1)
-      s_Log.warn("Currently only fair price is calculated for futures");
-    final GreekResultCollection result = new GreekResultCollection();
-    final double t = DateUtil.getDifferenceInYears(data.getDate(), definition.getExpiry().getExpiry());
-    final double r = data.getDiscountCurve().getInterestRate(t);
-    final double q = data.getYield();
-    final double s = data.getStorageCost();
-    result.put(Greek.FAIR_PRICE, new SingleGreekResult((data.getSpot() + s) * Math.exp(t * (r - q))));
-    return result;
+    final ForwardDefinition forward = new ForwardDefinition(definition.getExpiry());
+    final StandardForwardDataBundle forwardData = new StandardForwardDataBundle(data.getYield(), data.getDiscountCurve(), data.getSpot(), data.getDate(), data.getStorageCost());
+    return _forwardModel.getGreeks(forward, forwardData, requiredGreeks);
   }
 }
