@@ -39,6 +39,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -83,7 +84,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
   
   @Override
-  public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers,
+  public void addTimeSeries(DomainSpecificIdentifiers domainIdentifiers,
       String dataSource, String dataProvider, String field,
       String observationTime, final LocalDateDoubleTimeSeries timeSeries) {
 
@@ -100,7 +101,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime});
     String quotedObject = findQuotedObject(domainIdentifiers);
     if (quotedObject == null) {
-      DomainSpecificIdentifier identifier = domainIdentifiers.iterator().next();
+      DomainSpecificIdentifier identifier = domainIdentifiers.getIdentifiers().iterator().next();
       quotedObject = identifier.getDomain().getDomainName() + "_" + identifier.getValue();
       createDomainSpecIdentifiers(domainIdentifiers, quotedObject);
     }
@@ -139,7 +140,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         _transactionManager.commit(transactionStatus);
       } catch (Throwable t) {
         _transactionManager.rollback(transactionStatus);
-        s_logger.warn("error trying to insert timeSeries", t);
+        DomainSpecificIdentifier identifer = domainIdentifiers.getIdentifiers().iterator().next();
+        s_logger.warn("error trying to insert timeSeries for {}-{}", identifer.getDomain().getDomainName(), identifer.getValue());
         throw new OpenGammaRuntimeException("Unable to add Timeseries", t);
       }
     } else {
@@ -212,7 +214,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     return findNamedDimensionByID(DATA_SOURCE_TABLE, id);
   }
   
-  protected String findQuotedObject(final Set<DomainSpecificIdentifier> domainIdentifiers) {
+  protected String findQuotedObject(final DomainSpecificIdentifiers domainIdentifiers) {
     String result = null;
     int size = domainIdentifiers.size();
     if (size < 1) {
@@ -226,7 +228,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     int orCounter = 1;
     Object[] parameters = new Object[size*2];
     int paramIndex = 0;
-    for (DomainSpecificIdentifier domainSpecificIdentifier : domainIdentifiers) {
+    for (DomainSpecificIdentifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
       sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
       parameters[paramIndex++] = domainSpecificIdentifier.getDomain().getDomainName();
       parameters[paramIndex++] = domainSpecificIdentifier.getValue();
@@ -250,7 +252,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
 
   @Override
-  public void createDomainSpecIdentifiers(final Set<DomainSpecificIdentifier> domainIdentifiers, final String quotedObj) {
+  public void createDomainSpecIdentifiers(final DomainSpecificIdentifiers domainIdentifiers, final String quotedObj) {
     ArgumentChecker.checkNotNull(domainIdentifiers, "domainIdentifiers");
     //start transaction
     TransactionStatus transactionStatus = _transactionManager.getTransaction(_transactionDefinition);
@@ -258,7 +260,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("creating domainSpecIdentifiers {} for quotedObj={}", domainIdentifiers, quotedObj);
     try {
       //find existing identifiers
-      Set<DomainSpecificIdentifier> resolvedIdentifiers = new HashSet<DomainSpecificIdentifier>(domainIdentifiers);
+      Set<DomainSpecificIdentifier> resolvedIdentifiers = new HashSet<DomainSpecificIdentifier>(domainIdentifiers.getIdentifiers());
       int size = domainIdentifiers.size();
       if (size > 0) {
         StringBuffer sqlBuffer = new StringBuffer();
@@ -268,7 +270,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         int orCounter = 1;
         Object[] parameters = new Object[size*2];
         int paramIndex = 0;
-        for (DomainSpecificIdentifier domainSpecificIdentifier : domainIdentifiers) {
+        for (DomainSpecificIdentifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
           sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
           parameters[paramIndex++] = domainSpecificIdentifier.getDomain().getDomainName();
           parameters[paramIndex++] = domainSpecificIdentifier.getValue();
@@ -293,8 +295,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
           }
           long identifiersCount = Long.valueOf(String.valueOf(row.get("count")));
           if (identifiersCount != domainIdentifiers.size()) {
-            Set<DomainSpecificIdentifier> loadeIdentifiers = findDomainSpecIdentifiersByQuotedObject(quotedObj);
-            resolvedIdentifiers.removeAll(loadeIdentifiers);
+            DomainSpecificIdentifiers loadeIdentifiers = findDomainSpecIdentifiersByQuotedObject(quotedObj);
+            resolvedIdentifiers.removeAll(loadeIdentifiers.getIdentifiers());
           }
         }
         
@@ -454,7 +456,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   
   @Override
-  public Set<DomainSpecificIdentifier> findDomainSpecIdentifiersByQuotedObject(String name) {
+  public DomainSpecificIdentifiers findDomainSpecIdentifiersByQuotedObject(String name) {
     ArgumentChecker.checkNotNull(name, "name");
     s_logger.debug("looking up domainSpecIdentifiers using quotedObj={}", name);
     
@@ -474,7 +476,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         return new DomainSpecificIdentifier(domain, identifier);
       }
     }, parameterSource);  
-    return new HashSet<DomainSpecificIdentifier>(queryResult);
+    return new DomainSpecificIdentifiers(queryResult);
   }
   
   @Override

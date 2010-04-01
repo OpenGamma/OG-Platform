@@ -11,6 +11,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -68,13 +69,13 @@ public interface TimeSeriesDao {
   
   public Set<String> getAllQuotedObjects();
   
-  public void createDomainSpecIdentifiers(Set<DomainSpecificIdentifier> domainIdentifiers, String quotedObj);
+  public void createDomainSpecIdentifiers(DomainSpecificIdentifiers domainIdentifiers, String quotedObj);
   
   public void createTimeSeriesKey(String quotedObject, String dataSource, String dataProvider, String dataField, String observationTime);
   
-  public Set<DomainSpecificIdentifier> findDomainSpecIdentifiersByQuotedObject(String name);
+  public DomainSpecificIdentifiers findDomainSpecIdentifiersByQuotedObject(String name);
 
-  public void addTimeSeries(Set<DomainSpecificIdentifier> domainIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
+  public void addTimeSeries(DomainSpecificIdentifiers domainSpecificIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
   
   public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
 
