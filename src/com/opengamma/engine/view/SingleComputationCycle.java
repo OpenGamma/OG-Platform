@@ -10,12 +10,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
@@ -24,6 +28,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Holds all data and actions for a single pass through a computation cycle.
@@ -66,11 +71,11 @@ public class SingleComputationCycle {
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition) {
-    // TODO kirk 2010-03-02 -- Convert to proper arg checks.
-    assert viewName != null;
-    assert processingContext != null;
-    assert portfolioEvaluationModel != null;
-    assert resultModel != null;
+    ArgumentChecker.checkNotNull(viewName, "View name");
+    ArgumentChecker.checkNotNull(processingContext, "View processing context");
+    ArgumentChecker.checkNotNull(portfolioEvaluationModel, "Portfolio evaluation model");
+    ArgumentChecker.checkNotNull(resultModel, "Result model");
+
     _viewName = viewName;
     _processingContext = processingContext;
     _portfolioEvaluationModel = portfolioEvaluationModel;
@@ -180,21 +185,79 @@ public class SingleComputationCycle {
   public void executePlans() {
     for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
       s_logger.info("Executing plans for calculation configuration {}", depGraphModel.getCalculationConfigurationName());
-      executePlans(depGraphModel, ComputationTargetType.PRIMITIVE);
-      executePlans(depGraphModel, ComputationTargetType.SECURITY);
-      executePlans(depGraphModel, ComputationTargetType.POSITION);
-      executePlans(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+      // NOTE kirk 2010-04-01 -- Yes, this is correct. Yes, it's counterintuitive.
+      // 1) Because we always generate the top-level aggregate nodes right now, we guarantee that by hitting
+      //    MULTIPLE_POSITIONS we're guaranteed to hit the POSITION-level nodes because dependency graphs
+      //    link to the lower levels that they require. Since we only output at the POSITION level, we're set.
+      // 2) There's a massive benefit to having larger dependency graphs with lots of stuff to do when executing.
+      //    If you have a small graph, or a large graph where most stuff is already done, just processing the
+      //    dependency graph itself is costly and limits your parallelism.
+      // This optimization took multi-calc-node performance up by a factor of 2. Don't mess with it
+      // lightly.
+      // I've left the commented out nodes there so that if we ARE in a situation where we need to
+      // evaluate per-lower-level item (for example, if we allow for raw per-unit greeks calculations to flow
+      // out of a result model), then this will ultimately have to be changed.
+      
+      // There are two ways to execute the different dependency graphs: sequentially or in parallel.
+      // Both are implemented, and both work.
+      // However, right now on the scope that we're working on, we don't actually need the parallel form,
+      // and the additional overhead of thread management slows us down, so I've hard coded it to the sequential
+      // form. This should ultimately change if we discover that as graphs get bigger we want to have them
+      // running in parallel.
+      executePlansSequential(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+      //executePlansParallel(depGraphModel, ComputationTargetType.POSITION);
+      //executePlansParallel(depGraphModel, ComputationTargetType.SECURITY);
+      //executePlansParallel(depGraphModel, ComputationTargetType.PRIMITIVE);
     }
   }
   
   /**
    * @param primitive
    */
-  protected void executePlans(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+  protected void executePlansParallel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+    ExecutorCompletionService<Object> completionService = new ExecutorCompletionService<Object>(getProcessingContext().getExecutorService());
+    int nSubmitted = 0;
     Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
     for(DependencyGraph depGraph : depGraphs) {
-      s_logger.info("{} - Executing dependency graph for {}", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
-      DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
+      s_logger.info("{} - Submitting dependency graph for {} for execution", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
+      final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
+          getViewName(),
+          depGraphModel.getCalculationConfigurationName(),
+          depGraph,
+          getProcessingContext(),
+          this);
+      completionService.submit(new Runnable() {
+        @Override
+        public void run() {
+          depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
+        }
+      }, depGraphExecutor);
+      nSubmitted++;
+    }
+    for(int i = 0; i < nSubmitted; i++) {
+      Future<Object> result = null;
+      try {
+        result = completionService.take();
+        result.get();
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        s_logger.info("Interrupted while waiting for completion of all execution plans");
+      } catch (ExecutionException e) {
+        s_logger.error("Unable to execute dependency graph", e);
+        // Should we be swallowing this or not?
+        throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
+      }
+    }
+  }
+
+  /**
+   * @param primitive
+   */
+  protected void executePlansSequential(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+    Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
+    for(DependencyGraph depGraph : depGraphs) {
+      s_logger.info("{} - Submitting dependency graph for {} for execution", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
+      final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
           depGraphModel.getCalculationConfigurationName(),
           depGraph,

@@ -119,8 +119,10 @@ public class DependencyGraphExecutor {
     markLiveDataSourcingFunctionsCompleted();
     
     while(!_nodesToExecute.isEmpty()) {
-      boolean enqueued = enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
-      if(!enqueued) {
+      /*boolean enqueued = */enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
+      // REVIEW kirk 2010-04-01 -- This check is necessary to avoid a 1 second wait at the end
+      // of computation where things are running. MASSIVE speed win.
+      if(_executingNodes.isEmpty()) {
         continue;
       }
       // Suck everything available off the retrieval source.
@@ -221,7 +223,7 @@ public class DependencyGraphExecutor {
         depNodeIter.remove();
         enqueued = true;
         _executingNodes.add(depNode);
-        CalculationJobSpecification jobSpec = submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
+        /*CalculationJobSpecification jobSpec = */submitNodeInvocationJob(iterationTimestamp, jobIdSource, depNode);
       }
     }
     return enqueued;

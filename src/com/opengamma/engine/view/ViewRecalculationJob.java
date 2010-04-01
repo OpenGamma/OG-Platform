@@ -19,6 +19,8 @@ public class ViewRecalculationJob extends TerminatableJob {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRecalculationJob.class);
   private final View _view;
   private ViewComputationResultModelImpl _previousResult;
+  private double _numExecutions = 0.0;
+  private double _totalTime = 0.0;
   
   public ViewRecalculationJob(View view) {
     if(view == null) {
@@ -71,7 +73,9 @@ public class ViewRecalculationJob extends TerminatableJob {
     long endTime = System.currentTimeMillis();
     result.setResultTimestamp(endTime);
     long delta = endTime - cycle.getStartTime();
-    s_logger.info("Completed one recalculation pass in {}ms", delta);
+    _totalTime += delta;
+    _numExecutions += 1.0;
+    s_logger.warn("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
     getView().recalculationPerformed(result);
   }
 }
