@@ -15,7 +15,6 @@ import com.opengamma.util.time.Expiry;
  */
 public class InterestRateFutureSecurity extends FutureSecurity {
   
-  private final Currency _currency;
   private final String _cashRateType;
   
   /**
@@ -24,13 +23,8 @@ public class InterestRateFutureSecurity extends FutureSecurity {
    * @param settlementExchange
    */
   public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, String cashRateType) {
-    super(expiry, tradingExchange, settlementExchange);
-    _currency = currency;
+    super(expiry, tradingExchange, settlementExchange, currency);
     _cashRateType = cashRateType;
-  }
-  
-  public Currency getCurrency () {
-    return _currency;
   }
   
   public String getCashRateType () {

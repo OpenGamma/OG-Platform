@@ -7,6 +7,7 @@ package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 
@@ -60,5 +61,12 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
   }
 
   public abstract <T> T accept(OptionVisitor<T> visitor);
+  
+  public abstract <T> T accept(OptionSecurityVisitor<T> visitor);
+  
+  @Override
+  public final <T> T accept (final FinancialSecurityVisitor<T> visitor) {
+    return accept ((OptionSecurityVisitor<T>)visitor);
+  }
 
 }

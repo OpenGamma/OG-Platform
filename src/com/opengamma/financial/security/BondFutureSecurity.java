@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import java.util.Set;
 
+import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 
@@ -25,8 +26,8 @@ public class BondFutureSecurity extends FutureSecurity {
    * @param tradingExchange
    * @param settlementExchange
    */
-  public BondFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, String type, Set<DomainSpecificIdentifier> basket) {
-    super(expiry, tradingExchange, settlementExchange);
+  public BondFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, String type, Set<DomainSpecificIdentifier> basket) {
+    super(expiry, tradingExchange, settlementExchange, currency);
     _basket = basket;
     _type = type;
   }

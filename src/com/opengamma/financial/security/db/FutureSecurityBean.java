@@ -20,6 +20,7 @@ public class FutureSecurityBean extends SecurityBean {
   private ExchangeBean _settlementExchange;
   private CurrencyBean _currency1;
   private CurrencyBean _currency2;
+  private CurrencyBean _currency3;
   private BondFutureTypeBean _bondType;
   private CommodityFutureTypeBean _commodityType;
   private CashRateTypeBean _cashRateType;
@@ -29,14 +30,6 @@ public class FutureSecurityBean extends SecurityBean {
   
   public FutureSecurityBean () {
     super ();
-  }
-  
-  public FutureSecurityBean (final FutureType futureType, final Date expiry, final ExchangeBean tradingExchange, final ExchangeBean settlementExchange) {
-    this ();
-    _futureType = futureType;
-    _expiry = expiry;
-    _tradingExchange = tradingExchange;
-    _settlementExchange = settlementExchange;
   }
   
   /**
@@ -205,6 +198,20 @@ public class FutureSecurityBean extends SecurityBean {
    */
   public void setBasket(Set<FutureBasketAssociationBean> basket) {
     _basket = basket;
+  }
+
+  /**
+   * @param currency3 the currency3 to set
+   */
+  public void setCurrency3(CurrencyBean currency3) {
+    _currency3 = currency3;
+  }
+
+  /**
+   * @return the currency3
+   */
+  public CurrencyBean getCurrency3() {
+    return _currency3;
   }
 
 }

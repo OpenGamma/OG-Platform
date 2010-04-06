@@ -24,8 +24,11 @@ import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanVanillaFutureOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 
 /**
@@ -37,7 +40,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */ static final String BONDS = "Bonds";
   /* package */ static final String FUTURES = "Futures";
   /*package*/ static final String EQUITIES = "Equities";
-  /*package*/ static final String EQUITY_OPTIONS = "Equity Options";
+  /*package*/ static final String OPTIONS = "Options";
   /*package*/ static final String UNKNOWN = "Unknown Security Type";
   /*package*/ static final String NAME = "Asset Class";
   
@@ -48,8 +51,8 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       FinancialSecurity finSec = (FinancialSecurity)security;
       return finSec.accept(new FinancialSecurityVisitor<String>() {
         
-        private String visitEquityOption(EquityOptionSecurity security) {
-          return EQUITY_OPTIONS;
+        private String visitOption(OptionSecurity security) {
+          return OPTIONS;
         }
         
         private String visitBond (BondSecurity security) {
@@ -63,7 +66,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitAmericanVanillaEquityOptionSecurity(
             AmericanVanillaEquityOptionSecurity security) {
-          return visitEquityOption(security);
+          return visitOption(security);
         }
 
         @Override
@@ -74,13 +77,13 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitEuropeanVanillaEquityOptionSecurity(
             EuropeanVanillaEquityOptionSecurity security) {
-          return visitEquityOption(security);
+          return visitOption(security);
         }
 
         @Override
         public String visitPoweredEquityOptionSecurity(
             PoweredEquityOptionSecurity security) {
-          return visitEquityOption(security);
+          return visitOption(security);
         }
         @Override
         public String visitBondFutureSecurity(BondFutureSecurity security) {
@@ -133,6 +136,23 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return visitFuture(security);
+        }
+
+        @Override
+        public String visitAmericanVanillaFutureOptionSecurity(
+            AmericanVanillaFutureOptionSecurity security) {
+          return visitOption (security);
+        }
+
+        @Override
+        public String visitEuropeanVanillaFutureOptionSecurity(
+            EuropeanVanillaFutureOptionSecurity security) {
+          return visitOption (security);
+        }
+
+        @Override
+        public String visitFXOptionSecurity(FXOptionSecurity security) {
+          return visitOption (security);
         }
       });
     } else {

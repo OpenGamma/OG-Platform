@@ -23,7 +23,10 @@ import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanVanillaFutureOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 
 /**
@@ -65,7 +68,7 @@ public class CurrencyAggregationFunction implements AggregationFunction<Currency
 
         @Override
         public Currency visitBondFutureSecurity(BondFutureSecurity security) {
-          return null; // TODO this is probably wrong
+          return security.getCurrency ();
         }
 
         @Override
@@ -77,7 +80,7 @@ public class CurrencyAggregationFunction implements AggregationFunction<Currency
         @Override
         public Currency visitFXFutureSecurity(
             FXFutureSecurity security) {
-          return security.getNumerator (); // TODO check this is correct
+          return security.getCurrency ();
         }
 
         @Override
@@ -101,29 +104,44 @@ public class CurrencyAggregationFunction implements AggregationFunction<Currency
         @Override
         public Currency visitAgricultureFutureSecurity(
             AgricultureFutureSecurity security) {
-          return null; // TODO this is probably wrong
+          return security.getCurrency ();
         }
 
         @Override
         public Currency visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-          return null; // TODO this is probably wrong
+          return security.getCurrency ();
         }
 
         @Override
         public Currency visitMetalFutureSecurity(MetalFutureSecurity security) {
-          return null; // TODO this is probably wrong
+          return security.getCurrency ();
         }
 
         @Override
         public Currency visitIndexFutureSecurity(IndexFutureSecurity security) {
-          // TODO Auto-generated method stub
-          return null;
+          return security.getCurrency ();
         }
 
         @Override
         public Currency visitStockFutureSecurity(StockFutureSecurity security) {
-          // TODO Auto-generated method stub
-          return null;
+          return security.getCurrency ();
+        }
+
+        @Override
+        public Currency visitAmericanVanillaFutureOptionSecurity(
+            AmericanVanillaFutureOptionSecurity security) {
+          return security.getCurrency ();
+        }
+
+        @Override
+        public Currency visitEuropeanVanillaFutureOptionSecurity(
+            EuropeanVanillaFutureOptionSecurity security) {
+          return security.getCurrency ();
+        }
+
+        @Override
+        public Currency visitFXOptionSecurity(FXOptionSecurity security) {
+          return security.getCurrency ();
         }  
       });
     } else {

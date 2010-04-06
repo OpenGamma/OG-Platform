@@ -22,7 +22,10 @@ import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanVanillaFutureOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 
 /**
@@ -31,7 +34,7 @@ import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
  * @author jim
  */
 public class DetailedAssetClassAggregationFunction implements AggregationFunction<String> {
-  /*package*/ static final String POWERED_EQUITY_OPTION_SECURITY = "Powered Equity Option";
+  /*package*/ static final String POWERED_EQUITY_OPTION_SECURITY = "Powered Equity Options";
   /*package*/ static final String EUROPEAN_VANILLA_EQUITY_OPTIONS = "European Vanilla Equity Options";
   /*package*/ static final String EQUITIES = "Equities";
   /*package*/ static final String AMERICAN_VANILLA_EQUITY_OPTIONS = "American Vanilla Equity Options";
@@ -46,8 +49,11 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   /*package*/ static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
   /*package*/ static final String METAL_FUTURES = "Metal Futures";
   /*package*/ static final String ENERGY_FUTURES = "Energy Futures";
-  static final String INDEX_FUTURES = "Index Futures";
-  static final String STOCK_FUTURES = "Stock Futures";
+  /*package*/ static final String INDEX_FUTURES = "Index Futures";
+  /*package*/ static final String STOCK_FUTURES = "Stock Futures";
+  /*package*/ static final String AMERICAN_VANILLA_FUTURE_OPTIONS = "American Vanilla Future Options";
+  /*package*/ static final String EUROPEAN_VANILLA_FUTURE_OPTIONS = "European Vanilla Future Options";
+  /*package*/ static final String FX_OPTIONS = "FX Options";
   
   @Override
   public String classifyPosition(Position position) {
@@ -134,6 +140,23 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitStockFutureSecurity(StockFutureSecurity security) {
           return STOCK_FUTURES;
+        }
+
+        @Override
+        public String visitAmericanVanillaFutureOptionSecurity(
+            AmericanVanillaFutureOptionSecurity security) {
+          return AMERICAN_VANILLA_FUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitEuropeanVanillaFutureOptionSecurity(
+            EuropeanVanillaFutureOptionSecurity security) {
+          return EUROPEAN_VANILLA_FUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitFXOptionSecurity(FXOptionSecurity security) {
+          return FX_OPTIONS;
         }
       });
     } else {

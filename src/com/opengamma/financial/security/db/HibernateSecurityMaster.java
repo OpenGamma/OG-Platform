@@ -77,7 +77,7 @@ public class HibernateSecurityMaster implements SecurityMaster {
   static {
     loadBeanOperation (BondSecurityBeanOperation.INSTANCE);
     loadBeanOperation (EquitySecurityBeanOperation.INSTANCE);
-    loadBeanOperation (EquityOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation (OptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation (FutureSecurityBeanOperation.INSTANCE);
   }
   

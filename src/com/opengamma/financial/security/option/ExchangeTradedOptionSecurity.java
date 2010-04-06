@@ -26,4 +26,12 @@ public abstract class ExchangeTradedOptionSecurity extends OptionSecurity {
   public String getExchange() {
     return _exchange;
   }
+  
+  public abstract <T> T accept (ExchangeTradedOptionSecurityVisitor<T> visitor);
+  
+  @Override
+  public final <T> T accept (OptionSecurityVisitor<T> visitor) {
+    return accept ((ExchangeTradedOptionSecurityVisitor<T>)visitor);
+  }
+  
 }

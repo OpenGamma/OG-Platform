@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 
@@ -16,8 +17,8 @@ import com.opengamma.util.time.Expiry;
 public class StockFutureSecurity extends FutureSecurity {
   private final DomainSpecificIdentifier _underlyingIdentifier;
 
-  public StockFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final DomainSpecificIdentifier underlyingIdentifier) {
-    super(expiry, tradingExchange, settlementExchange);
+  public StockFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final DomainSpecificIdentifier underlyingIdentifier) {
+    super(expiry, tradingExchange, settlementExchange, currency);
     _underlyingIdentifier = underlyingIdentifier;
   }
 

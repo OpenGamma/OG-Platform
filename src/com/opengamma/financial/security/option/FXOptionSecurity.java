@@ -6,7 +6,6 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 
@@ -35,16 +34,16 @@ public class FXOptionSecurity extends OTCOptionSecurity {
   public Currency getCallCurrency() {
     return _callCurrency;
   }
-
+  
   @Override
   public <T> T accept(final OptionVisitor<T> visitor) {
     // TODO Auto-generated method stub
     return null;
   }
-
+  
   @Override
-  public <T> T accept(final FinancialSecurityVisitor<T> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+  public <T> T accept (final OTCOptionSecurityVisitor<T> visitor) {
+    return visitor.visitFXOptionSecurity (this);
   }
+
 }

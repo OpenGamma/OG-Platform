@@ -416,7 +416,7 @@ public class HibernateSecurityMasterSession {
   // Equity options
 
   @SuppressWarnings("unchecked")
-  /* package */List<EquityOptionSecurityBean> getEquityOptionSecurityBeans() {
+  /* package */List<OptionSecurityBean> getEquityOptionSecurityBeans() {
     Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
     return query.list();
   }

@@ -72,13 +72,13 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         CurrencyBean.class,
         DayCountBean.class,
         DomainSpecificIdentifierBean.class,
-        EquityOptionSecurityBean.class,
         EquitySecurityBean.class,
         ExchangeBean.class,
         FrequencyBean.class,
         FutureBasketAssociationBean.class,
         FutureSecurityBean.class,
         GICSCodeBean.class,
+        OptionSecurityBean.class,
         SecurityBean.class,
         UnitBean.class
         };

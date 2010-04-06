@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import javax.time.calendar.MonthOfYear;
 
+import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -21,11 +22,13 @@ public abstract class FutureSecurity extends FinancialSecurity {
   private final Expiry _expiry;
   private final String _tradingExchange;
   private final String _settlementExchange;
+  private final Currency _currency;
   
-  public FutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange) {
+  public FutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency) {
     _expiry = expiry;
     _tradingExchange = tradingExchange;
     _settlementExchange = settlementExchange;
+    _currency = currency;
     setSecurityType (FUTURE_TYPE);
   }
 
@@ -64,9 +67,13 @@ public abstract class FutureSecurity extends FinancialSecurity {
     return _settlementExchange;
   }
   
+  public Currency getCurrency () {
+    return _currency;
+  }
+  
   public abstract <T> T accept (FutureSecurityVisitor<T> visitor);
   
-  public <T> T accept (FinancialSecurityVisitor<T> visitor) {
+  public final <T> T accept (FinancialSecurityVisitor<T> visitor) {
     return accept ((FutureSecurityVisitor<T>)visitor);
   }
   

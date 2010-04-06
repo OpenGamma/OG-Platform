@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security.db;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,6 +31,17 @@ import com.opengamma.id.DomainSpecificIdentifier;
   private FutureSecurityBeanOperation () {
   }
   
+  private static <T> T getSingleElement (final Collection<T> collection) {
+    assert collection.size () == 1;
+    return collection.iterator ().next ();
+  }
+  
+  private static <T> Set<T> singleElementSet (final T element) {
+    final Set<T> set = new HashSet<T> ();
+    set.add (element);
+    return set;
+  }
+  
   @Override
   public FutureSecurity createSecurity (final DomainSpecificIdentifier identifier, final FutureSecurityBean bean) {
     return bean.getFutureType ().accept (new FutureType.Visitor<FutureSecurity> () {
@@ -47,6 +59,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             dateToExpiry (bean.getExpiry ()),
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
+            currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getBondType ().getName (),
             basket
             );
@@ -60,6 +73,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getSettlementExchange ().getName (),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             currencyBeanToCurrency (bean.getCurrency2 ()),
+            currencyBeanToCurrency (bean.getCurrency3 ()),
             bean.getUnitNumber ()
             );
       }
@@ -81,6 +95,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             dateToExpiry (bean.getExpiry ()),
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
+            currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null
@@ -93,6 +108,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             dateToExpiry (bean.getExpiry ()),
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
+            currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null
@@ -105,6 +121,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             dateToExpiry (bean.getExpiry ()),
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
+            currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null
@@ -113,14 +130,24 @@ import com.opengamma.id.DomainSpecificIdentifier;
 
       @Override
       public FutureSecurity visitIndexFutureType() {
-        // TODO Auto-generated method stub
-        return null;
+        return new IndexFutureSecurity (
+            dateToExpiry (bean.getExpiry ()),
+            bean.getTradingExchange ().getName (),
+            bean.getSettlementExchange ().getName (),
+            currencyBeanToCurrency (bean.getCurrency1 ()),
+            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ())
+            );
       }
 
       @Override
       public FutureSecurity visitStockFutureType() {
-        // TODO Auto-generated method stub
-        return null;
+        return new StockFutureSecurity (
+            dateToExpiry (bean.getExpiry ()),
+            bean.getTradingExchange ().getName (),
+            bean.getSettlementExchange ().getName (),
+            currencyBeanToCurrency (bean.getCurrency1 ()),
+            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ())
+            );
       }
 
     });
@@ -194,19 +221,20 @@ import com.opengamma.id.DomainSpecificIdentifier;
 
       @Override
       public Boolean visitMetalFutureSecurity(MetalFutureSecurity security) {
-        return beanEquals (security);
+        return beanEquals (security)
+            && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
       }
 
       @Override
       public Boolean visitIndexFutureSecurity(IndexFutureSecurity security) {
-        // TODO Auto-generated method stub
-        return null;
+        return beanEquals (security)
+            && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
       }
 
       @Override
       public Boolean visitStockFutureSecurity(StockFutureSecurity security) {
-        // TODO Auto-generated method stub
-        return null;
+        return beanEquals (security)
+        && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
       }
       
     });
@@ -217,11 +245,13 @@ import com.opengamma.id.DomainSpecificIdentifier;
     return security.accept (new FutureSecurityVisitor<FutureSecurityBean> () {
       
       private FutureSecurityBean createBean (final FutureSecurity security) {
-        return new FutureSecurityBean (
-            FutureType.identify (security),
-            expiryToDate (security.getExpiry ()),
-            secMasterSession.getOrCreateExchangeBean (security.getTradingExchange (), null),
-            secMasterSession.getOrCreateExchangeBean (security.getSettlementExchange (), null));
+        final FutureSecurityBean bean = new FutureSecurityBean ();
+        bean.setFutureType (FutureType.identify (security));
+        bean.setExpiry (expiryToDate (security.getExpiry ()));
+        bean.setTradingExchange (secMasterSession.getOrCreateExchangeBean (security.getTradingExchange (), null));
+        bean.setSettlementExchange (secMasterSession.getOrCreateExchangeBean (security.getSettlementExchange (), null));
+        bean.setCurrency1 (secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()));
+        return bean;
       }
       
       private FutureSecurityBean createBean (final CommodityFutureSecurity security) {
@@ -239,9 +269,14 @@ import com.opengamma.id.DomainSpecificIdentifier;
       @Override
       public FutureSecurityBean visitAgricultureFutureSecurity(
           AgricultureFutureSecurity security) {
-        return createBean (security);
+        final FutureSecurityBean bean = createBean (security);
+        return bean;
       }
-
+      
+      private FutureBasketAssociationBean createFutureBasketAssociationBean (final FutureSecurityBean bean, final DomainSpecificIdentifier identifier) {
+        return new FutureBasketAssociationBean (bean, new DomainSpecificIdentifierBean (identifier.getDomain ().getDomainName (), identifier.getValue ()));
+      }
+      
       @Override
       public FutureSecurityBean visitBondFutureSecurity(
           BondFutureSecurity security) {
@@ -250,7 +285,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
         final Set<DomainSpecificIdentifier> basket = security.getBasket ();
         final Set<FutureBasketAssociationBean> basketBeans = new HashSet<FutureBasketAssociationBean> (basket.size ());
         for (DomainSpecificIdentifier identifier : basket) {
-          basketBeans.add (new FutureBasketAssociationBean (bean, new DomainSpecificIdentifierBean (identifier.getDomain ().getDomainName (), identifier.getValue ())));
+          basketBeans.add (createFutureBasketAssociationBean (bean, identifier));
         }
         bean.setBasket (basketBeans);
         return bean;
@@ -259,14 +294,15 @@ import com.opengamma.id.DomainSpecificIdentifier;
       @Override
       public FutureSecurityBean visitEnergyFutureSecurity(
           EnergyFutureSecurity security) {
-        return createBean (security);
+        final FutureSecurityBean bean = createBean (security);
+        return bean;
       }
 
       @Override
       public FutureSecurityBean visitFXFutureSecurity(FXFutureSecurity security) {
         final FutureSecurityBean bean = createBean (security);
-        bean.setCurrency1 (secMasterSession.getOrCreateCurrencyBean (security.getNumerator ().getISOCode ()));
-        bean.setCurrency2 (secMasterSession.getOrCreateCurrencyBean (security.getDenominator ().getISOCode ()));
+        bean.setCurrency2 (secMasterSession.getOrCreateCurrencyBean (security.getNumerator ().getISOCode ()));
+        bean.setCurrency3 (secMasterSession.getOrCreateCurrencyBean (security.getDenominator ().getISOCode ()));
         bean.setUnitNumber (security.getMultiplicationFactor ());
         return bean;
       }
@@ -275,7 +311,6 @@ import com.opengamma.id.DomainSpecificIdentifier;
       public FutureSecurityBean visitInterestRateFutureSecurity(
           InterestRateFutureSecurity security) {
         final FutureSecurityBean bean = createBean (security);
-        bean.setCurrency1 (secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()));
         bean.setCashRateType (secMasterSession.getOrCreateCashRateTypeBean (security.getCashRateType ()));
         return bean;
       }
@@ -283,19 +318,23 @@ import com.opengamma.id.DomainSpecificIdentifier;
       @Override
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
-        return createBean (security);
+        final FutureSecurityBean bean = createBean (security);
+        bean.setBasket (singleElementSet (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        return bean;
       }
 
       @Override
       public FutureSecurityBean visitIndexFutureSecurity(IndexFutureSecurity security) {
-        // TODO Auto-generated method stub
-        return null;
+        final FutureSecurityBean bean = createBean (security);
+        bean.setBasket (singleElementSet (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        return bean;
       }
 
       @Override
       public FutureSecurityBean visitStockFutureSecurity(StockFutureSecurity security) {
-        // TODO Auto-generated method stub
-        return null;
+        final FutureSecurityBean bean = createBean (security);
+        bean.setBasket (singleElementSet (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        return bean;
       }
     });
   }

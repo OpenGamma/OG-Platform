@@ -107,7 +107,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   
   public abstract <T> T accept (BondSecurityVisitor<T> visitor);
   
-  public <T> T accept (FinancialSecurityVisitor<T> visitor) {
+  public final <T> T accept (FinancialSecurityVisitor<T> visitor) {
     return accept ((BondSecurityVisitor<T>)visitor);
   }
   

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security;
 
+import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -18,15 +19,15 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
   private final Double _unitNumber;
   private final String _unitName;
   
-  public CommodityFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final String type, final Double unitNumber, final String unitName) {
-    super (expiry, tradingExchange, settlementExchange);
+  public CommodityFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, final Double unitNumber, final String unitName) {
+    super (expiry, tradingExchange, settlementExchange, currency);
     _commodityType = type;
     _unitNumber = unitNumber;
     _unitName = unitName;
   }
   
-  public CommodityFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final String type) {
-    this (expiry, tradingExchange, settlementExchange, type, null, null);
+  public CommodityFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type) {
+    this (expiry, tradingExchange, settlementExchange, currency, type, null, null);
   }
   
   public String getCommodityType () {

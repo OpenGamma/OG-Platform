@@ -26,15 +26,15 @@ public class FXFutureSecurity extends FutureSecurity {
    * @param tradingExchange
    * @param settlementExchange
    */
-  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency numerator, Currency denominator, double multiplicationFactor) {
-    super(expiry, tradingExchange, settlementExchange);
+  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency domesticCurrency, Currency numerator, Currency denominator, double multiplicationFactor) {
+    super(expiry, tradingExchange, settlementExchange, domesticCurrency);
     _numerator = numerator;
     _denominator = denominator;
     _multiplicationFactor = multiplicationFactor;
   }
   
-  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency numerator, Currency denominator) {
-    this (expiry, tradingExchange, settlementExchange, numerator, denominator, 1.0);
+  public FXFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency domesticCurrency, Currency numerator, Currency denominator) {
+    this (expiry, tradingExchange, settlementExchange, domesticCurrency, numerator, denominator, 1.0);
   }
   
   public Currency getNumerator () {
