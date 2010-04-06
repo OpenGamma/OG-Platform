@@ -7,8 +7,6 @@ package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.livedata.LiveDataSpecification;
-
 /**
  * 
  *
@@ -16,5 +14,5 @@ import com.opengamma.livedata.LiveDataSpecification;
  */
 public interface MarketDataFieldReceiver {
 
-  void marketDataReceived(LiveDataSpecification specification, FudgeFieldContainer fields);
+  void marketDataReceived(Subscription subscription, FudgeFieldContainer fields);
 }

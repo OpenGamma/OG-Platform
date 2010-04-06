@@ -7,7 +7,6 @@ package com.opengamma.livedata.server;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
@@ -33,11 +32,15 @@ public class MarketDataFudgeSender implements MarketDataFieldReceiver {
   }
 
   @Override
-  public void marketDataReceived(LiveDataSpecification specification,
-      FudgeFieldContainer fields) {
-    LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), specification, fields);
-    FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
-    getFudgeMessageSender().send(fudgeMsg);
+  public void marketDataReceived(Subscription subscription, FudgeFieldContainer fields) {
+    for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
+      
+      FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(fields);
+      LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
+      FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
+      getFudgeMessageSender().send(fudgeMsg);
+      
+    }
   }
 
 }

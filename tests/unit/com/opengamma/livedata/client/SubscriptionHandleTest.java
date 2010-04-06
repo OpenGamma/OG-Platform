@@ -25,6 +25,7 @@ public class SubscriptionHandleTest {
   public void equalsDifferentRequestedSpecification() {
     LiveDataSpecification requestedSpecification1 =
       new LiveDataSpecification(
+          "NormalizationId1",
           new DomainSpecificIdentifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle("kirk", requestedSpecification1, listener);
@@ -36,6 +37,7 @@ public class SubscriptionHandleTest {
   public void hashCodeDifferentRequestedSpecification() {
     LiveDataSpecification requestedSpecification1 =
       new LiveDataSpecification(
+          "NormalizationId1",
           new DomainSpecificIdentifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle("kirk", requestedSpecification1, listener);

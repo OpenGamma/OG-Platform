@@ -5,7 +5,8 @@
  */
 package com.opengamma.livedata.client;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -15,9 +16,11 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
-import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.livedata.normalization.NormalizationRuleSet;
+import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.livedata.server.UserEntitlementChecker;
 import com.opengamma.security.user.Authority;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserGroup;
@@ -31,16 +34,17 @@ import com.opengamma.security.user.UserManager;
 public class UserEntitlementCheckerTest {
   
   @Test
-  public void testBasicPermissionCheck() {
+  public void basicPermissionCheck() {
     
     Set<UserGroup> userGroups = new HashSet<UserGroup>();
 
     UserGroup group1 = new UserGroup(0L, "group1");
-    group1.getAuthorities().add(new Authority(0L, "/MarketData/Bloomberg/EQ*"));
+    group1.getAuthorities().add(new Authority(0L, "LiveData/Bloomberg/Equity/**")); // ** -> all subpaths OK
+    group1.getAuthorities().add(new Authority(1L, "LiveData/Bloomberg/Bond/*")); // * -> only 1 level of subpath OK
     userGroups.add(group1);
     
     UserGroup group2 = new UserGroup(1L, "group2");
-    group2.getAuthorities().add(new Authority(1L, "/MarketData/Reuters/EQ*"));
+    group2.getAuthorities().add(new Authority(2L, "LiveData/Reuters/Equity/**"));
     userGroups.add(group2);
     
     User user = new User(null,
@@ -52,21 +56,48 @@ public class UserEntitlementCheckerTest {
     UserManager userManager = mock(UserManager.class);
     when(userManager.getUser("john")).thenReturn(user);
     
-    IdentificationDomain bbguidDomain = new IdentificationDomain("bbguid");
-    UserEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(
-        userManager,
-        "/MarketData/Bloomberg",
-        bbguidDomain
-        );
+    UserEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(userManager);
     
-    LiveDataSpecification appleStockMarketDataOnBloomberg = new LiveDataSpecification(new DomainSpecificIdentifier(bbguidDomain, "EQ0010169500001000"));
-    LiveDataSpecification someFxDataOnBloomberg = new LiveDataSpecification(new DomainSpecificIdentifier(bbguidDomain, "FX123456"));
+    DistributionSpecification aaplOnBloomberg = new DistributionSpecification(
+        new DomainSpecificIdentifiers(),
+        StandardRules.getNoNormalization(),
+        "LiveData.Bloomberg.Equity.AAPL"); 
     
-    Assert.assertTrue(userEntitlementChecker.isEntitled("john", appleStockMarketDataOnBloomberg));
-    Assert.assertFalse(userEntitlementChecker.isEntitled("john", someFxDataOnBloomberg));
+    DistributionSpecification aaplOnBloombergWithNormalization = new DistributionSpecification(
+        new DomainSpecificIdentifiers(),
+        new NormalizationRuleSet("MyWeirdNormalizationRule"),
+        "LiveData.Bloomberg.Equity.AAPL.MyWeirdNormalizationRule"); 
     
-    Assert.assertFalse(userEntitlementChecker.isEntitled("mike", appleStockMarketDataOnBloomberg));
-    Assert.assertFalse(userEntitlementChecker.isEntitled("mike", someFxDataOnBloomberg));
+    DistributionSpecification bondOnBloomberg = new DistributionSpecification(
+        new DomainSpecificIdentifiers(),
+        StandardRules.getNoNormalization(),
+        "LiveData.Bloomberg.Bond.IBMBOND123"); 
+    
+    DistributionSpecification bondOnBloombergWithNormalization = new DistributionSpecification(
+        new DomainSpecificIdentifiers(),
+        new NormalizationRuleSet("MyWeirdNormalizationRule"),
+        "LiveData.Bloomberg.Bond.IBMBOND123.MyWeirdNormalizationRule");
+
+    DistributionSpecification fxOnBloomberg = new DistributionSpecification(
+        new DomainSpecificIdentifiers(),
+        StandardRules.getNoNormalization(),
+        "LiveData.Bloomberg.FX.EURUSD");
+    
+    DistributionSpecification fxOnBloombergWithNormalization = new DistributionSpecification(
+        new DomainSpecificIdentifiers(),
+        new NormalizationRuleSet("MyWeirdNormalizationRule"),
+        "LiveData.Bloomberg.FX.EURUSD.MyWeirdNormalizationRule");
+    
+    Assert.assertTrue(userEntitlementChecker.isEntitled("john", aaplOnBloomberg));
+    Assert.assertTrue(userEntitlementChecker.isEntitled("john", aaplOnBloombergWithNormalization));
+    Assert.assertTrue(userEntitlementChecker.isEntitled("john", bondOnBloomberg));
+    Assert.assertFalse(userEntitlementChecker.isEntitled("john", bondOnBloombergWithNormalization));
+    Assert.assertFalse(userEntitlementChecker.isEntitled("john", fxOnBloomberg));
+    Assert.assertFalse(userEntitlementChecker.isEntitled("john", fxOnBloombergWithNormalization));
+    
+    // non-existent user
+    Assert.assertFalse(userEntitlementChecker.isEntitled("mike", aaplOnBloomberg)); 
+    Assert.assertFalse(userEntitlementChecker.isEntitled("mike", fxOnBloomberg)); 
   }
 
 }

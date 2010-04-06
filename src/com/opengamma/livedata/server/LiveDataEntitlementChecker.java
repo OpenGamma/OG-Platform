@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.client;
+package com.opengamma.livedata.server;
 
-import com.opengamma.livedata.LiveDataSpecification;
 
 // REVIEW kirk 2009-10-04 -- While this is fine initially, eventually this needs to be changed
 // so that it can be fully asynchronous so that we're not blocking threads at all in a synchronous
@@ -21,5 +20,5 @@ import com.opengamma.livedata.LiveDataSpecification;
  */
 public interface LiveDataEntitlementChecker {
 
-  boolean isEntitled(String userName, LiveDataSpecification fullyQualifiedSpecification);
+  boolean isEntitled(String userName, DistributionSpecification distributionSpec);
 }

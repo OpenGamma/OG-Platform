@@ -51,8 +51,12 @@ public class HeartbeatSenderTest {
     CollectingByteArrayMessageSender messageSender = new CollectingByteArrayMessageSender();
     ValueDistributor valueDistributor = new ValueDistributor();
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
-    LiveDataSpecification spec1 = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
-    LiveDataSpecification spec2 = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "baz"));
+    LiveDataSpecification spec1 = new LiveDataSpecification(
+        "Test",
+        new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
+    LiveDataSpecification spec2 = new LiveDataSpecification(
+        "Test",
+        new DomainSpecificIdentifier(new IdentificationDomain("foo"), "baz"));
     valueDistributor.addListener(spec1, listener1);
     valueDistributor.addListener(spec2, listener1);
     
@@ -74,7 +78,7 @@ public class HeartbeatSenderTest {
       for(FudgeField field : fudgeMsg.getAllFields()) {
         assertNull(field.getOrdinal());
         assertTrue(field.getValue() instanceof FudgeFieldContainer);
-        LiveDataSpecification lsdi = new LiveDataSpecification((FudgeFieldContainer)field.getValue());
+        LiveDataSpecification lsdi = LiveDataSpecification.fromFudgeMsg((FudgeFieldContainer) field.getValue());
         assertTrue(lsdi.equals(spec1) || lsdi.equals(spec2));
       }
     }

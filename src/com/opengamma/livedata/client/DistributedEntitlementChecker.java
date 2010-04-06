@@ -28,8 +28,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class DistributedEntitlementChecker implements
-    LiveDataEntitlementChecker {
+public class DistributedEntitlementChecker {
   public static final long TIMEOUT_MS = 5 * 60 * 100l;
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedEntitlementChecker.class);
   private final FudgeRequestSender _requestSender;
@@ -46,11 +45,10 @@ public class DistributedEntitlementChecker implements
     _fudgeContext = fudgeContext;
   }
 
-  @Override
   public boolean isEntitled(String userName,
-      LiveDataSpecification fullyQualifiedSpecification) {
-    s_logger.info("Sending message to qualify {} on {}", userName, fullyQualifiedSpecification);
-    FudgeFieldContainer requestMessage = composeRequestMessage(userName, fullyQualifiedSpecification);
+      LiveDataSpecification specification) {
+    s_logger.info("Sending message to qualify {} on {}", userName, specification);
+    FudgeFieldContainer requestMessage = composeRequestMessage(userName, specification);
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicBoolean isEntitled = new AtomicBoolean(false);
     _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {

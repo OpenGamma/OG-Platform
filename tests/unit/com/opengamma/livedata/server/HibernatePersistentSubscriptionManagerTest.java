@@ -11,9 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -47,12 +45,12 @@ public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
     assertTrue(manager.getPersistentSubscriptions().isEmpty());  // test setup will have cleared the db, nothing there initially
     manager.save();
     
-    server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "testsub1")), true);
-    server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "testsub2")), true);
+    server.subscribe("testsub1", true);
+    server.subscribe("testsub2", true);
  
-    server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "testsub3")), false);
-    server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "testsub4")), false);
-    server.subscribe(new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "testsub5")), false);
+    server.subscribe("testsub3", false);
+    server.subscribe("testsub4", false);
+    server.subscribe("testsub5", false);
     
     manager.save();
     assertEquals(2, manager.getPersistentSubscriptions().size());

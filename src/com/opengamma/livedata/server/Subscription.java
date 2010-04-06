@@ -5,9 +5,14 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-import com.opengamma.livedata.LiveDataSpecification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -15,19 +20,21 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-class Subscription {
+public class Subscription {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(Subscription.class);
+  
+  // Note how all mutator methods are package-private, whereas all getters are public.
+  // The only class that should create/modify/delete Subscriptions is AbstractLiveDataServer.
   
   /** What was subscribed to. Bloomberg/Reuters/{your market data provider of choice} unique ID for a security. **/
   private final String _securityUniqueId;
   
-  /** Again, what was subscribed to. One of the IDs will be the security unique ID, but there may be others. */
-  private final LiveDataSpecification _fullyQualifiedSpec;
+  /** How this data should be distributed to clients. */
+  private final Set<DistributionSpecification> _distributionSpecs = new CopyOnWriteArraySet<DistributionSpecification>();
   
   /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
   private final Object _handle;
-  
-  /** JMS topic to which server will send updates */
-  private final String _distributionSpecification;
   
   /**
    * Whether this subscription should expire automatically if
@@ -54,32 +61,28 @@ class Subscription {
    * far, far in the future (Long.MAX_VALUE milliseconds from the epoch). You can use
    * {@link #setExpiry(Long)} to set a more sensible expiration date. 
    */
-  public Subscription(
+  Subscription(
       String securityUniqueId,
-      LiveDataSpecification fullyQualifiedSpec,
       Object handle,
-      String distributionSpecification,
-      boolean persistent) {
+      boolean persistent,
+      Set<DistributionSpecification> distributionSpecs) {
     ArgumentChecker.checkNotNull(securityUniqueId, "Security unique ID");
-    ArgumentChecker.checkNotNull(fullyQualifiedSpec, "Fully populated ID set");
     ArgumentChecker.checkNotNull(handle, "Subscription handle");
-    ArgumentChecker.checkNotNull(distributionSpecification, "Distribution specification");
+    ArgumentChecker.checkNotNull(distributionSpecs, "Distribution specification");
     
     _securityUniqueId = securityUniqueId;
-    _fullyQualifiedSpec = fullyQualifiedSpec;
     _handle = handle;
-    _distributionSpecification = distributionSpecification;
     setPersistent(persistent);
+    
+    for (DistributionSpecification spec : distributionSpecs) {
+      addDistributionSpec(spec);
+    }
     
     _creationTime = new Date();
   }
   
   public Object getHandle() {
     return _handle;
-  }
-
-  public String getDistributionSpecification() {
-    return _distributionSpecification;
   }
 
   public Date getCreationTime() {
@@ -90,10 +93,28 @@ class Subscription {
     return _securityUniqueId;
   }
   
-  public LiveDataSpecification getFullyQualifiedSpec() {
-    return _fullyQualifiedSpec;
+  public Set<DistributionSpecification> getDistributionSpecs() {
+    return Collections.unmodifiableSet(_distributionSpecs);
   }
-
+  
+  void addDistributionSpec(DistributionSpecification spec) {
+    boolean added = _distributionSpecs.add(spec);
+    if (added) {
+      s_logger.info("Added distribution spec {} to {}", spec, this);      
+    } else {
+      s_logger.info("Added distribution spec {} to {} (no-op)", spec, this);
+    }
+  }
+  
+  void removeDistributionSpec(DistributionSpecification spec) {
+    boolean removed = _distributionSpecs.remove(spec);
+    if (removed) {
+      s_logger.info("Removed distribution spec {} from {}", spec, this);      
+    } else {
+      s_logger.info("Removed distribution spec {} from {} (no-op)", spec, this);
+    }
+  }
+  
   public synchronized boolean isPersistent() {
     return _persistent;
   }
@@ -104,7 +125,7 @@ class Subscription {
    * far, far in the future (Long.MAX_VALUE milliseconds from the epoch). You can use
    * {@link #setExpiry(Long)} to set a more sensible expiration date.
    */
-  public synchronized void setPersistent(boolean persistent) {
+  synchronized void setPersistent(boolean persistent) {
     _persistent = persistent;
     if (_persistent) {
       _expiry = null;
@@ -122,7 +143,7 @@ class Subscription {
    * If this subscription is non-persistent, you must supply a non-null expiry. 
    * @throws IllegalStateException If the above rules for expiry are violated.
    */
-  public synchronized void setExpiry(Long expiry) {
+  synchronized void setExpiry(Long expiry) {
     if (isPersistent() && expiry != null) {
       throw new IllegalStateException("A persistent subscription cannot expire");      
     }
@@ -134,7 +155,7 @@ class Subscription {
   }
   
   public String toString() {
-    return _distributionSpecification;
+    return "Subscription " + _securityUniqueId;
   }
   
 }

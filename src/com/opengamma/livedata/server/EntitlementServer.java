@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.EntitlementRequest;
 import com.opengamma.livedata.EntitlementResponse;
-import com.opengamma.livedata.client.LiveDataEntitlementChecker;
+import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,10 +28,14 @@ public class EntitlementServer implements FudgeRequestReceiver {
   
   private static final Logger s_logger = LoggerFactory.getLogger(EntitlementServer.class);
   private final LiveDataEntitlementChecker _delegate;
+  private final DistributionSpecificationResolver _distributionSpecResolver;
   
-  public EntitlementServer(LiveDataEntitlementChecker delegate) {
+  public EntitlementServer(LiveDataEntitlementChecker delegate,
+      DistributionSpecificationResolver distributionSpecResolver) {
     ArgumentChecker.checkNotNull(delegate, "Delegate entitlement checker");
+    ArgumentChecker.checkNotNull(distributionSpecResolver, "Distribution spec resolver");
     _delegate = delegate;
+    _distributionSpecResolver = distributionSpecResolver;
   }
   
   @Override
@@ -40,7 +44,9 @@ public class EntitlementServer implements FudgeRequestReceiver {
     EntitlementRequest entitlementRequest = EntitlementRequest.fromFudgeMsg(context, requestFudgeMsg);
     s_logger.debug("Received entitlement request from {} for {}", entitlementRequest.getUserName(), entitlementRequest.getLiveDataSpecification());
     
-    boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUserName(), entitlementRequest.getLiveDataSpecification());
+    DistributionSpecification distSpec = _distributionSpecResolver.getDistributionSpecification(entitlementRequest.getLiveDataSpecification());
+    
+    boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUserName(), distSpec);
     
     EntitlementResponse response = new EntitlementResponse(isEntitled);
     FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));

@@ -42,12 +42,14 @@ public class ActiveSecurityPublicationManagerTest {
     new HeartbeatSender(conduit, valueDistributor, new FudgeContext(), t, 100);
     
     // subscribe on the client side - starts sending heartbeats
-    LiveDataSpecification subscription = new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
+    LiveDataSpecification subscription = new LiveDataSpecification(
+        dataServer.getDefaultNormalizationRuleSetId(),
+        new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     valueDistributor.addListener(subscription, listener);
     
     // subscribe on the server side
-    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", false, Collections.singleton(subscription)));
+    dataServer.subscribe(subscription, false);
     
     // Send a couple of heartbeats
     Thread.sleep(300);
@@ -72,7 +74,9 @@ public class ActiveSecurityPublicationManagerTest {
     new ActiveSecurityPublicationManager(dataServer, 100, 500);
     
     // subscribe on the server side
-    LiveDataSpecification subscription = new LiveDataSpecification(new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
+    LiveDataSpecification subscription = new LiveDataSpecification(
+        dataServer.getDefaultNormalizationRuleSetId(),
+        new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
     dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", false, Collections.singleton(subscription)));
     
     assertEquals(1, dataServer.getActualSubscriptions().size());

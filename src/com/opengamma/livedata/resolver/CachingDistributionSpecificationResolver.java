@@ -3,13 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.resolver;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -43,16 +44,16 @@ public class CachingDistributionSpecificationResolver implements DistributionSpe
   
 
   @Override
-  public String getDistributionSpecification(
+  public DistributionSpecification getDistributionSpecification(
       LiveDataSpecification fullyResolvedSpec) {
     
     Element cachedDistSpec = _cache.get(new LiveDataSpecification(fullyResolvedSpec));
     if (cachedDistSpec == null) {
-      String distSpec = _underlying.getDistributionSpecification(fullyResolvedSpec);
+      DistributionSpecification distSpec = _underlying.getDistributionSpecification(fullyResolvedSpec);
       cachedDistSpec = new Element(new LiveDataSpecification(fullyResolvedSpec), distSpec);
       _cache.put(cachedDistSpec);
     }
-    return (String) cachedDistSpec.getValue();
+    return (DistributionSpecification) cachedDistSpec.getValue();
   }
 
 }

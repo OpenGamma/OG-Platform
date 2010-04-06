@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class DistributedSpecificationResolver implements LiveDataSpecificationResolver {
+public class DistributedSpecificationResolver {
   
   public static final long TIMEOUT_MS = 5 * 60 * 100l;
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedSpecificationResolver.class);
@@ -47,10 +47,11 @@ public class DistributedSpecificationResolver implements LiveDataSpecificationRe
     _fudgeContext = fudgeContext;
   }
   
-  @Override
-  public LiveDataSpecification resolve(LiveDataSpecification requestedSpecification) {
-    s_logger.info("Sending message to resolve ", requestedSpecification);
-    ResolveRequest resolveRequest = new ResolveRequest(new LiveDataSpecification(requestedSpecification));
+  public LiveDataSpecification resolve(
+      LiveDataSpecification spec) {
+    
+    s_logger.info("Sending message to resolve ", spec);
+    ResolveRequest resolveRequest = new ResolveRequest(spec);
     FudgeFieldContainer requestMessage = resolveRequest.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicReference<LiveDataSpecification> resolved = new AtomicReference<LiveDataSpecification>();

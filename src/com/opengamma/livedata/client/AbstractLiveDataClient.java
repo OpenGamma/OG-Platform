@@ -22,6 +22,7 @@ import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
@@ -221,5 +222,9 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
 
   protected abstract void cancelPublication(LiveDataSpecification fullyQualifiedSpecification);
+  
+  public String getDefaultNormalizationRuleSetId() {
+    return StandardRules.getOpenGamma().getId();
+  }
   
 }

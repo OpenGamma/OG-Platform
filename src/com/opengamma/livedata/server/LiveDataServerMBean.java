@@ -94,7 +94,8 @@ public class LiveDataServerMBean {
       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)")})
   public String subscribe(String securityUniqueId) {
     try {
-      return _server.subscribe(securityUniqueId);
+      DistributionSpecification distributionSpec = _server.subscribe(securityUniqueId); 
+      return distributionSpec.getJmsTopic();
     } catch (RuntimeException e) {
       s_logger.error("subscribe(" + securityUniqueId + ") failed", e);
       throw new RuntimeException(e.getMessage());

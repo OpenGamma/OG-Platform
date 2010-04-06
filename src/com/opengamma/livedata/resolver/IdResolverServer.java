@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.resolver;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -12,25 +12,25 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.ResolveRequest;
 import com.opengamma.livedata.ResolveResponse;
-import com.opengamma.livedata.client.LiveDataSpecificationResolver;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Receives <code>ResolveRequests</code>, passes them onto a delegate <code>LiveDataSpecificationResolver</code>,
+ * Receives <code>ResolveRequests</code>, passes them onto a delegate <code>IdResolver</code>,
  * and returns <code>ResolveResponses</code>. 
  *
  * @author pietari
  */
-public class SpecificationResolverServer implements FudgeRequestReceiver {
+public class IdResolverServer implements FudgeRequestReceiver {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(SpecificationResolverServer.class);
-  private final LiveDataSpecificationResolver _delegate;
+  private static final Logger s_logger = LoggerFactory.getLogger(IdResolverServer.class);
+  private final IdResolver _delegate;
   
-  public SpecificationResolverServer(LiveDataSpecificationResolver delegate) {
+  public IdResolverServer(IdResolver delegate) {
     ArgumentChecker.checkNotNull(delegate, "Delegate specification resolver");
     _delegate = delegate;
   }
@@ -41,8 +41,13 @@ public class SpecificationResolverServer implements FudgeRequestReceiver {
     ResolveRequest resolveRequest = ResolveRequest.fromFudgeMsg(context, requestFudgeMsg);
     s_logger.debug("Received resolve request for {}", resolveRequest.getRequestedSpecification());
     
-    LiveDataSpecification resolvedSpec = _delegate.resolve(resolveRequest.getRequestedSpecification());
-    ResolveResponse response = new ResolveResponse(new LiveDataSpecification(resolvedSpec));
+    LiveDataSpecification requestedSpec = resolveRequest.getRequestedSpecification();
+    DomainSpecificIdentifiers resolvedIds = _delegate.resolve(requestedSpec.getIdentifiers());
+    LiveDataSpecification resolvedSpec = new LiveDataSpecification(
+        requestedSpec.getNormalizationRuleSetId(),
+        resolvedIds);
+    
+    ResolveResponse response = new ResolveResponse(resolvedSpec);
     FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
     return responseFudgeMsg;
   }

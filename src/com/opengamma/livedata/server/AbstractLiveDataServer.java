@@ -7,6 +7,7 @@ package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -28,10 +28,9 @@ import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.LiveDataSubscriptionResult;
-import com.opengamma.livedata.client.IdentitySpecificationResolver;
-import com.opengamma.livedata.client.LiveDataEntitlementChecker;
-import com.opengamma.livedata.client.LiveDataSpecificationResolver;
-import com.opengamma.livedata.client.PermissiveLiveDataEntitlementChecker;
+import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
+import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
 
@@ -48,7 +47,7 @@ public abstract class AbstractLiveDataServer {
   private final Set<MarketDataFieldReceiver> _fieldReceivers = new CopyOnWriteArraySet<MarketDataFieldReceiver>();
   private final Set<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArraySet<SubscriptionListener>();
   private final Set<Subscription> _currentlyActiveSubscriptions = new CopyOnWriteArraySet<Subscription>();
-  private final Map<String, LiveDataSpecification> _securityUniqueId2FullyQualifiedSpecification = new ConcurrentHashMap<String, LiveDataSpecification>();
+  private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<String, Subscription>();
   private final Map<LiveDataSpecification, Subscription> _fullyQualifiedSpec2Subscription = new ConcurrentHashMap<LiveDataSpecification, Subscription>();
 
   private final AtomicLong _numUpdatesSent = new AtomicLong(0);
@@ -57,7 +56,6 @@ public abstract class AbstractLiveDataServer {
   private final Lock _subscriptionLock = new ReentrantLock();
 
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
-  private LiveDataSpecificationResolver _specificationResolver = new IdentitySpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
 
   /**
@@ -103,23 +101,6 @@ public abstract class AbstractLiveDataServer {
   }
 
   /**
-   * @return the specificationResolver
-   */
-  public LiveDataSpecificationResolver getSpecificationResolver() {
-    return _specificationResolver;
-  }
-
-  /**
-   * @param specificationResolver
-   *          the specificationResolver to set
-   */
-  public void setSpecificationResolver(
-      LiveDataSpecificationResolver specificationResolver) {
-    assert specificationResolver != null;
-    _specificationResolver = specificationResolver;
-  }
-
-  /**
    * @return the entitlementChecker
    */
   public LiveDataEntitlementChecker getEntitlementChecker() {
@@ -133,6 +114,10 @@ public abstract class AbstractLiveDataServer {
   public void setEntitlementChecker(
       LiveDataEntitlementChecker entitlementChecker) {
     _entitlementChecker = entitlementChecker;
+  }
+  
+  public String getDefaultNormalizationRuleSetId() {
+    return StandardRules.getOpenGamma().getId();
   }
 
   /**
@@ -155,65 +140,53 @@ public abstract class AbstractLiveDataServer {
    */
   protected abstract IdentificationDomain getUniqueIdDomain();
   
-  public String subscribe(String securityUniqueId) {
+  public DistributionSpecification subscribe(String securityUniqueId) {
+    return subscribe(securityUniqueId, false);
+  }
+  
+  public DistributionSpecification subscribe(String securityUniqueId, boolean persistent) {
     return subscribe(
-        new LiveDataSpecification(new DomainSpecificIdentifier(getUniqueIdDomain(), securityUniqueId)), 
-        false);    
+        new LiveDataSpecification(
+            getDefaultNormalizationRuleSetId(),
+            new DomainSpecificIdentifier(getUniqueIdDomain(), securityUniqueId)), 
+        persistent);    
   }
 
-  public String subscribe(LiveDataSpecification specification,
+  public DistributionSpecification subscribe(LiveDataSpecification liveDataSpecificationFromClient, 
       boolean persistent) {
-
-    // Resolve
-    LiveDataSpecification fullyQualifiedSpecification = getSpecificationResolver()
-        .resolve(specification);
-    if (fullyQualifiedSpecification == null) {
-      throw new OpenGammaRuntimeException(
-          "Unable to resolve requested specification " + specification);
-    }
-    LiveDataSpecification localFullyQualifiedSpecification = new LiveDataSpecification(
-        fullyQualifiedSpecification);
-
-    // Subscribe
-    return subscribeToFullyQualifiedSpecification(
-        localFullyQualifiedSpecification, persistent);
-  }
-
-  private String subscribeToFullyQualifiedSpecification(
-      LiveDataSpecification qualifiedSpecification, boolean persistent) {
-    String tickDistributionSpec = getDistributionSpecificationResolver()
-        .getDistributionSpecification(qualifiedSpecification);
+    DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
+        .getDistributionSpecification(liveDataSpecificationFromClient);
+    LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
 
     _subscriptionLock.lock();
     try {
-      if (isSubscribedTo(qualifiedSpecification)) {
-        s_logger.info("Already subscribed to {}", qualifiedSpecification);
+      Subscription subscription;
+      
+      if (isSubscribedTo(fullyQualifiedSpec)) {
+        s_logger.info("Already subscribed to {}", fullyQualifiedSpec);
 
         // Might be necessary to turn the subscription into a persistent one. We
         // never turn it back from persistent to non-persistent, however.
-        Subscription subscription = getSubscription(qualifiedSpecification);
+        subscription = getSubscription(fullyQualifiedSpec);
         if (!subscription.isPersistent() && persistent) {
           changePersistent(subscription, true);
         }
 
       } else {
 
-        String securityUniqueId = qualifiedSpecification
-            .getIdentifier(getUniqueIdDomain());
+        String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
         if (securityUniqueId == null) {
           throw new IllegalArgumentException("Qualified spec "
-              + qualifiedSpecification + " does not contain ID of domain "
+              + fullyQualifiedSpec + " does not contain ID of domain "
               + getUniqueIdDomain());
         }
         Object subscriptionHandle = doSubscribe(securityUniqueId);
 
-        Subscription subscription = new Subscription(securityUniqueId,
-            qualifiedSpecification,  subscriptionHandle, tickDistributionSpec, persistent);
+        subscription = new Subscription(securityUniqueId, subscriptionHandle, 
+            persistent, Collections.singleton(distributionSpec));
 
         _currentlyActiveSubscriptions.add(subscription);
-        _securityUniqueId2FullyQualifiedSpecification.put(securityUniqueId,
-            qualifiedSpecification);
-        _fullyQualifiedSpec2Subscription.put(qualifiedSpecification,
+        _securityUniqueId2Subscription.put(securityUniqueId,
             subscription);
 
         for (SubscriptionListener listener : _subscriptionListeners) {
@@ -224,13 +197,18 @@ public abstract class AbstractLiveDataServer {
           }
         }
 
-        s_logger.info("Created subscription to {}", qualifiedSpecification);
+        s_logger.info("Created subscription to {}", fullyQualifiedSpec);
       }
+      
+      _fullyQualifiedSpec2Subscription.put(fullyQualifiedSpec,
+          subscription);
+      subscription.addDistributionSpec(distributionSpec);
+    
     } finally {
       _subscriptionLock.unlock();
     }
 
-    return tickDistributionSpec;
+    return distributionSpec;
   }
 
   /**
@@ -246,43 +224,42 @@ public abstract class AbstractLiveDataServer {
 
       try {
 
-        // Resolution
-        LiveDataSpecification qualifiedSpecification = getSpecificationResolver()
-            .resolve(requestedSpecification);
-        if (qualifiedSpecification == null) {
-          s_logger.info("Unable to resolve requested specification {}",
+        // Check that this spec can be found
+        DistributionSpecification distributionSpec;
+        try {
+          distributionSpec = getDistributionSpecificationResolver()
+            .getDistributionSpecification(requestedSpecification);
+        } catch (IllegalArgumentException e) {
+          s_logger.info("Unable to work out distribution spec for specification {}",
               requestedSpecification);
           responses.add(new LiveDataSubscriptionResponse(
               requestedSpecification, null,
-              LiveDataSubscriptionResult.NOT_PRESENT, null, null));
+              LiveDataSubscriptionResult.NOT_PRESENT, e.getMessage(), null));
           continue;
         }
-        LiveDataSpecification localFullyQualifiedSpecification = new LiveDataSpecification(
-            qualifiedSpecification);
 
         // Entitlement check
         if (!getEntitlementChecker().isEntitled(
-            subscriptionRequest.getUserName(), qualifiedSpecification)) {
+            subscriptionRequest.getUserName(), distributionSpec)) {
           s_logger.info("User {} not entitled to specification {}",
-              subscriptionRequest.getUserName(), qualifiedSpecification);
+              subscriptionRequest.getUserName(), requestedSpecification);
           // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to
           // get a user message.
           responses.add(new LiveDataSubscriptionResponse(
-              requestedSpecification, new LiveDataSpecification(
-                  qualifiedSpecification),
+              requestedSpecification, requestedSpecification,
               LiveDataSubscriptionResult.NOT_AUTHORIZED, null, null));
           continue;
         }
 
         // Subscribe
-        String tickDistributionSpec = subscribeToFullyQualifiedSpecification(
-            localFullyQualifiedSpecification, subscriptionRequest
-                .getPersistent());
+        distributionSpec = subscribe(requestedSpecification, subscriptionRequest.getPersistent());
 
         LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(
-            requestedSpecification, new LiveDataSpecification(
-                qualifiedSpecification), LiveDataSubscriptionResult.SUCCESS,
-            null, tickDistributionSpec);
+            requestedSpecification, 
+            distributionSpec.getFullyQualifiedLiveDataSpecification(), 
+            LiveDataSubscriptionResult.SUCCESS,
+            null, 
+            distributionSpec.getJmsTopic());
         responses.add(response);
 
       } catch (Exception e) {
@@ -336,9 +313,12 @@ public abstract class AbstractLiveDataServer {
         actuallyUnsubscribed = true;
 
         _currentlyActiveSubscriptions.remove(subscription);
-        _securityUniqueId2FullyQualifiedSpecification.remove(subscription
+        _securityUniqueId2Subscription.remove(subscription
             .getSecurityUniqueId());
-        _fullyQualifiedSpec2Subscription.remove(subscription.getFullyQualifiedSpec());
+        
+        for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
+          _fullyQualifiedSpec2Subscription.remove(distributionSpec.getFullyQualifiedLiveDataSpecification());
+        }
 
         for (SubscriptionListener listener : _subscriptionListeners) {
           try {
@@ -398,37 +378,44 @@ public abstract class AbstractLiveDataServer {
 
     return actuallyChanged;
   }
-
+  
+  public boolean isSubscribedTo(String securityUniqueId) {
+    return _securityUniqueId2Subscription.containsKey(securityUniqueId);    
+  }
+  
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
-    return _fullyQualifiedSpec2Subscription
-        .containsKey(new LiveDataSpecification(fullyQualifiedSpec));
+    return _fullyQualifiedSpec2Subscription.containsKey(fullyQualifiedSpec);
   }
 
-  boolean isSubscribedTo(Subscription subscription) {
+  public boolean isSubscribedTo(Subscription subscription) {
     return _currentlyActiveSubscriptions.contains(subscription);
   }
 
-  public LiveDataSpecification getFullyQualifiedSpec(String securityUniqueId) {
-    return _securityUniqueId2FullyQualifiedSpecification.get(securityUniqueId);
-  }
-
-  public void liveDataReceived(LiveDataSpecification resolvedSpecification,
+  public void liveDataReceived(String securityUniqueId,
       FudgeFieldContainer liveDataFields) {
     s_logger.debug("Live data received: {}", liveDataFields);
 
     _numUpdatesSent.incrementAndGet();
     _performanceCounter.hit();
+    
+    Subscription subscription = getSubscription(securityUniqueId);
+    if (subscription == null) {
+      s_logger.warn("Got data for invalid security unique ID {}", securityUniqueId);
+      return;
+    }
 
     // TODO kirk 2009-10-29 -- This needs to be much better.
     for (MarketDataFieldReceiver receiver : _fieldReceivers) {
-      receiver.marketDataReceived(resolvedSpecification, liveDataFields);
+      receiver.marketDataReceived(subscription, liveDataFields);
     }
   }
 
   public Set<String> getActiveDistributionSpecs() {
     Set<String> subscriptions = new HashSet<String>();
     for (Subscription subscription : _currentlyActiveSubscriptions) {
-      subscriptions.add(subscription.getDistributionSpecification());
+      for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
+        subscriptions.add(distributionSpec.toString());
+      }
     }
     return subscriptions;
   }
@@ -453,20 +440,16 @@ public abstract class AbstractLiveDataServer {
     return _performanceCounter.getHitsPerSecond();
   }
 
-  Set<Subscription> getSubscriptions() {
-    return _currentlyActiveSubscriptions;
+  public Set<Subscription> getSubscriptions() {
+    return Collections.unmodifiableSet(_currentlyActiveSubscriptions);
   }
 
-  Subscription getSubscription(LiveDataSpecification spec) {
+  public Subscription getSubscription(LiveDataSpecification spec) {
     return _fullyQualifiedSpec2Subscription.get(spec);
   }
 
-  Subscription getSubscription(String securityUniqueId) {
-    LiveDataSpecification spec = getFullyQualifiedSpec(securityUniqueId);
-    if (spec == null) {
-      return null;
-    }
-    return getSubscription(spec);
+  public Subscription getSubscription(String securityUniqueId) {
+    return _securityUniqueId2Subscription.get(securityUniqueId);
   }
 
 }

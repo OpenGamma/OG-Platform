@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata;
 
+import static org.junit.Assert.*;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
@@ -21,10 +23,13 @@ public class LiveDataSpecificationTest {
   
   @Test
   public void fudge() {
-    LiveDataSpecification lds = new LiveDataSpecification(new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
+    LiveDataSpecification lds = new LiveDataSpecification("Foo", new DomainSpecificIdentifier(new IdentificationDomain("bar"), "baz"));
     FudgeFieldContainer container = lds.toFudgeMsg(new FudgeContext());
     
-    LiveDataSpecification deserialized = new LiveDataSpecification(container);
+    LiveDataSpecification deserialized = LiveDataSpecification.fromFudgeMsg(container);
+    assertNotNull(deserialized);
+    assertEquals("Foo", deserialized.getNormalizationRuleSetId());    
+    assertEquals("baz", deserialized.getIdentifier(new IdentificationDomain("bar")));
   }
 
 }

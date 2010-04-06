@@ -15,7 +15,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,8 +26,6 @@ import com.opengamma.util.ArgumentChecker;
 public class MarketDataFudgeJmsSender implements MarketDataFieldReceiver {
   private final JmsTemplate _jmsTemplate;
   private final FudgeContext _fudgeContext;
-  
-  private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   
   public MarketDataFudgeJmsSender(JmsTemplate jmsTemplate) {
     this(jmsTemplate, new FudgeContext());
@@ -55,38 +52,27 @@ public class MarketDataFudgeJmsSender implements MarketDataFieldReceiver {
     return _fudgeContext;
   }
 
-  /**
-   * @return the distributionSpecificationResolver
-   */
-  public DistributionSpecificationResolver getDistributionSpecificationResolver() {
-    return _distributionSpecificationResolver;
-  }
-
-  /**
-   * @param distributionSpecificationResolver the distributionSpecificationResolver to set
-   */
-  public void setDistributionSpecificationResolver(
-      DistributionSpecificationResolver distributionSpecificationResolver) {
-    _distributionSpecificationResolver = distributionSpecificationResolver;
-  }
-
-
   @Override
-  public void marketDataReceived(LiveDataSpecification specification,
-      FudgeFieldContainer fields) {
-    LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), specification, fields);
-    FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
-    String destinationName = getDistributionSpecificationResolver().getDistributionSpecification(specification);
-    final byte[] bytes = getFudgeContext().toByteArray(fudgeMsg);
-    getJmsTemplate().send(destinationName, new MessageCreator() {
-      @Override
-      public Message createMessage(Session session) throws JMSException {
-        // TODO kirk 2009-10-30 -- We want to put stuff in the properties as well I think.
-        BytesMessage bytesMessage = session.createBytesMessage();
-        bytesMessage.writeBytes(bytes);
-        return bytesMessage;
-      }
-    });
+  public void marketDataReceived(Subscription subscription, FudgeFieldContainer fields) {
+    
+    for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
+      
+      FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(fields);
+      LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
+      FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
+      String destinationName = distributionSpec.getJmsTopic();
+      final byte[] bytes = getFudgeContext().toByteArray(fudgeMsg);
+      getJmsTemplate().send(destinationName, new MessageCreator() {
+        @Override
+        public Message createMessage(Session session) throws JMSException {
+          // TODO kirk 2009-10-30 -- We want to put stuff in the properties as well I think.
+          BytesMessage bytesMessage = session.createBytesMessage();
+          bytesMessage.writeBytes(bytes);
+          return bytesMessage;
+        }
+      });
+      
+    }
   }
 
 }

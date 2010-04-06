@@ -14,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -116,18 +114,14 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
   private void updateServer(boolean catchExceptions) {
     for (PersistentSubscription sub : _persistentSubscriptions) {
 
-      LiveDataSpecification spec = new LiveDataSpecification(
-          new DomainSpecificIdentifier(_server.getUniqueIdDomain(), sub.getId()));
-      
-      Subscription existingSub = _server.getSubscription(spec);
-      
+      Subscription existingSub = _server.getSubscription(sub.getId());
       if (existingSub == null || !existingSub.isPersistent()) {
-        s_logger.info("Creating a persistent subscription on server for " + spec);
+        s_logger.info("Creating a persistent subscription on server for " + sub);
         try {
-          _server.subscribe(spec, true);
+          _server.subscribe(sub.getId(), true);
         } catch (RuntimeException e) {
           if (catchExceptions) {
-            s_logger.error("Creating a persistent subscription failed for " + spec, e);
+            s_logger.error("Creating a persistent subscription failed for " + sub, e);
           } else {
             throw e;            
           }

@@ -75,7 +75,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     if(fields == null) {
       return null;
     }
-    LiveDataSpecification spec = new LiveDataSpecification(specificationFields);
+    LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(specificationFields);
     return new LiveDataValueUpdateBean(relevantTimestamp, spec, fields);
   }
 

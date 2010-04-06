@@ -3,9 +3,8 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.client;
+package com.opengamma.livedata.server;
 
-import com.opengamma.livedata.LiveDataSpecification;
 
 /**
  * 
@@ -17,7 +16,7 @@ public class PermissiveLiveDataEntitlementChecker implements
 
   @Override
   public boolean isEntitled(String userName,
-      LiveDataSpecification fullyQualifiedSpecification) {
+      DistributionSpecification distributionSpec) {
     return true;
   }
 
