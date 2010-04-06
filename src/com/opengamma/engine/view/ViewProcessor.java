@@ -34,8 +34,8 @@ import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 
@@ -59,7 +59,7 @@ public class ViewProcessor implements Lifecycle {
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private HistoricalDataProvider _historicalDataProvider;
   private ViewComputationCacheSource _computationCacheSource;
-  private FudgeRequestSender _computationJobRequestSender;
+  private JobRequestSender _computationJobRequestSender;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
@@ -205,7 +205,7 @@ public class ViewProcessor implements Lifecycle {
   /**
    * @return the computationJobRequestSender
    */
-  public FudgeRequestSender getComputationJobRequestSender() {
+  public JobRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
   }
 
@@ -213,7 +213,7 @@ public class ViewProcessor implements Lifecycle {
    * @param computationJobRequestSender the computationJobRequestSender to set
    */
   public void setComputationJobRequestSender(
-      FudgeRequestSender computationJobRequestSender) {
+      JobRequestSender computationJobRequestSender) {
     assertNotStarted();
     _computationJobRequestSender = computationJobRequestSender;
   }

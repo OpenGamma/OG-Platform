@@ -17,10 +17,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +31,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.InvocationResult;
-import com.opengamma.transport.FudgeMessageReceiver;
+import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,7 +40,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class DependencyGraphExecutor {
+public class DependencyGraphExecutor implements JobResultReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
   // Injected Inputs:
   private final String _viewName;
@@ -302,28 +298,16 @@ public class DependencyGraphExecutor {
     
     s_logger.debug("Enqueuing job with specification {}", jobSpec);
     _executingSpecifications.put(jobSpec, depNode);
-    invokeJob(job);
+    getProcessingContext().getComputationJobRequestSender().sendRequest(job, this);
     return jobSpec;
   }
 
-  /**
-   * @param job
-   */
-  protected void invokeJob(CalculationJob job) {
-    FudgeFieldContainer jobMsg = job.toFudgeMsg(new FudgeSerializationContext (getProcessingContext().getComputationJobRequestSender().getFudgeContext()));
-    getProcessingContext().getComputationJobRequestSender().sendRequest(jobMsg, new FudgeMessageReceiver() {
-      @Override
-      public void messageReceived(
-          FudgeContext fudgeContext,
-          FudgeMsgEnvelope msgEnvelope) {
-        CalculationJobResult jobResult = CalculationJobResult.fromFudgeMsg(msgEnvelope.getMessage());
-        jobResultReceived(jobResult);
-      }
-      
-    });
-  }
-  
   protected void jobResultReceived(CalculationJobResult jobResult) {
     _pendingResults.add(jobResult);
+  }
+
+  @Override
+  public void resultReceived(CalculationJobResult result) {
+    _pendingResults.add(result);
   }
 }
