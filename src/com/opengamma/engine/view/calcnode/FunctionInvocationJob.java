@@ -152,12 +152,12 @@ public class FunctionInvocationJob implements Runnable {
   protected FunctionInputs assembleInputs() {
     Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
     for(ValueSpecification inputSpec : getResolvedInputs()) {
-      ComputedValue input = getComputationCache().getValue(inputSpec);
+      Object input = getComputationCache().getValue(inputSpec);
       if(input == null) {
         s_logger.info("Not able to execute as missing input {}", inputSpec);
         throw new MissingInputException(inputSpec, getFunctionUniqueIdentifier());
       }
-      inputs.add(getComputationCache().getValue(inputSpec));
+      inputs.add(new ComputedValue (inputSpec, input));
     }
     FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
     return functionInputs;

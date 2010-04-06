@@ -61,7 +61,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
     return lookupResponse.getResponse();
   }
   
-  public ComputedValue getValue(String viewName, String calcConfigName, long timestamp, ValueSpecification valueSpecification) {
+  public Object getValue(String viewName, String calcConfigName, long timestamp, ValueSpecification valueSpecification) {
     // TODO kirk 2010-03-30 -- Check Inputs.
     
     long correlationId = getNextCorrelationId();
@@ -98,7 +98,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
     request.setCalculationConfigurationName(calcConfigName);
     request.setSnapshot(timestamp);
     request.setSpecificationId(specificationId);
-    request.setValue(value);
+    request.setValue(value.getValue ());
 
     FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
     MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);

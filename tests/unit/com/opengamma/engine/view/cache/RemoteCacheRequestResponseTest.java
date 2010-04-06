@@ -176,7 +176,7 @@ public class RemoteCacheRequestResponseTest {
     long timestamp = System.currentTimeMillis();
     client.putValue("View1", "Config1", timestamp, inputValue);
     
-    ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
     // TODO kirk 2010-03-31 -- More Checks
     resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
@@ -198,7 +198,7 @@ public class RemoteCacheRequestResponseTest {
     long timestamp = System.currentTimeMillis();
     client.putValue("View1", "Config1", timestamp, inputValue);
     
-    ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
     
     client.purgeCache("View1", "Config1", timestamp);
@@ -217,7 +217,7 @@ public class RemoteCacheRequestResponseTest {
     long timestamp = System.currentTimeMillis();
     client.putValue("View1", "Config1", timestamp, inputValue);
     
-    ComputedValue resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
     
     client.purgeCache("View1", null, timestamp);

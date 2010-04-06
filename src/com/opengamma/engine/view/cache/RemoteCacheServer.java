@@ -23,7 +23,6 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 
@@ -40,8 +39,8 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
   private final AtomicLong _nextValueSpecificationId = new AtomicLong(1l);
   private final ConcurrentMap<ValueSpecification, Long> _valueSpecificationIds =
     new ConcurrentHashMap<ValueSpecification, Long>();
-  private final ConcurrentMap<ViewComputationCacheKey, Map<Long, ComputedValue>> _values =
-    new ConcurrentHashMap<ViewComputationCacheKey, Map<Long, ComputedValue>>();
+  private final ConcurrentMap<ViewComputationCacheKey, Map<Long, Object>> _values =
+    new ConcurrentHashMap<ViewComputationCacheKey, Map<Long, Object>>();
   private final Lock _purgeLock = new ReentrantLock();
 
   @Override
@@ -99,8 +98,8 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
   private Object handleValueLookupRequest(FudgeContext fudgeContext,
       ValueLookupRequest request) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
-    Map<Long, ComputedValue> cacheMap = _values.get(cacheKey);
-    ComputedValue computedValue = null;
+    Map<Long, Object> cacheMap = _values.get(cacheKey);
+    Object computedValue = null;
     if(cacheMap != null) {
       computedValue = cacheMap.get(request.getSpecificationId());
     }
@@ -116,9 +115,9 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
   private Object handleValuePutRequest(FudgeContext fudgeContext,
       ValuePutRequest request) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
-    Map<Long, ComputedValue> cacheMap = _values.get(cacheKey);
+    Map<Long, Object> cacheMap = _values.get(cacheKey);
     if(cacheMap == null) {
-      Map<Long, ComputedValue> freshMap = new ConcurrentHashMap<Long, ComputedValue>();
+      Map<Long, Object> freshMap = new ConcurrentHashMap<Long, Object>();
       cacheMap = _values.putIfAbsent(cacheKey, freshMap);
       if(cacheMap == null) {
         cacheMap = freshMap;
@@ -140,9 +139,9 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     int nPurged = 0;
     _purgeLock.lock();
     try {
-      Iterator<Map.Entry<ViewComputationCacheKey, Map<Long, ComputedValue>>> entryIter = _values.entrySet().iterator();
+      Iterator<Map.Entry<ViewComputationCacheKey, Map<Long, Object>>> entryIter = _values.entrySet().iterator();
       while(entryIter.hasNext()) {
-        Map.Entry<ViewComputationCacheKey, Map<Long, ComputedValue>> entry = entryIter.next();
+        Map.Entry<ViewComputationCacheKey, Map<Long, Object>> entry = entryIter.next();
         ViewComputationCacheKey cacheKey = entry.getKey();
         if(!ObjectUtils.equals(request.getViewName(), cacheKey.getViewName())) {
           continue;

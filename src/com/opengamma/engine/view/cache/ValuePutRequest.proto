@@ -12,10 +12,7 @@ namespace com.opengamma.engine.view.cache {
     string calculationConfigurationName;
     long snapshot;
     long specificationId;
-    // I really wish I could just do Object here since the ValueSpecification part of the result
-    // is implied by the request. Particualrly with the spec ID available in the protocol.
-    com.opengamma.engine.value.ComputedValue value;
-    
+    Object value;
     
     binding Java {
       methods "toString";

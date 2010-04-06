@@ -57,7 +57,7 @@ public class RemoteViewComputationCacheSourceTest {
     cache.putValue(inputValue);
     
     // First, check that it hit the remote side. RemoteClient doesn't cache locally.
-    ComputedValue resultValue = _cacheSource.getRemoteClient().getValue("View1", "Config1", timestamp, valueSpec);
+    Object resultValue = _cacheSource.getRemoteClient().getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
     // TODO kirk 2010-03-31 -- More Checks
     

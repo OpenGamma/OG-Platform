@@ -69,11 +69,12 @@ public class RemoteViewComputationCache implements ViewComputationCache {
   public ComputedValue getValue(ValueSpecification specification) {
     Element cacheElement = getLocalCache().get(specification);
     if(cacheElement != null) {
-      return (ComputedValue)cacheElement.getValue();
+      return new ComputedValue (specification, cacheElement.getValue ());
+      //return cacheElement.getValue();
     }
-    ComputedValue value = getRemoteClient().getValue(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), specification);
+    Object value = getRemoteClient().getValue(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), specification);
     getLocalCache().put(new Element(specification, value));
-    return value;
+    return new ComputedValue (specification, value);
   }
 
   @Override

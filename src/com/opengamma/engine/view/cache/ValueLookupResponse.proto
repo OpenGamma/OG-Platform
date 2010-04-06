@@ -8,9 +8,7 @@ namespace com.opengamma.engine.view.cache {
 
   message ValueLookupResponse extends RemoteCacheMessage {
   
-    // I really wish I could just do Object here since the ValueSpecification part of the result
-    // is implied by the request.
-    com.opengamma.engine.value.ComputedValue value;
+    Object value;
     
     binding Java {
       methods "toString";
