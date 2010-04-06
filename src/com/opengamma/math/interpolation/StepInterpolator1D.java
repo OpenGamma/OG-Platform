@@ -47,4 +47,22 @@ public class StepInterpolator1D extends Interpolator1D {
       return new InterpolationResult<Double>(sorted.higherEntry(value).getValue(), 0.);
     return new InterpolationResult<Double>(sorted.lowerEntry(value).getValue(), 0.);
   }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof StepInterpolator1D))
+      return false;
+    final StepInterpolator1D other = (StepInterpolator1D) o;
+    return _eps == other._eps;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode() * 17 + ((Double) _eps).hashCode();
+  }
+
 }

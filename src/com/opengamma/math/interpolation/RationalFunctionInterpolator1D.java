@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -25,7 +25,8 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    // REVIEW kirk 2009-12-30 -- If the inputs are already sorted, we shouldn't double-sort it.
+    // REVIEW kirk 2009-12-30 -- If the inputs are already sorted, we shouldn't
+    // double-sort it.
     final TreeMap<Double, Double> sorted = initData(data);
     final int m = _degree + 1;
     if (data.size() < m)
@@ -72,4 +73,22 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
     }
     return new InterpolationResult<Double>(y, dy);
   }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof RationalFunctionInterpolator1D))
+      return false;
+    final RationalFunctionInterpolator1D other = (RationalFunctionInterpolator1D) o;
+    return _degree == other._degree;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode() * 17 + _degree;
+  }
+
 }

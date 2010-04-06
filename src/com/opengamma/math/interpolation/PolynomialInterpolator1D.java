@@ -82,4 +82,22 @@ public class PolynomialInterpolator1D extends Interpolator1D {
     }
     return new InterpolationResult<Double>(y, dy);
   }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof PolynomialInterpolator1D))
+      return false;
+    final PolynomialInterpolator1D other = (PolynomialInterpolator1D) o;
+    return _degree == other._degree;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode() * 17 + _degree;
+  }
+
 }

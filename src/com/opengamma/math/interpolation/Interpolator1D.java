@@ -96,4 +96,10 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
     }
     return i;
   }
+
+  protected boolean classEquals(final Object o) {
+    if (o == null)
+      return false;
+    return getClass().equals(o.getClass());
+  }
 }
