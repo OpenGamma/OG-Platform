@@ -15,6 +15,9 @@ import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.transport.FudgeRequestReceiver;
 
+// TODO kirk 2010-04-06 -- I don't like that this is a JobRequestSender rather than something else.
+// Have to come up with a better solution for this.
+
 /**
  * Receives messages corresponding to {@link CalculationJob}, invokes them,
  * and then responds with messages corresponding to {@link CalculationJobResult}.
@@ -23,7 +26,7 @@ import com.opengamma.transport.FudgeRequestReceiver;
  */
 public class CalculationNodeRequestReceiver
 extends AbstractCalculationNode
-implements FudgeRequestReceiver {
+implements FudgeRequestReceiver, JobRequestSender {
 
   /**
    * @param cacheSource
@@ -49,6 +52,12 @@ implements FudgeRequestReceiver {
     CalculationJob job = CalculationJob.fromFudgeMsg(context, requestEnvelope.getMessage ());
     CalculationJobResult jobResult = executeJob(job);
     return jobResult.toFudgeMsg(context.getFudgeContext());
+  }
+
+  @Override
+  public void sendRequest(CalculationJob job, JobResultReceiver resultReceiver) {
+    CalculationJobResult jobResult = executeJob(job);
+    resultReceiver.resultReceived(jobResult);
   }
 
 }
