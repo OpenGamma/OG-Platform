@@ -146,7 +146,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   }
 
   protected ValueRequirement getVolatilitySurfaceMarketDataRequirement(final DomainSpecificIdentifier id) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, id);
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, id);
   }
 
   protected abstract <S extends OptionDefinition, T extends StandardOptionDataBundle> AnalyticOptionModel<S, T> getModel();
