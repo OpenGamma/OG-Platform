@@ -16,32 +16,32 @@ import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Keeps track of all securities currently being published, and controls the
+ * Keeps track of all market data currently being published, and controls the
  * expiry by keeping track of heartbeat messages.
  *
  * @author kirk
  */
-public class ActiveSecurityPublicationManager implements SubscriptionListener {
+public class ExpirationManager implements SubscriptionListener {
   public static final long DEFAULT_TIMEOUT_EXTENSION = 3 * HeartbeatSender.DEFAULT_PERIOD;
   public static final long DEFAULT_CHECK_PERIOD = HeartbeatSender.DEFAULT_PERIOD / 2;
-  private static final Logger s_logger = LoggerFactory.getLogger(ActiveSecurityPublicationManager.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExpirationManager.class);
   // Injected Inputs:
   private final AbstractLiveDataServer _dataServer;
   private final long _timeoutExtension;
   
-  public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer) {
+  public ExpirationManager(AbstractLiveDataServer dataServer) {
     this(dataServer, DEFAULT_CHECK_PERIOD);
   }
   
-  public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer, long checkPeriod) {
-    this(dataServer, DEFAULT_TIMEOUT_EXTENSION, new Timer("ActiveSecurityPublicationManager Timer"), checkPeriod);
+  public ExpirationManager(AbstractLiveDataServer dataServer, long checkPeriod) {
+    this(dataServer, DEFAULT_TIMEOUT_EXTENSION, new Timer("ExpirationManager Timer"), checkPeriod);
   }
   
-  public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer, long timeoutExtension, long checkPeriod) {
-    this(dataServer, timeoutExtension, new Timer("ActiveSecurityPublicationManager Timer"), checkPeriod);
+  public ExpirationManager(AbstractLiveDataServer dataServer, long timeoutExtension, long checkPeriod) {
+    this(dataServer, timeoutExtension, new Timer("ExpirationManager Timer"), checkPeriod);
   }
   
-  public ActiveSecurityPublicationManager(AbstractLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
+  public ExpirationManager(AbstractLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
     ArgumentChecker.checkNotNull(dataServer, "Data Server");
     ArgumentChecker.checkNotNull(timer, "Expiration Timer");
     _dataServer = dataServer;

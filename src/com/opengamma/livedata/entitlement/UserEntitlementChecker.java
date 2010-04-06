@@ -3,11 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.entitlement;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserManager;
 import com.opengamma.util.ArgumentChecker;

@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.entitlement;
+
+import com.opengamma.livedata.server.DistributionSpecification;
 
 
 // REVIEW kirk 2009-10-04 -- While this is fine initially, eventually this needs to be changed

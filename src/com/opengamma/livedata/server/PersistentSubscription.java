@@ -10,12 +10,13 @@ import java.io.Serializable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * A market data subscription that should survive server restarts.
  *
  * @author pietari
  */
 public class PersistentSubscription implements Serializable {
   
+  /** A unique ID for the market data. Server type specific (Bloomberg unique ID, RIC, ...). */
   private String _id;
   
   protected PersistentSubscription() {

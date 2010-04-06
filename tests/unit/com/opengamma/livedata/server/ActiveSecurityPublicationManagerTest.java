@@ -34,7 +34,7 @@ public class ActiveSecurityPublicationManagerTest {
     IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
-    ActiveSecurityPublicationManager pubManager = new ActiveSecurityPublicationManager(dataServer, 100, 500);
+    ExpirationManager pubManager = new ExpirationManager(dataServer, 100, 500);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
     ValueDistributor valueDistributor = new ValueDistributor();
@@ -71,7 +71,7 @@ public class ActiveSecurityPublicationManagerTest {
     IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
-    new ActiveSecurityPublicationManager(dataServer, 100, 500);
+    new ExpirationManager(dataServer, 100, 500);
     
     // subscribe on the server side
     LiveDataSpecification subscription = new LiveDataSpecification(

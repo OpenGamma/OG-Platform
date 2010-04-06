@@ -28,6 +28,8 @@ import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.LiveDataSubscriptionResult;
+import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
+import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;

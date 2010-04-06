@@ -15,14 +15,19 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *     
  *
  * @author pietari
  */
 public class DistributionSpecification implements Serializable {
   
+  /** What market data is being distributed (e.g., AAPL stock) */
   private final DomainSpecificIdentifiers _identifiers;
+  
+  /** Topic it's published to */
   private final String _jmsTopic;
+  
+  /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
   
   public DistributionSpecification(DomainSpecificIdentifiers identifiers, 

@@ -24,14 +24,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(HeartbeatReceiver.class);
-  private final ActiveSecurityPublicationManager _activeSecurityPublicationManager;
+  private final ExpirationManager _activeSecurityPublicationManager;
   private final FudgeContext _fudgeContext;
   
-  public HeartbeatReceiver(ActiveSecurityPublicationManager activeSecurityPublicationManager) {
+  public HeartbeatReceiver(ExpirationManager activeSecurityPublicationManager) {
     this(activeSecurityPublicationManager, new FudgeContext());
   }
   
-  public HeartbeatReceiver(ActiveSecurityPublicationManager activeSecurityPublicationManager, FudgeContext fudgeContext) {
+  public HeartbeatReceiver(ExpirationManager activeSecurityPublicationManager, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(activeSecurityPublicationManager, "Active Security Publication Manager");
     _activeSecurityPublicationManager = activeSecurityPublicationManager;
     _fudgeContext = fudgeContext;
@@ -47,7 +47,7 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   /**
    * @return the activeSecurityPublicationManager
    */
-  public ActiveSecurityPublicationManager getActiveSecurityPublicationManager() {
+  public ExpirationManager getActiveSecurityPublicationManager() {
     return _activeSecurityPublicationManager;
   }
 

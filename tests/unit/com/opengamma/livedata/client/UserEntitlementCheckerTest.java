@@ -17,10 +17,10 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.livedata.entitlement.UserEntitlementChecker;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
-import com.opengamma.livedata.server.UserEntitlementChecker;
 import com.opengamma.security.user.Authority;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserGroup;

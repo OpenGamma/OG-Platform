@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.entitlement;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.livedata.EntitlementRequest;
 import com.opengamma.livedata.EntitlementResponse;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
+import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
