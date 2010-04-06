@@ -32,6 +32,11 @@ public class DomainSpecificIdentifiers implements Serializable {
   private final Set<DomainSpecificIdentifier> _identifiers;
   private final int _hashCode;
   
+  public DomainSpecificIdentifiers() {
+    _identifiers = Collections.<DomainSpecificIdentifier>emptySet();
+    _hashCode = calcHashCode();
+  }
+  
   public DomainSpecificIdentifiers(DomainSpecificIdentifier... identifiers) {
     if((identifiers == null) || (identifiers.length == 0)) {
       _identifiers = Collections.<DomainSpecificIdentifier>emptySet();
