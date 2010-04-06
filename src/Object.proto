@@ -1,0 +1,10 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+
+/**
+ * External message definition for java.util.Object. Not particularly robust at the moment; see [PRO-24].
+ */
+extern message Object;
