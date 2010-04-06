@@ -30,6 +30,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResult;
 import com.opengamma.livedata.LiveDataValueUpdate;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -90,7 +91,7 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
       DomainSpecificIdentifier id = requirement.getTargetSpecification().getIdentifier();
-      LiveDataSpecification liveDataSpec = new LiveDataSpecification(id);
+      LiveDataSpecification liveDataSpec = new LiveDataSpecification(StandardRules.getOpenGamma().getId(), id); // TODO
       liveDataSpecs.add(liveDataSpec);
       _liveDataSpec2ValueRequirements.put(liveDataSpec, valueRequirements);
     }

@@ -17,8 +17,8 @@ import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
+import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
-import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -35,7 +35,7 @@ public class ViewProcessingContext {
   private final SecurityMaster _securityMaster;
   private final HistoricalDataProvider _historicalDataProvider;
   private final ViewComputationCacheSource _computationCacheSource;
-  private final FudgeRequestSender _computationJobRequestSender;
+  private final JobRequestSender _computationJobRequestSender;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
   private final DefaultComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
@@ -50,7 +50,7 @@ public class ViewProcessingContext {
       PositionMaster positionMaster,
       SecurityMaster securityMaster,
       ViewComputationCacheSource computationCacheSource,
-      FudgeRequestSender computationJobRequestSender,
+      JobRequestSender computationJobRequestSender,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService
@@ -143,7 +143,7 @@ public class ViewProcessingContext {
   /**
    * @return the computationJobRequestSender
    */
-  public FudgeRequestSender getComputationJobRequestSender() {
+  public JobRequestSender getComputationJobRequestSender() {
     return _computationJobRequestSender;
   }
   

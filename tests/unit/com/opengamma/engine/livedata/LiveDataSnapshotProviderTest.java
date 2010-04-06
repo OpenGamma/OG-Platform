@@ -57,10 +57,10 @@ public class LiveDataSnapshotProviderTest {
     MutableFudgeFieldContainer last3b = new FudgeContext().newMessage();
     last3b.add(LiveDataSnapshotProviderImpl.LAST_PRICE_FIELD, 52.17);
     
-    client.marketDataReceived(new LiveDataSpecification(new DomainSpecificIdentifier("testdomain", "test1")), bidask1);
-    client.marketDataReceived(new LiveDataSpecification(new DomainSpecificIdentifier("testdomain", "test2")), last2);
-    client.marketDataReceived(new LiveDataSpecification(new DomainSpecificIdentifier("testdomain", "test3")), last3a);
-    client.marketDataReceived(new LiveDataSpecification(new DomainSpecificIdentifier("testdomain", "test3")), last3b);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test1")), bidask1);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test2")), last2);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test3")), last3a);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test3")), last3b);
     
     long time = snapshotter.snapshot();
     
