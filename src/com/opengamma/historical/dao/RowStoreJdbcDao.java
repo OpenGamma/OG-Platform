@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,11 +101,20 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime});
     String quotedObject = findQuotedObject(domainIdentifiers);
+    
     if (quotedObject == null) {
       DomainSpecificIdentifier identifier = domainIdentifiers.getIdentifiers().iterator().next();
       quotedObject = identifier.getDomain().getDomainName() + "_" + identifier.getValue();
       createDomainSpecIdentifiers(domainIdentifiers, quotedObject);
+    } else {
+      DomainSpecificIdentifiers loadedIdentifiers = findDomainSpecIdentifiersByQuotedObject(quotedObject);
+      Collection<DomainSpecificIdentifier> missing = new HashSet<DomainSpecificIdentifier>(domainIdentifiers.getIdentifiers());
+      missing.removeAll(loadedIdentifiers.getIdentifiers());
+      if (!missing.isEmpty()) {
+        createDomainSpecIdentifiers(new DomainSpecificIdentifiers(missing), quotedObject);
+      }
     }
+    
     int timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
     if (timeSeriesKeyID == -1) {
       createTimeSeriesKey(quotedObject, dataSource, dataProvider, field, observationTime);
@@ -252,12 +262,12 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
 
   @Override
-  public void createDomainSpecIdentifiers(final DomainSpecificIdentifiers domainIdentifiers, final String quotedObj) {
+  public void createDomainSpecIdentifiers(final DomainSpecificIdentifiers domainIdentifiers, final String quotedObject) {
     ArgumentChecker.checkNotNull(domainIdentifiers, "domainIdentifiers");
     //start transaction
     TransactionStatus transactionStatus = _transactionManager.getTransaction(_transactionDefinition);
     
-    s_logger.debug("creating domainSpecIdentifiers {} for quotedObj={}", domainIdentifiers, quotedObj);
+    s_logger.debug("creating/updating domainSpecIdentifiers {}", domainIdentifiers);
     try {
       //find existing identifiers
       Set<DomainSpecificIdentifier> resolvedIdentifiers = new HashSet<DomainSpecificIdentifier>(domainIdentifiers.getIdentifiers());
@@ -289,20 +299,20 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         if (queryForList.size() == 1) {
           Map<String, Object> row = queryForList.get(0);
           String loadedQuotedObject = (String)row.get("name");
-          if (!loadedQuotedObject.equals(quotedObj)) {
+          if (!loadedQuotedObject.equals(quotedObject)) {
             s_logger.warn("{} has been associated already with {}", loadedQuotedObject, domainIdentifiers);
             throw new OpenGammaRuntimeException(loadedQuotedObject + " has been associated already with " + domainIdentifiers);
           }
-          long identifiersCount = Long.valueOf(String.valueOf(row.get("count")));
-          if (identifiersCount != domainIdentifiers.size()) {
-            DomainSpecificIdentifiers loadeIdentifiers = findDomainSpecIdentifiersByQuotedObject(quotedObj);
+          long loadedIdentifierCount = Long.valueOf(String.valueOf(row.get("count")));
+          if (loadedIdentifierCount != domainIdentifiers.size()) {
+            DomainSpecificIdentifiers loadeIdentifiers = findDomainSpecIdentifiersByQuotedObject(quotedObject);
             resolvedIdentifiers.removeAll(loadeIdentifiers.getIdentifiers());
           }
         }
         
       }
-      if (getQuotedObjectID(quotedObj) == -1) {
-        createQuotedObject(quotedObj, quotedObj);
+      if (getQuotedObjectID(quotedObject) == -1) {
+        createQuotedObject(quotedObject, quotedObject);
       }
       
       SqlParameterSource[] batchArgs = new MapSqlParameterSource[resolvedIdentifiers.size()];
@@ -313,11 +323,12 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
           createDomain(domainName, domainName);
         }
         Map<String, Object> valueMap = new HashMap<String, Object>();
-        valueMap.put("quotedObject", quotedObj);
+        valueMap.put("quotedObject", quotedObject);
         valueMap.put("domain", domainName);
         valueMap.put("identifier", domainSpecificIdentifier.getValue());
         batchArgs[index++] = new MapSqlParameterSource(valueMap);
       }
+      
       
       String sql = "INSERT into " + DOMAIN_SPEC_IDENTIFIER_TABLE + 
         " (quoted_obj_id, domain_id, identifier) VALUES (" +
