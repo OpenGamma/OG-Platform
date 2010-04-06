@@ -432,6 +432,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (preceding, government.getBusinessDayConvention ());
   }
   
+  //TODO have added null underlying identity keys to metal and energy futures
   @Test
   public void testFutureSecurityBeans () {
     final Date now = new Date ();
@@ -455,7 +456,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     future = new BondFutureSecurity (expiry, "TPX", "DJX", "type", bondIdentifiers);
     future.setIdentifiers (Collections.singleton (bondId));
     _secMaster.persistSecurity (now, future);
-    future = new EnergyFutureSecurity (expiry, "TPX", "DJX", "Oil", 1.0, "barrel");
+    future = new EnergyFutureSecurity (expiry, "TPX", "DJX", "Oil", 1.0, "barrel", null);
     future.setIdentifiers (Collections.singleton (energyId));
     _secMaster.persistSecurity (now, future);
     future = new FXFutureSecurity (expiry, "DJX", "DJX", dollar, yen, 10000.0);
@@ -464,7 +465,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     future = new InterestRateFutureSecurity (expiry, "TPX", "TPX", yen, "LIBOR");
     future.setIdentifiers (Collections.singleton (interestRateId));
     _secMaster.persistSecurity (now, future);
-    future = new MetalFutureSecurity (expiry, "DJX", "TPX", "gold", 100.0, "gram");
+    future = new MetalFutureSecurity (expiry, "DJX", "TPX", "gold", 100.0, "gram", null);
     future.setIdentifiers (Collections.singleton (metalId));
     _secMaster.persistSecurity (now, future);
     Security security;
