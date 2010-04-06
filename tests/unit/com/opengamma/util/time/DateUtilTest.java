@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
+import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -212,5 +213,13 @@ public class DateUtilTest {
     assertEquals(mon, DateUtil.previousWeekDay(tue));
     assertEquals(lastFri, DateUtil.previousWeekDay(mon));
   }
+  
+  @Test
+  public void testToLocalDate() {
+    LocalDate D20100328 = LocalDate.of(2010, MonthOfYear.MARCH, 28);
+    LocalDate localDate = DateUtil.toLocalDate(20100328);
+    assertEquals(D20100328, localDate);
+  }
+  
   
 }
