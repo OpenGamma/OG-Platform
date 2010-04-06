@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -30,6 +30,22 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     final double xDiff = x2 - x1;
     final double result = Math.pow(y1, value * (x2 - value) / xDiff / x1) * Math.pow(y2, value * (value - x1) / xDiff / x2);
     return new InterpolationResult<Double>(result);
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof ExponentialInterpolator1D))
+      return false;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
   }
 
 }

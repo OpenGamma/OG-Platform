@@ -46,4 +46,21 @@ public class LinearInterpolator1D extends Interpolator1D {
     final double result = y1 + (value - x1) / (x2 - x1) * (y2 - y1);
     return new InterpolationResult<Double>(result);
   }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof LinearInterpolator1D))
+      return false;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
 }

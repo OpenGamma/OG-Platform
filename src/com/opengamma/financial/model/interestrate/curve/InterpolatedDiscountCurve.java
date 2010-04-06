@@ -208,8 +208,26 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
     return true;
   }
 
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("InterpolatedDiscountCurve[");
+    sb.append("interpolator=").append(Interpolator1DFactory.getInterpolatorName(getInterpolator())).append(',');
+    sb.append("rate_data={");
+    for (final Map.Entry<Double, Double> e : _rateData.entrySet()) {
+      sb.append(e.getKey()).append('=').append(e.getValue()).append(',');
+    }
+    sb.append("},df_data={");
+    for (final Map.Entry<Double, Double> e : _dfData.entrySet()) {
+      sb.append(e.getKey()).append('=').append(e.getValue()).append(',');
+    }
+    sb.append("}]");
+    return sb.toString();
+  }
+
   public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
     final MutableFudgeFieldContainer message = context.newMessage();
+    message.add(null, 0, getClass().getName());
     message.add(INTERPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(getInterpolator()));
     message.add(RATE_DATA_FIELD_NAME, encodeDoubleDoubleMap(context, _rateData));
     message.add(DF_DATA_FIELD_NAME, encodeDoubleDoubleMap(context, _dfData));
@@ -225,6 +243,8 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
 
   // REVIEW kirk 2010-03-31 -- These probably belong in a utility class
   // methinks.
+  // TODO 2010-04-06 Andrew -- Use the FSC/FDC methods for automatic map
+  // encoding
   public static MutableFudgeFieldContainer encodeDoubleDoubleMap(final FudgeSerializationContext context, final Map<Double, Double> data) {
     final MutableFudgeFieldContainer message = context.newMessage();
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {

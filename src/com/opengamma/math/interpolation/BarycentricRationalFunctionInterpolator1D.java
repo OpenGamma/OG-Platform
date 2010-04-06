@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -68,5 +68,22 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
       w[k] = sum;
     }
     return w;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof BarycentricRationalFunctionInterpolator1D))
+      return false;
+    final BarycentricRationalFunctionInterpolator1D other = (BarycentricRationalFunctionInterpolator1D) o;
+    return _degree == other._degree;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode() * 17 + _degree;
   }
 }

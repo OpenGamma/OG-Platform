@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -56,4 +56,21 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     }
     return y2;
   }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof NaturalCubicSplineInterpolator1D))
+      return false;
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
+
 }
