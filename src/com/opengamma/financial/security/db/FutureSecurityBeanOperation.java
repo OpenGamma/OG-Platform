@@ -95,8 +95,9 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getSettlementExchange ().getName (),
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
-            (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null
-            );
+            (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null,
+            null);
+        //TODO added null as the underlying identifier because it isn't in the bean
       }
 
       @Override
@@ -107,8 +108,9 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getSettlementExchange ().getName (),
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
-            (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null
-            );
+            (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null,               
+            null);
+        //TODO added null as the underlying identifier because it isn't in the bean
       }
 
       @Override
