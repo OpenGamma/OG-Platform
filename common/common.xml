@@ -57,7 +57,7 @@
 
 	<path id="lib.path.id">
 		<fileset dir="${lib.dir}/jar">
-		<!--	Andrew: Is this line still necessary? <exclude name="*/org.apache.ant/ant/*.jar" />-->
+			<exclude name="org.apache.ant/ant/*.jar" />
 		</fileset>
 	</path>
 	<path id="run.path.id">
