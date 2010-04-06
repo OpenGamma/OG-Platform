@@ -14,7 +14,11 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,7 +33,7 @@ public class ComputationTargetSpecification implements Serializable {
   
   private final ComputationTargetType _type;
   private final DomainSpecificIdentifier _identifier;
-
+  
   public ComputationTargetSpecification(ComputationTargetType targetType, DomainSpecificIdentifier identifier) {
     ArgumentChecker.checkNotNull(targetType, "Computation Target Type");
     switch(targetType) {
@@ -44,6 +48,39 @@ public class ComputationTargetSpecification implements Serializable {
     }
     _type = targetType;
     _identifier = identifier;
+  }
+
+  /**
+   * Construct a specification that refers to the specified object.
+   * 
+   * @param target
+   */
+  public ComputationTargetSpecification(Object target) {
+    DomainSpecificIdentifier dsid = null;
+    ComputationTargetType type = ComputationTargetType.determineFromTarget(target);
+    // Special DSID logic.
+    // REVIEW kirk 2010-03-31 -- Does this belong up in ComputationTargetType somewhere?
+    if((type == null) && (target instanceof DomainSpecificIdentifier)) {
+      dsid = (DomainSpecificIdentifier) target;
+      if(ObjectUtils.equals(dsid.getDomain(), PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
+        type = ComputationTargetType.MULTIPLE_POSITIONS;
+      } else if(ObjectUtils.equals(dsid.getDomain(), Position.POSITION_IDENTITY_KEY_DOMAIN)) {
+        type = ComputationTargetType.POSITION;
+      } else if(ObjectUtils.equals(dsid.getDomain(), Security.SECURITY_IDENTITY_KEY_DOMAIN)) {
+        type = ComputationTargetType.SECURITY;
+      } else {
+        type = ComputationTargetType.PRIMITIVE;
+      }
+    }
+    if(type == null) {
+      throw new IllegalArgumentException("Cannot determine a target type for " + target);
+    }
+    if((dsid == null) && (target instanceof Identifiable)) {
+      dsid = ((Identifiable)target).getIdentityKey();
+    }
+    
+    _type = type;
+    _identifier = dsid;
   }
 
   /**

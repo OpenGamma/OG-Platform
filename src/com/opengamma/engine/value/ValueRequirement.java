@@ -41,6 +41,10 @@ public class ValueRequirement implements Serializable {
     _targetSpecification = targetSpecification;
   }
   
+  public ValueRequirement(String valueName, Object computationTarget) {
+    this(valueName, new ComputationTargetSpecification(computationTarget));
+  }
+  
   /**
    * @return the valueName
    */

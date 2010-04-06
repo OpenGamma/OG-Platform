@@ -504,12 +504,12 @@ public class ViewProcessor implements Lifecycle {
   
   protected void initializeExecutorService() {
     if(getExecutorService() == null) {
-      s_logger.info("No injected executor service; starting one.");
       ThreadFactory tf = new NamedThreadPoolFactory("ViewProcessor", true);
       int nThreads = Runtime.getRuntime().availableProcessors() - 1;
       if(nThreads == 0) {
         nThreads = 1;
       }
+      s_logger.info("No injected executor service; starting one with {} max threads", nThreads);
       // REVIEW kirk 2010-03-07 -- Is this the right queue to use here?
       ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nThreads, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
       setExecutorService(executor);

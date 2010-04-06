@@ -11,10 +11,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 
 import org.junit.Test;
 
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.DefaultSecurity;
@@ -35,7 +35,7 @@ public class ComputationTargetTypeTest {
     assertEquals(ComputationTargetType.POSITION, ComputationTargetType.determineFromTarget(POSITION));
     assertEquals(ComputationTargetType.SECURITY, ComputationTargetType.determineFromTarget(SECURITY));
     assertEquals(ComputationTargetType.PRIMITIVE, ComputationTargetType.determineFromTarget(null));
-    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, ComputationTargetType.determineFromTarget(Collections.EMPTY_LIST));
+    assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, ComputationTargetType.determineFromTarget(new PortfolioNodeImpl()));
     assertNull(ComputationTargetType.determineFromTarget("Kirk Wylie"));
   }
   
@@ -44,7 +44,7 @@ public class ComputationTargetTypeTest {
     assertTrue(ComputationTargetType.isCompatible(ComputationTargetType.POSITION, POSITION));
     assertTrue(ComputationTargetType.isCompatible(ComputationTargetType.SECURITY, SECURITY));
     assertTrue(ComputationTargetType.isCompatible(ComputationTargetType.PRIMITIVE, null));
-    assertTrue(ComputationTargetType.isCompatible(ComputationTargetType.MULTIPLE_POSITIONS, Collections.EMPTY_LIST));
+    assertTrue(ComputationTargetType.isCompatible(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
   }
   
   @Test

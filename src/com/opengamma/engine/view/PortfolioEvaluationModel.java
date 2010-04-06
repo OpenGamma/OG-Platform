@@ -303,7 +303,7 @@ public class PortfolioEvaluationModel {
         Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
         for(String requirementName : requiredOutputValues) {
-          ValueRequirement requirement = new ValueRequirement(requirementName, ComputationTargetType.POSITION, position.getIdentityKey());
+          ValueRequirement requirement = new ValueRequirement(requirementName, position);
           requirements.add(requirement);
         }
         dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
@@ -383,7 +383,7 @@ public class PortfolioEvaluationModel {
         }
         Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
         for(String requiredOutput : requiredOutputs) {
-          requirements.add(new ValueRequirement(requiredOutput, ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode.getIdentityKey()));
+          requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
         }
         _dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode), requirements);
       }
