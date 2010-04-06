@@ -26,14 +26,8 @@ import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
-
-//import com.opengamma.engine.security.Security;
-//import com.opengamma.engine.security.SecurityKey;
-//import com.opengamma.engine.security.SecurityMaster;
 
 public class HibernateSecurityMaster implements SecurityMaster {
-  private static final IdentificationDomain DEFAULT_DOMAIN = new IdentificationDomain("BLOOMBERG");
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();

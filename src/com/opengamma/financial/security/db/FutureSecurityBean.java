@@ -201,10 +201,10 @@ public class FutureSecurityBean extends SecurityBean {
   }
 
   /**
-   * @param currency3 the currency3 to set
+   * @param currency the currency to set
    */
-  public void setCurrency3(CurrencyBean currency3) {
-    _currency3 = currency3;
+  public void setCurrency3(CurrencyBean currency) {
+    _currency3 = currency;
   }
 
   /**

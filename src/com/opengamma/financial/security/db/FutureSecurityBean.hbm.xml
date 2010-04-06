@@ -10,6 +10,7 @@
     <many-to-one name="settlementExchange" column="settlementexchange_id" class="ExchangeBean" not-null="true" />
     <many-to-one name="currency1" column="currency1_id" class="CurrencyBean" />
     <many-to-one name="currency2" column="currency2_id" class="CurrencyBean" />
+    <many-to-one name="currency3" column="currency3_id" class="CurrencyBean" />
     <many-to-one name="bondType" column="bondtype_id" class="BondFutureTypeBean" />
     <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
     <many-to-one name="cashRateType" column="cashratetype_id" class="CashRateTypeBean" />

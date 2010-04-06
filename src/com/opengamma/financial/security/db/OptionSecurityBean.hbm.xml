@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.security.db">
+  <union-subclass name="OptionSecurityBean" extends="SecurityBean" table="optionsec">
+    <property name="optionSecurityType" column="option_security_type" type="com.opengamma.financial.security.db.OptionSecurityTypeUserType" not-null="true" />
+    <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.OptionTypeUserType" not-null="true" />
+    <property name="strike" type="double" not-null="true" />
+    <property name="expiry" type="date" not-null="true" />
+    <property name="underlyingIdentityKey" type="string" not-null="true" />
+    <property name="power" type="double" />
+    <many-to-one name="currency1" column="currency1_id" class="CurrencyBean" not-null="true" />
+    <many-to-one name="currency2" column="currency2_id" class="CurrencyBean" />
+    <many-to-one name="currency3" column="currency3_id" class="CurrencyBean" />
+    <many-to-one name="exchange" column="exchange_id" class="ExchangeBean" />
+    <property name="counterparty" type="string" />
+    <property name="margined" type="boolean" />
+  </union-subclass>
+  <query name="OptionSecurityBean.all">
+    from OptionSecurityBean
+  </query>
+</hibernate-mapping>

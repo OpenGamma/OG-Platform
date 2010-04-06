@@ -73,7 +73,7 @@
       	constraint fk_equity2gics foreign key (gicscode_id) references gics(id)
     );
 
-    create table equityoption (
+    create table optionsec (
         id int8 not null,
         effectiveDateTime date not null,
         deleted bool not null,
@@ -81,17 +81,23 @@
         lastModifiedBy varchar(255),
         first_version_descriminator varchar(255),
         first_version_id int8,
-        equity_option_type varchar(32) not null,
+        option_security_type varchar(32) not null,
         option_type varchar(32) not null,
         strike double precision not null,
         expiry date not null,
         underlyingIdentityKey varchar(255),
         power double precision,
-        currency_id int8 not null,
-        exchange_id int8 not null,
+        currency1_id int8 not null,
+        currency2_id int8,
+        currency3_id int8,
+        exchange_id int8,
+        counterparty varchar(255),
+        margined bool,
         primary key (id),
-        constraint fk_equityoption2currency foreign key (currency_id) references currency (id),
-        constraint fk_equityoption2exchange foreign key (exchange_id) references exchange (id)
+        constraint fk_option2currency1 foreign key (currency1_id) references currency (id),
+        constraint fk_option2currency2 foreign key (currency2_id) references currency (id),
+        constraint fk_option2currency3 foreign key (currency3_id) references currency (id),
+        constraint fk_option2exchange foreign key (exchange_id) references exchange (id)
     );
     
     create table frequency (
@@ -151,6 +157,7 @@
         settlementexchange_id int8 not null,
         currency1_id int8,
         currency2_id int8,
+        currency3_id int8,
         bondtype_id int8,
         commoditytype_id int8,
         cashratetype_id int8,
@@ -161,6 +168,7 @@
         constraint fk_future2exchange2 foreign key (settlementexchange_id) references exchange (id),
         constraint fk_future2currency1 foreign key (currency1_id) references currency (id),
         constraint fk_future2currency2 foreign key (currency2_id) references currency (id),
+        constraint fk_future2currency3 foreign key (currency3_id) references currency (id),
         constraint fk_future2bondfuturetype foreign key (bondtype_id) references bondfuturetype (id),
         constraint fk_future2commodityfuturetype foreign key (commoditytype_id) references commodityfuturetype (id),
         constraint fk_future2cashrate foreign key (cashratetype_id) references cashrate (id),

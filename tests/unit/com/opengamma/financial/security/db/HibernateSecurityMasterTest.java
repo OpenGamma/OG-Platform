@@ -42,13 +42,21 @@ import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.financial.security.FutureSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
+import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
+import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
+import com.opengamma.financial.security.option.EuropeanVanillaFutureOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FutureOptionSecurity;
+import com.opengamma.financial.security.option.OTCOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.Expiry;
@@ -317,6 +325,9 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European equity option");
     DomainSpecificIdentifier europeanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european option id");
     
+    DomainSpecificIdentifier poweredIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "Powered equity option");
+    DomainSpecificIdentifier poweredUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying powered option id");
+    
     Date now = new Date ();
     // create an American equity option
     EquityOptionSecurity equityOption = new AmericanVanillaEquityOptionSecurity (OptionType.PUT, 
@@ -335,6 +346,16 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         sterling, 
         "UKX");
     equityOption.setIdentifiers (Collections.singleton (europeanIdentifier));
+    _secMaster.persistSecurity (now, equityOption);
+    // create a Powered equity option
+    equityOption = new PoweredEquityOptionSecurity (OptionType.CALL, 
+        4.56, 
+        expiry,
+        7.89,
+        poweredUnderlyingIdentifier, 
+        sterling, 
+        "UKX");
+    equityOption.setIdentifiers (Collections.singleton (poweredIdentifier));
     _secMaster.persistSecurity (now, equityOption);
     // retrieve the American option
     Security security = _secMaster.getSecurity (now, americanIdentifier, true);
@@ -358,6 +379,99 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (europeanUnderlyingIdentifier, european.getUnderlyingIdentityKey ());
     Assert.assertEquals (sterling, european.getCurrency ());
     Assert.assertEquals ("UKX", european.getExchange ());
+    // retrieve the Powered option
+    security = _secMaster.getSecurity (now, poweredIdentifier, true);
+    Assert.assertNotNull (security);
+    Assert.assertEquals (PoweredEquityOptionSecurity.class, security.getClass ());
+    PoweredEquityOptionSecurity powered = (PoweredEquityOptionSecurity)security;
+    Assert.assertEquals (OptionType.CALL, powered.getOptionType ());
+    Assert.assertEquals (4.56, powered.getStrike (), 0);
+    Assert.assertEquals (expiry, powered.getExpiry ());
+    Assert.assertEquals (7.89, powered.getPower (), 0);
+    Assert.assertEquals (poweredUnderlyingIdentifier, powered.getUnderlyingIdentityKey ());
+    Assert.assertEquals (sterling, powered.getCurrency ());
+    Assert.assertEquals ("UKX", powered.getExchange ());
+  }
+  
+  @Test
+  public void testFutureOptionSecurityBeans () {
+    Currency dollar = Currency.getInstance ("USD");
+    Currency sterling = Currency.getInstance ("GBP");
+    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    DomainSpecificIdentifier americanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "American future option");
+    DomainSpecificIdentifier americanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying american future id");
+    DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European future option");
+    DomainSpecificIdentifier europeanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european future id");
+    Date now = new Date ();
+    // create an American future option
+    FutureOptionSecurity futureOption = new AmericanVanillaFutureOptionSecurity (OptionType.PUT, 
+        1.23, 
+        expiry, 
+        americanUnderlyingIdentifier, 
+        dollar, 
+        "DJX",
+        true);
+    futureOption.setIdentifiers (Collections.singleton (americanIdentifier));
+    _secMaster.persistSecurity (now, futureOption);
+    // create a European future option
+    futureOption = new EuropeanVanillaFutureOptionSecurity (OptionType.CALL, 
+        4.56, 
+        expiry, 
+        europeanUnderlyingIdentifier, 
+        sterling, 
+        "UKX",
+        false);
+    futureOption.setIdentifiers (Collections.singleton (europeanIdentifier));
+    _secMaster.persistSecurity (now, futureOption);
+    // retrieve the American option
+    Security security = _secMaster.getSecurity (now, americanIdentifier, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof AmericanVanillaFutureOptionSecurity);
+    AmericanVanillaFutureOptionSecurity american = (AmericanVanillaFutureOptionSecurity)security;
+    Assert.assertEquals (OptionType.PUT, american.getOptionType ());
+    Assert.assertEquals (1.23, american.getStrike (), 0);
+    Assert.assertEquals (expiry, american.getExpiry ());
+    Assert.assertEquals (americanUnderlyingIdentifier, american.getUnderlyingIdentityKey());
+    Assert.assertEquals (dollar, american.getCurrency ());
+    Assert.assertEquals ("DJX", american.getExchange ());
+    Assert.assertEquals (true, american.isMargined ());
+    // retrieve the European option
+    security = _secMaster.getSecurity (now, europeanIdentifier, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof EuropeanVanillaFutureOptionSecurity);
+    EuropeanVanillaFutureOptionSecurity european = (EuropeanVanillaFutureOptionSecurity)security;
+    Assert.assertEquals (OptionType.CALL, european.getOptionType ());
+    Assert.assertEquals (4.56, european.getStrike (), 0);
+    Assert.assertEquals (expiry, european.getExpiry ());
+    Assert.assertEquals (europeanUnderlyingIdentifier, european.getUnderlyingIdentityKey ());
+    Assert.assertEquals (sterling, european.getCurrency ());
+    Assert.assertEquals ("UKX", european.getExchange ());
+    Assert.assertEquals (false, european.isMargined ());
+  }
+  
+  @Test
+  public void testOTCOptionSecurityBeans () {
+    Date now = new Date ();
+    Currency dollar = Currency.getInstance ("USD");
+    Currency sterling = Currency.getInstance ("GBP");
+    Currency euro = Currency.getInstance ("EUR");
+    Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    DomainSpecificIdentifier fxIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "fx option");
+    DomainSpecificIdentifier fxUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying identity");
+    OTCOptionSecurity security = new FXOptionSecurity (OptionType.PUT, 1.23, expiry, fxUnderlyingIdentifier, euro, "counterparty", dollar, sterling);
+    security.setIdentifiers (Collections.singleton (fxIdentifier));
+    _secMaster.persistSecurity (now, security);
+    Security sec = _secMaster.getSecurity (now, fxIdentifier, true);
+    Assert.assertNotNull (sec);
+    Assert.assertTrue (sec instanceof FXOptionSecurity);
+    FXOptionSecurity fxOptionSecurity = (FXOptionSecurity)sec;
+    Assert.assertEquals (OptionType.PUT, fxOptionSecurity.getOptionType ());
+    Assert.assertEquals (1.23, fxOptionSecurity.getStrike (), 0);
+    Assert.assertEquals (expiry, fxOptionSecurity.getExpiry ());
+    Assert.assertEquals (fxUnderlyingIdentifier, fxOptionSecurity.getUnderlyingIdentityKey ());
+    Assert.assertEquals (euro, fxOptionSecurity.getCurrency ());
+    Assert.assertEquals (dollar, fxOptionSecurity.getPutCurrency ());
+    Assert.assertEquals (sterling, fxOptionSecurity.getCallCurrency ());
   }
   
   @Test
@@ -432,7 +546,6 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (preceding, government.getBusinessDayConvention ());
   }
   
-  //TODO have added null underlying identity keys to metal and energy futures
   @Test
   public void testFutureSecurityBeans () {
     final Date now = new Date ();
@@ -445,28 +558,37 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     DomainSpecificIdentifier fxId = new DomainSpecificIdentifier ("BLOOMBERG", "fx");
     DomainSpecificIdentifier interestRateId = new DomainSpecificIdentifier ("BLOOMBERG", "interest rate");
     DomainSpecificIdentifier metalId = new DomainSpecificIdentifier ("BLOOMBERG", "metal");
+    DomainSpecificIdentifier indexId = new DomainSpecificIdentifier ("BLOOMBERG", "index");
+    DomainSpecificIdentifier stockId = new DomainSpecificIdentifier ("BLOOMBERG", "stock");
+    DomainSpecificIdentifier underlyingId = new DomainSpecificIdentifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying ID");
     FutureSecurity future;
-    future = new AgricultureFutureSecurity (expiry, "TPX", "DJX", "Red wheat");
+    future = new AgricultureFutureSecurity (expiry, "TPX", "DJX", dollar, "Red wheat");
     future.setIdentifiers (Collections.singleton (agricultureId));
     _secMaster.persistSecurity (now, future);
     Set<DomainSpecificIdentifier> bondIdentifiers = new HashSet<DomainSpecificIdentifier> ();
     bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "corporate bond"));
     bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "municipal bond"));
     bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "government bond"));
-    future = new BondFutureSecurity (expiry, "TPX", "DJX", "type", bondIdentifiers);
+    future = new BondFutureSecurity (expiry, "TPX", "DJX", dollar, "type", bondIdentifiers);
     future.setIdentifiers (Collections.singleton (bondId));
     _secMaster.persistSecurity (now, future);
-    future = new EnergyFutureSecurity (expiry, "TPX", "DJX", "Oil", 1.0, "barrel", null);
+    future = new EnergyFutureSecurity (expiry, "TPX", "DJX", dollar, "Oil", 1.0, "barrel", underlyingId);
     future.setIdentifiers (Collections.singleton (energyId));
     _secMaster.persistSecurity (now, future);
-    future = new FXFutureSecurity (expiry, "DJX", "DJX", dollar, yen, 10000.0);
+    future = new FXFutureSecurity (expiry, "DJX", "DJX", dollar, dollar, yen, 10000.0);
     future.setIdentifiers (Collections.singleton (fxId));
     _secMaster.persistSecurity (now, future);
     future = new InterestRateFutureSecurity (expiry, "TPX", "TPX", yen, "LIBOR");
     future.setIdentifiers (Collections.singleton (interestRateId));
     _secMaster.persistSecurity (now, future);
-    future = new MetalFutureSecurity (expiry, "DJX", "TPX", "gold", 100.0, "gram", null);
+    future = new MetalFutureSecurity (expiry, "DJX", "TPX", dollar, "gold", 100.0, "gram", underlyingId);
     future.setIdentifiers (Collections.singleton (metalId));
+    _secMaster.persistSecurity (now, future);
+    future = new IndexFutureSecurity (expiry, "DJX", "TPX", dollar, underlyingId);
+    future.setIdentifiers (Collections.singleton (indexId));
+    _secMaster.persistSecurity (now, future);
+    future = new StockFutureSecurity (expiry, "DJX", "TPX", dollar, underlyingId);
+    future.setIdentifiers (Collections.singleton (stockId));
     _secMaster.persistSecurity (now, future);
     Security security;
     security = _secMaster.getSecurity (now, agricultureId, true);
@@ -475,6 +597,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     AgricultureFutureSecurity agricultureSecurity = (AgricultureFutureSecurity)security;
     Assert.assertEquals ("TPX", agricultureSecurity.getTradingExchange ());
     Assert.assertEquals ("DJX", agricultureSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, agricultureSecurity.getCurrency ());
     Assert.assertEquals ("Red wheat", agricultureSecurity.getCommodityType ());
     Assert.assertEquals (null, agricultureSecurity.getUnitName ());
     Assert.assertEquals (null, agricultureSecurity.getUnitNumber ());
@@ -484,6 +607,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     BondFutureSecurity bondSecurity = (BondFutureSecurity)security;
     Assert.assertEquals ("TPX", bondSecurity.getTradingExchange ());
     Assert.assertEquals ("DJX", bondSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, bondSecurity.getCurrency ());
     Assert.assertEquals ("type", bondSecurity.getBondType ());
     Set<DomainSpecificIdentifier> identifiers = bondSecurity.getBasket ();
     Assert.assertNotNull (identifiers);
@@ -497,15 +621,18 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     EnergyFutureSecurity energySecurity = (EnergyFutureSecurity)security;
     Assert.assertEquals ("TPX", energySecurity.getTradingExchange ());
     Assert.assertEquals ("DJX", energySecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, energySecurity.getCurrency ());
     Assert.assertEquals ("Oil", energySecurity.getCommodityType ());
     Assert.assertEquals (1.0, energySecurity.getUnitNumber (), 0);
     Assert.assertEquals ("barrel", energySecurity.getUnitName ());
+    Assert.assertEquals (underlyingId, energySecurity.getUnderlyingIdentityKey ());
     security = _secMaster.getSecurity (now, fxId, true);
     Assert.assertNotNull (security);
     Assert.assertTrue (security instanceof FXFutureSecurity);
     FXFutureSecurity fxSecurity = (FXFutureSecurity)security;
     Assert.assertEquals ("DJX", fxSecurity.getTradingExchange ());
     Assert.assertEquals ("DJX", fxSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, fxSecurity.getCurrency ());
     Assert.assertEquals (dollar, fxSecurity.getNumerator ());
     Assert.assertEquals (yen, fxSecurity.getDenominator ());
     Assert.assertEquals (10000.0, fxSecurity.getMultiplicationFactor (), 0);
@@ -523,9 +650,27 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     MetalFutureSecurity metalSecurity = (MetalFutureSecurity)security;
     Assert.assertEquals ("DJX", metalSecurity.getTradingExchange ());
     Assert.assertEquals ("TPX", metalSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, metalSecurity.getCurrency ());
     Assert.assertEquals ("gold", metalSecurity.getCommodityType ());
     Assert.assertEquals (100.0, metalSecurity.getUnitNumber (), 0);
     Assert.assertEquals ("gram", metalSecurity.getUnitName ());
+    Assert.assertEquals (underlyingId, metalSecurity.getUnderlyingIdentityKey ());
+    security = _secMaster.getSecurity (now, indexId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof IndexFutureSecurity);
+    IndexFutureSecurity indexSecurity = (IndexFutureSecurity)security;
+    Assert.assertEquals ("DJX", indexSecurity.getTradingExchange ());
+    Assert.assertEquals ("TPX", indexSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, indexSecurity.getCurrency ());
+    Assert.assertEquals (underlyingId, indexSecurity.getUnderlyingIdentityKey ());
+    security = _secMaster.getSecurity (now, stockId, true);
+    Assert.assertNotNull (security);
+    Assert.assertTrue (security instanceof StockFutureSecurity);
+    StockFutureSecurity stockSecurity = (StockFutureSecurity)security;
+    Assert.assertEquals ("DJX", stockSecurity.getTradingExchange ());
+    Assert.assertEquals ("TPX", stockSecurity.getSettlementExchange ());
+    Assert.assertEquals (dollar, stockSecurity.getCurrency ());
+    Assert.assertEquals (underlyingId, stockSecurity.getUnderlyingIdentityKey ());
   }
         
   @Test

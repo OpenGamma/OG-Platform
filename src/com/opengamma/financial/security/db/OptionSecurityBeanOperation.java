@@ -189,6 +189,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
       
       private OptionSecurityBean createSecurityBean (final OptionSecurity security) {
         final OptionSecurityBean bean = new OptionSecurityBean();
+        bean.setOptionSecurityType(OptionSecurityType.identify (security));
         bean.setOptionType(security.getOptionType ());
         bean.setStrike(security.getStrike ());
         bean.setExpiry(new Date (security.getExpiry ().toInstant ().toEpochMillisLong ()));
@@ -197,26 +198,25 @@ import com.opengamma.id.DomainSpecificIdentifier;
         return bean;
       }
       
-      private OptionSecurityBean createExchangeTradedOptionSecurityBean (final ExchangeTradedOptionSecurity security) {
-        final OptionSecurityBean bean = createSecurityBean (security);
+      private OptionSecurityBean createSecurityBean (final ExchangeTradedOptionSecurity security) {
+        final OptionSecurityBean bean = createSecurityBean ((OptionSecurity)security);
         bean.setExchange(secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""));
         return bean;
       }
       
-      private OptionSecurityBean createEquityOptionSecurityBean (final EquityOptionSecurity security) {
-        final OptionSecurityBean bean = createExchangeTradedOptionSecurityBean (security);
-        bean.setOptionSecurityType(OptionSecurityType.identify (security));
+      private OptionSecurityBean createSecurityBean (final EquityOptionSecurity security) {
+        final OptionSecurityBean bean = createSecurityBean ((ExchangeTradedOptionSecurity)security);
         return bean;
       }
       
-      private OptionSecurityBean createFutureOptionSecurityBean (final FutureOptionSecurity security) {
-        final OptionSecurityBean bean = createExchangeTradedOptionSecurityBean (security);
+      private OptionSecurityBean createSecurityBean (final FutureOptionSecurity security) {
+        final OptionSecurityBean bean = createSecurityBean ((ExchangeTradedOptionSecurity)security);
         bean.setMargined (security.isMargined ());
         return bean;
       }
       
-      private OptionSecurityBean createOTCOptionSecurityBean (final OTCOptionSecurity security) {
-        final OptionSecurityBean bean = createSecurityBean (security);
+      private OptionSecurityBean createSecurityBean (final OTCOptionSecurity security) {
+        final OptionSecurityBean bean = createSecurityBean ((OptionSecurity)security);
         bean.setCounterparty (security.getCounterparty ());
         return bean;
       }
@@ -224,19 +224,19 @@ import com.opengamma.id.DomainSpecificIdentifier;
       @Override
       public OptionSecurityBean visitAmericanVanillaEquityOptionSecurity(
           AmericanVanillaEquityOptionSecurity security) {
-        return createEquityOptionSecurityBean (security);
+        return createSecurityBean (security);
       }
 
       @Override
       public OptionSecurityBean visitEuropeanVanillaEquityOptionSecurity(
           EuropeanVanillaEquityOptionSecurity security) {
-        return createEquityOptionSecurityBean (security);
+        return createSecurityBean (security);
       }
 
       @Override
       public OptionSecurityBean visitPoweredEquityOptionSecurity(
           PoweredEquityOptionSecurity security) {
-        final OptionSecurityBean bean = createEquityOptionSecurityBean (security);
+        final OptionSecurityBean bean = createSecurityBean (security);
         bean.setPower (security.getPower ());
         return bean;
       }
@@ -244,18 +244,18 @@ import com.opengamma.id.DomainSpecificIdentifier;
       @Override
       public OptionSecurityBean visitAmericanVanillaFutureOptionSecurity(
           AmericanVanillaFutureOptionSecurity security) {
-        return createFutureOptionSecurityBean (security);
+        return createSecurityBean (security);
       }
 
       @Override
       public OptionSecurityBean visitEuropeanVanillaFutureOptionSecurity(
           EuropeanVanillaFutureOptionSecurity security) {
-        return createFutureOptionSecurityBean (security);
+        return createSecurityBean (security);
       }
 
       @Override
       public OptionSecurityBean visitFXOptionSecurity(FXOptionSecurity security) {
-        final OptionSecurityBean bean = createOTCOptionSecurityBean (security);
+        final OptionSecurityBean bean = createSecurityBean (security);
         bean.setCurrency2 (secMasterSession.getOrCreateCurrencyBean (security.getPutCurrency ().getISOCode ()));
         bean.setCurrency3 (secMasterSession.getOrCreateCurrencyBean (security.getCallCurrency ().getISOCode ()));
         return bean;
@@ -270,8 +270,8 @@ import com.opengamma.id.DomainSpecificIdentifier;
   }
 
   @Override
-  public Class<? extends EquityOptionSecurity> getSecurityClass() {
-    return EquityOptionSecurity.class;
+  public Class<? extends OptionSecurity> getSecurityClass() {
+    return OptionSecurity.class;
   }
 
   @Override

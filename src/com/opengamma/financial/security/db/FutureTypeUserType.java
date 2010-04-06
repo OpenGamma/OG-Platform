@@ -15,7 +15,7 @@ public class FutureTypeUserType extends EnumUserType<FutureType> {
   
   private static final String AGRICULTURE_FUTURE_TYPE = "Agriculture";
   private static final String BOND_FUTURE_TYPE = "Bond";
-  private static final String CURRENCY_FUTURE_TYPE = "Currency";
+  private static final String FX_FUTURE_TYPE = "FX";
   private static final String ENERGY_FUTURE_TYPE = "Energy";
   private static final String INTEREST_RATE_FUTURE_TYPE = "Interest Rate";
   private static final String METAL_FUTURE_TYPE = "Metal";
@@ -36,8 +36,8 @@ public class FutureTypeUserType extends EnumUserType<FutureType> {
       }
 
       @Override
-      public String visitCurrencyFutureType() {
-        return CURRENCY_FUTURE_TYPE;
+      public String visitFXFutureType() {
+        return FX_FUTURE_TYPE;
       }
 
       @Override

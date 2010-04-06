@@ -79,7 +79,7 @@ public enum FutureType {
   public static interface Visitor<T> {
     public T visitAgricultureFutureType ();
     public T visitBondFutureType ();
-    public T visitCurrencyFutureType ();
+    public T visitFXFutureType ();
     public T visitEnergyFutureType ();
     public T visitInterestRateFutureType ();
     public T visitMetalFutureType ();
@@ -92,7 +92,7 @@ public enum FutureType {
     case AGRICULTURE : return visitor.visitAgricultureFutureType ();
     case BOND : return visitor.visitBondFutureType ();
     case ENERGY : return visitor.visitEnergyFutureType ();
-    case FX : return visitor.visitCurrencyFutureType ();
+    case FX : return visitor.visitFXFutureType ();
     case INTEREST_RATE : return visitor.visitInterestRateFutureType ();
     case METAL : return visitor.visitMetalFutureType ();
     case INDEX : return visitor.visitIndexFutureType();

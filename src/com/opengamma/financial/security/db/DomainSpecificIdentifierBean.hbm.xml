@@ -20,8 +20,8 @@
          cascade="save-update">
       <meta-value value="BOND" class="BondSecurityBean"/>
       <meta-value value="EQUITY" class="EquitySecurityBean"/>
-      <meta-value value="EQUITYOPTION" class="EquityOptionSecurityBean"/>
       <meta-value value="FUTURE" class="FutureSecurityBean" />
+      <meta-value value="OPTION" class="OptionSecurityBean"/>
       <column name="security_discriminator"/>
       <column name="security_id"/>
     </any>
