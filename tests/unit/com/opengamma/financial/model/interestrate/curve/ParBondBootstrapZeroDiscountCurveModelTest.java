@@ -22,7 +22,7 @@ import com.opengamma.util.time.Expiry;
  * 
  * @author emcleod
  */
-public class BootstrapFromParRatesDiscountCurveModelTest {
+public class ParBondBootstrapZeroDiscountCurveModelTest {
 
   @Test
   public void test() {
@@ -33,7 +33,7 @@ public class BootstrapFromParRatesDiscountCurveModelTest {
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 3)), 0.075));
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 4)), 0.08));
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 5)), 0.085));
-    final InterpolatedDiscountCurve curve = new ParRatesBootstrapDiscountCurveModel(new LinearInterpolator1D()).getCurve(data, date);
+    final InterpolatedDiscountCurve curve = new ParBondBootstrapZeroDiscountCurveModel(new LinearInterpolator1D()).getCurve(data, date);
     System.out.println(curve.getData());
   }
 }

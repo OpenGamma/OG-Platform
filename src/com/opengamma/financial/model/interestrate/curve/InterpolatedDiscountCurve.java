@@ -149,7 +149,11 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
       throw new IllegalArgumentException("t was null");
     if (t < 0)
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
-    final Double key = _interpolators.headMap(t).lastKey();
+    if (_interpolators.size() == 1) {
+      return _interpolators.values().iterator().next().interpolate(_dfData, t).getResult();
+    }
+    final Map<Double, Interpolator1D> tail = _interpolators.tailMap(t);
+    final Double key = tail.isEmpty() ? _interpolators.lastKey() : _interpolators.tailMap(t).firstKey();
     return _interpolators.get(key).interpolate(_dfData, t).getResult();
   }
 
