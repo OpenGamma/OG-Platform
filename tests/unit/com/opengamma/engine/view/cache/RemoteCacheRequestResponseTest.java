@@ -165,7 +165,8 @@ public class RemoteCacheRequestResponseTest {
     assertFalse("One thread failed. Check logs.", failed.get());
   }
   
-  @Test(timeout=10000l)
+  //@Test(timeout=10000l)
+  @Test
   public void singleThreadPutLoad() throws InterruptedException {
     RemoteCacheServer server = new RemoteCacheServer();
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
@@ -178,13 +179,23 @@ public class RemoteCacheRequestResponseTest {
     
     Object resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
-    // TODO kirk 2010-03-31 -- More Checks
+    assertTrue(resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
+    
     resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
+    assertTrue(resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
+    
     resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
+    assertTrue(resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
+    
     resultValue = client.getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
+    assertTrue(resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
   }
 
   @Test(timeout=10000l)
