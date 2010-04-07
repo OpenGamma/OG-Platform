@@ -10,12 +10,19 @@ import java.io.Serializable;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 /**
- * 
+ *  
  *
  * @author pietari
  */
 public interface NormalizationRule extends Serializable {
   
-  public void apply(MutableFudgeFieldContainer msg);
+  /**
+   * Applies the normalization rule. 
+   * 
+   * @param msg Message to normalize. Never null.
+   * @return The normalized message. The method may modify and 
+   * return the input parameter, msg, if desired.
+   */
+  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg);
 
 }

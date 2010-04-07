@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.normalization;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
@@ -27,8 +28,14 @@ public class FieldNameChange implements NormalizationRule {
   }
   
   @Override
-  public void apply(MutableFudgeFieldContainer msg) {
-    // TODO
+  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg) {
+    FudgeField field = msg.getByName(_from);
+    if (field != null) {
+      Object value = field.getValue();
+      msg.remove(_from);
+      msg.add(_to, value);
+    }
+    return msg;
   }
 
 }

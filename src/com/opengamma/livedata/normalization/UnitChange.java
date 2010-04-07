@@ -26,8 +26,14 @@ public class UnitChange implements NormalizationRule {
   }
   
   @Override
-  public void apply(MutableFudgeFieldContainer msg) {
-    // TODO
+  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg) {
+    Double value = msg.getDouble(_field);
+    if (value != null) {
+      double newValue = value * _multiplier;
+      msg.remove(_field);
+      msg.add(_field, newValue);
+    }
+    return msg;
   }
 
 }

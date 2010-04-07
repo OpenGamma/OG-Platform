@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class OpenGammaRuleResolver implements NormalizationRuleResolver {
+public class StandardRuleResolver implements NormalizationRuleResolver {
 
   @Override
   public NormalizationRuleSet resolve(String ruleSetId) {
