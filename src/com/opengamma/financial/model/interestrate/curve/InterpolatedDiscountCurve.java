@@ -7,15 +7,14 @@ package com.opengamma.financial.model.interestrate.curve;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,42 +228,17 @@ public class InterpolatedDiscountCurve extends DiscountCurve {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(null, 0, getClass().getName());
     message.add(INTERPOLATOR_FIELD_NAME, Interpolator1DFactory.getInterpolatorName(getInterpolator()));
-    message.add(RATE_DATA_FIELD_NAME, encodeDoubleDoubleMap(context, _rateData));
-    message.add(DF_DATA_FIELD_NAME, encodeDoubleDoubleMap(context, _dfData));
+    context.objectToFudgeMsg(message, RATE_DATA_FIELD_NAME, null, _rateData);
+    context.objectToFudgeMsg(message, DF_DATA_FIELD_NAME, null, _dfData);
     return message;
   }
 
-  public static InterpolatedDiscountCurve fromFudgeMsg(final FudgeFieldContainer message) {
+  @SuppressWarnings("unchecked")
+  public static InterpolatedDiscountCurve fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
     final Interpolator1D interpolator = Interpolator1DFactory.getInterpolator(message.getString(INTERPOLATOR_FIELD_NAME));
-    final SortedMap<Double, Double> rateData = decodeSortedDoubleDoubleMap(message.getMessage(RATE_DATA_FIELD_NAME));
-    final SortedMap<Double, Double> dfData = decodeSortedDoubleDoubleMap(message.getMessage(DF_DATA_FIELD_NAME));
+    final SortedMap<Double, Double> rateData = new TreeMap<Double, Double>(context.fieldValueToObject(Map.class, message.getByName(RATE_DATA_FIELD_NAME)));
+    final SortedMap<Double, Double> dfData = new TreeMap<Double, Double>(context.fieldValueToObject(Map.class, message.getByName(DF_DATA_FIELD_NAME)));
     return new InterpolatedDiscountCurve(rateData, dfData, interpolator);
-  }
-
-  // REVIEW kirk 2010-03-31 -- These probably belong in a utility class
-  // methinks.
-  // TODO 2010-04-06 Andrew -- Use the FSC/FDC methods for automatic map
-  // encoding
-  public static MutableFudgeFieldContainer encodeDoubleDoubleMap(final FudgeSerializationContext context, final Map<Double, Double> data) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    for (final Map.Entry<Double, Double> entry : data.entrySet()) {
-      message.add("key", entry.getKey());
-      message.add("value", entry.getValue());
-    }
-    return message;
-  }
-
-  public static SortedMap<Double, Double> decodeSortedDoubleDoubleMap(final FudgeFieldContainer msg) {
-    final SortedMap<Double, Double> result = new TreeMap<Double, Double>();
-    final Iterator<FudgeField> keyIter = msg.getAllByName("key").iterator();
-    final Iterator<FudgeField> valueIter = msg.getAllByName("value").iterator();
-    while (keyIter.hasNext()) {
-      assert valueIter.hasNext();
-      final FudgeField keyField = keyIter.next();
-      final FudgeField valueField = valueIter.next();
-      result.put((Double) keyField.getValue(), (Double) valueField.getValue());
-    }
-    return result;
   }
 
 }
