@@ -5,7 +5,9 @@
  */
 package com.opengamma.engine.view.cache;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,15 +61,22 @@ public class RemoteViewComputationCacheSourceTest {
     // First, check that it hit the remote side. RemoteClient doesn't cache locally.
     Object resultValue = _cacheSource.getRemoteClient().getValue("View1", "Config1", timestamp, valueSpec);
     assertNotNull(resultValue);
-    // TODO kirk 2010-03-31 -- More Checks
+    assertTrue(resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
     
     // Now check the local caching.
     resultValue = cache.getValue(valueSpec);
     assertNotNull(resultValue);
+    assertTrue("resultValue was " + resultValue, resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
     resultValue = cache.getValue(valueSpec);
     assertNotNull(resultValue);
+    assertTrue("resultValue was " + resultValue, resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
     resultValue = cache.getValue(valueSpec);
     assertNotNull(resultValue);
+    assertTrue("resultValue was " + resultValue, resultValue instanceof Double);
+    assertEquals(2.0, (Double)resultValue, 0.0001);
   }
 
 }
