@@ -5,9 +5,7 @@
  */
 package com.opengamma.financial.security.db;
 
-import javax.persistence.Entity;
 
-@Entity
 public class UnitBean extends EnumBean {
   
   protected UnitBean() {

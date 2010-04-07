@@ -5,14 +5,12 @@
  */
 package com.opengamma.financial.security.db;
 
-import javax.persistence.Entity;
 
 /**
  * 
  *
  * @author jim
  */
-@Entity
 public class ExchangeBean extends EnumWithDescriptionBean {
   protected ExchangeBean() {
   }

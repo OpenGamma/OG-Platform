@@ -5,37 +5,65 @@
  */
 package com.opengamma.financial.security;
 
+import javax.time.calendar.LocalDate;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * This is a placeholder class - Corporate bonds aren't supported at the moment.
  *
  * @author Andrew
  */
 public class CorporateBondSecurity extends BondSecurity {
-
+  
   /**
-   * @param maturity
-   * @param coupon
-   * @param frequency
-   * @param country
-   * @param creditRating
+   * @param issuerName
+   * @param issuerType
+   * @param issuerDomicile
+   * @param market
    * @param currency
-   * @param issuer
+   * @param yieldConvention
+   * @param guaranteeType
+   * @param maturity
+   * @param couponType
+   * @param couponRate
+   * @param couponFrequency
    * @param dayCountConvention
    * @param businessDayConvention
+   * @param announcementDate
+   * @param interestAccrualDate
+   * @param settlementDate
+   * @param firstCouponDate
+   * @param issuancePrice
+   * @param totalAmountIssued
+   * @param minimumAmount
+   * @param minimumIncrement
+   * @param parAmount
+   * @param redemptionValue
    */
-  public CorporateBondSecurity(Expiry maturity, double coupon,
-      Frequency frequency, String country, String creditRating,
-      Currency currency, String issuer, DayCount dayCountConvention,
-      BusinessDayConvention businessDayConvention) {
-    super(maturity, coupon, frequency, country, creditRating, currency, issuer,
-        dayCountConvention, businessDayConvention);
-    // TODO Auto-generated constructor stub
+  public CorporateBondSecurity(String issuerName, String issuerType,
+      String issuerDomicile, String market, Currency currency,
+      YieldConvention yieldConvention, String guaranteeType, Expiry maturity,
+      String couponType, double couponRate, Frequency couponFrequency,
+      DayCount dayCountConvention, BusinessDayConvention businessDayConvention,
+      LocalDate announcementDate, LocalDate interestAccrualDate,
+      LocalDate settlementDate, LocalDate firstCouponDate,
+      double issuancePrice, 
+      double totalAmountIssued, double minimumAmount, double minimumIncrement,
+      double parAmount, double redemptionValue) {
+    super(issuerName, issuerType, issuerDomicile, market, currency,
+        yieldConvention, guaranteeType, maturity, couponType, couponRate,
+        couponFrequency, dayCountConvention, businessDayConvention,
+        announcementDate, interestAccrualDate, settlementDate, firstCouponDate,
+        issuancePrice, totalAmountIssued, minimumAmount,
+        minimumIncrement, parAmount, redemptionValue);
+    throw new OpenGammaRuntimeException ("not implemented");
   }
 
   @Override

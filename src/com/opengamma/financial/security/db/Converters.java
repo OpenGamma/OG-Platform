@@ -8,6 +8,7 @@ package com.opengamma.financial.security.db;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZoneOffset;
@@ -22,6 +23,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
@@ -59,6 +62,18 @@ import com.opengamma.util.time.ExpiryAccuracy;
     return new Date (expiry.toInstant ().toEpochMillisLong ());
   }
   
+  protected static LocalDate dateToLocalDate (Date date) {
+    if (date == null) return null;
+    final Calendar c = Calendar.getInstance ();
+    c.setTime (date);
+    return LocalDate.of (c.get (Calendar.YEAR), c.get (Calendar.MONTH) + 1, c.get (Calendar.DAY_OF_MONTH));
+  }
+  
+  protected static Date localDateToDate (LocalDate date) {
+    if (date == null) return null;
+    return new Date (OffsetDateTime.midnightFrom (date, ZoneOffset.UTC).toInstant ().toEpochMillisLong ());
+  }
+  
   protected static Frequency frequencyBeanToFrequency (final FrequencyBean frequencyBean) {
     if (frequencyBean == null) return null;
     final Frequency f = FrequencyFactory.INSTANCE.getFrequency (frequencyBean.getName ());
@@ -85,5 +100,11 @@ import com.opengamma.util.time.ExpiryAccuracy;
     return GICSCode.getInstance (gicsCodeBean.getName ());
   }
   
+  protected static YieldConvention yieldConventionBeanToYieldConvention (final YieldConventionBean yieldConventionBean) {
+    if (yieldConventionBean == null) return null;
+    final YieldConvention yc = YieldConventionFactory.INSTANCE.getYieldConvention (yieldConventionBean.getName ());
+    if (yc == null) throw new OpenGammaRuntimeException ("Bad value for yieldConventionBean (" + yieldConventionBean.getName () + ")");
+    return yc;
+  }
 
 }

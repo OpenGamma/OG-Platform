@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZoneOffset;
@@ -33,10 +34,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.convention.yield.YieldConvention;
+import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.AgricultureFutureSecurity;
 import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.BondSecurity;
-import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.EnergyFutureSecurity;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.FXFutureSecurity;
@@ -45,7 +47,6 @@ import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
-import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecurity;
@@ -77,6 +78,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         BusinessDayConventionBean.class,
         CashRateTypeBean.class,
         CommodityFutureTypeBean.class,
+        CouponTypeBean.class,
         CurrencyBean.class,
         DayCountBean.class,
         DomainSpecificIdentifierBean.class,
@@ -86,9 +88,13 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         FutureBasketAssociationBean.class,
         FutureSecurityBean.class,
         GICSCodeBean.class,
+        GuaranteeTypeBean.class,
+        IssuerTypeBean.class,
+        MarketBean.class,
         OptionSecurityBean.class,
         SecurityBean.class,
-        UnitBean.class
+        UnitBean.class,
+        YieldConventionBean.class
         };
   }
 
@@ -475,75 +481,49 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   }
   
   @Test
-  public void testBondSecurityBeans () {
+  public void testGovernmentBondSecurityBean () {
     final Date now = new Date ();
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
     Currency dollar = Currency.getInstance ("USD");
-    Frequency annually = FrequencyFactory.INSTANCE.getFrequency ("annually");
-    Frequency monthly = FrequencyFactory.INSTANCE.getFrequency ("monthly");
-    Frequency quarterly = FrequencyFactory.INSTANCE.getFrequency ("quarterly");
+    YieldConvention usStreet = YieldConventionFactory.INSTANCE.getYieldConvention ("US street");
+    Frequency annual = FrequencyFactory.INSTANCE.getFrequency ("annual");
     DayCount act360 = DayCountFactory.INSTANCE.getDayCount ("Actual/360");
-    DayCount actact = DayCountFactory.INSTANCE.getDayCount ("Act/Act");
     BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention ("following");
-    BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention ("modified");
-    BusinessDayConvention preceding = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention ("preceding");
-    DomainSpecificIdentifier corporateId = new DomainSpecificIdentifier ("BLOOMBERG", "corporate bond");
-    DomainSpecificIdentifier municipalId = new DomainSpecificIdentifier ("BLOOMBERG", "municipal bond");
+    LocalDate announcementDate = LocalDate.of (2008, 1, 1);
+    LocalDate interestAccrualDate = LocalDate.of (2010, 3, 4);
+    LocalDate settlementDate = LocalDate.of (2012, 11, 1);
+    LocalDate firstCouponDate = LocalDate.of (2009, 1, 1);
     DomainSpecificIdentifier governmentId = new DomainSpecificIdentifier ("BLOOMBERG", "government bond");
-    // create a Corporate bond
-    BondSecurity bond = new CorporateBondSecurity (expiry, 1.23, annually, "country 1", "credit rating 1", dollar, "issuer 1", act360, following);
-    bond.setIdentifiers (Collections.singleton (corporateId));
-    _secMaster.persistSecurity (now, bond);
-    // create a Municipal bond
-    bond = new MunicipalBondSecurity (expiry, 4.56, monthly, "country 2", "credit rating 2", dollar, "issuer 2", actact, modified);
-    bond.setIdentifiers (Collections.singleton (municipalId));
-    _secMaster.persistSecurity (now, bond);
-    // create a Government bond
-    bond = new GovernmentBondSecurity (expiry, 7.89, quarterly, "country 3", "credit rating 3", dollar, "issuer 3", act360, preceding);
+    BondSecurity bond = new GovernmentBondSecurity ("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers (Collections.singleton (governmentId));
     _secMaster.persistSecurity (now, bond);
-    // retrieve the Corporate bond
-    Security security = _secMaster.getSecurity (now, corporateId, true);
-    Assert.assertNotNull (security);
-    Assert.assertTrue (security instanceof CorporateBondSecurity);
-    CorporateBondSecurity corporate = (CorporateBondSecurity)security;
-    Assert.assertEquals (expiry, corporate.getMaturity ());
-    Assert.assertEquals (1.23, corporate.getCoupon (), 0);
-    Assert.assertEquals (annually, corporate.getFrequency ());
-    Assert.assertEquals ("country 1", corporate.getCountry ());
-    Assert.assertEquals ("credit rating 1", corporate.getCreditRating ());
-    Assert.assertEquals (dollar, corporate.getCurrency ());
-    Assert.assertEquals ("issuer 1", corporate.getIssuer ());
-    Assert.assertEquals (act360, corporate.getDayCountConvention ());
-    Assert.assertEquals (following, corporate.getBusinessDayConvention ());
-    // retrieve the Municipal bond
-    security = _secMaster.getSecurity (now, municipalId, true);
-    Assert.assertNotNull (security);
-    Assert.assertTrue (security instanceof MunicipalBondSecurity);
-    MunicipalBondSecurity municipal = (MunicipalBondSecurity)security;
-    Assert.assertEquals (expiry, municipal.getMaturity ());
-    Assert.assertEquals (4.56, municipal.getCoupon (), 0);
-    Assert.assertEquals (monthly, municipal.getFrequency ());
-    Assert.assertEquals ("country 2", municipal.getCountry ());
-    Assert.assertEquals ("credit rating 2", municipal.getCreditRating ());
-    Assert.assertEquals (dollar, municipal.getCurrency ());
-    Assert.assertEquals ("issuer 2", municipal.getIssuer ());
-    Assert.assertEquals (actact, municipal.getDayCountConvention ());
-    Assert.assertEquals (modified, municipal.getBusinessDayConvention ());
-    // retrieve the Government bond
-    security = _secMaster.getSecurity (now, governmentId, true);
+    Security security = _secMaster.getSecurity (now, governmentId, true);
     Assert.assertNotNull (security);
     Assert.assertTrue (security instanceof GovernmentBondSecurity);
     GovernmentBondSecurity government = (GovernmentBondSecurity)security;
-    Assert.assertEquals (expiry, government.getMaturity ());
-    Assert.assertEquals (7.89, government.getCoupon (), 0);
-    Assert.assertEquals (quarterly, government.getFrequency ());
-    Assert.assertEquals ("country 3", government.getCountry ());
-    Assert.assertEquals ("credit rating 3", government.getCreditRating ());
+    Assert.assertEquals ("issuer name", government.getIssuerName ());
+    Assert.assertEquals ("issuer type", government.getIssuerType ());
+    Assert.assertEquals ("issuer domicile", government.getIssuerDomicile ());
+    Assert.assertEquals ("market", government.getMarket ());
     Assert.assertEquals (dollar, government.getCurrency ());
-    Assert.assertEquals ("issuer 3", government.getIssuer ());
+    Assert.assertEquals (usStreet, government.getYieldConvention ());
+    Assert.assertEquals ("guarantee type", government.getGuaranteeType ());
+    Assert.assertEquals (expiry, government.getMaturity ());
+    Assert.assertEquals ("coupon type", government.getCouponType ());
+    Assert.assertEquals (0.5, government.getCouponRate (), 0);
+    Assert.assertEquals (annual, government.getCouponFrequency ());
     Assert.assertEquals (act360, government.getDayCountConvention ());
-    Assert.assertEquals (preceding, government.getBusinessDayConvention ());
+    Assert.assertEquals (following, government.getBusinessDayConvention ());
+    Assert.assertEquals (announcementDate, government.getAnnouncementDate ());
+    Assert.assertEquals (interestAccrualDate, government.getInterestAccrualDate ());
+    Assert.assertEquals (settlementDate, government.getSettlementDate ());
+    Assert.assertEquals (firstCouponDate, government.getFirstCouponDate ());
+    Assert.assertEquals (10.0, government.getIssuancePrice (), 0);
+    Assert.assertEquals (100.0, government.getTotalAmountIssued (), 0);
+    Assert.assertEquals (10.0, government.getMinimumAmount (), 0);
+    Assert.assertEquals (1.0, government.getMinimumIncrement (), 0);
+    Assert.assertEquals (10.0, government.getParAmount (), 0);
+    Assert.assertEquals (15.0, government.getRedemptionValue (), 0);
   }
   
   @Test

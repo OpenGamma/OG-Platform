@@ -13,8 +13,8 @@ package com.opengamma.financial.convention.frequency;
 public class SimpleFrequency implements Frequency {
   
   public static final Frequency MONTHLY = new SimpleFrequency ("monthly");
-  public static final Frequency ANNUALLY = new SimpleFrequency ("annually");
-  public static final Frequency SEMI_ANNUALLY = new SimpleFrequency ("bi-annually");
+  public static final Frequency ANNUAL = new SimpleFrequency ("annual");
+  public static final Frequency SEMI_ANNUAL = new SimpleFrequency ("semiannual");
   public static final Frequency QUARTERLY = new SimpleFrequency ("quarterly");
   
   private final String _name;

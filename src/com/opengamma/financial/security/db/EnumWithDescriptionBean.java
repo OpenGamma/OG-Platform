@@ -1,11 +1,8 @@
 package com.opengamma.financial.security.db;
 
-import javax.persistence.Entity;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-@Entity
 public class EnumWithDescriptionBean extends EnumBean {
   private String _description;
 
