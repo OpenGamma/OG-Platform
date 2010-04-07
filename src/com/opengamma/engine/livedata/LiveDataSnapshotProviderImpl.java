@@ -46,6 +46,8 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   public static final String MID_FIELD = "MID";
   public static final String BID_FIELD = "BID";
   public static final String ASK_FIELD = "ASK";
+  public static final String BEST_BID_FIELD = "BEST_BID";
+  public static final String BEST_ASK_FIELD = "BEST_ASK";
   
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
@@ -181,6 +183,10 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       double bid = liveDataMsg.getDouble(BID_FIELD);
       double ask = liveDataMsg.getDouble(ASK_FIELD);
       fudgeMsg.add(MarketDataFieldNames.INDICATIVE_VALUE_NAME, ((bid + ask) / 2.0));
+    } else if(liveDataMsg.getValue(BEST_BID_FIELD) != null && liveDataMsg.getValue(BEST_ASK_FIELD) != null) {
+      double bestBid = liveDataMsg.getDouble(BEST_BID_FIELD);
+      double bestAsk = liveDataMsg.getDouble(BEST_ASK_FIELD);
+      fudgeMsg.add(MarketDataFieldNames.INDICATIVE_VALUE_NAME, ((bestBid+bestAsk)/2.0));
     }
     
     if (fudgeMsg.getDouble(INDICATIVE_VALUE_NAME) != null) {
