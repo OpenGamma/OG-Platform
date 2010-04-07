@@ -119,7 +119,7 @@ public abstract class AbstractLiveDataServer {
   }
   
   public String getDefaultNormalizationRuleSetId() {
-    return StandardRules.getOpenGamma().getId();
+    return StandardRules.getOpenGammaRuleSetId();
   }
 
   /**
@@ -408,7 +408,11 @@ public abstract class AbstractLiveDataServer {
 
     // TODO kirk 2009-10-29 -- This needs to be much better.
     for (MarketDataFieldReceiver receiver : _fieldReceivers) {
-      receiver.marketDataReceived(subscription, liveDataFields);
+      try {
+        receiver.marketDataReceived(subscription, liveDataFields);
+      } catch (RuntimeException e) {
+        s_logger.error("MarketDataFieldReceiver " + receiver + " failed", e);
+      }
     }
   }
 

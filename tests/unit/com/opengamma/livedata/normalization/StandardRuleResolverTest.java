@@ -8,6 +8,9 @@ package com.opengamma.livedata.normalization;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.junit.Test;
 
 /**
@@ -19,12 +22,10 @@ public class StandardRuleResolverTest {
   
   @Test
   public void resolve() {
-    StandardRuleResolver resolver = new StandardRuleResolver();
+    Collection<NormalizationRuleSet> supportedRules = Collections.singleton(StandardRules.getNoNormalization());    
+    StandardRuleResolver resolver = new StandardRuleResolver(supportedRules);
     
-    NormalizationRuleSet rules = resolver.resolve("OpenGamma");
-    assertNotNull(rules);
-    
-    rules = resolver.resolve("No Normalization");
+    NormalizationRuleSet rules = resolver.resolve("No Normalization");
     assertNotNull(rules);
     
     rules = resolver.resolve("Nonexistent");

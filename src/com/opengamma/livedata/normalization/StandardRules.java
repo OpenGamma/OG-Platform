@@ -5,10 +5,7 @@
  */
 package com.opengamma.livedata.normalization;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * 
@@ -17,33 +14,17 @@ import java.util.List;
  */
 public class StandardRules {
   
-  private static final NormalizationRuleSet NO_NORMALIZATION;
-  private static final NormalizationRuleSet OPENGAMMA;
-  
-  private static final Collection<NormalizationRuleSet> ALL;
-  
-  static {
-    NO_NORMALIZATION = new NormalizationRuleSet("No Normalization", 
+  private static final NormalizationRuleSet NO_NORMALIZATION = 
+    new NormalizationRuleSet("No Normalization", 
         "Raw",
         Collections.<NormalizationRule>emptyList());
-    
-    // TODO
-    List<NormalizationRule> rules = new ArrayList<NormalizationRule>();
-    OPENGAMMA = new NormalizationRuleSet("OpenGamma",
-        "",
-        rules);
-    
-    ALL = new ArrayList<NormalizationRuleSet>();
-    ALL.add(NO_NORMALIZATION);
-    ALL.add(OPENGAMMA);
-  }
   
-  public static Collection<NormalizationRuleSet> getAll() {
-    return ALL; 
-  }
-  
-  public static NormalizationRuleSet getOpenGamma() {
-    return OPENGAMMA;
+  /**
+   * This normalization rule 
+   * @return
+   */
+  public static String getOpenGammaRuleSetId() {
+    return "OpenGamma";
   }
   
   public static NormalizationRuleSet getNoNormalization() {

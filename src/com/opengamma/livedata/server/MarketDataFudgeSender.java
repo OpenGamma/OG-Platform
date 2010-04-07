@@ -36,10 +36,11 @@ public class MarketDataFudgeSender implements MarketDataFieldReceiver {
     for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
       
       FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(fields);
-      LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
-      FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
-      getFudgeMessageSender().send(fudgeMsg);
-      
+      if (normalizedMsg != null) {
+        LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
+        FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
+        getFudgeMessageSender().send(fudgeMsg);
+      }
     }
   }
 

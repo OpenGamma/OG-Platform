@@ -55,7 +55,7 @@ public class NormalizationRuleSet implements Serializable {
   public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
     MutableFudgeFieldContainer normalizedMsg = FUDGE_CONTEXT.newMessage(msg);
     for (NormalizationRule rule : _rules) {
-      rule.apply(normalizedMsg);      
+      normalizedMsg = rule.apply(normalizedMsg);      
     }
     return normalizedMsg;
   }

@@ -223,8 +223,9 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
 
   protected abstract void cancelPublication(LiveDataSpecification fullyQualifiedSpecification);
   
+  @Override
   public String getDefaultNormalizationRuleSetId() {
-    return StandardRules.getOpenGamma().getId();
+    return StandardRules.getOpenGammaRuleSetId();
   }
   
 }

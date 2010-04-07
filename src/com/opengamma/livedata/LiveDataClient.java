@@ -40,4 +40,6 @@ public interface LiveDataClient {
   void unsubscribe(String userName, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener);
   void unsubscribe(String userName, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener);
   
+  public String getDefaultNormalizationRuleSetId();
+  
 }

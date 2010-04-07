@@ -21,7 +21,7 @@ public interface NormalizationRule extends Serializable {
    * 
    * @param msg Message to normalize. Never null.
    * @return The normalized message. The method may modify and 
-   * return the input parameter, msg, if desired.
+   * return the input parameter <code>msg</code> if desired. 
    */
   public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg);
 
