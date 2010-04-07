@@ -27,11 +27,15 @@ public class MapViewComputationCache implements ViewComputationCache {
     new ConcurrentHashMap<ValueSpecification, ComputedValue>();
 
   @Override
-  public ComputedValue getValue(ValueSpecification specification) {
+  public Object getValue(ValueSpecification specification) {
     if(specification == null) {
       return null;
     }
-    return _values.get(specification);
+    ComputedValue computedValue = _values.get(specification);
+    if(computedValue != null) {
+      return computedValue.getValue();
+    }
+    return null;
   }
 
   @Override
