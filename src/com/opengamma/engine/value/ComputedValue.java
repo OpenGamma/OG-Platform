@@ -42,6 +42,9 @@ public class ComputedValue implements Serializable {
   public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.checkNotNull(specification, "Value Specification");
     ArgumentChecker.checkNotNull(value, "Value; for uncomputed values use a standard nonce value.");
+    if(value instanceof ComputedValue) {
+      throw new IllegalArgumentException("Double-nested value");
+    }
     _specification = specification;
     _value = value;
   }
