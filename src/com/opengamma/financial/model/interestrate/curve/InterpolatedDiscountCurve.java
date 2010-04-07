@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  * 
  * @author emcleod
  */
-public class InterpolatedDiscountCurve extends DiscountCurve {
+public class InterpolatedDiscountCurve extends DiscountCurve implements Serializable {
   private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
   private static final String RATE_DATA_FIELD_NAME = "rateData";
   private static final String DF_DATA_FIELD_NAME = "dfData";

@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,7 +17,7 @@ import java.util.TreeMap;
  * @author emcleod
  */
 
-public abstract class Interpolator1D implements Interpolator<Map<Double, Double>, Double, Double> {
+public abstract class Interpolator1D implements Interpolator<Map<Double, Double>, Double, Double>, Serializable {
   protected static final double EPS = 1e-12;
 
   /**
