@@ -24,6 +24,7 @@ public class DefaultSecurity implements Security, Serializable {
   private String _securityType;
   //private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
   private DomainSpecificIdentifier _identityKey;
+  private String _displayName;
   
   public DefaultSecurity() {
     _identifiers = new DomainSpecificIdentifiers();
@@ -75,6 +76,27 @@ public class DefaultSecurity implements Security, Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  public void setDisplayName (final String displayName) {
+    _displayName = displayName;
+  }
+  
+  @Override
+  public String getDisplayName () {
+    if (_displayName != null) {
+      return _displayName;
+    } else {
+      DomainSpecificIdentifier identifier = getIdentityKey ();
+      if (identifier == null) {
+        final Collection<DomainSpecificIdentifier> identifiers = getIdentifiers ();
+        if ((identifiers == null) || identifiers.isEmpty ()) {
+          return getClass ().getName ();
+        }
+        identifier = identifiers.iterator ().next ();
+      }
+      return identifier.getDomain ().getDomainName () + "/" + identifier.getValue ();
+    }
   }
 
 }

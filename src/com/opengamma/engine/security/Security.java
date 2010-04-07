@@ -29,6 +29,14 @@ public interface Security extends Identifiable {
   Collection<DomainSpecificIdentifier> getIdentifiers();
   
   /**
+   * Returns a displayable name for the {@code Security} that is more user friently than the
+   * collection of identifiers.
+   * 
+   * @return a displayable name
+   */
+  String getDisplayName ();
+  
+  /**
    * Obtain the dedicated market data definition for this security.
    * This may combine a set of keys (for example, a Bloomberg Ticker and a
    * Reuters RIC) in one analytic value definition.
