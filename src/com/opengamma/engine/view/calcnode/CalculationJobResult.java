@@ -10,7 +10,6 @@ import java.io.Serializable;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
  * The response that a Calculation Node will return to invokers.

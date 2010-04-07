@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public interface ViewComputationCache {
 
-  ComputedValue getValue(ValueSpecification specification);
+  Object getValue(ValueSpecification specification);
   
   void putValue(ComputedValue value);
 }

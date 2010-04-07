@@ -31,6 +31,7 @@ import com.opengamma.OpenGammaRuntimeException;
  * @author jim
  */
 public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
+  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorQueryReceiver.class);
   private Map<CalculationJobSpecification, DependencyNode> _jobToDepNodeMap;
 

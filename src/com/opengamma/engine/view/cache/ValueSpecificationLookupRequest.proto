@@ -1,0 +1,18 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.view.cache {
+
+  message ValueSpecificationLookupRequest extends RemoteCacheMessage {
+  
+    com.opengamma.engine.value.ValueSpecification request;
+    
+    binding Java {
+      methods "toString";
+    }
+  }
+
+}

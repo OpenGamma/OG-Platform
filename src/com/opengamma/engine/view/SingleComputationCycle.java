@@ -280,9 +280,9 @@ public class SingleComputationCycle {
     Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
     for(DependencyGraph depGraph : depGraphs) {
       for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
-        ComputedValue value = computationCache.getValue(outputSpec);
+        Object value = computationCache.getValue(outputSpec);
         if(value != null) {
-          getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), value);
+          getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), new ComputedValue (outputSpec, value));
         }
       }
     }

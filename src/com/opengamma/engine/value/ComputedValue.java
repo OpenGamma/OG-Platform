@@ -10,7 +10,6 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
@@ -42,6 +41,9 @@ public class ComputedValue implements Serializable {
   public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.checkNotNull(specification, "Value Specification");
     ArgumentChecker.checkNotNull(value, "Value; for uncomputed values use a standard nonce value.");
+    if(value instanceof ComputedValue) {
+      throw new IllegalArgumentException("Double-nested value");
+    }
     _specification = specification;
     _value = value;
   }
@@ -103,9 +105,9 @@ public class ComputedValue implements Serializable {
   }
   
   public static ComputedValue fromFudgeMsg (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final FudgeField specification = message.getByName (SPECIFICATION_KEY);
-    final FudgeField value = message.getByName (VALUE_KEY);
-    return new ComputedValue (context.fieldValueToObject (ValueSpecification.class, specification), context.fieldValueToObject (value));
+    ValueSpecification valueSpec = context.fieldValueToObject(ValueSpecification.class, message.getByName (SPECIFICATION_KEY));
+    Object valueObject = context.fieldValueToObject (message.getByName (VALUE_KEY));
+    return new ComputedValue(valueSpec, valueObject);
   }
   
 }

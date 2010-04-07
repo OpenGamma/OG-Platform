@@ -1,0 +1,22 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.engine.view.cache {
+
+  message ValuePutRequest extends RemoteCacheMessage {
+  
+    string viewName;
+    string calculationConfigurationName;
+    long snapshot;
+    long specificationId;
+    Object value;
+    
+    binding Java {
+      methods "toString";
+    }
+  }
+
+}

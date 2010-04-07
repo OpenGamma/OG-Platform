@@ -22,7 +22,10 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
@@ -56,6 +59,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
+  private static final boolean OUTOUT_DEPENDENCY_GRAPHS = false;
   private final Portfolio _portfolio;
 
   private PortfolioNode _populatedRootNode;
@@ -140,7 +144,25 @@ public class PortfolioEvaluationModel {
         viewProcessingContext.getLiveDataAvailabilityProvider(),
         viewProcessingContext.getComputationTargetResolver(),
         viewDefinition);
+    if(OUTOUT_DEPENDENCY_GRAPHS) {
+      outputDependencyGraphs();
+    }
     addLiveDataSubscriptions(viewProcessingContext, viewDefinition);
+  }
+  
+  private void outputDependencyGraphs() {
+    StringBuilder sb = new StringBuilder();
+    for(DependencyGraphModel depGraphModel : _graphModelsByConfiguration.values()) {
+      sb.append("DepGraphModel for ").append(depGraphModel.getCalculationConfigurationName());
+      for(DependencyGraph depGraph : depGraphModel.getAllDependencyGraphs()) {
+        sb.append("\tGot dep graph for ").append(depGraph.getComputationTarget());
+        sb.append("\tProducing values ").append(depGraph.getOutputValues());
+        for(DependencyNode depNode : depGraph.getDependencyNodes()) {
+          sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
+        }
+      }
+    }
+    s_logger.warn("Dependency Graph Models -- \n{}", sb);
   }
   
   protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {

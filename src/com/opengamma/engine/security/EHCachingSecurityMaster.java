@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.RegisteredEventListeners;
@@ -20,10 +19,10 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.EHCacheUtils;
 
 /**
  * 
@@ -31,8 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  * @author yomi
  */
 public class EHCachingSecurityMaster implements SecurityMaster {
-  private static final Logger s_logger = LoggerFactory
-      .getLogger(EHCachingSecurityMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EHCachingSecurityMaster.class);
   public static String SINGLE_SECURITY_CACHE = "single-security-cache";
   public static String MULTI_SECURITIES_CACHE = "multi-securities-cache";
 
@@ -44,11 +42,11 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   public EHCachingSecurityMaster(SecurityMaster underlying) {
     ArgumentChecker.checkNotNull(underlying, "Security Master");
     _underlying = underlying;
-    CacheManager manager = createCacheManager();
-    addCache(manager, SINGLE_SECURITY_CACHE);
-    addCache(manager, MULTI_SECURITIES_CACHE);
-    _singleSecurityCache = getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _multiSecuritiesCache = getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
+    CacheManager manager = EHCacheUtils.createCacheManager();
+    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
+    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
+    _singleSecurityCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
+    _multiSecuritiesCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
     _manager = manager;
   }
 
@@ -61,17 +59,17 @@ public class EHCachingSecurityMaster implements SecurityMaster {
       RegisteredEventListeners registeredEventListeners) {
     ArgumentChecker.checkNotNull(underlying, "Security Master");
     _underlying = underlying;
-    CacheManager manager = createCacheManager();
-    addCache(manager, SINGLE_SECURITY_CACHE, maxElementsInMemory,
+    CacheManager manager = EHCacheUtils.createCacheManager();
+    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE, maxElementsInMemory,
         memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
         timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
         diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    addCache(manager, MULTI_SECURITIES_CACHE, maxElementsInMemory,
+    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE, maxElementsInMemory,
         memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
         timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
         diskExpiryThreadIntervalSeconds, registeredEventListeners);
-    _singleSecurityCache = getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _multiSecuritiesCache = getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
+    _singleSecurityCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
+    _multiSecuritiesCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
     _manager = manager;
   }
 
@@ -79,10 +77,10 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     ArgumentChecker.checkNotNull(underlying, "Security Master");
     ArgumentChecker.checkNotNull(manager, "CacheManager");
     _underlying = underlying;
-    addCache(manager, SINGLE_SECURITY_CACHE);
-    addCache(manager, MULTI_SECURITIES_CACHE);
-    _singleSecurityCache = getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
-    _multiSecuritiesCache = getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
+    EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
+    EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
+    _singleSecurityCache = EHCacheUtils.getCacheFromManager(manager, SINGLE_SECURITY_CACHE);
+    _multiSecuritiesCache = EHCacheUtils.getCacheFromManager(manager, MULTI_SECURITIES_CACHE);
     _manager = manager;
   }
 
@@ -92,107 +90,12 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     ArgumentChecker.checkNotNull(singleSecCache, "Single Security Cache");
     ArgumentChecker.checkNotNull(multiSecCache, "Multi Security Cache");
     _underlying = underlying;
-    CacheManager manager = createCacheManager();
-    addCache(manager, singleSecCache);
-    addCache(manager, multiSecCache);
-    _singleSecurityCache = getCacheFromManager(manager, singleSecCache.getName());
-    _multiSecuritiesCache = getCacheFromManager(manager, multiSecCache.getName());
+    CacheManager manager = EHCacheUtils.createCacheManager();
+    EHCacheUtils.addCache(manager, singleSecCache);
+    EHCacheUtils.addCache(manager, multiSecCache);
+    _singleSecurityCache = EHCacheUtils.getCacheFromManager(manager, singleSecCache.getName());
+    _multiSecuritiesCache = EHCacheUtils.getCacheFromManager(manager, multiSecCache.getName());
     _manager = manager;
-  }
-
-  /**
-   * @param manager
-   * @return
-   */
-  protected CacheManager createCacheManager() {
-    CacheManager manager = null;
-    try {
-      manager = CacheManager.create();
-    } catch (CacheException e) {
-      throw new OpenGammaRuntimeException("Unable to create CacheManager", e);
-    }
-    return manager;
-  }
-
-  /**
-   * @param manager
-   * @param cache
-   */
-  protected void addCache(CacheManager manager, Cache cache) {
-    ArgumentChecker.checkNotNull(manager, "CacheManager");
-    ArgumentChecker.checkNotNull(cache, "Cache");
-    if (!manager.cacheExists(cache.getName())) {
-      try {
-        manager.addCache(cache);
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to add cache " + cache.getName(), e);
-      }
-    }
-
-  }
-
-  /**
-   * @param manager
-   * @param name
-   * @param maxElementsInMemory
-   * @param memoryStoreEvictionPolicy
-   * @param overflowToDisk
-   * @param diskStorePath
-   * @param eternal
-   * @param timeToLiveSeconds
-   * @param timeToIdleSeconds
-   * @param diskPersistent
-   * @param diskExpiryThreadIntervalSeconds
-   * @param registeredEventListeners
-   */
-  protected void addCache(CacheManager manager, String name,
-      int maxElementsInMemory,
-      MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
-      boolean overflowToDisk, String diskStorePath, boolean eternal,
-      long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
-      long diskExpiryThreadIntervalSeconds,
-      RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.checkNotNull(manager, "CacheManager");
-    ArgumentChecker.checkNotNull(name, "CacheName");
-    if (!manager.cacheExists(name)) {
-      try {
-        manager.addCache(new Cache(name, maxElementsInMemory,
-            memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
-            timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
-            diskExpiryThreadIntervalSeconds, registeredEventListeners));
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
-      }
-    }
-  }
-
-  /**
-   * @param manager
-   */
-  protected void addCache(final CacheManager manager, final String name) {
-    if (!manager.cacheExists(name)) {
-      try {
-        manager.addCache(name);
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
-      }
-    }
-  }
-
-  /**
-   * @param manager
-   * @param name
-   * @return
-   */
-  protected Cache getCacheFromManager(CacheManager manager, String name) {
-    Cache cache = null;
-    try {
-      cache = manager.getCache(name);
-    } catch (Exception e) {
-      throw new OpenGammaRuntimeException(
-          "Unable to retrieve from CacheManager, cache: " + name, e);
-    }
-    return cache;
   }
 
   /**
