@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.livedata;
 
-import static com.opengamma.engine.value.MarketDataFieldNames.INDICATIVE_VALUE_NAME;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -15,12 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -30,7 +26,6 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.LiveDataSubscriptionResult;
 import com.opengamma.livedata.LiveDataValueUpdate;
-import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,11 +36,6 @@ import com.opengamma.util.ArgumentChecker;
 public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, LiveDataListener 
 {
   private static final Logger s_logger = LoggerFactory.getLogger(LiveDataSnapshotProviderImpl.class);
-  
-  public static final String LAST_PRICE_FIELD = "LAST_PRICE";
-  public static final String MID_FIELD = "MID";
-  public static final String BID_FIELD = "BID";
-  public static final String ASK_FIELD = "ASK";
   
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
@@ -91,7 +81,7 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
       DomainSpecificIdentifier id = requirement.getTargetSpecification().getIdentifier();
-      LiveDataSpecification liveDataSpec = new LiveDataSpecification(StandardRules.getOpenGamma().getId(), id); // TODO
+      LiveDataSpecification liveDataSpec = new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), id);
       liveDataSpecs.add(liveDataSpec);
       _liveDataSpec2ValueRequirements.put(liveDataSpec, valueRequirements);
     }
@@ -158,35 +148,12 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
     }
     
     s_logger.debug("Corresponding value requirements are {}", valueRequirements);
-    FudgeFieldContainer normalizedMsg = normalize(valueUpdate.getFields());
-    if (normalizedMsg == null) {
-      s_logger.debug("Received an update in which we are not interested");
-      return;
-    }
-    s_logger.debug("Normalized message to {}", normalizedMsg);
+    FudgeFieldContainer msg = valueUpdate.getFields();
     
     for (ValueRequirement valueRequirement : valueRequirements) {
-      ComputedValue value = new ComputedValue(new ValueSpecification(valueRequirement), normalizedMsg);
+      ComputedValue value = new ComputedValue(new ValueSpecification(valueRequirement), msg);
       getUnderlyingProvider().addValue(value);
     }
-  }
-  
-  private FudgeFieldContainer normalize(FudgeFieldContainer liveDataMsg) {
-    MutableFudgeFieldContainer fudgeMsg = getFudgeContext().newMessage();
-    
-    if (liveDataMsg.getValue(LAST_PRICE_FIELD) != null) {
-      fudgeMsg.add(MarketDataFieldNames.INDICATIVE_VALUE_NAME, liveDataMsg.getValue(LAST_PRICE_FIELD));
-    
-    } else if (liveDataMsg.getValue(BID_FIELD) != null && liveDataMsg.getValue(ASK_FIELD) != null) {
-      double bid = liveDataMsg.getDouble(BID_FIELD);
-      double ask = liveDataMsg.getDouble(ASK_FIELD);
-      fudgeMsg.add(MarketDataFieldNames.INDICATIVE_VALUE_NAME, ((bid + ask) / 2.0));
-    }
-    
-    if (fudgeMsg.getDouble(INDICATIVE_VALUE_NAME) != null) {
-      return fudgeMsg;
-    }
-    return null;
   }
   
 }
