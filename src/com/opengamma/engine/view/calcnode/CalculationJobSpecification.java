@@ -12,7 +12,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
  * A description of a job that will be executed by a Calculation Node.

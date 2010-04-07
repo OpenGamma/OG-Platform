@@ -8,17 +8,16 @@ package com.opengamma.engine.view.calcnode;
 import java.util.Collection;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
-import com.opengamma.OpenGammaRuntimeException;
 /**
  * 
  *

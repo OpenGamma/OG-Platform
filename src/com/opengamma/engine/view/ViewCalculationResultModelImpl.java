@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
