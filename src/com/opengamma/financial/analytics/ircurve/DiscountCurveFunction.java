@@ -21,7 +21,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -30,6 +29,7 @@ import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -147,7 +147,7 @@ implements FunctionInvoker {
     for(FixedIncomeStrip strip : getDefinition().getStrips()) {
       ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
-      Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
+      Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
     // Bootstrap the discount curve

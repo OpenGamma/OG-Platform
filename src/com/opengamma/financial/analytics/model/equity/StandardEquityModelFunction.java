@@ -19,11 +19,11 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.EquitySecurity;
+import com.opengamma.livedata.normalization.MarketDataFieldNames;
 
 /**
  * 
@@ -37,7 +37,7 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
       final Set<ValueRequirement> desiredValues) {
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
     final double price = (((FudgeFieldContainer) inputs.getValue(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity
-        .getIdentityKey())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
+        .getIdentityKey())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     return Collections.<ComputedValue> singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY,
         equity.getIdentityKey())), price));
   }

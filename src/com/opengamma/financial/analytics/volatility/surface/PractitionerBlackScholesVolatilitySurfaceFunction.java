@@ -23,7 +23,6 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -32,6 +31,7 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -56,7 +56,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final FudgeFieldContainer optionData = (FudgeFieldContainer) inputs.getValue(optionDataRequirement);
     final FudgeFieldContainer underlyingData = (FudgeFieldContainer) inputs.getValue(underlyingDataRequirement);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveDataRequirement);
-    final double spotPrice = underlyingData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
+    final double spotPrice = underlyingData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final double b = discountCurve.getInterestRate(t);// TODO cost-of-carry model
