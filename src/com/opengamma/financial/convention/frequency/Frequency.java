@@ -7,15 +7,11 @@ package com.opengamma.financial.convention.frequency;
 
 
 /**
- * 
+ * This will need converting at some point to hold some proper data to get the dates for the cash flows.
  *
  * @author Andrew
  */
 public interface Frequency {
-  
-  // TODO what methods would be needed here to support meaningful calculations of coupon payouts from e.g. a bond?
-  
-  public int getFrequency ();
   
   public String getConventionName ();
   
