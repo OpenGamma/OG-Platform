@@ -130,6 +130,18 @@ public class EquitySecurity extends FinancialSecurity {
   public GICSCode getGICSCode() {
     return _gicsCode;
   }
+  
+  /**
+   * Use the company name as the display name.
+   */
+  @Override
+  protected String getDefaultDisplayName () {
+    if (getCompanyName () != null) {
+      return getCompanyName ();
+    } else {
+      return super.getDefaultDisplayName ();
+    }
+  }
 
   /**
    * @param gicsCode the gicsCode to set
