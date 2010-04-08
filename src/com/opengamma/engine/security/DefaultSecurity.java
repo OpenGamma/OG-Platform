@@ -8,6 +8,7 @@ package com.opengamma.engine.security;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -72,6 +73,11 @@ public class DefaultSecurity implements Security, Serializable {
   public void setSecurityType(String securityType) {
     _securityType = securityType;
   }
+  
+  @Override
+  public boolean equals (final Object o) {
+    return EqualsBuilder.reflectionEquals(this, o);
+  }
 
   @Override
   public String toString() {
@@ -82,20 +88,28 @@ public class DefaultSecurity implements Security, Serializable {
     _displayName = displayName;
   }
   
+  /**
+   * Override this to supply a "default" display name if one hasn't been explicitly set. The default
+   * here constructs one from the identity key or identifiers.
+   */
+  protected String getDefaultDisplayName () {
+    DomainSpecificIdentifier identifier = getIdentityKey ();
+    if (identifier == null) {
+      final Collection<DomainSpecificIdentifier> identifiers = getIdentifiers ();
+      if ((identifiers == null) || identifiers.isEmpty ()) {
+        return getClass ().getName ();
+      }
+      identifier = identifiers.iterator ().next ();
+    }
+    return identifier.getDomain ().getDomainName () + "/" + identifier.getValue ();
+  }
+  
   @Override
   public String getDisplayName () {
     if (_displayName != null) {
       return _displayName;
     } else {
-      DomainSpecificIdentifier identifier = getIdentityKey ();
-      if (identifier == null) {
-        final Collection<DomainSpecificIdentifier> identifiers = getIdentifiers ();
-        if ((identifiers == null) || identifiers.isEmpty ()) {
-          return getClass ().getName ();
-        }
-        identifier = identifiers.iterator ().next ();
-      }
-      return identifier.getDomain ().getDomainName () + "/" + identifier.getValue ();
+      return getDefaultDisplayName ();
     }
   }
 
