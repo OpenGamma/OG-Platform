@@ -20,7 +20,7 @@ import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.MultipleGreekResult;
 import com.opengamma.financial.greeks.SingleGreekResult;
-import com.opengamma.financial.pnl.OptionTradeData;
+import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.Underlying;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.function.Function1D;
@@ -62,15 +62,15 @@ public class GreekConverterTest {
     final Map<Object, Double> m2 = new HashMap<Object, Double>();
     final Map<Object, Double> m3 = new HashMap<Object, Double>();
     m1.put(Underlying.SPOT_PRICE, SPOT_PRICE);
-    m1.put(OptionTradeData.NUMBER_OF_CONTRACTS, N);
-    m1.put(OptionTradeData.POINT_VALUE, PV);
+    m1.put(TradeData.NUMBER_OF_CONTRACTS, N);
+    m1.put(TradeData.POINT_VALUE, PV);
     m2.put(Underlying.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
-    m2.put(OptionTradeData.NUMBER_OF_CONTRACTS, N);
-    m2.put(OptionTradeData.POINT_VALUE, PV);
+    m2.put(TradeData.NUMBER_OF_CONTRACTS, N);
+    m2.put(TradeData.POINT_VALUE, PV);
     m3.put(Underlying.SPOT_PRICE, SPOT_PRICE);
     m3.put(Underlying.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
-    m3.put(OptionTradeData.NUMBER_OF_CONTRACTS, N);
-    m3.put(OptionTradeData.POINT_VALUE, PV);
+    m3.put(TradeData.NUMBER_OF_CONTRACTS, N);
+    m3.put(TradeData.POINT_VALUE, PV);
     map.put(Greek.DELTA, m1);
     map.put(Greek.GAMMA, m1);
     map.put(Greek.VEGA, m2);
@@ -111,7 +111,7 @@ public class GreekConverterTest {
     final GreekResultCollection greeks = new GreekResultCollection();
     greeks.put(Greek.DELTA, temp);
     final Map<Greek, Map<Object, Double>> data = Collections.<Greek, Map<Object, Double>> singletonMap(Greek.DELTA, Collections.<Object, Double> singletonMap(
-        OptionTradeData.NUMBER_OF_CONTRACTS, N));
+        TradeData.NUMBER_OF_CONTRACTS, N));
     try {
       G_TO_PG_CONVERTER.evaluate(new GreekDataBundle(greeks, data));
       fail();
@@ -143,7 +143,7 @@ public class GreekConverterTest {
     };
     final Map<PositionGreek, RiskFactorResult<?>> riskFactors = Collections.<PositionGreek, RiskFactorResult<?>> singletonMap(PositionGreek.POSITION_DELTA, temp);
     final Map<Greek, Map<Object, Double>> data = Collections.<Greek, Map<Object, Double>> singletonMap(Greek.DELTA, Collections.<Object, Double> singletonMap(
-        OptionTradeData.NUMBER_OF_CONTRACTS, N));
+        TradeData.NUMBER_OF_CONTRACTS, N));
     PG_TO_VG_CONVERTER.evaluate(new PositionGreekDataBundle(riskFactors, data));
   }
 

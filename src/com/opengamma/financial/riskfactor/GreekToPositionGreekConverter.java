@@ -15,7 +15,7 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.greeks.MultipleGreekResult;
 import com.opengamma.financial.greeks.SingleGreekResult;
-import com.opengamma.financial.pnl.OptionTradeData;
+import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -41,12 +41,12 @@ public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, M
     for (final Map.Entry<Greek, GreekResult<?>> entry : greeks.entrySet()) {
       if (entry.getValue() instanceof SingleGreekResult) {
         riskFactors.put(entry.getKey().accept(_visitor), new SingleRiskFactorResult((Double) entry.getValue().getResult()
-            * data.getUnderlyingDataForGreek(entry.getKey(), OptionTradeData.NUMBER_OF_CONTRACTS)));
+            * data.getUnderlyingDataForGreek(entry.getKey(), TradeData.NUMBER_OF_CONTRACTS)));
       } else if (entry.getValue() instanceof MultipleGreekResult) {
         multipleGreekResult = ((MultipleGreekResult) entry.getValue()).getResult();
         riskFactorResultMap = new HashMap<Object, Double>();
         for (final Map.Entry<String, Double> e : multipleGreekResult.entrySet()) {
-          riskFactorResultMap.put(e.getKey(), e.getValue() * data.getUnderlyingDataForGreek(entry.getKey(), OptionTradeData.NUMBER_OF_CONTRACTS));
+          riskFactorResultMap.put(e.getKey(), e.getValue() * data.getUnderlyingDataForGreek(entry.getKey(), TradeData.NUMBER_OF_CONTRACTS));
         }
         riskFactors.put(entry.getKey().accept(_visitor), new MultipleRiskFactorResult(riskFactorResultMap));
       } else {

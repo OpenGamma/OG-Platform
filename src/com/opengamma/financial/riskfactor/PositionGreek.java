@@ -275,9 +275,7 @@ public enum PositionGreek {
       return Greek.ZOMMA_P;
     }
 
-  }
-
-  ;
+  };
 
   public abstract Greek getUnderlyingGreek();
 }

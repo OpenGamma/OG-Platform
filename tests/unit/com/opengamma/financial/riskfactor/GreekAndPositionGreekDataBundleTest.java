@@ -16,7 +16,7 @@ import org.junit.Test;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.SingleGreekResult;
-import com.opengamma.financial.pnl.OptionTradeData;
+import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.Underlying;
 
 /**
@@ -37,7 +37,7 @@ public class GreekAndPositionGreekDataBundleTest {
     RISK_FACTOR.put(PositionGreek.POSITION_DELTA, new SingleRiskFactorResult(12.));
     RISK_FACTOR.put(PositionGreek.POSITION_GAMMA, new SingleRiskFactorResult(34.));
     D = new HashMap<Object, Double>();
-    D.put(OptionTradeData.NUMBER_OF_CONTRACTS, 200.);
+    D.put(TradeData.NUMBER_OF_CONTRACTS, 200.);
     D.put(Underlying.SPOT_PRICE, 40.);
     UNDERLYING.put(Greek.DELTA, D);
     UNDERLYING.put(Greek.GAMMA, D);
@@ -120,12 +120,12 @@ public class GreekAndPositionGreekDataBundleTest {
     assertEquals(GREEKS_DATA.getAllGreekValues(), GREEKS);
     assertEquals(GREEKS_DATA.getAllUnderlyingData(), UNDERLYING);
     assertEquals(GREEKS_DATA.getAllUnderlyingDataForGreek(Greek.DELTA), UNDERLYING.get(Greek.DELTA));
-    assertEquals(GREEKS_DATA.getUnderlyingDataForGreek(Greek.DELTA, OptionTradeData.NUMBER_OF_CONTRACTS), D.get(OptionTradeData.NUMBER_OF_CONTRACTS));
+    assertEquals(GREEKS_DATA.getUnderlyingDataForGreek(Greek.DELTA, TradeData.NUMBER_OF_CONTRACTS), D.get(TradeData.NUMBER_OF_CONTRACTS));
     assertEquals(GREEKS_DATA.getUnderlyingDataForGreek(Greek.DELTA, Underlying.SPOT_PRICE), D.get(Underlying.SPOT_PRICE));
     assertEquals(POSITION_GREEKS_DATA.getAllRiskFactorValues(), RISK_FACTOR);
     assertEquals(POSITION_GREEKS_DATA.getAllUnderlyingData(), UNDERLYING);
     assertEquals(POSITION_GREEKS_DATA.getAllUnderlyingDataForRiskFactor(PositionGreek.POSITION_DELTA), UNDERLYING.get(Greek.DELTA));
-    assertEquals(POSITION_GREEKS_DATA.getUnderlyingDataForRiskFactor(PositionGreek.POSITION_DELTA, OptionTradeData.NUMBER_OF_CONTRACTS), D.get(OptionTradeData.NUMBER_OF_CONTRACTS));
+    assertEquals(POSITION_GREEKS_DATA.getUnderlyingDataForRiskFactor(PositionGreek.POSITION_DELTA, TradeData.NUMBER_OF_CONTRACTS), D.get(TradeData.NUMBER_OF_CONTRACTS));
     assertEquals(POSITION_GREEKS_DATA.getUnderlyingDataForRiskFactor(PositionGreek.POSITION_DELTA, Underlying.SPOT_PRICE), D.get(Underlying.SPOT_PRICE));
   }
 }

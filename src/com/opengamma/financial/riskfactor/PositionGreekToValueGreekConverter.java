@@ -13,7 +13,7 @@ import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.greeks.MixedSecondOrder;
 import com.opengamma.financial.greeks.Order;
 import com.opengamma.financial.greeks.SecondOrder;
-import com.opengamma.financial.pnl.OptionTradeData;
+import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.Underlying;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.function.Function1D;
@@ -64,17 +64,17 @@ public class PositionGreekToValueGreekConverter extends Function1D<PositionGreek
     final Map<Object, Double> underlyings = data.getAllUnderlyingDataForRiskFactor(positionGreek);
     if (order instanceof FirstOrder) {
       final Underlying underlying = ((FirstOrder) order).getVariable();
-      return positionGreekValue * underlyings.get(underlying) * underlyings.get(OptionTradeData.POINT_VALUE);
+      return positionGreekValue * underlyings.get(underlying) * underlyings.get(TradeData.POINT_VALUE);
     }
     if (order instanceof SecondOrder) {
       final Underlying underlying = ((SecondOrder) order).getVariable();
       final double x = underlyings.get(underlying);
-      return positionGreekValue * x * x * underlyings.get(OptionTradeData.POINT_VALUE);
+      return positionGreekValue * x * x * underlyings.get(TradeData.POINT_VALUE);
     }
     if (order instanceof MixedSecondOrder) {
       final MixedSecondOrder mixedFirst = ((MixedSecondOrder) order);
       return positionGreekValue * underlyings.get(mixedFirst.getFirstVariable().getVariable()) * underlyings.get(mixedFirst.getSecondVariable().getVariable())
-          * underlyings.get(OptionTradeData.POINT_VALUE);
+          * underlyings.get(TradeData.POINT_VALUE);
     }
     throw new IllegalArgumentException("Can currently only handle first-, mixed-second- and second-order greeks");// TODO
   }

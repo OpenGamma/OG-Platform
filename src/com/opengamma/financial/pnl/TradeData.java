@@ -9,7 +9,9 @@ package com.opengamma.financial.pnl;
  * @author emcleod
  *
  */
-// TODO this is a terrible name
-public enum OptionTradeData {
-  NUMBER_OF_CONTRACTS, POINT_VALUE
+public enum TradeData {
+  NUMBER_OF_CONTRACTS,
+
+  // Option-specific
+  POINT_VALUE
 }
