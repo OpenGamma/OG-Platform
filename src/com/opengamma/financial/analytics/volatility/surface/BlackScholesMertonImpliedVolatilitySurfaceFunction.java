@@ -26,7 +26,6 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -41,6 +40,7 @@ import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -114,8 +114,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final FudgeFieldContainer underlyingMarketData = (FudgeFieldContainer) inputs.getValue(underlyingMarketDataReq);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveReq);
     // TODO cost-of-carry model
-    final double optionPrice = optionMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
-    final double spotPrice = underlyingMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
+    final double optionPrice = optionMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    final double spotPrice = underlyingMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
 
     // Perform the calculation:
     final Expiry expiry = optionSec.getExpiry();

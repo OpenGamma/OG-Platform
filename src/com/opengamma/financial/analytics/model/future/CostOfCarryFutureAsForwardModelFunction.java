@@ -24,7 +24,6 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.MarketDataFieldNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -46,6 +45,7 @@ import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.livedata.normalization.MarketDataFieldNames;
 
 /**
  * 
@@ -75,7 +75,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
     if (underlying == null)
       throw new IllegalArgumentException("Could not get underlying identity key for " + future);
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final double spot = ((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_NAME);
+    final double spot = ((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     // final double yield = getYield();
     // final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement());
     // final double storageCost = getStorageCost();
