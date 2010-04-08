@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.security.db;
 
-import javax.persistence.Entity;
-
-@Entity
 public class CommodityFutureTypeBean extends EnumBean {
   
   protected CommodityFutureTypeBean() {

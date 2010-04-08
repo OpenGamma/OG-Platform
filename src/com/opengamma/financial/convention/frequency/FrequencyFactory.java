@@ -21,8 +21,8 @@ public class FrequencyFactory {
   
   private FrequencyFactory () {
     store (SimpleFrequency.MONTHLY);
-    store (SimpleFrequency.ANNUALLY);
-    store (SimpleFrequency.SEMI_ANNUALLY);
+    store (SimpleFrequency.ANNUAL);
+    store (SimpleFrequency.SEMI_ANNUAL);
     store (SimpleFrequency.QUARTERLY);
   }
   

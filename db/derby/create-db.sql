@@ -118,6 +118,36 @@
         primary key (id)
     );
     
+    create table issuertype (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+     );
+    
+    create table market (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+     );
+    
+    create table yieldconvention (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+     );
+    
+    create table guaranteetype (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+     );
+    
+    create table coupontype (
+        id bigint not null,
+        name varchar(255) not null unique,
+        primary key (id)
+     );
+    
     create table bond (
         id bigint not null,
         effectiveDateTime date not null,
@@ -127,19 +157,38 @@
         first_version_descriminator varchar(255),
         first_version_id bigint,
         bond_type varchar(32) not null,
-        maturity date not null,
-        coupon double precision not null,
-        frequency_id bigint not null,
-        country varchar(255) not null,
-        credit_rating varchar(255) not null,
+        issuername varchar(255) not null,
+        issuertype_id bigint not null,
+        issuerdomicile varchar(255) not null,
+        market_id bigint not null,
         currency_id bigint not null,
-        issuer varchar(255) not null,
-        daycount_id bigint not null,
+        yieldconvention_id bigint not null,
+        guaranteetype_id bigint not null,
+        maturity date not null,
+        coupontype_id bigint not null,
+        couponrate double not null,
+        couponfrequency_id bigint not null,
+        daycountconvention_id bigint not null,
         businessdayconvention_id bigint not null,
+        announcementdate date not null,
+        interestaccrualdate date not null,
+        settlementdate date not null,
+        firstcoupondate date not null,
+        issuanceprice double not null,
+        totalamountissued double not null,
+        minimumamount double not null,
+        minimumincrement double not null,
+        paramount double not null,
+        redemptionvalue double not null,
         primary key (id),
-        constraint fk_bond2frequency foreign key (frequency_id) references frequency (id),
+        constraint fk_bond2issuertype foreign key (issuertype_id) references issuertype (id),
+        constraint fk_bond2market foreign key (market_id) references market (id),
         constraint fk_bond2currency foreign key (currency_id) references currency (id),
-        constraint fk_bond2daycount foreign key (daycount_id) references daycount (id),
+        constraint fk_bond2yieldconvention foreign key (yieldconvention_id) references yieldconvention (id),
+        constraint fk_bond2guaranteetype foreign key (guaranteetype_id) references guaranteetype (id),
+        constraint fk_bond2coupontype foreign key (coupontype_id) references coupontype (id),
+        constraint fk_bond2frequency foreign key (couponfrequency_id) references frequency (id),
+        constraint fk_bond2daycount foreign key (daycountconvention_id) references daycount (id),
         constraint fk_bond2businessdayconvention foreign key (businessdayconvention_id) references businessdayconvention (id)
     );
 

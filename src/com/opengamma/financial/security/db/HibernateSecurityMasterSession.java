@@ -223,7 +223,67 @@ public class HibernateSecurityMasterSession {
     }
     return bean;
   }
-
+  
+  // IssuerTypeBean
+  
+  /* package */ IssuerTypeBean getOrCreateIssuerTypeBean (final String type) {
+    final Query query = getSession ().getNamedQuery ("IssuerTypeBean.one");
+    query.setString ("name", type);
+    IssuerTypeBean bean = (IssuerTypeBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new IssuerTypeBean (type));
+    }
+    return bean;
+  }
+  
+  // MarketBean
+  
+  /* package */ MarketBean getOrCreateMarketBean (final String market) {
+    final Query query = getSession ().getNamedQuery ("MarketBean.one");
+    query.setString ("name", market);
+    MarketBean bean = (MarketBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new MarketBean (market));
+    }
+    return bean;
+  }
+  
+  // YieldConventionBean
+  
+  /* package */ YieldConventionBean getOrCreateYieldConventionBean (final String convention) {
+    final Query query = getSession ().getNamedQuery ("YieldConventionBean.one");
+    query.setString ("name", convention);
+    YieldConventionBean bean = (YieldConventionBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new YieldConventionBean (convention));
+    }
+    return bean;
+  }
+  
+  // GuaranteeTypeBean
+  
+  /* package */ GuaranteeTypeBean getOrCreateGuaranteeTypeBean (final String type) {
+    final Query query = getSession ().getNamedQuery ("GuaranteeTypeBean.one");
+    query.setString ("name", type);
+    GuaranteeTypeBean bean = (GuaranteeTypeBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new GuaranteeTypeBean (type));
+    }
+    return bean;
+  }
+  
+  // CouponTypeBean
+  
+  /* package */ CouponTypeBean getOrCreateCouponTypeBean (final String type) {
+    final Query query = getSession ().getNamedQuery ("CouponTypeBean.one");
+    query.setString ("name", type);
+    CouponTypeBean bean = (CouponTypeBean)query.uniqueResult ();
+    if (bean == null) {
+      bean = persistBean (new CouponTypeBean (type));
+    }
+    return bean;
+  }
+  
   // Domain specific ID / Security specific methods
   
   private DomainSpecificIdentifierAssociationBean createDomainSpecificIdentifierAssociationBean (Date now, String domain, String identifier, SecurityBean security) {

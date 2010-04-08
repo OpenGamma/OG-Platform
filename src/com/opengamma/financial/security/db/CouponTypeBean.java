@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.security.db;
 
-public class BondFutureTypeBean extends EnumBean {
+public class CouponTypeBean extends EnumBean {
   
-  protected BondFutureTypeBean() {
+  protected CouponTypeBean() {
   }
 
-  public BondFutureTypeBean(String bondType) {
-    super(bondType);
+  public CouponTypeBean(String couponType) {
+    super(couponType);
   }
   
 }
