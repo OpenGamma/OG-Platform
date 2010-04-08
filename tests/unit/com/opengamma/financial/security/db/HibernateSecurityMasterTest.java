@@ -63,6 +63,8 @@ import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.Expiry;
 
 public class HibernateSecurityMasterTest extends HibernateTest {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterTest.class);
   
   private HibernateSecurityMaster _secMaster;
   
@@ -98,15 +100,17 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         };
   }
 
-  @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterTest.class);
-  
   @Before
   public void setUp() throws Exception {
     super.setUp();
     _secMaster = new HibernateSecurityMaster();
     _secMaster.setSessionFactory(getSessionFactory());
-    System.err.println("Sec Master initialization complete:" + _secMaster);
+    s_logger.debug ("SecMaster initialization complete {}", _secMaster);
+  }
+  
+  @Test
+  public void testNoOp () {
+    // deliberate no-op so we can just see the effect of the @Before session
   }
 
   @Test
@@ -167,9 +171,12 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         ExchangeBean ruyBean = secMasterSession.getOrCreateExchangeBean("RUY", "Russell 2000");
         exchangeBeans = secMasterSession.getExchangeBeans();
         Assert.assertEquals(5, exchangeBeans.size());
-        System.err.println(ukxBean);
-        System.err.println(exchangeBeans);
-        for (ExchangeBean bean : exchangeBeans) { System.err.println(bean +" hashCode:"+bean.hashCode()); System.err.println(bean.equals(ukxBean)); }
+        s_logger.debug ("ukxBean: {}", ukxBean);
+        s_logger.debug ("exchangeBeans: {}", exchangeBeans);
+        for (ExchangeBean bean : exchangeBeans) {
+          s_logger.debug ("{} hashCode={}", bean, bean.hashCode ());
+          s_logger.debug ("equals={}", bean.equals (ukxBean));
+        }
         Assert.assertTrue(exchangeBeans.contains(ukxBean));
         Assert.assertTrue(exchangeBeans.contains(tpxBean));
         Assert.assertTrue(exchangeBeans.contains(spxBean));
@@ -246,15 +253,17 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2000);
         
-        EquitySecurityBean nomura = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
+        EquitySecurityBean nomura = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, "Nomura", tpxBean,"Nomura", jpyBean, banksBean);
         Assert.assertNotNull(nomura);
+        Assert.assertEquals ("Nomura", nomura.getDisplayName ());
         Assert.assertEquals(tpxBean, nomura.getExchange());
         Assert.assertEquals(jpyBean, nomura.getCurrency());
         Assert.assertEquals("Nomura", nomura.getCompanyName());
         Assert.assertEquals(banksBean, nomura.getGICSCode ());
         
-        EquitySecurityBean generalMotors = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, djxBean,"General Motors", usdBean, carManuBean);
+        EquitySecurityBean generalMotors = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, "GM", djxBean,"General Motors", usdBean, carManuBean);
         Assert.assertNotNull(generalMotors);
+        Assert.assertEquals ("GM", generalMotors.getDisplayName ());
         Assert.assertEquals(djxBean, generalMotors.getExchange());
         Assert.assertEquals(usdBean, generalMotors.getCurrency());
         Assert.assertEquals("General Motors", generalMotors.getCompanyName());
@@ -527,6 +536,39 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   }
   
   @Test
+  public void testSecurityDisplayName () {
+    // create a security
+    final Date now = new Date ();
+    final Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Currency dollar = Currency.getInstance ("USD");
+    final DomainSpecificIdentifier underlying = new DomainSpecificIdentifier ("BLOOMBERG", "underlying identifier");
+    final DomainSpecificIdentifier actual = new DomainSpecificIdentifier ("BLOOMBERG", "future identifier");
+    IndexFutureSecurity security = new IndexFutureSecurity (expiry, "DJX", "DJX", dollar, underlying);
+    // check getDisplayName is not null
+    String displayName = security.getDisplayName ();
+    Assert.assertNotNull (displayName);
+    s_logger.info ("default displayName={}", displayName);
+    // give it an identifier
+    security.setIdentifiers (Collections.singleton (actual));
+    // check getDisplayName is not null
+    displayName = security.getDisplayName ();
+    Assert.assertNotNull (displayName);
+    s_logger.info ("identifier set displayName={}", displayName);
+    // give it a specific name
+    security.setDisplayName ("foo");
+    // check getDisplayName is correct
+    displayName = security.getDisplayName ();
+    Assert.assertEquals ("foo", displayName);
+    // persist it
+    _secMaster.persistSecurity (now, security);
+    // get it back
+    security = (IndexFutureSecurity)_secMaster.getSecurity (now, actual, true);
+    Assert.assertNotNull (security);
+    // check getDisplayName is correct
+    Assert.assertEquals ("foo", displayName);
+  }
+  
+  @Test
   public void testFutureSecurityBeans () {
     final Date now = new Date ();
     final Currency dollar = Currency.getInstance ("USD");
@@ -673,8 +715,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         cal2003.set(Calendar.YEAR, 2003);
         Calendar cal2004 = Calendar.getInstance();
         cal2004.set(Calendar.YEAR, 2004);
-        EquitySecurityBean nomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2000.getTime(), false, cal2000.getTime(), null, null, tpxBean,"Nomura", jpyBean, banksBean);
-        EquitySecurityBean notNomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2003.getTime(), false, cal2003.getTime(), null, null, tpxBean,"Not Nomura", jpyBean, banksBean);
+        EquitySecurityBean nomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2000.getTime(), false, cal2000.getTime(), null, null, "Nomura", tpxBean,"Nomura", jpyBean, banksBean);
+        EquitySecurityBean notNomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2003.getTime(), false, cal2003.getTime(), null, null, "Something else", tpxBean,"Not Nomura", jpyBean, banksBean);
         DomainSpecificIdentifierAssociationBean dsiab1 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2001.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
         DomainSpecificIdentifierAssociationBean dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
         Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
@@ -758,9 +800,9 @@ public class HibernateSecurityMasterTest extends HibernateTest {
           SQLException {        
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
         List<EquitySecurityBean> equitySecurityBeans = secMasterSession.getEquitySecurityBeans();
-        System.err.println(equitySecurityBeans);
+        s_logger.debug ("equitySecurityBeans: {}", equitySecurityBeans);
         List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
-        System.err.println(allAssociations);
+        s_logger.debug ("allAssociations: {}", allAssociations);
         return null;
       }
     });

@@ -12,6 +12,7 @@
     <property name="deleted" type="boolean" not-null="true"/>
     <property name="lastModifiedDateTime" type="date" not-null="true"/>
     <property name="lastModifiedBy" type="string" not-null="false"/>
+    <property name="displayName" type="string" not-null="false"/>
     <any name="firstVersion"
          meta-type="string"
 	     id-type="long"

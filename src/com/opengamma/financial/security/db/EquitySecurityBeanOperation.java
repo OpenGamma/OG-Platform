@@ -44,12 +44,13 @@ import com.opengamma.id.DomainSpecificIdentifier;
       final Date lastModified,
       final String modifiedBy,
       final EquitySecurityBean firstVersion,
+      final String displayName,
       final ExchangeBean exchange,
       final String companyName,
       final CurrencyBean currency,
       final GICSCodeBean gicsCode) {
     final EquitySecurityBean equity = createBean (exchange, companyName, currency, gicsCode);
-    secMasterSession.persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, equity);
+    secMasterSession.persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, displayName, equity);
     return equity;
   }
 

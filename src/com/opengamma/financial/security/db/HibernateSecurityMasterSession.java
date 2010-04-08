@@ -11,6 +11,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.DomainSpecificIdentifier;
 
@@ -287,27 +288,33 @@ public class HibernateSecurityMasterSession {
   // Domain specific ID / Security specific methods
   
   private DomainSpecificIdentifierAssociationBean createDomainSpecificIdentifierAssociationBean (Date now, String domain, String identifier, SecurityBean security) {
-    final Transaction transaction = getSession ().beginTransaction ();
     final DomainSpecificIdentifierAssociationBean association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean (domain, identifier));
-    Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.previousAssociation");
-    query.setString ("domain", domain);
-    query.setString ("identifier", identifier);
-    query.setDate ("now", now);
-    DomainSpecificIdentifierAssociationBean other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
-    if (other != null) {
-      association.setValidStartDate (other.getValidEndDate ());
+    final Transaction transaction = getSession ().beginTransaction ();
+    try {
+      transaction.begin ();
+      Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.previousAssociation");
+      query.setString ("domain", domain);
+      query.setString ("identifier", identifier);
+      query.setDate ("now", now);
+      DomainSpecificIdentifierAssociationBean other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
+      if (other != null) {
+        association.setValidStartDate (other.getValidEndDate ());
+      }
+      query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.nextAssociation");
+      query.setString ("domain", domain);
+      query.setString ("identifier", identifier);
+      query.setDate ("now", now);
+      other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
+      if (other != null) {
+        association.setValidEndDate (other.getValidEndDate ());
+      }
+      Long id = (Long) getSession().save(association);
+      association.setId(id);
+      transaction.commit ();
+    } catch (Exception e) {
+      transaction.rollback ();
+      throw new OpenGammaRuntimeException ("transaction rolled back", e);
     }
-    query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.nextAssociation");
-    query.setString ("domain", domain);
-    query.setString ("identifier", identifier);
-    query.setDate ("now", now);
-    other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
-    if (other != null) {
-      association.setValidEndDate (other.getValidEndDate ());
-    }
-    Long id = (Long) getSession().save(association);
-    association.setId(id);
-    transaction.commit ();
     getSession().flush();
     return association;
   }
@@ -386,27 +393,33 @@ public class HibernateSecurityMasterSession {
   
   /* package */ <S extends Security,SBean extends SecurityBean> SBean createSecurityBean (final BeanOperation<S,SBean> beanOperation, final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
     final SBean bean = beanOperation.createBean (this, security);
-    persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, bean);
+    persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getDisplayName (), bean);
     return bean;
   }
   
-  /* package */ void persistSecurityBean (final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SecurityBean firstVersion, final SecurityBean bean) {
+  /* package */ void persistSecurityBean (final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SecurityBean firstVersion, final String displayName, final SecurityBean bean) {
     // base properties
     bean.setEffectiveDateTime (effectiveDateTime);
     bean.setDeleted (deleted);
     bean.setLastModifiedDateTime (lastModified);
     bean.setLastModifiedBy (modifiedBy);
+    bean.setDisplayName (displayName);
     // first version
     bean.setFirstVersion (firstVersion);
     if (firstVersion == null) {
       // link to itself as a parent
       final Transaction transaction = getSession ().beginTransaction ();
-      transaction.begin ();
-      final Long id = (Long)getSession ().save (bean);
-      bean.setId (id);
-      bean.setFirstVersion (bean);
-      getSession ().update (bean);
-      transaction.commit ();
+      try {
+        transaction.begin ();
+        final Long id = (Long)getSession ().save (bean);
+        bean.setId (id);
+        bean.setFirstVersion (bean);
+        getSession ().update (bean);
+        transaction.commit ();
+      } catch (Exception e) {
+        transaction.rollback ();
+        throw new OpenGammaRuntimeException ("transaction rolled back", e);
+      }
     } else {
       final Long id = (Long)getSession ().save (bean);
       bean.setId (id);

@@ -12,6 +12,5 @@ public class GICSCodeBean extends EnumWithDescriptionBean {
 
   public GICSCodeBean(final String code, final String description) {
     super(code, description);
-    System.err.println ("code=" + code + "; description=" + description);
   }
 }

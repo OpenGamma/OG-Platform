@@ -1,6 +1,8 @@
 package com.opengamma.financial.security.db;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 public abstract class EnumBean {
   private Long _id;
@@ -49,8 +51,9 @@ public abstract class EnumBean {
     }
   }
   
-  // should replace this with on-the-fly generated ones (can't remember class name!)
+  @Override
   public String toString() {
-    return this.getClass().getName()+"[id="+_id+", name="+_name+"]";
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
+
 }

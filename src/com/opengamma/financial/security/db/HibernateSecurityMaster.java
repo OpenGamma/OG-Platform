@@ -14,8 +14,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -33,8 +31,6 @@ public class HibernateSecurityMaster implements SecurityMaster {
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
   protected static final String MODIFIED_BY = "";
 
-  @SuppressWarnings("unused")
-  private Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private HibernateTemplate _hibernateTemplate = null;
   
   private static void loadBeanOperation (final BeanOperation<?,?> beanOperation) {
@@ -99,7 +95,6 @@ public class HibernateSecurityMaster implements SecurityMaster {
           final DefaultSecurity result = (DefaultSecurity)getBeanOperation (security).createSecurity (identifier, security);
           final List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
           if (populateWithOtherIdentifiers) {
-            System.err.println("First version security id = "+security.getFirstVersion().getId());
             Query identifierQuery = session.getNamedQuery("DomainSpecificIdentifierAssociationBean.many.byDateSecurity");
             identifierQuery.setParameter("security", security.getFirstVersion());
             identifierQuery.setDate("now", now);
@@ -222,4 +217,3 @@ public class HibernateSecurityMaster implements SecurityMaster {
   }
   
 }
- 

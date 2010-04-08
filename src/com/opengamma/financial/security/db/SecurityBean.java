@@ -20,6 +20,7 @@ public abstract class SecurityBean {
   private Date _lastModifiedDateTime;
   private String _modifiedBy;
   private SecurityBean _firstVersion;
+  private String _displayName;
   /**
    * @param id the id to set
    */
@@ -103,6 +104,14 @@ public abstract class SecurityBean {
    */
   public void setFirstVersion(SecurityBean firstVersion) {
     _firstVersion = firstVersion; 
+  }
+  
+  public void setDisplayName (final String displayName) {
+    _displayName = displayName;
+  }
+  
+  public String getDisplayName () {
+    return _displayName;
   }
   
 }
