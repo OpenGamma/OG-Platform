@@ -98,8 +98,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     DoubleTimeSeries<Date> sqlDateDoubleTimeSeries = timeSeries.toSQLDateDoubleTimeSeries();
 
-    s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime});
+    s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={} startdate={} endate={}", 
+        new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime, timeSeries.getEarliestTime(), timeSeries.getLatestTime()});
     String quotedObject = findQuotedObject(domainIdentifiers);
     
     if (quotedObject == null) {
