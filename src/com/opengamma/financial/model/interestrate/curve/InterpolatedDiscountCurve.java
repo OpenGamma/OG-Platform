@@ -8,17 +8,11 @@ package com.opengamma.financial.model.interestrate.curve;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +24,6 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  * @author emcleod
  */
 public class InterpolatedDiscountCurve extends DiscountCurve implements Serializable {
-  private static final String INTERPOLATOR_FIELD_NAME = "interpolator";
-  private static final String RATE_DATA_FIELD_NAME = "rateData";
-  private static final String DF_DATA_FIELD_NAME = "dfData";
   private static final Logger s_Log = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
   private final SortedMap<Double, Double> _dfData;
@@ -60,8 +51,10 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    *          A map containing pairs of maturities in years and interest rates
    *          in percent (e.g. 3% = 0.03)
    * @param interpolators
-   *          A map of times and interpolators. This allows different interpolators 
-   *          to be used for different regions of the curve. The time value is the 
+   *          A map of times and interpolators. This allows different
+   *          interpolators
+   *          to be used for different regions of the curve. The time value is
+   *          the
    *          maximum time in years for which an interpolator is valid.
    * @throws IllegalArgumentException
    *           Thrown if the data map is null or empty, or if it contains a
@@ -93,19 +86,32 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     _interpolators = Collections.<Double, Interpolator1D> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(interpolators));
   }
 
-  protected InterpolatedDiscountCurve(final SortedMap<Double, Double> sortedRates, final SortedMap<Double, Double> sortedDF, final Interpolator1D interpolator) {
-    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
-    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
-    final SortedMap<Double, Interpolator1D> sorted = new TreeMap<Double, Interpolator1D>();
-    sorted.put(Double.POSITIVE_INFINITY, interpolator);
-    _interpolators = Collections.<Double, Interpolator1D> unmodifiableSortedMap(sorted);
-  }
+  // This constructor was only used by the now removed Fudge functions - they
+  // now have to use the public ones; not as efficient
+  // protected InterpolatedDiscountCurve(final SortedMap<Double, Double>
+  // sortedRates, final SortedMap<Double, Double> sortedDF, final Interpolator1D
+  // interpolator) {
+  // _rateData = Collections.<Double, Double>
+  // unmodifiableSortedMap(sortedRates);
+  // _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
+  // final SortedMap<Double, Interpolator1D> sorted = new TreeMap<Double,
+  // Interpolator1D>();
+  // sorted.put(Double.POSITIVE_INFINITY, interpolator);
+  // _interpolators = Collections.<Double, Interpolator1D>
+  // unmodifiableSortedMap(sorted);
+  // }
 
-  protected InterpolatedDiscountCurve(final SortedMap<Double, Double> sortedRates, final SortedMap<Double, Double> sortedDF, final SortedMap<Double, Interpolator1D> interpolators) {
-    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
-    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
-    _interpolators = Collections.<Double, Interpolator1D> unmodifiableSortedMap(interpolators);
-  }
+  // This constructor was only used by the now removed Fudge functions - they
+  // now have to use the public ones; not as efficient
+  // protected InterpolatedDiscountCurve(final SortedMap<Double, Double>
+  // sortedRates, final SortedMap<Double, Double> sortedDF, final
+  // SortedMap<Double, Interpolator1D> interpolators) {
+  // _rateData = Collections.<Double, Double>
+  // unmodifiableSortedMap(sortedRates);
+  // _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
+  // _interpolators = Collections.<Double, Interpolator1D>
+  // unmodifiableSortedMap(interpolators);
+  // }
 
   /**
    * 
@@ -264,46 +270,6 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     }
     sb.append("}]");
     return sb.toString();
-  }
-
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(null, 0, getClass().getName());
-    message.add(INTERPOLATOR_FIELD_NAME, encodeDoubleInterpolator1DMap(context, _interpolators));
-    context.objectToFudgeMsg(message, RATE_DATA_FIELD_NAME, null, _rateData);
-    context.objectToFudgeMsg(message, DF_DATA_FIELD_NAME, null, _dfData);
-    return message;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static InterpolatedDiscountCurve fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final SortedMap<Double, Interpolator1D> interpolators = decodeSortedDoubleInterpolator1DMap(message.getMessage(INTERPOLATOR_FIELD_NAME));
-    final SortedMap<Double, Double> rateData = new TreeMap<Double, Double>(context.fieldValueToObject(Map.class, message.getByName(RATE_DATA_FIELD_NAME)));
-    final SortedMap<Double, Double> dfData = new TreeMap<Double, Double>(context.fieldValueToObject(Map.class, message.getByName(DF_DATA_FIELD_NAME)));
-    return new InterpolatedDiscountCurve(rateData, dfData, interpolators);
-  }
-
-  public static MutableFudgeFieldContainer encodeDoubleInterpolator1DMap(final FudgeSerializationContext context, final Map<Double, Interpolator1D> data) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    for (final Map.Entry<Double, Interpolator1D> entry : data.entrySet()) {
-      message.add("key", entry.getKey());
-      message.add("value", Interpolator1DFactory.getInterpolatorName(entry.getValue()));
-    }
-    return message;
-  }
-
-  public static SortedMap<Double, Interpolator1D> decodeSortedDoubleInterpolator1DMap(final FudgeFieldContainer msg) {
-    final SortedMap<Double, Interpolator1D> result = new TreeMap<Double, Interpolator1D>();
-    final Iterator<FudgeField> keyIter = msg.getAllByName("key").iterator();
-    final Iterator<FudgeField> valueIter = msg.getAllByName("value").iterator();
-    FudgeField keyField, valueField;
-    while (keyIter.hasNext()) {
-      assert valueIter.hasNext();
-      keyField = keyIter.next();
-      valueField = valueIter.next();
-      result.put((Double) keyField.getValue(), Interpolator1DFactory.getInterpolator((String) valueField.getValue()));
-    }
-    return result;
   }
 
 }
