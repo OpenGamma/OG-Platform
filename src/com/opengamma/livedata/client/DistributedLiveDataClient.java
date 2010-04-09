@@ -108,6 +108,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         switch(response.getSubscriptionResult()) {
         case NOT_AUTHORIZED:
         case NOT_PRESENT:
+        case INTERNAL_ERROR:
           s_logger.info("Failed to establish subscription to {}. Result was {}", handle.getRequestedSpecification(), response.getSubscriptionResult());
           subscriptionRequestFailed(handle, response);
           break;
@@ -118,6 +119,8 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
             startReceivingTicks(response.getTickDistributionSpecification());
           }
           break;
+        default:
+          throw new OpenGammaRuntimeException("Unexpected response code");
         }
       }
     }
