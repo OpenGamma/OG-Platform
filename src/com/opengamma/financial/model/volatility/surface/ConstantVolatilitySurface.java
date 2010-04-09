@@ -10,10 +10,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +23,6 @@ import com.opengamma.util.Pair;
  */
 public class ConstantVolatilitySurface extends VolatilitySurface implements Serializable {
   private static final Logger s_Log = LoggerFactory.getLogger(ConstantVolatilitySurface.class);
-  private static final String SIGMA_FIELD_NAME = "sigma";
   private final double _sigma;
 
   // REVIEW kirk 2010-04-07 -- Should this not just take a non-object double as
@@ -122,16 +117,8 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
     return true;
   }
 
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(null, 0, getClass().getName());
-    message.add(SIGMA_FIELD_NAME, _sigma);
-    return message;
-  }
-
-  public static ConstantVolatilitySurface fromFudgeMsg(@SuppressWarnings("unused") final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final double sigma = message.getDouble(SIGMA_FIELD_NAME);
-    return new ConstantVolatilitySurface(sigma);
+  public double getSigma() {
+    return _sigma;
   }
 
 }

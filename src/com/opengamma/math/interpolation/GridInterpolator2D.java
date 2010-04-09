@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.math.interpolation;
@@ -77,4 +77,33 @@ public class GridInterpolator2D extends Interpolator2D {
     }
     return split;
   }
+
+  public Interpolator1D getXInterpolator() {
+    return _xInterpolator;
+  }
+
+  public Interpolator1D getYInterpolator() {
+    return _yInterpolator;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (o == null)
+      return false;
+    if (o == this)
+      return true;
+    if (!(o instanceof GridInterpolator2D))
+      return false;
+    final GridInterpolator2D other = (GridInterpolator2D) o;
+    return getXInterpolator().equals(other.getXInterpolator()) && getYInterpolator().equals(other.getYInterpolator());
+  }
+
+  @Override
+  public int hashCode() {
+    int hc = 1;
+    hc = (hc * 31) + getXInterpolator().hashCode();
+    hc = (hc * 31) + getYInterpolator().hashCode();
+    return hc;
+  }
+
 }
