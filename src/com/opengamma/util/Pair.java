@@ -11,6 +11,10 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
  * The standard {@code Pair} class that every single Java project in the world
@@ -95,6 +99,18 @@ public class Pair<K,V> implements Map.Entry<K, V>, Serializable, Comparable<Pair
   @Override
   public String toString() {
     return new ToStringBuilder(this).append("first", _first).append("second", _second).toString();
+  }
+  
+  public FudgeFieldContainer toFudgeMsg (final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage ();
+    message.add (0, getClass ().getName ());
+    context.objectToFudgeMsg (message, "first", null, getFirst ());
+    context.objectToFudgeMsg (message, "second", null, getSecond ());
+    return message;
+  }
+  
+  public static Pair<?,?> fromFudgeMsg (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    return new Pair<Object,Object> (context.fieldValueToObject (message.getByName ("first")), context.fieldValueToObject (message.getByName ("second")));
   }
 
 }
