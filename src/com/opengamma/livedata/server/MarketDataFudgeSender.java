@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class MarketDataFudgeSender implements MarketDataFieldReceiver {
+public class MarketDataFudgeSender implements MarketDataReceiver {
   private final FudgeMessageSender _fudgeMessageSender;
   
   public MarketDataFudgeSender(FudgeMessageSender fudgeMessageSender) {
@@ -32,16 +32,10 @@ public class MarketDataFudgeSender implements MarketDataFieldReceiver {
   }
 
   @Override
-  public void marketDataReceived(Subscription subscription, FudgeFieldContainer fields) {
-    for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
-      
-      FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(fields);
-      if (normalizedMsg != null) {
-        LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
-        FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
-        getFudgeMessageSender().send(fudgeMsg);
-      }
-    }
+  public void marketDataReceived(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
+      LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
+      FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
+      getFudgeMessageSender().send(fudgeMsg);
   }
 
 }

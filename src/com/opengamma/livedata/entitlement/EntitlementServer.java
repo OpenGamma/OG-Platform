@@ -12,8 +12,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.EntitlementRequest;
-import com.opengamma.livedata.EntitlementResponse;
+import com.opengamma.livedata.msg.EntitlementRequest;
+import com.opengamma.livedata.msg.EntitlementResponse;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;

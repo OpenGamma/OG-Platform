@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,10 +20,12 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.LiveDataClient;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.LiveDataValueUpdate;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
@@ -117,7 +121,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   
-
+  
   @Override
   public void subscribe(String userName,
       Collection<LiveDataSpecification> requestedSpecifications,
@@ -125,7 +129,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
-      SubscriptionHandle subHandle = new SubscriptionHandle(userName, requestedSpecification, listener);
+      SubscriptionHandle subHandle = new SubscriptionHandle(userName, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
       if(addPendingSubscription(subHandle)) {
         subscriptionHandles.add(subHandle);                      
       }
@@ -140,51 +144,146 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     subscribe(userName, Collections.singleton(requestedSpecification), listener);
   }
   
+
+  
+  private class SnapshotListener implements LiveDataListener {
+    
+    private final Collection<LiveDataSubscriptionResponse> _responses = new ArrayList<LiveDataSubscriptionResponse>();
+    private final CountDownLatch _responsesReceived;
+    
+    public SnapshotListener(int expectedNumberOfResponses) {
+      _responsesReceived = new CountDownLatch(expectedNumberOfResponses);
+    }
+
+    @Override
+    public void subscriptionResultReceived(
+        LiveDataSubscriptionResponse subscriptionResult) {
+      _responses.add(subscriptionResult);
+      _responsesReceived.countDown();
+    }
+
+    @Override
+    public void subscriptionStopped(
+        LiveDataSpecification fullyQualifiedSpecification) {
+      // should never go here      
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void valueUpdate(LiveDataValueUpdate valueUpdate) {
+      // should never go here
+      throw new UnsupportedOperationException();
+    }
+  }
+  
+  @Override
+  public Collection<LiveDataSubscriptionResponse> snapshot(String userName,
+      Collection<LiveDataSpecification> requestedSpecifications,
+      long timeout) {
+    
+    ArgumentChecker.checkNotNull(userName, "User name");
+    ArgumentChecker.checkNotNull(requestedSpecifications, "Live Data specifications");
+    
+    SnapshotListener listener = new SnapshotListener(requestedSpecifications.size());
+    
+    ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
+    for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
+      SubscriptionHandle subHandle = new SubscriptionHandle(userName, SubscriptionType.SNAPSHOT, requestedSpecification, listener);
+      subscriptionHandles.add(subHandle);                      
+    }
+    
+    handleSubscriptionRequest(subscriptionHandles);
+    
+    boolean success;
+    try {
+      success = listener._responsesReceived.await(timeout, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      return null;
+    }
+    
+    if (success) {
+      return listener._responses;
+    } else {
+      throw new OpenGammaRuntimeException("Timeout " + timeout + " ms reached when obtaining snapshot " + subscriptionHandles);
+    }
+  }
+
+  @Override
+  public LiveDataSubscriptionResponse snapshot(String userName,
+      LiveDataSpecification requestedSpecification,
+      long timeout) {
+    
+    Collection<LiveDataSubscriptionResponse> snapshots = snapshot(userName, 
+        Collections.singleton(requestedSpecification), 
+        timeout);
+    
+    if (snapshots.size() != 1) {
+      throw new OpenGammaRuntimeException("One snapshot request should return 1 snapshot, was " + snapshots.size());
+    }
+    
+    return snapshots.iterator().next();
+  }
+
   protected abstract void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandle);
   
+  
+  
   protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    _subscriptionLock.lock();
-    try {
-      removePendingSubscription(subHandle);
-      _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
-      getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
-    } finally {
-      _subscriptionLock.unlock();
+    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
+      _subscriptionLock.lock();
+      try {
+        removePendingSubscription(subHandle);
+        _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
+        getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
+      } finally {
+        _subscriptionLock.unlock();
+      }
     }
     subHandle.getListener().subscriptionResultReceived(response);
   }
   
   protected void subscriptionRequestFailed(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    _subscriptionLock.lock();
-    try {
-      removePendingSubscription(subHandle);
-    } finally {
-      _subscriptionLock.unlock();
+    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
+      _subscriptionLock.lock();
+      try {
+        removePendingSubscription(subHandle);
+      } finally {
+        _subscriptionLock.unlock();
+      }
     }
     subHandle.getListener().subscriptionResultReceived(response);
   }
   
   protected boolean addPendingSubscription(SubscriptionHandle subHandle) {
-    _subscriptionLock.lock();
-    try {
-      if(_pendingSubscriptions.contains(subHandle)) {
-        return false;
+    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
+      _subscriptionLock.lock();
+      try {
+        if(_pendingSubscriptions.contains(subHandle)) {
+          return false;
+        }
+        _pendingSubscriptions.add(subHandle);
+        return true;
+      } finally {
+        _subscriptionLock.unlock();
       }
-      _pendingSubscriptions.add(subHandle);
-      return true;
-    } finally {
-      _subscriptionLock.unlock();
+    } else {
+      return false;
     }
   }
   
   protected void removePendingSubscription(SubscriptionHandle subHandle) {
-    _subscriptionLock.lock();
-    try {
-      _pendingSubscriptions.remove(subHandle);
-    } finally {
-      _subscriptionLock.unlock();
+    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
+      _subscriptionLock.lock();
+      try {
+        _pendingSubscriptions.remove(subHandle);
+      } finally {
+        _subscriptionLock.unlock();
+      }
     }
   }
+  
+  
   
   @Override
   public void unsubscribe(String userName,

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.client;
+package com.opengamma.livedata.entitlement;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

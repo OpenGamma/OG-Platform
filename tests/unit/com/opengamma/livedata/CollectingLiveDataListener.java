@@ -8,6 +8,9 @@ package com.opengamma.livedata;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+
+
 /**
  * Just collects events for use in a test environment.
  *

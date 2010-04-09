@@ -21,4 +21,5 @@ public interface DistributionSpecificationResolver {
    * @throws IllegalArgumentException If the distribution spec cannot be built.  
    */
   DistributionSpecification getDistributionSpecification(LiveDataSpecification spec) throws IllegalArgumentException;
+  
 }

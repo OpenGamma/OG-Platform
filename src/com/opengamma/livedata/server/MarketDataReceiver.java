@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeFieldContainer;
  *
  * @author kirk
  */
-public interface MarketDataFieldReceiver {
+public interface MarketDataReceiver {
 
-  void marketDataReceived(Subscription subscription, FudgeFieldContainer fields);
+  void marketDataReceived(DistributionSpecification distributionSpecification, FudgeFieldContainer normalizedMarketDataMsg);
 }

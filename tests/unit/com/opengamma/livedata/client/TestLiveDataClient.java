@@ -12,8 +12,8 @@ import java.util.List;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.LiveDataSubscriptionResult;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 
 /**
  * 
@@ -36,10 +36,11 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
     for (SubscriptionHandle subHandle : subHandles) {
       LiveDataSubscriptionResponse response = new LiveDataSubscriptionResponse(
           subHandle.getRequestedSpecification(),
-          subHandle.getRequestedSpecification(),
           LiveDataSubscriptionResult.SUCCESS,
-          "success message",
-          "test distribution spec");        
+          null,
+          subHandle.getRequestedSpecification(),
+          "test distribution spec",
+          null);        
       subscriptionRequestSatisfied(subHandle, response);
     }
   }

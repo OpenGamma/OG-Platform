@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata;
+package com.opengamma.livedata.entitlement;
 
 import static org.junit.Assert.assertTrue;
 
@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.DistributedEntitlementChecker;
 import com.opengamma.livedata.entitlement.EntitlementServer;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
@@ -24,7 +25,7 @@ import com.opengamma.transport.InMemoryByteArrayRequestConduit;
  *
  * @author pietari
  */
-public class EntitlementCheckerConduitTest {
+public class DistributedEntitlementCheckerTest {
   
   @Test
   public void testRequestResponse() {

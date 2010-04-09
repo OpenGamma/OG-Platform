@@ -4,8 +4,4 @@
  * Please see distribution for license.
  */
 
-namespace com.opengamma.livedata {
-
-  extern message LiveDataSpecification;
-
-}
+extern message com.opengamma.livedata.LiveDataSpecification;

@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.msg.SubscriptionType;
 
 /**
  * 
@@ -28,8 +29,8 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new DomainSpecificIdentifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle1 = new SubscriptionHandle("kirk", requestedSpecification1, listener);
-    SubscriptionHandle handle2 = new SubscriptionHandle("kirk", requestedSpecification1,  listener);
+    SubscriptionHandle handle1 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1, listener);
+    SubscriptionHandle handle2 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1,  listener);
     assertTrue(handle1.equals(handle2));
   }
 
@@ -40,8 +41,8 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new DomainSpecificIdentifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle1 = new SubscriptionHandle("kirk", requestedSpecification1, listener);
-    SubscriptionHandle handle2 = new SubscriptionHandle("kirk", requestedSpecification1, listener);
+    SubscriptionHandle handle1 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1, listener);
+    SubscriptionHandle handle2 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1, listener);
     assertEquals(handle1.hashCode(), handle2.hashCode());
   }
 }

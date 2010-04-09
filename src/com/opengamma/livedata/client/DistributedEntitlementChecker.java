@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.livedata.EntitlementRequest;
-import com.opengamma.livedata.EntitlementResponse;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.msg.EntitlementRequest;
+import com.opengamma.livedata.msg.EntitlementResponse;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;

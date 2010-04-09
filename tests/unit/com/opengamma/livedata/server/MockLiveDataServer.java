@@ -8,6 +8,9 @@ package com.opengamma.livedata.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.ArgumentChecker;
 
@@ -41,6 +44,11 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   @Override
   protected void doUnsubscribe(Object subscriptionHandle) {
     _unsubscriptions.add((String) subscriptionHandle);
+  }
+  
+  @Override
+  protected FudgeFieldContainer doSnapshot(String uniqueId) {
+    return FudgeContext.GLOBAL_DEFAULT.newMessage();
   }
 
   public List<String> getActualSubscriptions() {

@@ -5,9 +5,13 @@
  */
 package com.opengamma.livedata;
 
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+
+
 /**
  * An interface through which clients can receive updates on their
- * live data subscriptions.
+ * live data subscriptions. This is the main interface you
+ * need to implement in your LiveData client application.
  *
  * @author kirk
  */

@@ -4,10 +4,10 @@
  * Please see distribution for license.
  */
  
-namespace com.opengamma.livedata {
+namespace com.opengamma.livedata.msg {
 
   message ResolveRequest {
-    required LiveDataSpecification requestedSpecification;
+    required com.opengamma.livedata.LiveDataSpecification requestedSpecification;
   }
   
 }

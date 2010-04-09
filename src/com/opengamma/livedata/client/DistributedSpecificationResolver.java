@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.ResolveRequest;
-import com.opengamma.livedata.ResolveResponse;
+import com.opengamma.livedata.msg.ResolveRequest;
+import com.opengamma.livedata.msg.ResolveResponse;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;

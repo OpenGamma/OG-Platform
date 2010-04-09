@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata;
+package com.opengamma.livedata.client;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.DistributedSpecificationResolver;
 import com.opengamma.livedata.resolver.IdResolverServer;
 import com.opengamma.livedata.resolver.IdentityIdResolver;
@@ -23,7 +24,7 @@ import com.opengamma.transport.InMemoryByteArrayRequestConduit;
  *
  * @author pietari
  */
-public class ResolutionConduitTest {
+public class DistributedSpecificationResolverTest {
   
   @Test
   public void testRequestResponse() {

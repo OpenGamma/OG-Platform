@@ -17,7 +17,8 @@ import com.opengamma.id.IdentificationDomain;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * LiveData for a given ticker, in a given format. 
+ * Specifies what data you want, in what format.
+ * Used on the client side.
  *
  * @author pietari
  */

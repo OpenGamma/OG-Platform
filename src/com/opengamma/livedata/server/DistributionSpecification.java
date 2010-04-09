@@ -6,8 +6,12 @@
 package com.opengamma.livedata.server;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -15,11 +19,19 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *     
+ * How market data should be distributed to clients. This includes:
+ * <ul>
+ * <li>The format of the data (normalization)
+ * <li>The destination of the data (JMS topic name)
+ * </ul>
  *
  * @author pietari
  */
 public class DistributionSpecification implements Serializable {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(DistributionSpecification.class);
+  
+  // final, equals()/hashCode()-eligible fields
   
   /** What market data is being distributed (e.g., AAPL stock) */
   private final DomainSpecificIdentifiers _identifiers;
@@ -30,6 +42,14 @@ public class DistributionSpecification implements Serializable {
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
   
+  // non-final fields - do not use in equals()/hashCode() 
+  
+  /** These listener(s) actually publish the data */ 
+  private Collection<MarketDataReceiver> _fieldReceivers;
+  
+  /** The last (normalized) message that was sent */
+  private FudgeFieldContainer _lastKnownValue = null;
+  
   public DistributionSpecification(DomainSpecificIdentifiers identifiers, 
       NormalizationRuleSet normalizationRuleSet,
       String jmsTopic) {
@@ -39,12 +59,17 @@ public class DistributionSpecification implements Serializable {
     _identifiers = identifiers;
     _normalizationRuleSet = normalizationRuleSet;
     _jmsTopic = jmsTopic;
+    setFieldReceivers(Collections.<MarketDataReceiver>emptyList());
   }
   
   public LiveDataSpecification getFullyQualifiedLiveDataSpecification() {
     return new LiveDataSpecification(
         _normalizationRuleSet.getId(),
         _identifiers);
+  }
+  
+  public boolean matches(LiveDataSpecification liveDataSpec) {
+    return getFullyQualifiedLiveDataSpecification().equals(liveDataSpec);
   }
 
   public NormalizationRuleSet getNormalizationRuleSet() {
@@ -59,6 +84,29 @@ public class DistributionSpecification implements Serializable {
     return _jmsTopic;
   }
   
+  public synchronized FudgeFieldContainer getLastKnownValue() {
+    return _lastKnownValue;
+  }
+
+  private synchronized void setLastKnownValue(FudgeFieldContainer lastKnownValue) {
+    _lastKnownValue = lastKnownValue;
+  }
+  
+  /**
+   * @param fieldReceivers It is recommended that a thread-safe collection 
+   * with iterators that do not throw <code>ConcurrentModificationException</code> is used,
+   * unless you are sure that this <code>DistributionSpecification</code> will 
+   * only be used within a single thread. No copy of the collection is made,
+   * so any subsequent changes to the collection will be reflected in this object.
+   */
+  public void setFieldReceivers(Collection<MarketDataReceiver> fieldReceivers) {
+    _fieldReceivers = fieldReceivers;
+  }
+
+  public Collection<MarketDataReceiver> getFieldReceivers() {
+    return Collections.unmodifiableCollection(_fieldReceivers);
+  }
+
   /**
    * @param msg Message received from underlying market data API in its native format.
    * @return The normalized message. Null if in the process of normalization,
@@ -70,6 +118,35 @@ public class DistributionSpecification implements Serializable {
       return null;
     }
     return normalizedMsg;
+  }
+  
+  /**
+   * Sends normalized market data to field receivers. 
+   * 
+   * @param liveDataFields Unnormalized market data from underlying market data API.
+   * @see #setFieldReceivers
+   */
+  public void liveDataReceived(FudgeFieldContainer liveDataFields) {
+    FudgeFieldContainer normalizedMsg;
+    try {
+      normalizedMsg = getNormalizedMessage(liveDataFields);
+    } catch (RuntimeException e) {
+      s_logger.error("Normalizing " + liveDataFields + " to " + this + " failed.", e);
+      return;
+    }
+    setLastKnownValue(normalizedMsg);
+    
+    if (normalizedMsg != null) {
+      for (MarketDataReceiver receiver : _fieldReceivers) {
+        try {
+          receiver.marketDataReceived(this, normalizedMsg);
+        } catch (RuntimeException e) {
+          s_logger.error("MarketDataReceiver " + receiver + " failed", e);
+        }
+      }
+    } else {
+      s_logger.debug("Not sending Live Data update (empty message).");
+    }
   }
 
   @Override

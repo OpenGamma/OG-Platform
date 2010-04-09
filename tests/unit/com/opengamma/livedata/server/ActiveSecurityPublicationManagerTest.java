@@ -17,9 +17,9 @@ import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
+import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 
 /**
@@ -77,7 +77,7 @@ public class ActiveSecurityPublicationManagerTest {
     LiveDataSpecification subscription = new LiveDataSpecification(
         dataServer.getDefaultNormalizationRuleSetId(),
         new DomainSpecificIdentifier(identificationDomain, "USSw5 Curncy"));
-    dataServer.subscriptionRequestMade(new LiveDataSubscriptionRequest("test", false, Collections.singleton(subscription)));
+    dataServer.subscribe("USSw5 Curncy");
     
     assertEquals(1, dataServer.getActualSubscriptions().size());
     assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualSubscriptions().get(0));

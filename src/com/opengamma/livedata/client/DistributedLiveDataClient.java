@@ -20,10 +20,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSubscriptionRequest;
-import com.opengamma.livedata.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
+import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
@@ -113,7 +114,9 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         case SUCCESS:
           s_logger.info("Established subscription to {}", handle.getRequestedSpecification());
           subscriptionRequestSatisfied(handle, response);
-          startReceivingTicks(response.getTickDistributionSpecification());
+          if (handle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
+            startReceivingTicks(response.getTickDistributionSpecification());
+          }
           break;
         }
       }
@@ -140,6 +143,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
 
   protected LiveDataSubscriptionRequest composeSubscriptionRequestMessage(Collection<SubscriptionHandle> subHandles) {
     String username = null;
+    SubscriptionType type = null;
     
     ArrayList<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
     for (SubscriptionHandle subHandle : subHandles) {
@@ -150,9 +154,15 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
       } else if (!username.equals(subHandle.getUserName())) {
         throw new OpenGammaRuntimeException("Not all usernames are equal");        
       }
+      
+      if (type == null) {
+        type = subHandle.getSubscriptionType();
+      } else if (!type.equals(subHandle.getSubscriptionType())) {
+        throw new OpenGammaRuntimeException("Not all subscription types are equal");
+      }
     }
     
-    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(username, false, specs);
+    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(username, type, specs);
     return request;
   }
 

@@ -10,9 +10,11 @@ import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -97,6 +99,15 @@ public class Subscription {
     return Collections.unmodifiableSet(_distributionSpecs);
   }
   
+  public DistributionSpecification getDistributionSpec(LiveDataSpecification liveDataSpec) {
+    for (DistributionSpecification spec : getDistributionSpecs()) {
+      if (spec.matches(liveDataSpec)) {
+        return spec;        
+      }
+    }
+    return null;
+  }
+  
   void addDistributionSpec(DistributionSpecification spec) {
     boolean added = _distributionSpecs.add(spec);
     if (added) {
@@ -112,6 +123,12 @@ public class Subscription {
       s_logger.info("Removed distribution spec {} from {}", spec, this);      
     } else {
       s_logger.info("Removed distribution spec {} from {} (no-op)", spec, this);
+    }
+  }
+  
+  public void liveDataReceived(FudgeFieldContainer liveDataFields) {
+    for (DistributionSpecification distributionSpec : getDistributionSpecs()) {
+      distributionSpec.liveDataReceived(liveDataFields);
     }
   }
   

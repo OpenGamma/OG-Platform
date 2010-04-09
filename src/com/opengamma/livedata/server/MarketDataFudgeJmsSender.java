@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class MarketDataFudgeJmsSender implements MarketDataFieldReceiver {
+public class MarketDataFudgeJmsSender implements MarketDataReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataFudgeJmsSender.class);
   
   private final JmsTemplate _jmsTemplate;
@@ -57,38 +57,26 @@ public class MarketDataFudgeJmsSender implements MarketDataFieldReceiver {
   }
 
   @Override
-  public void marketDataReceived(Subscription subscription, FudgeFieldContainer fields) {
+  public void marketDataReceived(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
     
-    for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
-      
-      FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(fields);
-      
-      if (normalizedMsg != null) {
-        
-        LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(
-            System.currentTimeMillis(), 
-            distributionSpec.getFullyQualifiedLiveDataSpecification(), 
-            normalizedMsg);
-        s_logger.debug("Sending Live Data update {}", liveDataValueUpdateBean);
-        
-        FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
-        String destinationName = distributionSpec.getJmsTopic();
-        final byte[] bytes = getFudgeContext().toByteArray(fudgeMsg);
-        getJmsTemplate().send(destinationName, new MessageCreator() {
-          @Override
-          public Message createMessage(Session session) throws JMSException {
-            // TODO kirk 2009-10-30 -- We want to put stuff in the properties as well I think.
-            BytesMessage bytesMessage = session.createBytesMessage();
-            bytesMessage.writeBytes(bytes);
-            return bytesMessage;
-          }
-        });
-      
-      } else {
-        s_logger.debug("Not sending Live Data update (empty message).");
+    LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(
+        System.currentTimeMillis(), 
+        distributionSpec.getFullyQualifiedLiveDataSpecification(), 
+        normalizedMsg);
+    s_logger.debug("Sending Live Data update {}", liveDataValueUpdateBean);
+    
+    FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
+    String destinationName = distributionSpec.getJmsTopic();
+    final byte[] bytes = getFudgeContext().toByteArray(fudgeMsg);
+    getJmsTemplate().send(destinationName, new MessageCreator() {
+      @Override
+      public Message createMessage(Session session) throws JMSException {
+        // TODO kirk 2009-10-30 -- We want to put stuff in the properties as well I think.
+        BytesMessage bytesMessage = session.createBytesMessage();
+        bytesMessage.writeBytes(bytes);
+        return bytesMessage;
       }
-      
-    }
+    });
   }
 
 }

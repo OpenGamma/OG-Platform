@@ -3,7 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.resolver;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
@@ -13,9 +19,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.CachingDistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.opengamma.livedata.server.DistributionSpecification;
 
 /**
  * 

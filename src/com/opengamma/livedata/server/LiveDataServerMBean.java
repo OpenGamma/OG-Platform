@@ -68,9 +68,9 @@ public class LiveDataServerMBean {
   }
   
   @ManagedAttribute(description="The number of market data updates the server has processed in its lifetime.")
-  public long getNumLiveDataUpdatesSent() {
+  public long getNumMarketDataUpdatesReceived() {
     try {
-      return _server.getNumLiveDataUpdatesSent();
+      return _server.getNumMarketDataUpdatesReceived();
     } catch (RuntimeException e) {
       s_logger.error("getNumLiveDataUpdatesSent() failed", e);
       throw new RuntimeException(e.getMessage());

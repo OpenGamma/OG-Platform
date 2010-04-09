@@ -1,0 +1,42 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.livedata.msg {
+
+  enum SubscriptionType {
+    /**
+     * The subscription will be cancelled after a timeout.
+     */
+    NON_PERSISTENT;
+    /**
+     * The subscription will never be cancelled and will even
+     * survive server re-starts.
+     */
+    PERSISTENT;
+    /**
+     * You will get an immediate reply with the latest data.
+     * No subscription is actually created.  
+     */
+    SNAPSHOT;
+  }
+
+  message LiveDataSubscriptionRequest {
+  
+    /** User name of client making the request */
+    required string userName;
+    
+    /** What kind of subscription is required */
+    required SubscriptionType type;
+    
+    /** What data the client wants */
+    required repeated com.opengamma.livedata.LiveDataSpecification specifications;
+    
+    binding Java {
+      methods "equals, hashCode";
+    }   
+  }
+  
+}
