@@ -14,13 +14,34 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 
 public class ModelInterestRateCurve {
   
+  public static FudgeBuilder<ConstantInterestRateDiscountCurve> CONSTANT_INTEREST_RATE_DISCOUNT_CURVE = new ConstantInterestRateDiscountCurveBuilder ();
   public static FudgeBuilder<InterpolatedDiscountCurve> INTERPOLATED_DISCOUNT_CURVE = new InterpolatedDiscountCurveBuilder ();
   
   private ModelInterestRateCurve () {
+  }
+  
+  public static class ConstantInterestRateDiscountCurveBuilder extends FudgeBuilderBase<ConstantInterestRateDiscountCurve> {
+    
+    public static final String RATE_FIELD_NAME = "rate";
+    
+    private ConstantInterestRateDiscountCurveBuilder () {
+    }
+    
+    @Override
+    protected void buildMessage (final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final ConstantInterestRateDiscountCurve object) {
+      message.add (RATE_FIELD_NAME, null, object.getInterestRate (0d));
+    }
+    
+    @Override
+    public ConstantInterestRateDiscountCurve buildObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+      return new ConstantInterestRateDiscountCurve (message.getFieldValue (Double.class, message.getByName (RATE_FIELD_NAME)));
+    }
+    
   }
   
   public static class InterpolatedDiscountCurveBuilder extends FudgeBuilderBase<InterpolatedDiscountCurve> {
@@ -48,6 +69,7 @@ public class ModelInterestRateCurve {
   }
   
   /* package */ static void addBuilders (final FudgeObjectDictionary dictionary) {
+    dictionary.addBuilder (ConstantInterestRateDiscountCurve.class, CONSTANT_INTEREST_RATE_DISCOUNT_CURVE);
     dictionary.addBuilder (InterpolatedDiscountCurve.class, INTERPOLATED_DISCOUNT_CURVE);
   }
   
