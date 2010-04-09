@@ -38,16 +38,25 @@ public class AnalyticsTestBase {
     return _fudgeContext;
   }
   
+  private FudgeFieldContainer cycleMessage (final FudgeFieldContainer message) {
+    final byte[] data = getFudgeContext ().toByteArray (message);
+    s_logger.info ("{} bytes", data.length);
+    return getFudgeContext ().deserialize(data).getMessage ();
+  }
+  
   @SuppressWarnings("unchecked")
   protected <T> T cycleObject (final Class<T> clazz, final T object) {
+    s_logger.info ("object {}", object);
     final FudgeSerializationContext fudgeSerializationContext = new FudgeSerializationContext (getFudgeContext ());
     final FudgeDeserializationContext fudgeDeserializationContext = new FudgeDeserializationContext (getFudgeContext ());
     FudgeFieldContainer message = fudgeSerializationContext.objectToFudgeMsg (object);
     assertNotNull (message);
-    s_logger.info ("object {} to message {}", object, message);
+    s_logger.info ("message {}", message);
+    message = cycleMessage (message);
+    s_logger.info ("message {}", message);
     final Object newObject = fudgeDeserializationContext.fudgeMsgToObject (message);
     assertNotNull (newObject);
-    s_logger.info ("message {} to object {}", message, object);
+    s_logger.info ("object {}", newObject);
     assertTrue (clazz.isAssignableFrom (newObject.getClass ()));
     assertEquals (object.getClass (), newObject.getClass ());
     return (T)newObject;

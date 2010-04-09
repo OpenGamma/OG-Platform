@@ -17,8 +17,11 @@ public class AnalyticsFudgeContextConfiguration extends FudgeContextConfiguratio
   
   public static final FudgeContextConfiguration INSTANCE = new AnalyticsFudgeContextConfiguration ();
   
+  @Override
   public void configureFudgeObjectDictionary (final FudgeObjectDictionary dictionary) {
+    MathInterpolation.addBuilders (dictionary);
     ModelInterestRateCurve.addBuilders (dictionary);
+    ModelVolatilitySurface.addBuilders (dictionary);
   }
   
 }
