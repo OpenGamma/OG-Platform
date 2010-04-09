@@ -20,12 +20,12 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.security.WritableSecurityMaster;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiers;
 
-public class HibernateSecurityMaster implements SecurityMaster {
+public class HibernateSecurityMaster implements WritableSecurityMaster {
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
@@ -113,7 +113,8 @@ public class HibernateSecurityMaster implements SecurityMaster {
     });
   }
   
-  public void persistSecurity (final Date now, final Security security) {
+  @Override
+  public void putSecurity (final Date now, final Security security) {
     _hibernateTemplate.execute (new HibernateCallback () {
       @Override
       public Object doInHibernate (final Session session) throws HibernateException, SQLException {
