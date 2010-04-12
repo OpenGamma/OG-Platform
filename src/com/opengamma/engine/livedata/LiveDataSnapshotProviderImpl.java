@@ -20,12 +20,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.livedata.LiveDataSubscriptionResponse;
-import com.opengamma.livedata.LiveDataSubscriptionResult;
 import com.opengamma.livedata.LiveDataValueUpdate;
+import com.opengamma.livedata.client.LiveDataClient;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
