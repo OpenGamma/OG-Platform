@@ -60,8 +60,9 @@
 
 	<macrodef name="git-status">
 		<attribute name="dest" />
+		<attribute name="displayName" />
                 <sequential>
-			<echo message="getting status for @{dest} ---------------------------" />
+			<echo message="getting status for @{displayName} ---------------------------" />
 			<git command="status" dir="@{dest}"/>
 		</sequential>
 	</macrodef>

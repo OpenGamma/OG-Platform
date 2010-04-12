@@ -174,18 +174,19 @@
 	</target>
 
 	<target name="status" description="display the status of all projects from git">
-		<git-status dest="projects/Fudge-Java" />
-		<git-status dest="projects/Fudge-Proto" />
-		<git-status dest="projects/OG-Analytics" />
-		<git-status dest="projects/OG-Bloomberg" />
-		<git-status dest="projects/OG-Engine" />
-		<git-status dest="projects/OG-Financial" />
-		<git-status dest="projects/OG-LiveData" />
-		<git-status dest="projects/OG-Util" />
-		<git-status dest="projects/OG-Integration" />
-		<git-status dest="projects/OG-Security" />
-		<git-status dest="projects/OG-TimeSeriesStorage" />
-		<git-status dest="projects/OG-Reuters" />
+		<git-status dest="." displayName="OG-Build" />
+		<git-status dest="projects/Fudge-Java" displayName="Fudge-Java" />
+		<git-status dest="projects/Fudge-Proto" displayName="Fudge-Proto" />
+		<git-status dest="projects/OG-Analytics" displayName="OG-Analytics" />
+		<git-status dest="projects/OG-Bloomberg" displayName="OG-Bloomberg" />
+		<git-status dest="projects/OG-Engine" displayName="OG-Engine" />
+		<git-status dest="projects/OG-Financial" displayName="OG-Financial" />
+		<git-status dest="projects/OG-LiveData" displayName="OG-LiveData" />
+		<git-status dest="projects/OG-Util" displayName="OG-Util" />
+		<git-status dest="projects/OG-Integration" displayName="OG-Integration" />
+		<git-status dest="projects/OG-Security" displayName="OG-Security" />
+		<git-status dest="projects/OG-TimeSeriesStorage" displayName="OG-TimeSeriesStorage" />
+		<git-status dest="projects/OG-Reuters" displayName="OG-Reuters" />
 	</target>
 </project>
 
