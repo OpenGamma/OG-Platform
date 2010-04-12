@@ -106,16 +106,11 @@
 	</target>
 
 	<target name="fudge-proto-compile" depends="fudge-proto-gitignore" if="fudge.proto.present">
-		 <path id="fudge.proto.project.path">
-			 <dirset dir="${projects.dir}">
-				 <include name="**/src" />
-			 </dirset>
-		 </path>
 		 <taskdef name="fudgeproto" classname="org.fudgemsg.proto.AntTask" classpathref="lib.path.id" />
 		 <fudgeproto
 			srcdir="${src.dir}"
 			destdir="${src.dir}"
-			searchdir="${toString:fudge.proto.project.path}"
+			searchdir="${toString:lib.path.id}"
 			equals="${fudge.proto.equals}"
 			toString="${fudge.proto.toString}"
 			hashCode="${fudge.proto.hashCode}"
