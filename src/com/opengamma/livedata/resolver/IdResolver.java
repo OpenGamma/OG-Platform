@@ -16,6 +16,8 @@ public interface IdResolver {
   /**
    * Transforms a set of IDs into a unique ID. For example, a Bloomberg ticker is 
    * transformed into a Bloomberg unique ID.
+   * <p>
+   * If the input is already a unique ID, it is returned as it is: no validation is performed.
    * 
    * @return The unique ID. Null if it was not found.
    */
