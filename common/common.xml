@@ -146,7 +146,7 @@
 			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}" />
 	</target>
 
-	<target name="compile-tests-mkdir" depends="resolve">
+	<target name="compile-tests-mkdir">
 		<mkdir dir="${tests.classes.dir}" />
 		<path id="tests.build.classpath.id">
 			<path refid="lib.path.id" />
