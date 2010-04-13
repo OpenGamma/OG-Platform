@@ -6,12 +6,8 @@
 package com.opengamma.livedata.server;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
 
 import org.fudgemsg.FudgeFieldContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -29,10 +25,6 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DistributionSpecification implements Serializable {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(DistributionSpecification.class);
-  
-  // final, equals()/hashCode()-eligible fields
-  
   /** What market data is being distributed (e.g., AAPL stock) */
   private final DomainSpecificIdentifiers _identifiers;
   
@@ -41,23 +33,6 @@ public class DistributionSpecification implements Serializable {
   
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
-  
-  // non-final fields - do not use in equals()/hashCode()
-  
-  /**
-   * Which subscription this distribution specification belongs to.
-   * Note - this could be null if this distribution spec is a "temporary" distribution specification,
-   * created for a snapshot request.
-   */
-  private Subscription _subscription = null;
-  
-  /** These listener(s) actually publish the data */ 
-  private Collection<MarketDataReceiver> _fieldReceivers;
-  
-  /**
-   * The last (normalized) message that was sent to clients.
-   */
-  private FudgeFieldContainer _lastKnownValue = null;
   
   public DistributionSpecification(DomainSpecificIdentifiers identifiers, 
       NormalizationRuleSet normalizationRuleSet,
@@ -68,7 +43,6 @@ public class DistributionSpecification implements Serializable {
     _identifiers = identifiers;
     _normalizationRuleSet = normalizationRuleSet;
     _jmsTopic = jmsTopic;
-    setFieldReceivers(Collections.<MarketDataReceiver>emptyList());
   }
   
   public LiveDataSpecification getFullyQualifiedLiveDataSpecification() {
@@ -93,59 +67,13 @@ public class DistributionSpecification implements Serializable {
     return _jmsTopic;
   }
   
-  public synchronized FudgeFieldContainer getLastKnownValue() {
-    return _lastKnownValue;
-  }
-
-  private synchronized void setLastKnownValue(FudgeFieldContainer lastKnownValue) {
-    _lastKnownValue = lastKnownValue;
-  }
-  
-  /**
-   * @param fieldReceivers It is recommended that a thread-safe collection 
-   * with iterators that do not throw <code>ConcurrentModificationException</code> is used,
-   * unless you are sure that this <code>DistributionSpecification</code> will 
-   * only be used within a single thread. No copy of the collection is made,
-   * so any subsequent changes to the collection will be reflected in this object.
-   */
-  void setFieldReceivers(Collection<MarketDataReceiver> fieldReceivers) {
-    _fieldReceivers = fieldReceivers;
-  }
-
-  public Collection<MarketDataReceiver> getFieldReceivers() {
-    return Collections.unmodifiableCollection(_fieldReceivers);
-  }
-  
-  /**
-   * @return Could be null if this distribution spec is a "temporary" distribution specification,
-   * created for a snapshot request.
-   */
-  public Subscription getSubscription() {
-    return _subscription;
-  }
-
-  void setSubscription(Subscription subscription) {
-    ArgumentChecker.checkNotNull(subscription, "Subscription");
-    if (_subscription != null) {
-      throw new IllegalStateException("Subscription already set");
-    }
-    _subscription = subscription;
-  }
-  
   /**
    * @param msg Message received from underlying market data API in its native format.
+   * @param history History of messages received from underlying market data API in its native format 
    * @return The normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
-  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
-    FieldHistoryStore history;
-    if (getSubscription() != null) {
-      history = getSubscription().getLiveDataHistory();
-    } else {
-      // no history available.
-      history = new FieldHistoryStore(msg);
-    }
-    
+  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg, FieldHistoryStore history) {
     FudgeFieldContainer normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
         history);
     
@@ -156,34 +84,13 @@ public class DistributionSpecification implements Serializable {
   }
   
   /**
-   * Sends normalized market data to field receivers. 
-   * 
-   * @param liveDataFields Unnormalized market data from underlying market data API.
-   * @see #setFieldReceivers
+   * @return A normalized message assuming there is no market data history.
    */
-  public void liveDataReceived(FudgeFieldContainer liveDataFields) {
-    FudgeFieldContainer normalizedMsg;
-    try {
-      normalizedMsg = getNormalizedMessage(liveDataFields);
-    } catch (RuntimeException e) {
-      s_logger.error("Normalizing " + liveDataFields + " to " + this + " failed.", e);
-      return;
-    }
-    setLastKnownValue(normalizedMsg);
-    
-    if (normalizedMsg != null) {
-      for (MarketDataReceiver receiver : _fieldReceivers) {
-        try {
-          receiver.marketDataReceived(this, normalizedMsg);
-        } catch (RuntimeException e) {
-          s_logger.error("MarketDataReceiver " + receiver + " failed", e);
-        }
-      }
-    } else {
-      s_logger.debug("Not sending Live Data update (empty message).");
-    }
+  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
+    FieldHistoryStore history = new FieldHistoryStore(msg);
+    return getNormalizedMessage(msg, history);  
   }
-
+  
   @Override
   public int hashCode() {
     final int prime = 31;

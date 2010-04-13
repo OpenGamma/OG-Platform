@@ -16,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class MarketDataFudgeSender implements MarketDataReceiver {
+public class MarketDataFudgeSender implements MarketDataSender {
   private final FudgeMessageSender _fudgeMessageSender;
   
   public MarketDataFudgeSender(FudgeMessageSender fudgeMessageSender) {
@@ -32,7 +32,7 @@ public class MarketDataFudgeSender implements MarketDataReceiver {
   }
 
   @Override
-  public void marketDataReceived(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
+  public void sendMarketData(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
       LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
       FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
       getFudgeMessageSender().send(fudgeMsg);

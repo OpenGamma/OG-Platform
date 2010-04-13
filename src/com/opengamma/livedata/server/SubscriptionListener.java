@@ -18,7 +18,7 @@ public interface SubscriptionListener {
   public void subscribed(Subscription subscription);
   
   /**
-   * Called if a non-persistent subscription is modified to become persistent,
+   * Called if a non-persistent subscription is made persistent,
    * or vice versa.
    */
   public void persistentChanged(Subscription subscription);

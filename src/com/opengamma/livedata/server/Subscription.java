@@ -5,16 +5,17 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -32,8 +33,11 @@ public class Subscription {
   /** What was subscribed to. Bloomberg/Reuters/{your market data provider of choice} unique ID for a security. **/
   private final String _securityUniqueId;
   
-  /** How this data should be distributed to clients. */
-  private final Set<DistributionSpecification> _distributionSpecs = new CopyOnWriteArraySet<DistributionSpecification>();
+  /** 
+   * The data from this subscription can be distributed to clients in multiple formats,
+   * therefore we need multiple market data distributors. 
+   */
+  private final Map<DistributionSpecification, MarketDataDistributor> _distributors = new ConcurrentHashMap<DistributionSpecification, MarketDataDistributor>();
   
   /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
   private final Object _handle;
@@ -94,32 +98,45 @@ public class Subscription {
     return _securityUniqueId;
   }
   
-  public Set<DistributionSpecification> getDistributionSpecs() {
-    return Collections.unmodifiableSet(_distributionSpecs);
+  public Set<DistributionSpecification> getDistributionSpecifications() {
+    return Collections.unmodifiableSet(_distributors.keySet());
   }
   
-  public DistributionSpecification getDistributionSpec(LiveDataSpecification liveDataSpec) {
-    for (DistributionSpecification spec : getDistributionSpecs()) {
-      if (spec.matches(liveDataSpec)) {
-        return spec;        
-      }
-    }
-    return null;
+  public Collection<MarketDataDistributor> getDistributors() {
+    return Collections.unmodifiableCollection(_distributors.values());
   }
   
-  void addDistributionSpec(DistributionSpecification spec) {
-    boolean added = _distributionSpecs.add(spec);
-    if (added) {
-      spec.setSubscription(this);
-      s_logger.info("Added distribution spec {} to {}", spec, this);
-    } else {
+  public MarketDataDistributor getMarketDataDistributor(DistributionSpecification distributionSpec) {
+    return _distributors.get(distributionSpec);
+  }
+  
+  /**
+   * Tells this subscription to start distributing market data in the given format.
+   * Only creates a new distribution if it doesn't already exist.
+   * 
+   * @param spec The format
+   * @param marketDataSenders See {@link MarketDataDistributor#MarketDataDistributor(DistributionSpecification, Subscription, Collection)}
+   */
+  synchronized void createDistribution(DistributionSpecification spec, Collection<MarketDataSender> marketDataSenders) {
+    
+    if (getDistributionSpecifications().contains(spec)) {
       s_logger.info("Added distribution spec {} to {} (no-op)", spec, this);
+      return;
     }
+    
+    MarketDataDistributor distributor = new MarketDataDistributor(
+        spec,
+        this,
+        marketDataSenders);
+    
+    _distributors.put(spec, distributor);  
+    
+    s_logger.info("Added distribution spec {} to {}", spec, this);
   }
   
-  void removeDistributionSpec(DistributionSpecification spec) {
-    boolean removed = _distributionSpecs.remove(spec);
-    if (removed) {
+  synchronized void removeDistribution(DistributionSpecification spec) {
+    MarketDataDistributor removed = _distributors.remove(spec);
+    if (removed != null) {
       s_logger.info("Removed distribution spec {} from {}", spec, this);      
     } else {
       s_logger.info("Removed distribution spec {} from {} (no-op)", spec, this);
@@ -133,7 +150,7 @@ public class Subscription {
   public void liveDataReceived(FudgeFieldContainer liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
-    for (DistributionSpecification distributionSpec : getDistributionSpecs()) {
+    for (MarketDataDistributor distributionSpec : getDistributors()) {
       distributionSpec.liveDataReceived(liveDataFields);
     }
   }

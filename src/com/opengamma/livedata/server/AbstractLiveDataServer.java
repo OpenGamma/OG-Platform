@@ -48,7 +48,7 @@ public abstract class AbstractLiveDataServer {
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractLiveDataServer.class);
 
-  private final Collection<MarketDataReceiver> _fieldReceivers = new CopyOnWriteArrayList<MarketDataReceiver>();
+  private final Collection<MarketDataSender> _marketDataSenders = new CopyOnWriteArrayList<MarketDataSender>();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
   private final Set<Subscription> _currentlyActiveSubscriptions = new CopyOnWriteArraySet<Subscription>();
   private final Map<String, Subscription> _securityUniqueId2Subscription = new ConcurrentHashMap<String, Subscription>();
@@ -78,21 +78,21 @@ public abstract class AbstractLiveDataServer {
     _distributionSpecificationResolver = distributionSpecificationResolver;
   }
   
-  public void addMarketDataFieldReceiver(MarketDataReceiver fieldReceiver) {
-    ArgumentChecker.checkNotNull(fieldReceiver, "Market Data Field Receiver");
-    _fieldReceivers.add(fieldReceiver);
+  public void addMarketDataSender(MarketDataSender fieldReceiver) {
+    ArgumentChecker.checkNotNull(fieldReceiver, "Market Data Sender");
+    _marketDataSenders.add(fieldReceiver);
   }
 
-  public void setMarketDataFieldReceivers(
-      Collection<MarketDataReceiver> fieldReceivers) {
-    _fieldReceivers.clear();
-    for (MarketDataReceiver receiver : fieldReceivers) {
-      addMarketDataFieldReceiver(receiver);
+  public void setMarketDataSenders(
+      Collection<MarketDataSender> marketDataSenders) {
+    _marketDataSenders.clear();
+    for (MarketDataSender sender : marketDataSenders) {
+      addMarketDataSender(sender);
     }
   }
   
-  public Collection<MarketDataReceiver> getMarketDataFieldReceivers() {
-    return Collections.unmodifiableCollection(_fieldReceivers);
+  public Collection<MarketDataSender> getMarketDataSenders() {
+    return Collections.unmodifiableCollection(_marketDataSenders);
   }
 
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
@@ -218,8 +218,7 @@ public abstract class AbstractLiveDataServer {
       _fullyQualifiedSpec2Subscription.put(fullyQualifiedSpec,
           subscription);
       
-      distributionSpec.setFieldReceivers(getMarketDataFieldReceivers());
-      subscription.addDistributionSpec(distributionSpec);
+      subscription.createDistribution(distributionSpec, getMarketDataSenders());
     
     } finally {
       _subscriptionLock.unlock();
@@ -241,13 +240,13 @@ public abstract class AbstractLiveDataServer {
    */
   public FudgeFieldContainer snapshot(LiveDataSpecification liveDataSpecificationFromClient) {
     DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-    .getDistributionSpecification(liveDataSpecificationFromClient);
+      .getDistributionSpecification(liveDataSpecificationFromClient);
     LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
     
-    DistributionSpecification currentlyActiveDistributionSpec = getDistributionSpecification(fullyQualifiedSpec);
-    if (currentlyActiveDistributionSpec != null 
-        && currentlyActiveDistributionSpec.getLastKnownValue() != null) {
-      return currentlyActiveDistributionSpec.getLastKnownValue();
+    MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
+    if (currentlyActiveDistributor != null 
+        && currentlyActiveDistributor.getLastKnownValue() != null) {
+      return currentlyActiveDistributor.getLastKnownValue();
     }
     
     String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
@@ -396,7 +395,7 @@ public abstract class AbstractLiveDataServer {
         _securityUniqueId2Subscription.remove(subscription
             .getSecurityUniqueId());
         
-        for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
+        for (DistributionSpecification distributionSpec : subscription.getDistributionSpecifications()) {
           _fullyQualifiedSpec2Subscription.remove(distributionSpec.getFullyQualifiedLiveDataSpecification());
         }
 
@@ -490,7 +489,7 @@ public abstract class AbstractLiveDataServer {
   public Set<String> getActiveDistributionSpecs() {
     Set<String> subscriptions = new HashSet<String>();
     for (Subscription subscription : _currentlyActiveSubscriptions) {
-      for (DistributionSpecification distributionSpec : subscription.getDistributionSpecs()) {
+      for (DistributionSpecification distributionSpec : subscription.getDistributionSpecifications()) {
         subscriptions.add(distributionSpec.toString());
       }
     }
@@ -529,12 +528,12 @@ public abstract class AbstractLiveDataServer {
     return _securityUniqueId2Subscription.get(securityUniqueId);
   }
   
-  public DistributionSpecification getDistributionSpecification(LiveDataSpecification fullyQualifiedSpec) {
-    Subscription subscription = getSubscription(fullyQualifiedSpec);
+  public MarketDataDistributor getMarketDataDistributor(DistributionSpecification distributionSpec) {
+    Subscription subscription = getSubscription(distributionSpec.getFullyQualifiedLiveDataSpecification());
     if (subscription == null) {
       return null;
     }
-    return subscription.getDistributionSpec(fullyQualifiedSpec);
+    return subscription.getMarketDataDistributor(distributionSpec);
   }
   
 }

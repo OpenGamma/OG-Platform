@@ -39,7 +39,7 @@ public class LiveDataClientTestUtils {
     marketDataTemplate.setConnectionFactory(cf);
     
     MarketDataFudgeJmsSender mdfjs = new MarketDataFudgeJmsSender(marketDataTemplate);
-    server.addMarketDataFieldReceiver(mdfjs);
+    server.addMarketDataSender(mdfjs);
     
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());
     

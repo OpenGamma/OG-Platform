@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class MarketDataFudgeJmsSender implements MarketDataReceiver {
+public class MarketDataFudgeJmsSender implements MarketDataSender {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataFudgeJmsSender.class);
   
   private final JmsTemplate _jmsTemplate;
@@ -57,7 +57,7 @@ public class MarketDataFudgeJmsSender implements MarketDataReceiver {
   }
 
   @Override
-  public void marketDataReceived(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
+  public void sendMarketData(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
     
     LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(
         System.currentTimeMillis(), 
