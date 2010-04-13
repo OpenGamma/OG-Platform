@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
+
 /**
  *  
  *
@@ -23,6 +25,8 @@ public interface NormalizationRule extends Serializable {
    * @return The normalized message. The method may modify and 
    * return the input parameter <code>msg</code> if desired. 
    */
-  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg);
+  public MutableFudgeFieldContainer apply(
+      MutableFudgeFieldContainer msg,
+      FieldHistoryStore fieldHistory);
 
 }

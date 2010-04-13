@@ -11,6 +11,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
+
 /**
  * 
  *
@@ -27,7 +29,8 @@ public class IndicativeValueCalculatorTest {
     msg.add(MarketDataFieldNames.BID_FIELD, 50.80);
     msg.add(MarketDataFieldNames.LAST_FIELD, 50.89);
     
-    MutableFudgeFieldContainer normalized = calculator.apply(msg);
+    FieldHistoryStore store = new FieldHistoryStore();
+    MutableFudgeFieldContainer normalized = calculator.apply(msg, store);
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(50.85, normalized.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD), 0.0001);
   }

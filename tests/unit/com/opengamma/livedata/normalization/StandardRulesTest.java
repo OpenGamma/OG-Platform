@@ -12,12 +12,16 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
+
 /**
  * 
  *
  * @author pietari
  */
 public class StandardRulesTest {
+  
+  private FieldHistoryStore _store = new FieldHistoryStore();
   
   @Test
   public void noNormalization() {
@@ -28,7 +32,7 @@ public class StandardRulesTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    FudgeFieldContainer normalizedMsg = ruleSet.getNormalizedMessage(msg);
+    FudgeFieldContainer normalizedMsg = ruleSet.getNormalizedMessage(msg, _store);
     assertEquals(msg, normalizedMsg);
   }
   
@@ -41,7 +45,7 @@ public class StandardRulesTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    FudgeFieldContainer normalizedMsg = ruleSet.getNormalizedMessage(msg);
+    FudgeFieldContainer normalizedMsg = ruleSet.getNormalizedMessage(msg, _store);
     assertEquals(msg, normalizedMsg);
   }
 

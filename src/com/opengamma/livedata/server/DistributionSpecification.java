@@ -42,12 +42,21 @@ public class DistributionSpecification implements Serializable {
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
   
-  // non-final fields - do not use in equals()/hashCode() 
+  // non-final fields - do not use in equals()/hashCode()
+  
+  /**
+   * Which subscription this distribution specification belongs to.
+   * Note - this could be null if this distribution spec is a "temporary" distribution specification,
+   * created for a snapshot request.
+   */
+  private Subscription _subscription = null;
   
   /** These listener(s) actually publish the data */ 
   private Collection<MarketDataReceiver> _fieldReceivers;
   
-  /** The last (normalized) message that was sent */
+  /**
+   * The last (normalized) message that was sent to clients.
+   */
   private FudgeFieldContainer _lastKnownValue = null;
   
   public DistributionSpecification(DomainSpecificIdentifiers identifiers, 
@@ -99,21 +108,47 @@ public class DistributionSpecification implements Serializable {
    * only be used within a single thread. No copy of the collection is made,
    * so any subsequent changes to the collection will be reflected in this object.
    */
-  public void setFieldReceivers(Collection<MarketDataReceiver> fieldReceivers) {
+  void setFieldReceivers(Collection<MarketDataReceiver> fieldReceivers) {
     _fieldReceivers = fieldReceivers;
   }
 
   public Collection<MarketDataReceiver> getFieldReceivers() {
     return Collections.unmodifiableCollection(_fieldReceivers);
   }
+  
+  /**
+   * @return Could be null if this distribution spec is a "temporary" distribution specification,
+   * created for a snapshot request.
+   */
+  public Subscription getSubscription() {
+    return _subscription;
+  }
 
+  void setSubscription(Subscription subscription) {
+    ArgumentChecker.checkNotNull(subscription, "Subscription");
+    if (_subscription != null) {
+      throw new IllegalStateException("Subscription already set");
+    }
+    _subscription = subscription;
+  }
+  
   /**
    * @param msg Message received from underlying market data API in its native format.
    * @return The normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
   public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
-    FudgeFieldContainer normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg);
+    FieldHistoryStore history;
+    if (getSubscription() != null) {
+      history = getSubscription().getLiveDataHistory();
+    } else {
+      // no history available.
+      history = new FieldHistoryStore();    
+    }
+    
+    FudgeFieldContainer normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
+        history);
+    
     if (normalizedMsg.getAllFields().size() == 0) {
       return null;
     }

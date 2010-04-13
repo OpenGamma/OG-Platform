@@ -5,13 +5,14 @@
  */
 package com.opengamma.livedata.normalization;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,16 +22,19 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FieldFilter implements NormalizationRule {
   
-  private final Set<String> _fieldsToAccept;
+  private final Collection<String> _fieldsToAccept;
   private final FudgeContext CONTEXT = FudgeContext.GLOBAL_DEFAULT; 
   
-  public FieldFilter(Set<String> fieldsToAccept) {
+  public FieldFilter(Collection<String> fieldsToAccept) {
     ArgumentChecker.checkNotNull(fieldsToAccept, "List of accepted fields");    
     _fieldsToAccept = new HashSet<String>(fieldsToAccept);
   }
 
   @Override
-  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg) {
+  public MutableFudgeFieldContainer apply(
+      MutableFudgeFieldContainer msg,
+      FieldHistoryStore fieldHistory) {
+    
     MutableFudgeFieldContainer normalizedMsg = CONTEXT.newMessage();
     for (String fieldName : _fieldsToAccept) {
       FudgeField value = msg.getByName(fieldName);
@@ -38,7 +42,8 @@ public class FieldFilter implements NormalizationRule {
         normalizedMsg.add(value);
       }
     }
-    return normalizedMsg;    
+    return normalizedMsg;
+    
   }
   
 }

@@ -15,6 +15,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.livedata.resolver.JmsTopicNameResolver;
+import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -52,10 +53,12 @@ public class NormalizationRuleSet implements Serializable {
     _rules = new ArrayList<NormalizationRule>(rules);    
   }
   
-  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
+  public FudgeFieldContainer getNormalizedMessage(
+      FudgeFieldContainer msg,
+      FieldHistoryStore fieldHistory) {
     MutableFudgeFieldContainer normalizedMsg = FUDGE_CONTEXT.newMessage(msg);
     for (NormalizationRule rule : _rules) {
-      normalizedMsg = rule.apply(normalizedMsg);      
+      normalizedMsg = rule.apply(normalizedMsg, fieldHistory);      
     }
     return normalizedMsg;
   }

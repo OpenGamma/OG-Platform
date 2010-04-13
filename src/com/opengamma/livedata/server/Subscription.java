@@ -38,6 +38,11 @@ public class Subscription {
   /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
   private final Object _handle;
   
+  /** 
+   * History of ticks received from the underlying market data source
+   */
+  private final FieldHistoryStore _history = new FieldHistoryStore();
+  
   /**
    * Whether this subscription should expire automatically if
    * no heartbeats are received from clients.
@@ -66,19 +71,13 @@ public class Subscription {
   Subscription(
       String securityUniqueId,
       Object handle,
-      boolean persistent,
-      Set<DistributionSpecification> distributionSpecs) {
+      boolean persistent) {
     ArgumentChecker.checkNotNull(securityUniqueId, "Security unique ID");
     ArgumentChecker.checkNotNull(handle, "Subscription handle");
-    ArgumentChecker.checkNotNull(distributionSpecs, "Distribution specification");
     
     _securityUniqueId = securityUniqueId;
     _handle = handle;
     setPersistent(persistent);
-    
-    for (DistributionSpecification spec : distributionSpecs) {
-      addDistributionSpec(spec);
-    }
     
     _creationTime = new Date();
   }
@@ -111,7 +110,8 @@ public class Subscription {
   void addDistributionSpec(DistributionSpecification spec) {
     boolean added = _distributionSpecs.add(spec);
     if (added) {
-      s_logger.info("Added distribution spec {} to {}", spec, this);      
+      spec.setSubscription(this);
+      s_logger.info("Added distribution spec {} to {}", spec, this);
     } else {
       s_logger.info("Added distribution spec {} to {} (no-op)", spec, this);
     }
@@ -126,7 +126,13 @@ public class Subscription {
     }
   }
   
+  FieldHistoryStore getLiveDataHistory() {
+    return _history;
+  }
+
   public void liveDataReceived(FudgeFieldContainer liveDataFields) {
+    _history.liveDataReceived(liveDataFields);
+    
     for (DistributionSpecification distributionSpec : getDistributionSpecs()) {
       distributionSpec.liveDataReceived(liveDataFields);
     }

@@ -15,10 +15,14 @@ package com.opengamma.livedata.normalization;
 public interface MarketDataFieldNames {
   
   /** 
-   * This is the only field that is actually distributed from LiveData to the Engine 
-   * in the OpenGamma normalization schema. 
+   * Sent in the OpenGamma normalization schema for all asset types. 
    */
   public static final String INDICATIVE_VALUE_FIELD = "IndicativeValue";
+  
+  /** 
+   * Sent in the OpenGamma normalization schema for all asset types for which available (e.g., equities). 
+   */
+  public static final String VOLUME = "Volume";
   
   public static final String LAST_FIELD = "LAST";
   public static final String MID_FIELD = "MID";

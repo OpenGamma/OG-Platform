@@ -12,6 +12,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
+
 /**
  * 
  *
@@ -28,7 +30,7 @@ public class FieldNameChangeTest {
     msg.add("Bar", 2.0);
     msg.add("Baz", 500);
     
-    MutableFudgeFieldContainer normalized = nameChange.apply(msg);
+    MutableFudgeFieldContainer normalized = nameChange.apply(msg, new FieldHistoryStore());
     assertEquals(3, normalized.getAllFields().size());
     assertNull(normalized.getByName("Foo"));
     assertEquals(2.0, (Double) normalized.getAllByName("Bar").get(0).getValue(), 0.0001);

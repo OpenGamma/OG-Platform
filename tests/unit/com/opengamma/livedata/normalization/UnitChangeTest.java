@@ -11,6 +11,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
+
 /**
  * 
  *
@@ -26,7 +28,7 @@ public class UnitChangeTest {
     msg.add("Foo", 2.0);
     msg.add("Bar", "2");
     
-    MutableFudgeFieldContainer normalized = unitChange.apply(msg);
+    MutableFudgeFieldContainer normalized = unitChange.apply(msg, new FieldHistoryStore());
     assertEquals(2, normalized.getAllFields().size());
     assertEquals(20.0, normalized.getDouble("Foo"), 0.0001);
   }

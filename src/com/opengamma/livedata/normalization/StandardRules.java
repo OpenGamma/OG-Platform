@@ -20,8 +20,12 @@ public class StandardRules {
         Collections.<NormalizationRule>emptyList());
   
   /**
-   * This normalization rule 
-   * @return
+   * Will include:
+   * 
+   * <ul>
+   * <li>IndicativeValue
+   * <li>Volume (if available)
+   * </ul>
    */
   public static String getOpenGammaRuleSetId() {
     return "OpenGamma";

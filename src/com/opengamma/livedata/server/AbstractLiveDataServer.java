@@ -198,7 +198,7 @@ public abstract class AbstractLiveDataServer {
         Object subscriptionHandle = doSubscribe(securityUniqueId);
 
         subscription = new Subscription(securityUniqueId, subscriptionHandle, 
-            persistent, Collections.singleton(distributionSpec));
+            persistent);
 
         _currentlyActiveSubscriptions.add(subscription);
         _securityUniqueId2Subscription.put(securityUniqueId,

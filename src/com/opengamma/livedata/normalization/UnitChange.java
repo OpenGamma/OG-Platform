@@ -7,6 +7,7 @@ package com.opengamma.livedata.normalization;
 
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -26,7 +27,10 @@ public class UnitChange implements NormalizationRule {
   }
   
   @Override
-  public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg) {
+  public MutableFudgeFieldContainer apply(
+      MutableFudgeFieldContainer msg,
+      FieldHistoryStore fieldHistory) {
+    
     Double value = msg.getDouble(_field);
     if (value != null) {
       double newValue = value * _multiplier;
@@ -34,6 +38,7 @@ public class UnitChange implements NormalizationRule {
       msg.add(_field, newValue);
     }
     return msg;
+    
   }
 
 }
