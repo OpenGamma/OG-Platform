@@ -20,6 +20,7 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.util.ThreadUtil;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * The base implementation of the {@link View} interface.
@@ -139,17 +140,18 @@ public class View implements Lifecycle {
   }
 
   public synchronized void init() {
-    s_logger.info("Initializing view {}", getDefinition().getName());
+    OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
     checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 
     reloadPortfolio();
     
     setCalculationState(ViewCalculationState.NOT_STARTED);
+    timer.finished();
   }
   
   public void reloadPortfolio() {
-    s_logger.info("Reloading portfolio named {}", getDefinition().getRootPortfolioName());
+    OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getRootPortfolioName());
     Portfolio portfolio = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getRootPortfolioName());
     if(portfolio == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getRootPortfolioName());
@@ -159,6 +161,7 @@ public class View implements Lifecycle {
         getProcessingContext(),
         getDefinition());
     setPortfolioEvaluationModel(portfolioEvaluationModel);
+    timer.finished();
   }
   
   /**

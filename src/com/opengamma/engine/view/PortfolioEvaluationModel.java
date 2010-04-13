@@ -42,6 +42,7 @@ import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.OperationTimer;
 
 
 // REVIEW kirk 2009-09-16 -- The design goal here is that the portfolio
@@ -167,7 +168,7 @@ public class PortfolioEvaluationModel {
   
   protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
     // TODO kirk 2010-03-07 -- Need to switch to OperationTimer for this.
-    s_logger.info("Resolving all securities for portfolio {}", getPortfolio().getPortfolioName());
+    OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", getPortfolio().getPortfolioName());
     Set<DomainSpecificIdentifiers> securityKeys = getSecurityKeysForResolution(getPortfolio());
     ExecutorCompletionService<DomainSpecificIdentifiers> completionService = new ExecutorCompletionService<DomainSpecificIdentifiers>(viewProcessingContext.getExecutorService());
     
@@ -195,6 +196,7 @@ public class PortfolioEvaluationModel {
     if(failed) {
       throw new OpenGammaRuntimeException("Unable to resolve all securities for Portfolio " + getPortfolio().getPortfolioName());
     }
+    timer.finished();
   }
   
   protected class SecurityResolutionJob implements Runnable {
@@ -274,9 +276,11 @@ public class PortfolioEvaluationModel {
   }
   
   public void loadPositions() {
+    OperationTimer timer = new OperationTimer(s_logger, "Loading positions on {}", getPortfolio().getName());
     PortfolioNode populatedRootNode = getPopulatedRootNode();
     loadPositions(populatedRootNode);
     setPopulatedRootNode(populatedRootNode);
+    timer.finished();
     s_logger.debug("Operating on {} positions", getPopulatedPositions().size());
   }
   
@@ -303,6 +307,7 @@ public class PortfolioEvaluationModel {
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       ComputationTargetResolver computationTargetResolver,
       ViewDefinition viewDefinition) {
+    OperationTimer timer = new OperationTimer(s_logger, "Building dependency graphs {}", getPortfolio().getName());
     // REVIEW kirk 2010-03-29 -- Much like the inner loop, the outer loop is chock-full
     // of potentially expensive operations for parallelism. In fact, perhaps more so
     // than the inner loop.
@@ -337,12 +342,14 @@ public class PortfolioEvaluationModel {
       
       _graphModelsByConfiguration.put(configName, dependencyGraphModel);
     }
+    timer.finished();
   }
   
   public void addLiveDataSubscriptions(
       ViewProcessingContext viewProcessingContext,
       ViewDefinition viewDefinition) {
     ArgumentChecker.checkNotNull(viewProcessingContext, "view processing context");
+    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", "uncounted");
     for(DependencyGraphModel dependencyGraphModel : _graphModelsByConfiguration.values()) {
       Set<ValueRequirement> requiredLiveData = dependencyGraphModel.getAllRequiredLiveData();
       s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
@@ -351,6 +358,7 @@ public class PortfolioEvaluationModel {
         viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), liveDataRequirement);
       }
     }
+    timer.finished();
   }
   
   public Set<ValueRequirement> getAllLiveDataRequirements() {

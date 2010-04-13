@@ -38,6 +38,7 @@ import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
+import com.opengamma.util.monitor.OperationTimer;
 
 // REVIEW kirk 2010-03-02 -- View initialization is really slow, and right now there's no
 // asynchronous support in any type of RESTful call for a super-slow (1-2 minutes) call.
@@ -413,6 +414,7 @@ public class ViewProcessor implements Lifecycle {
 
   @Override
   public void start() {
+    OperationTimer timer = new OperationTimer(s_logger, "Starting on lifecycle call");
     _lifecycleLock.lock();
     try {
       s_logger.info("Starting on lifecycle call.");
@@ -426,6 +428,7 @@ public class ViewProcessor implements Lifecycle {
     } finally {
       _lifecycleLock.unlock();
     }
+    timer.finished();
   }
 
   @Override
@@ -466,6 +469,7 @@ public class ViewProcessor implements Lifecycle {
   // --------------------------------------------------------------------------
 
   protected void initializeAllFunctionDefinitions() {
+    OperationTimer timer = new OperationTimer(s_logger, "Initializing function definitions");
     s_logger.info("Initializing all function definitions.");
     // TODO kirk 2010-03-07 -- Better error handling.
     ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
@@ -500,10 +504,12 @@ public class ViewProcessor implements Lifecycle {
         // REVIEW kirk 2010-03-07 -- What do we do here?
       }
     }
+    timer.finished();
   }
   
   protected void initializeExecutorService() {
     if(getExecutorService() == null) {
+      OperationTimer timer = new OperationTimer(s_logger, "Initializing View Processor");
       ThreadFactory tf = new NamedThreadPoolFactory("ViewProcessor", true);
       int nThreads = Runtime.getRuntime().availableProcessors() - 1;
       if(nThreads == 0) {
@@ -514,6 +520,7 @@ public class ViewProcessor implements Lifecycle {
       ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nThreads, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
       setExecutorService(executor);
       setLocalExecutorService(true);
+      timer.finished();
     } else {
       setLocalExecutorService(false);
     }
