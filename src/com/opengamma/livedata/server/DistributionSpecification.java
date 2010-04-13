@@ -143,7 +143,7 @@ public class DistributionSpecification implements Serializable {
       history = getSubscription().getLiveDataHistory();
     } else {
       // no history available.
-      history = new FieldHistoryStore();    
+      history = new FieldHistoryStore(msg);
     }
     
     FudgeFieldContainer normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
