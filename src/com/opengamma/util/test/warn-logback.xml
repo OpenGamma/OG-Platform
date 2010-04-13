@@ -6,6 +6,10 @@
       <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
     </layout>
   </appender>
+  
+  <logger name="com.opengamma.engine.view.PortfolioEvaluationModel" level="INFO"/>
+  <logger name="com.opengamma.engine.view.View" level="INFO"/>
+  <logger name="com.opengamma.engine.view.ViewProcessor" level="INFO"/>
 
   <root level="warn">
     <appender-ref ref="STDOUT" />
