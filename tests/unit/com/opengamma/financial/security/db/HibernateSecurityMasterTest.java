@@ -361,7 +361,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         dollar, 
         "DJX");
     equityOption.setIdentifiers (Collections.singleton (americanIdentifier));
-    _secMaster.persistSecurity (now, equityOption);
+    _secMaster.putSecurity (now, equityOption);
     // create a European equity option
     equityOption = new EuropeanVanillaEquityOptionSecurity (OptionType.CALL, 
         4.56, 
@@ -370,7 +370,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         sterling, 
         "UKX");
     equityOption.setIdentifiers (Collections.singleton (europeanIdentifier));
-    _secMaster.persistSecurity (now, equityOption);
+    _secMaster.putSecurity (now, equityOption);
     // create a Powered equity option
     equityOption = new PoweredEquityOptionSecurity (OptionType.CALL, 
         4.56, 
@@ -380,7 +380,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         sterling, 
         "UKX");
     equityOption.setIdentifiers (Collections.singleton (poweredIdentifier));
-    _secMaster.persistSecurity (now, equityOption);
+    _secMaster.putSecurity (now, equityOption);
     // retrieve the American option
     Security security = _secMaster.getSecurity (now, americanIdentifier, true);
     Assert.assertNotNull (security);
@@ -436,7 +436,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         "DJX",
         true);
     futureOption.setIdentifiers (Collections.singleton (americanIdentifier));
-    _secMaster.persistSecurity (now, futureOption);
+    _secMaster.putSecurity (now, futureOption);
     // create a European future option
     futureOption = new EuropeanVanillaFutureOptionSecurity (OptionType.CALL, 
         4.56, 
@@ -446,7 +446,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         "UKX",
         false);
     futureOption.setIdentifiers (Collections.singleton (europeanIdentifier));
-    _secMaster.persistSecurity (now, futureOption);
+    _secMaster.putSecurity (now, futureOption);
     // retrieve the American option
     Security security = _secMaster.getSecurity (now, americanIdentifier, true);
     Assert.assertNotNull (security);
@@ -484,7 +484,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     DomainSpecificIdentifier fxUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying identity");
     OTCOptionSecurity security = new FXOptionSecurity (OptionType.PUT, 1.23, expiry, fxUnderlyingIdentifier, euro, "counterparty", dollar, sterling);
     security.setIdentifiers (Collections.singleton (fxIdentifier));
-    _secMaster.persistSecurity (now, security);
+    _secMaster.putSecurity (now, security);
     Security sec = _secMaster.getSecurity (now, fxIdentifier, true);
     Assert.assertNotNull (sec);
     Assert.assertTrue (sec instanceof FXOptionSecurity);
@@ -514,7 +514,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     DomainSpecificIdentifier governmentId = new DomainSpecificIdentifier ("BLOOMBERG", "government bond");
     BondSecurity bond = new GovernmentBondSecurity ("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers (Collections.singleton (governmentId));
-    _secMaster.persistSecurity (now, bond);
+    _secMaster.putSecurity (now, bond);
     Security security = _secMaster.getSecurity (now, governmentId, true);
     Assert.assertNotNull (security);
     Assert.assertTrue (security instanceof GovernmentBondSecurity);
@@ -569,7 +569,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     displayName = security.getDisplayName ();
     Assert.assertEquals ("foo", displayName);
     // persist it
-    _secMaster.persistSecurity (now, security);
+    _secMaster.putSecurity (now, security);
     // get it back
     security = (IndexFutureSecurity)_secMaster.getSecurity (now, actual, true);
     Assert.assertNotNull (security);
@@ -595,32 +595,32 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     FutureSecurity future;
     future = new AgricultureFutureSecurity (expiry, "TPX", "DJX", dollar, "Red wheat");
     future.setIdentifiers (Collections.singleton (agricultureId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     Set<DomainSpecificIdentifier> bondIdentifiers = new HashSet<DomainSpecificIdentifier> ();
     bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "corporate bond"));
     bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "municipal bond"));
     bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "government bond"));
     future = new BondFutureSecurity (expiry, "TPX", "DJX", dollar, "type", bondIdentifiers);
     future.setIdentifiers (Collections.singleton (bondId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     future = new EnergyFutureSecurity (expiry, "TPX", "DJX", dollar, "Oil", 1.0, "barrel", underlyingId);
     future.setIdentifiers (Collections.singleton (energyId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     future = new FXFutureSecurity (expiry, "DJX", "DJX", dollar, dollar, yen, 10000.0);
     future.setIdentifiers (Collections.singleton (fxId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     future = new InterestRateFutureSecurity (expiry, "TPX", "TPX", yen, "LIBOR");
     future.setIdentifiers (Collections.singleton (interestRateId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     future = new MetalFutureSecurity (expiry, "DJX", "TPX", dollar, "gold", 100.0, "gram", underlyingId);
     future.setIdentifiers (Collections.singleton (metalId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     future = new IndexFutureSecurity (expiry, "DJX", "TPX", dollar, underlyingId);
     future.setIdentifiers (Collections.singleton (indexId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     future = new StockFutureSecurity (expiry, "DJX", "TPX", dollar, underlyingId);
     future.setIdentifiers (Collections.singleton (stockId));
-    _secMaster.persistSecurity (now, future);
+    _secMaster.putSecurity (now, future);
     Security security;
     security = _secMaster.getSecurity (now, agricultureId, true);
     Assert.assertNotNull (security);
@@ -786,8 +786,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     nomura.setGICSCode(GICSCode.getInstance (4010));
     nomura.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity")));
     
-    _secMaster.persistSecurity(yesterYear2003, generalMotors);
-    _secMaster.persistSecurity(yesterYear2003, nomura);
+    _secMaster.putSecurity(yesterYear2003, generalMotors);
+    _secMaster.putSecurity(yesterYear2003, nomura);
     
     Security shouldBeNomura = _secMaster.getSecurity(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity"));
     Assert.assertEquals(nomura, shouldBeNomura);
@@ -802,7 +802,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     generalMotors2.setTicker("GM US Equity");
     generalMotors2.setGICSCode(GICSCode.getInstance (25102010));
     generalMotors2.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity")));
-    _secMaster.persistSecurity(yesterYear2005, generalMotors2);
+    _secMaster.putSecurity(yesterYear2005, generalMotors2);
     _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
