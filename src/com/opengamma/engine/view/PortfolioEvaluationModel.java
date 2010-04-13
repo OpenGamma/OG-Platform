@@ -346,18 +346,14 @@ public class PortfolioEvaluationModel {
   }
   
   public void addLiveDataSubscriptions(
-      ViewProcessingContext viewProcessingContext,
-      ViewDefinition viewDefinition) {
+      final ViewProcessingContext viewProcessingContext,
+      final ViewDefinition viewDefinition) {
     ArgumentChecker.checkNotNull(viewProcessingContext, "view processing context");
-    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", "uncounted");
-    for(DependencyGraphModel dependencyGraphModel : _graphModelsByConfiguration.values()) {
-      Set<ValueRequirement> requiredLiveData = dependencyGraphModel.getAllRequiredLiveData();
-      s_logger.info("Informing snapshot provider of {} subscriptions to input data", requiredLiveData.size());
-      viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), requiredLiveData);
-      for(ValueRequirement liveDataRequirement : requiredLiveData) {
-        viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), liveDataRequirement);
-      }
-    }
+    
+    Set<ValueRequirement> liveDataRequirements = getAllLiveDataRequirements();
+    
+    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", liveDataRequirements.size());
+    viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), liveDataRequirements);
     timer.finished();
   }
   
@@ -430,5 +426,5 @@ public class PortfolioEvaluationModel {
     new PortfolioNodeTraverser(accumulator).traverse(portfolioNode);
     return accumulator.getSubNodeSecurityTypes();
   }
-
+  
 }
