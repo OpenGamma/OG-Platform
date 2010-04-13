@@ -279,6 +279,15 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "GM Equity", generalMotors);
         List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
+        
+        EquitySecurityBean hsbc = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, "HSBC", djxBean,"HSBC", usdBean, null);
+        Assert.assertNotNull(hsbc);
+        Assert.assertEquals ("HSBC", hsbc.getDisplayName ());
+        Assert.assertEquals(djxBean, hsbc.getExchange());
+        Assert.assertEquals(usdBean, hsbc.getCurrency());
+        Assert.assertEquals("HSBC", hsbc.getCompanyName());
+        Assert.assertNull(hsbc.getGICSCode ());
+        
         return null;
       }
     });

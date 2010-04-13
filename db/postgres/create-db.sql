@@ -67,7 +67,7 @@
         exchange_id int8 not null,
         companyName varchar(255) not null,
         currency_id int8 not null,
-        gicscode_id int8 not null,
+        gicscode_id int8,
         primary key (id),
       	constraint fk_equity2currency foreign key (currency_id) references currency(id),
       	constraint fk_equity2exchange foreign key (exchange_id) references exchange(id),

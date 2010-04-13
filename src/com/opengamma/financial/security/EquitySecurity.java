@@ -27,6 +27,7 @@ public class EquitySecurity extends FinancialSecurity {
   public static final String EQUITY_TYPE = "EQUITY";
   private String _ticker;
   private String _exchange;
+  private String _exchangeCode;
   private String _companyName;
   private Currency _currency;
   private GICSCode _gicsCode;
@@ -94,6 +95,20 @@ public class EquitySecurity extends FinancialSecurity {
    */
   public void setExchange(String exchange) {
     _exchange = exchange;
+  }
+  
+  /**
+   * @return the exchange code
+   */
+  public String getExchangeCode() {
+    return _exchangeCode;
+  }
+
+  /**
+   * @param exchangeCode the exchange code to set
+   */
+  public void setExchangeCode(String exchangeCode) {
+    _exchangeCode = exchangeCode;
   }
 
   /**
