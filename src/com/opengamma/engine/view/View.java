@@ -186,7 +186,7 @@ public class View implements Lifecycle {
     // of some kind. It's synchronized and blocks the recalc thread, so a slow
     // callback implementation (or just the cost of computing the delta model) will
     // be an unnecessary burden. Have to factor in some type of win there.
-    s_logger.info("Recalculation Performed called.");
+    s_logger.debug("Recalculation Performed called.");
     // We swap these first so that in the callback the view is consistent.
     ViewComputationResultModelImpl previousResult = _mostRecentResult;
     _mostRecentResult = result;
