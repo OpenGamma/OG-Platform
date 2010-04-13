@@ -34,6 +34,8 @@ public class IdentificationDomain implements Serializable, Cloneable, Comparable
   public static final IdentificationDomain CUSIP = new IdentificationDomain("CUSIP");
   public static final IdentificationDomain ISIN = new IdentificationDomain("ISIN");
   public static final IdentificationDomain RIC = new IdentificationDomain("RIC");
+  public static final IdentificationDomain SICOVAM = new IdentificationDomain("SICOVAM");
+  public static final IdentificationDomain SEDOL2 = new IdentificationDomain("SEDOL2");
 
   private final String _domainName;
   
