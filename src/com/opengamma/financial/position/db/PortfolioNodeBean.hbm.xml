@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.position.db">
+  <class name="PortfolioNodeBean" table="pos_portfolionode">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <property name="identifier" type="string" not-null="true" />
+    <property name="startDate" type="date" />
+    <property name="endDate" type="date" />
+    <property name="name" type="string" />
+    <property name="ancestorId" type="long" column="ancestor_id" />
+  </class>
+  <query name="PortfolioNodeBean.one.byIdentifier">
+    from
+      PortfolioNodeBean as p
+    where
+      (p.startDate is null or p.startDate &lt;= :now) and
+      (p.endDate is null or p.endDate &gt; :now) and
+      p.identifier = :identifier
+  </query>
+  <query name="PortfolioNodeBean.many.byImmediateAncestorId">
+    from
+      PortfolioNodeBean as p
+    where
+      (p.startDate is null or p.startDate &lt;= :now) and
+      (p.endDate is null or p.endDate &gt; :now) and
+      p.ancestorId = :ancestorId
+  </query>
+  <sql-query name="PortfolioNodeBean.many.byAncestorId">
+    <return alias="p" class="PortfolioNodeBean" />
+    SELECT
+      {p.*}
+    FROM
+      pos_nodehierarchy AS h INNER JOIN
+      pos_portfolionode AS p ON h.descendant_id = p.id
+    WHERE
+      h.ancestor_id = :ancestorId AND
+      (p.startDate IS NULL OR p.startDate &lt;= :now) AND
+      (p.endDate IS NULL OR p.endDate &gt; :now)
+  </sql-query>
+  <sql-query name="PortfolioNodeBean.many.byDescendantId">
+    <return alias="p" class="PortfolioNodeBean" />
+    SELECT
+      {p.*}
+    FROM
+      pos_nodehierarchy AS h INNER JOIN
+      pos_portfolionode AS p ON h.ancestor_id = p.id
+    WHERE
+      h.descendant_id = :descendantId AND
+      (p.startDate IS NULL OR p.startDate &lt;= :now) AND
+      (p.endDate IS NULL OR p.endDate &gt; :now)
+  </sql-query>
+  <sql-query name="PortfolioNode.many.byAncestorId">
+    SELECT
+      h.descendant_id AS id
+    FROM
+      pos_nodehierarchy AS h
+    WHERE
+      h.ancestor_id = :ancestorId
+  </sql-query>
+  <sql-query name="PortfolioNode.many.byDescendantId">
+    SELECT
+      h.ancestor_id AS id
+    FROM
+      pos_nodehierarchy AS h
+    WHERE
+      h.descendant_id = :descendantId
+  </sql-query>
+  <sql-query name="NodeHierarchy.delete">
+    DELETE FROM pos_nodehierarchy WHERE ancestor_id = :ancestorId AND descendant_id = :descendantId
+  </sql-query>
+  <sql-query name="NodeHierarchy.insert">
+    INSERT INTO pos_nodehierarchy(ancestor_id, descendant_id) VALUES (:ancestorId, :descendantId)
+  </sql-query>
+  <sql-query name="NodeInclusion.delete">
+    DELETE FROM pos_nodeinclusion WHERE position_id = :positionId AND node_id = :nodeId
+  </sql-query>
+  <sql-query name="NodeInclusion.insert">
+    INSERT INTO pos_nodeinclusion(position_id, node_id) VALUES (:positionId, :nodeId)
+  </sql-query>
+</hibernate-mapping>

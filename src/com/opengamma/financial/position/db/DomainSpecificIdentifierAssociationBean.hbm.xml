@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.position.db">
+  <class name="DomainSpecificIdentifierAssociationBean" table="pos_domainspecificidentifierassociation">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <property name="startDate" type="date" />
+    <property name="endDate" type="date" />
+    <many-to-one name="position" column="position_id" class="PositionBean" />
+    <property name="domain" type="string" not-null="true" />
+    <property name="identifier" type="string" not-null="true" />
+  </class>
+  <query name="DomainSpecificIdentifierAssociationBean.many.byDomainIdentifier">
+    from 
+      DomainSpecificIdentifierAssociationBean as a 
+    where
+      (a.startDate is null or a.startDate &lt;= :now) and
+      (a.endDate is null or a.endDate &gt; :now) and
+      a.domain = :domain and
+      a.identifier = :identifier
+  </query>
+  <query name="DomainSpecificIdentifierAssociationBean.many.byPosition">
+    from
+      DomainSpecificIdentifierAssociationBean as a
+    where
+      (a.startDate is null or a.startDate &lt;= :now) and
+      (a.endDate is null or a.endDate &gt; :now) and
+      a.position = :position
+  </query>
+</hibernate-mapping>
