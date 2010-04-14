@@ -31,6 +31,7 @@ public class MockLiveDataServerTest {
   public void setUp() {
     _domain = new IdentificationDomain("test");
     _server = new MockLiveDataServer(_domain);
+    _server.connect();
   }
   
   @Test

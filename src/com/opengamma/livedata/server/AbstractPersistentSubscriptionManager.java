@@ -40,11 +40,10 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
   private final AbstractLiveDataServer _server;
   private final Timer _timer;
   private final long _savePeriod;
-  private final SaveTask _saveTask = new SaveTask();
+  private volatile SaveTask _saveTask;
 
   private Set<PersistentSubscription> _previousSavedState = null;
   private Set<PersistentSubscription> _persistentSubscriptions = new HashSet<PersistentSubscription>();
-  private volatile boolean _isRunning = false;
 
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server) {
     this(server, new Timer("PersistentSubscriptionManager Timer"),
@@ -78,20 +77,20 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
   
   @Override
   public boolean isRunning() {
-    return _isRunning;
+    return _saveTask != null;
   }
 
   @Override
   public void start() {
     refresh();
+    _saveTask = new SaveTask();
     _timer.schedule(_saveTask, _savePeriod, _savePeriod);
-    _isRunning = true;
   }
 
   @Override
   public void stop() {
     _saveTask.cancel();
-    _isRunning = false;
+    _saveTask = null;
   }
 
   public synchronized void refresh() {

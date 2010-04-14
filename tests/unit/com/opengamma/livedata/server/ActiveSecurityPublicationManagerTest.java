@@ -7,7 +7,6 @@ package com.opengamma.livedata.server;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
 import java.util.Timer;
 
 import org.fudgemsg.FudgeContext;
@@ -19,7 +18,6 @@ import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
 import com.opengamma.livedata.client.ValueDistributor;
-import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 
 /**
@@ -34,6 +32,7 @@ public class ActiveSecurityPublicationManagerTest {
     IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
+    dataServer.connect();
     ExpirationManager pubManager = new ExpirationManager(dataServer, 100, 500);
     HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
@@ -71,6 +70,7 @@ public class ActiveSecurityPublicationManagerTest {
     IdentificationDomain identificationDomain = new IdentificationDomain("BbgId");
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
+    dataServer.connect();
     new ExpirationManager(dataServer, 100, 500);
     
     // subscribe on the server side

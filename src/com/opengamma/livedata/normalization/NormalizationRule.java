@@ -21,7 +21,10 @@ public interface NormalizationRule extends Serializable {
   /**
    * Applies the normalization rule. 
    * 
-   * @param msg Message to normalize. Never null.
+   * @param msg Message to normalize. Will already be partially normalized if
+   * this rule is not the first one in the chain. Never null.
+   * @param fieldHistory Contains completely unnormalized ticks
+   * from the underlying market data API. 
    * @return The normalized message. The method may modify and 
    * return the input parameter <code>msg</code> if desired. 
    */

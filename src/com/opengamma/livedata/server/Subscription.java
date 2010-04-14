@@ -40,7 +40,7 @@ public class Subscription {
   private final Map<DistributionSpecification, MarketDataDistributor> _distributors = new ConcurrentHashMap<DistributionSpecification, MarketDataDistributor>();
   
   /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
-  private final Object _handle;
+  private volatile Object _handle;
   
   /** 
    * History of ticks received from the underlying market data source
@@ -86,6 +86,11 @@ public class Subscription {
     _creationTime = new Date();
   }
   
+  
+  void setHandle(Object handle) {
+    _handle = handle;
+  }
+
   public Object getHandle() {
     return _handle;
   }

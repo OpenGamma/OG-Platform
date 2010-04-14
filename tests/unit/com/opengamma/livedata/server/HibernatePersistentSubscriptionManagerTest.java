@@ -36,6 +36,7 @@ public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
     IdentificationDomain identificationDomain = new IdentificationDomain("TestDomain");
     
     MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
+    server.connect();
     HibernatePersistentSubscriptionManager manager = new HibernatePersistentSubscriptionManager(server);
     manager.setSessionFactory(getSessionFactory());
     

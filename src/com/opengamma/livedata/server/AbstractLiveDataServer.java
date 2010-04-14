@@ -21,6 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.IdentificationDomain;
@@ -44,10 +45,10 @@ import com.opengamma.util.PerformanceCounter;
  * 
  * @author kirk
  */
-public abstract class AbstractLiveDataServer {
+public abstract class AbstractLiveDataServer implements Lifecycle {
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractLiveDataServer.class);
-
+  
   private final Collection<MarketDataSender> _marketDataSenders = new CopyOnWriteArrayList<MarketDataSender>();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
   private final Set<Subscription> _currentlyActiveSubscriptions = new CopyOnWriteArraySet<Subscription>();
@@ -61,6 +62,8 @@ public abstract class AbstractLiveDataServer {
 
   private DistributionSpecificationResolver _distributionSpecificationResolver = new NaiveDistributionSpecificationResolver();
   private LiveDataEntitlementChecker _entitlementChecker = new PermissiveLiveDataEntitlementChecker();
+  
+  private volatile ConnectionStatus _connectionStatus = ConnectionStatus.NOT_CONNECTED;
 
   /**
    * @return the distributionSpecificationResolver
@@ -155,6 +158,92 @@ public abstract class AbstractLiveDataServer {
    */
   protected abstract IdentificationDomain getUniqueIdDomain();
   
+  /**
+   * Connects to the underlying market data provider.
+   * You can rely on the fact that this method is only
+   * called when getConnectionStatus() == ConnectionStatus.NOT_CONNECTED.
+   */
+  protected abstract void doConnect();
+  
+  /**
+   * Connects to the underlying market data provider.
+   * You can rely on the fact that this method is only
+   * called when getConnectionStatus() == ConnectionStatus.CONNECTED.
+   */
+  protected abstract void doDisconnect();
+  
+  
+  
+  
+  
+  public enum ConnectionStatus {
+    CONNECTED, NOT_CONNECTED
+  }
+  
+  public ConnectionStatus getConnectionStatus() {
+    return _connectionStatus;
+  }
+  
+  private void setConnectionStatus(ConnectionStatus connectionStatus) {
+    _connectionStatus = connectionStatus;
+    s_logger.info("Connection status changed to " + connectionStatus);
+  }
+  
+  void reestablishSubscriptions() {
+    for (Subscription subscription : getSubscriptions()) {
+      try {
+        Object handle = doSubscribe(subscription.getSecurityUniqueId());
+        subscription.setHandle(handle);
+      } catch (RuntimeException e) {
+        s_logger.error("Could not reestablish subscription to " + subscription, e);        
+      }
+    }
+  }
+  
+  private void verifyConnectionOk() {
+    if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
+      throw new IllegalStateException("Connection to market data API down");
+    }
+  }
+  
+  @Override
+  public synchronized boolean isRunning() {
+    return getConnectionStatus() == ConnectionStatus.CONNECTED; 
+  }
+
+  @Override
+  public synchronized void start() {
+    if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
+      connect();
+    }
+  }
+  
+  @Override
+  public synchronized void stop() {
+    if (getConnectionStatus() == ConnectionStatus.CONNECTED) {
+      disconnect();
+    }
+  }
+  
+  public void connect() {
+    if (getConnectionStatus() != ConnectionStatus.NOT_CONNECTED) {
+      throw new IllegalStateException("Can only connect if not connected");      
+    }
+    doConnect();
+    setConnectionStatus(ConnectionStatus.CONNECTED);
+  }
+  
+  public void disconnect() {
+    if (getConnectionStatus() != ConnectionStatus.CONNECTED) {
+      throw new IllegalStateException("Can only disconnect if connected");      
+    }
+    doDisconnect();
+    setConnectionStatus(ConnectionStatus.NOT_CONNECTED);
+  }
+
+  
+
+  
   public DistributionSpecification subscribe(String securityUniqueId) {
     return subscribe(securityUniqueId, false);
   }
@@ -169,6 +258,9 @@ public abstract class AbstractLiveDataServer {
   
   public DistributionSpecification subscribe(LiveDataSpecification liveDataSpecificationFromClient, 
       boolean persistent) {
+    
+    verifyConnectionOk();
+    
     DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
         .getDistributionSpecification(liveDataSpecificationFromClient);
     LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
@@ -239,6 +331,8 @@ public abstract class AbstractLiveDataServer {
    * @throws RuntimeException If no snapshot could be obtained
    */
   public FudgeFieldContainer snapshot(LiveDataSpecification liveDataSpecificationFromClient) {
+    verifyConnectionOk();
+    
     DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
       .getDistributionSpecification(liveDataSpecificationFromClient);
     LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
@@ -379,6 +473,7 @@ public abstract class AbstractLiveDataServer {
    */
   boolean unsubscribe(Subscription subscription) {
     ArgumentChecker.checkNotNull(subscription, "Subscription");
+    verifyConnectionOk();
 
     boolean actuallyUnsubscribed = false;
 

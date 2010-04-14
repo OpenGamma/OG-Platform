@@ -24,6 +24,8 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   private final IdentificationDomain _domain;
   private final List<String> _subscriptions = new ArrayList<String>();
   private final List<String> _unsubscriptions = new ArrayList<String>();
+  private volatile int _numConnections = 0;
+  private volatile int _numDisconnections = 0;
   
   public MockLiveDataServer(IdentificationDomain domain) {
     ArgumentChecker.checkNotNull(domain, "Identification domain");
@@ -57,6 +59,24 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
 
   public List<String> getActualUnsubscriptions() {
     return _unsubscriptions;
+  }
+
+  @Override
+  protected void doConnect() {
+    _numConnections++;
+  }
+
+  @Override
+  protected void doDisconnect() {
+    _numDisconnections++;
+  }
+
+  public int getNumConnections() {
+    return _numConnections;
+  }
+
+  public int getNumDisconnections() {
+    return _numDisconnections;
   }
 
 }
