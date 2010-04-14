@@ -770,6 +770,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     
     EquitySecurity generalMotors = new EquitySecurity();
     generalMotors.setCompanyName("General Motors");
+    generalMotors.setDisplayName("General Motors");
     generalMotors.setCurrency(Currency.getInstance("USD"));
     generalMotors.setExchange("NYSE");
     generalMotors.setIdentityKey("GM US Equity");
@@ -779,6 +780,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     
     EquitySecurity nomura = new EquitySecurity();
     nomura.setCompanyName("Nomura");
+    nomura.setDisplayName("Nomura - 1311 JP Equity");
     nomura.setCurrency(Currency.getInstance("JPY"));
     nomura.setExchange("TOPIX");
     nomura.setIdentityKey("1311 JP Equity");
@@ -796,6 +798,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
 
     EquitySecurity generalMotors2 = new EquitySecurity();
     generalMotors2.setCompanyName("General Motors (Govt owned)");
+    generalMotors2.setDisplayName("General Motors");
     generalMotors2.setCurrency(Currency.getInstance("USD"));
     generalMotors2.setExchange("NYSE");
     generalMotors2.setIdentityKey("GM US Equity");
