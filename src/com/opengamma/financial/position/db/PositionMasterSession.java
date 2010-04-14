@@ -15,8 +15,7 @@ import javax.time.InstantProvider;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.Transaction;
 
 import com.opengamma.id.DomainSpecificIdentifier;
 
@@ -27,7 +26,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
  */
 public class PositionMasterSession {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PositionMasterSession.class);
+  //private static final Logger s_logger = LoggerFactory.getLogger(PositionMasterSession.class);
   
   private final Session _session;
   
@@ -46,7 +45,7 @@ public class PositionMasterSession {
   @SuppressWarnings("unchecked")
   public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (final InstantProvider now, final String domain, final String identifier) {
     final Query query = getSession().getNamedQuery("DomainSpecificIdentifierAssociationBean.many.byDomainIdentifier");
-    query.setDate("date", instantToDate (now));
+    query.setDate("now", instantToDate (now));
     query.setString("domain", domain);
     query.setString("identifier", identifier);
     return query.list ();
@@ -59,12 +58,24 @@ public class PositionMasterSession {
   @SuppressWarnings("unchecked")
   public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByPosition (final InstantProvider now, final PositionBean position) {
     final Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.many.byPosition");
-    query.setDate ("date", instantToDate (now));
+    query.setDate ("now", instantToDate (now));
     query.setParameter ("position", position);
     return query.list ();
   }
   
   public void saveDomainSpecificIdentifierAssociationBean (final DomainSpecificIdentifierAssociationBean bean) {
+    if (bean.getIdentifier () == null) {
+      throw new NullPointerException ("DomainSpecificIdentifier cannot be null (no identifier) for DomainSpecificIdentifierAssociationBean");
+    }
+    if (bean.getDomain () == null) {
+      throw new NullPointerException ("DomainSpecificIdentifier cannot be null (no domain) for DomainSpecificIdentifierAssociationBean");
+    }
+    if (bean.getPosition () == null) {
+      throw new NullPointerException ("position cannot be null for DomainSpecificIdentifierAssociationBean");
+    }
+    if (bean.getPosition ().getId () == null) {
+      savePositionBean (bean.getPosition ());
+    }
     if (bean.getId () != null) {
       getSession ().update (bean);
     } else {
@@ -97,10 +108,10 @@ public class PositionMasterSession {
   
   public void savePortfolioBean (final PortfolioBean bean) {
     if (bean.getName () == null) {
-      throw new NullPointerException ("portfolio must specify a name");
+      throw new NullPointerException ("name cannot be null in PortfolioBean");
     }
     if (bean.getRoot () == null) {
-      throw new NullPointerException ("portfolio must specify a portfolioNode root");
+      throw new NullPointerException ("root cannot be null in PortfolioBean");
     }
     if (bean.getRoot ().getId () == null) {
       savePortfolioNodeBean (bean.getRoot ());
@@ -183,7 +194,8 @@ public class PositionMasterSession {
   }
   
   /**
-   * Saves a PortfolioNodeBean, applying date constraints and updating the NodeHierarchy table.
+   * Saves a PortfolioNodeBean, applying date constraints and updating the NodeHierarchy table. This needs to run as an atomic
+   * transaction to keep the database correct. It is static to make it obvious that other things can't be called.
    */
   @SuppressWarnings("unchecked")
   private static void savePortfolioNodeBeanTransaction (final Session session, final PortfolioNodeBean bean) {
@@ -224,7 +236,6 @@ public class PositionMasterSession {
     Collection<Number> tmp = new HashSet<Number> (oldNodesAbove);
     tmp.removeAll (newNodesAbove);
     if (!tmp.isEmpty ()) {
-      //query = getSession ().createSQLQuery ("DELETE FROM pos_nodehierarchy WHERE ancestor_id=:ancestorId AND descendant_id=:descendantId");
       query = session.getNamedQuery ("NodeHierarchy.delete");
       for (Number ancestor_id : tmp) {
         query.setLong ("ancestorId", ancestor_id.longValue ());
@@ -239,7 +250,6 @@ public class PositionMasterSession {
     // get nodes now new above this (NEWup-OLDup * BELOW) - add
     newNodesAbove.removeAll (oldNodesAbove);
     if (!newNodesAbove.isEmpty ()) {
-      //query = getSession ().createSQLQuery ("INSERT INTO pos_nodehierarchy(ancestor_id,descendant_id) VALUES (:ancestorId,:descendantId)");
       query = session.getNamedQuery ("NodeHierarchy.insert");
       query.setLong ("descendantId", bean.getId ());
       boolean beanChanged = false;
@@ -267,6 +277,19 @@ public class PositionMasterSession {
       }
     }
     session.flush ();
+  }
+  
+  public void savePortfolioNodeBean (final PortfolioNodeBean bean) {
+    final Session session = getSession ();
+    final Transaction transaction = session.beginTransaction ();
+    if (transaction != null) {
+      try {
+        savePortfolioNodeBeanTransaction (session, bean);
+        transaction.commit ();
+      } catch (Exception e) {
+        transaction.rollback ();
+      }
+    }
   }
   
   public PositionBean getPositionBeanByIdentifier (final InstantProvider now, final String identifier) {
@@ -316,10 +339,10 @@ public class PositionMasterSession {
   }
   
   public void addPositionToPortfolioNode (final PositionBean position, final PortfolioNodeBean portfolioNode) {
-    if (position.getId () != null) {
+    if (position.getId () == null) {
       savePositionBean (position);
     }
-    if (portfolioNode.getId () != null) {
+    if (portfolioNode.getId () == null) {
       savePortfolioNodeBean (portfolioNode);
     }
     final Query query = getSession ().getNamedQuery ("NodeInclusion.insert");
