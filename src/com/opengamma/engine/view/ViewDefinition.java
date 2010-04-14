@@ -26,6 +26,7 @@ public class ViewDefinition implements Serializable {
   private final String _name;
   private final String _rootPortfolioName;
   private final String _userName;
+  private Long _minimumRecalculationPeriod;
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
@@ -87,6 +88,20 @@ public class ViewDefinition implements Serializable {
       _calculationConfigurationsByName.put(calculationConfigurationName, calcConfig);
     }
     calcConfig.addValueRequirement(securityType, requirementName);
+  }
+
+  /**
+   * @return the minimumRecalculationPeriod
+   */
+  public Long getMinimumRecalculationPeriod() {
+    return _minimumRecalculationPeriod;
+  }
+
+  /**
+   * @param minimumRecalculationPeriod the minimumRecalculationPeriod to set
+   */
+  public void setMinimumRecalculationPeriod(Long minimumRecalculationPeriod) {
+    _minimumRecalculationPeriod = minimumRecalculationPeriod;
   }
 
 }

@@ -352,6 +352,11 @@ public class View implements Lifecycle {
     }
     
     getRecalcJob().terminate();
+    if(getRecalculationThread().getState() == Thread.State.TIMED_WAITING) {
+      // In this case it might be waiting on a recalculation pass. Interrupt it.
+      getRecalculationThread().interrupt();
+    }
+    
     // TODO kirk 2009-09-11 -- Have a heuristic on when to set the timeout based on
     // how long the job is currently taking to cycle.
     long timeout = 100 * 1000l;

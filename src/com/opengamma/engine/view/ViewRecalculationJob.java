@@ -77,5 +77,32 @@ public class ViewRecalculationJob extends TerminatableJob {
     _numExecutions += 1.0;
     s_logger.warn("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
     getView().recalculationPerformed(result);
+    // Do this intentionally AFTER alerting the view. Because of the listener system,
+    // we have to recompute the delta, because we have to factor in the dispatch time
+    // in recalculationPerformed().
+    endTime = System.currentTimeMillis();
+    delta = endTime - cycle.getStartTime();
+    delayOnMinimumRecalculationPeriod(delta);
+  }
+  
+  /**
+   * Enforce the delay imposed by the minimum recalculation period for a view definition.
+   * This is primarily a method so that it's clear in stack traces what's going on.
+   */
+  protected void delayOnMinimumRecalculationPeriod(long cycleComputationTime) {
+    if(getView().getDefinition().getMinimumRecalculationPeriod() == null) {
+      return;
+    }
+    long minimumRecalculationPeriod = getView().getDefinition().getMinimumRecalculationPeriod();
+    if(cycleComputationTime < minimumRecalculationPeriod) {
+      long timeToWait = minimumRecalculationPeriod - cycleComputationTime;
+      s_logger.debug("Waiting for {}ms as computed faster than minimum recalculation period", timeToWait);
+      try {
+        Thread.sleep(timeToWait);
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        s_logger.info("Interrupted while delaying due to minimum recalculation period. Continuing operation.");
+      }
+    }
   }
 }
