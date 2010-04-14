@@ -21,7 +21,11 @@ import com.opengamma.id.DomainSpecificIdentifier;
 
   @Override
   public EquitySecurityBean createBean(final HibernateSecurityMasterSession secMasterSession, final EquitySecurity security) {
-    return createBean (secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""), security.getCompanyName (), secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()), secMasterSession.getOrCreateGICSCodeBean (security.getGICSCode ().toString (), ""));
+    GICSCodeBean gicsCodeBean = null;
+    if (security.getGICSCode () != null) {
+      gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean (security.getGICSCode ().toString (), "");
+    }
+    return createBean (secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""), security.getCompanyName (), secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()), gicsCodeBean);
   }
   
   /* package */ EquitySecurityBean createBean (
