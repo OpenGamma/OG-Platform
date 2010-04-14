@@ -106,6 +106,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
             identifiers.add(identifier);
           }
           result.setIdentifiers(identifiers);
+          result.setDisplayName (security.getDisplayName ());
           return result;
         }
         return null;
