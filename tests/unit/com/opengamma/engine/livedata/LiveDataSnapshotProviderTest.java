@@ -15,6 +15,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.DomainSpecificIdentifier;
@@ -35,7 +36,7 @@ public class LiveDataSnapshotProviderTest {
   @Test
   public void snapshotting() {
     TestLiveDataClient client = new TestLiveDataClient();
-    LiveDataSnapshotProviderImpl snapshotter = new LiveDataSnapshotProviderImpl(client);
+    LiveDataSnapshotProviderImpl snapshotter = new LiveDataSnapshotProviderImpl(client, new InMemorySecurityMaster());
     
     snapshotter.addSubscription("Test User", constructRequirement("test1"));
     snapshotter.addSubscription("Test User", constructRequirement("test2"));

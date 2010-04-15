@@ -16,10 +16,12 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -40,20 +42,23 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   // Injected Inputs:
   private final LiveDataClient _liveDataClient;
   private final FudgeContext _fudgeContext;
+  private final SecurityMaster _securityMaster;
   
   // Runtime State:
   private final InMemoryLKVSnapshotProvider _underlyingProvider = new InMemoryLKVSnapshotProvider();
   private final Map<LiveDataSpecification, Set<ValueRequirement>> _liveDataSpec2ValueRequirements =
     new ConcurrentHashMap<LiveDataSpecification, Set<ValueRequirement>>();
   
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient) {
-    this(liveDataClient, new FudgeContext());
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster) {
+    this(liveDataClient, secMaster, new FudgeContext());
   }
   
-  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, FudgeContext fudgeContext) {
+  public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster, FudgeContext fudgeContext) {
     ArgumentChecker.checkNotNull(liveDataClient, "Live Data Client");
+    ArgumentChecker.checkNotNull(secMaster, "Security master");
     ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
     _liveDataClient = liveDataClient;
+    _securityMaster = secMaster;
     _fudgeContext = fudgeContext;
   }
 
@@ -62,6 +67,13 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
    */
   public InMemoryLKVSnapshotProvider getUnderlyingProvider() {
     return _underlyingProvider;
+  }
+
+  /**
+   * @return the secMaster
+   */
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
   }
 
   /**
@@ -80,14 +92,42 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   public void addSubscription(String userName, Set<ValueRequirement> valueRequirements) {
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
-      DomainSpecificIdentifier id = requirement.getTargetSpecification().getIdentifier();
-      LiveDataSpecification liveDataSpec = new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), id);
+      LiveDataSpecification liveDataSpec = constructRequirementLiveDataSpecification(requirement);
       liveDataSpecs.add(liveDataSpec);
-      _liveDataSpec2ValueRequirements.put(liveDataSpec, valueRequirements);
+      Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
+      if(requirementsForSpec == null) {
+        requirementsForSpec = new HashSet<ValueRequirement>();
+        _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
+      }
+      requirementsForSpec.add(requirement);
+      
+      _liveDataClient.subscribe(userName, liveDataSpec, this);
     }
-    _liveDataClient.subscribe(userName, liveDataSpecs, this);
+    //_liveDataClient.subscribe(userName, liveDataSpecs, this);
   }
   
+  /**
+   * @param requirement
+   * @return
+   */
+  private LiveDataSpecification constructRequirementLiveDataSpecification(
+      ValueRequirement requirement) {
+    switch(requirement.getTargetSpecification().getType()) {
+    case PRIMITIVE:
+      // Just use the identifier as given.
+      return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), requirement.getTargetSpecification().getIdentifier());
+    case SECURITY:
+      Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getIdentifier());
+      if(security == null) {
+        throw new OpenGammaRuntimeException("Unknown security in configured security master: " + requirement.getTargetSpecification().getIdentifier());
+      }
+      // Package up the other identifiers
+      return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), security.getIdentifiers());
+    default:
+      throw new OpenGammaRuntimeException("Unhandled requirement type for live data client: " + requirement);
+    }
+  }
+
   // Protected for unit testing.
   protected Map<LiveDataSpecification, Set<ValueRequirement>> getRequirementsForSubscriptionIds() {
     return Collections.unmodifiableMap(_liveDataSpec2ValueRequirements);
@@ -126,7 +166,7 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       s_logger.info("Subscription made to {}", subscriptionResult.getRequestedSpecification());
     
     } else {
-      s_logger.error("Subscription failed: {}", subscriptionResult);      
+      s_logger.error("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);      
     }
   }
 
