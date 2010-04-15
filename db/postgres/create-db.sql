@@ -1,4 +1,4 @@
-/* This file was automatically generated from the others - please don't modify ! */
+-- IMPORTANT - see the FIN-68 branch
 
     create table currency (
         id int8 not null,
@@ -238,9 +238,6 @@
         constraint fk_future_basket2future foreign key (future_id) references future (id),
         unique (future_id, domain, identifier)
     );
-/* Position Master */
-
-/* requires create-db-common.sql */
   
 create table pos_position (
     id int8 not null,
