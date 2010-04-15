@@ -25,7 +25,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
     if (security.getGICSCode () != null) {
       gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean (security.getGICSCode ().toString (), "");
     }
-    return createBean (secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""), security.getCompanyName (), secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()), gicsCodeBean);
+    return createBean (secMasterSession.getOrCreateExchangeBean (security.getExchangeCode(), security.getExchange()), security.getCompanyName (), secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()), gicsCodeBean);
   }
   
   /* package */ EquitySecurityBean createBean (
@@ -63,7 +63,8 @@ import com.opengamma.id.DomainSpecificIdentifier;
     EquitySecurity result = new EquitySecurity();
     result.setCompanyName(bean.getCompanyName());
     result.setCurrency(currencyBeanToCurrency(bean.getCurrency()));
-    result.setExchange(bean.getExchange().getName());
+    result.setExchange(bean.getExchange().getDescription());
+    result.setExchangeCode(bean.getExchange().getName());
     result.setTicker(identifier.getValue());
     result.setIdentityKey(identifier.getValue());
     result.setGICSCode(gicsCodeBeanToGICSCode (bean.getGICSCode ()));
