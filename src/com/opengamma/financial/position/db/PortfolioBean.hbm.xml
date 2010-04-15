@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.financial.position.db">
+  <class name="PortfolioBean" table="pos_portfolio">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    </id>
+    <property name="identifier" type="string" not-null="true" />
+    <property name="startDate" type="date" />
+    <property name="endDate" type="date" />
+    <property name="name" type="string" not-null="true" />
+    <many-to-one name="root" column="root_id" class="PortfolioNodeBean" not-null="true" />
+  </class>
+  <query name="PortfolioBean.many.byName">
+    from
+      PortfolioBean as p
+    where
+      (p.startDate is null or p.startDate &lt;= :now) and
+      (p.endDate is null or p.endDate &gt; :now) and
+      p.name = :name
+  </query>
+  <query name="PortfolioBean.one.byIdentifier">
+    from
+      PortfolioBean as p
+    where
+      (p.startDate is null or p.startDate &lt;= :now) and
+      (p.endDate is null or p.endDate &gt; :now) and
+      p.identifier = :identifier
+  </query>
+  <query name="PortfolioBean.all">
+    from
+      PortfolioBean as p
+    where
+      (p.startDate is null or p.startDate &lt;= :now) and
+      (p.endDate is null or p.endDate &gt; :now)
+  </query>
+</hibernate-mapping>
