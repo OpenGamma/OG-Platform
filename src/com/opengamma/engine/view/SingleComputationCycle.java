@@ -154,12 +154,26 @@ public class SingleComputationCycle {
         missingLiveData.add(liveDataRequirement);
       } else {
         ComputedValue dataAsValue = new ComputedValue(new ValueSpecification(liveDataRequirement), data);
+        //s_logger.warn("Live Data Requirement: {}", dataAsValue);
         addToAllCaches(dataAsValue);
       }
     }
     if(!missingLiveData.isEmpty()) {
-      s_logger.warn("Missing live data: {}", missingLiveData);
+      s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
     }
+  }
+  
+  protected static String formatMissingLiveData(Set<ValueRequirement> missingLiveData) {
+    StringBuilder sb = new StringBuilder();
+    for(ValueRequirement req : missingLiveData) {
+      sb.append("[").append(req.getValueName()).append(" on ");
+      sb.append(req.getTargetSpecification().getType());
+      if(req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+        sb.append("-").append(req.getTargetSpecification().getIdentifier().getDomain().getDomainName());
+      }
+      sb.append(":").append(req.getTargetSpecification().getIdentifier().getValue()).append("] ");
+    }
+    return sb.toString();
   }
   
   /**
