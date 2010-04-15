@@ -19,6 +19,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
  */
 public class IndicativeValueCalculator implements NormalizationRule {
   
+  // REVIEW kirk 2010-04-15 -- Shouldn't these be static/constants? Some reason they're not? 
   private final double _tolerance = 0.00001;
   private final double _maxSpreadToUseMidPoint = 0.05;
 
