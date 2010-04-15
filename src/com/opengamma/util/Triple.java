@@ -1,93 +1,165 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.util;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 /**
- * 
+ * A standard immutable triple implementation consisting of three elements.
+ * <p>
+ * This implementation refers to the elements as 'first', 'second' and 'third'.
+ * <p>
+ * Although the implementation is immutable, there is no restriction on the objects
+ * that may be stored. If mutable objects are stored in the triple, then the triple
+ * itself effectively becomes mutable.
  *
  * @author emcleod
+ * @param <A> the first element type
+ * @param <B> the second element type
+ * @param <C> the third element type
  */
-public class Triple<S,T,U> implements Serializable, Comparable<Triple<S, T, U>>{
-  private final S _first;
-  private final T _second;
-  private final U _third;
-  
-  public Triple(S first, T second, U third) {
+public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Serializable {
+
+  /** The first element. */
+  private final A _first;
+  /** The second element. */
+  private final B _second;
+  /** The third element. */
+  private final C _third;
+
+  /**
+   * Factory method creating a triple inferring the types.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   * @param third  the third element, may be null
+   */
+  public static <A, B, C> Triple<A, B, C> of(A first, B second, C third) {
+    return new Triple<A, B, C>(first, second, third);
+  }
+
+  /**
+   * Constructs a triple.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   * @param third  the third element, may be null
+   */
+  public Triple(A first, B second, C third) {
     _first = first;
     _second = second;
     _third = third;
   }
-  
-  public S getFirst() {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the first element from this pair.
+   * @return the first element, may be null
+   */
+  public A getFirst() {
     return _first;
   }
-  
-  public T getSecond() {
+
+  /**
+   * Gets the second element from this pair.
+   * @return the second element, may be null
+   */
+  public B getSecond() {
     return _second;
   }
-  
-  public U getThird() {
+
+  /**
+   * Gets the third element from this pair.
+   * @return the third element, may be null
+   */
+  public C getThird() {
     return _third;
   }
-  
-  public int compareTo(Triple<S, T, U> o) {
-    return new CompareToBuilder().append(_first, o._first).append(_second, o._second).append(_third, o._third).toComparison();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the elements from this triple as a list.
+   * This method supports auto-casting as they is no way in generics to provide
+   * a more specific type.
+   * @return the elements as a list, never null
+   */
+  @SuppressWarnings("unchecked")
+  public <T> List<T> toList() {
+    ArrayList<Object> list = new ArrayList<Object>();
+    list.add(getFirst());
+    list.add(getSecond());
+    list.add(getThird());
+    return (List<T>) list;
   }
 
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Triple[");
-    sb.append(_first);
-    sb.append(", ");
-    sb.append(_second);
-    sb.append(", ");
-    sb.append(_third);
-    sb.append("]");
-    return sb.toString();
+  /**
+   * Gets the first and second elements from this triple as a pair.
+   * @return the first and second elements, never null
+   */
+  public Pair<A, B> toFirstPair() {
+    return Pair.of(getFirst(), getSecond());
   }
+
+  /**
+   * Gets the first and second elements from this triple as a pair.
+   * @return the second and third elements, never null
+   */
+  public Pair<B, C> toSecondPair() {
+    return Pair.of(getSecond(), getThird());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Compares the pair based on the first element followed by the second element.
+   * @param other  the other pair, not null
+   * @return negative if this is less, zero if equal, positive if greater
+   */
+  @Override
+  public int compareTo(Triple<A, B, C> o) {
+    return new CompareToBuilder().append(_first, o._first)
+            .append(_second, o._second).append(_third, o._third).toComparison();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof Triple<?,?,?>) {
+      Triple<?,?,?> other = (Triple<?,?,?>) obj;
+      return ObjectUtils.equals(getFirst(), other.getFirst()) &&
+              ObjectUtils.equals(getSecond(), other.getSecond()) &&
+              ObjectUtils.equals(getThird(), other.getThird());
+    }
+    return false;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_first == null) ? 0 : _first.hashCode());
-    result = prime * result + ((_second == null) ? 0 : _second.hashCode());
-    result = prime * result + ((_third == null) ? 0 : _third.hashCode());
+    result = prime * result + ((getFirst() == null) ? 0 : getFirst().hashCode());
+    result = prime * result + ((getSecond() == null) ? 0 : getSecond().hashCode());
+    result = prime * result + ((getThird() == null) ? 0 : getThird().hashCode());
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Triple other = (Triple) obj;
-    if (_first == null) {
-      if (other._first != null)
-        return false;
-    } else if (!_first.equals(other._first))
-      return false;
-    if (_second == null) {
-      if (other._second != null)
-        return false;
-    } else if (!_second.equals(other._second))
-      return false;
-    if (_third == null) {
-      if (other._third != null)
-        return false;
-    } else if (!_third.equals(other._third))
-      return false;
-    return true;
+  public String toString() {
+    return new StringBuilder()
+      .append("Triple[")
+      .append(getFirst())
+      .append(", ")
+      .append(getSecond())
+      .append(", ")
+      .append(getThird())
+      .append("]").toString();
   }
-}
 
+}
