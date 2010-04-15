@@ -36,11 +36,19 @@ public class FieldFilter implements NormalizationRule {
       FieldHistoryStore fieldHistory) {
     
     MutableFudgeFieldContainer normalizedMsg = CONTEXT.newMessage();
-    for (String fieldName : _fieldsToAccept) {
-      FudgeField value = msg.getByName(fieldName);
-      if (value != null) {
-        normalizedMsg.add(value);
+    // REVIEW kirk 2010-04-15 -- Run through the fields in the order of the
+    // original message and check for containment in _fieldsToAccept as it's
+    // faster for large messages.
+    // It also supports multiple values with the same name.
+    for (FudgeField field: msg.getAllFields()) {
+      if(field.getName() == null) {
+        // Don't allow non-named fields.
+        continue;
       }
+      if(!_fieldsToAccept.contains(field.getName())) {
+        continue;
+      }
+      normalizedMsg.add(field);
     }
     return normalizedMsg;
     
