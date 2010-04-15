@@ -3,7 +3,7 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
-  <union-subclass name="FutureSecurityBean" extends="SecurityBean" table="future">
+  <union-subclass name="FutureSecurityBean" extends="SecurityBean" table="sec_future">
     <property name="futureType" column="future_type" type="com.opengamma.financial.security.db.FutureTypeUserType" not-null="true" />
     <property name="expiry" type="date" not-null="true" />
     <many-to-one name="tradingExchange" column="tradingexchange_id" class="ExchangeBean" not-null="true" />

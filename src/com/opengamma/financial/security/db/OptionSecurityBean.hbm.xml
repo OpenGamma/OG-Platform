@@ -3,7 +3,7 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
-  <union-subclass name="OptionSecurityBean" extends="SecurityBean" table="optionsec">
+  <union-subclass name="OptionSecurityBean" extends="SecurityBean" table="sec_option">
     <property name="optionSecurityType" column="option_security_type" type="com.opengamma.financial.security.db.OptionSecurityTypeUserType" not-null="true" />
     <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.OptionTypeUserType" not-null="true" />
     <property name="strike" type="double" not-null="true" />
