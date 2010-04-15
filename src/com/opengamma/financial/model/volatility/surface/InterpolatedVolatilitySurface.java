@@ -55,9 +55,9 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
       if (sigma < 0)
         throw new IllegalArgumentException("Cannot have negative volatility");
     }
-    final SortedMap<Pair<Double, Double>, Double> sortedVolatility = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
+    final SortedMap<Pair<Double, Double>, Double> sortedVolatility = new TreeMap<Pair<Double, Double>, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
     sortedVolatility.putAll(data);
-    final SortedMap<Pair<Double, Double>, Double> sortedVariance = new TreeMap<Pair<Double, Double>, Double>(new FirstThenSecondPairComparator<Double, Double>());
+    final SortedMap<Pair<Double, Double>, Double> sortedVariance = new TreeMap<Pair<Double, Double>, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
       sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
     }

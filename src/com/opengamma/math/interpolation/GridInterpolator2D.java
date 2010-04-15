@@ -29,7 +29,7 @@ public class GridInterpolator2D extends Interpolator2D {
       throw new IllegalArgumentException("Y interpolator was null");
     _xInterpolator = xInterpolator;
     _yInterpolator = yInterpolator;
-    _comparator = new FirstThenSecondPairComparator<Double, Double>();
+    _comparator = FirstThenSecondPairComparator.INSTANCE_DOUBLES;
   }
 
   @Override
