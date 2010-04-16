@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.timeseries.fast.longint;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -24,6 +29,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.tuple.LongDoublePair;
 
 public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeries {
   public static final FastLongDoubleTimeSeries EMPTY_SERIES = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);

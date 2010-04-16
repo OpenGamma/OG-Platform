@@ -41,7 +41,7 @@ public class TestProperties {
       String propsFileName = DEFAULT_PROPS_FILE_NAME;
       String overridePropsFileName = System.getProperty("test.properties"); // passed in by Ant
       if (overridePropsFileName != null) {
-        propsFileName = overridePropsFileName;         
+        propsFileName = overridePropsFileName;
       }
       
       File file = new File(_baseDir, propsFileName);
