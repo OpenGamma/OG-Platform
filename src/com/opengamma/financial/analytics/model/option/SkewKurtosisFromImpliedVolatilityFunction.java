@@ -48,7 +48,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
     final VolatilitySurface surface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceRequirement(option));
-    final double volatility = surface.getVolatility(new Pair<Double, Double>(t, option.getStrike()));
+    final double volatility = surface.getVolatility(Pair.of(t, option.getStrike()));
     final double y = Math.sqrt(Math.exp(volatility * volatility * t) - 1);
     final double ySq = y * y;
     final double skew = y * (3 + ySq);

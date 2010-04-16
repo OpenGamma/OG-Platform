@@ -35,10 +35,10 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     Interpolator1D linear = new LinearInterpolator1D ();
     Interpolator2D interpolator = new GridInterpolator2D (linear, linear);
     Map<Pair<Double,Double>,Double> data = new HashMap<Pair<Double,Double>,Double> ();
-    data.put(new Pair<Double, Double>(0., 1.), sigma);
-    data.put(new Pair<Double, Double>(1., 0.), sigma);
-    data.put(new Pair<Double, Double>(0., 0.), sigma);
-    data.put(new Pair<Double, Double>(1., 1.), sigma);
+    data.put(Pair.of(0., 1.), sigma);
+    data.put(Pair.of(1., 0.), sigma);
+    data.put(Pair.of(0., 0.), sigma);
+    data.put(Pair.of(1., 1.), sigma);
     InterpolatedVolatilitySurface vs1 = new InterpolatedVolatilitySurface (data, interpolator);
     InterpolatedVolatilitySurface vs2 = cycleObject (InterpolatedVolatilitySurface.class, vs1);
     assertEquals (vs1, vs2);
