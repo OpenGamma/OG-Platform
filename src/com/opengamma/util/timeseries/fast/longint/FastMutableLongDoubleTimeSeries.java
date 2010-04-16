@@ -1,5 +1,9 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.timeseries.fast.longint;
-
 
 public interface FastMutableLongDoubleTimeSeries extends FastLongDoubleTimeSeries {
   public void primitivePutDataPoint(long time, double value);

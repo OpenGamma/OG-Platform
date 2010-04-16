@@ -1,7 +1,11 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util;
 
 import org.apache.commons.lang.ObjectUtils;
-
 
 /*
  * General static utility class for methods involved in making comparisons and equals operations more efficient.
