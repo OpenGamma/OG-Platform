@@ -24,9 +24,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.util.Pair;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 

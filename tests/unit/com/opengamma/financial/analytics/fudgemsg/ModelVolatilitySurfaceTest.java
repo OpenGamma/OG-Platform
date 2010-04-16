@@ -18,7 +18,7 @@ import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
   
