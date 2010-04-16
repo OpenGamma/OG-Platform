@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.util.timeseries.fast.integer;
 
 import it.unimi.dsi.fastutil.doubles.DoubleIterator;

@@ -3,13 +3,16 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util;
+package com.opengamma.util.tuple;
 
 import static org.junit.Assert.assertTrue;
 
 import java.util.Comparator;
 
 import org.junit.Test;
+
+import com.opengamma.util.tuple.MagnitudePairComparator;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Test MagnitudePairComparator.

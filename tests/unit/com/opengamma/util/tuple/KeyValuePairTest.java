@@ -3,11 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util;
+package com.opengamma.util.tuple;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
+import com.opengamma.util.tuple.KeyValuePair;
 
 /**
  * Test KeyValuePair.

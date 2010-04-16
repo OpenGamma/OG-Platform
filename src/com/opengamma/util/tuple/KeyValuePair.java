@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.util;
+package com.opengamma.util.tuple;
 
 import java.util.Map;
 import java.util.Map.Entry;
