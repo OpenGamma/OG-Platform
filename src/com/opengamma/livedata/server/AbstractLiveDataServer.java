@@ -287,14 +287,32 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
               + fullyQualifiedSpec + " does not contain ID of domain "
               + getUniqueIdDomain());
         }
+        
+        // REVIEW kirk 2010-04-16 -- There's a potential race condition here:
+        // - Get snapshot time t1
+        // - Start subscription
+        // - First tick comes in at t2
+        // - Pump the snapshot through the system
+        // In this case, we have the tick at t2 hitting the chain before the snapshot.
+        // However, while this is a theoretical race condition, I'm not sure whether in practice
+        // it justifies extended fixes at this time.
+        
+        // First, grab a snapshot of the data, BEFORE the background subscription is started.
+        FudgeFieldContainer snapshot = doSnapshot(securityUniqueId);
+
+        // Setup the subscription in the underlying data provider.
         Object subscriptionHandle = doSubscribe(securityUniqueId);
 
+        // Setup the subscription.
         subscription = new Subscription(securityUniqueId, subscriptionHandle, 
             persistent);
 
         _currentlyActiveSubscriptions.add(subscription);
         _securityUniqueId2Subscription.put(securityUniqueId,
             subscription);
+        
+        // Pump the snapshot before telling listeners.
+        liveDataReceived(securityUniqueId, snapshot);
 
         for (SubscriptionListener listener : _subscriptionListeners) {
           try {
@@ -303,7 +321,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
             s_logger.error("Listener subscribe failed", e);
           }
         }
-
+        
         s_logger.info("Created subscription to {}", fullyQualifiedSpec);
       }
       
