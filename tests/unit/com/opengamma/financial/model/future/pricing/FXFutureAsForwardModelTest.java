@@ -8,6 +8,7 @@ package com.opengamma.financial.model.future.pricing;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -23,7 +24,6 @@ import com.opengamma.financial.model.forward.pricing.ForwardModel;
 import com.opengamma.financial.model.future.definition.FXFutureDataBundle;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.util.SetUtils;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -43,7 +43,7 @@ public class FXFutureAsForwardModelTest {
   private static final FutureModel<FXFutureDataBundle> MODEL = new FXFutureAsForwardModel();
   private static final FutureDefinition DEFINITION = new FutureDefinition(EXPIRY);
   private static final FXFutureDataBundle DATA = new FXFutureDataBundle(new ConstantInterestRateDiscountCurve(R1), new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
-  private static final Set<Greek> GREEKS = SetUtils.asSet(Greek.FAIR_PRICE, Greek.DELTA);
+  private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {
@@ -63,7 +63,7 @@ public class FXFutureAsForwardModelTest {
   @Test
   public void testRequiredGreeks() {
     assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Collections.<Greek> emptySet()));
-    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, SetUtils.asSet(Greek.DELTA)));
+    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, EnumSet.of(Greek.DELTA)));
   }
 
   @Test
