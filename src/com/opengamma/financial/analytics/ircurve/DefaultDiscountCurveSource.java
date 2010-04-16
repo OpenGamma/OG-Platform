@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
