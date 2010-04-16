@@ -8,7 +8,7 @@ package com.opengamma.engine.function;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The function resolver is responsible for matching the requirements of a particular computation target and value requirement

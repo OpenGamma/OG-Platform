@@ -22,10 +22,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.id.IdentificationDomain;
-import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

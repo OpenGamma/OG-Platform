@@ -12,7 +12,7 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

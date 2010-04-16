@@ -14,8 +14,8 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Caches whole time series for CACHE_LIFE_FIXED + RND(CACHE_LIFE_VARIABLE) minutes before refreshing from underlying data source.
