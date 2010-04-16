@@ -675,7 +675,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
           throws SQLException {
         double tsValue = rs.getDouble("value");
         Date tsDate = rs.getDate("ts_date");
-        return new Pair<Date, Double>(tsDate, tsValue);
+        return Pair.of(tsDate, tsValue);
       }
     }, tsIDParameter);
     
