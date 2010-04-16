@@ -29,6 +29,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.tuple.IntDoublePair;
 
 public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSeries {
   public static final FastIntDoubleTimeSeries EMPTY_SERIES = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
