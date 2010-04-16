@@ -170,7 +170,7 @@ public class DependencyGraphModel {
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
       DependencyNode node = new DependencyNode(getCompilationContext(), function, target);
       depGraph.addDependencyNode(node);
-      return new Pair<DependencyNode, ValueSpecification>(node, function.getResult());
+      return Pair.of(node, function.getResult());
     }
     
     Pair<FunctionDefinition, ValueSpecification> resolvedFunction = getFunctionResolver().resolveFunction(getCompilationContext(), target, requirement);
@@ -192,7 +192,7 @@ public class DependencyGraphModel {
       node.addRequirementMapping(inputRequirement, resolvedInput.getSecond());
     }
     
-    return new Pair<DependencyNode, ValueSpecification>(node, resolvedFunction.getSecond());
+    return Pair.of(node, resolvedFunction.getSecond());
   }
   
   protected DependencyGraph getDependencyGraph(ComputationTarget target) {

@@ -43,7 +43,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
         Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target);
         for(ValueSpecification resultSpec : resultSpecs) {
           if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
-            return new Pair<FunctionDefinition, ValueSpecification>(newFunction, resultSpec);
+            return Pair.of(newFunction, resultSpec);
           }
         }
       }

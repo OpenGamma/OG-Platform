@@ -56,7 +56,7 @@ public class DependencyGraph {
     for(DependencyNode depNode : _dependencyNodes) {
       ValueSpecification satisfyingSpec = depNode.satisfiesRequirement(requirement);
       if(satisfyingSpec != null) {
-        return new Pair<DependencyNode, ValueSpecification>(depNode, satisfyingSpec);
+        return Pair.of(depNode, satisfyingSpec);
       }
     }
     return null;

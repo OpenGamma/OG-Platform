@@ -59,7 +59,7 @@ public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalData
       }
     }
     LocalDateDoubleTimeSeries dts = _underlyingDataProvider.getHistoricalTimeSeries(dsids, dataSource, dataProvider, field);
-    _timeSeriesCache.put(new CacheKey(dsids, dataSource, dataProvider, field), new Pair<ZonedDateTime, LocalDateDoubleTimeSeries>(getClock().zonedDateTime(), dts));
+    _timeSeriesCache.put(new CacheKey(dsids, dataSource, dataProvider, field), Pair.of(getClock().zonedDateTime(), dts));
     return dts;
   }
 

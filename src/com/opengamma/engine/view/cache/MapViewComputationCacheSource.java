@@ -30,7 +30,7 @@ implements ViewComputationCacheSource {
       viewCaches = new HashMap<Pair<String,Long>, MapViewComputationCache>();
       _currentCaches.put(viewName, viewCaches);
     }
-    Pair<String,Long> cacheKey = new Pair<String,Long>(calcConfigName,timestamp);
+    Pair<String,Long> cacheKey = Pair.of(calcConfigName,timestamp);
     MapViewComputationCache cache = viewCaches.get(cacheKey);
     if(cache == null) {
       cache = new MapViewComputationCache();
