@@ -23,9 +23,9 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.util.Pair;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

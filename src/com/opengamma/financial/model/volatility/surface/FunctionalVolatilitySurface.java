@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

@@ -20,9 +20,9 @@ import com.opengamma.financial.model.option.definition.TrinomialOptionModelDefin
 import com.opengamma.financial.model.tree.RecombiningTrinomialTree;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.Pair;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

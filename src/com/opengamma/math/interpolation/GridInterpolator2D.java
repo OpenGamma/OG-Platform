@@ -10,8 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.opengamma.util.FirstThenSecondPairComparator;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

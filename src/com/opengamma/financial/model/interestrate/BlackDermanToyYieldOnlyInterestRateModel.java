@@ -12,8 +12,8 @@ import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
-import com.opengamma.util.Triple;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 

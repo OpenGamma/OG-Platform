@@ -13,7 +13,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.KeyValuePair;
+import com.opengamma.util.tuple.KeyValuePair;
 
 public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public static final DoubleTimeSeries EMPTY_SERIES = new ArrayDoubleTimeSeries();
