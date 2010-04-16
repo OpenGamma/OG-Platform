@@ -186,7 +186,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
 
   @Override
   public Pair<LocalDate, Double> makePair(final LocalDate dateTime, final Double value) {
-    return new Pair<LocalDate, Double>(dateTime, value);
+    return Pair.of(dateTime, value);
   }
 
   @Override

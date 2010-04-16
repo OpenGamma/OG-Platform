@@ -148,7 +148,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
 
   @Override
   public Pair<ZonedDateTime, Double> makePair(final ZonedDateTime dateTime, final Double value) {
-    return new Pair<ZonedDateTime, Double>(dateTime, value);
+    return Pair.of(dateTime, value);
   }
 
   @Override

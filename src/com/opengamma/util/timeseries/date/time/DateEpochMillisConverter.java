@@ -154,7 +154,7 @@ public class DateEpochMillisConverter implements DateTimeConverter<Date> {
 
   @Override
   public Pair<Date, Double> makePair(final Date dateTime, final Double value) {
-    return new Pair<Date, Double>(dateTime, value);
+    return Pair.of(dateTime, value);
   }
 
   @Override
