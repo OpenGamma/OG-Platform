@@ -11,9 +11,9 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * @author jim
