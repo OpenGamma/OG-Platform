@@ -77,6 +77,10 @@ public class DistributionSpecification implements Serializable {
     FudgeFieldContainer normalizedMsg = _normalizationRuleSet.getNormalizedMessage(msg,
         history);
     
+    if (normalizedMsg == null) {
+      return null;
+    }
+    
     if (normalizedMsg.getAllFields().size() == 0) {
       return null;
     }

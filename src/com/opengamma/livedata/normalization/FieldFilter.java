@@ -12,6 +12,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.google.common.collect.Sets;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
@@ -23,7 +24,11 @@ import com.opengamma.util.ArgumentChecker;
 public class FieldFilter implements NormalizationRule {
   
   private final Collection<String> _fieldsToAccept;
-  private final FudgeContext CONTEXT = FudgeContext.GLOBAL_DEFAULT; 
+  private final FudgeContext CONTEXT = FudgeContext.GLOBAL_DEFAULT;
+  
+  public FieldFilter(String... fieldsToAccept) {
+    this(Sets.newHashSet(fieldsToAccept));
+  }
   
   public FieldFilter(Collection<String> fieldsToAccept) {
     ArgumentChecker.checkNotNull(fieldsToAccept, "List of accepted fields");    

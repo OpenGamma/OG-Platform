@@ -14,6 +14,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.google.common.collect.Lists;
 import com.opengamma.livedata.resolver.JmsTopicNameResolver;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
@@ -34,6 +35,11 @@ public class NormalizationRuleSet implements Serializable {
   /** Useful for tests */
   public NormalizationRuleSet(String id) {
     this(id, id, Collections.<NormalizationRule>emptyList()); 
+  }
+  
+  /** Also useful for tests */
+  public NormalizationRuleSet(String id, NormalizationRule... rules) {
+    this(id, id, Lists.newArrayList(rules));
   }
   
   public NormalizationRuleSet(String id, 
@@ -58,7 +64,11 @@ public class NormalizationRuleSet implements Serializable {
       FieldHistoryStore fieldHistory) {
     MutableFudgeFieldContainer normalizedMsg = FUDGE_CONTEXT.newMessage(msg);
     for (NormalizationRule rule : _rules) {
-      normalizedMsg = rule.apply(normalizedMsg, fieldHistory);      
+      normalizedMsg = rule.apply(normalizedMsg, fieldHistory);
+      if(normalizedMsg == null) {
+        // One of the rules rejected the message entirely.
+        break;
+      }
     }
     return normalizedMsg;
   }
