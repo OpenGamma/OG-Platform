@@ -128,7 +128,7 @@ public class HistoricalDataProviderTest {
         }
       }
     }
-    return new Pair<HistoricalDataProvider, Set<DomainSpecificIdentifiers>>(inMemoryHistoricalDataProvider, map.keySet());
+    return Pair.of((HistoricalDataProvider) inMemoryHistoricalDataProvider, map.keySet());
   }
   
   @Test
