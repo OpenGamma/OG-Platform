@@ -29,15 +29,15 @@ public class InterpolatedVolatilitySurfaceTest {
   private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR);
   private static final Map<Pair<Double, Double>, Double> DATA = new HashMap<Pair<Double, Double>, Double>();
   private static final VolatilitySurface SURFACE;
-  private static final Pair<Double, Double> XY = new Pair<Double, Double>(0.5, 0.5);
+  private static final Pair<Double, Double> XY = Pair.of(0.5, 0.5);
   private static final double SHIFT = 0.05;
   private static final double EPS = 1e-15;
 
   static {
-    DATA.put(new Pair<Double, Double>(0., 1.), SIGMA);
-    DATA.put(new Pair<Double, Double>(1., 0.), SIGMA);
-    DATA.put(new Pair<Double, Double>(0., 0.), SIGMA);
-    DATA.put(new Pair<Double, Double>(1., 1.), SIGMA);
+    DATA.put(Pair.of(0., 1.), SIGMA);
+    DATA.put(Pair.of(1., 0.), SIGMA);
+    DATA.put(Pair.of(0., 0.), SIGMA);
+    DATA.put(Pair.of(1., 1.), SIGMA);
     SURFACE = new InterpolatedVolatilitySurface(DATA, INTERPOLATOR);
   }
 
@@ -70,12 +70,12 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetVolatilityWithNullX() {
-    SURFACE.getVolatility(new Pair<Double, Double>(null, 2.));
+    SURFACE.getVolatility(Pair.of((Double) null, 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetVolatilityWithNullY() {
-    SURFACE.getVolatility(new Pair<Double, Double>(2., null));
+    SURFACE.getVolatility(Pair.of(2., (Double) null));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -90,17 +90,17 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetSingleShiftWithNullX() {
-    SURFACE.withSingleShift(new Pair<Double, Double>(null, 2.), 3.);
+    SURFACE.withSingleShift(Pair.of((Double) null, 2.), 3.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetSingleShiftWithNullY() {
-    SURFACE.withSingleShift(new Pair<Double, Double>(2., null), 3.);
+    SURFACE.withSingleShift(Pair.of(2., (Double) null), 3.);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetSingleShiftWithNullShift() {
-    SURFACE.withSingleShift(new Pair<Double, Double>(2., 2.), null);
+    SURFACE.withSingleShift(Pair.of(2., 2.), null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -110,17 +110,17 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullX() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(new Pair<Double, Double>(null, 2.), 2.));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of((Double) null, 2.), 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullY() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(new Pair<Double, Double>(2., null), 2.));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of(2., (Double) null), 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullShift() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(new Pair<Double, Double>(2., 2.), null));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of(2., 2.), null));
   }
 
   @Test
@@ -153,8 +153,8 @@ public class InterpolatedVolatilitySurfaceTest {
   @Test
   public void testMultipleShift() {
     final Map<Pair<Double, Double>, Double> shifts = new HashMap<Pair<Double, Double>, Double>();
-    final Pair<Double, Double> xy1 = new Pair<Double, Double>(0., 0.);
-    final Pair<Double, Double> xy2 = new Pair<Double, Double>(1., 1.);
+    final Pair<Double, Double> xy1 = Pair.of(0., 0.);
+    final Pair<Double, Double> xy2 = Pair.of(1., 1.);
     shifts.put(xy1, SHIFT);
     shifts.put(xy2, -SHIFT);
     final VolatilitySurface surface = SURFACE.withMultipleShifts(shifts);

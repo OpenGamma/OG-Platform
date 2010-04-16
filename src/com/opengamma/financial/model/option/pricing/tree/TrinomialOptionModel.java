@@ -83,7 +83,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
         final double df = Math.exp(-r * t / _n);
         double newSpot = spot * Math.pow(edx, -_n);
         for (int i = 0; i < _j; i++) {
-          spotAndOptionPrices[_n][i] = new Pair<Double, Double>(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
+          spotAndOptionPrices[_n][i] = Pair.of(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
           newSpot *= edx;
         }
         Double optionValue, spotValue;
@@ -94,7 +94,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
                 * (u * spotAndOptionPrices[i + 1][j + 1].getSecond() + m * spotAndOptionPrices[i + 1][j].getSecond() + d * spotAndOptionPrices[i + 1][j - 1].getSecond());
             spotValue = df * spotAndOptionPrices[i + 1][j].getFirst();
             newData = (T) data.withSpot(spotValue);
-            spotAndOptionPrices[i][j - 1] = new Pair<Double, Double>(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData,
+            spotAndOptionPrices[i][j - 1] = Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData,
                 optionValue) : optionValue);
           }
         }

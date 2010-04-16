@@ -86,7 +86,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
         final double r = data.getInterestRate(t);
         double newSpot = spot * Math.pow(d, _n);
         for (int i = 0; i < _j; i++) {
-          spotAndOptionPrices[_n][i] = new Pair<Double, Double>(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
+          spotAndOptionPrices[_n][i] = Pair.of(newSpot, payoffFunction.getPayoff((T) data.withSpot(newSpot), 0.));
           newSpot *= u / d;
         }
         final double df = Math.exp(-r * t / _n);
@@ -99,8 +99,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
             optionValue = df * ((1 - p) * spotAndOptionPrices[i + 1][j].getSecond() + p * spotAndOptionPrices[i + 1][j + 1].getSecond());
             spotValue = spotAndOptionPrices[i + 1][j].getFirst() / d;
             newData = (T) data.withSpot(spotValue);
-            spotAndOptionPrices[i][j] = new Pair<Double, Double>(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue)
-                : optionValue);
+            spotAndOptionPrices[i][j] = Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
           }
         }
         return new RecombiningBinomialTree<Pair<Double, Double>>(spotAndOptionPrices);

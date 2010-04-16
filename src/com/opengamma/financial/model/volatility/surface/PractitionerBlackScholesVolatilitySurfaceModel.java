@@ -68,8 +68,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModel implements Volatilit
       k = entry.getKey().getStrike();
       t = entry.getKey().getTimeToExpiry(data.getDate());
       try {
-        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(
-            new Pair<Double, Double>(t, k));
+        sigma = _bsmVolatilityModel.getSurface(Collections.<OptionDefinition, Double> singletonMap(entry.getKey(), entry.getValue()), data).getVolatility(Pair.of(t, k));
         if (k != null && t != null && sigma != null) {
           kList.add(k);
           tList.add(t);

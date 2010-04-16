@@ -27,7 +27,7 @@ public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements Volati
     final Map<Pair<Double, Double>, Double> xyData = new HashMap<Pair<Double, Double>, Double>();
     for (final Map.Entry<T, Double> entry : volatilityData.entrySet()) {
       final T key = entry.getKey();
-      xyData.put(new Pair<Double, Double>(getXAxisFunctionValue(key, dataBundle), getYAxisFunctionValue(key, dataBundle)), entry.getValue());
+      xyData.put(Pair.of(getXAxisFunctionValue(key, dataBundle), getYAxisFunctionValue(key, dataBundle)), entry.getValue());
     }
     return new InterpolatedVolatilitySurface(xyData, _interpolator);
   }

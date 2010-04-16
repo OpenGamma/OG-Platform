@@ -49,7 +49,7 @@ public class StandardOptionDataBundle {
   }
 
   public Double getVolatility(final Double timeToExpiry, final Double strike) {
-    return getVolatilitySurface().getVolatility(new Pair<Double, Double>(timeToExpiry, strike));
+    return getVolatilitySurface().getVolatility(Pair.of(timeToExpiry, strike));
   }
 
   public Double getSpot() {

@@ -81,7 +81,7 @@ public class HullWhiteStochasticVolatilityModelTest {
 
   private void test(final double value, final OptionDefinition definition, final HullWhiteStochasticVolatilityModelOptionDataBundle data) {
     final HullWhiteStochasticVolatilityModelOptionDataBundle bsmEquivalent = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SURFACE
-        .getVolatility(new Pair<Double, Double>(0., 0.)), VOL_OF_VOL, 0.);
+        .getVolatility(Pair.of(0., 0.)), VOL_OF_VOL, 0.);
     assertEquals(value, MODEL.getPricingFunction(definition).evaluate(data), EPS);
     assertEquals(BSM.getPricingFunction(definition).evaluate(bsmEquivalent), MODEL.getPricingFunction(definition).evaluate(bsmEquivalent), EPS);
   }

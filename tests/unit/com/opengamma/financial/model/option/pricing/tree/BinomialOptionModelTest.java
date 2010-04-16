@@ -69,16 +69,16 @@ public class BinomialOptionModelTest {
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final Pair<Double, Double>[][] result = f.evaluate(data).getTree();
     final Pair<Double, Double>[][] expected = new Pair[4][4];
-    expected[0][0] = new Pair<Double, Double>(100., 10.1457);
-    expected[1][0] = new Pair<Double, Double>(90.91, 3.2545);
-    expected[1][1] = new Pair<Double, Double>(110., 15.4471);
-    expected[2][0] = new Pair<Double, Double>(82.64, 0.);
-    expected[2][1] = new Pair<Double, Double>(100., 5.7048);
-    expected[2][2] = new Pair<Double, Double>(121., 22.9801);
-    expected[3][0] = new Pair<Double, Double>(75.13, 0.);
-    expected[3][1] = new Pair<Double, Double>(90.91, 0.);
-    expected[3][2] = new Pair<Double, Double>(110., 10.);
-    expected[3][3] = new Pair<Double, Double>(133.1, 33.1);
+    expected[0][0] = Pair.of(100., 10.1457);
+    expected[1][0] = Pair.of(90.91, 3.2545);
+    expected[1][1] = Pair.of(110., 15.4471);
+    expected[2][0] = Pair.of(82.64, 0.);
+    expected[2][1] = Pair.of(100., 5.7048);
+    expected[2][2] = Pair.of(121., 22.9801);
+    expected[3][0] = Pair.of(75.13, 0.);
+    expected[3][1] = Pair.of(90.91, 0.);
+    expected[3][2] = Pair.of(110., 10.);
+    expected[3][3] = Pair.of(133.1, 33.1);
     testTrees(expected, result, 4);
   }
 
@@ -91,16 +91,16 @@ public class BinomialOptionModelTest {
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final Pair<Double, Double>[][] result = f.evaluate(data).getTree();
     final Pair<Double, Double>[][] expected = new Pair[4][4];
-    expected[0][0] = new Pair<Double, Double>(100., 4.6546);
-    expected[1][0] = new Pair<Double, Double>(90.91, 9.2356);
-    expected[1][1] = new Pair<Double, Double>(110., 1.5261);
-    expected[2][0] = new Pair<Double, Double>(82.64, 17.3554);
-    expected[2][1] = new Pair<Double, Double>(100., 3.7247);
-    expected[2][2] = new Pair<Double, Double>(121., 0.);
-    expected[3][0] = new Pair<Double, Double>(75.13, 24.8685);
-    expected[3][1] = new Pair<Double, Double>(90.91, 9.0909);
-    expected[3][2] = new Pair<Double, Double>(110., 0.);
-    expected[3][3] = new Pair<Double, Double>(133.1, 0.);
+    expected[0][0] = Pair.of(100., 4.6546);
+    expected[1][0] = Pair.of(90.91, 9.2356);
+    expected[1][1] = Pair.of(110., 1.5261);
+    expected[2][0] = Pair.of(82.64, 17.3554);
+    expected[2][1] = Pair.of(100., 3.7247);
+    expected[2][2] = Pair.of(121., 0.);
+    expected[3][0] = Pair.of(75.13, 24.8685);
+    expected[3][1] = Pair.of(90.91, 9.0909);
+    expected[3][2] = Pair.of(110., 0.);
+    expected[3][3] = Pair.of(133.1, 0.);
     testTrees(expected, result, 4);
   }
 

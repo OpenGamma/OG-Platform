@@ -39,18 +39,18 @@ public class GridInterpolator2DTest {
   private static final double EPS = 1e-9;
 
   static {
-    FLAT_DATA.put(new Pair<Double, Double>(1., 2.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(1., 3.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(1., 5.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(1., 7.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(2., 2.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(2., 3.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(2., 5.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(2., 7.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(5., 2.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(5., 3.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(5., 5.), 0.);
-    FLAT_DATA.put(new Pair<Double, Double>(5., 7.), 0.);
+    FLAT_DATA.put(Pair.of(1., 2.), 0.);
+    FLAT_DATA.put(Pair.of(1., 3.), 0.);
+    FLAT_DATA.put(Pair.of(1., 5.), 0.);
+    FLAT_DATA.put(Pair.of(1., 7.), 0.);
+    FLAT_DATA.put(Pair.of(2., 2.), 0.);
+    FLAT_DATA.put(Pair.of(2., 3.), 0.);
+    FLAT_DATA.put(Pair.of(2., 5.), 0.);
+    FLAT_DATA.put(Pair.of(2., 7.), 0.);
+    FLAT_DATA.put(Pair.of(5., 2.), 0.);
+    FLAT_DATA.put(Pair.of(5., 3.), 0.);
+    FLAT_DATA.put(Pair.of(5., 5.), 0.);
+    FLAT_DATA.put(Pair.of(5., 7.), 0.);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class GridInterpolator2DTest {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    final Pair<Double, Double> zeroes = new Pair<Double, Double>(0., 0.);
+    final Pair<Double, Double> zeroes = Pair.of(0., 0.);
     try {
       INTERPOLATOR_2D.interpolate(null, zeroes);
       fail();
@@ -88,9 +88,9 @@ public class GridInterpolator2DTest {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    data.put(new Pair<Double, Double>(0., 5.), 2.);
-    data.put(new Pair<Double, Double>(0., 4.), 3.);
-    data.put(new Pair<Double, Double>(0., -3.), 4.);
+    data.put(Pair.of(0., 5.), 2.);
+    data.put(Pair.of(0., 4.), 3.);
+    data.put(Pair.of(0., -3.), 4.);
     try {
       INTERPOLATOR_2D.interpolate(data, zeroes);
       fail();
@@ -109,9 +109,9 @@ public class GridInterpolator2DTest {
   @Test
   public void testNonGrid() {
     final Map<Pair<Double, Double>, Double> nonGrid = new HashMap<Pair<Double, Double>, Double>(FLAT_DATA);
-    nonGrid.put(new Pair<Double, Double>(5., 8.), 0.);
+    nonGrid.put(Pair.of(5., 8.), 0.);
     try {
-      INTERPOLATOR_2D.interpolate(nonGrid, new Pair<Double, Double>(1.5, 4.));
+      INTERPOLATOR_2D.interpolate(nonGrid, Pair.of(1.5, 4.));
       fail();
     } catch (final InterpolationException e) {
       // Expected
@@ -120,12 +120,12 @@ public class GridInterpolator2DTest {
 
   @Test
   public void test() {
-    assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA, new Pair<Double, Double>(2.5, 5.4)).getResult(), 0., EPS);
+    assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA, Pair.of(2.5, 5.4)).getResult(), 0., EPS);
     final Map<Pair<Double, Double>, Double> nonTrivial = new HashMap<Pair<Double, Double>, Double>();
     for (final Pair<Double, Double> pair : FLAT_DATA.keySet()) {
       nonTrivial.put(pair, F.evaluate(pair.getKey(), pair.getValue()));
     }
-    final Pair<Double, Double> pair = new Pair<Double, Double>(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
+    final Pair<Double, Double> pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
     assertEquals(INTERPOLATOR_2D.interpolate(nonTrivial, pair).getResult(), F.evaluate(pair.getKey(), pair.getValue()), EPS);
   }
 }
