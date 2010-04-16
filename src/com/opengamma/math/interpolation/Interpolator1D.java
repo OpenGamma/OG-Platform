@@ -69,9 +69,9 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
       throw new IllegalArgumentException("x value was null");
     final Double lower = data.floorKey(value);
     if (lower == null)
-      throw new InterpolationException("Value was less than the lowest data point for x");
+      throw new InterpolationException("Value " + value + " was less than the lowest data point for x " + data.firstKey());
     if (!value.equals(data.lastKey()) && lower.equals(data.lastKey()))
-      throw new InterpolationException("Value was greater than the largest data point for x");
+      throw new InterpolationException("Value " + value + " was greater than the largest data point for x " + data.lastKey());
     return lower;
   }
 
