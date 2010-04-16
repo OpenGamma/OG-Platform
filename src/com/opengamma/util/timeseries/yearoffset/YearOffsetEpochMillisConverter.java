@@ -170,7 +170,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
 
   @Override
   public Pair<Double, Double> makePair(final Double dateTime, final Double value) {
-    return new Pair<Double, Double>(dateTime, value);
+    return Pair.of(dateTime, value);
   }
 
   @Override
