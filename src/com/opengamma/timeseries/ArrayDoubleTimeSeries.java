@@ -13,7 +13,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.tuple.KeyValuePair;
+import com.opengamma.util.tuple.Pair;
 
 public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
   public static final DoubleTimeSeries EMPTY_SERIES = new ArrayDoubleTimeSeries();
@@ -187,8 +187,7 @@ public class ArrayDoubleTimeSeries extends DoubleTimeSeries {
     @Override
     public Entry<ZonedDateTime, Double> next() {
       if (hasNext()) {
-        final KeyValuePair<ZonedDateTime, Double> keyValuePair = new KeyValuePair<ZonedDateTime, Double>(ZonedDateTime.fromInstant(Instant.millis(_times[_current]),
-            _zones[_current]), _values[_current]);
+        final Pair<ZonedDateTime, Double> keyValuePair = Pair.of(ZonedDateTime.fromInstant(Instant.millis(_times[_current]), _zones[_current]), _values[_current]);
         _current++;
         return keyValuePair;
       } else
