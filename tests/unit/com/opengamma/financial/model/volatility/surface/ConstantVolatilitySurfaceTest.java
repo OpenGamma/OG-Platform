@@ -11,7 +11,7 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

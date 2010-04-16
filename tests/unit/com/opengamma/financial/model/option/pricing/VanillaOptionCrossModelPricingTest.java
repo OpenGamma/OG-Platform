@@ -8,6 +8,7 @@ package com.opengamma.financial.model.option.pricing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -33,7 +34,6 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.financial.model.option.pricing.tree.BinomialOptionModel;
 import com.opengamma.financial.model.option.pricing.tree.TreeOptionModel;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
-import com.opengamma.util.SetUtils;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -51,7 +51,7 @@ public class VanillaOptionCrossModelPricingTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
-  private static final Set<Greek> REQUIRED_GREEKS = SetUtils.asSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
+  private static final Set<Greek> REQUIRED_GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
   private static final double EPS = 0.02;
 
   @Test

@@ -7,7 +7,7 @@ package com.opengamma.math.interpolation;
 
 import java.util.Map;
 
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * A base class for two-dimensional interpolation.

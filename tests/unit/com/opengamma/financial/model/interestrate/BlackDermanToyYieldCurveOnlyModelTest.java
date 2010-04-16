@@ -13,8 +13,8 @@ import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDisc
 import com.opengamma.financial.model.interestrate.definition.BlackDermanToyDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
-import com.opengamma.util.Triple;
 import com.opengamma.util.time.DateUtil;
+import com.opengamma.util.tuple.Triple;
 
 /**
  * 

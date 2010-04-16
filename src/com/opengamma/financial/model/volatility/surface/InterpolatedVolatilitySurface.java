@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.util.FirstThenSecondPairComparator;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -70,7 +70,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    * 
    * @return The data sorted by (x, y) pair. The ordering is first x, then y
    * 
-   * @see com.opengamma.util.FirstThenSecondPairComparator
+   * @see com.opengamma.util.tuple.FirstThenSecondPairComparator
    */
   public SortedMap<Pair<Double, Double>, Double> getData() {
     return _volatilityData;

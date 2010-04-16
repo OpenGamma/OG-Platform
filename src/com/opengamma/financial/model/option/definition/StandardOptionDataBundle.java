@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

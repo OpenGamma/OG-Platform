@@ -17,7 +17,7 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 

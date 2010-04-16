@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.financial.model.volatility.VolatilityModel;
-import com.opengamma.util.Pair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
