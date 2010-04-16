@@ -42,11 +42,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.DomainSpecificIdentifier;
 import com.opengamma.id.DomainSpecificIdentifiers;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.Pair;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.ArraySQLDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.sqldate.MapSQLDateDoubleTimeSeries;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
