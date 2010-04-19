@@ -7,12 +7,11 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
@@ -103,7 +102,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
    * This provides the universe within which the standalone identifier has meaning.
    * @return the scheme, never null
    */
-  public IdentificationScheme getDomain() {
+  public IdentificationScheme getScheme() {
     return _scheme;
   }
 
@@ -140,12 +139,20 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   @Override
   public boolean equals(Object obj) {
-    return EqualsBuilder.reflectionEquals(this, obj);
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof Identifier) {
+      Identifier other = (Identifier) obj;
+      return ObjectUtils.equals(_scheme.getName(), other._scheme.getName()) &&
+              ObjectUtils.equals(_value, other._value);
+    }
+    return false;
   }
 
   @Override
   public int hashCode() {
-    return HashCodeBuilder.reflectionHashCode(this);
+    return _scheme.getName().hashCode() ^ _value.hashCode();
   }
 
   @Override
@@ -157,7 +164,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
     ArgumentChecker.checkNotNull(fudgeMessageFactory, "Fudge Context");
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
-    msg.add(DOMAIN_FUDGE_FIELD_NAME, getDomain().getDomainName());
+    msg.add(DOMAIN_FUDGE_FIELD_NAME, getScheme().getName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
   }

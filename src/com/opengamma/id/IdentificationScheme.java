@@ -78,7 +78,7 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
    * Gets the scheme name.
    * @return the scheme name, never null
    */
-  public String getDomainName() {
+  public String getName() {
     return _name;
   }
 
