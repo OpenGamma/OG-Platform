@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,10 +23,14 @@ import com.opengamma.math.interpolation.Interpolator1D;
  * @author emcleod
  */
 public class ParBondBootstrapZeroDiscountCurveModel implements DiscountCurveModel<FixedInterestRateInstrumentDefinition> {
-  private final Interpolator1D _interpolator;
+  private final Map<Double, Interpolator1D> _interpolators;
 
   public ParBondBootstrapZeroDiscountCurveModel(final Interpolator1D interpolator) {
-    _interpolator = interpolator;
+    this(Collections.<Double, Interpolator1D> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  }
+
+  public ParBondBootstrapZeroDiscountCurveModel(final Map<Double, Interpolator1D> interpolators) {
+    _interpolators = interpolators;
   }
 
   @Override
@@ -49,7 +54,7 @@ public class ParBondBootstrapZeroDiscountCurveModel implements DiscountCurveMode
       zeroRates.put(t, r);
       sum += Math.exp(-r * t);
     }
-    return new InterpolatedDiscountCurve(zeroRates, _interpolator);
+    return new InterpolatedDiscountCurve(zeroRates, _interpolators);
   }
 
   class FixedIncomeDefinitionComparator implements Comparator<FixedInterestRateInstrumentDefinition> {
