@@ -114,8 +114,8 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
   
   public PortfolioNode getPortfolioNode (final InstantProvider now, final Identifier identityKey) {
-    if (!identityKey.getDomain ().equals (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
-      s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getDomain ());
+    if (!identityKey.getScheme ().equals (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
+      s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getScheme ());
       return null;
     }
     return (PortfolioNode)getHibernateTemplate ().execute (new HibernateCallback () {
@@ -141,8 +141,8 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
   
   public Position getPosition (final InstantProvider now, final Identifier identityKey) {
-    if (!identityKey.getDomain ().equals (Position.POSITION_IDENTITY_KEY_DOMAIN)) {
-      s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getDomain ());
+    if (!identityKey.getScheme ().equals (Position.POSITION_IDENTITY_KEY_DOMAIN)) {
+      s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getScheme ());
       return null;
     }
     return (Position)getHibernateTemplate ().execute (new HibernateCallback () {

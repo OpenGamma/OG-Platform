@@ -60,7 +60,7 @@ public class DomainSpecificIdentifierAssociationBean extends DateIdentifiableBea
   }
   
   public void setDomainSpecificIdentifier (final Identifier identifier) {
-    setDomain (identifier.getDomain ().getDomainName ());
+    setDomain (identifier.getScheme ().getName ());
     setIdentifier (identifier.getValue ());
   }
   
