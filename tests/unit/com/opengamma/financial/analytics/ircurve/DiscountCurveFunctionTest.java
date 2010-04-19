@@ -22,8 +22,8 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.Currency;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
@@ -33,15 +33,15 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
  */
 public class DiscountCurveFunctionTest {
   
-  private final static IdentificationDomain TEST_DOMAIN = new IdentificationDomain("test");
+  private final static IdentificationScheme TEST_DOMAIN = new IdentificationScheme("test");
   
   protected static DiscountCurveDefinition constructDefinition() {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
     DiscountCurveDefinition definition = new DiscountCurveDefinition(currency, name, Interpolator1DFactory.LINEAR);
-    definition.addStrip(new FixedIncomeStrip(1, new DomainSpecificIdentifier(TEST_DOMAIN, "USSW1 Curncy")));
-    definition.addStrip(new FixedIncomeStrip(2, new DomainSpecificIdentifier(TEST_DOMAIN, "USSW2 Curncy")));
-    definition.addStrip(new FixedIncomeStrip(3, new DomainSpecificIdentifier(TEST_DOMAIN, "USSW3 Curncy")));
+    definition.addStrip(new FixedIncomeStrip(1, new Identifier(TEST_DOMAIN, "USSW1 Curncy")));
+    definition.addStrip(new FixedIncomeStrip(2, new Identifier(TEST_DOMAIN, "USSW2 Curncy")));
+    definition.addStrip(new FixedIncomeStrip(3, new Identifier(TEST_DOMAIN, "USSW3 Curncy")));
     return definition;
   }
   
@@ -60,7 +60,7 @@ public class DiscountCurveFunctionTest {
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("USD")));
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
-    Set<DomainSpecificIdentifier> foundKeys = new TreeSet<DomainSpecificIdentifier>();
+    Set<Identifier> foundKeys = new TreeSet<Identifier>();
     for(ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
       assertEquals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName());

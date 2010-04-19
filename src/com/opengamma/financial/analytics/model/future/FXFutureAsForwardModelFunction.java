@@ -34,7 +34,7 @@ import com.opengamma.financial.model.future.pricing.FXFutureAsForwardModel;
 import com.opengamma.financial.model.future.pricing.FutureModel;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.security.FXFutureSecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /**
  * 
@@ -96,7 +96,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
     if (canApplyTo(context, target)) {
       final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      final DomainSpecificIdentifier fx = null;//
+      final Identifier fx = null;//
       requirements.add(getUnderlyingMarketDataRequirement(fx));
       requirements.add(getDiscountCurveMarketDataRequirement(future.getNumerator().getIdentityKey()));
       requirements.add(getDiscountCurveMarketDataRequirement(future.getDenominator().getIdentityKey()));
@@ -128,11 +128,11 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
     return ComputationTargetType.SECURITY;
   }
 
-  protected ValueRequirement getUnderlyingMarketDataRequirement(final DomainSpecificIdentifier id) {
+  protected ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
   }
 
-  protected ValueRequirement getDiscountCurveMarketDataRequirement(final DomainSpecificIdentifier id) {
+  protected ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {
     return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, id);
   }
 }

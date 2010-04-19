@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -16,7 +16,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class EuropeanVanillaFutureOptionSecurity extends FutureOptionSecurity implements EuropeanVanillaOption {
 
-  public EuropeanVanillaFutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final DomainSpecificIdentifier underlyingUniqueId,
+  public EuropeanVanillaFutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingUniqueId,
       final Currency currency, final String exchange, final boolean isMargined) {
     super(optionType, strike, expiry, underlyingUniqueId, currency, exchange, isMargined);
   }

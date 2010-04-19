@@ -41,7 +41,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -151,15 +151,15 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return ComputationTargetType.SECURITY;
   }
 
-  private ValueRequirement getOptionMarketDataRequirement(final DomainSpecificIdentifier id) {
+  private ValueRequirement getOptionMarketDataRequirement(final Identifier id) {
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
   }
 
-  private ValueRequirement getUnderlyingMarketDataRequirement(final DomainSpecificIdentifier id) {
+  private ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
   }
 
-  private ValueRequirement getDiscountCurveMarketDataRequirement(final DomainSpecificIdentifier id) {
+  private ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {
     return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, id);
   }
 }

@@ -22,7 +22,7 @@ import com.opengamma.financial.security.option.OTCOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /* package */ class OptionSecurityBeanOperation extends Converters implements BeanOperation<OptionSecurity,OptionSecurityBean> {
   
@@ -32,7 +32,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
   }
   
   @Override
-  public OptionSecurity createSecurity (final DomainSpecificIdentifier identifier, final OptionSecurityBean bean) {
+  public OptionSecurity createSecurity (final Identifier identifier, final OptionSecurityBean bean) {
     return bean.getOptionSecurityType ().accept (new OptionSecurityType.Visitor<OptionSecurity> () {
 
       @Override
@@ -41,7 +41,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
+            new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName ()
             );
@@ -53,7 +53,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
+            new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName ()
             );
@@ -66,7 +66,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
             bean.getPower (),
-            new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
+            new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName ()
             );
@@ -78,7 +78,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new DomainSpecificIdentifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
+            new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName (),
             bean.isMargined ());
@@ -90,7 +90,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new DomainSpecificIdentifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
+            new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName (),
             bean.isMargined ());
@@ -102,7 +102,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new DomainSpecificIdentifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
+            new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getCounterparty (),
             currencyBeanToCurrency (bean.getCurrency2 ()),

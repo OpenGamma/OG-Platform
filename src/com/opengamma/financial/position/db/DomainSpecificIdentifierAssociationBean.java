@@ -7,7 +7,7 @@ package com.opengamma.financial.position.db;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /**
  * 
@@ -55,11 +55,11 @@ public class DomainSpecificIdentifierAssociationBean extends DateIdentifiableBea
     _domain = domain;
   }
 
-  public DomainSpecificIdentifier getDomainSpecificIdentifier () {
-    return new DomainSpecificIdentifier (getDomain (), getIdentifier ());
+  public Identifier getDomainSpecificIdentifier () {
+    return new Identifier (getDomain (), getIdentifier ());
   }
   
-  public void setDomainSpecificIdentifier (final DomainSpecificIdentifier identifier) {
+  public void setDomainSpecificIdentifier (final Identifier identifier) {
     setDomain (identifier.getDomain ().getDomainName ());
     setIdentifier (identifier.getValue ());
   }

@@ -22,8 +22,8 @@ import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.WritableSecurityMaster;
 import com.opengamma.financial.Currency;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 public class HibernateSecurityMaster implements WritableSecurityMaster {
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
@@ -83,7 +83,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   // PUBLIC API
   
   @SuppressWarnings("unchecked")
-  public Security getSecurity(final Date now, final DomainSpecificIdentifier identifier, final boolean populateWithOtherIdentifiers) {
+  public Security getSecurity(final Date now, final Identifier identifier, final boolean populateWithOtherIdentifiers) {
     return (Security)_hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
@@ -93,7 +93,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
         // we use the DefaultSecurity interface because we need access to setIdentifiers
         if (security != null) {
           final DefaultSecurity result = (DefaultSecurity)getBeanOperation (security).createSecurity (identifier, security);
-          final List<DomainSpecificIdentifier> identifiers = new ArrayList<DomainSpecificIdentifier>();
+          final List<Identifier> identifiers = new ArrayList<Identifier>();
           if (populateWithOtherIdentifiers) {
             Query identifierQuery = session.getNamedQuery("DomainSpecificIdentifierAssociationBean.many.byDateSecurity");
             identifierQuery.setParameter("security", security.getFirstVersion());
@@ -124,7 +124,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
         SecurityBean bean = secMasterSession.getSecurityBean(now, security.getIdentifiers());
         if (bean == null) {
           bean = secMasterSession.createSecurityBean (beanOperation, now, false, now, null, null, security);
-          for (DomainSpecificIdentifier identifier : security.getIdentifiers ()) {
+          for (Identifier identifier : security.getIdentifiers ()) {
             secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity (now, identifier, bean);
           }
         } else if (beanOperation.getBeanClass ().isAssignableFrom (bean.getClass ())) {
@@ -188,10 +188,10 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
 
   // TODO: consider if this needs to take a date
   @Override
-  public Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
-    Collection<DomainSpecificIdentifier> identifiers = secKey.getIdentifiers();
+  public Collection<Security> getSecurities(IdentifierBundle secKey) {
+    Collection<Identifier> identifiers = secKey.getIdentifiers();
     Collection<Security> results = new HashSet<Security>();
-    for (DomainSpecificIdentifier dsi : identifiers) {
+    for (Identifier dsi : identifiers) {
       Security security = getSecurity(new Date(), dsi, true);
       if (security != null) {
         results.add(security);
@@ -202,9 +202,9 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
 
   // TODO: consider if this needs to take a date
   @Override
-  public Security getSecurity(DomainSpecificIdentifiers secKey) {
-    Collection<DomainSpecificIdentifier> identifiers = secKey.getIdentifiers();
-    for (DomainSpecificIdentifier dsi : identifiers) {
+  public Security getSecurity(IdentifierBundle secKey) {
+    Collection<Identifier> identifiers = secKey.getIdentifiers();
+    for (Identifier dsi : identifiers) {
       Security security = getSecurity(new Date(), dsi, true);
       if (security != null) {
         return security;
@@ -214,7 +214,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   }
   
   @Override
-  public Security getSecurity(DomainSpecificIdentifier identityKey) {
+  public Security getSecurity(Identifier identityKey) {
     return getSecurity(new Date(), identityKey, true);
   }
   

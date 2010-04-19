@@ -13,7 +13,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
@@ -25,9 +25,9 @@ import com.opengamma.util.CompareUtils;
 public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStrip> {
   
   private final double _numYears;
-  private final DomainSpecificIdentifier _marketDataKey;
+  private final Identifier _marketDataKey;
   
-  public FixedIncomeStrip(double numYears, DomainSpecificIdentifier marketDataKey) {
+  public FixedIncomeStrip(double numYears, Identifier marketDataKey) {
     if(numYears < 0) {
       throw new IllegalArgumentException("Fixed income strips cannot be in the future.");
     }
@@ -46,7 +46,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   /**
    * @return the marketDataKey
    */
-  public DomainSpecificIdentifier getMarketDataKey() {
+  public Identifier getMarketDataKey() {
     return _marketDataKey;
   }
   

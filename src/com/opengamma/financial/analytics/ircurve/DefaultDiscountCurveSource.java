@@ -26,10 +26,10 @@ public class DefaultDiscountCurveSource implements DiscountCurveSource {
 
   @Override
   public DiscountCurveDefinition getDefinition(Currency currency, String name) {
-    return _map.get(new Pair<Currency, String>(currency, name));
+    return _map.get(Pair.of(currency, name));
   }
 
   public void addDefinition(Currency currency, String name, DiscountCurveDefinition definition) {
-    _map.put(new Pair<Currency, String>(currency, name), definition);
+    _map.put(Pair.of(currency, name), definition);
   }
 }

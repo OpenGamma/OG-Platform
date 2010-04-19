@@ -44,7 +44,7 @@ import com.opengamma.financial.security.IndexFutureSecurity;
 import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 
 /**
@@ -54,7 +54,7 @@ import com.opengamma.livedata.normalization.MarketDataFieldNames;
  */
 public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
   private final FutureModel<StandardFutureDataBundle> _model = new CostOfCarryFutureAsForwardModel();
-  private final FutureSecurityVisitor<DomainSpecificIdentifier> _visitor = new UnderlyingFutureSecurityVisitor();
+  private final FutureSecurityVisitor<Identifier> _visitor = new UnderlyingFutureSecurityVisitor();
   private static final Set<Class<? extends FutureSecurity>> SUPPORTED_FUTURES = new HashSet<Class<? extends FutureSecurity>>();
   private static final Map<String, Greek> AVAILABLE_GREEKS;
 
@@ -71,7 +71,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final FutureSecurity future = (FutureSecurity) target.getSecurity();
-    final DomainSpecificIdentifier underlying = future.accept(_visitor);
+    final Identifier underlying = future.accept(_visitor);
     if (underlying == null)
       throw new IllegalArgumentException("Could not get underlying identity key for " + future);
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
@@ -116,7 +116,7 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final FutureSecurity future = (FutureSecurity) target.getSecurity();
-      final DomainSpecificIdentifier underlying = future.accept(_visitor);
+      final Identifier underlying = future.accept(_visitor);
       if (underlying == null)
         throw new IllegalArgumentException("Could not get underlying identity key for " + future);
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -152,49 +152,49 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
     return ComputationTargetType.SECURITY;
   }
 
-  private ValueRequirement getUnderlyingMarketDataRequirement(final DomainSpecificIdentifier id) {
+  private ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, id);
   }
 
-  private class UnderlyingFutureSecurityVisitor implements FutureSecurityVisitor<DomainSpecificIdentifier> {
+  private class UnderlyingFutureSecurityVisitor implements FutureSecurityVisitor<Identifier> {
 
     @Override
-    public DomainSpecificIdentifier visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
+    public Identifier visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
       return null;
     }
 
     @Override
-    public DomainSpecificIdentifier visitBondFutureSecurity(final BondFutureSecurity security) {
+    public Identifier visitBondFutureSecurity(final BondFutureSecurity security) {
       return null;
     }
 
     @Override
-    public DomainSpecificIdentifier visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
+    public Identifier visitEnergyFutureSecurity(final EnergyFutureSecurity security) {
       return null;
     }
 
     @Override
-    public DomainSpecificIdentifier visitFXFutureSecurity(final FXFutureSecurity security) {
+    public Identifier visitFXFutureSecurity(final FXFutureSecurity security) {
       return null;
     }
 
     @Override
-    public DomainSpecificIdentifier visitIndexFutureSecurity(final IndexFutureSecurity security) {
+    public Identifier visitIndexFutureSecurity(final IndexFutureSecurity security) {
       return security.getUnderlyingIdentityKey();
     }
 
     @Override
-    public DomainSpecificIdentifier visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    public Identifier visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
       return null;
     }
 
     @Override
-    public DomainSpecificIdentifier visitMetalFutureSecurity(final MetalFutureSecurity security) {
+    public Identifier visitMetalFutureSecurity(final MetalFutureSecurity security) {
       return security.getUnderlyingIdentityKey();
     }
 
     @Override
-    public DomainSpecificIdentifier visitStockFutureSecurity(final StockFutureSecurity security) {
+    public Identifier visitStockFutureSecurity(final StockFutureSecurity security) {
       return security.getUnderlyingIdentityKey();
     }
 

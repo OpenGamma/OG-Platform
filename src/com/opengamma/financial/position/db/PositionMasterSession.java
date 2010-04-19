@@ -17,7 +17,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /**
  * Session operations for the Hibernate position master
@@ -51,7 +51,7 @@ public class PositionMasterSession {
     return query.list ();
   }
   
-  public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (final InstantProvider now, final DomainSpecificIdentifier identifier) {
+  public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (final InstantProvider now, final Identifier identifier) {
     return getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (now, identifier.getDomain ().getDomainName (), identifier.getValue ());
   }
   

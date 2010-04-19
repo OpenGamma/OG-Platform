@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.ircurve;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -19,7 +19,7 @@ public class FixedIncomeStripTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void negativeYears() {
-    new FixedIncomeStrip(-5, new DomainSpecificIdentifier(new IdentificationDomain(""), ""));
+    new FixedIncomeStrip(-5, new Identifier(new IdentificationScheme(""), ""));
   }
   
   // TODO kirk 2009-12-30 -- Test everything else.

@@ -8,7 +8,7 @@ package com.opengamma.financial.security.option;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -20,10 +20,10 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
   private final OptionType _optionType;
   private final double _strike;
   private final Expiry _expiry;
-  private final DomainSpecificIdentifier _underlyingIdentityKey;
+  private final Identifier _underlyingIdentityKey;
   private final Currency _currency;
 
-  public OptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final DomainSpecificIdentifier underlyingIdentityKey, final Currency currency) {
+  public OptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentityKey, final Currency currency) {
     _optionType = optionType;
     _strike = strike;
     _expiry = expiry;
@@ -52,7 +52,7 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
     return _expiry;
   }
 
-  public DomainSpecificIdentifier getUnderlyingIdentityKey() {
+  public Identifier getUnderlyingIdentityKey() {
     return _underlyingIdentityKey;
   }
 

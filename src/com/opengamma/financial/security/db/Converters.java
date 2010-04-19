@@ -25,7 +25,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.FrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
@@ -41,9 +41,9 @@ import com.opengamma.util.time.ExpiryAccuracy;
     return Currency.getInstance(currencyBean.getName());
   }
   
-  protected static DomainSpecificIdentifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
+  protected static Identifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
     if (domainSpecificIdentifierBean == null) return null;
-    return new DomainSpecificIdentifier(domainSpecificIdentifierBean.getDomain(), domainSpecificIdentifierBean.getIdentifier());
+    return new Identifier(domainSpecificIdentifierBean.getDomain(), domainSpecificIdentifierBean.getIdentifier());
   }
   
   protected static Expiry dateToExpiry(Date date) {

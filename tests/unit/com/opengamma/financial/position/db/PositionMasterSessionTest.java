@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -97,8 +97,8 @@ public class PositionMasterSessionTest extends HibernateTest {
         position0.setQuantity (new BigDecimal (10));
         final PositionBean position1 = createBeanAny (new PositionBean (), "position 1");
         position1.setQuantity (new BigDecimal (20));
-        final DomainSpecificIdentifier identifier0 = new DomainSpecificIdentifier ("domain 0", "identifier 0");
-        final DomainSpecificIdentifier identifier1 = new DomainSpecificIdentifier ("domain 1", "identifier 1");
+        final Identifier identifier0 = new Identifier ("domain 0", "identifier 0");
+        final Identifier identifier1 = new Identifier ("domain 1", "identifier 1");
         final DomainSpecificIdentifierAssociationBean association0before = createBeanBefore (new DomainSpecificIdentifierAssociationBean (), null);
         association0before.setDomainSpecificIdentifier (identifier0);
         association0before.setPosition (position0);

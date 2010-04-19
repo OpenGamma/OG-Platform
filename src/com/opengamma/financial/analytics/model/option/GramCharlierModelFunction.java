@@ -30,7 +30,7 @@ import com.opengamma.financial.security.option.AmericanVanillaOption;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -46,7 +46,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
   @Override
   protected SkewKurtosisOptionDataBundle getDataBundle(final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final DomainSpecificIdentifier optionID = option.getIdentityKey();
+    final Identifier optionID = option.getIdentityKey();
     final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()))))
         .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
@@ -100,11 +100,11 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     return "GramCharlierModel";
   }
 
-  private ValueRequirement getSkewRequirement(final DomainSpecificIdentifier id) {
+  private ValueRequirement getSkewRequirement(final Identifier id) {
     return new ValueRequirement(SkewKurtosisFromImpliedVolatilityFunction.SKEW, ComputationTargetType.SECURITY, id);
   }
 
-  private ValueRequirement getKurtosisRequirement(final DomainSpecificIdentifier id) {
+  private ValueRequirement getKurtosisRequirement(final Identifier id) {
     return new ValueRequirement(SkewKurtosisFromImpliedVolatilityFunction.KURTOSIS, ComputationTargetType.SECURITY, id);
   }
 }
