@@ -13,13 +13,13 @@ import org.junit.Test;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Test Pair.
+ * Test ObjectsPair.
  */
-public class PairTest {
+public class ObjectsPairTest {
 
   @Test
   public void testOf_Object_Object() {
-    Pair<String, String> test = Pair.of("A", "B");
+    ObjectsPair<String, String> test = Pair.of("A", "B");
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getKey(), "A");
@@ -29,7 +29,7 @@ public class PairTest {
   //-------------------------------------------------------------------------
   @Test
   public void testPair_Object_Object() {
-    Pair<String, String> test = new Pair<String, String>("A", "B");
+    ObjectsPair<String, String> test = new ObjectsPair<String, String>("A", "B");
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getKey(), "A");
@@ -38,7 +38,7 @@ public class PairTest {
 
   @Test
   public void testPair_Object_null() {
-    Pair<String, String> test = new Pair<String, String>("A", null);
+    ObjectsPair<String, String> test = new ObjectsPair<String, String>("A", null);
     assertEquals(test.getFirst(), "A");
     assertEquals(test.getSecond(), null);
     assertEquals(test.getKey(), "A");
@@ -47,7 +47,7 @@ public class PairTest {
 
   @Test
   public void testPair_null_Object() {
-    Pair<String, String> test = new Pair<String, String>(null, "B");
+    ObjectsPair<String, String> test = new ObjectsPair<String, String>(null, "B");
     assertEquals(test.getFirst(), null);
     assertEquals(test.getSecond(), "B");
     assertEquals(test.getKey(), null);
@@ -56,7 +56,7 @@ public class PairTest {
 
   @Test
   public void testPair_null_null() {
-    Pair<String, String> test = new Pair<String, String>(null, null);
+    ObjectsPair<String, String> test = new ObjectsPair<String, String>(null, null);
     assertEquals(test.getFirst(), null);
     assertEquals(test.getSecond(), null);
     assertEquals(test.getKey(), null);
@@ -66,22 +66,22 @@ public class PairTest {
   //-------------------------------------------------------------------------
   @Test(expected=UnsupportedOperationException.class)
   public void testSetValue() {
-    Pair<String,String> pair = new Pair<String, String>("A", "B");
+    ObjectsPair<String,String> pair = new ObjectsPair<String, String>("A", "B");
     pair.setValue("C");
   }
 
   @Test(expected=UnsupportedOperationException.class)
   public void testSetValue_null() {
-    Pair<String,String> pair = new Pair<String, String>("A", "B");
+    ObjectsPair<String,String> pair = new ObjectsPair<String, String>("A", "B");
     pair.setValue(null);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void compareTo() {
-    Pair<String, String> ab = Pair.of("A", "B");
-    Pair<String, String> ac = Pair.of("A", "C");
-    Pair<String, String> ba = Pair.of("B", "A");
+    ObjectsPair<String, String> ab = Pair.of("A", "B");
+    ObjectsPair<String, String> ac = Pair.of("A", "C");
+    ObjectsPair<String, String> ba = Pair.of("B", "A");
     
     assertTrue(ab.compareTo(ab) == 0);
     assertTrue(ab.compareTo(ac) < 0);
@@ -98,10 +98,10 @@ public class PairTest {
 
   @Test
   public void compareTo_null() {
-    Pair<String, String> nn = Pair.of(null, null);
-    Pair<String, String> na = Pair.of(null, "A");
-    Pair<String, String> an = Pair.of("A", null);
-    Pair<String, String> aa = Pair.of("A", "A");
+    ObjectsPair<String, String> nn = Pair.of(null, null);
+    ObjectsPair<String, String> na = Pair.of(null, "A");
+    ObjectsPair<String, String> an = Pair.of("A", null);
+    ObjectsPair<String, String> aa = Pair.of("A", "A");
     
     assertTrue(nn.compareTo(nn) == 0);
     assertTrue(nn.compareTo(na) < 0);
@@ -126,10 +126,10 @@ public class PairTest {
 
   @Test
   public void testEquals() {
-    Pair<Integer, String> a = new Pair<Integer, String>(1, "Hello");
-    Pair<Integer, String> b = new Pair<Integer, String>(1, "Goodbye");
-    Pair<Integer, String> c = new Pair<Integer, String>(2, "Hello");
-    Pair<Integer, String> d = new Pair<Integer, String>(2, "Goodbye");
+    ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
+    ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(1, "Goodbye");
+    ObjectsPair<Integer, String> c = new ObjectsPair<Integer, String>(2, "Hello");
+    ObjectsPair<Integer, String> d = new ObjectsPair<Integer, String>(2, "Goodbye");
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(c), false);
@@ -153,10 +153,10 @@ public class PairTest {
 
   @Test
   public void testEquals_null() {
-    Pair<Integer, String> a = new Pair<Integer, String>(1, "Hello");
-    Pair<Integer, String> b = new Pair<Integer, String>(null, "Hello");
-    Pair<Integer, String> c = new Pair<Integer, String>(1, null);
-    Pair<Integer, String> d = new Pair<Integer, String>(null, null);
+    ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
+    ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(null, "Hello");
+    ObjectsPair<Integer, String> c = new ObjectsPair<Integer, String>(1, null);
+    ObjectsPair<Integer, String> d = new ObjectsPair<Integer, String>(null, null);
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(c), false);
@@ -180,10 +180,10 @@ public class PairTest {
 
   @Test
   public void testHashCode() {
-    Pair<Integer, String> a = new Pair<Integer, String>(1, "Hello");
-    Pair<Integer, String> b = new Pair<Integer, String>(null, "Hello");
-    Pair<Integer, String> c = new Pair<Integer, String>(1, null);
-    Pair<Integer, String> d = new Pair<Integer, String>(null, null);
+    ObjectsPair<Integer, String> a = new ObjectsPair<Integer, String>(1, "Hello");
+    ObjectsPair<Integer, String> b = new ObjectsPair<Integer, String>(null, "Hello");
+    ObjectsPair<Integer, String> c = new ObjectsPair<Integer, String>(1, null);
+    ObjectsPair<Integer, String> d = new ObjectsPair<Integer, String>(null, null);
     assertEquals(a.hashCode(), a.hashCode());
     assertEquals(b.hashCode(), b.hashCode());
     assertEquals(c.hashCode(), c.hashCode());
@@ -195,5 +195,5 @@ public class PairTest {
     assertEquals(d.hashCode(), 0);
     // can't test for different hash codes as they might not be different
   }
-  
+
 }

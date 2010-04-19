@@ -5,67 +5,66 @@
  */
 package com.opengamma.util.tuple;
 
-import java.util.Map;
-
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 
 /**
- * A mutable pair implementation consisting of a {@code long} and a {@code double}.
+ * An immutable pair consisting of an {@code long} and {@code double}.
  * <p>
- * This implementation refers to the elements as 'key' and 'value'.
- * The class also implements the {@link Map.Entry} and fastutil interfaces.
+ * The class provides direct access to the primitive types and implements
+ * the relevant fastutil interface.
  *
  * @author jim
  */
-public class LongDoublePair implements Long2DoubleMap.Entry {
+public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap.Entry {
 
-  /** The {@code long} element. */
-  private final long _longValue;
-  /** The {@code double} element. */
-  private double _doubleValue;
+  /** The first element. */
+  private final long _first;
+  /** The second element. */
+  private final double _second;
 
   /**
    * Constructor.
-   * @param longValue  the long element
-   * @param doubleValue  the double element
+   * @param first  the first element
+   * @param second  the second element
    */
-  public LongDoublePair(final long longValue, final double doubleValue) {
-    _longValue = longValue;
-    _doubleValue = doubleValue;
+  public LongDoublePair(final long first, final double second) {
+    _first = first;
+    _second = second;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Long getFirst() {
+    return _first;
+  }
+
+  @Override
+  public Double getSecond() {
+    return _second;
+  }
+
+  public long getFirstLong() {
+    return _first;
+  }
+
+  public double getSecondDouble() {
+    return _second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public long getLongKey() {
-    return _longValue;
+    return _first;
   }
 
   @Override
   public double getDoubleValue() {
-    return _doubleValue;
+    return _second;
   }
 
   @Override
   public double setValue(final double value) {
-    final double old = _doubleValue;
-    _doubleValue = value;
-    return old;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public Long getKey() {
-    return _longValue;
-  }
-
-  @Override
-  public Double getValue() {
-    return _doubleValue;
-  }
-
-  @Override
-  public Double setValue(final Double value) {
-    return setValue(value);
+    throw new UnsupportedOperationException("Immutable");
   }
 
   //-------------------------------------------------------------------------
@@ -76,22 +75,17 @@ public class LongDoublePair implements Long2DoubleMap.Entry {
     }
     if (obj instanceof LongDoublePair) {
       final LongDoublePair other = (LongDoublePair) obj;
-      return this.getLongKey() == other.getLongKey() && this.getDoubleValue() == other.getDoubleValue();
+      return this.getFirstLong() == other.getFirstLong() && this.getSecondDouble() == other.getSecondDouble();
     }
-    return false;
+    return super.equals(obj);
   }
 
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    final long l = getLongKey();
-    final long d = Double.doubleToLongBits(getDoubleValue());
-    return ((int) (l ^ (l >>> 32))) ^ ((int) (d ^ (d >>> 32)));
-  }
-
-  @Override
-  public String toString() {
-    return "[" + getLongKey() + ", " + getDoubleValue() + "]";
+    final long f = getFirstLong();
+    final long s = Double.doubleToLongBits(getSecondDouble());
+    return ((int) (f ^ (f >>> 32))) ^ ((int) (s ^ (s >>> 32)));
   }
 
 }
