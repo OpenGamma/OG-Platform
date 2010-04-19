@@ -17,7 +17,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -39,7 +39,7 @@ public class SkewKurtosisFromUnderlyingTimeSeriesFunction extends OptionSkewKurt
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final DomainSpecificIdentifier id = option.getIdentityKey();
+    final Identifier id = option.getIdentityKey();
     // TODO finish this off
     // DoubleTimeSeries<?> ts = time series of underlying.
     final double skew = 0; // _skewCalculator.evaluate(ts);

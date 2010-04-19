@@ -11,7 +11,7 @@ import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /* package */ class BondSecurityBeanOperation extends Converters implements BeanOperation<BondSecurity,BondSecurityBean> {
   
@@ -21,7 +21,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
   }
   
   @Override
-  public BondSecurity createSecurity (final DomainSpecificIdentifier identifier, final BondSecurityBean bean) {
+  public BondSecurity createSecurity (final Identifier identifier, final BondSecurityBean bean) {
     return bean.getBondType ().accept (new BondType.Visitor<BondSecurity> () {
 
       @Override

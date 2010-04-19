@@ -14,8 +14,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import com.opengamma.engine.security.Security;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.GICSCode;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
@@ -44,7 +44,7 @@ public class EquitySecurity extends FinancialSecurity {
   public EquitySecurity() {
     super();
     setSecurityType(EQUITY_TYPE);
-    setIdentifiers(Collections.<DomainSpecificIdentifier>emptyList());
+    setIdentifiers(Collections.<Identifier>emptyList());
   }
   
   /**
@@ -58,15 +58,15 @@ public class EquitySecurity extends FinancialSecurity {
     addDomainSpecificIdentifier(ticker, domain);
   }
   
-  public void addDomainSpecificIdentifier(DomainSpecificIdentifier identifier) {
+  public void addDomainSpecificIdentifier(Identifier identifier) {
     // REVIEW kirk 2009-10-19 -- Is this the right approach?
-    Set<DomainSpecificIdentifier> identifiers = new HashSet<DomainSpecificIdentifier>(getIdentifiers());
+    Set<Identifier> identifiers = new HashSet<Identifier>(getIdentifiers());
     identifiers.add(identifier);
     setIdentifiers(identifiers);
   }
   
   public void addDomainSpecificIdentifier(String domainValue, String domain) {
-    addDomainSpecificIdentifier(new DomainSpecificIdentifier(new IdentificationDomain(domain), domainValue));
+    addDomainSpecificIdentifier(new Identifier(new IdentificationScheme(domain), domainValue));
   }
 
   /**

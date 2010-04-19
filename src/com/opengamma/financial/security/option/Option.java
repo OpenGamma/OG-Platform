@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security.option;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -17,5 +17,5 @@ public interface Option {
   public OptionType getOptionType();
   public double getStrike();
   public Expiry getExpiry();
-  public DomainSpecificIdentifier getUnderlyingIdentityKey();
+  public Identifier getUnderlyingIdentityKey();
 }

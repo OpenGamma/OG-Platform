@@ -8,9 +8,9 @@ package com.opengamma.financial;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2009-09-15 -- This REALLY needs to be renamed.
@@ -21,12 +21,12 @@ import com.opengamma.util.ArgumentChecker;
 
 public class Currency implements Identifiable {
   
-  public static final IdentificationDomain IDENTIFICATION_DOMAIN = new IdentificationDomain("CurrencyISO"); 
+  public static final IdentificationScheme IDENTIFICATION_DOMAIN = new IdentificationScheme("CurrencyISO"); 
   
-  private DomainSpecificIdentifier _identifier;
+  private Identifier _identifier;
 
   private Currency(String isoCode) {
-    _identifier = new DomainSpecificIdentifier(IDENTIFICATION_DOMAIN, isoCode);
+    _identifier = new Identifier(IDENTIFICATION_DOMAIN, isoCode);
   }
   
   public String getISOCode() {
@@ -34,7 +34,7 @@ public class Currency implements Identifiable {
   }
   
   @Override
-  public DomainSpecificIdentifier getIdentityKey() {
+  public Identifier getIdentityKey() {
     return _identifier;
   }
   

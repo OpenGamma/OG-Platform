@@ -13,7 +13,7 @@ import org.hibernate.Transaction;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 public class HibernateSecurityMasterSession {
   private Session _session;
@@ -29,18 +29,18 @@ public class HibernateSecurityMasterSession {
   // UTILITY METHODS
 
   private Set<String> getListOfDomains(
-      Collection<DomainSpecificIdentifier> identifiers) {
+      Collection<Identifier> identifiers) {
     Set<String> domains = new HashSet<String>();
-    for (DomainSpecificIdentifier id : identifiers) {
+    for (Identifier id : identifiers) {
       domains.add(id.getDomain().getDomainName());
     }
     return domains;
   }
 
   private Set<String> getListOfValuesForDomain(String domain,
-      Collection<DomainSpecificIdentifier> identifiers) {
+      Collection<Identifier> identifiers) {
     Set<String> values = new HashSet<String>();
-    for (DomainSpecificIdentifier id : identifiers) {
+    for (Identifier id : identifiers) {
       if (id.getDomain().getDomainName().equals(domain)) {
         values.add(id.getValue());
       }
@@ -352,7 +352,7 @@ public class HibernateSecurityMasterSession {
   }
 
   /* package */ void associateOrUpdateDomainSpecificIdentifierWithSecurity(Date now,
-      DomainSpecificIdentifier identifier, SecurityBean security) {
+      Identifier identifier, SecurityBean security) {
     getCreateOrUpdateDomainSpecificIdentifierAssociationBean(now, identifier
         .getDomain().getDomainName(), identifier.getValue(), security
         .getFirstVersion());
@@ -361,7 +361,7 @@ public class HibernateSecurityMasterSession {
   // Generic Securities
 
   /* package */SecurityBean getSecurityBean(Date now,
-      final DomainSpecificIdentifier identifier) {
+      final Identifier identifier) {
     Query query = getSession().getNamedQuery(
         "SecurityBean.one.byDateDomainIdentifier");
     query.setString("domain", identifier.getDomain().getDomainName());
@@ -372,7 +372,7 @@ public class HibernateSecurityMasterSession {
   }
 
   /* package */SecurityBean getSecurityBean(Date now,
-      Collection<DomainSpecificIdentifier> identifiers) {
+      Collection<Identifier> identifiers) {
     Set<String> domains = getListOfDomains(identifiers);
     for (String domain : domains) {
       final Set<String> ids = getListOfValuesForDomain(domain, identifiers);

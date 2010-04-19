@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.db;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /**
  * Operations to convert a real entity to/from a bean and hence to/from the Hibernate database.
@@ -39,7 +39,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
   /**
    * Convert a bean representation to a security.
    */
-  public S createSecurity (DomainSpecificIdentifier identifier, SBean bean);
+  public S createSecurity (Identifier identifier, SBean bean);
   
   /**
    * Test a bean and security representation for equality.

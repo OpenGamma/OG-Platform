@@ -29,8 +29,8 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -64,11 +64,11 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
   
   private static class PositionImpl implements Position {
-    private final DomainSpecificIdentifier _identityKey;
+    private final Identifier _identityKey;
     private final BigDecimal _quantity;
-    private final DomainSpecificIdentifiers _securityKey;
-    private PositionImpl (final String identifier, final BigDecimal quantity, final DomainSpecificIdentifiers securityKey) {
-      _identityKey = new DomainSpecificIdentifier (POSITION_IDENTITY_KEY_DOMAIN, identifier);
+    private final IdentifierBundle _securityKey;
+    private PositionImpl (final String identifier, final BigDecimal quantity, final IdentifierBundle securityKey) {
+      _identityKey = new Identifier (POSITION_IDENTITY_KEY_DOMAIN, identifier);
       _quantity = quantity;
       _securityKey = securityKey;
     }
@@ -81,11 +81,11 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
       return null;
     }
     @Override
-    public DomainSpecificIdentifiers getSecurityKey() {
+    public IdentifierBundle getSecurityKey() {
       return _securityKey;
     }
     @Override
-    public DomainSpecificIdentifier getIdentityKey() {
+    public Identifier getIdentityKey() {
       return _identityKey;
     }
   }
@@ -94,11 +94,11 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   
   private Position positionBeanToPosition (final PositionMasterSession session, final InstantProvider now, final PositionBean position) {
     final Collection<DomainSpecificIdentifierAssociationBean> assocBeans = session.getDomainSpecificIdentifierAssociationBeanByPosition (now, position);
-    final Collection<DomainSpecificIdentifier> dsids = new ArrayList<DomainSpecificIdentifier> (assocBeans.size ());
+    final Collection<Identifier> dsids = new ArrayList<Identifier> (assocBeans.size ());
     for (DomainSpecificIdentifierAssociationBean assocBean : assocBeans) {
       dsids.add (assocBean.getDomainSpecificIdentifier ());
     }
-    return new PositionImpl (position.getIdentifier (), position.getQuantity (), new DomainSpecificIdentifiers (dsids));
+    return new PositionImpl (position.getIdentifier (), position.getQuantity (), new IdentifierBundle (dsids));
   }
 
   private void loadPortfolioNodeChildren (final PositionMasterSession session, final InstantProvider now, final PortfolioNodeImpl node, final PortfolioNodeBean bean) {
@@ -113,7 +113,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
     }
   }
   
-  public PortfolioNode getPortfolioNode (final InstantProvider now, final DomainSpecificIdentifier identityKey) {
+  public PortfolioNode getPortfolioNode (final InstantProvider now, final Identifier identityKey) {
     if (!identityKey.getDomain ().equals (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
       s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getDomain ());
       return null;
@@ -136,11 +136,11 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(final DomainSpecificIdentifier identityKey) {
+  public PortfolioNode getPortfolioNode(final Identifier identityKey) {
     return getPortfolioNode (TimeSource.system ().instant (), identityKey);
   }
   
-  public Position getPosition (final InstantProvider now, final DomainSpecificIdentifier identityKey) {
+  public Position getPosition (final InstantProvider now, final Identifier identityKey) {
     if (!identityKey.getDomain ().equals (Position.POSITION_IDENTITY_KEY_DOMAIN)) {
       s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getDomain ());
       return null;
@@ -160,7 +160,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
 
   @Override
-  public Position getPosition(final DomainSpecificIdentifier identityKey) {
+  public Position getPosition(final Identifier identityKey) {
     return getPosition (TimeSource.system ().instant (), identityKey);
   }
   

@@ -58,7 +58,7 @@ import com.opengamma.financial.security.option.FutureOptionSecurity;
 import com.opengamma.financial.security.option.OTCOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.Expiry;
 
@@ -291,7 +291,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         return null;
       }
     });
-    DomainSpecificIdentifier nomuraDSID = new DomainSpecificIdentifier("BLOOMBERG", "1311 Equity");
+    Identifier nomuraDSID = new Identifier("BLOOMBERG", "1311 Equity");
     final Date now = new Date();
     Security hopefullyNomura = _secMaster.getSecurity(now, nomuraDSID, false);
     Assert.assertNotNull(hopefullyNomura);
@@ -301,7 +301,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals("Topix", hopefullyNomuraSecurity.getExchange());
     Assert.assertEquals("Nomura", hopefullyNomuraSecurity.getCompanyName());
     Assert.assertEquals(Currency.getInstance("JPY"), hopefullyNomuraSecurity.getCurrency());
-    Collection<DomainSpecificIdentifier> identifiers = hopefullyNomuraSecurity.getIdentifiers();
+    Collection<Identifier> identifiers = hopefullyNomuraSecurity.getIdentifiers();
     Assert.assertNotNull(identifiers);
     Assert.assertEquals(1, identifiers.size());
     Assert.assertTrue(identifiers.contains(nomuraDSID));
@@ -322,7 +322,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         return null;
       }
     });
-    DomainSpecificIdentifier nomuraDSID_2 = new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity");
+    Identifier nomuraDSID_2 = new Identifier("BLOOMBERG", "1311 JP Equity");
     hopefullyNomura = _secMaster.getSecurity(now, nomuraDSID_2, true);
     Assert.assertNotNull(hopefullyNomura);
     System.err.println(hopefullyNomura.getClass());
@@ -345,14 +345,14 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Currency sterling = Currency.getInstance ("GBP");
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
 
-    DomainSpecificIdentifier americanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "American equity option");
-    DomainSpecificIdentifier americanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying american option id");
+    Identifier americanIdentifier = new Identifier ("BLOOMBERG", "American equity option");
+    Identifier americanUnderlyingIdentifier = new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying american option id");
     
-    DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European equity option");
-    DomainSpecificIdentifier europeanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european option id");
+    Identifier europeanIdentifier = new Identifier ("BLOOMBERG", "European equity option");
+    Identifier europeanUnderlyingIdentifier = new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european option id");
     
-    DomainSpecificIdentifier poweredIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "Powered equity option");
-    DomainSpecificIdentifier poweredUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying powered option id");
+    Identifier poweredIdentifier = new Identifier ("BLOOMBERG", "Powered equity option");
+    Identifier poweredUnderlyingIdentifier = new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying powered option id");
     
     Date now = new Date ();
     // create an American equity option
@@ -424,10 +424,10 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Currency dollar = Currency.getInstance ("USD");
     Currency sterling = Currency.getInstance ("GBP");
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
-    DomainSpecificIdentifier americanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "American future option");
-    DomainSpecificIdentifier americanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying american future id");
-    DomainSpecificIdentifier europeanIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "European future option");
-    DomainSpecificIdentifier europeanUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european future id");
+    Identifier americanIdentifier = new Identifier ("BLOOMBERG", "American future option");
+    Identifier americanUnderlyingIdentifier = new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying american future id");
+    Identifier europeanIdentifier = new Identifier ("BLOOMBERG", "European future option");
+    Identifier europeanUnderlyingIdentifier = new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying european future id");
     Date now = new Date ();
     // create an American future option
     FutureOptionSecurity futureOption = new AmericanVanillaFutureOptionSecurity (OptionType.PUT, 
@@ -482,8 +482,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Currency sterling = Currency.getInstance ("GBP");
     Currency euro = Currency.getInstance ("EUR");
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
-    DomainSpecificIdentifier fxIdentifier = new DomainSpecificIdentifier ("BLOOMBERG", "fx option");
-    DomainSpecificIdentifier fxUnderlyingIdentifier = new DomainSpecificIdentifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying identity");
+    Identifier fxIdentifier = new Identifier ("BLOOMBERG", "fx option");
+    Identifier fxUnderlyingIdentifier = new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying identity");
     OTCOptionSecurity security = new FXOptionSecurity (OptionType.PUT, 1.23, expiry, fxUnderlyingIdentifier, euro, "counterparty", dollar, sterling);
     security.setIdentifiers (Collections.singleton (fxIdentifier));
     _secMaster.putSecurity (now, security);
@@ -513,7 +513,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     LocalDate interestAccrualDate = LocalDate.of (2010, 3, 4);
     LocalDate settlementDate = LocalDate.of (2012, 11, 1);
     LocalDate firstCouponDate = LocalDate.of (2009, 1, 1);
-    DomainSpecificIdentifier governmentId = new DomainSpecificIdentifier ("BLOOMBERG", "government bond");
+    Identifier governmentId = new Identifier ("BLOOMBERG", "government bond");
     BondSecurity bond = new GovernmentBondSecurity ("issuer name", "issuer type", "issuer domicile", "market", dollar, usStreet, "guarantee type", expiry, "coupon type", 0.5, annual, act360, following, announcementDate, interestAccrualDate, settlementDate, firstCouponDate, 10.0, 100d, 10d, 1d, 10d, 15d);
     bond.setIdentifiers (Collections.singleton (governmentId));
     _secMaster.putSecurity (now, bond);
@@ -552,8 +552,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final Date now = new Date ();
     final Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
     final Currency dollar = Currency.getInstance ("USD");
-    final DomainSpecificIdentifier underlying = new DomainSpecificIdentifier ("BLOOMBERG", "underlying identifier");
-    final DomainSpecificIdentifier actual = new DomainSpecificIdentifier ("BLOOMBERG", "future identifier");
+    final Identifier underlying = new Identifier ("BLOOMBERG", "underlying identifier");
+    final Identifier actual = new Identifier ("BLOOMBERG", "future identifier");
     IndexFutureSecurity security = new IndexFutureSecurity (expiry, "DJX", "DJX", dollar, underlying);
     // check getDisplayName is not null
     String displayName = security.getDisplayName ();
@@ -585,23 +585,23 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final Currency dollar = Currency.getInstance ("USD");
     final Currency yen = Currency.getInstance ("JPY");
     final Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of ("UTC")));
-    DomainSpecificIdentifier agricultureId = new DomainSpecificIdentifier ("BLOOMBERG", "agriculture");
-    DomainSpecificIdentifier bondId = new DomainSpecificIdentifier ("BLOOMBERG", "bond");
-    DomainSpecificIdentifier energyId = new DomainSpecificIdentifier ("BLOOMBERG", "energy");
-    DomainSpecificIdentifier fxId = new DomainSpecificIdentifier ("BLOOMBERG", "fx");
-    DomainSpecificIdentifier interestRateId = new DomainSpecificIdentifier ("BLOOMBERG", "interest rate");
-    DomainSpecificIdentifier metalId = new DomainSpecificIdentifier ("BLOOMBERG", "metal");
-    DomainSpecificIdentifier indexId = new DomainSpecificIdentifier ("BLOOMBERG", "index");
-    DomainSpecificIdentifier stockId = new DomainSpecificIdentifier ("BLOOMBERG", "stock");
-    DomainSpecificIdentifier underlyingId = new DomainSpecificIdentifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying ID");
+    Identifier agricultureId = new Identifier ("BLOOMBERG", "agriculture");
+    Identifier bondId = new Identifier ("BLOOMBERG", "bond");
+    Identifier energyId = new Identifier ("BLOOMBERG", "energy");
+    Identifier fxId = new Identifier ("BLOOMBERG", "fx");
+    Identifier interestRateId = new Identifier ("BLOOMBERG", "interest rate");
+    Identifier metalId = new Identifier ("BLOOMBERG", "metal");
+    Identifier indexId = new Identifier ("BLOOMBERG", "index");
+    Identifier stockId = new Identifier ("BLOOMBERG", "stock");
+    Identifier underlyingId = new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, "underlying ID");
     FutureSecurity future;
     future = new AgricultureFutureSecurity (expiry, "TPX", "DJX", dollar, "Red wheat");
     future.setIdentifiers (Collections.singleton (agricultureId));
     _secMaster.putSecurity (now, future);
-    Set<DomainSpecificIdentifier> bondIdentifiers = new HashSet<DomainSpecificIdentifier> ();
-    bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "corporate bond"));
-    bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "municipal bond"));
-    bondIdentifiers.add (new DomainSpecificIdentifier ("BLOOMBERG", "government bond"));
+    Set<Identifier> bondIdentifiers = new HashSet<Identifier> ();
+    bondIdentifiers.add (new Identifier ("BLOOMBERG", "corporate bond"));
+    bondIdentifiers.add (new Identifier ("BLOOMBERG", "municipal bond"));
+    bondIdentifiers.add (new Identifier ("BLOOMBERG", "government bond"));
     future = new BondFutureSecurity (expiry, "TPX", "DJX", dollar, "type", bondIdentifiers);
     future.setIdentifiers (Collections.singleton (bondId));
     _secMaster.putSecurity (now, future);
@@ -642,10 +642,10 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals ("DJX", bondSecurity.getSettlementExchange ());
     Assert.assertEquals (dollar, bondSecurity.getCurrency ());
     Assert.assertEquals ("type", bondSecurity.getBondType ());
-    Set<DomainSpecificIdentifier> identifiers = bondSecurity.getBasket ();
+    Set<Identifier> identifiers = bondSecurity.getBasket ();
     Assert.assertNotNull (identifiers);
     Assert.assertEquals (bondIdentifiers.size (), identifiers.size ());
-    for (DomainSpecificIdentifier dsid : bondIdentifiers) {
+    for (Identifier dsid : bondIdentifiers) {
       Assert.assertTrue (identifiers.contains (dsid));
     }
     security = _secMaster.getSecurity (now, energyId, true);
@@ -779,7 +779,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     generalMotors.setIdentityKey("GM US Equity");
     generalMotors.setTicker("GM US Equity");
     generalMotors.setGICSCode(GICSCode.getInstance (25102010));
-    generalMotors.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity")));
+    generalMotors.setIdentifiers(Collections.singleton(new Identifier("BLOOMBERG", "GM US Equity")));
     
     EquitySecurity nomura = new EquitySecurity();
     nomura.setCompanyName("Nomura");
@@ -790,14 +790,14 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     nomura.setIdentityKey("1311 JP Equity");
     nomura.setTicker("1311 JP Equity");
     nomura.setGICSCode(GICSCode.getInstance (4010));
-    nomura.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity")));
+    nomura.setIdentifiers(Collections.singleton(new Identifier("BLOOMBERG", "1311 JP Equity")));
     
     _secMaster.putSecurity(yesterYear2003, generalMotors);
     _secMaster.putSecurity(yesterYear2003, nomura);
     
-    Security shouldBeNomura = _secMaster.getSecurity(new DomainSpecificIdentifier("BLOOMBERG", "1311 JP Equity"));
+    Security shouldBeNomura = _secMaster.getSecurity(new Identifier("BLOOMBERG", "1311 JP Equity"));
     Assert.assertEquals(nomura, shouldBeNomura);
-    Security shouldBeGM = _secMaster.getSecurity(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity"));
+    Security shouldBeGM = _secMaster.getSecurity(new Identifier("BLOOMBERG", "GM US Equity"));
     Assert.assertEquals(generalMotors, shouldBeGM);
 
     EquitySecurity generalMotors2 = new EquitySecurity();
@@ -809,7 +809,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     generalMotors2.setIdentityKey("GM US Equity");
     generalMotors2.setTicker("GM US Equity");
     generalMotors2.setGICSCode(GICSCode.getInstance (25102010));
-    generalMotors2.setIdentifiers(Collections.singleton(new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity")));
+    generalMotors2.setIdentifiers(Collections.singleton(new Identifier("BLOOMBERG", "GM US Equity")));
     _secMaster.putSecurity(yesterYear2005, generalMotors2);
     _secMaster.getHibernateTemplate().execute(new HibernateCallback() {
       @Override
@@ -823,9 +823,9 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         return null;
       }
     });
-    shouldBeGM = _secMaster.getSecurity(yesterYear2004, new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity"), true);
+    shouldBeGM = _secMaster.getSecurity(yesterYear2004, new Identifier("BLOOMBERG", "GM US Equity"), true);
     Assert.assertEquals(generalMotors, shouldBeGM);
-    shouldBeGM = _secMaster.getSecurity(yesterYear2006, new DomainSpecificIdentifier("BLOOMBERG", "GM US Equity"), true);
+    shouldBeGM = _secMaster.getSecurity(yesterYear2006, new Identifier("BLOOMBERG", "GM US Equity"), true);
     Assert.assertEquals(generalMotors2, shouldBeGM);
   }
 

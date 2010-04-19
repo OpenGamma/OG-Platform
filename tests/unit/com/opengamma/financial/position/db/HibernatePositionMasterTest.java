@@ -25,9 +25,9 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -131,11 +131,11 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testPortfolioNode () {
     createTestEquityOptionPortfolio ();
-    PortfolioNode portfolioNode = _posMaster.getPortfolioNode (new DomainSpecificIdentifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, "doesn't exist"));
+    PortfolioNode portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, "doesn't exist"));
     assertNull (portfolioNode);
-    portfolioNode = _posMaster.getPortfolioNode (new DomainSpecificIdentifier ("BAD DOMAIN", "node 1"));
+    portfolioNode = _posMaster.getPortfolioNode (new Identifier ("BAD DOMAIN", "node 1"));
     assertNull (portfolioNode);
-    portfolioNode = _posMaster.getPortfolioNode (new DomainSpecificIdentifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, "node 1"));
+    portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, "node 1"));
     assertNotNull (portfolioNode);
     assertEquals ("Options on AAPL US Equity", portfolioNode.getName ());
     assertEquals (5, portfolioNode.getPositions ().size ());
@@ -144,18 +144,18 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testPosition () {
     createTestEquityOptionPortfolio ();
-    Position position = _posMaster.getPosition (new DomainSpecificIdentifier (Position.POSITION_IDENTITY_KEY_DOMAIN, "doesn't exist"));
+    Position position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_DOMAIN, "doesn't exist"));
     assertNull (position);
-    position = _posMaster.getPosition (new DomainSpecificIdentifier ("BAD DOMAIN", "10"));
+    position = _posMaster.getPosition (new Identifier ("BAD DOMAIN", "10"));
     assertNull (position);
-    position = _posMaster.getPosition (new DomainSpecificIdentifier (Position.POSITION_IDENTITY_KEY_DOMAIN, "10"));
+    position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_DOMAIN, "10"));
     assertNotNull (position);
     assertEquals ("10", position.getIdentityKey ().getValue ());
     assertEquals (new BigDecimal (10), position.getQuantity ());
-    final DomainSpecificIdentifiers dsids = position.getSecurityKey();
+    final IdentifierBundle dsids = position.getSecurityKey();
     assertNotNull (dsids);
-    assertEquals ("T US 04/17/10 C22 Equity", dsids.getIdentifier (new IdentificationDomain ("Test 1")));
-    assertEquals ("ID 10", dsids.getIdentifier (new IdentificationDomain ("Test 2")));
+    assertEquals ("T US 04/17/10 C22 Equity", dsids.getIdentifier (new IdentificationScheme ("Test 1")));
+    assertEquals ("ID 10", dsids.getIdentifier (new IdentificationScheme ("Test 2")));
   }
   
   @Test

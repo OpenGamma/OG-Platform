@@ -10,7 +10,7 @@ import java.util.Date;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /* package */ class EquitySecurityBeanOperation extends Converters implements BeanOperation<EquitySecurity, EquitySecurityBean> {
   
@@ -59,7 +59,7 @@ import com.opengamma.id.DomainSpecificIdentifier;
   }
 
   @Override
-  public EquitySecurity createSecurity(final DomainSpecificIdentifier identifier, final EquitySecurityBean bean) {
+  public EquitySecurity createSecurity(final Identifier identifier, final EquitySecurityBean bean) {
     EquitySecurity result = new EquitySecurity();
     result.setCompanyName(bean.getCompanyName());
     result.setCurrency(currencyBeanToCurrency(bean.getCurrency()));
