@@ -12,24 +12,24 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 
 /**
- * A pure unit test for {@link IdentificationDomain}.
+ * A pure unit test for {@link IdentificationScheme}.
  *
  * @author kirk
  */
-public class IdentificationDomainTest {
+public class IdentificationSchemeTest {
 
   @Test
   public void comparisons() {
-    IdentificationDomain d1 = new IdentificationDomain("d1");
-    IdentificationDomain d2 = new IdentificationDomain("d2");
+    IdentificationScheme d1 = new IdentificationScheme("d1");
+    IdentificationScheme d2 = new IdentificationScheme("d2");
     
     assertTrue(d1.equals(d1));
     assertFalse(d1.equals("d1"));
     assertFalse(d1.equals(d2));
-    d2 = new IdentificationDomain(d1.getDomainName());
+    d2 = new IdentificationScheme(d1.getDomainName());
     assertTrue(d1.equals(d2));
     assertEquals(d1.hashCode(), d2.hashCode());
     
@@ -39,6 +39,6 @@ public class IdentificationDomainTest {
   
   @Test(expected=NullPointerException.class)
   public void noNameProvided() {
-    new IdentificationDomain(null);
+    new IdentificationScheme(null);
   }
 }
