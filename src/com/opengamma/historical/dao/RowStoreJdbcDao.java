@@ -104,7 +104,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     if (quotedObject == null) {
       Identifier identifier = domainIdentifiers.getIdentifiers().iterator().next();
-      quotedObject = identifier.getDomain().getDomainName() + "_" + identifier.getValue();
+      quotedObject = identifier.getScheme().getName() + "_" + identifier.getValue();
       createDomainSpecIdentifiers(domainIdentifiers, quotedObject);
     } else {
       IdentifierBundle loadedIdentifiers = findDomainSpecIdentifiersByQuotedObject(quotedObject);
@@ -151,7 +151,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       } catch (Throwable t) {
         _transactionManager.rollback(transactionStatus);
         Identifier identifer = domainIdentifiers.getIdentifiers().iterator().next();
-        s_logger.warn("error trying to insert timeSeries for {}-{}", identifer.getDomain().getDomainName(), identifer.getValue());
+        s_logger.warn("error trying to insert timeSeries for {}-{}", identifer.getScheme().getName(), identifer.getValue());
         throw new OpenGammaRuntimeException("Unable to add Timeseries", t);
       }
     } else {
@@ -240,7 +240,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     int paramIndex = 0;
     for (Identifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
       sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
-      parameters[paramIndex++] = domainSpecificIdentifier.getDomain().getDomainName();
+      parameters[paramIndex++] = domainSpecificIdentifier.getScheme().getName();
       parameters[paramIndex++] = domainSpecificIdentifier.getValue();
       if (orCounter++ != size) {
         sqlBuffer.append(" OR ");
@@ -282,7 +282,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         int paramIndex = 0;
         for (Identifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
           sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
-          parameters[paramIndex++] = domainSpecificIdentifier.getDomain().getDomainName();
+          parameters[paramIndex++] = domainSpecificIdentifier.getScheme().getName();
           parameters[paramIndex++] = domainSpecificIdentifier.getValue();
           if (orCounter++ != size) {
             sqlBuffer.append(" OR ");
@@ -318,7 +318,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       SqlParameterSource[] batchArgs = new MapSqlParameterSource[resolvedIdentifiers.size()];
       int index = 0;
       for (Identifier domainSpecificIdentifier : resolvedIdentifiers) {
-        String domainName = domainSpecificIdentifier.getDomain().getDomainName();
+        String domainName = domainSpecificIdentifier.getScheme().getName();
         if (getDomainID(domainName) == -1) {
           createDomain(domainName, domainName);
         }
@@ -583,7 +583,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       " AND ot.name = :observationTime ";
     
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
-    .addValue("domain", domainSpecId.getDomain().getDomainName(), Types.VARCHAR)
+    .addValue("domain", domainSpecId.getScheme().getName(), Types.VARCHAR)
     .addValue("dataSource", dataSource, Types.VARCHAR)
     .addValue("dataProvider", dataProvider, Types.VARCHAR)
     .addValue("dataField", dataField, Types.VARCHAR)
@@ -764,7 +764,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     sql.append(" ORDER BY ts_date");
        
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
-      .addValue("domain", domainSpecId.getDomain().getDomainName(), Types.VARCHAR)
+      .addValue("domain", domainSpecId.getScheme().getName(), Types.VARCHAR)
       .addValue("dataSource", dataSource, Types.VARCHAR)
       .addValue("dataProvider", dataProvider, Types.VARCHAR)
       .addValue("dataField", field, Types.VARCHAR)
