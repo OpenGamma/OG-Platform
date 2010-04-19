@@ -114,7 +114,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
 
   @Override
   public Double convertFromLong(final long dateTime) {
-    throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
+    return (double)(dateTime - _offset)/MILLIS_PER_YEAR;
   }
 
   @Override
@@ -170,7 +170,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
 
   @Override
   public Pair<Double, Double> makePair(final Double dateTime, final Double value) {
-    return new Pair<Double, Double>(dateTime, value);
+    return Pair.of(dateTime, value);
   }
 
   @Override

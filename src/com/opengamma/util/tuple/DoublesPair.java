@@ -1,0 +1,111 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.util.tuple;
+
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
+
+import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
+
+/**
+ * An immutable pair consisting of two {@code double} elements.
+ * <p>
+ * The class provides direct access to the primitive types and implements
+ * the relevant fastutil interface.
+ *
+ * @author scolebourne
+ */
+public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
+
+  /** The first element. */
+  private final double _first;
+  /** The second element. */
+  private final double _second;
+
+  /**
+   * Constructor.
+   * @param first  the first element
+   * @param second  the second element
+   */
+  public DoublesPair(final double first, final double second) {
+    _first = first;
+    _second = second;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Double getFirst() {
+    return _first;
+  }
+
+  @Override
+  public Double getSecond() {
+    return _second;
+  }
+
+  public double getFirstDouble() {
+    return _first;
+  }
+
+  public double getSecondDouble() {
+    return _second;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double getDoubleKey() {
+    return _first;
+  }
+
+  @Override
+  public double getDoubleValue() {
+    return _second;
+  }
+
+  @Override
+  public double setValue(double newValue) {
+    throw new UnsupportedOperationException("Immutable");
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj instanceof DoublesPair) {
+      final DoublesPair other = (DoublesPair) obj;
+      return this.getFirstDouble() == other.getFirstDouble() && this.getSecondDouble() == other.getSecondDouble();
+    }
+    return super.equals(obj);
+  }
+
+  @Override
+  public int hashCode() {
+    // see Map.Entry API specification
+    final long f = Double.doubleToLongBits(getFirstDouble());
+    final long s = Double.doubleToLongBits(getSecondDouble());
+    return ((int) (f ^ (f >>> 32))) ^ ((int) (s ^ (s >>> 32)));
+  }
+
+  //-------------------------------------------------------------------------
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    message.add(0, getClass().getName());
+    context.objectToFudgeMsg(message, "first", null, getFirst());
+    context.objectToFudgeMsg(message, "second", null, getSecond());
+    return message;
+  }
+
+  public static DoublesPair fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    double first = (Double) context.fieldValueToObject(message.getByName("first"));
+    double second = (Double) context.fieldValueToObject(message.getByName("second"));
+    return DoublesPair.of(first, second);
+  }
+
+}

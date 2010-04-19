@@ -5,67 +5,66 @@
  */
 package com.opengamma.util.tuple;
 
-import java.util.Map;
-
 import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
 /**
- * A mutable pair implementation consisting of an {@code int} and a {@code double}.
+ * An immutable pair consisting of an {@code int} and {@code double}.
  * <p>
- * This implementation refers to the elements as 'key' and 'value'.
- * The class also implements the {@link Map.Entry} and fastutil interfaces.
+ * The class provides direct access to the primitive types and implements
+ * the relevant fastutil interface.
  *
  * @author jim
  */
-public class IntDoublePair implements Int2DoubleMap.Entry {
+public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
 
-  /** The {@code int} element. */
-  private final int _intValue;
-  /** The {@code double} element. */
-  private double _doubleValue;
+  /** The first element. */
+  private final int _first;
+  /** The second element. */
+  private final double _second;
 
   /**
    * Constructor.
-   * @param intValue  the int element
-   * @param doubleValue  the double element
+   * @param first  the first element
+   * @param second  the second element
    */
-  public IntDoublePair(final int intValue, final double doubleValue) {
-    _intValue = intValue;
-    _doubleValue = doubleValue;
+  public IntDoublePair(final int first, final double second) {
+    _first = first;
+    _second = second;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Integer getFirst() {
+    return _first;
+  }
+
+  @Override
+  public Double getSecond() {
+    return _second;
+  }
+
+  public int getFirstInt() {
+    return _first;
+  }
+
+  public double getSecondDouble() {
+    return _second;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public int getIntKey() {
-    return _intValue;
+    return _first;
   }
 
   @Override
   public double getDoubleValue() {
-    return _doubleValue;
+    return _second;
   }
 
   @Override
   public double setValue(final double value) {
-    final double old = _doubleValue;
-    _doubleValue = value;
-    return old;
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public Integer getKey() {
-    return _intValue;
-  }
-
-  @Override
-  public Double getValue() {
-    return _doubleValue;
-  }
-
-  @Override
-  public Double setValue(final Double value) {
-    return setValue(value);
+    throw new UnsupportedOperationException("Immutable");
   }
 
   //-------------------------------------------------------------------------
@@ -76,21 +75,16 @@ public class IntDoublePair implements Int2DoubleMap.Entry {
     }
     if (obj instanceof IntDoublePair) {
       final IntDoublePair other = (IntDoublePair) obj;
-      return this.getIntKey() == other.getIntKey() && this.getDoubleValue() == other.getDoubleValue();
+      return this.getFirstInt() == other.getFirstInt() && this.getSecondDouble() == other.getSecondDouble();
     }
-    return false;
+    return super.equals(obj);
   }
 
   @Override
   public int hashCode() {
     // see Map.Entry API specification
-    final long d = Double.doubleToLongBits(getDoubleValue());
-    return getIntKey() ^ ((int) (d ^ (d >>> 32)));
-  }
-
-  @Override
-  public String toString() {
-    return "[" + getIntKey() + ", " + getDoubleValue() + "]";
+    final long d = Double.doubleToLongBits(getSecondDouble());
+    return getFirstInt() ^ ((int) (d ^ (d >>> 32)));
   }
 
 }

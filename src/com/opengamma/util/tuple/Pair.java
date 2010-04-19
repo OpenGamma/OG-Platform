@@ -12,13 +12,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
-import org.fudgemsg.FudgeFieldContainer;
-import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.mapping.FudgeDeserializationContext;
-import org.fudgemsg.mapping.FudgeSerializationContext;
 
 /**
- * A standard immutable pair implementation consisting of two elements.
+ * An immutable pair consisting of two elements.
  * <p>
  * This implementation refers to the elements as 'first' and 'second'.
  * The class also implements the {@link Map.Entry} interface where the key is 'first'
@@ -32,30 +28,66 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
  * @param <A> the first element type
  * @param <B> the second element type
  */
-public final class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>, Serializable {
-
-  /** The first element. */
-  private final A _first;
-  /** The second element. */
-  private final B _second;
+public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>, Serializable {
 
   /**
-   * Factory method creating a pair inferring the types.
+   * Creates a pair of {@code Object}s inferring the types.
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    */
-  public static <A, B> Pair<A, B> of(A first, B second) {
-    return new Pair<A, B>(first, second);
+  public static <A, B> ObjectsPair<A, B> of(A first, B second) {
+    return new ObjectsPair<A, B>(first, second);
+  }
+
+  /**
+   * Creates a pair of {@code Double}s.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   */
+  public static ObjectsPair<Double, Double> of(Double first, double second) {
+    return new ObjectsPair<Double, Double>(first, second);
+  }
+
+  /**
+   * Creates a pair of {@code Double}s.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   */
+  public static ObjectsPair<Double, Double> of(double first, Double second) {
+    return new ObjectsPair<Double, Double>(first, second);
+  }
+
+  /**
+   * Creates a pair of {@code double}s.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   */
+  public static DoublesPair of(double first, double second) {
+    return new DoublesPair(first, second);
+  }
+
+  /**
+   * Creates a pair of {@code int} to {@code double}.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   */
+  public static IntDoublePair of(int first, double second) {
+    return new IntDoublePair(first, second);
+  }
+
+  /**
+   * Creates a pair of {@code long} to {@code double}.
+   * @param first  the first element, may be null
+   * @param second  the second element, may be null
+   */
+  public static LongDoublePair of(long first, double second) {
+    return new LongDoublePair(first, second);
   }
 
   /**
    * Constructs a pair.
-   * @param first  the first element, may be null
-   * @param second  the second element, may be null
    */
-  public Pair(A first, B second) {
-    _first = first;
-    _second = second;
+  protected Pair() {
   }
 
   //-------------------------------------------------------------------------
@@ -64,18 +96,14 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>,
    * When treated as a key-value pair, this is the key.
    * @return the first element, may be null
    */
-  public A getFirst() {
-    return _first;
-  }
+  public abstract A getFirst();
 
   /**
    * Gets the second element from this pair.
    * When treated as a key-value pair, this is the value.
    * @return the second element, may be null
    */
-  public B getSecond() {
-    return _second;
-  }
+  public abstract B getSecond();
 
   /**
    * Gets the key from this pair.
@@ -85,7 +113,7 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>,
    */
   @Override
   public A getKey() {
-    return _first;
+    return getFirst();
   }
 
   /**
@@ -96,7 +124,7 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>,
    */
   @Override
   public B getValue() {
-    return _second;
+    return getSecond();
   }
 
   /**
@@ -127,7 +155,7 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>,
   //-------------------------------------------------------------------------
   /**
    * Compares the pair based on the first element followed by the second element.
-   * The generic types must be {@link Comparable}.
+   * The types must be {@link Comparable}.
    * @param other  the other pair, not null
    * @return negative if this is less, zero if equal, positive if greater
    */
@@ -161,26 +189,11 @@ public final class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>,
   @Override
   public String toString() {
     return new StringBuilder()
-      .append("Pair[")
+      .append("[")
       .append(getFirst())
       .append(", ")
       .append(getSecond())
       .append("]").toString();
-  }
-
-  //-------------------------------------------------------------------------
-  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(0, getClass().getName());
-    context.objectToFudgeMsg(message, "first", null, getFirst());
-    context.objectToFudgeMsg(message, "second", null, getSecond());
-    return message;
-  }
-
-  public static Pair<?,?> fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    Object first = context.fieldValueToObject(message.getByName("first"));
-    Object second = context.fieldValueToObject(message.getByName("second"));
-    return Pair.of(first, second);
   }
 
 }
