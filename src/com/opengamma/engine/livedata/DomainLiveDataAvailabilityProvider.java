@@ -46,7 +46,7 @@ implements LiveDataAvailabilityProvider {
     switch (requirement.getTargetSpecification().getType()) {
     
     case PRIMITIVE:
-      IdentificationScheme domain = requirement.getTargetSpecification().getIdentifier().getDomain();
+      IdentificationScheme domain = requirement.getTargetSpecification().getIdentifier().getScheme();
       return _acceptableDomains.contains(domain);
     
     case SECURITY:
@@ -55,7 +55,7 @@ implements LiveDataAvailabilityProvider {
         return false;
       }
       for (Identifier identifier : security.getIdentifiers()) {
-        if (_acceptableDomains.contains(identifier.getDomain())) {
+        if (_acceptableDomains.contains(identifier.getScheme())) {
           return true;
         }
       }

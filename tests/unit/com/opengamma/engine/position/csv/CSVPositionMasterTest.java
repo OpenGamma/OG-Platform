@@ -51,8 +51,8 @@ public class CSVPositionMasterTest {
     assertEquals(1, position.getSecurityKey().getIdentifiers().size());
     Identifier id = position.getSecurityKey().getIdentifiers().iterator().next();
     assertNotNull(id);
-    assertNotNull(id.getDomain());
-    assertEquals("KIRK", id.getDomain().getDomainName());
+    assertNotNull(id.getScheme());
+    assertEquals("KIRK", id.getScheme().getName());
     assertNotNull(id.getValue());
     assertEquals("MY-ID", id.getValue());
   }
@@ -72,9 +72,9 @@ public class CSVPositionMasterTest {
     while(idIter.hasNext()) {
       Identifier id = idIter.next();
       assertNotNull(id);
-      assertNotNull(id.getDomain());
+      assertNotNull(id.getScheme());
       assertNotNull(id.getValue());
-      assertEquals(id.getDomain().getDomainName().charAt(6), id.getValue().charAt(5));
+      assertEquals(id.getScheme().getName().charAt(6), id.getValue().charAt(5));
     }
   }
 

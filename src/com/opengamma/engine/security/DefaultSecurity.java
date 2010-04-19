@@ -101,7 +101,7 @@ public class DefaultSecurity implements Security, Serializable {
       }
       identifier = identifiers.iterator ().next ();
     }
-    return identifier.getDomain ().getDomainName () + "/" + identifier.getValue ();
+    return identifier.getScheme ().getName () + "/" + identifier.getValue ();
   }
   
   @Override

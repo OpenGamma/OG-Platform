@@ -169,7 +169,7 @@ public class SingleComputationCycle {
       sb.append("[").append(req.getValueName()).append(" on ");
       sb.append(req.getTargetSpecification().getType());
       if(req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
-        sb.append("-").append(req.getTargetSpecification().getIdentifier().getDomain().getDomainName());
+        sb.append("-").append(req.getTargetSpecification().getIdentifier().getScheme().getName());
       }
       sb.append(":").append(req.getTargetSpecification().getIdentifier().getValue()).append("] ");
     }
