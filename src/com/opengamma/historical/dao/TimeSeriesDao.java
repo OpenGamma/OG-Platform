@@ -10,8 +10,8 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -69,24 +69,24 @@ public interface TimeSeriesDao {
   
   public Set<String> getAllQuotedObjects();
   
-  public void createDomainSpecIdentifiers(DomainSpecificIdentifiers domainIdentifiers, String quotedObj);
+  public void createDomainSpecIdentifiers(IdentifierBundle domainIdentifiers, String quotedObj);
   
   public void createTimeSeriesKey(String quotedObject, String dataSource, String dataProvider, String dataField, String observationTime);
   
-  public DomainSpecificIdentifiers findDomainSpecIdentifiersByQuotedObject(String name);
+  public IdentifierBundle findDomainSpecIdentifiersByQuotedObject(String name);
 
-  public void addTimeSeries(DomainSpecificIdentifiers domainSpecificIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
+  public void addTimeSeries(IdentifierBundle domainSpecificIdentifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
   
-  public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
+  public LocalDateDoubleTimeSeries getTimeSeries(Identifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
 
-  public LocalDateDoubleTimeSeries getTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate start, LocalDate end);
+  public LocalDateDoubleTimeSeries getTimeSeries(Identifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate start, LocalDate end);
   
-  public void deleteTimeSeries(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
+  public void deleteTimeSeries(Identifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime);
   
-  public void updateDataPoint (DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date, Double value);
+  public void updateDataPoint (Identifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date, Double value);
   
-  public void deleteDataPoint(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date);
+  public void deleteDataPoint(Identifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date);
   
-  public LocalDateDoubleTimeSeries getTimeSeriesSnapShot(DomainSpecificIdentifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
+  public LocalDateDoubleTimeSeries getTimeSeriesSnapShot(Identifier domainSpecId, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
 
 }

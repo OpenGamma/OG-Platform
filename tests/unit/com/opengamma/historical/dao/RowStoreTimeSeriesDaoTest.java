@@ -34,8 +34,8 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.test.DBTest;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
@@ -327,26 +327,26 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   @Test
   public void createDomainIdentifiers() throws Exception {
     //1-to-1 mapping between QuotedObj and DomainSpecIdentifier
-    DomainSpecificIdentifier identifier1 = new DomainSpecificIdentifier("DA", "DA1");
-    DomainSpecificIdentifiers domainIdentifiers = new DomainSpecificIdentifiers(identifier1);
+    Identifier identifier1 = new Identifier("DA", "DA1");
+    IdentifierBundle domainIdentifiers = new IdentifierBundle(identifier1);
     
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO1");
     
-    DomainSpecificIdentifiers actual = _timeseriesDao.findDomainSpecIdentifiersByQuotedObject("QO1");
+    IdentifierBundle actual = _timeseriesDao.findDomainSpecIdentifiersByQuotedObject("QO1");
     assertEquals(domainIdentifiers, actual);
     
     //1-to-Many mapping between QuotedObj and DomainSpecIdentifier
-    DomainSpecificIdentifier identifier2 = new DomainSpecificIdentifier("DA", "DA2");
-    DomainSpecificIdentifier identifier3 = new DomainSpecificIdentifier("DB", "DB1");
-    domainIdentifiers = new DomainSpecificIdentifiers(identifier2, identifier3);
+    Identifier identifier2 = new Identifier("DA", "DA2");
+    Identifier identifier3 = new Identifier("DB", "DB1");
+    domainIdentifiers = new IdentifierBundle(identifier2, identifier3);
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO2");
     
     actual = _timeseriesDao.findDomainSpecIdentifiersByQuotedObject("QO2");
     assertEquals(domainIdentifiers, actual);
     
     //add DomainSpecIdentifier to existing QuotedObj
-    DomainSpecificIdentifier identifier4 = new DomainSpecificIdentifier("DC", "DC1");
-    domainIdentifiers = new DomainSpecificIdentifiers(identifier4);
+    Identifier identifier4 = new Identifier("DC", "DC1");
+    domainIdentifiers = new IdentifierBundle(identifier4);
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO1");
     
     actual = _timeseriesDao.findDomainSpecIdentifiersByQuotedObject("QO1");
@@ -355,8 +355,8 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertTrue(actual.getIdentifiers().contains(identifier4));
     
     //create an existing DomainSpecIdentifier
-    DomainSpecificIdentifier identifier5 = new DomainSpecificIdentifier("DD", "DD1");
-    domainIdentifiers = new DomainSpecificIdentifiers(identifier2, identifier5);
+    Identifier identifier5 = new Identifier("DD", "DD1");
+    domainIdentifiers = new IdentifierBundle(identifier2, identifier5);
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO2");
     
     actual = _timeseriesDao.findDomainSpecIdentifiersByQuotedObject("QO2");
@@ -368,13 +368,13 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   
   @Test(expected = OpenGammaRuntimeException.class)
   public void createDomainIdentifersWithExistingQuotedObject() throws Exception {
-    DomainSpecificIdentifier da = new DomainSpecificIdentifier("DA", "DA1");
-    DomainSpecificIdentifier db = new DomainSpecificIdentifier("DB", "DB1");
-    DomainSpecificIdentifiers domainIdentifiers = new DomainSpecificIdentifiers(da, db);
+    Identifier da = new Identifier("DA", "DA1");
+    Identifier db = new Identifier("DB", "DB1");
+    IdentifierBundle domainIdentifiers = new IdentifierBundle(da, db);
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO1");
     
-    DomainSpecificIdentifier de = new DomainSpecificIdentifier("DE", "DE1");
-    domainIdentifiers = new DomainSpecificIdentifiers(da, de);
+    Identifier de = new Identifier("DE", "DE1");
+    domainIdentifiers = new IdentifierBundle(da, de);
     _timeseriesDao.createDomainSpecIdentifiers(domainIdentifiers, "QO2");
     
   }
@@ -383,19 +383,19 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void addTimeSeries() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      DomainSpecificIdentifier domainSpecificIdentifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      Identifier domainSpecificIdentifier = new Identifier("d" + i, "id" + i);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
     }
     //test set of domain identifiers
-    DomainSpecificIdentifier bbgtickerID = new DomainSpecificIdentifier("bbgTicker", "AAPL US Equity");
-    DomainSpecificIdentifier cusipID = new DomainSpecificIdentifier("cusip", "123456789");
-    DomainSpecificIdentifier bbgUniqueID = new DomainSpecificIdentifier("bbgUnique", "XI45678-89");
+    Identifier bbgtickerID = new Identifier("bbgTicker", "AAPL US Equity");
+    Identifier cusipID = new Identifier("cusip", "123456789");
+    Identifier bbgUniqueID = new Identifier("bbgUnique", "XI45678-89");
     
-    DomainSpecificIdentifiers domainSpeIdentifiers = new DomainSpecificIdentifiers(bbgUniqueID, bbgtickerID, cusipID);
+    IdentifierBundle domainSpeIdentifiers = new IdentifierBundle(bbgUniqueID, bbgtickerID, cusipID);
     
     LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
     
@@ -417,9 +417,9 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void getTimeSeriesWithDateRange() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      DomainSpecificIdentifier domainSpecificIdentifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      Identifier domainSpecificIdentifier = new Identifier("d" + i, "id" + i);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       
       LocalDate earliestDate = timeSeries.getEarliestTime();
@@ -441,19 +441,19 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   @Test
   public void deleteTimeSeries() throws Exception {
     addRandonTimeSeriesToDB(2);
-    Set<DomainSpecificIdentifier> deletedIdentifiers = new HashSet<DomainSpecificIdentifier>();
+    Set<Identifier> deletedIdentifiers = new HashSet<Identifier>();
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      Identifier identifier = new Identifier("d" + i, "id" + i);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       //add timeseries to datastore and assert it is in datasource
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
       deletedIdentifiers.add(identifier);
     }
-    for (DomainSpecificIdentifier identifier : deletedIdentifiers) {
+    for (Identifier identifier : deletedIdentifiers) {
       _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
@@ -465,9 +465,9 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      Identifier identifier = new Identifier("d" + i, "id" + i);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       //assert timeseries are in datastore
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
@@ -478,7 +478,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
       // add timeseries to existing identifiers in the datastore
       timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
@@ -488,7 +488,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   @Test
   public void getEmptyTimeSeries() throws Exception {
     addRandonTimeSeriesToDB(2);
-    DomainSpecificIdentifier bbgtickerID = new DomainSpecificIdentifier("bbgTicker", "AAPL US Equity");
+    Identifier bbgtickerID = new Identifier("bbgTicker", "AAPL US Equity");
     DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
   }
@@ -497,9 +497,9 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void updateDataPoint() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      Identifier identifier = new Identifier("d" + i, "id" + i);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       assertEquals(timeSeries, actualTS);
@@ -524,10 +524,10 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void deleteDataPoint() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d" + i, "id" + i);
+      Identifier identifier = new Identifier("d" + i, "id" + i);
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       //add timeseries to datastore
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       //assert timeseries 
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
@@ -550,7 +550,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   
   @Test
   public void getTimeSeriesSnapShot() throws Exception {
-    DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("d1", "id1");
+    Identifier identifier = new Identifier("d1", "id1");
     
     SortedMap<ZonedDateTime, DoubleTimeSeries<LocalDate>> timeStampTSMap = new TreeMap<ZonedDateTime, DoubleTimeSeries<LocalDate>>();
     LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
@@ -560,7 +560,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       currentTimeSeriesMap.put(timeSeries.getTime(i), timeSeries.getValueAt(i));
     }
     
-    _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+    _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
     DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeSeries, actualTS);
@@ -601,7 +601,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     
     //add new timeseries
     timeSeries = makeRandomTimeSeries();
-    _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+    _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
     actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     assertEquals(timeSeries, actualTS);
@@ -645,8 +645,8 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   
   private void addRandonTimeSeriesToDB(int size) {
     for (int i = 0; i < size; i++) {
-      DomainSpecificIdentifier identifier = new DomainSpecificIdentifier("t" + i, "tid" + i);
-      _timeseriesDao.addTimeSeries(new DomainSpecificIdentifiers(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      Identifier identifier = new Identifier("t" + i, "tid" + i);
+      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, makeRandomTimeSeries());
     }
   }
