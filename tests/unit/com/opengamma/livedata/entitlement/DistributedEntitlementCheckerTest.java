@@ -9,8 +9,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.DistributedEntitlementChecker;
 import com.opengamma.livedata.entitlement.EntitlementServer;
@@ -42,7 +42,7 @@ public class DistributedEntitlementCheckerTest {
     
     LiveDataSpecification testSpec = new LiveDataSpecification(
         "TestNormalization",
-        new DomainSpecificIdentifier(new IdentificationDomain("test1"), "test1"));
+        new Identifier(new IdentificationScheme("test1"), "test1"));
     assertTrue(client.isEntitled("megan", testSpec));
     
   }

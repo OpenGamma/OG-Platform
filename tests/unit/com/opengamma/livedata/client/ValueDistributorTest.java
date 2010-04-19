@@ -15,8 +15,8 @@ import java.util.Set;
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
@@ -36,7 +36,7 @@ public class ValueDistributorTest {
     
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
     CollectingLiveDataListener listener2 = new CollectingLiveDataListener();
-    LiveDataSpecification spec = new LiveDataSpecification("foo", new DomainSpecificIdentifier(new IdentificationDomain("bar"), "baz"));
+    LiveDataSpecification spec = new LiveDataSpecification("foo", new Identifier(new IdentificationScheme("bar"), "baz"));
     
     distributor.addListener(spec, listener1);
     activeSpecs = distributor.getActiveSpecifications();
@@ -68,8 +68,8 @@ public class ValueDistributorTest {
     Set<LiveDataSpecification> activeSpecs = null;
     
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
-    LiveDataSpecification spec1 = new LiveDataSpecification("x", new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar1"));
-    LiveDataSpecification spec2 = new LiveDataSpecification("x", new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar2"));
+    LiveDataSpecification spec1 = new LiveDataSpecification("x", new Identifier(new IdentificationScheme("foo"), "bar1"));
+    LiveDataSpecification spec2 = new LiveDataSpecification("x", new Identifier(new IdentificationScheme("foo"), "bar2"));
     
     distributor.addListener(spec1, listener1);
     activeSpecs = distributor.getActiveSpecifications();
@@ -89,7 +89,7 @@ public class ValueDistributorTest {
   public void simpleDistribution() {
     ValueDistributor distributor = new ValueDistributor();
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
-    LiveDataSpecification spec1 = new LiveDataSpecification("foo", new DomainSpecificIdentifier(new IdentificationDomain("bar"), "baz"));
+    LiveDataSpecification spec1 = new LiveDataSpecification("foo", new Identifier(new IdentificationScheme("bar"), "baz"));
     
     distributor.addListener(spec1, listener1);
     

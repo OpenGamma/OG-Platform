@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.SubscriptionType;
@@ -27,7 +27,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification requestedSpecification1 =
       new LiveDataSpecification(
           "NormalizationId1",
-          new DomainSpecificIdentifier("Domain1", "Value1"));
+          new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1,  listener);
@@ -39,7 +39,7 @@ public class SubscriptionHandleTest {
     LiveDataSpecification requestedSpecification1 =
       new LiveDataSpecification(
           "NormalizationId1",
-          new DomainSpecificIdentifier("Domain1", "Value1"));
+          new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification1, listener);

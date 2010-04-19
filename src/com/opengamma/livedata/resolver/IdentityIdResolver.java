@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  * 
@@ -15,7 +15,7 @@ import com.opengamma.id.DomainSpecificIdentifiers;
 public class IdentityIdResolver implements IdResolver {
 
   @Override
-  public DomainSpecificIdentifiers resolve(DomainSpecificIdentifiers ids) {
+  public IdentifierBundle resolve(IdentifierBundle ids) {
     return ids;
   }
   

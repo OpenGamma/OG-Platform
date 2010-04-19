@@ -22,8 +22,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.transport.CollectingByteArrayMessageSender;
@@ -53,10 +53,10 @@ public class HeartbeatSenderTest {
     CollectingLiveDataListener listener1 = new CollectingLiveDataListener();
     LiveDataSpecification spec1 = new LiveDataSpecification(
         "Test",
-        new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar"));
+        new Identifier(new IdentificationScheme("foo"), "bar"));
     LiveDataSpecification spec2 = new LiveDataSpecification(
         "Test",
-        new DomainSpecificIdentifier(new IdentificationDomain("foo"), "baz"));
+        new Identifier(new IdentificationScheme("foo"), "baz"));
     valueDistributor.addListener(spec1, listener1);
     valueDistributor.addListener(spec2, listener1);
     

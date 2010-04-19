@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -24,12 +24,12 @@ import com.opengamma.id.IdentificationDomain;
  */
 public class MockLiveDataServerTest {
   
-  private IdentificationDomain _domain;
+  private IdentificationScheme _domain;
   private MockLiveDataServer _server;
   
   @Before
   public void setUp() {
-    _domain = new IdentificationDomain("test");
+    _domain = new IdentificationScheme("test");
     _server = new MockLiveDataServer(_domain);
     _server.connect();
   }

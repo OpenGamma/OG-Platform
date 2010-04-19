@@ -11,7 +11,7 @@ import java.util.List;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,19 +21,19 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MockLiveDataServer extends AbstractLiveDataServer {
   
-  private final IdentificationDomain _domain;
+  private final IdentificationScheme _domain;
   private final List<String> _subscriptions = new ArrayList<String>();
   private final List<String> _unsubscriptions = new ArrayList<String>();
   private volatile int _numConnections = 0;
   private volatile int _numDisconnections = 0;
   
-  public MockLiveDataServer(IdentificationDomain domain) {
+  public MockLiveDataServer(IdentificationScheme domain) {
     ArgumentChecker.checkNotNull(domain, "Identification domain");
     _domain = domain;
   }
   
   @Override
-  protected IdentificationDomain getUniqueIdDomain() {
+  protected IdentificationScheme getUniqueIdDomain() {
     return _domain;
   }
 

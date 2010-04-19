@@ -13,9 +13,9 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,7 +30,7 @@ public class LiveDataSpecification {
   private final static String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
   
   /** A set of IDs for a single ticker **/
-  private final DomainSpecificIdentifiers _domainSpecificIdentifiers;
+  private final IdentifierBundle _domainSpecificIdentifiers;
   
   /** What format it should be sent to the client **/
   private final String _normalizationRuleSetId;
@@ -39,19 +39,19 @@ public class LiveDataSpecification {
     this(source.getNormalizationRuleSetId(), source.getIdentifiers());        
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, DomainSpecificIdentifier... identifiers) {
-    this(normalizationRuleSetId, new DomainSpecificIdentifiers(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, Identifier... identifiers) {
+    this(normalizationRuleSetId, new IdentifierBundle(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, Collection<? extends DomainSpecificIdentifier> identifiers) {
-    this(normalizationRuleSetId, new DomainSpecificIdentifiers(identifiers));
+  public LiveDataSpecification(String normalizationRuleSetId, Collection<? extends Identifier> identifiers) {
+    this(normalizationRuleSetId, new IdentifierBundle(identifiers));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, DomainSpecificIdentifier identifier) {
-    this(normalizationRuleSetId, new DomainSpecificIdentifiers(identifier));
+  public LiveDataSpecification(String normalizationRuleSetId, Identifier identifier) {
+    this(normalizationRuleSetId, new IdentifierBundle(identifier));
   }
   
-  public LiveDataSpecification(String normalizationRuleSetId, DomainSpecificIdentifiers domainSpecificIdentifiers) {
+  public LiveDataSpecification(String normalizationRuleSetId, IdentifierBundle domainSpecificIdentifiers) {
     ArgumentChecker.checkNotNull(normalizationRuleSetId, "Client data format");
     ArgumentChecker.checkNotNull(domainSpecificIdentifiers, "Identifiers");
     _domainSpecificIdentifiers = domainSpecificIdentifiers;
@@ -62,17 +62,17 @@ public class LiveDataSpecification {
     return _normalizationRuleSetId;
   }
 
-  public DomainSpecificIdentifiers getIdentifiers() {
+  public IdentifierBundle getIdentifiers() {
     return _domainSpecificIdentifiers;
   }
   
-  public String getIdentifier(IdentificationDomain domain) {
+  public String getIdentifier(IdentificationScheme domain) {
     return _domainSpecificIdentifiers.getIdentifier(domain);
   }
   
   public static LiveDataSpecification fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    DomainSpecificIdentifiers ids = new DomainSpecificIdentifiers(fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
+    IdentifierBundle ids = new IdentifierBundle(fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   

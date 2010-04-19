@@ -10,7 +10,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -22,7 +22,7 @@ public class ReconnectManagerTest {
   @Test
   public void reconnection() throws Exception {
     
-    MockLiveDataServer server = new MockLiveDataServer(IdentificationDomain.BLOOMBERG_BUID);
+    MockLiveDataServer server = new MockLiveDataServer(IdentificationScheme.BLOOMBERG_BUID);
     ReconnectManager manager = new ReconnectManager(server, 20);
     
     try {

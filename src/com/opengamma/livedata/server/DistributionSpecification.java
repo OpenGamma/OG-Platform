@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.util.ArgumentChecker;
@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 public class DistributionSpecification implements Serializable {
   
   /** What market data is being distributed (e.g., AAPL stock) */
-  private final DomainSpecificIdentifiers _identifiers;
+  private final IdentifierBundle _identifiers;
   
   /** Topic it's published to */
   private final String _jmsTopic;
@@ -34,7 +34,7 @@ public class DistributionSpecification implements Serializable {
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
   
-  public DistributionSpecification(DomainSpecificIdentifiers identifiers, 
+  public DistributionSpecification(IdentifierBundle identifiers, 
       NormalizationRuleSet normalizationRuleSet,
       String jmsTopic) {
     ArgumentChecker.checkNotNull(identifiers, "Identifier(s) for the market data ticker this distribution spec relates to");

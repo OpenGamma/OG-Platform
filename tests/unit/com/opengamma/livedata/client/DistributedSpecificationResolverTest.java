@@ -9,8 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.DistributedSpecificationResolver;
 import com.opengamma.livedata.resolver.IdResolverServer;
@@ -38,7 +38,7 @@ public class DistributedSpecificationResolverTest {
     
     DistributedSpecificationResolver client = new DistributedSpecificationResolver(fudgeRequestSender);
     
-    LiveDataSpecification testSpec = new LiveDataSpecification("test1", new DomainSpecificIdentifier(new IdentificationDomain("test1"), "test1"));
+    LiveDataSpecification testSpec = new LiveDataSpecification("test1", new Identifier(new IdentificationScheme("test1"), "test1"));
     LiveDataSpecification resolvedSpec = client.resolve(testSpec);
     assertEquals(resolvedSpec, testSpec);
     

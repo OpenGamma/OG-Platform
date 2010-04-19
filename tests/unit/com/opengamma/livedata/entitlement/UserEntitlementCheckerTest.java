@@ -16,7 +16,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.entitlement.UserEntitlementChecker;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -59,32 +59,32 @@ public class UserEntitlementCheckerTest {
     UserEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(userManager);
     
     DistributionSpecification aaplOnBloomberg = new DistributionSpecification(
-        new DomainSpecificIdentifiers(),
+        new IdentifierBundle(),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Equity.AAPL"); 
     
     DistributionSpecification aaplOnBloombergWithNormalization = new DistributionSpecification(
-        new DomainSpecificIdentifiers(),
+        new IdentifierBundle(),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Equity.AAPL.MyWeirdNormalizationRule"); 
     
     DistributionSpecification bondOnBloomberg = new DistributionSpecification(
-        new DomainSpecificIdentifiers(),
+        new IdentifierBundle(),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Bond.IBMBOND123"); 
     
     DistributionSpecification bondOnBloombergWithNormalization = new DistributionSpecification(
-        new DomainSpecificIdentifiers(),
+        new IdentifierBundle(),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Bond.IBMBOND123.MyWeirdNormalizationRule");
 
     DistributionSpecification fxOnBloomberg = new DistributionSpecification(
-        new DomainSpecificIdentifiers(),
+        new IdentifierBundle(),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.FX.EURUSD");
     
     DistributionSpecification fxOnBloombergWithNormalization = new DistributionSpecification(
-        new DomainSpecificIdentifiers(),
+        new IdentifierBundle(),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.FX.EURUSD.MyWeirdNormalizationRule");
     

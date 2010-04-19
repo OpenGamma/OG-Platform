@@ -11,8 +11,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -23,13 +23,13 @@ public class LiveDataSpecificationTest {
   
   @Test
   public void fudge() {
-    LiveDataSpecification lds = new LiveDataSpecification("Foo", new DomainSpecificIdentifier(new IdentificationDomain("bar"), "baz"));
+    LiveDataSpecification lds = new LiveDataSpecification("Foo", new Identifier(new IdentificationScheme("bar"), "baz"));
     FudgeFieldContainer container = lds.toFudgeMsg(new FudgeContext());
     
     LiveDataSpecification deserialized = LiveDataSpecification.fromFudgeMsg(container);
     assertNotNull(deserialized);
     assertEquals("Foo", deserialized.getNormalizationRuleSetId());    
-    assertEquals("baz", deserialized.getIdentifier(new IdentificationDomain("bar")));
+    assertEquals("baz", deserialized.getIdentifier(new IdentificationScheme("bar")));
   }
 
 }

@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.CachingDistributionSpecificationResolver;
@@ -31,14 +31,14 @@ public class CachingDistributionSpecificationResolverTest {
   @Test
   public void testCaching() {
     
-    DomainSpecificIdentifier id = new DomainSpecificIdentifier("foo", "bar");
+    Identifier id = new Identifier("foo", "bar");
     
     LiveDataSpecification request = new LiveDataSpecification(
         "TestNormalization",
-        new DomainSpecificIdentifier("foo", "bar"));
+        new Identifier("foo", "bar"));
     
     DistributionSpecification returnValue = new DistributionSpecification(
-        new DomainSpecificIdentifiers(id),
+        new IdentifierBundle(id),
         StandardRules.getNoNormalization(),
         "testtopic");
     

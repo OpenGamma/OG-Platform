@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  *
@@ -21,6 +21,6 @@ public interface IdResolver {
    * 
    * @return The unique ID. Null if it was not found.
    */
-  DomainSpecificIdentifiers resolve(DomainSpecificIdentifiers ids);
+  IdentifierBundle resolve(IdentifierBundle ids);
 
 }

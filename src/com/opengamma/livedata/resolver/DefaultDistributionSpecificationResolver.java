@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -42,7 +42,7 @@ public class DefaultDistributionSpecificationResolver implements DistributionSpe
     
     ArgumentChecker.checkNotNull(spec, "Live Data specification");
     
-    DomainSpecificIdentifiers identifiers = _idResolver.resolve(spec.getIdentifiers());
+    IdentifierBundle identifiers = _idResolver.resolve(spec.getIdentifiers());
     if (identifiers == null) {
       throw new IllegalArgumentException("ID cannot be resolved to a valid market data line: " + spec.getIdentifiers());       
     }

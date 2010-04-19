@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -33,7 +33,7 @@ public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
   @Test
   public void persistentSubscriptionManagement() {
     
-    IdentificationDomain identificationDomain = new IdentificationDomain("TestDomain");
+    IdentificationScheme identificationDomain = new IdentificationScheme("TestDomain");
     
     MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
     server.connect();

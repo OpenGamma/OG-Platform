@@ -5,7 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 
 /**
@@ -22,6 +22,6 @@ public interface JmsTopicNameResolver {
    * @return Must not return null.
    * @throws IllegalArgumentException If input data is invalid
    */
-  public String resolve(DomainSpecificIdentifiers identifiers, NormalizationRuleSet normalizationRule);
+  public String resolve(IdentifierBundle identifiers, NormalizationRuleSet normalizationRule);
 
 }
