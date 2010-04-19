@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,7 +23,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   private final List<Position> _positions = new ArrayList<Position>();
   private final List<PortfolioNode> _subNodes = new ArrayList<PortfolioNode>();
   private final String _name;
-  private DomainSpecificIdentifier _identityKey;
+  private Identifier _identityKey;
   
   public PortfolioNodeImpl() {
     _name = null;
@@ -36,15 +36,15 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   /**
    * @return the identityKey
    */
-  public DomainSpecificIdentifier getIdentityKey() {
+  public Identifier getIdentityKey() {
     return _identityKey;
   }
 
   public void setIdentityKey(String identityKey) {
-    _identityKey = new DomainSpecificIdentifier(PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, identityKey);
+    _identityKey = new Identifier(PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, identityKey);
   }
   
-  public void setIdentityKey(DomainSpecificIdentifier identityKey) {
+  public void setIdentityKey(Identifier identityKey) {
     ArgumentChecker.checkNotNull(identityKey, "Identity key");
     if (!PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN.equals(identityKey.getDomain())) {
       throw new IllegalArgumentException("Wrong domain specified");

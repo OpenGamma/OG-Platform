@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -194,7 +194,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   
   @Override
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
-      DomainSpecificIdentifiers dsids, String dataSource, String dataProvider,
+      IdentifierBundle dsids, String dataSource, String dataProvider,
       String field) {
     CacheKey key = new CacheKey(dsids, dataSource, dataProvider, field);
     Element element = _cache.get(key);
@@ -217,7 +217,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
 
   @Override
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
-      DomainSpecificIdentifiers dsids, String dataSource, String dataProvider,
+      IdentifierBundle dsids, String dataSource, String dataProvider,
       String field, LocalDate start, LocalDate end) {
     LocalDateDoubleTimeSeries ts = getHistoricalTimeSeries(dsids, dataSource, dataProvider, field);
     if (ts != null) {
@@ -228,12 +228,12 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   }
 
   private class CacheKey implements Serializable {
-    private DomainSpecificIdentifiers _dsids;
+    private IdentifierBundle _dsids;
     private String _dataSource;
     private String _dataProvider;
     private String _field;
     
-    public CacheKey(DomainSpecificIdentifiers dsids, String dataSource, String dataProvider, String field) {
+    public CacheKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
       _dsids = dsids;
       _dataSource = dataSource;
       _dataProvider = dataProvider;

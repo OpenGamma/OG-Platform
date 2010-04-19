@@ -14,7 +14,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.Identifiable;
 import com.opengamma.util.ArgumentChecker;
 
@@ -86,7 +86,7 @@ public class ComputationTarget implements Serializable {
     return _value;
   }
   
-  public DomainSpecificIdentifier getUniqueIdentifier() {
+  public Identifier getUniqueIdentifier() {
     return getValue().getIdentityKey();
   }
   

@@ -16,9 +16,9 @@ import java.util.Collections;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -30,7 +30,7 @@ public class InMemorySecurityMasterTest {
   @Test
   public void empty() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1"));
+    IdentifierBundle secKey = new IdentifierBundle(new Identifier(new IdentificationScheme("d1"), "v1"));
     assertNull(secMaster.getSecurity(secKey));
     Collection<Security> securities = secMaster.getSecurities(secKey);
     assertNotNull(securities);
@@ -40,11 +40,11 @@ public class InMemorySecurityMasterTest {
   @Test
   public void singleSecurity() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    DomainSpecificIdentifier secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
-    DomainSpecificIdentifier secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
-    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(secId1);
-    DomainSpecificIdentifiers secKey2 = new DomainSpecificIdentifiers(secId2);
-    DomainSpecificIdentifiers secKey3 = new DomainSpecificIdentifiers(secId1, secId2);
+    Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
+    Identifier secId2 = new Identifier(new IdentificationScheme("d1"), "v2");
+    IdentifierBundle secKey1 = new IdentifierBundle(secId1);
+    IdentifierBundle secKey2 = new IdentifierBundle(secId2);
+    IdentifierBundle secKey3 = new IdentifierBundle(secId1, secId2);
     
     DefaultSecurity sec = new DefaultSecurity();
     sec.setIdentifiers(Collections.singleton(secId1));
@@ -69,11 +69,11 @@ public class InMemorySecurityMasterTest {
   @Test
   public void multipleSecurities() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
-    DomainSpecificIdentifier secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
-    DomainSpecificIdentifier secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
-    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(secId1);
-    DomainSpecificIdentifiers secKey2 = new DomainSpecificIdentifiers(secId2);
-    DomainSpecificIdentifiers secKey3 = new DomainSpecificIdentifiers(secId1, secId2);
+    Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
+    Identifier secId2 = new Identifier(new IdentificationScheme("d1"), "v2");
+    IdentifierBundle secKey1 = new IdentifierBundle(secId1);
+    IdentifierBundle secKey2 = new IdentifierBundle(secId2);
+    IdentifierBundle secKey3 = new IdentifierBundle(secId1, secId2);
     
     DefaultSecurity sec1 = new DefaultSecurity();
     sec1.setIdentifiers(Collections.singleton(secId1));

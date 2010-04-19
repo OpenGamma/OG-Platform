@@ -22,9 +22,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -36,8 +36,8 @@ public class EHCachingSecurityMasterTest {
   private SecurityMaster _underlyingSecMaster = null;
   private EHCachingSecurityMaster _cachingSecMaster = null;
   
-  private DomainSpecificIdentifier _secId1 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v1");
-  private DomainSpecificIdentifier _secId2 = new DomainSpecificIdentifier(new IdentificationDomain("d1"), "v2");
+  private Identifier _secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
+  private Identifier _secId2 = new Identifier(new IdentificationScheme("d1"), "v2");
   
   private DefaultSecurity _security1 = new DefaultSecurity();
   private DefaultSecurity _security2 = new DefaultSecurity();
@@ -66,7 +66,7 @@ public class EHCachingSecurityMasterTest {
   
   @Test
   public void emptyCache() {
-    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(_secId1);
+    IdentifierBundle secKey = new IdentifierBundle(_secId1);
     
     Security cachedSec = _cachingSecMaster.getSecurity(secKey);
     assertNull(cachedSec);
@@ -88,7 +88,7 @@ public class EHCachingSecurityMasterTest {
     element = multiSecCache.get(secKey);
     assertNull(element);
     
-    DomainSpecificIdentifier identityKey = _security1.getIdentityKey();
+    Identifier identityKey = _security1.getIdentityKey();
     cachedSec = _cachingSecMaster.getSecurity(identityKey);
     assertEquals(0, singleSecCache.getSize());
     element = singleSecCache.get(identityKey);
@@ -98,7 +98,7 @@ public class EHCachingSecurityMasterTest {
   @Test
   public void getSecurities() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(_secId1, _secId2);
+    IdentifierBundle secKey = new IdentifierBundle(_secId1, _secId2);
     
     Collection<Security> underlyingSecurities = _underlyingSecMaster.getSecurities(secKey);
     assertNotNull(underlyingSecurities);
@@ -133,7 +133,7 @@ public class EHCachingSecurityMasterTest {
   public void getSecurityBySecurityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(_secId1);
+    IdentifierBundle secKey1 = new IdentifierBundle(_secId1);
     Security underlyingSec = _underlyingSecMaster.getSecurity(secKey1);
     Security cachedSec = _cachingSecMaster.getSecurity(secKey1);
     assertNotNull(underlyingSec);
@@ -158,7 +158,7 @@ public class EHCachingSecurityMasterTest {
   public void getSecurityByIdentityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    DomainSpecificIdentifier identityKey1 = _security1.getIdentityKey();
+    Identifier identityKey1 = _security1.getIdentityKey();
     Security underlyingSec = _underlyingSecMaster.getSecurity(identityKey1);
     Security cachedSec = _cachingSecMaster.getSecurity(identityKey1);
     assertNotNull(underlyingSec);
@@ -183,7 +183,7 @@ public class EHCachingSecurityMasterTest {
   public void refreshGetSecurityBySecurityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    DomainSpecificIdentifiers secKey1 = new DomainSpecificIdentifiers(_secId1);
+    IdentifierBundle secKey1 = new IdentifierBundle(_secId1);
     _cachingSecMaster.getSecurity(secKey1);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
@@ -210,7 +210,7 @@ public class EHCachingSecurityMasterTest {
   @Test
   public void refreshGetSecurityByIdentityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    DomainSpecificIdentifier identityKey1 = _security1.getIdentityKey();
+    Identifier identityKey1 = _security1.getIdentityKey();
     _cachingSecMaster.getSecurity(identityKey1);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
@@ -237,7 +237,7 @@ public class EHCachingSecurityMasterTest {
   @Test
   public void refreshGetSecuritiesBySecurityKey() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    DomainSpecificIdentifiers secKey = new DomainSpecificIdentifiers(_secId1, _secId2);
+    IdentifierBundle secKey = new IdentifierBundle(_secId1, _secId2);
     _cachingSecMaster.getSecurities(secKey);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     Cache multiSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);

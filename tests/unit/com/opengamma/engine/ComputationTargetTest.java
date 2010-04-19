@@ -7,8 +7,8 @@ package com.opengamma.engine;
 
 import org.junit.Test;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -19,7 +19,7 @@ public class ComputationTargetTest {
   
   @Test(expected=NullPointerException.class)
   public void nullType() {
-    DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar");
+    Identifier id = new Identifier(new IdentificationScheme("foo"), "bar");
     new ComputationTarget(null, id);
   }
   
@@ -45,7 +45,7 @@ public class ComputationTargetTest {
   
   @Test
   public void legalPrimitives() {
-    DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain("foo"), "bar");
+    Identifier id = new Identifier(new IdentificationScheme("foo"), "bar");
     new ComputationTarget(ComputationTargetType.PRIMITIVE, id);
   }
 

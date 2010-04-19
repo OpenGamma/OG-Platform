@@ -30,9 +30,9 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * An implementation of {@link PositionMaster} which backs onto
@@ -44,8 +44,8 @@ public class CSVPositionMaster implements PositionMaster {
   private static final Logger s_logger = LoggerFactory.getLogger(CSVPositionMaster.class);
   private final File _baseDirectory;
   private final Map<String, File> _portfolioFilesByName = new TreeMap<String, File>();
-  private final Map<DomainSpecificIdentifier, Position> _positionsByIdentityKey = new TreeMap<DomainSpecificIdentifier, Position>();
-  private final Map<DomainSpecificIdentifier, PortfolioNode> _nodesByIdentityKey = new TreeMap<DomainSpecificIdentifier, PortfolioNode>();
+  private final Map<Identifier, Position> _positionsByIdentityKey = new TreeMap<Identifier, Position>();
+  private final Map<Identifier, PortfolioNode> _nodesByIdentityKey = new TreeMap<Identifier, PortfolioNode>();
   
   public CSVPositionMaster() {
     _baseDirectory = null;
@@ -175,14 +175,14 @@ public class CSVPositionMaster implements PositionMaster {
     BigDecimal quantity = new BigDecimal(tokens[0].trim());
     
     // Each set of 2 tokens is then security id domain and then id 
-    List<DomainSpecificIdentifier> securityIdentifiers = new ArrayList<DomainSpecificIdentifier>();
+    List<Identifier> securityIdentifiers = new ArrayList<Identifier>();
     for(int i = 1; i < (tokens.length - 1); i++) {
       String idDomain = tokens[i].trim();
       String idValue = tokens[++i].trim();
-      DomainSpecificIdentifier id = new DomainSpecificIdentifier(new IdentificationDomain(idDomain), idValue);
+      Identifier id = new Identifier(new IdentificationScheme(idDomain), idValue);
       securityIdentifiers.add(id);
     }
-    DomainSpecificIdentifiers securityKey = new DomainSpecificIdentifiers(securityIdentifiers);
+    IdentifierBundle securityKey = new IdentifierBundle(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
     PositionBean position = new PositionBean(quantity, securityKey);
@@ -190,12 +190,12 @@ public class CSVPositionMaster implements PositionMaster {
   }
 
   @Override
-  public Position getPosition(DomainSpecificIdentifier identityKey) {
+  public Position getPosition(Identifier identityKey) {
     return _positionsByIdentityKey.get(identityKey);
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(DomainSpecificIdentifier identityKey) {
+  public PortfolioNode getPortfolioNode(Identifier identityKey) {
     return _nodesByIdentityKey.get(identityKey);
   }
   

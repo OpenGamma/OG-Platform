@@ -7,9 +7,9 @@ package com.opengamma.engine.security;
 
 import java.util.Collection;
 
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -18,7 +18,7 @@ import com.opengamma.id.IdentificationDomain;
  */
 public interface Security extends Identifiable {
   
-  public static final IdentificationDomain SECURITY_IDENTITY_KEY_DOMAIN = new IdentificationDomain("SecurityIdentityKey"); 
+  public static final IdentificationScheme SECURITY_IDENTITY_KEY_DOMAIN = new IdentificationScheme("SecurityIdentityKey"); 
 
   /**
    * Obtain all the security identifiers which are part of this
@@ -26,7 +26,7 @@ public interface Security extends Identifiable {
    * 
    * @return All identifiers for this security.
    */
-  Collection<DomainSpecificIdentifier> getIdentifiers();
+  Collection<Identifier> getIdentifiers();
   
   /**
    * Returns a displayable name for the {@code Security} that is more user friently than the

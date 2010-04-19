@@ -8,7 +8,7 @@ package com.opengamma.engine.position;
 import java.util.Collection;
 
 import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.IdentificationScheme;
 
 
 /**
@@ -18,7 +18,7 @@ import com.opengamma.id.IdentificationDomain;
  */
 public interface PortfolioNode extends Identifiable {
   
-  public static final IdentificationDomain PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN = new IdentificationDomain("PortfolioNodeIdentityKey");   
+  public static final IdentificationScheme PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN = new IdentificationScheme("PortfolioNodeIdentityKey");   
   
   Collection<Position> getPositions();
   

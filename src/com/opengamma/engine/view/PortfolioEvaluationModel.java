@@ -40,7 +40,7 @@ import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -67,7 +67,7 @@ public class PortfolioEvaluationModel {
   // REVIEW kirk 2010-03-29 -- Use a sorted map here?
   private final Map<String, DependencyGraphModel> _graphModelsByConfiguration =
     new ConcurrentHashMap<String, DependencyGraphModel>();
-  private final Map<DomainSpecificIdentifiers, Security> _securitiesByKey = new ConcurrentHashMap<DomainSpecificIdentifiers, Security>();
+  private final Map<IdentifierBundle, Security> _securitiesByKey = new ConcurrentHashMap<IdentifierBundle, Security>();
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
@@ -169,15 +169,15 @@ public class PortfolioEvaluationModel {
   protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
     // TODO kirk 2010-03-07 -- Need to switch to OperationTimer for this.
     OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", getPortfolio().getPortfolioName());
-    Set<DomainSpecificIdentifiers> securityKeys = getSecurityKeysForResolution(getPortfolio());
-    ExecutorCompletionService<DomainSpecificIdentifiers> completionService = new ExecutorCompletionService<DomainSpecificIdentifiers>(viewProcessingContext.getExecutorService());
+    Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(getPortfolio());
+    ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(viewProcessingContext.getExecutorService());
     
-    for(DomainSpecificIdentifiers secKey : securityKeys) {
+    for(IdentifierBundle secKey : securityKeys) {
       completionService.submit(new SecurityResolutionJob(viewProcessingContext, secKey), secKey);
     }
     boolean failed = false;
     for(int i = 0; i < securityKeys.size(); i++) {
-      Future<DomainSpecificIdentifiers> future = null;
+      Future<IdentifierBundle> future = null;
       try {
         future = completionService.take();
       } catch (InterruptedException e1) {
@@ -201,11 +201,11 @@ public class PortfolioEvaluationModel {
   
   protected class SecurityResolutionJob implements Runnable {
     private final ViewProcessingContext _viewProcessingContext;
-    private final DomainSpecificIdentifiers _securityKey;
+    private final IdentifierBundle _securityKey;
     
     public SecurityResolutionJob(
         ViewProcessingContext viewProcessingContext,
-        DomainSpecificIdentifiers securityKey) {
+        IdentifierBundle securityKey) {
       _viewProcessingContext = viewProcessingContext;
       _securityKey = securityKey;
     }
@@ -226,8 +226,8 @@ public class PortfolioEvaluationModel {
     }
   }
 
-  protected Set<DomainSpecificIdentifiers> getSecurityKeysForResolution(PortfolioNode node) {
-    Set<DomainSpecificIdentifiers> result = new TreeSet<DomainSpecificIdentifiers>();
+  protected Set<IdentifierBundle> getSecurityKeysForResolution(PortfolioNode node) {
+    Set<IdentifierBundle> result = new TreeSet<IdentifierBundle>();
     
     for(Position position : node.getPositions()) {
       if(position.getSecurity() != null) {

@@ -13,7 +13,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -48,7 +48,7 @@ public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalData
   
   @Override
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
-      DomainSpecificIdentifiers dsids, String dataSource, String dataProvider,
+      IdentifierBundle dsids, String dataSource, String dataProvider,
       String field) {
     Pair<ZonedDateTime, LocalDateDoubleTimeSeries> entry = _timeSeriesCache.get(new CacheKey(dsids, dataSource, dataProvider, field));
     if (entry != null) { // remember no point in using containsKey because might have been GC'd by the time we pull it out.
@@ -65,7 +65,7 @@ public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalData
 
   @Override
   public LocalDateDoubleTimeSeries getHistoricalTimeSeries(
-      DomainSpecificIdentifiers dsids, String dataSource, String dataProvider,
+      IdentifierBundle dsids, String dataSource, String dataProvider,
       String field, LocalDate start, LocalDate end) {
     LocalDateDoubleTimeSeries dts = getHistoricalTimeSeries(dsids, dataSource, dataProvider, field);
     return (LocalDateDoubleTimeSeries) dts.subSeries(start, true, end, INCLUDE_LAST_DAY);
@@ -76,12 +76,12 @@ public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalData
   }
   
   private class CacheKey {
-    private DomainSpecificIdentifiers _dsids;
+    private IdentifierBundle _dsids;
     private String _dataSource;
     private String _dataProvider;
     private String _field;
     
-    public CacheKey(DomainSpecificIdentifiers dsids, String dataSource, String dataProvider, String field) {
+    public CacheKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
       _dsids = dsids;
       _dataSource = dataSource;
       _dataProvider = dataProvider;

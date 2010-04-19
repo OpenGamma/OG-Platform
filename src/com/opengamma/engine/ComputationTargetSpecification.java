@@ -17,7 +17,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.Identifiable;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,9 +32,9 @@ public class ComputationTargetSpecification implements Serializable {
   public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
   
   private final ComputationTargetType _type;
-  private final DomainSpecificIdentifier _identifier;
+  private final Identifier _identifier;
   
-  public ComputationTargetSpecification(ComputationTargetType targetType, DomainSpecificIdentifier identifier) {
+  public ComputationTargetSpecification(ComputationTargetType targetType, Identifier identifier) {
     ArgumentChecker.checkNotNull(targetType, "Computation Target Type");
     switch(targetType) {
     case SECURITY:
@@ -56,12 +56,12 @@ public class ComputationTargetSpecification implements Serializable {
    * @param target
    */
   public ComputationTargetSpecification(Object target) {
-    DomainSpecificIdentifier dsid = null;
+    Identifier dsid = null;
     ComputationTargetType type = ComputationTargetType.determineFromTarget(target);
     // Special DSID logic.
     // REVIEW kirk 2010-03-31 -- Does this belong up in ComputationTargetType somewhere?
-    if((type == null) && (target instanceof DomainSpecificIdentifier)) {
-      dsid = (DomainSpecificIdentifier) target;
+    if((type == null) && (target instanceof Identifier)) {
+      dsid = (Identifier) target;
       if(ObjectUtils.equals(dsid.getDomain(), PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
         type = ComputationTargetType.MULTIPLE_POSITIONS;
       } else if(ObjectUtils.equals(dsid.getDomain(), Position.POSITION_IDENTITY_KEY_DOMAIN)) {
@@ -93,7 +93,7 @@ public class ComputationTargetSpecification implements Serializable {
   /**
    * @return the identifier
    */
-  public DomainSpecificIdentifier getIdentifier() {
+  public Identifier getIdentifier() {
     return _identifier;
   }
 
@@ -146,7 +146,7 @@ public class ComputationTargetSpecification implements Serializable {
       return null;
     }
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
-    DomainSpecificIdentifier identifier = new DomainSpecificIdentifier(msg.getMessage(IDENTIFIER_FIELD_NAME));
+    Identifier identifier = new Identifier(msg.getMessage(IDENTIFIER_FIELD_NAME));
     return new ComputationTargetSpecification(type, identifier);
   }
 }

@@ -7,8 +7,8 @@ package com.opengamma.engine.value;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * Provides utility methods for creating instances of the objects in the
@@ -30,8 +30,8 @@ public final class ValueBuilder {
   public static ValueSpecification buildSpec(String requirementName, ComputationTargetType targetType, String domainName, String key) {
     return buildSpec(requirementName,
         new ComputationTargetSpecification(targetType,
-            new DomainSpecificIdentifier(
-                new IdentificationDomain(domainName),
+            new Identifier(
+                new IdentificationScheme(domainName),
                 key)));
             
   }

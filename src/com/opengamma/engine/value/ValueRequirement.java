@@ -16,7 +16,7 @@ import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,7 +30,7 @@ public class ValueRequirement implements Serializable {
   private final String _valueName;
   private final ComputationTargetSpecification _targetSpecification;
   
-  public ValueRequirement(String valueName, ComputationTargetType targetType, DomainSpecificIdentifier targetKey) {
+  public ValueRequirement(String valueName, ComputationTargetType targetType, Identifier targetKey) {
     this(valueName, new ComputationTargetSpecification(targetType, targetKey));
   }
   

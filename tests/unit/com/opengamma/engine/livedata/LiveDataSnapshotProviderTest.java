@@ -18,7 +18,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.TestLiveDataClient;
 
@@ -30,7 +30,7 @@ import com.opengamma.livedata.client.TestLiveDataClient;
 public class LiveDataSnapshotProviderTest {
   
   protected ValueRequirement constructRequirement(String ticker) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier("testdomain", ticker));
+    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.PRIMITIVE, new Identifier("testdomain", ticker));
   }
   
   @Test
@@ -56,10 +56,10 @@ public class LiveDataSnapshotProviderTest {
     MutableFudgeFieldContainer msg3b = new FudgeContext().newMessage();
     msg3b.add("Foo", 52.17);
     
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test1")), msg1);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test2")), msg2);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test3")), msg3a);
-    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new DomainSpecificIdentifier("testdomain", "test3")), msg3b);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test1")), msg1);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test2")), msg2);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test3")), msg3a);
+    client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), new Identifier("testdomain", "test3")), msg3b);
     
     long time = snapshotter.snapshot();
     

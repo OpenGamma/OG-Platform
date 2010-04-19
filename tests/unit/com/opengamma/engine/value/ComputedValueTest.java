@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 
 /**
  * 
@@ -60,7 +60,7 @@ public class ComputedValueTest {
   }
   
   private ValueSpecification createValueSpecification () {
-    return new ValueSpecification (new ValueRequirement ("test", ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier ("foo", "bar")));
+    return new ValueSpecification (new ValueRequirement ("test", ComputationTargetType.PRIMITIVE, new Identifier ("foo", "bar")));
   }
   
   @Test

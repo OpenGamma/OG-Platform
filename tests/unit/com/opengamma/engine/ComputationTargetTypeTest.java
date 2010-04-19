@@ -19,7 +19,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionBean;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  * 
@@ -27,7 +27,7 @@ import com.opengamma.id.DomainSpecificIdentifiers;
  * @author kirk
  */
 public class ComputationTargetTypeTest {
-  private static final Position POSITION = new PositionBean(new BigDecimal(1), new DomainSpecificIdentifiers());
+  private static final Position POSITION = new PositionBean(new BigDecimal(1), new IdentifierBundle());
   private static final Security SECURITY = new DefaultSecurity();
 
   @Test

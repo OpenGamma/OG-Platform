@@ -14,8 +14,8 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
 
 
@@ -28,9 +28,9 @@ public class DomainLiveDataAvailabilityProvider
 implements LiveDataAvailabilityProvider {
   
   private final SecurityMaster _securityMaster;
-  private final Collection<IdentificationDomain> _acceptableDomains;
+  private final Collection<IdentificationScheme> _acceptableDomains;
   
-  public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationDomain... acceptableDomains) {
+  public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableDomains) {
     ArgumentChecker.checkNotNull(secMaster, "Security master");
     ArgumentChecker.checkNotNull(acceptableDomains, "Available domains");
     _securityMaster = secMaster;
@@ -46,7 +46,7 @@ implements LiveDataAvailabilityProvider {
     switch (requirement.getTargetSpecification().getType()) {
     
     case PRIMITIVE:
-      IdentificationDomain domain = requirement.getTargetSpecification().getIdentifier().getDomain();
+      IdentificationScheme domain = requirement.getTargetSpecification().getIdentifier().getDomain();
       return _acceptableDomains.contains(domain);
     
     case SECURITY:
@@ -54,7 +54,7 @@ implements LiveDataAvailabilityProvider {
       if (security == null) {
         return false;
       }
-      for (DomainSpecificIdentifier identifier : security.getIdentifiers()) {
+      for (Identifier identifier : security.getIdentifiers()) {
         if (_acceptableDomains.contains(identifier.getDomain())) {
           return true;
         }

@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 
 /**
@@ -31,11 +31,11 @@ import com.opengamma.id.DomainSpecificIdentifiers;
  * in the key (e.g. any of them can produce a match). The specific
  * lookup algorithm is:
  * <ol>
- *   <li>Look at each {@link DomainSpecificIdentifier} obtained from the
+ *   <li>Look at each {@link Identifier} obtained from the
  *       {@link SecurityKey} in turn; for each:</li>
  *   <li>Look at the {@link Security} instances added to this instance,
  *       <em>in the order in which they were added</em>, to determine
- *       if there is a match for that {@link DomainSpecificIdentifier}.</li>
+ *       if there is a match for that {@link Identifier}.</li>
  *   <li>If there is a match for that identifier, match found.</li>
  *   <li>For single {@link Security} lookup, if a match found, return it.</li>
  *   <li>For multiple {@link Security} lookup, identify all matches for all identifiers.</li> 
@@ -52,8 +52,8 @@ public class InMemorySecurityMaster implements SecurityMaster {
   //     mapping from SecurityIdentifier to Security.
   private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
   private final List<Security> _securities = new ArrayList<Security>();
-  private final Map<DomainSpecificIdentifier, Security> _securitiesByIdentityKey =
-    new HashMap<DomainSpecificIdentifier, Security>();
+  private final Map<Identifier, Security> _securitiesByIdentityKey =
+    new HashMap<Identifier, Security>();
   
   public InMemorySecurityMaster() {
   }
@@ -77,12 +77,12 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public synchronized Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
+  public synchronized Collection<Security> getSecurities(IdentifierBundle secKey) {
     List<Security> result = new ArrayList<Security>();
     if(secKey == null) {
       return result;
     }
-    for(DomainSpecificIdentifier secId : secKey.getIdentifiers()) {
+    for(Identifier secId : secKey.getIdentifiers()) {
       for(Security sec : _securities) {
         if(sec.getIdentifiers().contains(secId)) {
           result.add(sec);
@@ -93,11 +93,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public synchronized Security getSecurity(DomainSpecificIdentifiers secKey) {
+  public synchronized Security getSecurity(IdentifierBundle secKey) {
     if(secKey == null) {
       return null;
     }
-    for(DomainSpecificIdentifier secId : secKey.getIdentifiers()) {
+    for(Identifier secId : secKey.getIdentifiers()) {
       for(Security sec : _securities) {
         if(sec.getIdentifiers().contains(secId)) {
           return sec;
@@ -120,7 +120,7 @@ public class InMemorySecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Security getSecurity(DomainSpecificIdentifier identityKey) {
+  public Security getSecurity(Identifier identityKey) {
     return _securitiesByIdentityKey.get(identityKey);
   }
   

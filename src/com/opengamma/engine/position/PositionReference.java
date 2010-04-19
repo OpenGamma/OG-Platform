@@ -18,7 +18,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,9 +31,9 @@ public class PositionReference implements Serializable, Cloneable {
   public static final String QUANTITY_FIELD_NAME = "quantity";
   public static final String SECURITY_IDENTITY_KEY_FIELD_NAME = "securityIdentityKey";
   private final BigDecimal _quantity;
-  private final DomainSpecificIdentifier _securityIdentityKey;
+  private final Identifier _securityIdentityKey;
   
-  public PositionReference(BigDecimal quantity, DomainSpecificIdentifier securityIdentityKey) {
+  public PositionReference(BigDecimal quantity, Identifier securityIdentityKey) {
     ArgumentChecker.checkNotNull(quantity, "Quantity");
     ArgumentChecker.checkNotNull(securityIdentityKey, "Security IdentityKey");
     _quantity = quantity;
@@ -58,7 +58,7 @@ public class PositionReference implements Serializable, Cloneable {
   /**
    * @return the securityIdentityKey
    */
-  public DomainSpecificIdentifier getSecurityIdentityKey() {
+  public Identifier getSecurityIdentityKey() {
     return _securityIdentityKey;
   }
 
@@ -120,7 +120,7 @@ public class PositionReference implements Serializable, Cloneable {
     FudgeFieldContainer msg = envelope.getMessage();
     BigDecimal quantity = new BigDecimal(msg.getString(QUANTITY_FIELD_NAME));
     FudgeFieldContainer identityKeyMsg = msg.getMessage(SECURITY_IDENTITY_KEY_FIELD_NAME);
-    DomainSpecificIdentifier identityKey = new DomainSpecificIdentifier(identityKeyMsg);
+    Identifier identityKey = new Identifier(identityKeyMsg);
     return new PositionReference(quantity, identityKey);
   }
 }

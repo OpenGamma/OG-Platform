@@ -12,8 +12,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 /**
  * A concrete, JavaBean-based implementation of {@link Security}. 
@@ -21,23 +21,23 @@ import com.opengamma.id.DomainSpecificIdentifiers;
  * @author kirk
  */
 public class DefaultSecurity implements Security, Serializable {
-  private DomainSpecificIdentifiers _identifiers;
+  private IdentifierBundle _identifiers;
   private String _securityType;
   //private AnalyticValueDefinition<FudgeMsg> _marketDataDefinition;
-  private DomainSpecificIdentifier _identityKey;
+  private Identifier _identityKey;
   private String _displayName;
   
   public DefaultSecurity() {
-    _identifiers = new DomainSpecificIdentifiers();
+    _identifiers = new IdentifierBundle();
   }
   
-  public DefaultSecurity(String securityType, Collection<? extends DomainSpecificIdentifier> identifiers) {
+  public DefaultSecurity(String securityType, Collection<? extends Identifier> identifiers) {
     setSecurityType(securityType);
     setIdentifiers(identifiers);
   }
 
   @Override
-  public Collection<DomainSpecificIdentifier> getIdentifiers() {
+  public Collection<Identifier> getIdentifiers() {
     return _identifiers.getIdentifiers();
   }
 
@@ -45,20 +45,20 @@ public class DefaultSecurity implements Security, Serializable {
    * This will create a <em>copy</em> of the provided collection.
    * @param identifiers the identifiers to set
    */
-  public void setIdentifiers(Collection<? extends DomainSpecificIdentifier> identifiers) {
-    _identifiers = new DomainSpecificIdentifiers(identifiers);
+  public void setIdentifiers(Collection<? extends Identifier> identifiers) {
+    _identifiers = new IdentifierBundle(identifiers);
   }
   
   @Override
-  public DomainSpecificIdentifier getIdentityKey() {
+  public Identifier getIdentityKey() {
     return _identityKey;
   }
 
   public void setIdentityKey(String identityKey) {
-    _identityKey = new DomainSpecificIdentifier(SECURITY_IDENTITY_KEY_DOMAIN, identityKey);
+    _identityKey = new Identifier(SECURITY_IDENTITY_KEY_DOMAIN, identityKey);
   }
   
-  public void setIdentityKey(DomainSpecificIdentifier identityKey) {
+  public void setIdentityKey(Identifier identityKey) {
     _identityKey = identityKey;
   }
 
@@ -93,9 +93,9 @@ public class DefaultSecurity implements Security, Serializable {
    * here constructs one from the identity key or identifiers.
    */
   protected String getDefaultDisplayName () {
-    DomainSpecificIdentifier identifier = getIdentityKey ();
+    Identifier identifier = getIdentityKey ();
     if (identifier == null) {
-      final Collection<DomainSpecificIdentifier> identifiers = getIdentifiers ();
+      final Collection<Identifier> identifiers = getIdentifiers ();
       if ((identifiers == null) || identifiers.isEmpty ()) {
         return getClass ().getName ();
       }

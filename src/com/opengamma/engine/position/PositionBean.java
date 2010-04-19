@@ -13,8 +13,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
@@ -25,17 +25,17 @@ import com.opengamma.util.CompareUtils;
  */
 public class PositionBean implements Position, Serializable {
   private final BigDecimal _quantity;
-  private final DomainSpecificIdentifiers _securityKey;
+  private final IdentifierBundle _securityKey;
   private Security _security;
-  private DomainSpecificIdentifier _identityKey;
+  private Identifier _identityKey;
   
-  public PositionBean(BigDecimal quantity, DomainSpecificIdentifiers securityKey) {
+  public PositionBean(BigDecimal quantity, IdentifierBundle securityKey) {
     _quantity = quantity;
     _securityKey = securityKey;
     _security = null;
   }
   
-  public PositionBean(BigDecimal quantity, DomainSpecificIdentifiers securityKey, Security security) {
+  public PositionBean(BigDecimal quantity, IdentifierBundle securityKey, Security security) {
     _quantity = quantity;
     _securityKey = securityKey;
     _security = security;
@@ -46,7 +46,7 @@ public class PositionBean implements Position, Serializable {
     _security = security;
     // REVIEW kirk 2009-11-04 -- Is this right?
     // NOTE jim 2010-03-04 -- No it wasn't (it was being set to null)
-    _securityKey = security.getIdentifiers() != null ? new DomainSpecificIdentifiers(security.getIdentifiers()) : null;
+    _securityKey = security.getIdentifiers() != null ? new IdentifierBundle(security.getIdentifiers()) : null;
   }
 
   @Override
@@ -55,7 +55,7 @@ public class PositionBean implements Position, Serializable {
   }
 
   @Override
-  public DomainSpecificIdentifiers getSecurityKey() {
+  public IdentifierBundle getSecurityKey() {
     return _securityKey;
   }
   
@@ -71,7 +71,7 @@ public class PositionBean implements Position, Serializable {
   /**
    * @return the identityKey
    */
-  public DomainSpecificIdentifier getIdentityKey() {
+  public Identifier getIdentityKey() {
     return _identityKey;
   }
 
@@ -79,10 +79,10 @@ public class PositionBean implements Position, Serializable {
    * @param identityKey the identityKey to set
    */
   public void setIdentityKey(String identityKey) {
-    _identityKey = new DomainSpecificIdentifier(POSITION_IDENTITY_KEY_DOMAIN, identityKey);
+    _identityKey = new Identifier(POSITION_IDENTITY_KEY_DOMAIN, identityKey);
   }
   
-  public void setIdentityKey(DomainSpecificIdentifier identityKey) {
+  public void setIdentityKey(Identifier identityKey) {
     ArgumentChecker.checkNotNull(identityKey, "Identity key");
     if (!POSITION_IDENTITY_KEY_DOMAIN.equals(identityKey.getDomain())) {
       throw new IllegalArgumentException("Wrong domain specified:" + identityKey.getDomain());

@@ -19,9 +19,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MutableLocalDateDoubleTimeSeries;
@@ -82,16 +82,16 @@ public class HistoricalDataProviderTest {
     return id;
   }
   
-  private DomainSpecificIdentifiers makeDomainSpecificIdentifiers() {
-    return new DomainSpecificIdentifiers(new DomainSpecificIdentifier(IdentificationDomain.BLOOMBERG_TICKER, makeUniqueRandomId()),
-                                         new DomainSpecificIdentifier(IdentificationDomain.BLOOMBERG_BUID, makeUniqueRandomId()));
+  private IdentifierBundle makeDomainSpecificIdentifiers() {
+    return new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, makeUniqueRandomId()),
+                                         new Identifier(IdentificationScheme.BLOOMBERG_BUID, makeUniqueRandomId()));
   }
   
-  private Pair<HistoricalDataProvider, Set<DomainSpecificIdentifiers>> buildAndTestInMemoryProvider() {
+  private Pair<HistoricalDataProvider, Set<IdentifierBundle>> buildAndTestInMemoryProvider() {
     InMemoryHistoricalDataProvider inMemoryHistoricalDataProvider = new InMemoryHistoricalDataProvider();
-    Map<DomainSpecificIdentifiers, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<DomainSpecificIdentifiers, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
+    Map<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>> map = new HashMap<IdentifierBundle, Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>>();
     for (int i=0; i<100; i++) {
-      DomainSpecificIdentifiers ids = makeDomainSpecificIdentifiers();
+      IdentifierBundle ids = makeDomainSpecificIdentifiers();
       Map<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>> dsidsSubMap = map.get(ids);
       if (dsidsSubMap == null) {
         dsidsSubMap = new HashMap<String, Map<String, Map<String, LocalDateDoubleTimeSeries>>>();
@@ -117,7 +117,7 @@ public class HistoricalDataProviderTest {
         }
       }
     }
-    for (DomainSpecificIdentifiers dsids : map.keySet()) {
+    for (IdentifierBundle dsids : map.keySet()) {
       for (String dataSource : new String[] { "BLOOMBERG", "REUTERS", "JPM" }) {
         for (String dataProvider : new String[] { "UNKNOWN", "CMPL", "CMPT" }) {
           for (String field : new String[] { "PX_LAST", "VOLUME" }) {
@@ -140,16 +140,16 @@ public class HistoricalDataProviderTest {
   
   @Test
   public void testEHCachingHistoricalDataProvider() {
-    Pair<HistoricalDataProvider, Set<DomainSpecificIdentifiers>> providerAndDsids = buildAndTestInMemoryProvider();
+    Pair<HistoricalDataProvider, Set<IdentifierBundle>> providerAndDsids = buildAndTestInMemoryProvider();
     HistoricalDataProvider inMemoryHistoricalDataProvider = providerAndDsids.getFirst();
     EHCachingHistoricalDataProvider cachedProvider = new EHCachingHistoricalDataProvider(inMemoryHistoricalDataProvider);
-    Set<DomainSpecificIdentifiers> identifiers = providerAndDsids.getSecond();
-    DomainSpecificIdentifiers[] dsids = identifiers.toArray(new DomainSpecificIdentifiers[] {});
+    Set<IdentifierBundle> identifiers = providerAndDsids.getSecond();
+    IdentifierBundle[] dsids = identifiers.toArray(new IdentifierBundle[] {});
     String[] dataSources = new String[] { "BLOOMBERG", "REUTERS", "JPM" };
     String[] dataProviders = new String[] { "UNKNOWN", "CMPL", "CMPT" };
     String[] fields = new String[] { "PX_LAST", "VOLUME" };
     for (int i=0; i<10000; i++) {
-      DomainSpecificIdentifiers ids = dsids[random(dsids.length)];
+      IdentifierBundle ids = dsids[random(dsids.length)];
       String dataSource = dataSources[random(dataSources.length)];
       String dataProvider = dataProviders[random(dataProviders.length)];
       String field = fields[random(fields.length)];

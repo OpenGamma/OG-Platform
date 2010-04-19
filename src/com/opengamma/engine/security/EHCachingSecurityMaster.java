@@ -19,8 +19,8 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.EHCacheUtils;
 
@@ -119,25 +119,25 @@ public class EHCachingSecurityMaster implements SecurityMaster {
 
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Security> getSecurities(DomainSpecificIdentifiers secKey) {
+  public Collection<Security> getSecurities(IdentifierBundle secKey) {
     Element e = _multiSecuritiesCache.get(secKey);
     Collection<Security> securities = new HashSet<Security>();
     if (e != null) {
       Serializable value = e.getValue();
       if (value instanceof Set<?>) {
-        Set<DomainSpecificIdentifier> identityKeys = (Set<DomainSpecificIdentifier>) value;
-        for (DomainSpecificIdentifier identityKey : identityKeys) {
+        Set<Identifier> identityKeys = (Set<Identifier>) value;
+        for (Identifier identityKey : identityKeys) {
           securities.add(getSecurity(identityKey));
         }
       } else {
         s_logger.warn("returned object {} from cache is not a Set<SecurityKey> type", value);
       }
     } else {
-      Set<DomainSpecificIdentifier> identityKeys = new HashSet<DomainSpecificIdentifier>();
+      Set<Identifier> identityKeys = new HashSet<Identifier>();
       securities = getUnderlying().getSecurities(secKey);
       if (securities != null && !securities.isEmpty()) {
         for (Security security : securities) {
-          DomainSpecificIdentifier identityKey = security.getIdentityKey();
+          Identifier identityKey = security.getIdentityKey();
           _singleSecurityCache.put(new Element(identityKey, security));
           identityKeys.add(identityKey);
         }
@@ -148,7 +148,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Security getSecurity(DomainSpecificIdentifiers secKey) {
+  public Security getSecurity(IdentifierBundle secKey) {
     Element e = _singleSecurityCache.get(secKey);
     Security sec = null;
     if (e != null) {
@@ -178,8 +178,8 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     if (element != null) {
       Serializable value = element.getValue();
       if (value instanceof Set<?>) {
-        Set<DomainSpecificIdentifier> keys = (Set<DomainSpecificIdentifier>) value;
-        for (DomainSpecificIdentifier key : keys) {
+        Set<Identifier> keys = (Set<Identifier>) value;
+        for (Identifier key : keys) {
           _singleSecurityCache.remove(key);
         }
       }
@@ -199,7 +199,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   @Override
-  public Security getSecurity(DomainSpecificIdentifier identityKey) {
+  public Security getSecurity(Identifier identityKey) {
     Element e = _singleSecurityCache.get(identityKey);
     Security sec = null;
     if (e != null) {

@@ -12,8 +12,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -22,8 +22,8 @@ import com.opengamma.id.IdentificationDomain;
  */
 public class ValueRequirementTest {
   
-  private final static DomainSpecificIdentifier USD = new DomainSpecificIdentifier(new IdentificationDomain("currency"), "USD");  
-  private final static DomainSpecificIdentifier GBP = new DomainSpecificIdentifier(new IdentificationDomain("currency"), "GBP");
+  private final static Identifier USD = new Identifier(new IdentificationScheme("currency"), "USD");  
+  private final static Identifier GBP = new Identifier(new IdentificationScheme("currency"), "GBP");
   
   @Test(expected=NullPointerException.class)
   public void nullValueType() {

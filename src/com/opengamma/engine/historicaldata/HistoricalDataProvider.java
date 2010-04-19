@@ -7,7 +7,7 @@ package com.opengamma.engine.historicaldata;
 
 import javax.time.calendar.LocalDate;
 
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -16,6 +16,6 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * @author yomi
  */
 public interface HistoricalDataProvider {
-  LocalDateDoubleTimeSeries getHistoricalTimeSeries(DomainSpecificIdentifiers dsids, String dataSource, String dataProvider, String field);
-  LocalDateDoubleTimeSeries getHistoricalTimeSeries(DomainSpecificIdentifiers dsids, String dataSource, String dataProvider, String field, LocalDate start, LocalDate end);
+  LocalDateDoubleTimeSeries getHistoricalTimeSeries(IdentifierBundle dsids, String dataSource, String dataProvider, String field);
+  LocalDateDoubleTimeSeries getHistoricalTimeSeries(IdentifierBundle dsids, String dataSource, String dataProvider, String field, LocalDate start, LocalDate end);
 }

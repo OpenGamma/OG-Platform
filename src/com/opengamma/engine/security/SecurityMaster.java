@@ -8,8 +8,8 @@ package com.opengamma.engine.security;
 import java.util.Collection;
 import java.util.Set;
 
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.DomainSpecificIdentifiers;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 
 /**
@@ -29,7 +29,7 @@ public interface SecurityMaster {
    * @return All securities which match the specified key, or an empty
    *         {@link Collection}.
    */
-  Collection<Security> getSecurities(DomainSpecificIdentifiers secKey);
+  Collection<Security> getSecurities(IdentifierBundle secKey);
   
   /**
    * Obtain the single best-fit {@link Security} for a particular key.
@@ -40,9 +40,9 @@ public interface SecurityMaster {
    * @param secKey The key to locate security details.
    * @return The single security matching those details.
    */
-  Security getSecurity(DomainSpecificIdentifiers secKey);
+  Security getSecurity(IdentifierBundle secKey);
   
-  Security getSecurity(DomainSpecificIdentifier identityKey);
+  Security getSecurity(Identifier identityKey);
   
   /**
    * Obtain all security types in this security master.

@@ -16,8 +16,8 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.DomainSpecificIdentifier;
-import com.opengamma.id.IdentificationDomain;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentificationScheme;
 
 /**
  * 
@@ -30,7 +30,7 @@ public class DependencyNodeTest {
 
     @Override
     public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-      return target.getType() == ComputationTargetType.PRIMITIVE && target.getValue() instanceof DomainSpecificIdentifier;
+      return target.getType() == ComputationTargetType.PRIMITIVE && target.getValue() instanceof Identifier;
     }
 
     @Override
@@ -57,15 +57,15 @@ public class DependencyNodeTest {
   
   @Test
   public void testDepdendentNodes() {
-    IdentificationDomain domain = new IdentificationDomain("test");
+    IdentificationScheme domain = new IdentificationScheme("test");
     
     FunctionCompilationContext context = new FunctionCompilationContext();
-    DependencyNode node0 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(domain, "0")));
-    DependencyNode node1 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(domain, "1")));
-    DependencyNode node2 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(domain, "2")));
-    DependencyNode node3 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(domain, "3")));
-    DependencyNode node4 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(domain, "4")));
-    DependencyNode node5 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new DomainSpecificIdentifier(domain, "5")));
+    DependencyNode node0 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "0")));
+    DependencyNode node1 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "1")));
+    DependencyNode node2 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "2")));
+    DependencyNode node3 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "3")));
+    DependencyNode node4 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "4")));
+    DependencyNode node5 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "5")));
     node0.addInputNode(node1);
     node0.addInputNode(node2);
     node0.addInputNode(node3);
