@@ -230,12 +230,22 @@ create table sec_future (
     constraint sec_fk_future2unit foreign key (unitname_id) references sec_unit (id)
 );
 
-create table sec_future_basket (
+create table sec_futurebundle (
     id bigint not null,
     future_id bigint not null,
+    startDate date,
+    endDate date,
+    conversionFactor double not null,
+    primary key (id),
+    constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
+);
+
+create table sec_futurebundleidentifier (
+    id bigint not null,
+    bundle_id bigint not null,
     domain varchar(255) not null,
     identifier varchar(255) not null,
     primary key (id),
-    constraint sec_fk_future_basket2future foreign key (future_id) references sec_future (id),
-    unique (future_id, domain, identifier)
+    constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id),
+    unique (bundle_id, domain, identifier)
 );

@@ -26,7 +26,7 @@ public class FutureSecurityBean extends SecurityBean {
   private CashRateTypeBean _cashRateType;
   private UnitBean _unitName;
   private Double _unitNumber;
-  private Set<FutureBasketAssociationBean> _basket;
+  private Set<FutureBundleBean> _basket;
   
   public FutureSecurityBean () {
     super ();
@@ -189,14 +189,14 @@ public class FutureSecurityBean extends SecurityBean {
   /**
    * @return the basket
    */
-  public Set<FutureBasketAssociationBean> getBasket() {
+  public Set<FutureBundleBean> getBasket() {
     return _basket;
   }
 
   /**
    * @param basket the basket to set
    */
-  public void setBasket(Set<FutureBasketAssociationBean> basket) {
+  public void setBasket(Set<FutureBundleBean> basket) {
     _basket = basket;
   }
 

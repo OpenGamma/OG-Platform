@@ -18,7 +18,8 @@
     <property name="unitNumber" column="unitnumber" type="double" />
     <set name="basket" inverse="true" cascade="all-delete-orphan">
       <key column="future_id" />
-      <one-to-many class="FutureBasketAssociationBean" />
+      <one-to-many class="FutureBundleBean" />
+      <!-- TODO how do we apply the date constraint here when we're selecting the FutureSecurity -->
     </set>
   </union-subclass>
 </hibernate-mapping>

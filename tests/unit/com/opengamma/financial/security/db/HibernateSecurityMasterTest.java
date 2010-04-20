@@ -37,6 +37,7 @@ import com.opengamma.financial.convention.frequency.FrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.AgricultureFutureSecurity;
+import com.opengamma.financial.security.BondFutureDeliverable;
 import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.EnergyFutureSecurity;
@@ -59,6 +60,7 @@ import com.opengamma.financial.security.option.OTCOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.test.HibernateTest;
 import com.opengamma.util.time.Expiry;
 
@@ -87,7 +89,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         EquitySecurityBean.class,
         ExchangeBean.class,
         FrequencyBean.class,
-        FutureBasketAssociationBean.class,
+        FutureBundleBean.class,
+        FutureBundleIdentifierBean.class,
         FutureSecurityBean.class,
         GICSCodeBean.class,
         GuaranteeTypeBean.class,
@@ -598,11 +601,10 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     future = new AgricultureFutureSecurity (expiry, "TPX", "DJX", dollar, "Red wheat");
     future.setIdentifiers (Collections.singleton (agricultureId));
     _secMaster.putSecurity (now, future);
-    Set<Identifier> bondIdentifiers = new HashSet<Identifier> ();
-    bondIdentifiers.add (new Identifier ("BLOOMBERG", "corporate bond"));
-    bondIdentifiers.add (new Identifier ("BLOOMBERG", "municipal bond"));
-    bondIdentifiers.add (new Identifier ("BLOOMBERG", "government bond"));
-    future = new BondFutureSecurity (expiry, "TPX", "DJX", dollar, "type", bondIdentifiers);
+    Set<BondFutureDeliverable> bondDeliverables = new HashSet<BondFutureDeliverable> ();
+    bondDeliverables.add (new BondFutureDeliverable (new IdentifierBundle (new Identifier ("BLOOMBERG", "corporate bond"), new Identifier ("BLOOMBERG", "municipal bond")), 1.5));
+    bondDeliverables.add (new BondFutureDeliverable (new IdentifierBundle (new Identifier ("BLOOMBERG", "government bond")), 3));
+    future = new BondFutureSecurity (expiry, "TPX", "DJX", dollar, "type", bondDeliverables);
     future.setIdentifiers (Collections.singleton (bondId));
     _secMaster.putSecurity (now, future);
     future = new EnergyFutureSecurity (expiry, "TPX", "DJX", dollar, "Oil", 1.0, "barrel", underlyingId);
@@ -642,11 +644,11 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals ("DJX", bondSecurity.getSettlementExchange ());
     Assert.assertEquals (dollar, bondSecurity.getCurrency ());
     Assert.assertEquals ("type", bondSecurity.getBondType ());
-    Set<Identifier> identifiers = bondSecurity.getBasket ();
-    Assert.assertNotNull (identifiers);
-    Assert.assertEquals (bondIdentifiers.size (), identifiers.size ());
-    for (Identifier dsid : bondIdentifiers) {
-      Assert.assertTrue (identifiers.contains (dsid));
+    Set<BondFutureDeliverable> deliverables = bondSecurity.getBasket ();
+    Assert.assertNotNull (deliverables);
+    Assert.assertEquals (bondDeliverables.size (), deliverables.size ());
+    for (BondFutureDeliverable deliverable : bondDeliverables) {
+      Assert.assertTrue (deliverables.contains (deliverable));
     }
     security = _secMaster.getSecurity (now, energyId, true);
     Assert.assertNotNull (security);

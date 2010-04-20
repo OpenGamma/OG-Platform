@@ -3,15 +3,17 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
-  <class name="FutureBasketAssociationBean" table="sec_future_basket">
+  <class name="FutureBundleBean" table="sec_futurebundle">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <many-to-one name="futureSecurity" column="future_id" class="FutureSecurityBean" not-null="true" />
-    <component name="domainSpecificIdentifier"
-               class="DomainSpecificIdentifierBean">
-      <property name="domain" type="string" not-null="true" unique-key="unique_associations"/>
-      <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
-    </component>
+    <property name="startDate" type="date" />
+    <property name="endDate" type="date" />
+    <property name="conversionFactor" type="double" not-null="true" />
+    <set name="basket" inverse="true" cascade="all-delete-orphan">
+      <key column="bundle_id" />
+      <one-to-many class="FutureBundleIdentifierBean" />
+    </set>
   </class>
 </hibernate-mapping>

@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.AgricultureFutureSecurity;
+import com.opengamma.financial.security.BondFutureDeliverable;
 import com.opengamma.financial.security.BondFutureSecurity;
 import com.opengamma.financial.security.CommodityFutureSecurity;
 import com.opengamma.financial.security.EnergyFutureSecurity;
@@ -24,6 +25,7 @@ import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 /* package */ class FutureSecurityBeanOperation extends Converters implements BeanOperation<FutureSecurity,FutureSecurityBean> {
   
@@ -43,11 +45,16 @@ import com.opengamma.id.Identifier;
 
       @Override
       public FutureSecurity visitBondFutureType() {
-        final Set<FutureBasketAssociationBean> basketBeans = bean.getBasket ();
-        final Set<Identifier> basket = new HashSet<Identifier> (basketBeans.size ());
+        final Set<FutureBundleBean> basketBeans = bean.getBasket ();
+        final Set<BondFutureDeliverable> basket = new HashSet<BondFutureDeliverable> (basketBeans.size ());
         if (basketBeans != null) {
-          for (FutureBasketAssociationBean basketBean : basketBeans) {
-            basket.add (domainSpecificIdentifierBeanToDomainSpecificIdentifier (basketBean.getDomainSpecificIdentifier ()));
+          for (FutureBundleBean basketBean : basketBeans) {
+            final Set<FutureBundleIdentifierBean> identifierBeans = basketBean.getIdentifiers ();
+            final Set<Identifier> identifiers = new HashSet<Identifier> (identifierBeans.size ());
+            for (FutureBundleIdentifierBean identifierBean : identifierBeans) {
+              identifiers.add (domainSpecificIdentifierBeanToDomainSpecificIdentifier (identifierBean.getIdentifier ()));
+            }
+            basket.add (new BondFutureDeliverable (new IdentifierBundle (identifiers), basketBean.getConversionFactor ()));
           }
         }
         return new BondFutureSecurity (
@@ -107,7 +114,7 @@ import com.opengamma.id.Identifier;
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null,
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()));
+            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ()));
       }
 
       @Override
@@ -120,7 +127,7 @@ import com.opengamma.id.Identifier;
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null,               
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()));
+            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ()));
       }
 
       @Override
@@ -130,7 +137,7 @@ import com.opengamma.id.Identifier;
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
             currencyBeanToCurrency (bean.getCurrency1 ()),
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ())
+            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ())
             );
       }
 
@@ -141,7 +148,7 @@ import com.opengamma.id.Identifier;
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
             currencyBeanToCurrency (bean.getCurrency1 ()),
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ())
+            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ())
             );
       }
 
@@ -176,8 +183,8 @@ import com.opengamma.id.Identifier;
       public Boolean visitBondFutureSecurity(BondFutureSecurity security) {
         if (!beanEquals (security)) return false;
         if (!ObjectUtils.equals (bean.getBondType ().getName (), security.getBondType ())) return false;
-        final Set<Identifier> basket = security.getBasket ();
-        final Set<FutureBasketAssociationBean> beanBasket = bean.getBasket ();
+        final Set<BondFutureDeliverable> basket = security.getBasket ();
+        final Set<FutureBundleBean> beanBasket = bean.getBasket ();
         if (basket == null) {
           if (beanBasket != null) {
             return false;
@@ -186,7 +193,8 @@ import com.opengamma.id.Identifier;
           return false;
         } else {
           if (basket.size () != beanBasket.size ()) return false;
-          for (FutureBasketAssociationBean basketBean : beanBasket) {
+          for (FutureBundleBean basketBean : beanBasket) {
+            
             if (!basket.contains (domainSpecificIdentifierBeanToDomainSpecificIdentifier (basketBean.getDomainSpecificIdentifier ()))) return false;
           }
         }
@@ -270,8 +278,8 @@ import com.opengamma.id.Identifier;
         return bean;
       }
       
-      private FutureBasketAssociationBean createFutureBasketAssociationBean (final FutureSecurityBean bean, final Identifier identifier) {
-        return new FutureBasketAssociationBean (bean, new DomainSpecificIdentifierBean (identifier.getScheme ().getName (), identifier.getValue ()));
+      private FutureBundleBean createFutureBasketAssociationBean (final FutureSecurityBean bean, final Identifier identifier) {
+        return new FutureBundleBean (bean, new DomainSpecificIdentifierBean (identifier.getScheme ().getName (), identifier.getValue ()));
       }
       
       @Override
@@ -280,7 +288,7 @@ import com.opengamma.id.Identifier;
         final FutureSecurityBean bean = createBean (security);
         bean.setBondType (secMasterSession.getOrCreateBondFutureTypeBean (security.getBondType ()));
         final Set<Identifier> basket = security.getBasket ();
-        final Set<FutureBasketAssociationBean> basketBeans = new HashSet<FutureBasketAssociationBean> (basket.size ());
+        final Set<FutureBundleBean> basketBeans = new HashSet<FutureBundleBean> (basket.size ());
         for (Identifier identifier : basket) {
           basketBeans.add (createFutureBasketAssociationBean (bean, identifier));
         }
