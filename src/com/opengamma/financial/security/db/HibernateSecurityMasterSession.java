@@ -32,7 +32,7 @@ public class HibernateSecurityMasterSession {
       Collection<Identifier> identifiers) {
     Set<String> domains = new HashSet<String>();
     for (Identifier id : identifiers) {
-      domains.add(id.getDomain().getDomainName());
+      domains.add(id.getScheme().getName());
     }
     return domains;
   }
@@ -41,7 +41,7 @@ public class HibernateSecurityMasterSession {
       Collection<Identifier> identifiers) {
     Set<String> values = new HashSet<String>();
     for (Identifier id : identifiers) {
-      if (id.getDomain().getDomainName().equals(domain)) {
+      if (id.getScheme().getName().equals(domain)) {
         values.add(id.getValue());
       }
     }
@@ -354,7 +354,7 @@ public class HibernateSecurityMasterSession {
   /* package */ void associateOrUpdateDomainSpecificIdentifierWithSecurity(Date now,
       Identifier identifier, SecurityBean security) {
     getCreateOrUpdateDomainSpecificIdentifierAssociationBean(now, identifier
-        .getDomain().getDomainName(), identifier.getValue(), security
+        .getScheme().getName(), identifier.getValue(), security
         .getFirstVersion());
   }
 
@@ -364,7 +364,7 @@ public class HibernateSecurityMasterSession {
       final Identifier identifier) {
     Query query = getSession().getNamedQuery(
         "SecurityBean.one.byDateDomainIdentifier");
-    query.setString("domain", identifier.getDomain().getDomainName());
+    query.setString("domain", identifier.getScheme().getName());
     query.setString("identifier", identifier.getValue());
     query.setDate("now", now);
     SecurityBean security = (SecurityBean) query.uniqueResult();

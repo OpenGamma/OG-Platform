@@ -52,7 +52,7 @@ public class PositionMasterSession {
   }
   
   public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (final InstantProvider now, final Identifier identifier) {
-    return getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (now, identifier.getDomain ().getDomainName (), identifier.getValue ());
+    return getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (now, identifier.getScheme ().getName (), identifier.getValue ());
   }
   
   @SuppressWarnings("unchecked")

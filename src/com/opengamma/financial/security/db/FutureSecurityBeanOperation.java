@@ -271,7 +271,7 @@ import com.opengamma.id.Identifier;
       }
       
       private FutureBasketAssociationBean createFutureBasketAssociationBean (final FutureSecurityBean bean, final Identifier identifier) {
-        return new FutureBasketAssociationBean (bean, new DomainSpecificIdentifierBean (identifier.getDomain ().getDomainName (), identifier.getValue ()));
+        return new FutureBasketAssociationBean (bean, new DomainSpecificIdentifierBean (identifier.getScheme ().getName (), identifier.getValue ()));
       }
       
       @Override
