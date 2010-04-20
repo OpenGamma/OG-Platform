@@ -5,6 +5,8 @@
  */
 package com.opengamma.id;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +18,18 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A bundle of identifiers.
+ * <p>
+ * Each identifier in the bundle will typically refer to the same physical item.
+ * The identifiers represent different ways to represent the item, for example in multiple schemes.
  *
  * @author kirk
  */
@@ -42,7 +47,7 @@ public class IdentifierBundle implements Serializable {
   /**
    * The cached hash code.
    */
-  private final int _hashCode;
+  private volatile transient int _hashCode;
 
   /**
    * Creates an empty bundle.
@@ -73,7 +78,7 @@ public class IdentifierBundle implements Serializable {
     if ((identifiers == null) || (identifiers.length == 0)) {
       _identifiers = Collections.emptySet();
     } else {
-      _identifiers = new HashSet<Identifier>(Arrays.asList(identifiers));
+      _identifiers = Collections.unmodifiableSet(new HashSet<Identifier>(Arrays.asList(identifiers)));
     }
     _hashCode = calcHashCode();
   }
@@ -86,7 +91,7 @@ public class IdentifierBundle implements Serializable {
     if (identifiers == null) {
       _identifiers = Collections.emptySet();
     } else {
-      _identifiers = new HashSet<Identifier>(identifiers);
+      _identifiers = Collections.unmodifiableSet(new HashSet<Identifier>(identifiers));
     }
     _hashCode = calcHashCode();
   }
@@ -101,10 +106,15 @@ public class IdentifierBundle implements Serializable {
       if (!(field.getValue() instanceof FudgeFieldContainer)) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
       }
-      Identifier identifier = new Identifier((FudgeFieldContainer)field.getValue());
+      Identifier identifier = new Identifier((FudgeFieldContainer) field.getValue());
       identifiers.add(identifier);
     }
-    _identifiers = identifiers;
+    _identifiers = Collections.unmodifiableSet(identifiers);
+    _hashCode = calcHashCode();
+  }
+
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
     _hashCode = calcHashCode();
   }
 
@@ -113,18 +123,21 @@ public class IdentifierBundle implements Serializable {
    * Gets the collection of identifiers in the bundle.
    * @return the identifier collection, never null
    */
-  public Collection<Identifier> getIdentifiers() {
-    return Collections.unmodifiableSet(_identifiers);
+  public Set<Identifier> getIdentifiers() {
+    return _identifiers;
   }
 
   /**
    * Gets the standalone identifier for the specified scheme.
+   * <p>
+   * This returns the first identifier in the internal set that matches.
+   * The set is not sorted, so this method is not consistent.
    * @param scheme  the scheme to query, null returns null
    * @return the standalone identifier, null if not found
    */
   public String getIdentifier(IdentificationScheme scheme) {
     for (Identifier identifier : _identifiers) {
-      if (ObjectUtils.equals(scheme, identifier.getDomain())) {
+      if (ObjectUtils.equals(scheme, identifier.getScheme())) {
         return identifier.getValue();
       }
     }
@@ -158,8 +171,7 @@ public class IdentifierBundle implements Serializable {
   protected int calcHashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result
-        + ((_identifiers == null) ? 0 : _identifiers.hashCode());
+    result = prime * result + ((_identifiers == null) ? 0 : _identifiers.hashCode());
     return result;
   }
 
@@ -174,7 +186,7 @@ public class IdentifierBundle implements Serializable {
     sb.append(getClass().getSimpleName()).append("[");
     List<String> idsAsText = new ArrayList<String>();
     for (Identifier identifier : _identifiers) {
-      idsAsText.add(identifier.getDomain().getDomainName() + ":" + identifier.getValue());
+      idsAsText.add(identifier.getScheme().getName() + ":" + identifier.getValue());
     }
     sb.append(StringUtils.join(idsAsText, ", "));
     sb.append("]");

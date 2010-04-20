@@ -16,13 +16,13 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
-
 /**
- * 
+ * Test IdentifierBundle.
  *
  * @author kirk
  */
 public class IdentifierBundleTest {
+
   private Identifier _id11 = new Identifier(new IdentificationScheme("D1"), "V1");
   private Identifier _id21 = new Identifier(new IdentificationScheme("D2"), "V1");
   private Identifier _id12 = new Identifier(new IdentificationScheme("D1"), "V2");
@@ -36,7 +36,7 @@ public class IdentifierBundleTest {
     assertTrue(dsi1.equals(dsi1));
     assertTrue(dsi1.equals(dsi2));
   }
-  
+
   @Test
   public void singleIdentifier() {
     assertTrue(new IdentifierBundle(_id11).equals(new IdentifierBundle(_id11)));
@@ -62,7 +62,7 @@ public class IdentifierBundleTest {
     assertFalse(new IdentifierBundle(_id11, _id22).equals(new IdentifierBundle(_id11, _id12)));
     assertFalse(new IdentifierBundle(_id21, _id22).equals(new IdentifierBundle(_id11, _id12)));
   }
-  
+
   @Test
   public void fudgeEncoding() {
     IdentifierBundle input = new IdentifierBundle(
@@ -76,4 +76,5 @@ public class IdentifierBundleTest {
     IdentifierBundle decoded = new IdentifierBundle(msg);
     assertEquals(input, decoded);
   }
+
 }
