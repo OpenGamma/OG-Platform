@@ -10,7 +10,7 @@ tests/output/
 .settings/org.eclipse.ltk.core.refactoring.prefs
 derby.log
 db/derby/*
-!db/derby/*.sql
+!db/derby/create-*.sql
 generated/
 build/
 doc/

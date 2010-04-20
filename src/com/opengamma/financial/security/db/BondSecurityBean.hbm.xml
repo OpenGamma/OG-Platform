@@ -3,7 +3,7 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
-  <union-subclass name="BondSecurityBean" extends="SecurityBean" table="bond">
+  <union-subclass name="BondSecurityBean" extends="SecurityBean" table="sec_bond">
     <property name="bondType" column="bond_type" type="com.opengamma.financial.security.db.BondTypeUserType" not-null="true" />
     <property name="issuerName" column="issuername" type="string" not-null="true" />
     <many-to-one name="issuerType" column="issuertype_id" class="IssuerTypeBean" not-null="true" />
