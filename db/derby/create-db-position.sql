@@ -1,7 +1,6 @@
--- Position Master
 
--- requires create-db-common.sql
-  
+-- create-db-position.sql: Position Master
+
 create table pos_position (
     id bigint not null,
     identifier varchar(255) not null,

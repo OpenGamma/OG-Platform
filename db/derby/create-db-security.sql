@@ -1,6 +1,5 @@
--- Security Master
 
--- requires create-db-common.sql
+-- create-db-security.sql: Security Master
 
 create table sec_currency (
     id bigint not null,
