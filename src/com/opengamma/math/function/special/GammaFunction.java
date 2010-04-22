@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
+import cern.jet.stat.Gamma;
+
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -16,7 +18,7 @@ public class GammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    return Math.exp(_lnGamma.evaluate(x));
+    return Gamma.gamma(x);
   }
 
 }

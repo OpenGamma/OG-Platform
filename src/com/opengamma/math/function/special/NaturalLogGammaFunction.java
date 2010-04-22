@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.function.special;
 
+import cern.jet.stat.Gamma;
+
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -22,14 +24,6 @@ public class NaturalLogGammaFunction extends Function1D<Double, Double> {
   public Double evaluate(final Double x) {
     if (x < 0)
       throw new IllegalArgumentException("x must be greater than zero");
-    double y = x;
-    double ser = 0.999999999999997092;
-    double temp;
-    temp = x + 5.24218750;
-    temp = (x + 0.5) * Math.log(temp) - temp;
-    for (int j = 0; j < 14; j++) {
-      ser += COEFFICIENTS[j] / ++y;
-    }
-    return temp + Math.log(2.5066282746310005 * ser / x);
+    return Gamma.logGamma(x);
   }
 }
