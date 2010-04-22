@@ -5,9 +5,16 @@
  */
 package com.opengamma.financial.security.db;
 
-import java.util.Collection;
-import java.util.Collections;
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateToExpiry;
+import static com.opengamma.financial.security.db.Converters.expiryToDate;
+import static com.opengamma.financial.security.db.Converters.futureBundleBeanToBondFutureDeliverable;
+import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
+import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
+
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -25,18 +32,13 @@ import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 
-/* package */ class FutureSecurityBeanOperation extends Converters implements BeanOperation<FutureSecurity,FutureSecurityBean> {
+/* package */ class FutureSecurityBeanOperation extends AbstractBeanOperation<FutureSecurity,FutureSecurityBean> {
   
   public static final FutureSecurityBeanOperation INSTANCE = new FutureSecurityBeanOperation ();
   
   private FutureSecurityBeanOperation () {
-  }
-  
-  private static <T> T getSingleElement (final Collection<T> collection) {
-    assert collection.size () == 1;
-    return collection.iterator ().next ();
+    super ("FUTURE", FutureSecurity.class, FutureSecurityBean.class);
   }
   
   @Override
@@ -49,12 +51,7 @@ import com.opengamma.id.IdentifierBundle;
         final Set<BondFutureDeliverable> basket = new HashSet<BondFutureDeliverable> (basketBeans.size ());
         if (basketBeans != null) {
           for (FutureBundleBean basketBean : basketBeans) {
-            final Set<FutureBundleIdentifierBean> identifierBeans = basketBean.getIdentifiers ();
-            final Set<Identifier> identifiers = new HashSet<Identifier> (identifierBeans.size ());
-            for (FutureBundleIdentifierBean identifierBean : identifierBeans) {
-              identifiers.add (domainSpecificIdentifierBeanToDomainSpecificIdentifier (identifierBean.getIdentifier ()));
-            }
-            basket.add (new BondFutureDeliverable (new IdentifierBundle (identifiers), basketBean.getConversionFactor ()));
+            basket.add (futureBundleBeanToBondFutureDeliverable (basketBean));
           }
         }
         return new BondFutureSecurity (
@@ -114,7 +111,7 @@ import com.opengamma.id.IdentifierBundle;
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null,
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ()));
+            identifierBeanToIdentifier (bean.getUnderlying ()));
       }
 
       @Override
@@ -127,7 +124,7 @@ import com.opengamma.id.IdentifierBundle;
             bean.getCommodityType ().getName (),
             bean.getUnitNumber (),
             (bean.getUnitName () != null) ? bean.getUnitName ().getName () : null,               
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ()));
+            identifierBeanToIdentifier (bean.getUnderlying ()));
       }
 
       @Override
@@ -137,7 +134,7 @@ import com.opengamma.id.IdentifierBundle;
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
             currencyBeanToCurrency (bean.getCurrency1 ()),
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ())
+            identifierBeanToIdentifier (bean.getUnderlying ())
             );
       }
 
@@ -148,13 +145,134 @@ import com.opengamma.id.IdentifierBundle;
             bean.getTradingExchange ().getName (),
             bean.getSettlementExchange ().getName (),
             currencyBeanToCurrency (bean.getCurrency1 ()),
-            domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (getSingleElement (bean.getBasket ()).getIdentifiers ()).getIdentifier ())
+            identifierBeanToIdentifier (bean.getUnderlying ())
             );
       }
 
     });
   }
 
+  @Override
+  public FutureSecurityBean resolve(final HibernateSecurityMasterSession secMasterSession, final Date now, final FutureSecurityBean bean) {
+    return bean.getFutureType ().accept (new FutureType.Visitor<FutureSecurityBean> () {
+      
+      private FutureSecurityBean resolveFutureType () {
+        return bean;
+      }
+      
+      private FutureSecurityBean resolveCommodityFutureType () {
+        return resolveFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitAgricultureFutureType() {
+        return resolveCommodityFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitBondFutureType() {
+        FutureSecurityBean bean = resolveFutureType ();
+        final List<FutureBundleBean> basket = secMasterSession.getFutureBundleBeans (now, bean);
+        bean.setBasket (new HashSet<FutureBundleBean> (basket));
+        return bean;
+      }
+
+      @Override
+      public FutureSecurityBean visitEnergyFutureType() {
+        return resolveCommodityFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitFXFutureType() {
+        return resolveFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitIndexFutureType() {
+        return resolveFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitInterestRateFutureType() {
+        return resolveFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitMetalFutureType() {
+        return resolveCommodityFutureType ();
+      }
+
+      @Override
+      public FutureSecurityBean visitStockFutureType() {
+        return resolveFutureType ();
+      }
+      
+    });
+  }
+  
+  @Override
+  public void postPersistBean (final HibernateSecurityMasterSession secMasterSession, final Date now, final FutureSecurityBean bean) {
+    bean.getFutureType ().accept (new FutureType.Visitor<Object> () {
+      
+      private void postPersistFuture () {
+        // No action
+      }
+      
+      private void postPersistCommodityFuture () {
+        postPersistFuture ();
+      }
+      
+      @Override
+      public Object visitAgricultureFutureType() {
+        postPersistCommodityFuture ();
+        return null;
+      }
+      
+      @Override
+      public Object visitBondFutureType() {
+        postPersistFuture ();
+        secMasterSession.persistFutureBundleBeans (now, bean);
+        return null;
+      }
+
+      @Override
+      public Object visitEnergyFutureType() {
+        postPersistCommodityFuture ();
+        return null;
+      }
+
+      @Override
+      public Object visitFXFutureType() {
+        postPersistFuture ();
+        return null;
+      }
+
+      @Override
+      public Object visitIndexFutureType() {
+        postPersistFuture ();
+        return null;
+      }
+
+      @Override
+      public Object visitInterestRateFutureType() {
+        postPersistFuture ();
+        return null;
+      }
+
+      @Override
+      public Object visitMetalFutureType() {
+        postPersistCommodityFuture ();
+        return null;
+      }
+
+      @Override
+      public Object visitStockFutureType() {
+        postPersistFuture ();
+        return null;
+      }
+    });
+  }
+  
   @Override
   public boolean beanEquals(final FutureSecurityBean bean, final FutureSecurity security) {
     return security.accept (new FutureSecurityVisitor<Boolean> () {
@@ -194,8 +312,7 @@ import com.opengamma.id.IdentifierBundle;
         } else {
           if (basket.size () != beanBasket.size ()) return false;
           for (FutureBundleBean basketBean : beanBasket) {
-            
-            if (!basket.contains (domainSpecificIdentifierBeanToDomainSpecificIdentifier (basketBean.getDomainSpecificIdentifier ()))) return false;
+            if (!basket.contains (futureBundleBeanToBondFutureDeliverable (basketBean))) return false;
           }
         }
         return true;
@@ -204,7 +321,7 @@ import com.opengamma.id.IdentifierBundle;
       @Override
       public Boolean visitEnergyFutureSecurity(EnergyFutureSecurity security) {
         return beanEquals (security)
-            && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
+            && ObjectUtils.equals (identifierBeanToIdentifier (bean.getUnderlying ()), security.getUnderlyingIdentityKey ());
       }
 
       @Override
@@ -227,19 +344,19 @@ import com.opengamma.id.IdentifierBundle;
       @Override
       public Boolean visitMetalFutureSecurity(MetalFutureSecurity security) {
         return beanEquals (security)
-            && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
+            && ObjectUtils.equals (identifierBeanToIdentifier (bean.getUnderlying ()), security.getUnderlyingIdentityKey ());
       }
 
       @Override
       public Boolean visitIndexFutureSecurity(IndexFutureSecurity security) {
         return beanEquals (security)
-            && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
+            && ObjectUtils.equals (identifierBeanToIdentifier (bean.getUnderlying ()), security.getUnderlyingIdentityKey ());
       }
 
       @Override
       public Boolean visitStockFutureSecurity(StockFutureSecurity security) {
         return beanEquals (security)
-        && ObjectUtils.equals (domainSpecificIdentifierBeanToDomainSpecificIdentifier (getSingleElement (bean.getBasket ()).getDomainSpecificIdentifier ()), security.getUnderlyingIdentityKey ());
+        && ObjectUtils.equals (identifierBeanToIdentifier (bean.getUnderlying ()), security.getUnderlyingIdentityKey ());
       }
       
     });
@@ -249,7 +366,7 @@ import com.opengamma.id.IdentifierBundle;
   public FutureSecurityBean createBean(final HibernateSecurityMasterSession secMasterSession, final FutureSecurity security) {
     return security.accept (new FutureSecurityVisitor<FutureSecurityBean> () {
       
-      private FutureSecurityBean createBean (final FutureSecurity security) {
+      private FutureSecurityBean createFutureBean (final FutureSecurity security) {
         final FutureSecurityBean bean = new FutureSecurityBean ();
         bean.setFutureType (FutureType.identify (security));
         bean.setExpiry (expiryToDate (security.getExpiry ()));
@@ -259,8 +376,8 @@ import com.opengamma.id.IdentifierBundle;
         return bean;
       }
       
-      private FutureSecurityBean createBean (final CommodityFutureSecurity security) {
-        final FutureSecurityBean bean = createBean ((FutureSecurity)security);
+      private FutureSecurityBean createCommodityFutureBean (final CommodityFutureSecurity security) {
+        final FutureSecurityBean bean = createFutureBean (security);
         bean.setCommodityType (secMasterSession.getOrCreateCommodityFutureTypeBean (security.getCommodityType ()));
         if (security.getUnitName () != null) {
           bean.setUnitName (secMasterSession.getOrCreateUnitNameBean (security.getUnitName ()));
@@ -274,23 +391,28 @@ import com.opengamma.id.IdentifierBundle;
       @Override
       public FutureSecurityBean visitAgricultureFutureSecurity(
           AgricultureFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
+        final FutureSecurityBean bean = createCommodityFutureBean (security);
         return bean;
-      }
-      
-      private FutureBundleBean createFutureBasketAssociationBean (final FutureSecurityBean bean, final Identifier identifier) {
-        return new FutureBundleBean (bean, new DomainSpecificIdentifierBean (identifier.getScheme ().getName (), identifier.getValue ()));
       }
       
       @Override
       public FutureSecurityBean visitBondFutureSecurity(
           BondFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
+        final FutureSecurityBean bean = createFutureBean (security);
         bean.setBondType (secMasterSession.getOrCreateBondFutureTypeBean (security.getBondType ()));
-        final Set<Identifier> basket = security.getBasket ();
+        final Set<BondFutureDeliverable> basket = security.getBasket ();
         final Set<FutureBundleBean> basketBeans = new HashSet<FutureBundleBean> (basket.size ());
-        for (Identifier identifier : basket) {
-          basketBeans.add (createFutureBasketAssociationBean (bean, identifier));
+        for (BondFutureDeliverable deliverable : basket) {
+          final FutureBundleBean deliverableBean = new FutureBundleBean ();
+          deliverableBean.setFuture (bean);
+          deliverableBean.setConversionFactor (deliverable.getConversionFactor ());
+          final Set<Identifier> identifiers = deliverable.getIdentifiers ().getIdentifiers ();
+          final Set<IdentifierBean> identifierBeans = new HashSet<IdentifierBean> ();
+          for (Identifier identifier : identifiers) {
+            identifierBeans.add (identifierToIdentifierBean (identifier));
+          }
+          deliverableBean.setIdentifiers (identifierBeans);
+          basketBeans.add (deliverableBean);
         }
         bean.setBasket (basketBeans);
         return bean;
@@ -299,14 +421,14 @@ import com.opengamma.id.IdentifierBundle;
       @Override
       public FutureSecurityBean visitEnergyFutureSecurity(
           EnergyFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
-        bean.setBasket (Collections.singleton (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        final FutureSecurityBean bean = createCommodityFutureBean (security);
+        bean.setUnderlying (identifierToIdentifierBean (security.getUnderlyingIdentityKey ()));
         return bean;
       }
 
       @Override
       public FutureSecurityBean visitFXFutureSecurity(FXFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
+        final FutureSecurityBean bean = createFutureBean (security);
         bean.setCurrency2 (secMasterSession.getOrCreateCurrencyBean (security.getNumerator ().getISOCode ()));
         bean.setCurrency3 (secMasterSession.getOrCreateCurrencyBean (security.getDenominator ().getISOCode ()));
         bean.setUnitNumber (security.getMultiplicationFactor ());
@@ -316,7 +438,7 @@ import com.opengamma.id.IdentifierBundle;
       @Override
       public FutureSecurityBean visitInterestRateFutureSecurity(
           InterestRateFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
+        final FutureSecurityBean bean = createFutureBean (security);
         bean.setCashRateType (secMasterSession.getOrCreateCashRateTypeBean (security.getCashRateType ()));
         return bean;
       }
@@ -324,40 +446,25 @@ import com.opengamma.id.IdentifierBundle;
       @Override
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
-        bean.setBasket (Collections.singleton (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        final FutureSecurityBean bean = createCommodityFutureBean (security);
+        bean.setUnderlying (identifierToIdentifierBean (security.getUnderlyingIdentityKey ()));
         return bean;
       }
 
       @Override
       public FutureSecurityBean visitIndexFutureSecurity(IndexFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
-        bean.setBasket (Collections.singleton (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        final FutureSecurityBean bean = createFutureBean (security);
+        bean.setUnderlying (identifierToIdentifierBean (security.getUnderlyingIdentityKey ()));
         return bean;
       }
 
       @Override
       public FutureSecurityBean visitStockFutureSecurity(StockFutureSecurity security) {
-        final FutureSecurityBean bean = createBean (security);
-        bean.setBasket (Collections.singleton (createFutureBasketAssociationBean (bean, security.getUnderlyingIdentityKey ())));
+        final FutureSecurityBean bean = createFutureBean (security);
+        bean.setUnderlying (identifierToIdentifierBean (security.getUnderlyingIdentityKey ()));
         return bean;
       }
     });
   }
 
-  @Override
-  public Class<? extends FutureSecurityBean> getBeanClass() {
-    return FutureSecurityBean.class;
-  }
-
-  @Override
-  public Class<? extends FutureSecurity> getSecurityClass() {
-    return FutureSecurity.class;
-  }
-
-  @Override
-  public String getSecurityType() {
-    return "FUTURE";
-  }
-  
 }

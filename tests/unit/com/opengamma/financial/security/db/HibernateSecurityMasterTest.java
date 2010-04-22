@@ -85,15 +85,14 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         CouponTypeBean.class,
         CurrencyBean.class,
         DayCountBean.class,
-        DomainSpecificIdentifierBean.class,
         EquitySecurityBean.class,
         ExchangeBean.class,
         FrequencyBean.class,
         FutureBundleBean.class,
-        FutureBundleIdentifierBean.class,
         FutureSecurityBean.class,
         GICSCodeBean.class,
         GuaranteeTypeBean.class,
+        IdentifierAssociationBean.class,
         IssuerTypeBean.class,
         MarketBean.class,
         OptionSecurityBean.class,
@@ -278,9 +277,9 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         Assert.assertTrue(allEquitySecurities.contains(nomura));
         Assert.assertTrue(allEquitySecurities.contains(generalMotors));
         
-        secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
-        secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "GM Equity", generalMotors);
-        List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
+        secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "1311 Equity", nomura);
+        secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal.getTime (), "BLOOMBERG", "GM Equity", generalMotors);
+        List<IdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
         
         EquitySecurityBean hsbc = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal.getTime(), false, cal.getTime(), null, null, "HSBC", djxBean,"HSBC", usdBean, null);
@@ -319,8 +318,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         System.err.println(allEquities);
         EquitySecurityBean nomura = secMasterSession.getCurrentEquitySecurityBean(now, tpxBean, "Nomura", jpyBean);
         Assert.assertNotNull(nomura);
-        secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(now, "BLOOMBERG", "1311 JP Equity", nomura);
-        List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
+        secMasterSession.getCreateOrUpdateIdentifierAssociationBean(now, "BLOOMBERG", "1311 JP Equity", nomura);
+        List<IdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         System.err.println(allAssociations);
         return null;
       }
@@ -648,7 +647,10 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertNotNull (deliverables);
     Assert.assertEquals (bondDeliverables.size (), deliverables.size ());
     for (BondFutureDeliverable deliverable : bondDeliverables) {
-      Assert.assertTrue (deliverables.contains (deliverable));
+      if (!deliverables.contains (deliverable)) {
+        s_logger.info ("deliverable {} not found in {}", deliverable, deliverables);
+        Assert.fail ("deliverable sets didn't match");
+      }
     }
     security = _secMaster.getSecurity (now, energyId, true);
     Assert.assertNotNull (security);
@@ -730,21 +732,21 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         cal2004.set(Calendar.YEAR, 2004);
         EquitySecurityBean nomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2000.getTime(), false, cal2000.getTime(), null, null, "Nomura", tpxBean,"Nomura", jpyBean, banksBean);
         EquitySecurityBean notNomuraBean = EquitySecurityBeanOperation.INSTANCE.createBean (secMasterSession, cal2003.getTime(), false, cal2003.getTime(), null, null, "Something else", tpxBean,"Not Nomura", jpyBean, banksBean);
-        DomainSpecificIdentifierAssociationBean dsiab1 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2001.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
-        DomainSpecificIdentifierAssociationBean dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
+        IdentifierAssociationBean dsiab1 = secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal2001.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
+        IdentifierAssociationBean dsiab2 = secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
         Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
-        DomainSpecificIdentifierAssociationBean dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomuraBean);
+        IdentifierAssociationBean dsiab3 = secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomuraBean);
         if (dsiab1.getId () == dsiab3.getId ()) Assert.fail ("different association should have been created");
         Assert.assertNotNull (dsiab3.getValidStartDate ());
         Assert.assertNull (dsiab3.getValidEndDate ());
-        DomainSpecificIdentifierAssociationBean dsiab4 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2004.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
+        IdentifierAssociationBean dsiab4 = secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal2004.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
         if (dsiab1.getId () == dsiab4.getId ()) Assert.fail ("different association should have been created");
         if (dsiab3.getId () == dsiab4.getId ()) Assert.fail ("different association should have been created");
         Assert.assertNotNull (dsiab4.getValidStartDate ());
         Assert.assertNull (dsiab4.getValidEndDate ());
         
-        dsiab2 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
-        dsiab3 = secMasterSession.getCreateOrUpdateDomainSpecificIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomuraBean);
+        dsiab2 = secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal2002.getTime (), "BLOOMBERG", "1311 Equity", nomuraBean);
+        dsiab3 = secMasterSession.getCreateOrUpdateIdentifierAssociationBean(cal2003.getTime (), "BLOOMBERG", "1311 Equity", notNomuraBean);
         Assert.assertEquals (dsiab1.getId (), dsiab2.getId ());
         Assert.assertNull (dsiab2.getValidStartDate ());
         Assert.assertNotNull (dsiab2.getValidEndDate ());
@@ -820,7 +822,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
         List<EquitySecurityBean> equitySecurityBeans = secMasterSession.getEquitySecurityBeans();
         s_logger.debug ("equitySecurityBeans: {}", equitySecurityBeans);
-        List<DomainSpecificIdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
+        List<IdentifierAssociationBean> allAssociations = secMasterSession.getAllAssociations();
         s_logger.debug ("allAssociations: {}", allAssociations);
         return null;
       }

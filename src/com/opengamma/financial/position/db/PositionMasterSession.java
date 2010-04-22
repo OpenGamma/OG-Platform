@@ -17,6 +17,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifier;
 
 /**
@@ -282,13 +283,12 @@ public class PositionMasterSession {
   public void savePortfolioNodeBean (final PortfolioNodeBean bean) {
     final Session session = getSession ();
     final Transaction transaction = session.beginTransaction ();
-    if (transaction != null) {
-      try {
-        savePortfolioNodeBeanTransaction (session, bean);
-        transaction.commit ();
-      } catch (Exception e) {
-        transaction.rollback ();
-      }
+    try {
+      savePortfolioNodeBeanTransaction (session, bean);
+      transaction.commit ();
+    } catch (Exception e) {
+      transaction.rollback ();
+      throw new OpenGammaRuntimeException ("transaction rolled back", e);
     }
   }
   

@@ -7,6 +7,8 @@ package com.opengamma.financial.security.db;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
@@ -25,7 +27,9 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.FrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
+import com.opengamma.financial.security.BondFutureDeliverable;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
@@ -34,16 +38,20 @@ import com.opengamma.util.time.ExpiryAccuracy;
  * 
  * @author Andrew Griffin
  */
-/* package */ abstract class Converters {
+/* package */ final class Converters {
 
   protected static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
     if (currencyBean == null) return null;
     return Currency.getInstance(currencyBean.getName());
   }
   
-  protected static Identifier domainSpecificIdentifierBeanToDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifierBean) {
-    if (domainSpecificIdentifierBean == null) return null;
-    return new Identifier(domainSpecificIdentifierBean.getDomain(), domainSpecificIdentifierBean.getIdentifier());
+  protected static Identifier identifierBeanToIdentifier(IdentifierBean identifierBean) {
+    if (identifierBean == null) return null;
+    return new Identifier(identifierBean.getScheme(), identifierBean.getIdentifier());
+  }
+  
+  protected static IdentifierBean identifierToIdentifierBean (final Identifier identifier) {
+    return new IdentifierBean (identifier.getScheme ().getName (), identifier.getValue ());
   }
   
   protected static Expiry dateToExpiry(Date date) {
@@ -93,6 +101,15 @@ import com.opengamma.util.time.ExpiryAccuracy;
     final BusinessDayConvention bdc = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention (businessDayConventionBean.getName ());
     if (bdc == null) throw new OpenGammaRuntimeException ("Bad value for businessDayConventionBean (" + businessDayConventionBean.getName () + ")");
     return bdc;
+  }
+
+  protected static BondFutureDeliverable futureBundleBeanToBondFutureDeliverable (final FutureBundleBean futureBundleBean) {
+    final Set<IdentifierBean> identifierBeans = futureBundleBean.getIdentifiers ();
+    final Set<Identifier> identifiers = new HashSet<Identifier> (identifierBeans.size ());
+    for (IdentifierBean identifierBean : identifierBeans) {
+      identifiers.add (identifierBeanToIdentifier (identifierBean));
+    }
+    return new BondFutureDeliverable (new IdentifierBundle (identifiers), futureBundleBean.getConversionFactor ());
   }
   
   protected static GICSCode gicsCodeBeanToGICSCode (final GICSCodeBean gicsCodeBean) {

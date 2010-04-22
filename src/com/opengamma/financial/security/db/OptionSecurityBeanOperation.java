@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security.db;
 
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateToExpiry;
+
 import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -24,11 +27,12 @@ import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 import com.opengamma.id.Identifier;
 
-/* package */ class OptionSecurityBeanOperation extends Converters implements BeanOperation<OptionSecurity,OptionSecurityBean> {
+/* package */ class OptionSecurityBeanOperation extends AbstractBeanOperation<OptionSecurity,OptionSecurityBean> {
   
   public static final OptionSecurityBeanOperation INSTANCE = new OptionSecurityBeanOperation ();
   
   private OptionSecurityBeanOperation () {
+    super ("OPTION", OptionSecurity.class, OptionSecurityBean.class);
   }
   
   @Override
@@ -263,20 +267,5 @@ import com.opengamma.id.Identifier;
       
     });
   }
-  
-  @Override
-  public Class<? extends OptionSecurityBean> getBeanClass() {
-    return OptionSecurityBean.class;
-  }
-
-  @Override
-  public Class<? extends OptionSecurity> getSecurityClass() {
-    return OptionSecurity.class;
-  }
-
-  @Override
-  public String getSecurityType() {
-    return "OPTION";
-  }
-  
+   
 }

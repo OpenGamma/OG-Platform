@@ -18,11 +18,11 @@ import org.apache.commons.lang.ObjectUtils;
 public class FutureBundleBean {
   
   private Long _id;
-  private FutureSecurityBean _futureSecurity;
+  private FutureSecurityBean _future;
   private Date _startDate;
   private Date _endDate;
   private double _conversionFactor;
-  private Set<FutureBundleIdentifierBean> _identifiers;
+  private Set<IdentifierBean> _identifiers;
 
   public FutureBundleBean() {
   }
@@ -35,12 +35,12 @@ public class FutureBundleBean {
     _id = id;
   }
   
-  public FutureSecurityBean getFutureSecurity() {
-    return _futureSecurity;
+  public FutureSecurityBean getFuture () {
+    return _future;
   }
   
-  public void setFutureSecurity(FutureSecurityBean futureSecurity) {
-    _futureSecurity = futureSecurity;
+  public void setFuture (final FutureSecurityBean future) {
+    _future = future;
   }
   
   public Date getStartDate () {
@@ -67,11 +67,11 @@ public class FutureBundleBean {
     _conversionFactor = conversionFactor;
   }
   
-  public Set<FutureBundleIdentifierBean> getIdentifiers () {
+  public Set<IdentifierBean> getIdentifiers () {
     return _identifiers;
   }
   
-  public void setIdentifiers (final Set<FutureBundleIdentifierBean> identifiers) {
+  public void setIdentifiers (final Set<IdentifierBean> identifiers) {
     _identifiers = identifiers;
   }
   
@@ -81,21 +81,16 @@ public class FutureBundleBean {
     if (o == null) return false;
     if (!(o instanceof FutureBundleBean)) return false;
     final FutureBundleBean other = (FutureBundleBean)o;
-    return ObjectUtils.equals (getId (), other.getId ())
-        && ObjectUtils.equals (getFutureSecurity (), other.getFutureSecurity ())
-        && ObjectUtils.equals (getStartDate (), other.getStartDate ())
-        && ObjectUtils.equals (getEndDate (), other.getEndDate ())
-        && ObjectUtils.equals (getConversionFactor (), other.getConversionFactor ());
+    return ObjectUtils.equals (getFuture ().getId (), other.getFuture ().getId ())
+        && ObjectUtils.equals (getConversionFactor (), other.getConversionFactor ())
+        && ObjectUtils.equals (getIdentifiers (), other.getIdentifiers ());
   }
   
   @Override
   public int hashCode () {
     int hc = 1;
-    hc = hc * 17 + ObjectUtils.hashCode (getId ());
-    hc = hc * 17 + ObjectUtils.hashCode (getFutureSecurity ());
-    hc = hc * 17 + ObjectUtils.hashCode (getStartDate ());
-    hc = hc * 17 + ObjectUtils.hashCode (getEndDate ());
     hc = hc * 17 + ObjectUtils.hashCode (getConversionFactor ());
+    hc = hc * 17 + ObjectUtils.hashCode (getIdentifiers ());
     return hc;
   }
   

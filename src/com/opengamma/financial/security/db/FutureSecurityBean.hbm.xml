@@ -15,11 +15,10 @@
     <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
     <many-to-one name="cashRateType" column="cashratetype_id" class="CashRateTypeBean" />
     <many-to-one name="unitName" column="unitname_id" class="UnitBean" />
+    <component name="underlying" class="IdentifierBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
     <property name="unitNumber" column="unitnumber" type="double" />
-    <set name="basket" inverse="true" cascade="all-delete-orphan">
-      <key column="future_id" />
-      <one-to-many class="FutureBundleBean" />
-      <!-- TODO how do we apply the date constraint here when we're selecting the FutureSecurity -->
-    </set>
   </union-subclass>
 </hibernate-mapping>

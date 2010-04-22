@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security.db;
 
+import java.util.Date;
+
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 
@@ -45,5 +47,17 @@ import com.opengamma.id.Identifier;
    * Test a bean and security representation for equality.
    */
   public boolean beanEquals (SBean bean, S security);
+  
+  /**
+   * Loads additional (deep) data for a security bean. For example to implement date constrained relationships
+   * that Hibernate alone can't deal with. May update the supplied bean, and return it, or return a new bean.
+   */
+  public SBean resolve (HibernateSecurityMasterSession secMasterSession, Date now, SBean bean);
+  
+  /**
+   * Additional persistence required after the main bean has been passed to Hibernate. Used with resolve to
+   * store data Hibernate alone can't deal with.
+   */
+  public void postPersistBean (HibernateSecurityMasterSession secMasterSession, Date effectiveDate, SBean bean); 
   
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.security.db;
 
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.gicsCodeBeanToGICSCode;
+
 import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -12,11 +15,12 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.id.Identifier;
 
-/* package */ class EquitySecurityBeanOperation extends Converters implements BeanOperation<EquitySecurity, EquitySecurityBean> {
+/* package */ class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
   
   public static final EquitySecurityBeanOperation INSTANCE = new EquitySecurityBeanOperation ();
   
   private EquitySecurityBeanOperation () {
+    super ("EQUITY", EquitySecurity.class, EquitySecurityBean.class);
   }
 
   @Override
@@ -77,21 +81,6 @@ import com.opengamma.id.Identifier;
         ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency()) &&
         ObjectUtils.equals(bean.getExchange().getName (), security.getExchange()) &&
         ObjectUtils.equals(gicsCodeBeanToGICSCode (bean.getGICSCode ()), security.getGICSCode ());
-  }
-
-  @Override
-  public Class<? extends EquitySecurityBean> getBeanClass() {
-    return EquitySecurityBean.class;
-  }
-
-  @Override
-  public Class<? extends EquitySecurity> getSecurityClass() {
-    return EquitySecurity.class;
-  }
-
-  @Override
-  public String getSecurityType() {
-    return "EQUITY";
   }
 
 }

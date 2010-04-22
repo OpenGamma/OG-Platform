@@ -39,16 +39,16 @@ create table sec_unit (
     primary key (id)
 );
 
-create table sec_domain_specific_identifier_association (
+create table sec_identifier_association (
     id int8 not null,
     security_discriminator varchar(255),
     security_id int8,
-    domain varchar(255) not null,
+    scheme varchar(255) not null,
     identifier varchar(255) not null,
     validStartDate date,
     validEndDate date,
     primary key (id),
-    unique (domain, identifier, validStartDate, validEndDate)
+    unique (scheme, identifier, validStartDate, validEndDate)
 );
 
 create table sec_exchange (
@@ -225,7 +225,9 @@ create table sec_future (
     commoditytype_id int8,
     cashratetype_id int8,
     unitname_id int8,
-    unitnumber double precision, 
+    unitnumber double precision,
+    underlying_scheme varchar(255),
+    underlying_identifier varchar(255), 
     primary key (id),
     constraint fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
     constraint fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
@@ -238,14 +240,22 @@ create table sec_future (
     constraint fk_future2unit foreign key (unitname_id) references sec_unit (id)
 );
 
-create table sec_future_basket (
+create table sec_futurebundle (
     id int8 not null,
     future_id int8 not null,
-    domain varchar(255) not null,
-    identifier varchar(255) not null,
+    startDate date,
+    endDate date,
+    conversionFactor double precision not null,
     primary key (id),
-    constraint fk_future_basket2future foreign key (future_id) references sec_future (id),
-    unique (future_id, domain, identifier)
+    constraint sec_fk_futurebundle2future foreign key (future_id) references sec_future (id)
+);
+
+create table sec_futurebundleidentifier (
+    bundle_id int8 not null,
+    scheme varchar(255) not null,
+    identifier varchar(255) not null,
+    primary key (bundle_id, scheme, identifier),
+    constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id)
 );
 
 -- create-db-position.sql: Position Master

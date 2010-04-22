@@ -31,16 +31,16 @@ create table sec_unit (
     primary key (id)
 );
 
-create table sec_domain_specific_identifier_association (
+create table sec_identifier_association (
     id bigint not null,
     security_discriminator varchar(255),
     security_id bigint,
-    domain varchar(255) not null,
+    scheme varchar(255) not null,
     identifier varchar(255) not null,
     validStartDate date,
     validEndDate date,
     primary key (id),
-    unique (domain, identifier, validStartDate, validEndDate)
+    unique (scheme, identifier, validStartDate, validEndDate)
 );
 
 create table sec_exchange (
@@ -217,7 +217,9 @@ create table sec_future (
     commoditytype_id bigint,
     cashratetype_id bigint,
     unitname_id bigint,
-    unitnumber double precision, 
+    unitnumber double precision,
+    underlying_scheme varchar(255),
+    underlying_identifier varchar(255), 
     primary key (id),
     constraint sec_fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
     constraint sec_fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
@@ -241,11 +243,9 @@ create table sec_futurebundle (
 );
 
 create table sec_futurebundleidentifier (
-    id bigint not null,
     bundle_id bigint not null,
-    domain varchar(255) not null,
+    scheme varchar(255) not null,
     identifier varchar(255) not null,
-    primary key (id),
-    constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id),
-    unique (bundle_id, domain, identifier)
+    primary key (bundle_id, scheme, identifier),
+    constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id)
 );
