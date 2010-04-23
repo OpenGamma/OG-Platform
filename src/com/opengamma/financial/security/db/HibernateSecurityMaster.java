@@ -92,15 +92,17 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
         SecurityBean security = secMasterSession.getSecurityBean(now, identifier);
         // we use the DefaultSecurity interface because we need access to setIdentifiers
         if (security != null) {
-          final DefaultSecurity result = (DefaultSecurity)getBeanOperation (security).createSecurity (identifier, security);
+          final BeanOperation beanOperation = getBeanOperation (security);
+          security = beanOperation.resolve (secMasterSession, now, security);
+          final DefaultSecurity result = (DefaultSecurity)beanOperation.createSecurity (identifier, security);
           final List<Identifier> identifiers = new ArrayList<Identifier>();
           if (populateWithOtherIdentifiers) {
-            Query identifierQuery = session.getNamedQuery("DomainSpecificIdentifierAssociationBean.many.byDateSecurity");
+            Query identifierQuery = session.getNamedQuery("IdentifierAssociationBean.many.byDateSecurity");
             identifierQuery.setParameter("security", security.getFirstVersion());
             identifierQuery.setDate("now", now);
-            List<DomainSpecificIdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
-            for (DomainSpecificIdentifierAssociationBean associationBean : otherIdentifiers) {
-              identifiers.add(Converters.domainSpecificIdentifierBeanToDomainSpecificIdentifier(associationBean.getDomainSpecificIdentifier()));
+            List<IdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
+            for (IdentifierAssociationBean associationBean : otherIdentifiers) {
+              identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
             }
           } else {
             identifiers.add(identifier);
@@ -125,9 +127,10 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
         if (bean == null) {
           bean = secMasterSession.createSecurityBean (beanOperation, now, false, now, null, null, security);
           for (Identifier identifier : security.getIdentifiers ()) {
-            secMasterSession.associateOrUpdateDomainSpecificIdentifierWithSecurity (now, identifier, bean);
+            secMasterSession.associateOrUpdateIdentifierWithSecurity (now, identifier, bean);
           }
         } else if (beanOperation.getBeanClass ().isAssignableFrom (bean.getClass ())) {
+          bean = beanOperation.resolve (secMasterSession, now, bean);
           if (beanOperation.beanEquals (bean, security)) {
             // security is the same as the one in the database - no action
           } else {

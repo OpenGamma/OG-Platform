@@ -15,19 +15,19 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  *
  * @author jim
  */
-public class DomainSpecificIdentifierAssociationBean {
+public class IdentifierAssociationBean {
   private Long _id = null;
   private SecurityBean _security = null;
-  private DomainSpecificIdentifierBean _domainSpecificIdentifier = null;
+  private IdentifierBean _identifier = null;
   private Date _validStartDate = null; // inclusive
   private Date _validEndDate = null; // not inclusive
 
-  public DomainSpecificIdentifierAssociationBean() {
+  public IdentifierAssociationBean() {
   }
   
-  public DomainSpecificIdentifierAssociationBean(SecurityBean security, DomainSpecificIdentifierBean domainSpecificIdentifier) {
+  public IdentifierAssociationBean(SecurityBean security, IdentifierBean identifier) {
     _security = security;
-    _domainSpecificIdentifier = domainSpecificIdentifier;
+    _identifier = identifier;
   }
   
   public Long getId() {
@@ -38,12 +38,12 @@ public class DomainSpecificIdentifierAssociationBean {
     _id = id;
   }
   
-  public DomainSpecificIdentifierBean getDomainSpecificIdentifier() {
-    return _domainSpecificIdentifier;
+  public IdentifierBean getIdentifier() {
+    return _identifier;
   }
   
-  public void setDomainSpecificIdentifier(DomainSpecificIdentifierBean domainSpecificIdentifier) {
-    _domainSpecificIdentifier = domainSpecificIdentifier;
+  public void setIdentifier(IdentifierBean identifier) {
+    _identifier = identifier;
   }
   
   public SecurityBean getSecurity() {
@@ -72,15 +72,15 @@ public class DomainSpecificIdentifierAssociationBean {
   
   // note this will match objects with different id's as long as the domain and identifier are the same.
   public boolean equals(Object other) {
-    if (!(other instanceof DomainSpecificIdentifierAssociationBean)) {
+    if (!(other instanceof IdentifierAssociationBean)) {
       return false;
     }
-    DomainSpecificIdentifierAssociationBean otherBean = (DomainSpecificIdentifierAssociationBean) other;
+    IdentifierAssociationBean otherBean = (IdentifierAssociationBean) other;
     if (ObjectUtils.equals(otherBean.getId(), getId())) {
       return true;
     }
     if (ObjectUtils.equals(otherBean.getSecurity(), getSecurity()) &&
-        ObjectUtils.equals(otherBean.getDomainSpecificIdentifier(), getDomainSpecificIdentifier()) &&
+        ObjectUtils.equals(otherBean.getIdentifier(), getIdentifier()) &&
         ObjectUtils.equals(otherBean.getValidStartDate(), getValidStartDate()) &&
         ObjectUtils.equals(otherBean.getValidStartDate(), getValidStartDate())) {
       return true;

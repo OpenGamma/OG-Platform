@@ -27,18 +27,18 @@
 	    <column name="first_version_id"/>
 	  </any>
   </class>
-  <query name="SecurityBean.one.byDateDomainIdentifier">
+  <query name="SecurityBean.one.byDateIdentifier">
     select 
       s
     from 
-      DomainSpecificIdentifierAssociationBean as a,
+      IdentifierAssociationBean as a,
       SecurityBean as s
     where
       a.security = s.firstVersion and
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier = :identifier and
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier and
       s.effectiveDateTime &lt;= :now and
       not exists (select 
                     latest.id
@@ -51,18 +51,18 @@
                     latest.firstVersion = s.firstVersion)
   </query>
   <!-- note the s, and the 'in (:identifiers)' part of the where -->
-  <query name="SecurityBean.one.byDateDomainIdentifiers"> 
+  <query name="SecurityBean.one.byDateIdentifiers"> 
     select 
       s
     from 
-      DomainSpecificIdentifierAssociationBean as a,
+      IdentifierAssociationBean as a,
       SecurityBean as s
     where
       a.security = s.firstVersion and
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier in (:identifiers) and
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier in (:identifiers) and
       s.effectiveDateTime &lt; :now and
       not exists (select 
                     latest.id

@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -28,20 +27,20 @@ public class HibernateSecurityMasterSession {
 
   // UTILITY METHODS
 
-  private Set<String> getListOfDomains(
+  private Set<String> getListOfSchemes(
       Collection<Identifier> identifiers) {
-    Set<String> domains = new HashSet<String>();
+    Set<String> schemes = new HashSet<String>();
     for (Identifier id : identifiers) {
-      domains.add(id.getScheme().getName());
+      schemes.add(id.getScheme().getName());
     }
-    return domains;
+    return schemes;
   }
 
-  private Set<String> getListOfValuesForDomain(String domain,
+  private Set<String> getListOfValuesForScheme(String scheme,
       Collection<Identifier> identifiers) {
     Set<String> values = new HashSet<String>();
     for (Identifier id : identifiers) {
-      if (id.getScheme().getName().equals(domain)) {
+      if (id.getScheme().getName().equals(scheme)) {
         values.add(id.getValue());
       }
     }
@@ -285,26 +284,26 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // Domain specific ID / Security specific methods
+  // Identifiers
   
-  private DomainSpecificIdentifierAssociationBean createDomainSpecificIdentifierAssociationBean (Date now, String domain, String identifier, SecurityBean security) {
-    final DomainSpecificIdentifierAssociationBean association = new DomainSpecificIdentifierAssociationBean(security, new DomainSpecificIdentifierBean (domain, identifier));
+  private IdentifierAssociationBean createIdentifierAssociationBean (Date now, String scheme, String identifier, SecurityBean security) {
+    final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new IdentifierBean (scheme, identifier));
     final Transaction transaction = getSession ().beginTransaction ();
     try {
       transaction.begin ();
-      Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.previousAssociation");
-      query.setString ("domain", domain);
+      Query query = getSession ().getNamedQuery ("IdentifierAssociationBean.one.previousAssociation");
+      query.setString ("scheme", scheme);
       query.setString ("identifier", identifier);
       query.setDate ("now", now);
-      DomainSpecificIdentifierAssociationBean other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
+      IdentifierAssociationBean other = (IdentifierAssociationBean)query.uniqueResult ();
       if (other != null) {
         association.setValidStartDate (other.getValidEndDate ());
       }
-      query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.one.nextAssociation");
-      query.setString ("domain", domain);
+      query = getSession ().getNamedQuery ("IdentifierAssociationBean.one.nextAssociation");
+      query.setString ("scheme", scheme);
       query.setString ("identifier", identifier);
       query.setDate ("now", now);
-      other = (DomainSpecificIdentifierAssociationBean)query.uniqueResult ();
+      other = (IdentifierAssociationBean)query.uniqueResult ();
       if (other != null) {
         association.setValidEndDate (other.getValidEndDate ());
       }
@@ -319,16 +318,16 @@ public class HibernateSecurityMasterSession {
     return association;
   }
   
-  /* package */DomainSpecificIdentifierAssociationBean getCreateOrUpdateDomainSpecificIdentifierAssociationBean(
-      Date now, String domain, String identifier, SecurityBean security) {
+  /* package */IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(
+      Date now, String scheme, String identifier, SecurityBean security) {
     Query query = getSession().getNamedQuery(
-        "DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier");
-    query.setString("domain", domain);
+        "IdentifierAssociationBean.one.byDateIdentifier");
+    query.setString("scheme", scheme);
     query.setString("identifier", identifier);
     query.setDate("now", now);
-    DomainSpecificIdentifierAssociationBean association = (DomainSpecificIdentifierAssociationBean) query.uniqueResult();
+    IdentifierAssociationBean association = (IdentifierAssociationBean) query.uniqueResult();
     if (association == null) {
-      association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
+      association = createIdentifierAssociationBean (now, scheme, identifier, security);
     } else {
       if (association.getSecurity().getId().equals(security.getId())) {
         // we're okay, it's already there
@@ -337,7 +336,7 @@ public class HibernateSecurityMasterSession {
         association.setValidEndDate (now);
         getSession ().update (association);
         getSession ().flush ();
-        association = createDomainSpecificIdentifierAssociationBean (now, domain, identifier, security);
+        association = createIdentifierAssociationBean (now, scheme, identifier, security);
       }
     }
     return association;
@@ -345,43 +344,41 @@ public class HibernateSecurityMasterSession {
 
   // only for testing.
   @SuppressWarnings ("unchecked")
-  /* package */List<DomainSpecificIdentifierAssociationBean> getAllAssociations() {
+  /* package */List<IdentifierAssociationBean> getAllAssociations() {
     Query query = getSession().createQuery(
-        "from DomainSpecificIdentifierAssociationBean as d");
+        "from IdentifierAssociationBean as d");
     return query.list();
   }
 
-  /* package */ void associateOrUpdateDomainSpecificIdentifierWithSecurity(Date now,
+  /* package */ void associateOrUpdateIdentifierWithSecurity(Date now,
       Identifier identifier, SecurityBean security) {
-    getCreateOrUpdateDomainSpecificIdentifierAssociationBean(now, identifier
+    getCreateOrUpdateIdentifierAssociationBean(now, identifier
         .getScheme().getName(), identifier.getValue(), security
         .getFirstVersion());
   }
-
+  
   // Generic Securities
 
-  /* package */SecurityBean getSecurityBean(Date now,
-      final Identifier identifier) {
+  /* package */ SecurityBean getSecurityBean(Date now, final Identifier identifier) {
     Query query = getSession().getNamedQuery(
-        "SecurityBean.one.byDateDomainIdentifier");
-    query.setString("domain", identifier.getScheme().getName());
+        "SecurityBean.one.byDateIdentifier");
+    query.setString("scheme", identifier.getScheme().getName());
     query.setString("identifier", identifier.getValue());
     query.setDate("now", now);
     SecurityBean security = (SecurityBean) query.uniqueResult();
     return security;
   }
 
-  /* package */SecurityBean getSecurityBean(Date now,
-      Collection<Identifier> identifiers) {
-    Set<String> domains = getListOfDomains(identifiers);
-    for (String domain : domains) {
-      final Set<String> ids = getListOfValuesForDomain(domain, identifiers);
+  /* package */ SecurityBean getSecurityBean(Date now, Collection<Identifier> identifiers) {
+    Set<String> schemes = getListOfSchemes(identifiers);
+    for (String scheme : schemes) {
+      final Set<String> ids = getListOfValuesForScheme(scheme, identifiers);
       Query query = getSession().getNamedQuery(
-          "SecurityBean.one.byDateDomainIdentifiers");
-      query.setString("domain", domain);
+          "SecurityBean.one.byDateIdentifiers");
+      query.setString("scheme", scheme);
       query.setParameterList("identifiers", ids);
       query.setDate("now", now);
-      SecurityBean security = (SecurityBean) query.uniqueResult();
+      SecurityBean security = (SecurityBean)query.uniqueResult();
       if (security != null) {
         return security;
       }
@@ -394,6 +391,7 @@ public class HibernateSecurityMasterSession {
   /* package */ <S extends Security,SBean extends SecurityBean> SBean createSecurityBean (final BeanOperation<S,SBean> beanOperation, final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
     final SBean bean = beanOperation.createBean (this, security);
     persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getDisplayName (), bean);
+    beanOperation.postPersistBean (this, effectiveDateTime, bean);
     return bean;
   }
   
@@ -425,7 +423,6 @@ public class HibernateSecurityMasterSession {
       bean.setId (id);
     }    
     getSession ().flush ();
-    Hibernate.initialize(bean);
   }
 
   // Equities
@@ -493,4 +490,106 @@ public class HibernateSecurityMasterSession {
     Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
     return query.list();
   }
+  
+  // Futures
+  
+  /* package */ @SuppressWarnings("unchecked")
+  List<FutureBundleBean> getFutureBundleBeans (Date now, FutureSecurityBean future) {
+    Query query;
+    if (now != null) {
+      query = getSession ().getNamedQuery ("FutureBundleBean.many.byDateFuture");
+      query.setDate ("now", now);
+    } else {
+      query = getSession ().getNamedQuery ("FutureBundleBean.many.byFuture");
+    }
+    query.setParameter ("future", future);
+    return query.list ();
+  }
+  
+  /* package */ FutureBundleBean nextFutureBundleBean (Date now, FutureSecurityBean future) {
+    Query query = getSession ().getNamedQuery ("FutureBundleBean.one.nextBundle");
+    query.setDate ("now", now);
+    query.setParameter ("future", future);
+    return (FutureBundleBean)query.uniqueResult ();
+  }
+  
+  /* package */ void persistFutureBundleBeans (final Date now, final FutureSecurityBean future) {
+    System.out.println ("################### begin persistFutureBundleBeans");
+    final Set<FutureBundleBean> beanBasket = future.getBasket ();
+    final List<FutureBundleBean> dbBasket = getFutureBundleBeans (now, future);
+    if (now != null) {
+      // anything in the database (at this timestamp), but not in the basket must be "terminated" at this timestamp
+      boolean beansUpdated = false;
+      for (FutureBundleBean dbBundle : dbBasket) {
+        if (!beanBasket.contains (dbBundle)) {
+          dbBundle.setEndDate (now);
+          getSession ().update (dbBundle);
+          beansUpdated = true;
+        }
+      }
+      if (beansUpdated) {
+        getSession ().flush ();
+        beansUpdated = false;
+      }
+      // anything not in the database (at this timestamp), but in the basket must be added:
+      for (FutureBundleBean beanBundle : beanBasket) {
+        if (!dbBasket.contains (beanBundle)) {
+          final FutureBundleBean next = nextFutureBundleBean (now, future);
+          if (next != null) {
+            beanBundle.setId (next.getId ());
+            beanBundle.setEndDate (next.getEndDate ());
+            next.setStartDate (now);
+            getSession ().update (next);
+          } else {
+            beanBundle.setStartDate (now);
+            beanBundle.setEndDate (null);
+            if (beanBundle.getId () != null) {
+              getSession ().update (beanBundle);
+            } else {
+              Long id = (Long)getSession ().save (beanBundle);
+              beanBundle.setId (id);
+            }
+          }
+          beansUpdated = true;
+        }
+      }
+      if (beansUpdated) {
+        getSession ().flush ();
+      }
+    } else {
+      // anything in the database with any timestamp that isn't null/null must be deleted
+      // anything in the database, but not in the basket, must be deleted
+      boolean beansUpdated = false;
+      for (FutureBundleBean dbBundle : dbBasket) {
+        if (!beanBasket.contains (dbBundle)) {
+          getSession ().delete (dbBundle);
+          beansUpdated = true;
+        } else if ((dbBundle.getStartDate () != null) || (dbBundle.getEndDate () != null)) {
+          dbBundle.setStartDate (null);
+          dbBundle.setEndDate (null);
+          getSession ().update (dbBundle);
+          beansUpdated = true;
+        }
+      }
+      // anything not in the database, but in the basket, must be added (null/null)
+      for (FutureBundleBean beanBundle : beanBasket) {
+        if (!dbBasket.contains (beanBundle)) {
+          beanBundle.setStartDate (null);
+          beanBundle.setEndDate (null);
+          if (beanBundle.getId () != null) {
+            getSession ().update (beanBundle);
+          } else {
+            Long id = (Long)getSession ().save (beanBundle);
+            beanBundle.setId (id);
+          }
+          beansUpdated = true;
+        }
+      }
+      if (beansUpdated) {
+        getSession ().flush ();
+      }
+    }
+    System.out.println ("################### end persistFutureBundleBeans");
+  }
+  
 }

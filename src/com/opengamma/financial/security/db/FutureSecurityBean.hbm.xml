@@ -3,7 +3,7 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
-  <union-subclass name="FutureSecurityBean" extends="SecurityBean" table="future">
+  <union-subclass name="FutureSecurityBean" extends="SecurityBean" table="sec_future">
     <property name="futureType" column="future_type" type="com.opengamma.financial.security.db.FutureTypeUserType" not-null="true" />
     <property name="expiry" type="date" not-null="true" />
     <many-to-one name="tradingExchange" column="tradingexchange_id" class="ExchangeBean" not-null="true" />
@@ -15,10 +15,10 @@
     <many-to-one name="commodityType" column="commoditytype_id" class="CommodityFutureTypeBean" />
     <many-to-one name="cashRateType" column="cashratetype_id" class="CashRateTypeBean" />
     <many-to-one name="unitName" column="unitname_id" class="UnitBean" />
+    <component name="underlying" class="IdentifierBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
     <property name="unitNumber" column="unitnumber" type="double" />
-    <set name="basket" inverse="true" cascade="all-delete-orphan">
-      <key column="future_id" />
-      <one-to-many class="FutureBasketAssociationBean" />
-    </set>
   </union-subclass>
 </hibernate-mapping>

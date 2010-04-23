@@ -3,7 +3,7 @@
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.security.db">
-  <class name="DomainSpecificIdentifierAssociationBean" table="domain_specific_identifier_association">
+  <class name="IdentifierAssociationBean" table="sec_identifier_association">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
@@ -27,53 +27,53 @@
     </any>
     <!-- component means that it's 'part of' the object, although Java models it as a reference, I wanted
          the actual identifier to be a separate class -->
-    <component name="domainSpecificIdentifier"
-               class="DomainSpecificIdentifierBean">
-      <property name="domain" type="string" not-null="true" unique-key="unique_associations"/>
+    <component name="identifier"
+               class="IdentifierBean">
+      <property name="scheme" type="string" not-null="true" unique-key="unique_associations"/>
       <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
     </component>
   </class>
-  <query name="DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifier">
+  <query name="IdentifierAssociationBean.one.byDateIdentifier">
     from 
-      DomainSpecificIdentifierAssociationBean as a 
+      IdentifierAssociationBean as a 
     where
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier = :identifier
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.one.byDateDomainIdentifierSecurity">
+  <query name="IdentifierAssociationBean.one.byDateIdentifierSecurity">
     from 
-      DomainSpecificIdentifierAssociationBean as a 
+      IdentifierAssociationBean as a 
     where
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier = :identifier and
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier and
       a.security = :security
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.many.byDateSecurity">
+  <query name="IdentifierAssociationBean.many.byDateSecurity">
     from 
-      DomainSpecificIdentifierAssociationBean as a 
+      IdentifierAssociationBean as a 
     where
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.security = :security
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.one.previousAssociation">
+  <query name="IdentifierAssociationBean.one.previousAssociation">
     from
-      DomainSpecificIdentifierAssociationBean as a
+      IdentifierAssociationBean as a
     where
-      a.domainSpecificIdentifier.domain = :domain and
-      a.domainSpecificIdentifier.identifier = :identifier and
-      a.validEndDate = (select max(b.validEndDate) from DomainSpecificIdentifierAssociationBean as b where b.domainSpecificIdentifier.domain = :domain and b.domainSpecificIdentifier.identifier = :identifier and b.validEndDate &lt;= :now)
+      a.identifier.scheme = :scheme and
+      a.identifier.identifier = :identifier and
+      a.validEndDate = (select max(b.validEndDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validEndDate &lt;= :now)
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.one.nextAssociation">
+  <query name="IdentifierAssociationBean.one.nextAssociation">
     from
-      DomainSpecificIdentifierAssociationBean as a
+      IdentifierAssociationBean as a
     where
-      a.domainSpecificIdentifier.domain = :domain and 
-      a.domainSpecificIdentifier.identifier = :identifier and 
-      a.validStartDate = (select min(b.validStartDate) from DomainSpecificIdentifierAssociationBean as b where b.domainSpecificIdentifier.domain = :domain and b.domainSpecificIdentifier.identifier = :identifier and b.validStartDate &gt; :now)
+      a.identifier.scheme = :scheme and 
+      a.identifier.identifier = :identifier and 
+      a.validStartDate = (select min(b.validStartDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validStartDate &gt; :now)
   </query>
 </hibernate-mapping>

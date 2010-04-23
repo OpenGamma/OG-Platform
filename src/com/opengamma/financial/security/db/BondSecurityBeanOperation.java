@@ -5,6 +5,16 @@
  */
 package com.opengamma.financial.security.db;
 
+import static com.opengamma.financial.security.db.Converters.businessDayConventionBeanToBusinessDayConvention;
+import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
+import static com.opengamma.financial.security.db.Converters.dateToExpiry;
+import static com.opengamma.financial.security.db.Converters.dateToLocalDate;
+import static com.opengamma.financial.security.db.Converters.dayCountBeanToDayCount;
+import static com.opengamma.financial.security.db.Converters.expiryToDate;
+import static com.opengamma.financial.security.db.Converters.frequencyBeanToFrequency;
+import static com.opengamma.financial.security.db.Converters.localDateToDate;
+import static com.opengamma.financial.security.db.Converters.yieldConventionBeanToYieldConvention;
+
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.BondSecurity;
@@ -13,11 +23,12 @@ import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
 import com.opengamma.id.Identifier;
 
-/* package */ class BondSecurityBeanOperation extends Converters implements BeanOperation<BondSecurity,BondSecurityBean> {
+/* package */ class BondSecurityBeanOperation extends AbstractBeanOperation<BondSecurity,BondSecurityBean> {
   
   public static final BondSecurityBeanOperation INSTANCE = new BondSecurityBeanOperation ();
   
   private BondSecurityBeanOperation () {
+    super ("BOND", BondSecurity.class, BondSecurityBean.class);
   }
   
   @Override
@@ -170,18 +181,4 @@ import com.opengamma.id.Identifier;
     return bond;
   }
 
-  @Override
-  public Class<? extends BondSecurityBean> getBeanClass() {
-    return BondSecurityBean.class;
-  }
-
-  @Override
-  public Class<? extends BondSecurity> getSecurityClass() {
-    return BondSecurity.class;
-  }
-
-  @Override
-  public String getSecurityType() {
-    return "BOND";
-  }
 }
