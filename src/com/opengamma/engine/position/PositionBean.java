@@ -29,6 +29,12 @@ public class PositionBean implements Position, Serializable {
   private Security _security;
   private Identifier _identityKey;
   
+  public PositionBean(BigDecimal quantity, Identifier identifier) {
+    _quantity = quantity;
+    _securityKey = new IdentifierBundle(identifier);
+    _security = null;
+  }
+  
   public PositionBean(BigDecimal quantity, IdentifierBundle securityKey) {
     _quantity = quantity;
     _securityKey = securityKey;
@@ -44,8 +50,6 @@ public class PositionBean implements Position, Serializable {
   public PositionBean(BigDecimal quantity, Security security) {
     _quantity = quantity;
     _security = security;
-    // REVIEW kirk 2009-11-04 -- Is this right?
-    // NOTE jim 2010-03-04 -- No it wasn't (it was being set to null)
     _securityKey = security.getIdentifiers() != null ? new IdentifierBundle(security.getIdentifiers()) : null;
   }
 
