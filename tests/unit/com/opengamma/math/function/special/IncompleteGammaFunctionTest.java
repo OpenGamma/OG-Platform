@@ -6,7 +6,6 @@
 package com.opengamma.math.function.special;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -14,7 +13,6 @@ import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.Function2D;
 
 /**
  * 
@@ -22,17 +20,29 @@ import com.opengamma.math.function.Function2D;
  */
 public class IncompleteGammaFunctionTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function2D<Double, Double> FUNCTION = new IncompleteGammaFunction();
+  private static final double A = 0.5;
+  private static final Function1D<Double, Double> FUNCTION = new IncompleteGammaFunction(A);
   private static final double EPS = 1e-9;
+  private static final int MAX_ITER = 10000;
 
-  @Test
-  public void testInput() {
-    try {
-      FUNCTION.evaluate(-1., 2.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeA1() {
+    new IncompleteGammaFunction(A);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeA2() {
+    new IncompleteGammaFunction(-A, MAX_ITER, EPS);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeIter() {
+    new IncompleteGammaFunction(A, -MAX_ITER, EPS);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeEps() {
+    new IncompleteGammaFunction(A, MAX_ITER, -EPS);
   }
 
   @Test

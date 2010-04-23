@@ -5,36 +5,48 @@
  */
 package com.opengamma.math.function.special;
 
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.function.Function2D;
 
 /**
  * 
+ * The incomplete gamma function is defined as:
+ * {@latex.ilb %preamble{\\usepackage{amsmath}}
+ * \\begin{equation*}
+ * P(a, x) = \\frac{\\gamma(a, x)}{\\Gamma(a)}\\int_0^x e^{-t}t^{a-1}dt
+ * \\end{equation*}}
+ * where {@latex.inline $a > 0$}.
+ * 
+ * This class is a wrapper for the Commons Math library implementation of the incomplete gamma function <a href="http://commons.apache.org/math/api-2.1/index.html">
  * @author emcleod
  */
-public class IncompleteGammaFunction extends Function2D<Double, Double> {
-  private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
-  private final int MAX_ITER = 100000;
-  private final double EPS = 1e-20;
+public class IncompleteGammaFunction extends Function1D<Double, Double> {
+  private final int _maxIter;
+  private final double _eps;
+  private final double _a;
 
-  // TODO Gauss-Laguerre quadrature when a is large.
-  @Override
-  public Double evaluate(final Double a, final Double x) {
+  public IncompleteGammaFunction(final double a) {
     if (a <= 0)
-      throw new IllegalArgumentException("Cannot have a negative value for a");
-    double sum, delta, ap;
-    final double gammaLn = _lnGamma.evaluate(a);
-    ap = a;
-    delta = sum = 1. / a;
-    for (int i = 0; i < MAX_ITER; i++) {
-      ++ap;
-      delta *= x / ap;
-      sum += delta;
-      if (Math.abs(delta) < Math.abs(sum) * EPS)
-        return sum * Math.exp(-x + a * Math.log(x) - gammaLn);
-    }
-    throw new MathException("Could not converge on value in " + MAX_ITER + " iterations");
+      throw new IllegalArgumentException("a must be positive");
+    _maxIter = 100000;
+    _eps = 1e-12;
+    _a = a;
+  }
+
+  public IncompleteGammaFunction(final double a, final int maxIter, final double eps) {
+    if (a <= 0)
+      throw new IllegalArgumentException("a must be positive");
+    if (maxIter < 1)
+      throw new IllegalArgumentException("Must have at least one iteration");
+    if (eps < 0)
+      throw new IllegalArgumentException("Epsilon must be positive");
+    _maxIter = maxIter;
+    _eps = eps;
+    _a = a;
+  }
+
+  @Override
+  public Double evaluate(final Double x) {
+    return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
   }
 
 }

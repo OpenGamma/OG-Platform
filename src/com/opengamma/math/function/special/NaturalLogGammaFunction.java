@@ -5,25 +5,22 @@
  */
 package com.opengamma.math.function.special;
 
-import cern.jet.stat.Gamma;
-
 import com.opengamma.math.function.Function1D;
 
 /**
  * 
+ * The natural logarithm of the Gamma function {@link GammaFunction}.
+ * 
+ * This class is a wrapper for the Commons Math library implementation of the logGamma function <a href="http://commons.apache.org/math/api-2.1/index.html">
+ *
  * @author emcleod
  * 
  */
 
 public class NaturalLogGammaFunction extends Function1D<Double, Double> {
-  private static final double[] COEFFICIENTS = new double[] { 57.1562356658629235, -59.5979603554754912, 14.1360979747417471, -0.491913816097620199, 0.339946499848118887e-4,
-      0.465236289270485756e-4, -0.983744753048795646e-4, 0.158088703224912494e-3, -0.210264441724104883e-3, 0.217439618115212643e-3, -0.164318106536763890e-3,
-      0.844182239838527433e-4, -0.261908384015814087e-4, 0.368991826595316234e-5 };
 
   @Override
   public Double evaluate(final Double x) {
-    if (x < 0)
-      throw new IllegalArgumentException("x must be greater than zero");
     return Gamma.logGamma(x);
   }
 }

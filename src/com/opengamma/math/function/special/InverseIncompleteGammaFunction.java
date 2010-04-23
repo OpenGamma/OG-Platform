@@ -14,7 +14,6 @@ import com.opengamma.math.function.Function2D;
  */
 public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
   private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
-  private final Function2D<Double, Double> _gammaIncomplete = new IncompleteGammaFunction();
   private final double EPS = 1e-8;
 
   @Override
@@ -29,6 +28,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     double u;
     double pp, lna1 = 0, afac = 0;
     final double a1 = a - 1;
+    final Function1D<Double, Double> gammaIncomplete = new IncompleteGammaFunction(a);
     final double gln = _lnGamma.evaluate(a);
     if (a > 1) {
       lna1 = Math.log(a1);
@@ -51,7 +51,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     for (int i = 0; i < 12; i++) {
       if (x <= 0)
         return 0.;
-      err = _gammaIncomplete.evaluate(a, x) - p;
+      err = gammaIncomplete.evaluate(a, x) - p;
       if (a > 1) {
         t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));
       } else {
