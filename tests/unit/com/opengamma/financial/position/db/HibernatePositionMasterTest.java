@@ -41,8 +41,8 @@ public class HibernatePositionMasterTest extends HibernateTest {
   
   private HibernatePositionMaster _posMaster;
 
-  public HibernatePositionMasterTest(String databaseType) {
-    super(databaseType);
+  public HibernatePositionMasterTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   /* package */ static Class<?>[] getHibernateMappingClassesImpl () {

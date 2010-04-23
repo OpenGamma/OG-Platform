@@ -45,8 +45,8 @@ public class PositionMasterSessionTest extends HibernateTest {
   private final InstantProvider _instantBefore = Instant.millis (_dateBefore.getTime ());
   private HibernateTemplate _template;
   
-  public PositionMasterSessionTest(String databaseType) {
-    super(databaseType);
+  public PositionMasterSessionTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   @Override
