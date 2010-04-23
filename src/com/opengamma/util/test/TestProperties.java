@@ -31,9 +31,9 @@ public class TestProperties {
     if (_props != null) {
       throw new IllegalStateException("Properties already loaded");
     }
-    _baseDir = dir;    
+    _baseDir = dir;
   }
-
+  
   public static synchronized Properties getTestProperties() {
     if (_props == null) {
       _props = new Properties();
