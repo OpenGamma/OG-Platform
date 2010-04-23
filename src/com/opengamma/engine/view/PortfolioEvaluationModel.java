@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
@@ -172,10 +173,15 @@ public class PortfolioEvaluationModel {
     Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(getPortfolio());
     ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(viewProcessingContext.getExecutorService());
     
-    for(IdentifierBundle secKey : securityKeys) {
-      completionService.submit(new SecurityResolutionJob(viewProcessingContext, secKey), secKey);
-    }
     boolean failed = false;
+    for(IdentifierBundle secKey : securityKeys) {
+      if(secKey == null) {
+        failed = true;
+        s_logger.warn("Had null security key in at least one position");
+      } else {
+        completionService.submit(new SecurityResolutionJob(viewProcessingContext, secKey), secKey);
+      }
+    }
     for(int i = 0; i < securityKeys.size(); i++) {
       Future<IdentifierBundle> future = null;
       try {
@@ -216,12 +222,12 @@ public class PortfolioEvaluationModel {
       try {
         security = _viewProcessingContext.getSecurityMaster().getSecurity(_securityKey);
       } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to resolve SecurityKey " + _securityKey, e);
+        throw new OpenGammaRuntimeException("Exception while resolving SecurityKey " + _securityKey, e);
       }
       if(security == null) {
-        _securitiesByKey.put(_securityKey, security);
-      } else {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + _securityKey);
+      } else {
+        _securitiesByKey.put(_securityKey, security);
       }
     }
   }
