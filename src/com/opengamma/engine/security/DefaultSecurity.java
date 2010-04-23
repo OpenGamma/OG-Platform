@@ -46,7 +46,11 @@ public class DefaultSecurity implements Security, Serializable {
    * @param identifiers the identifiers to set
    */
   public void setIdentifiers(Collection<? extends Identifier> identifiers) {
-    _identifiers = new IdentifierBundle(identifiers);
+    setIdentifiers(new IdentifierBundle(identifiers));
+  }
+  
+  public void setIdentifiers(IdentifierBundle identifierBundle) {
+    _identifiers = identifierBundle;
   }
   
   @Override
