@@ -22,7 +22,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A lose specification for a {@link Position} in a particular {@link Security},
+ * A loose specification for a {@link Position} in a particular {@link Security},
  * identified by its Identity Key.
  *
  * @author kirk
