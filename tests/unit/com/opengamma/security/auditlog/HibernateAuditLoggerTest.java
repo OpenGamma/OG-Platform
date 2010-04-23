@@ -25,8 +25,8 @@ import com.opengamma.util.test.HibernateTest;
  */
 public class HibernateAuditLoggerTest extends HibernateTest {
   
-  public HibernateAuditLoggerTest(String databaseType) {
-    super(databaseType);
+  public HibernateAuditLoggerTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   @Override
