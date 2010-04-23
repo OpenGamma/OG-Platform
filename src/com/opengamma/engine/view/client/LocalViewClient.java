@@ -64,8 +64,7 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public ViewComputationResultModel getMostRecentResult() {
-    // TODO Auto-generated method stub
-    return null;
+    return getView().getMostRecentResult();
   }
 
   @Override
