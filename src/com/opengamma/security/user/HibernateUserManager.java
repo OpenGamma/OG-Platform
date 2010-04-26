@@ -46,7 +46,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
 
   @Override
   public User getUser(final String username) {
-    ArgumentChecker.checkNotNull(username, "User name");
+    ArgumentChecker.notNull(username, "User name");
     
     return (User) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
@@ -61,7 +61,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   
   @Override
   public UserGroup getUserGroup(final String name) {
-    ArgumentChecker.checkNotNull(name, "Group name");
+    ArgumentChecker.notNull(name, "Group name");
     
     return (UserGroup) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
@@ -76,7 +76,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   
   @Override
   public Authority getAuthority(final String regex) {
-    ArgumentChecker.checkNotNull(regex, "Authority");
+    ArgumentChecker.notNull(regex, "Authority");
     
     return (Authority) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
@@ -91,55 +91,55 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   
   @Override
   public void addUser(User user) {
-    ArgumentChecker.checkNotNull(user, "User");
+    ArgumentChecker.notNull(user, "User");
     _hibernateTemplate.save(user);
   }
   
   @Override
   public void deleteUser(User user) {
-    ArgumentChecker.checkNotNull(user, "User");
+    ArgumentChecker.notNull(user, "User");
     _hibernateTemplate.delete(user);
   }
   
   @Override
   public void updateUser(User user) {
-    ArgumentChecker.checkNotNull(user, "User");
+    ArgumentChecker.notNull(user, "User");
     _hibernateTemplate.update(user);
   }
   
   @Override
   public void addUserGroup(UserGroup group) {
-    ArgumentChecker.checkNotNull(group, "User group");
+    ArgumentChecker.notNull(group, "User group");
     _hibernateTemplate.save(group);
   }
   
   @Override
   public void deleteUserGroup(UserGroup group) {
-    ArgumentChecker.checkNotNull(group, "User group");
+    ArgumentChecker.notNull(group, "User group");
     _hibernateTemplate.delete(group);
   }
   
   @Override
   public void updateUserGroup(UserGroup group) {
-    ArgumentChecker.checkNotNull(group, "User group");
+    ArgumentChecker.notNull(group, "User group");
     _hibernateTemplate.update(group);
   }
   
   @Override
   public void addAuthority(Authority authority) {
-    ArgumentChecker.checkNotNull(authority, "Authority");
+    ArgumentChecker.notNull(authority, "Authority");
     _hibernateTemplate.save(authority);
   }
   
   @Override
   public void deleteAuthority(Authority authority) {
-    ArgumentChecker.checkNotNull(authority, "Authority");
+    ArgumentChecker.notNull(authority, "Authority");
     _hibernateTemplate.delete(authority);
   }
   
   @Override
   public void updateAuthority(Authority authority) {
-    ArgumentChecker.checkNotNull(authority, "Authority");
+    ArgumentChecker.notNull(authority, "Authority");
     _hibernateTemplate.update(authority);
   }
   

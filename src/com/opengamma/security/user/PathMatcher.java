@@ -37,8 +37,8 @@ public class PathMatcher {
    * @param regex The regular expression to match against
    */
   public static boolean matches(String input, String regex) {
-    ArgumentChecker.checkNotNull(input, "Path to match");
-    ArgumentChecker.checkNotNull(regex, "Regular expression to match against");
+    ArgumentChecker.notNull(input, "Path to match");
+    ArgumentChecker.notNull(regex, "Regular expression to match against");
     
     // We need to modify the regex in two ways.
     // 1. Escape the regexp - don't want $, ^, etc., in the regex string contaminating the results.
