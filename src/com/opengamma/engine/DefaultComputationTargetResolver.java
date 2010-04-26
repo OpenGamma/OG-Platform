@@ -5,7 +5,10 @@
  */
 package com.opengamma.engine;
 
+import java.util.Collection;
+
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +18,8 @@ import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.ViewProcessingContext;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,7 +61,7 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     case PRIMITIVE:
       return new ComputationTarget(targetSpecification.getType(), targetSpecification.getIdentifier());
     case SECURITY:
-      Security security = getSecurityMaster().getSecurity(targetSpecification.getIdentifier());
+      Security security = resolveSecurity(targetSpecification.getIdentifier());
       s_logger.info("Resolved security ID {} to security {}", targetSpecification.getIdentifier(), security);
       if(security == null) {
         return null;
@@ -81,6 +86,27 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       }
     default:
       throw new NotImplementedException("Unhandled computation target type " + targetSpecification.getType());
+    }
+  }
+
+  /**
+   * @param identifier
+   * @return
+   */
+  private Security resolveSecurity(Identifier identifier) {
+    if(ObjectUtils.equals(Security.SECURITY_IDENTITY_KEY_DOMAIN, identifier.getScheme())) {
+      return getSecurityMaster().getSecurity(identifier);
+    }
+    // Must not be an identity key.
+    IdentifierBundle bundle = new IdentifierBundle(identifier);
+    Collection<Security> securities = getSecurityMaster().getSecurities(bundle);
+    if(securities.size() > 1) {
+      s_logger.warn("Got more than one result for {}:{}",identifier, securities);
+    }
+    if(securities.isEmpty()) {
+      return null;
+    } else {
+      return securities.iterator().next();
     }
   }
 

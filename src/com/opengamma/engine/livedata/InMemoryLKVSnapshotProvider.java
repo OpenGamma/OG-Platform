@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 
+// REVIEW kirk 2010-04-23 -- This needs to be much better synchronized as it acts
+// as the lower-level implementation for a lot of different uses.
 /**
  * An implementation of {@link LiveDataSnapshotProvider} which maintains an LKV
  * cache of externally provided values.
@@ -24,7 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
  *
  * @author kirk
  */
-public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
+public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
   private final Map<ValueRequirement, ComputedValue> _lastKnownValues =
     new HashMap<ValueRequirement, ComputedValue>();
@@ -82,6 +84,11 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider {
   
   public synchronized ComputedValue getCurrentValue(ValueRequirement valueRequirement) {
     return _lastKnownValues.get(valueRequirement);
+  }
+
+  @Override
+  public synchronized boolean isAvailable(ValueRequirement requirement) {
+    return _lastKnownValues.containsKey(requirement);
   }
 
 }
