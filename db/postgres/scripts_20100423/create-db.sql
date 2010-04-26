@@ -272,16 +272,16 @@ create table pos_position (
     unique (identifier, startDate, endDate)
 );
 
-create table pos_domainspecificidentifierassociation (
+create table pos_identifierassociation (
     id int8 not null,
     startDate date,
     endDate date,
     position_id int8 not null,
-    domain varchar(255) not null,
+    scheme varchar(255) not null,
     identifier varchar(255) not null,
     primary key (id),
-    constraint pos_fk_domainspecificidentifierassocation2position foreign key (position_id) references pos_position (id),
-    unique (position_id, domain, identifier, startDate, endDate)
+    constraint pos_fk_identifierassocation2position foreign key (position_id) references pos_position (id),
+    unique (position_id, scheme, identifier, startDate, endDate)
 );
 
 create table pos_portfolionode (

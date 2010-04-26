@@ -258,7 +258,7 @@ create table sec_futurebundleidentifier (
     constraint sec_fk_futurebundleidentifier2futurebundle foreign key (bundle_id) references sec_futurebundle (id)
 );
 
--- create-db-position.sql: Position Master
+-- new-db-position.sql: Position Master
 
 create table pos_position (
     id bigint not null,

@@ -1,5 +1,5 @@
 
--- create-db-position.sql: Position Master
+-- new-db-position.sql: Position Master
 
 create table pos_position (
     id bigint not null,
