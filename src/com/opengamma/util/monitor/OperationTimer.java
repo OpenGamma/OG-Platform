@@ -23,8 +23,8 @@ public class OperationTimer {
   private final Object[] _arguments;
   
   public OperationTimer(Logger logger, String format, Object... arguments) {
-    ArgumentChecker.checkNotNull(logger, "Logger");
-    ArgumentChecker.checkNotNull(format, "Reporting format");
+    ArgumentChecker.notNull(logger, "Logger");
+    ArgumentChecker.notNull(format, "Reporting format");
     
     _startTime = System.currentTimeMillis();
     _logger = logger;

@@ -64,8 +64,8 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
    * @param standaloneId  the standalone identifier, not null
    */
   public Identifier(IdentificationScheme scheme, String standaloneId) {
-    ArgumentChecker.checkNotNull(scheme, "scheme");
-    ArgumentChecker.checkNotNull(standaloneId, "standaloneId");
+    ArgumentChecker.notNull(scheme, "scheme");
+    ArgumentChecker.notNull(standaloneId, "standaloneId");
     _scheme = scheme;
     _value = standaloneId;
   }
@@ -162,7 +162,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   //-------------------------------------------------------------------------
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    ArgumentChecker.checkNotNull(fudgeMessageFactory, "Fudge Context");
+    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(DOMAIN_FUDGE_FIELD_NAME, getScheme().getName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
