@@ -46,7 +46,7 @@ implements FunctionInvoker {
   private final String _requirementName;
   
   public SummingFunction(String requirementName) {
-    ArgumentChecker.checkNotNull(requirementName, "Requirement name");
+    ArgumentChecker.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
   }
 

@@ -51,8 +51,8 @@ implements FunctionInvoker {
   private String _curveName;
   
   public DiscountCurveFunction(Currency currency, String name) {
-    ArgumentChecker.checkNotNull(currency, "Currency");
-    ArgumentChecker.checkNotNull(name, "Name");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(name, "Name");
     _definition = null;
     _curveCurrency = currency;
     _curveName = name;
