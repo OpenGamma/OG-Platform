@@ -31,7 +31,7 @@ public class IdResolverServer implements FudgeRequestReceiver {
   private final IdResolver _delegate;
   
   public IdResolverServer(IdResolver delegate) {
-    ArgumentChecker.checkNotNull(delegate, "Delegate specification resolver");
+    ArgumentChecker.notNull(delegate, "Delegate specification resolver");
     _delegate = delegate;
   }
   

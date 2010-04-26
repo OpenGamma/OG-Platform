@@ -52,8 +52,8 @@ public class LiveDataSpecification {
   }
   
   public LiveDataSpecification(String normalizationRuleSetId, IdentifierBundle domainSpecificIdentifiers) {
-    ArgumentChecker.checkNotNull(normalizationRuleSetId, "Client data format");
-    ArgumentChecker.checkNotNull(domainSpecificIdentifiers, "Identifiers");
+    ArgumentChecker.notNull(normalizationRuleSetId, "Client data format");
+    ArgumentChecker.notNull(domainSpecificIdentifiers, "Identifiers");
     _domainSpecificIdentifiers = domainSpecificIdentifiers;
     _normalizationRuleSetId = normalizationRuleSetId;
   }
@@ -77,7 +77,7 @@ public class LiveDataSpecification {
   }
   
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    ArgumentChecker.checkNotNull(fudgeMessageFactory, "Fudge Context");
+    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(NORMALIZATION_RULE_SET_ID_FIELD_NAME, _normalizationRuleSetId);
     msg.add(DOMAIN_SPECIFIC_IDS_FIELD_NAME, _domainSpecificIdentifiers.toFudgeMsg(fudgeMessageFactory));

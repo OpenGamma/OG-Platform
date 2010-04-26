@@ -20,13 +20,13 @@ public class StandardRuleResolver implements NormalizationRuleResolver {
   private final Collection<NormalizationRuleSet> _rules;
   
   public StandardRuleResolver(Collection<NormalizationRuleSet> rules) {
-    ArgumentChecker.checkNotNull(rules, "Supported rules");
+    ArgumentChecker.notNull(rules, "Supported rules");
     _rules = rules;
   }
 
   @Override
   public NormalizationRuleSet resolve(String ruleSetId) {
-    ArgumentChecker.checkNotNull(ruleSetId, "Rule set ID");
+    ArgumentChecker.notNull(ruleSetId, "Rule set ID");
     
     for (NormalizationRuleSet normalizationRuleSet : _rules) {
       if (ruleSetId.equals(normalizationRuleSet.getId())) {

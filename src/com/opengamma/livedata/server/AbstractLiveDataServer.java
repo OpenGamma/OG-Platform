@@ -82,7 +82,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
   
   public void addMarketDataSender(MarketDataSender fieldReceiver) {
-    ArgumentChecker.checkNotNull(fieldReceiver, "Market Data Sender");
+    ArgumentChecker.notNull(fieldReceiver, "Market Data Sender");
     _marketDataSenders.add(fieldReceiver);
   }
 
@@ -99,7 +99,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
-    ArgumentChecker.checkNotNull(subscriptionListener, "Subscription Listener");
+    ArgumentChecker.notNull(subscriptionListener, "Subscription Listener");
     _subscriptionListeners.add(subscriptionListener);
   }
 
@@ -490,7 +490,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    *         otherwise.
    */
   boolean unsubscribe(Subscription subscription) {
-    ArgumentChecker.checkNotNull(subscription, "Subscription");
+    ArgumentChecker.notNull(subscription, "Subscription");
     verifyConnectionOk();
 
     boolean actuallyUnsubscribed = false;

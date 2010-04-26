@@ -32,7 +32,7 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   }
   
   public HeartbeatReceiver(ExpirationManager activeSecurityPublicationManager, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(activeSecurityPublicationManager, "Active Security Publication Manager");
+    ArgumentChecker.notNull(activeSecurityPublicationManager, "Active Security Publication Manager");
     _activeSecurityPublicationManager = activeSecurityPublicationManager;
     _fudgeContext = fudgeContext;
   }

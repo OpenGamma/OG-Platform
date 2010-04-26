@@ -37,9 +37,9 @@ public class DistributionSpecification implements Serializable {
   public DistributionSpecification(IdentifierBundle identifiers, 
       NormalizationRuleSet normalizationRuleSet,
       String jmsTopic) {
-    ArgumentChecker.checkNotNull(identifiers, "Identifier(s) for the market data ticker this distribution spec relates to");
-    ArgumentChecker.checkNotNull(normalizationRuleSet, "Normalization rules to apply before sending data to the JMS topic");
-    ArgumentChecker.checkNotNull(jmsTopic, "JMS topic name");
+    ArgumentChecker.notNull(identifiers, "Identifier(s) for the market data ticker this distribution spec relates to");
+    ArgumentChecker.notNull(normalizationRuleSet, "Normalization rules to apply before sending data to the JMS topic");
+    ArgumentChecker.notNull(jmsTopic, "JMS topic name");
     _identifiers = identifiers;
     _normalizationRuleSet = normalizationRuleSet;
     _jmsTopic = jmsTopic;

@@ -39,7 +39,7 @@ public class UserEntitlementChecker implements LiveDataEntitlementChecker {
    *          Used to load users (their permissions really)
    */
   public UserEntitlementChecker(UserManager userManager) {
-    ArgumentChecker.checkNotNull(userManager, "User manager");
+    ArgumentChecker.notNull(userManager, "User manager");
     _userManager = userManager;
   }
 

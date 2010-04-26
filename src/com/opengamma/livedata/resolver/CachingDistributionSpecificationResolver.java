@@ -33,8 +33,8 @@ public class CachingDistributionSpecificationResolver implements DistributionSpe
   }
   
   public CachingDistributionSpecificationResolver(DistributionSpecificationResolver underlying, Cache cache) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying DistributionSpecificationResolver");
-    ArgumentChecker.checkNotNull(cache, "Cache");
+    ArgumentChecker.notNull(underlying, "Underlying DistributionSpecificationResolver");
+    ArgumentChecker.notNull(cache, "Cache");
     _underlying = underlying;     
     _cache = cache;
     if (_cache.getStatus().equals(Status.STATUS_UNINITIALISED)) {

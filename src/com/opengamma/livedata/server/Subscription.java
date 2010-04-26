@@ -76,8 +76,8 @@ public class Subscription {
       String securityUniqueId,
       Object handle,
       boolean persistent) {
-    ArgumentChecker.checkNotNull(securityUniqueId, "Security unique ID");
-    ArgumentChecker.checkNotNull(handle, "Subscription handle");
+    ArgumentChecker.notNull(securityUniqueId, "Security unique ID");
+    ArgumentChecker.notNull(handle, "Subscription handle");
     
     _securityUniqueId = securityUniqueId;
     _handle = handle;

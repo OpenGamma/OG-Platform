@@ -53,9 +53,9 @@ public class MarketDataDistributor {
       Subscription subscription,
       Collection<MarketDataSender> marketDataSenders) {
     
-    ArgumentChecker.checkNotNull(distributionSpec, "Distribution spec");
-    ArgumentChecker.checkNotNull(subscription, "Subscription");
-    ArgumentChecker.checkNotNull(marketDataSenders, "Market data senders");
+    ArgumentChecker.notNull(distributionSpec, "Distribution spec");
+    ArgumentChecker.notNull(subscription, "Subscription");
+    ArgumentChecker.notNull(marketDataSenders, "Market data senders");
     
     _distributionSpec = distributionSpec;
     _subscription = subscription;

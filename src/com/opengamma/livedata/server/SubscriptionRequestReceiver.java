@@ -28,7 +28,7 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   private final AbstractLiveDataServer _liveDataServer;
   
   public SubscriptionRequestReceiver(AbstractLiveDataServer liveDataServer) {
-    ArgumentChecker.checkNotNull(liveDataServer, "Live Data Server");
+    ArgumentChecker.notNull(liveDataServer, "Live Data Server");
     _liveDataServer = liveDataServer;
   }
 

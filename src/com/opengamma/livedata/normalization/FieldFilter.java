@@ -31,7 +31,7 @@ public class FieldFilter implements NormalizationRule {
   }
   
   public FieldFilter(Collection<String> fieldsToAccept) {
-    ArgumentChecker.checkNotNull(fieldsToAccept, "List of accepted fields");    
+    ArgumentChecker.notNull(fieldsToAccept, "List of accepted fields");    
     _fieldsToAccept = new HashSet<String>(fieldsToAccept);
   }
 

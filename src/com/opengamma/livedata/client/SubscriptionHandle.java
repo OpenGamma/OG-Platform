@@ -31,10 +31,10 @@ public class SubscriptionHandle {
       SubscriptionType subscriptionType,
       LiveDataSpecification requestedSpecification,
       LiveDataListener listener) {
-    ArgumentChecker.checkNotNull(userName, "User Name");
-    ArgumentChecker.checkNotNull(subscriptionType, "Subscription type");
-    ArgumentChecker.checkNotNull(requestedSpecification, "Requested Specification");
-    ArgumentChecker.checkNotNull(listener, "Live Data Listener");
+    ArgumentChecker.notNull(userName, "User Name");
+    ArgumentChecker.notNull(subscriptionType, "Subscription type");
+    ArgumentChecker.notNull(requestedSpecification, "Requested Specification");
+    ArgumentChecker.notNull(listener, "Live Data Listener");
     _userName = userName;
     _subscriptionType = subscriptionType;
     _requestedSpecification = requestedSpecification;

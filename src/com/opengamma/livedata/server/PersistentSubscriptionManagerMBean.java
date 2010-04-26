@@ -32,7 +32,7 @@ public class PersistentSubscriptionManagerMBean {
   private final AbstractPersistentSubscriptionManager _manager;
   
   public PersistentSubscriptionManagerMBean(AbstractPersistentSubscriptionManager manager) {
-    ArgumentChecker.checkNotNull(manager, "Persistent subscription manager");   
+    ArgumentChecker.notNull(manager, "Persistent subscription manager");   
     _manager = manager;
   }
   

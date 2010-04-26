@@ -23,7 +23,7 @@ public class PersistentSubscription implements Serializable {
   }
   
   public PersistentSubscription(String id) {
-    ArgumentChecker.checkNotNull(id, "ID");
+    ArgumentChecker.notNull(id, "ID");
     _id = id;
   }
 

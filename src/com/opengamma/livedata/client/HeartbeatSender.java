@@ -41,10 +41,10 @@ public class HeartbeatSender {
   }
   
   public HeartbeatSender(ByteArrayMessageSender messageSender, ValueDistributor valueDistributor, FudgeContext fudgeContext, Timer timer, long period) {
-    ArgumentChecker.checkNotNull(messageSender, "Message Sender");
-    ArgumentChecker.checkNotNull(valueDistributor, "Value Distributor");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
-    ArgumentChecker.checkNotNull(timer, "Timer");
+    ArgumentChecker.notNull(messageSender, "Message Sender");
+    ArgumentChecker.notNull(valueDistributor, "Value Distributor");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(timer, "Timer");
     _messageSender = messageSender;
     _valueDistributor = valueDistributor;
     _fudgeContext = fudgeContext;
