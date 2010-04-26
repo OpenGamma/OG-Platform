@@ -234,7 +234,9 @@ public class DBTool extends Task {
     _dialect.clearTables(catalog, schema);    
   }
   
-  
+  public String describeDatabase () {
+    return _dialect.describeDatabase (getTestCatalog ());
+  }
   
   public static String getTestCatalogStatic() {
     return "test_" + System.getProperty("user.name");
@@ -287,6 +289,33 @@ public class DBTool extends Task {
     executeSql(catalog, sql);
   }
   
+  private void createTables(String catalog, File file, String[] scriptDirs, int index) {
+    if (index < 0) {
+      throw new IllegalArgumentException ("Invalid creation or target version (" + getCreateVersion () + "/" + getTargetVersion () + ")");
+    }
+    final String version = scriptDirs[index].substring (8);
+    if (getTargetVersion ().compareTo (version) >= 0) {
+      final File scriptDir = new File (file, scriptDirs[index]);
+      if (getCreateVersion ().compareTo (version) >= 0) {
+        final File createFile = new File (scriptDir, "create-db.sql");
+        if (createFile.exists ()) {
+          System.out.println ("Creating DB version " + version);
+          executeScript (catalog, createFile);
+          return;
+        }
+      }
+      createTables (catalog, file, scriptDirs, index - 1);
+      final File upgradeFile = new File (scriptDir, "upgrade-db.sql");
+      if (upgradeFile.exists ()) {
+        System.out.println ("Upgrading to DB version " + version);
+        executeScript (catalog, upgradeFile);
+        return;
+      }
+    } else {
+      createTables (catalog, file, scriptDirs, index - 1);
+    }
+  }
+  
   public void createTables(String catalog, final TableCreationCallback callback) {
     final File file = new File(_basedir, "db/" + _dialect.getDatabaseName());
     final String[] scriptDirs = file.list (new FilenameFilter () {
@@ -302,26 +331,7 @@ public class DBTool extends Task {
     if (getCreateVersion () == null) {
       setCreateVersion (getTargetVersion ());
     }
-    boolean created = false;
-    for (int i = 0; i < scriptDirs.length; i++) {
-      final String version = scriptDirs[i].substring (8);
-      if (getCreateVersion ().compareTo (version) <= 0) {
-        final File scriptDir = new File (file, scriptDirs[i]);
-        if (!created) {
-          System.out.println ("\tCreating DB version " + version);
-          executeScript (catalog, new File (scriptDir, "create-db.sql"));
-          created = true;
-        } else {
-          if (getTargetVersion ().compareTo (version) > 0) break;
-          System.out.println ("\tUpgrading to DB version " + version);
-          executeScript (catalog, new File (scriptDir, "upgrade-db.sql"));
-        }
-        if (callback != null) {
-          callback.tablesCreatedOrUpgraded (version);
-        }
-        if (getTargetVersion ().compareTo (version) == 0) break;
-      }
-    }
+    createTables (catalog, file, scriptDirs, scriptDirs.length - 1);
   }
   
   public String[] getDatabaseVersions () {

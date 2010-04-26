@@ -16,7 +16,7 @@ public abstract class HibernateTest extends DBTest {
   private static int testCount = 0;
   
   protected HibernateTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super (databaseType, databaseVersion);
   }
   
   public SessionFactory getSessionFactory() {
