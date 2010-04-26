@@ -24,7 +24,7 @@ public class IdentifierAssociationBean extends DateIdentifiableBean {
   public IdentifierAssociationBean (final IdentifierAssociationBean other) {
     super (other);
     setPosition (other.getPosition ());
-    setDomain (other.getScheme ());
+    setScheme (other.getScheme ());
   }
 
   /**
@@ -49,10 +49,10 @@ public class IdentifierAssociationBean extends DateIdentifiableBean {
   }
 
   /**
-   * @param domain the domain to set
+   * @param scheme the domain to set
    */
-  public void setDomain(String domain) {
-    _scheme = domain;
+  public void setScheme(String scheme) {
+    _scheme = scheme;
   }
 
   public Identifier getDomainSpecificIdentifier () {
@@ -60,7 +60,7 @@ public class IdentifierAssociationBean extends DateIdentifiableBean {
   }
   
   public void setDomainSpecificIdentifier (final Identifier identifier) {
-    setDomain (identifier.getScheme ().getName ());
+    setScheme (identifier.getScheme ().getName ());
     setIdentifier (identifier.getValue ());
   }
   
