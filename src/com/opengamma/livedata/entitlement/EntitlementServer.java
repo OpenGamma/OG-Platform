@@ -33,8 +33,8 @@ public class EntitlementServer implements FudgeRequestReceiver {
   
   public EntitlementServer(LiveDataEntitlementChecker delegate,
       DistributionSpecificationResolver distributionSpecResolver) {
-    ArgumentChecker.checkNotNull(delegate, "Delegate entitlement checker");
-    ArgumentChecker.checkNotNull(distributionSpecResolver, "Distribution spec resolver");
+    ArgumentChecker.notNull(delegate, "Delegate entitlement checker");
+    ArgumentChecker.notNull(distributionSpecResolver, "Distribution spec resolver");
     _delegate = delegate;
     _distributionSpecResolver = distributionSpecResolver;
   }

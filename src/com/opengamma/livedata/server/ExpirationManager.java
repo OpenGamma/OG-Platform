@@ -42,8 +42,8 @@ public class ExpirationManager implements SubscriptionListener {
   }
   
   public ExpirationManager(AbstractLiveDataServer dataServer, long timeoutExtension, Timer timer, long checkPeriod) {
-    ArgumentChecker.checkNotNull(dataServer, "Data Server");
-    ArgumentChecker.checkNotNull(timer, "Expiration Timer");
+    ArgumentChecker.notNull(dataServer, "Data Server");
+    ArgumentChecker.notNull(timer, "Expiration Timer");
     _dataServer = dataServer;
     _timeoutExtension = timeoutExtension;
     _dataServer.addSubscriptionListener(this);

@@ -41,8 +41,8 @@ public class DistributedSpecificationResolver {
   }
   
   public DistributedSpecificationResolver(FudgeRequestSender requestSender, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(requestSender, "Request Sender");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(requestSender, "Request Sender");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _requestSender = requestSender;
     _fudgeContext = fudgeContext;
   }

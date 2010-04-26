@@ -27,9 +27,9 @@ public class DefaultDistributionSpecificationResolver implements DistributionSpe
       NormalizationRuleResolver normalizationRuleResolver,
       JmsTopicNameResolver jmsTopicNameResolver) {
     
-    ArgumentChecker.checkNotNull(idResolver, "ID Resolver");
-    ArgumentChecker.checkNotNull(normalizationRuleResolver, "Normalization rule resolver");
-    ArgumentChecker.checkNotNull(jmsTopicNameResolver, "JMS topic name resolver");
+    ArgumentChecker.notNull(idResolver, "ID Resolver");
+    ArgumentChecker.notNull(normalizationRuleResolver, "Normalization rule resolver");
+    ArgumentChecker.notNull(jmsTopicNameResolver, "JMS topic name resolver");
     
     _idResolver = idResolver;
     _normalizationRuleResolver = normalizationRuleResolver;
@@ -40,7 +40,7 @@ public class DefaultDistributionSpecificationResolver implements DistributionSpe
   public DistributionSpecification getDistributionSpecification(
       LiveDataSpecification spec) {
     
-    ArgumentChecker.checkNotNull(spec, "Live Data specification");
+    ArgumentChecker.notNull(spec, "Live Data specification");
     
     IdentifierBundle identifiers = _idResolver.resolve(spec.getIdentifiers());
     if (identifiers == null) {

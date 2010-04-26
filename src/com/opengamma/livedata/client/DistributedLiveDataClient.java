@@ -45,8 +45,8 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   }
 
   public DistributedLiveDataClient(FudgeRequestSender subscriptionRequestSender, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(subscriptionRequestSender, "Subscription request sender");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(subscriptionRequestSender, "Subscription request sender");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _subscriptionRequestSender = subscriptionRequestSender;
     _fudgeContext = fudgeContext;
   }
@@ -74,7 +74,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
 
   @Override
   protected void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandles) {
-    ArgumentChecker.checkNotNull(subHandles, "Subscription Handles");
+    ArgumentChecker.notNull(subHandles, "Subscription Handles");
     FudgeFieldContainer requestMessage = composeRequestMessage(subHandles);
     getSubscriptionRequestSender().sendRequest(requestMessage, new SubscriptionResponseReceiver(subHandles));
   }
