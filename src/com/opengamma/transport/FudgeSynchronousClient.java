@@ -42,7 +42,7 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
   }
   
   protected FudgeSynchronousClient(FudgeRequestSender requestSender, long timeoutInMilliseconds) {
-    ArgumentChecker.checkNotNull(requestSender, "Fudge request sender");
+    ArgumentChecker.notNull(requestSender, "Fudge request sender");
     _requestSender = requestSender;
     _timeoutInMilliseconds = timeoutInMilliseconds;
   }

@@ -35,7 +35,7 @@ public class DirectInvocationByteArrayMessageSender implements ByteArrayMessageS
   }
 
   public DirectInvocationByteArrayMessageSender(ByteArrayMessageReceiver... receivers) {
-    ArgumentChecker.checkNotNull(receivers, "Receivers");
+    ArgumentChecker.notNull(receivers, "Receivers");
     for(ByteArrayMessageReceiver receiver : receivers) {
       addReceiver(receiver);
     }
@@ -45,7 +45,7 @@ public class DirectInvocationByteArrayMessageSender implements ByteArrayMessageS
    * @param receiver
    */
   public synchronized void addReceiver(ByteArrayMessageReceiver receiver) {
-    ArgumentChecker.checkNotNull(receiver, "Receiver");
+    ArgumentChecker.notNull(receiver, "Receiver");
     _receivers.add(receiver);
   }
 

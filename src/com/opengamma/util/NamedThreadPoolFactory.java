@@ -29,7 +29,7 @@ public class NamedThreadPoolFactory implements ThreadFactory {
   }
   
   public NamedThreadPoolFactory(String poolName, boolean makeDaemon) {
-    ArgumentChecker.checkNotNull(poolName, "Pool name");
+    ArgumentChecker.notNull(poolName, "Pool name");
     _poolName = poolName;
     _makeDaemon = makeDaemon;
     

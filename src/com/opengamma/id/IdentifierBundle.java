@@ -195,7 +195,7 @@ public class IdentifierBundle implements Serializable {
 
   //-------------------------------------------------------------------------
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    ArgumentChecker.checkNotNull(fudgeMessageFactory, "Fudge Context");
+    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     for (Identifier identifier: getIdentifiers()) {
       msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeMessageFactory));

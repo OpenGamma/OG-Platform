@@ -30,7 +30,7 @@ public class JmsByteArrayRequestDispatcher implements
   private final ByteArrayRequestReceiver _underlying;
   
   public JmsByteArrayRequestDispatcher(ByteArrayRequestReceiver underlying) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying ByteArrayRequestReceiver");
+    ArgumentChecker.notNull(underlying, "Underlying ByteArrayRequestReceiver");
     _underlying = underlying;
   }
 
