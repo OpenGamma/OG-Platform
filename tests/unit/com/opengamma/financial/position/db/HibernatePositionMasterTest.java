@@ -82,12 +82,12 @@ public class HibernatePositionMasterTest extends HibernateTest {
       
       private void addDomainSpecificIdentifierToPosition (final PositionMasterSession posSession, final String identifier, final PositionBean position) {
         IdentifierAssociationBean bean = new IdentifierAssociationBean ();
-        bean.setDomain ("Test 1");
+        bean.setScheme ("Test 1");
         bean.setIdentifier (identifier);
         bean.setPosition (position);
         posSession.saveIdentifierAssociationBean (bean);
         bean = new IdentifierAssociationBean ();
-        bean.setDomain ("Test 2");
+        bean.setScheme ("Test 2");
         bean.setIdentifier ("ID " + position.getIdentifier ());
         bean.setPosition (position);
         posSession.saveIdentifierAssociationBean (bean);

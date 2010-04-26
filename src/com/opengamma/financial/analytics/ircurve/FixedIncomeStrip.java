@@ -31,7 +31,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
     if(numYears < 0) {
       throw new IllegalArgumentException("Fixed income strips cannot be in the future.");
     }
-    ArgumentChecker.checkNotNull(marketDataKey, "Market data key");
+    ArgumentChecker.notNull(marketDataKey, "Market data key");
     _numYears = numYears;
     _marketDataKey = marketDataKey;
   }

@@ -48,7 +48,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
   
   public void setSessionFactory (final SessionFactory sessionFactory) {
-    ArgumentChecker.checkNotNull(sessionFactory, "sessionFactory");
+    ArgumentChecker.notNull(sessionFactory, "sessionFactory");
     _hibernateTemplate = new HibernateTemplate (sessionFactory);
   }
   
