@@ -28,8 +28,8 @@ public class ByteArrayFudgeRequestSender implements FudgeRequestSender {
 
   public ByteArrayFudgeRequestSender(ByteArrayRequestSender underlying,
       FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
-    ArgumentChecker.checkNotNull(underlying, "Underlying ByteArrayRequestSender");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(underlying, "Underlying ByteArrayRequestSender");
     _fudgeContext = fudgeContext;
     _underlying = underlying;
   }
@@ -46,8 +46,8 @@ public class ByteArrayFudgeRequestSender implements FudgeRequestSender {
   @Override
   public void sendRequest(FudgeFieldContainer request,
       FudgeMessageReceiver responseReceiver) {
-    ArgumentChecker.checkNotNull(request, "FudgeMsgRequest");
-    ArgumentChecker.checkNotNull(responseReceiver, "FudgMessageReceiver");
+    ArgumentChecker.notNull(request, "FudgeMsgRequest");
+    ArgumentChecker.notNull(responseReceiver, "FudgMessageReceiver");
     if (!(request instanceof FudgeMsg)) {
       throw new OpenGammaRuntimeException("request not a FudgeMsg Type");
     }
