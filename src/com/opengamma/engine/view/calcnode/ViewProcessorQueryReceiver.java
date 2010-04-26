@@ -37,7 +37,7 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
 
   @Override
   public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
-    ArgumentChecker.checkNotNullInjected(_jobToDepNodeMap, "Job Specification to Dependency Node Map");
+    ArgumentChecker.notNullInjected(_jobToDepNodeMap, "Job Specification to Dependency Node Map");
     Object message = context.fudgeMsgToObject(requestEnvelope.getMessage());
     if (message instanceof DependentValueSpecificationsRequest) {
       DependentValueSpecificationsRequest request = (DependentValueSpecificationsRequest) message;

@@ -24,7 +24,7 @@ public class FudgeJobRequestSender implements JobRequestSender {
   private final FudgeRequestSender _underlying;
   
   public FudgeJobRequestSender(FudgeRequestSender underlying) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying FudgeRequestSender");
+    ArgumentChecker.notNull(underlying, "Underlying FudgeRequestSender");
     _underlying = underlying;
   }
 

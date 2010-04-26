@@ -33,7 +33,7 @@ public class DependencyGraph {
   private final List<DependencyNode> _dependencyNodes = new ArrayList<DependencyNode>();
   
   public DependencyGraph(ComputationTarget computationTarget) {
-    ArgumentChecker.checkNotNull(computationTarget, "Computation target");
+    ArgumentChecker.notNull(computationTarget, "Computation target");
     _computationTarget = computationTarget;
   }
 

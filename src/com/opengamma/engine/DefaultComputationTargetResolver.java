@@ -34,8 +34,8 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   private final PositionMaster _positionMaster;
   
   public DefaultComputationTargetResolver(SecurityMaster securityMaster, PositionMaster positionMaster) {
-    ArgumentChecker.checkNotNull(securityMaster, "Security Master");
-    ArgumentChecker.checkNotNull(positionMaster, "Position master");
+    ArgumentChecker.notNull(securityMaster, "Security Master");
+    ArgumentChecker.notNull(positionMaster, "Position master");
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
   }

@@ -28,7 +28,7 @@ implements FunctionInvoker {
   private final ValueSpecification _result;
   
   public LiveDataSourcingFunction(ValueRequirement requirement) {
-    ArgumentChecker.checkNotNull(requirement, "Value Requirement");
+    ArgumentChecker.notNull(requirement, "Value Requirement");
     _requirement = requirement;
     _result = new ValueSpecification(requirement);
   }

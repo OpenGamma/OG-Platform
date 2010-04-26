@@ -52,14 +52,14 @@ public class FunctionInvocationJob implements Runnable {
       ViewProcessorQuery viewProcessorQuery,
       ComputationTarget computationTarget,
       Set<ValueRequirement> desiredValues) {
-    ArgumentChecker.checkNotNull(functionUniqueIdentifier, "Function identifier");
-    ArgumentChecker.checkNotNull(resolvedInputs, "Resolved inputs");
-    ArgumentChecker.checkNotNull(computationCache, "Computation Cache");
-    ArgumentChecker.checkNotNull(functionRepository, "Function repository");
-    ArgumentChecker.checkNotNull(functionRepository, "Execution Context");
-    ArgumentChecker.checkNotNull(viewProcessorQuery, "ViewProcessorQuery");
-    ArgumentChecker.checkNotNull(computationTarget, "Computation target");
-    ArgumentChecker.checkNotNull(desiredValues, "Desired value requirements");
+    ArgumentChecker.notNull(functionUniqueIdentifier, "Function identifier");
+    ArgumentChecker.notNull(resolvedInputs, "Resolved inputs");
+    ArgumentChecker.notNull(computationCache, "Computation Cache");
+    ArgumentChecker.notNull(functionRepository, "Function repository");
+    ArgumentChecker.notNull(functionRepository, "Execution Context");
+    ArgumentChecker.notNull(viewProcessorQuery, "ViewProcessorQuery");
+    ArgumentChecker.notNull(computationTarget, "Computation target");
+    ArgumentChecker.notNull(desiredValues, "Desired value requirements");
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _resolvedInputs = resolvedInputs;
     _computationCache = computationCache;

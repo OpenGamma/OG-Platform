@@ -25,7 +25,7 @@ public class LocalViewClient implements ViewClient {
   private final View _view;
   
   public LocalViewClient(View view) {
-    ArgumentChecker.checkNotNull(view, "View");
+    ArgumentChecker.notNull(view, "View");
     _view = view;
   }
 

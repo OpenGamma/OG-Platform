@@ -32,7 +32,7 @@ public class MapViewDefinitionRepository implements ViewDefinitionRepository, Se
   }
   
   public void addDefinition(ViewDefinition definition) {
-    ArgumentChecker.checkNotNull(definition, "View definition");
+    ArgumentChecker.notNull(definition, "View definition");
     _definitionsByName.put(definition.getName(), definition);
   }
 

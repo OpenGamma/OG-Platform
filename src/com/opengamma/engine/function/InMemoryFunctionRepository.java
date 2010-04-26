@@ -30,8 +30,8 @@ public class InMemoryFunctionRepository implements FunctionRepository {
   }
   
   public synchronized void addFunction(AbstractFunction function, FunctionInvoker invoker) {
-    ArgumentChecker.checkNotNull(function, "Function definition");
-    ArgumentChecker.checkNotNull(invoker, "Function invoker");
+    ArgumentChecker.notNull(function, "Function definition");
+    ArgumentChecker.notNull(invoker, "Function invoker");
     _functions.add(function);
     function.setUniqueIdentifier(Integer.toString(_functions.size()));
     _invokersByUniqueIdentifier.put(function.getUniqueIdentifier(), invoker);

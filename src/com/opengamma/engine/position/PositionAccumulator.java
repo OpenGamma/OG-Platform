@@ -20,7 +20,7 @@ public class PositionAccumulator{
   private final Set<Position> _positions = new HashSet<Position>();
   
   public PositionAccumulator(PortfolioNode portfolioNode) {
-    ArgumentChecker.checkNotNull(portfolioNode, "Portfolio Node");
+    ArgumentChecker.notNull(portfolioNode, "Portfolio Node");
     new PortfolioNodeTraverser(new Callback()).traverse(portfolioNode);
   }
   

@@ -128,8 +128,8 @@ public class PortfolioEvaluationModel {
   public void init(
       ViewProcessingContext viewProcessingContext,
       ViewDefinition viewDefinition) {
-    ArgumentChecker.checkNotNull(viewProcessingContext, "View Processing Context");
-    ArgumentChecker.checkNotNull(viewDefinition, "View Definition");
+    ArgumentChecker.notNull(viewProcessingContext, "View Processing Context");
+    ArgumentChecker.notNull(viewDefinition, "View Definition");
     
     resolveSecurities(viewProcessingContext);
     
@@ -354,7 +354,7 @@ public class PortfolioEvaluationModel {
   public void addLiveDataSubscriptions(
       final ViewProcessingContext viewProcessingContext,
       final ViewDefinition viewDefinition) {
-    ArgumentChecker.checkNotNull(viewProcessingContext, "view processing context");
+    ArgumentChecker.notNull(viewProcessingContext, "view processing context");
     
     Set<ValueRequirement> liveDataRequirements = getAllLiveDataRequirements();
     

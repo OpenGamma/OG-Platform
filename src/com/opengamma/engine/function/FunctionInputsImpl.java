@@ -37,7 +37,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   }
   
   public void addValue(ComputedValue value) {
-    ArgumentChecker.checkNotNull(value, "Computed Value");
+    ArgumentChecker.notNull(value, "Computed Value");
     if(value.getValue() instanceof ComputedValue) {
       throw new IllegalArgumentException("Double-nested value");
     }

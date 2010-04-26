@@ -52,17 +52,17 @@ public class ViewProcessingContext {
       FunctionCompilationContext compilationContext,
       ExecutorService executorService
       ) {
-    ArgumentChecker.checkNotNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
-    ArgumentChecker.checkNotNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
-    ArgumentChecker.checkNotNull(functionRepository, "FunctionRepository");
-    ArgumentChecker.checkNotNull(functionResolver, "FunctionResolver");
-    ArgumentChecker.checkNotNull(positionMaster, "PositionMaster");
-    ArgumentChecker.checkNotNull(securityMaster, "SecurityMaster");
-    ArgumentChecker.checkNotNull(computationCacheSource, "ComputationCacheSource");
-    ArgumentChecker.checkNotNull(computationJobRequestSender, "ComputationJobRequestSender");
-    ArgumentChecker.checkNotNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
-    ArgumentChecker.checkNotNull(compilationContext, "CompilationContext");
-    ArgumentChecker.checkNotNull(executorService, "ExecutorService");
+    ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
+    ArgumentChecker.notNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
+    ArgumentChecker.notNull(functionRepository, "FunctionRepository");
+    ArgumentChecker.notNull(functionResolver, "FunctionResolver");
+    ArgumentChecker.notNull(positionMaster, "PositionMaster");
+    ArgumentChecker.notNull(securityMaster, "SecurityMaster");
+    ArgumentChecker.notNull(computationCacheSource, "ComputationCacheSource");
+    ArgumentChecker.notNull(computationJobRequestSender, "ComputationJobRequestSender");
+    ArgumentChecker.notNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
+    ArgumentChecker.notNull(compilationContext, "CompilationContext");
+    ArgumentChecker.notNull(executorService, "ExecutorService");
     
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;

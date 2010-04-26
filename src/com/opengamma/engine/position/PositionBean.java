@@ -87,7 +87,7 @@ public class PositionBean implements Position, Serializable {
   }
   
   public void setIdentityKey(Identifier identityKey) {
-    ArgumentChecker.checkNotNull(identityKey, "Identity key");
+    ArgumentChecker.notNull(identityKey, "Identity key");
     if (!POSITION_IDENTITY_KEY_DOMAIN.equals(identityKey.getScheme())) {
       throw new IllegalArgumentException("Wrong domain specified:" + identityKey.getScheme());
     }

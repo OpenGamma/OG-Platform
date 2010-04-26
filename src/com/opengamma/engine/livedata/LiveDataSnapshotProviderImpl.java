@@ -54,9 +54,9 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   }
   
   public LiveDataSnapshotProviderImpl(LiveDataClient liveDataClient, SecurityMaster secMaster, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(liveDataClient, "Live Data Client");
-    ArgumentChecker.checkNotNull(secMaster, "Security master");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(liveDataClient, "Live Data Client");
+    ArgumentChecker.notNull(secMaster, "Security master");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _liveDataClient = liveDataClient;
     _securityMaster = secMaster;
     _fudgeContext = fudgeContext;

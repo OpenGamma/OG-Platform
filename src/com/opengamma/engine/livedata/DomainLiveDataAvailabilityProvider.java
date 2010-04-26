@@ -31,8 +31,8 @@ implements LiveDataAvailabilityProvider {
   private final Collection<IdentificationScheme> _acceptableDomains;
   
   public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableDomains) {
-    ArgumentChecker.checkNotNull(secMaster, "Security master");
-    ArgumentChecker.checkNotNull(acceptableDomains, "Available domains");
+    ArgumentChecker.notNull(secMaster, "Security master");
+    ArgumentChecker.notNull(acceptableDomains, "Available domains");
     _securityMaster = secMaster;
     _acceptableDomains = Arrays.asList(acceptableDomains);
   }

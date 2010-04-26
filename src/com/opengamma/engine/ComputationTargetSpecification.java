@@ -35,12 +35,12 @@ public class ComputationTargetSpecification implements Serializable {
   private final Identifier _identifier;
   
   public ComputationTargetSpecification(ComputationTargetType targetType, Identifier identifier) {
-    ArgumentChecker.checkNotNull(targetType, "Computation Target Type");
+    ArgumentChecker.notNull(targetType, "Computation Target Type");
     switch(targetType) {
     case SECURITY:
     case POSITION:
     case MULTIPLE_POSITIONS:
-      ArgumentChecker.checkNotNull(identifier, "Identifier (required for this target type)");
+      ArgumentChecker.notNull(identifier, "Identifier (required for this target type)");
       break;
     default:
       // Not required for Primitive.

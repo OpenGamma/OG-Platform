@@ -40,7 +40,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   
   
   public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     _underlying = underlying;
     CacheManager manager = createCacheManager();
     addCache(manager, CACHE_NAME);
@@ -53,7 +53,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
                                          String diskStorePath, boolean eternal, long timeToLiveSeconds, long timeToIdleSeconds,
                                          boolean diskPersistent, long diskExpiryThreadIntervalSeconds, 
                                          RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
     _underlying = underlying;
     CacheManager manager = createCacheManager();
     addCache(manager, CACHE_NAME, maxElementsInMemory, memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
@@ -63,8 +63,8 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   }
   
   public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying, CacheManager manager) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying Historical Data Provider");
-    ArgumentChecker.checkNotNull(manager, "Cache Manager");
+    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(manager, "Cache Manager");
     _underlying = underlying;
     addCache(manager, CACHE_NAME);
     _cache = getCacheFromManager(manager, CACHE_NAME);
@@ -72,8 +72,8 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   }
   
   public EHCachingHistoricalDataProvider(HistoricalDataProvider underlying, Cache cache) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying Historical Data Provider");
-    ArgumentChecker.checkNotNull(cache, "Cache");
+    ArgumentChecker.notNull(underlying, "Underlying Historical Data Provider");
+    ArgumentChecker.notNull(cache, "Cache");
     _underlying = underlying;
     CacheManager manager = createCacheManager();
     addCache(manager, cache);
@@ -101,8 +101,8 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
    * @param cache
    */
   protected void addCache(CacheManager manager, Cache cache) {
-    ArgumentChecker.checkNotNull(manager, "CacheManager");
-    ArgumentChecker.checkNotNull(cache, "Cache");
+    ArgumentChecker.notNull(manager, "CacheManager");
+    ArgumentChecker.notNull(cache, "Cache");
     if (!manager.cacheExists(cache.getName())) {
       try {
         manager.addCache(cache);
@@ -134,8 +134,8 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
       long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
       long diskExpiryThreadIntervalSeconds,
       RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.checkNotNull(manager, "CacheManager");
-    ArgumentChecker.checkNotNull(name, "CacheName");
+    ArgumentChecker.notNull(manager, "CacheManager");
+    ArgumentChecker.notNull(name, "CacheName");
     if (!manager.cacheExists(name)) {
       try {
         manager.addCache(new Cache(name, maxElementsInMemory,

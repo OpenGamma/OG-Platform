@@ -45,7 +45,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   }
   
   public void setIdentityKey(Identifier identityKey) {
-    ArgumentChecker.checkNotNull(identityKey, "Identity key");
+    ArgumentChecker.notNull(identityKey, "Identity key");
     if (!PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN.equals(identityKey.getScheme())) {
       throw new IllegalArgumentException("Wrong domain specified");
     }

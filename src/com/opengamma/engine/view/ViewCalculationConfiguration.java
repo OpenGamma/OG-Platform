@@ -26,8 +26,8 @@ public class ViewCalculationConfiguration implements Serializable {
     new TreeMap<String, Set<String>>();
   
   public ViewCalculationConfiguration(ViewDefinition definition, String name) {
-    ArgumentChecker.checkNotNull(definition, "Parent view definition");
-    ArgumentChecker.checkNotNull(name, "Calculation configuration name");
+    ArgumentChecker.notNull(definition, "Parent view definition");
+    ArgumentChecker.notNull(name, "Calculation configuration name");
     _definition = definition;
     _name = name;
   }

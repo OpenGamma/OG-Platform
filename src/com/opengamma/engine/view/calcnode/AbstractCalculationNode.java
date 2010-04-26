@@ -38,11 +38,11 @@ public abstract class AbstractCalculationNode {
       FunctionExecutionContext functionExecutionContext,
       ComputationTargetResolver targetResolver, 
       ViewProcessorQuerySender calcNodeQuerySender) {
-    ArgumentChecker.checkNotNull(cacheSource, "Cache Source");
-    ArgumentChecker.checkNotNull(functionRepository, "Function Repository");
-    ArgumentChecker.checkNotNull(functionExecutionContext, "Function Execution Context");
-    ArgumentChecker.checkNotNull(targetResolver, "Target Resolver");
-    ArgumentChecker.checkNotNull(calcNodeQuerySender, "Calc Node Query Sender");
+    ArgumentChecker.notNull(cacheSource, "Cache Source");
+    ArgumentChecker.notNull(functionRepository, "Function Repository");
+    ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
+    ArgumentChecker.notNull(targetResolver, "Target Resolver");
+    ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
     _functionExecutionContext = functionExecutionContext;

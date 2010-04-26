@@ -144,8 +144,8 @@ public class DependencyGraphModel {
   }
   
   public void addTarget(ComputationTarget target, Set<ValueRequirement> requirements) {
-    ArgumentChecker.checkNotNull(target, "Computation Target");
-    ArgumentChecker.checkNotNull(requirements, "Value requirements");
+    ArgumentChecker.notNull(target, "Computation Target");
+    ArgumentChecker.notNull(requirements, "Value requirements");
     
     for(ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);

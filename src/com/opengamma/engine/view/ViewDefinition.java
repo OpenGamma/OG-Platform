@@ -31,9 +31,9 @@ public class ViewDefinition implements Serializable {
     new TreeMap<String, ViewCalculationConfiguration>();
   
   public ViewDefinition(String name, String rootPortfolioName, String userName) {
-    ArgumentChecker.checkNotNull(name, "View name");
-    ArgumentChecker.checkNotNull(rootPortfolioName, "Root portfolio name");
-    ArgumentChecker.checkNotNull(userName, "User name");
+    ArgumentChecker.notNull(name, "View name");
+    ArgumentChecker.notNull(rootPortfolioName, "Root portfolio name");
+    ArgumentChecker.notNull(userName, "User name");
     
     _name = name;
     _rootPortfolioName = rootPortfolioName;
@@ -76,8 +76,8 @@ public class ViewDefinition implements Serializable {
   }
   
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
-    ArgumentChecker.checkNotNull(calcConfig, "calculation configuration");
-    ArgumentChecker.checkNotNull(calcConfig.getName(), "Configuration name");
+    ArgumentChecker.notNull(calcConfig, "calculation configuration");
+    ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
   

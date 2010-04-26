@@ -26,8 +26,8 @@ public class PortfolioNodeTraverser {
   }
   
   public PortfolioNodeTraverser(TraversalStyle traversalStyle, PortfolioNodeTraversalCallback callback) {
-    ArgumentChecker.checkNotNull(traversalStyle, "Traversal Style");
-    ArgumentChecker.checkNotNull(callback, "Traversal Callback");
+    ArgumentChecker.notNull(traversalStyle, "Traversal Style");
+    ArgumentChecker.notNull(callback, "Traversal Callback");
     _traversalStyle = traversalStyle;
     _callback = callback;
   }
