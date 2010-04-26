@@ -11,7 +11,7 @@ public class SingleGreekResult implements GreekResult<Double> {
   private final Double _result;
 
   public SingleGreekResult(final Double result) {
-    ArgumentChecker.checkNotNull(result, "Result");
+    ArgumentChecker.notNull(result, "Result");
     _result = result;
   }
 
