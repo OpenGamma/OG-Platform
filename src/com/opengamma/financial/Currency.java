@@ -45,7 +45,7 @@ public class Currency implements Identifiable {
     // - Will allow lower-case ISO codes
     // - Will allow ISO codes outside normal rules (e.g. 3-letter)
     // - Isn't even concurrency safe
-    ArgumentChecker.checkNotNull(isoCode, "ISO Code");
+    ArgumentChecker.notNull(isoCode, "ISO Code");
     if (s_instanceMap.containsKey(isoCode)) {
       return s_instanceMap.get(isoCode);
     } else {
