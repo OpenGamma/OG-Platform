@@ -26,7 +26,7 @@ public class BlockingQueueByteArraySource implements ByteArraySource {
   }
   
   public BlockingQueueByteArraySource(BlockingQueue<byte[]> queue) {
-    ArgumentChecker.checkNotNull(queue, "blocking byte array queue");
+    ArgumentChecker.notNull(queue, "blocking byte array queue");
     _queue = queue;
   }
 

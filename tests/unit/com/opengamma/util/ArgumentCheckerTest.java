@@ -14,7 +14,7 @@ public class ArgumentCheckerTest {
   @Test(expected=NullPointerException.class)
   public void test_checkNotNull_null() {
     try {
-      ArgumentChecker.checkNotNull(null, "name");
+      ArgumentChecker.notNull(null, "name");
     } catch (NullPointerException ex) {
       assertTrue(ex.getMessage().contains("'name'"));
       assertFalse(ex.getMessage().contains("Injected"));
@@ -24,14 +24,14 @@ public class ArgumentCheckerTest {
 
   @Test
   public void test_checkNotNull_nonNull() {
-    ArgumentChecker.checkNotNull("Kirk", "name");
+    ArgumentChecker.notNull("Kirk", "name");
   }
 
   //-------------------------------------------------------------------------
   @Test(expected=NullPointerException.class)
   public void test_checkNotNullInjected_null() {
     try {
-      ArgumentChecker.checkNotNullInjected(null, "name");
+      ArgumentChecker.notNullInjected(null, "name");
     } catch (NullPointerException ex) {
       assertTrue(ex.getMessage().contains("'name'"));
       assertTrue(ex.getMessage().contains("Injected"));
@@ -41,7 +41,7 @@ public class ArgumentCheckerTest {
 
   @Test
   public void test_checkNotNullInjected_nonNull() {
-    ArgumentChecker.checkNotNullInjected("Kirk", "name");
+    ArgumentChecker.notNullInjected("Kirk", "name");
   }
 
 }

@@ -24,7 +24,7 @@ public final class ArgumentChecker {
    * @param name  the name of the parameter to use in the error message, not null
    * @throws NullPointerException
    */
-  public static void checkNotNull(Object parameter, String name) throws NullPointerException {
+  public static void notNull(Object parameter, String name) throws NullPointerException {
     if (parameter == null) {
       throw new NullPointerException("Input parameter '" + name + "' must not be null");
     }
@@ -36,7 +36,7 @@ public final class ArgumentChecker {
    * @param name  the name of the parameter to use in the error message, not null
    * @throws NullPointerException
    */
-  public static void checkNotNullInjected(Object parameter, String name) throws NullPointerException {
+  public static void notNullInjected(Object parameter, String name) throws NullPointerException {
     if (parameter == null) {
       throw new NullPointerException("Injected input parameter '" + name + "' must not be null");
     }
