@@ -42,11 +42,11 @@ public class AuditLogEntry {
       String description,
       boolean success,
       Date timestamp) {
-    ArgumentChecker.checkNotNull(user, "User name");    
-    ArgumentChecker.checkNotNull(originatingSystem, "Originating system");
-    ArgumentChecker.checkNotNull(object, "Object name");
-    ArgumentChecker.checkNotNull(operation, "Operation name");
-    ArgumentChecker.checkNotNull(timestamp, "timestamp");
+    ArgumentChecker.notNull(user, "User name");    
+    ArgumentChecker.notNull(originatingSystem, "Originating system");
+    ArgumentChecker.notNull(object, "Object name");
+    ArgumentChecker.notNull(operation, "Operation name");
+    ArgumentChecker.notNull(timestamp, "timestamp");
     
     _id = null;
     _user = user;

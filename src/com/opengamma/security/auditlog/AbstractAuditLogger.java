@@ -39,7 +39,7 @@ public abstract class AbstractAuditLogger implements AuditLogger {
    *          Examples might be "view-processor-5" or "bloomberg-server".
    */
   public AbstractAuditLogger(String originatingSystem) {
-    ArgumentChecker.checkNotNull(originatingSystem,
+    ArgumentChecker.notNull(originatingSystem,
         "Name of originating system");
     _originatingSystem = originatingSystem;
   }
