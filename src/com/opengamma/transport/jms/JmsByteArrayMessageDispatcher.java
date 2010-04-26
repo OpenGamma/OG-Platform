@@ -24,7 +24,7 @@ public class JmsByteArrayMessageDispatcher implements MessageListener {
   private final ByteArrayMessageReceiver _underlying;
   
   public JmsByteArrayMessageDispatcher(ByteArrayMessageReceiver underlying) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying ByteArrayMessageReceiver");
+    ArgumentChecker.notNull(underlying, "Underlying ByteArrayMessageReceiver");
     _underlying = underlying;
   }
 

@@ -16,7 +16,7 @@ public class InMemoryByteArrayRequestConduit implements ByteArrayRequestSender {
   private final ByteArrayRequestReceiver _receiver;
   
   public InMemoryByteArrayRequestConduit(ByteArrayRequestReceiver receiver) {
-    ArgumentChecker.checkNotNull(receiver, "Receiver");
+    ArgumentChecker.notNull(receiver, "Receiver");
     _receiver = receiver;
   }
 

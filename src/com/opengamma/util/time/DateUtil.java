@@ -358,7 +358,7 @@ public class DateUtil {
   }
   
   public static LocalDate toLocalDate(String date) {
-    ArgumentChecker.checkNotNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
     return YYYYMMDD_LOCAL_DATE.parse(date, LocalDate.rule());
   }
 

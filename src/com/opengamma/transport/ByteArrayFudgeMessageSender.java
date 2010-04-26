@@ -24,8 +24,8 @@ public class ByteArrayFudgeMessageSender implements FudgeMessageSender {
   }
   
   public ByteArrayFudgeMessageSender(ByteArrayMessageSender underlying, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying ByteArrayMessageSender");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(underlying, "Underlying ByteArrayMessageSender");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
   }

@@ -28,7 +28,7 @@ abstract public class DBTest {
   private final DBTool _dbtool;
   
   protected DBTest(String databaseType) {
-    ArgumentChecker.checkNotNull(databaseType, "Database type");
+    ArgumentChecker.notNull(databaseType, "Database type");
     _databaseType = databaseType;
     _dbtool = TestProperties.getDbTool(databaseType);
   }

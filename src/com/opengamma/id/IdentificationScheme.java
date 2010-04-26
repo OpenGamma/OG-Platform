@@ -69,7 +69,7 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
    * @param name  the scheme name, not null
    */
   public IdentificationScheme(String name) {
-    ArgumentChecker.checkNotNull(name, "name");
+    ArgumentChecker.notNull(name, "name");
     _name = name;
   }
 

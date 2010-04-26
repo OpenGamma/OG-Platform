@@ -37,12 +37,12 @@ public abstract class AbstractBatchMessageDispatcher implements Lifecycle {
   private Thread _dispatchThread;
   
   protected AbstractBatchMessageDispatcher(ByteArraySource source) {
-    ArgumentChecker.checkNotNull(source, "byte array source");
+    ArgumentChecker.notNull(source, "byte array source");
     _source = source;
   }
   
   public void addReceiver(BatchByteArrayMessageReceiver receiver) {
-    ArgumentChecker.checkNotNull(receiver, "batch message receiver");
+    ArgumentChecker.notNull(receiver, "batch message receiver");
     synchronized(_receivers) {
       _receivers.add(receiver);
     }

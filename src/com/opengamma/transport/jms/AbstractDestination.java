@@ -23,7 +23,7 @@ public abstract class AbstractDestination {
   private final String _name;
   
   public AbstractDestination(String name) {
-    ArgumentChecker.checkNotNull(name, "Destination name");
+    ArgumentChecker.notNull(name, "Destination name");
     _name = name;
   }
   

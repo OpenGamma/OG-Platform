@@ -28,8 +28,8 @@ public class BatchByteArrayFudgeMessageReceiver implements BatchByteArrayMessage
   }
   
   public BatchByteArrayFudgeMessageReceiver(BatchFudgeMessageReceiver underlying, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(underlying, "Underlying FudgeMessageReceiver");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(underlying, "Underlying FudgeMessageReceiver");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _underlying = underlying;
     _fudgeContext = fudgeContext;
   }
