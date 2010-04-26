@@ -100,10 +100,10 @@ public class HibernateAuditLogger extends AbstractAuditLogger {
   
   @Override
   public void log(String user, String originatingSystem, String object, String operation, String description, boolean success) {
-    ArgumentChecker.checkNotNull(user, "User ID");
-    ArgumentChecker.checkNotNull(user, "Originating system name");
-    ArgumentChecker.checkNotNull(object, "Object ID");
-    ArgumentChecker.checkNotNull(operation, "Operation name");
+    ArgumentChecker.notNull(user, "User ID");
+    ArgumentChecker.notNull(user, "Originating system name");
+    ArgumentChecker.notNull(object, "Object ID");
+    ArgumentChecker.notNull(operation, "Operation name");
     
     AuditLogEntry auditLogEntry = new AuditLogEntry(user, originatingSystem, object, operation, description, success, new Date());
     boolean flushCache = false;

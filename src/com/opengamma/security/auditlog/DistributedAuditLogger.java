@@ -37,8 +37,8 @@ public class DistributedAuditLogger extends AbstractAuditLogger {
   
   public DistributedAuditLogger(String originatingSystem, FudgeMessageSender msgSender, FudgeContext fudgeContext) {
     super(originatingSystem);
-    ArgumentChecker.checkNotNull(msgSender, "Message Sender");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(msgSender, "Message Sender");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _msgSender = msgSender;
     _fudgeContext = fudgeContext;
   }
