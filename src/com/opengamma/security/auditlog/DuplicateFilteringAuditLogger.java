@@ -26,7 +26,7 @@ public class DuplicateFilteringAuditLogger extends AbstractAuditLogger {
 
   public DuplicateFilteringAuditLogger(AbstractAuditLogger delegate,
       int maxElementsInMemory, int secondsToKeepInMemory) {
-    ArgumentChecker.checkNotNull(delegate, "Delegate logger");
+    ArgumentChecker.notNull(delegate, "Delegate logger");
 
     _delegate = delegate;
     _cache = new Cache("audit_log_entry_cache", maxElementsInMemory, false,

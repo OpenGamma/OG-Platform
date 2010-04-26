@@ -25,7 +25,7 @@ public class DistributedAuditLoggerServer implements FudgeMessageReceiver, Batch
   private final AbstractAuditLogger _delegate;
   
   public DistributedAuditLoggerServer(AbstractAuditLogger delegate) {
-    ArgumentChecker.checkNotNull(delegate, "Delegate audit logger");
+    ArgumentChecker.notNull(delegate, "Delegate audit logger");
     _delegate = delegate;
   }
 
