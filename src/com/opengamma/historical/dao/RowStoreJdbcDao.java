@@ -78,7 +78,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private TransactionDefinition _transactionDefinition = new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRED);
   
   public RowStoreJdbcDao(DataSourceTransactionManager transactionManager) {
-    ArgumentChecker.checkNotNull(transactionManager, "transactionManager");
+    ArgumentChecker.notNull(transactionManager, "transactionManager");
     _transactionManager = transactionManager;
     DataSource dataSource = _transactionManager.getDataSource();
     _simpleJdbcTemplate = new SimpleJdbcTemplate(dataSource);   
@@ -89,12 +89,12 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       String dataSource, String dataProvider, String field,
       String observationTime, final LocalDateDoubleTimeSeries timeSeries) {
 
-    ArgumentChecker.checkNotNull(domainIdentifiers, "domainIdentifiers");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
-    ArgumentChecker.checkNotNull(timeSeries, "timeSeries");
+    ArgumentChecker.notNull(domainIdentifiers, "domainIdentifiers");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(timeSeries, "timeSeries");
     
     DoubleTimeSeries<Date> sqlDateDoubleTimeSeries = timeSeries.toSQLDateDoubleTimeSeries();
 
@@ -178,8 +178,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
    * @param description
    */
   private void insertNamedDimension(String tableName, String name, String description) {
-    ArgumentChecker.checkNotNull(tableName, "table");
-    ArgumentChecker.checkNotNull(name, "name");
+    ArgumentChecker.notNull(tableName, "table");
+    ArgumentChecker.notNull(name, "name");
     s_logger.debug("inserting into table={} values({}, {})", new Object[]{tableName, name, description});
     String sql = "INSERT INTO " + tableName + " (" + NAME_COLUMN + ", " + DESCRIPTION_COLUMN + ") VALUES (:name, :description)";
     SqlParameterSource parameters = new MapSqlParameterSource()
@@ -199,7 +199,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
    * @return
    */
   private String findNamedDimensionByID(String tableName, int id) {
-    ArgumentChecker.checkNotNull(tableName, "table");
+    ArgumentChecker.notNull(tableName, "table");
     s_logger.debug("looking up named dimension from table={} id={}", tableName, id);
     final StringBuffer sql = new StringBuffer("SELECT ").append(NAME_COLUMN).append(" FROM ").append(tableName).append(" WHERE ").append(ID_COLUMN).append(" = :id");
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("id", id, Types.INTEGER);
@@ -263,7 +263,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
 
   @Override
   public void createDomainSpecIdentifiers(final IdentifierBundle domainIdentifiers, final String quotedObject) {
-    ArgumentChecker.checkNotNull(domainIdentifiers, "domainIdentifiers");
+    ArgumentChecker.notNull(domainIdentifiers, "domainIdentifiers");
     //start transaction
     TransactionStatus transactionStatus = _transactionManager.getTransaction(_transactionDefinition);
     
@@ -379,7 +379,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
    * @return
    */
   private Set<String> getAllNamedDimensionNames(final String tableName) {
-    ArgumentChecker.checkNotNull(tableName, "tableName");
+    ArgumentChecker.notNull(tableName, "tableName");
     s_logger.debug("gettting all names from table = {}", tableName);
     final StringBuffer sql = new StringBuffer("SELECT ").append(NAME_COLUMN).append(" fROM ").append(tableName);
     List<String> queryResult = _simpleJdbcTemplate.query(sql.toString(), new ParameterizedRowMapper<String>() {
@@ -426,8 +426,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
    * @return
    */
   private int getNamedDimensionID(final String tableName, final String name) {
-    ArgumentChecker.checkNotNull(tableName, "tableName");
-    ArgumentChecker.checkNotNull(name, "name");
+    ArgumentChecker.notNull(tableName, "tableName");
+    ArgumentChecker.notNull(name, "name");
     
     s_logger.debug("looking up id from table={} with name={}", tableName, name);
     final StringBuffer sql = new StringBuffer("SELECT ").append(ID_COLUMN).append(" FROM ").append(tableName).append(" WHERE ").append(NAME_COLUMN).append(" = :name");
@@ -468,7 +468,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   @Override
   public IdentifierBundle findDomainSpecIdentifiersByQuotedObject(String name) {
-    ArgumentChecker.checkNotNull(name, "name");
+    ArgumentChecker.notNull(name, "name");
     s_logger.debug("looking up domainSpecIdentifiers using quotedObj={}", name);
     
     String sql = "SELECT d.name, dsi.identifier " +
@@ -514,11 +514,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   @Override
   public void createTimeSeriesKey(String quotedObject, String dataSource,
       String dataProvider, String dataField, String observationTime) {
-    ArgumentChecker.checkNotNull(quotedObject, "quotedObject");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(dataField, "dataField");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(quotedObject, "quotedObject");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notNull(observationTime, "observationTime");
     
     s_logger.debug("creating timeSeriesKey with quotedObj={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{quotedObject, dataSource, dataProvider, dataField, observationTime});
@@ -556,11 +556,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   protected int getTimeSeriesKeyIDByIdentifier(Identifier domainSpecId, String dataSource,
       String dataProvider, String dataField, String observationTime) {
-    ArgumentChecker.checkNotNull(domainSpecId, "domainSpecId");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(dataField, "dataField");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(domainSpecId, "domainSpecId");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notNull(observationTime, "observationTime");
     
     int result = -1;
     
@@ -602,11 +602,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   protected int getTimeSeriesKeyIDByQuotedObject(String quotedObject, String dataSource,
       String dataProvider, String dataField, String observationTime) {
-    ArgumentChecker.checkNotNull(quotedObject, "quotedObject");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(dataField, "dataField");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(quotedObject, "quotedObject");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notNull(observationTime, "observationTime");
     
     int result = -1;
     
@@ -654,11 +654,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   public void deleteTimeSeries(Identifier domainSpecId,
       String dataSource, String dataProvider, String field,
       String observationTime) {
-    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(observationTime, "observationTime");
     
     s_logger.debug("deleting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
         new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
@@ -732,11 +732,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private DoubleTimeSeries<Date> loadTimeSeries(Identifier domainSpecId,
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate start, LocalDate end) {
-    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(observationTime, "observationTime");
     
     s_logger.debug("getting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
         new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
@@ -795,13 +795,13 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate date, Double value) {
     
-    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
-    ArgumentChecker.checkNotNull(date, "date");
-    ArgumentChecker.checkNotNull(value, "value");
+    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(value, "value");
     
     s_logger.debug("updating dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} with values(date={}, value={})", 
         new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime, date, value});
@@ -848,12 +848,12 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   public void deleteDataPoint(Identifier domainSpecId,
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate date) {
-    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
-    ArgumentChecker.checkNotNull(date, "date");
+    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(date, "date");
     
     s_logger.debug("deleting dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} date={}", 
         new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime, date});
@@ -900,12 +900,12 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       String dataProvider, String field, String observationTime,
       ZonedDateTime timeStamp) {
     
-    ArgumentChecker.checkNotNull(domainSpecId, "identifier");
-    ArgumentChecker.checkNotNull(dataSource, "dataSource");
-    ArgumentChecker.checkNotNull(dataProvider, "dataProvider");
-    ArgumentChecker.checkNotNull(field, "field");
-    ArgumentChecker.checkNotNull(observationTime, "observationTime");
-    ArgumentChecker.checkNotNull(timeStamp, "time");
+    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(dataSource, "dataSource");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(field, "field");
+    ArgumentChecker.notNull(observationTime, "observationTime");
+    ArgumentChecker.notNull(timeStamp, "time");
     
     int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
     
