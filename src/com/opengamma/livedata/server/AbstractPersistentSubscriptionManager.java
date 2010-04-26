@@ -52,8 +52,8 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
 
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server,
       Timer timer, long savePeriod) {
-    ArgumentChecker.checkNotNull(server, "Live Data Server");
-    ArgumentChecker.checkNotNull(timer, "Timer");
+    ArgumentChecker.notNull(server, "Live Data Server");
+    ArgumentChecker.notNull(timer, "Timer");
     if (savePeriod <= 0) {
       throw new IllegalArgumentException("Please give positive save period");
     }

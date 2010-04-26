@@ -26,7 +26,7 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
   private volatile boolean doDisconnect = false;
   
   public AbstractEventDispatcher(AbstractLiveDataServer server) {
-    ArgumentChecker.checkNotNull(server, "Live Data Server");
+    ArgumentChecker.notNull(server, "Live Data Server");
     _server = server;
   }
   

@@ -52,7 +52,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     new HashSet<LiveDataSpecification>();
   
   public void setHeartbeatMessageSender(ByteArrayMessageSender messageSender) {
-    ArgumentChecker.checkNotNull(messageSender, "Message Sender");
+    ArgumentChecker.notNull(messageSender, "Message Sender");
     _heartbeatSender = new HeartbeatSender(messageSender, _valueDistributor, getFudgeContext(), getTimer(), getHeartbeatPeriod());
   }
 
@@ -181,8 +181,8 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       Collection<LiveDataSpecification> requestedSpecifications,
       long timeout) {
     
-    ArgumentChecker.checkNotNull(userName, "User name");
-    ArgumentChecker.checkNotNull(requestedSpecifications, "Live Data specifications");
+    ArgumentChecker.notNull(userName, "User name");
+    ArgumentChecker.notNull(requestedSpecifications, "Live Data specifications");
     
     SnapshotListener listener = new SnapshotListener(requestedSpecifications.size());
     
