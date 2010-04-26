@@ -36,8 +36,8 @@ public class MarketDataFudgeJmsSender implements MarketDataSender {
   }
   
   public MarketDataFudgeJmsSender(JmsTemplate jmsTemplate, FudgeContext fudgeContext) {
-    ArgumentChecker.checkNotNull(jmsTemplate, "JmsTemplate");
-    ArgumentChecker.checkNotNull(fudgeContext, "Fudge Context");
+    ArgumentChecker.notNull(jmsTemplate, "JmsTemplate");
+    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
     _jmsTemplate = jmsTemplate;
     _fudgeContext = fudgeContext;
   }

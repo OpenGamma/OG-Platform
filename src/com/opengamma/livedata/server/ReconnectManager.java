@@ -45,8 +45,8 @@ public class ReconnectManager implements Lifecycle {
   }
   
   public ReconnectManager(AbstractLiveDataServer server, long checkIntervalMillis, Timer timer) {
-    ArgumentChecker.checkNotNull(server, "Live Data Server");
-    ArgumentChecker.checkNotNull(timer, "Timer");
+    ArgumentChecker.notNull(server, "Live Data Server");
+    ArgumentChecker.notNull(timer, "Timer");
     if (checkIntervalMillis <= 0) {
       throw new IllegalArgumentException("Please give positive check period");
     }

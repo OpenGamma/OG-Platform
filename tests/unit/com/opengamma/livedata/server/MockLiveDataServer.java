@@ -28,7 +28,7 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   private volatile int _numDisconnections = 0;
   
   public MockLiveDataServer(IdentificationScheme domain) {
-    ArgumentChecker.checkNotNull(domain, "Identification domain");
+    ArgumentChecker.notNull(domain, "Identification domain");
     _domain = domain;
   }
   

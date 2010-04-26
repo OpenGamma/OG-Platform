@@ -20,7 +20,7 @@ public class MarketDataFudgeSender implements MarketDataSender {
   private final FudgeMessageSender _fudgeMessageSender;
   
   public MarketDataFudgeSender(FudgeMessageSender fudgeMessageSender) {
-    ArgumentChecker.checkNotNull(fudgeMessageSender, "Fudge Message Sender");
+    ArgumentChecker.notNull(fudgeMessageSender, "Fudge Message Sender");
     _fudgeMessageSender = fudgeMessageSender;
   }
 

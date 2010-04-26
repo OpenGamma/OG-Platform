@@ -40,7 +40,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
 
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory, FudgeContext fudgeContext) {
     super(subscriptionRequestSender, fudgeContext);
-    ArgumentChecker.checkNotNull(connectionFactory, "JMS Connection Factory");
+    ArgumentChecker.notNull(connectionFactory, "JMS Connection Factory");
     _connectionFactory = connectionFactory;
   }
   

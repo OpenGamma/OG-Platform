@@ -45,9 +45,9 @@ public class NormalizationRuleSet implements Serializable {
   public NormalizationRuleSet(String id, 
       String jmsTopicSuffix,
       List<NormalizationRule> rules) {
-    ArgumentChecker.checkNotNull(id, "Rule set ID");
-    ArgumentChecker.checkNotNull(jmsTopicSuffix, "Jms Topic Suffix");
-    ArgumentChecker.checkNotNull(rules, "StandardRules");
+    ArgumentChecker.notNull(id, "Rule set ID");
+    ArgumentChecker.notNull(jmsTopicSuffix, "Jms Topic Suffix");
+    ArgumentChecker.notNull(rules, "StandardRules");
     _id = id;
     
     if (!jmsTopicSuffix.isEmpty() && !jmsTopicSuffix.startsWith(JmsTopicNameResolver.SEPARATOR)) {

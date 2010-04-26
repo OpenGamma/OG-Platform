@@ -21,7 +21,7 @@ public class UnitChange implements NormalizationRule {
   private final double _multiplier;
   
   public UnitChange(String field, double multiplier) {
-    ArgumentChecker.checkNotNull(field, "Field name");
+    ArgumentChecker.notNull(field, "Field name");
     _field = field;
     _multiplier = multiplier;        
   }

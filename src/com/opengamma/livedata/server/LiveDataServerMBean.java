@@ -31,7 +31,7 @@ public class LiveDataServerMBean {
   private final AbstractLiveDataServer _server;
   
   public LiveDataServerMBean(AbstractLiveDataServer server) {
-    ArgumentChecker.checkNotNull(server, "Live Data Server");
+    ArgumentChecker.notNull(server, "Live Data Server");
     _server = server;
   }
   
