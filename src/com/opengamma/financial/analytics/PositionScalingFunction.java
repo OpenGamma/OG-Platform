@@ -33,7 +33,7 @@ implements FunctionInvoker {
   private final String _requirementName;
   
   public PositionScalingFunction(String requirementName) {
-    ArgumentChecker.checkNotNull(requirementName, "Requirement name");
+    ArgumentChecker.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
   }
 

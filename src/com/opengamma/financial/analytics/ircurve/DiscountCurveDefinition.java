@@ -34,8 +34,8 @@ public class DiscountCurveDefinition implements Serializable {
   }
   
   public DiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
-    ArgumentChecker.checkNotNull(currency, "Currency");
-    ArgumentChecker.checkNotNull(interpolatorName, "Interpolator name");
+    ArgumentChecker.notNull(currency, "Currency");
+    ArgumentChecker.notNull(interpolatorName, "Interpolator name");
     // Name can be null.
     _currency = currency;
     _name = name;
@@ -48,7 +48,7 @@ public class DiscountCurveDefinition implements Serializable {
   }
   
   public void addStrip(FixedIncomeStrip strip) {
-    ArgumentChecker.checkNotNull(strip, "Strip");
+    ArgumentChecker.notNull(strip, "Strip");
     _strips.add(strip);
   }
 
