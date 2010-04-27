@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -12,8 +12,6 @@ import org.junit.Test;
 
 /**
  * A pure unit test for {@link IdentificationScheme}.
- *
- * @author kirk
  */
 public class IdentificationSchemeTest {
 
@@ -25,6 +23,11 @@ public class IdentificationSchemeTest {
   @Test(expected=NullPointerException.class)
   public void test_constructor_noNameProvided() {
     new IdentificationScheme(null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_constructor_emptyNameProvided() {
+    new IdentificationScheme("");
   }
 
   @Test
