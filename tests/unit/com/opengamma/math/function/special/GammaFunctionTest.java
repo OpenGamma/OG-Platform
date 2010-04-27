@@ -1,5 +1,7 @@
 package com.opengamma.math.function.special;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -16,6 +18,6 @@ public class GammaFunctionTest {
   @Test
   public void test() {
     final double x = RANDOM.nextDouble();
-    // assertEquals(Math.log(GAMMA.evaluate(x)), LN_GAMMA.evaluate(x), EPS);
+    assertEquals(Math.log(GAMMA.evaluate(x)), LN_GAMMA.evaluate(x), EPS);
   }
 }
