@@ -61,8 +61,8 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   private Random _random = new Random();
   private TimeSeriesDao _timeseriesDao;
   
-  public RowStoreTimeSeriesDaoTest(String databaseType) {
-    super(databaseType);
+  public RowStoreTimeSeriesDaoTest(String databaseType, String databaseVersion) {
+    super(databaseType, databaseVersion);
     s_logger.info("running testcases for {}", databaseType);
     TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
   }
