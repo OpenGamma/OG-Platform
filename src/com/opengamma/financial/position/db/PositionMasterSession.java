@@ -44,35 +44,35 @@ public class PositionMasterSession {
   }
   
   @SuppressWarnings("unchecked")
-  public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (final InstantProvider now, final String domain, final String identifier) {
-    final Query query = getSession().getNamedQuery("DomainSpecificIdentifierAssociationBean.many.byDomainIdentifier");
+  public Collection<IdentifierAssociationBean> getIdentifierAssociationBeanByIdentifier (final InstantProvider now, final String scheme, final String identifier) {
+    final Query query = getSession().getNamedQuery("IdentifierAssociationBean.many.byIdentifier");
     query.setDate("now", instantToDate (now));
-    query.setString("domain", domain);
+    query.setString("scheme", scheme);
     query.setString("identifier", identifier);
     return query.list ();
   }
   
-  public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (final InstantProvider now, final Identifier identifier) {
-    return getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (now, identifier.getScheme ().getName (), identifier.getValue ());
+  public Collection<IdentifierAssociationBean> getIdentifierAssociationBeanByIdentifier (final InstantProvider now, final Identifier identifier) {
+    return getIdentifierAssociationBeanByIdentifier (now, identifier.getScheme ().getName (), identifier.getValue ());
   }
   
   @SuppressWarnings("unchecked")
-  public Collection<DomainSpecificIdentifierAssociationBean> getDomainSpecificIdentifierAssociationBeanByPosition (final InstantProvider now, final PositionBean position) {
-    final Query query = getSession ().getNamedQuery ("DomainSpecificIdentifierAssociationBean.many.byPosition");
+  public Collection<IdentifierAssociationBean> getIdentifierAssociationBeanByPosition (final InstantProvider now, final PositionBean position) {
+    final Query query = getSession ().getNamedQuery ("IdentifierAssociationBean.many.byPosition");
     query.setDate ("now", instantToDate (now));
     query.setParameter ("position", position);
     return query.list ();
   }
   
-  public void saveDomainSpecificIdentifierAssociationBean (final DomainSpecificIdentifierAssociationBean bean) {
+  public void saveIdentifierAssociationBean (final IdentifierAssociationBean bean) {
     if (bean.getIdentifier () == null) {
-      throw new NullPointerException ("DomainSpecificIdentifier cannot be null (no identifier) for DomainSpecificIdentifierAssociationBean");
+      throw new NullPointerException ("Identifier cannot be null (no identifier) for IdentifierAssociationBean");
     }
-    if (bean.getDomain () == null) {
-      throw new NullPointerException ("DomainSpecificIdentifier cannot be null (no domain) for DomainSpecificIdentifierAssociationBean");
+    if (bean.getScheme () == null) {
+      throw new NullPointerException ("Identifier cannot be null (no scheme) for IdentifierAssociationBean");
     }
     if (bean.getPosition () == null) {
-      throw new NullPointerException ("position cannot be null for DomainSpecificIdentifierAssociationBean");
+      throw new NullPointerException ("position cannot be null for IdentifierAssociationBean");
     }
     if (bean.getPosition ().getId () == null) {
       savePositionBean (bean.getPosition ());

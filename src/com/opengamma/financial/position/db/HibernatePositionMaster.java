@@ -93,9 +93,9 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   // TODO this is a slow way of constructing the Node graph - there are a number of recursive queries. One of the bulk fetches could be used and the graph built up from the information in each node
   
   private Position positionBeanToPosition (final PositionMasterSession session, final InstantProvider now, final PositionBean position) {
-    final Collection<DomainSpecificIdentifierAssociationBean> assocBeans = session.getDomainSpecificIdentifierAssociationBeanByPosition (now, position);
+    final Collection<IdentifierAssociationBean> assocBeans = session.getIdentifierAssociationBeanByPosition (now, position);
     final Collection<Identifier> dsids = new ArrayList<Identifier> (assocBeans.size ());
-    for (DomainSpecificIdentifierAssociationBean assocBean : assocBeans) {
+    for (IdentifierAssociationBean assocBean : assocBeans) {
       dsids.add (assocBean.getDomainSpecificIdentifier ());
     }
     return new PositionImpl (position.getIdentifier (), position.getQuantity (), new IdentifierBundle (dsids));

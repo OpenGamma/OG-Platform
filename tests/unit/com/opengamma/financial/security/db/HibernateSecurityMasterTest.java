@@ -70,8 +70,8 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   
   private HibernateSecurityMaster _secMaster;
   
-  public HibernateSecurityMasterTest(String databaseType) {
-    super(databaseType);
+  public HibernateSecurityMasterTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   @Override

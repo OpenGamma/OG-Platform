@@ -41,13 +41,13 @@ public class HibernatePositionMasterTest extends HibernateTest {
   
   private HibernatePositionMaster _posMaster;
 
-  public HibernatePositionMasterTest(String databaseType) {
-    super(databaseType);
+  public HibernatePositionMasterTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   /* package */ static Class<?>[] getHibernateMappingClassesImpl () {
     return new Class<?>[] {
-        DomainSpecificIdentifierAssociationBean.class,
+        IdentifierAssociationBean.class,
         PortfolioBean.class,
         PortfolioNodeBean.class,
         PositionBean.class
@@ -81,16 +81,16 @@ public class HibernatePositionMasterTest extends HibernateTest {
       }
       
       private void addDomainSpecificIdentifierToPosition (final PositionMasterSession posSession, final String identifier, final PositionBean position) {
-        DomainSpecificIdentifierAssociationBean bean = new DomainSpecificIdentifierAssociationBean ();
-        bean.setDomain ("Test 1");
+        IdentifierAssociationBean bean = new IdentifierAssociationBean ();
+        bean.setScheme ("Test 1");
         bean.setIdentifier (identifier);
         bean.setPosition (position);
-        posSession.saveDomainSpecificIdentifierAssociationBean (bean);
-        bean = new DomainSpecificIdentifierAssociationBean ();
-        bean.setDomain ("Test 2");
+        posSession.saveIdentifierAssociationBean (bean);
+        bean = new IdentifierAssociationBean ();
+        bean.setScheme ("Test 2");
         bean.setIdentifier ("ID " + position.getIdentifier ());
         bean.setPosition (position);
-        posSession.saveDomainSpecificIdentifierAssociationBean (bean);
+        posSession.saveIdentifierAssociationBean (bean);
       }
 
       @Override

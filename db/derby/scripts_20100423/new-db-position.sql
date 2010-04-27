@@ -1,5 +1,5 @@
 
--- create-db-position.sql: Position Master
+-- new-db-position.sql: Position Master
 
 create table pos_position (
     id bigint not null,
@@ -13,16 +13,16 @@ create table pos_position (
     unique (identifier, startDate, endDate)
 );
 
-create table pos_domainspecificidentifierassociation (
+create table pos_identifierassociation (
     id bigint not null,
     startDate date,
     endDate date,
     position_id bigint not null,
-    domain varchar(255) not null,
+    scheme varchar(255) not null,
     identifier varchar(255) not null,
     primary key (id),
-    constraint pos_fk_domainspecificidentifierassocation2position foreign key (position_id) references pos_position (id),
-    unique (position_id, domain, identifier, startDate, endDate)
+    constraint pos_fk_identifierassocation2position foreign key (position_id) references pos_position (id),
+    unique (position_id, scheme, identifier, startDate, endDate)
 );
 
 create table pos_portfolionode (
