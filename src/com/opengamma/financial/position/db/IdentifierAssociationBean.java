@@ -13,18 +13,18 @@ import com.opengamma.id.Identifier;
  * 
  * @author Andrew Griffin
  */
-public class DomainSpecificIdentifierAssociationBean extends DateIdentifiableBean {
+public class IdentifierAssociationBean extends DateIdentifiableBean {
   
   private PositionBean _position;
-  private String _domain;
+  private String _scheme;
   
-  public DomainSpecificIdentifierAssociationBean () {
+  public IdentifierAssociationBean () {
   }
   
-  public DomainSpecificIdentifierAssociationBean (final DomainSpecificIdentifierAssociationBean other) {
+  public IdentifierAssociationBean (final IdentifierAssociationBean other) {
     super (other);
     setPosition (other.getPosition ());
-    setDomain (other.getDomain ());
+    setScheme (other.getScheme ());
   }
 
   /**
@@ -44,23 +44,23 @@ public class DomainSpecificIdentifierAssociationBean extends DateIdentifiableBea
   /**
    * @return the domain
    */
-  public String getDomain() {
-    return _domain;
+  public String getScheme() {
+    return _scheme;
   }
 
   /**
-   * @param domain the domain to set
+   * @param scheme the domain to set
    */
-  public void setDomain(String domain) {
-    _domain = domain;
+  public void setScheme(String scheme) {
+    _scheme = scheme;
   }
 
   public Identifier getDomainSpecificIdentifier () {
-    return new Identifier (getDomain (), getIdentifier ());
+    return new Identifier (getScheme (), getIdentifier ());
   }
   
   public void setDomainSpecificIdentifier (final Identifier identifier) {
-    setDomain (identifier.getScheme ().getName ());
+    setScheme (identifier.getScheme ().getName ());
     setIdentifier (identifier.getValue ());
   }
   
@@ -68,15 +68,15 @@ public class DomainSpecificIdentifierAssociationBean extends DateIdentifiableBea
   public boolean equals (final Object o) {
     if (o == this) return true;
     if (!super.equals (o)) return false;
-    final DomainSpecificIdentifierAssociationBean other = (DomainSpecificIdentifierAssociationBean)o;
-    return ObjectUtils.equals (getPosition (), other.getPosition ()) && ObjectUtils.equals (getDomain (), other.getDomain ());
+    final IdentifierAssociationBean other = (IdentifierAssociationBean)o;
+    return ObjectUtils.equals (getPosition (), other.getPosition ()) && ObjectUtils.equals (getScheme (), other.getScheme ());
   }
   
   @Override
   public int hashCode () {
     int hc = super.hashCode ();
     hc = hc * 17 + ObjectUtils.hashCode (getPosition ());
-    hc = hc * 17 + ObjectUtils.hashCode (getDomain ());
+    hc = hc * 17 + ObjectUtils.hashCode (getScheme ());
     return hc;
   }
   

@@ -45,8 +45,8 @@ public class PositionMasterSessionTest extends HibernateTest {
   private final InstantProvider _instantBefore = Instant.millis (_dateBefore.getTime ());
   private HibernateTemplate _template;
   
-  public PositionMasterSessionTest(String databaseType) {
-    super(databaseType);
+  public PositionMasterSessionTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   @Override
@@ -99,74 +99,74 @@ public class PositionMasterSessionTest extends HibernateTest {
         position1.setQuantity (new BigDecimal (20));
         final Identifier identifier0 = new Identifier ("domain 0", "identifier 0");
         final Identifier identifier1 = new Identifier ("domain 1", "identifier 1");
-        final DomainSpecificIdentifierAssociationBean association0before = createBeanBefore (new DomainSpecificIdentifierAssociationBean (), null);
+        final IdentifierAssociationBean association0before = createBeanBefore (new IdentifierAssociationBean (), null);
         association0before.setDomainSpecificIdentifier (identifier0);
         association0before.setPosition (position0);
-        final DomainSpecificIdentifierAssociationBean association0now = createBeanNow (new DomainSpecificIdentifierAssociationBean (), null);
+        final IdentifierAssociationBean association0now = createBeanNow (new IdentifierAssociationBean (), null);
         association0now.setDomainSpecificIdentifier (identifier0);
         association0now.setPosition (position1);
-        final DomainSpecificIdentifierAssociationBean association1a = createBeanAny (new DomainSpecificIdentifierAssociationBean (), null);
+        final IdentifierAssociationBean association1a = createBeanAny (new IdentifierAssociationBean (), null);
         association1a.setDomainSpecificIdentifier (identifier1);
         association1a.setPosition (position0);
-        final DomainSpecificIdentifierAssociationBean association1b = createBeanAny (new DomainSpecificIdentifierAssociationBean (), null);
+        final IdentifierAssociationBean association1b = createBeanAny (new IdentifierAssociationBean (), null);
         association1b.setDomainSpecificIdentifier (identifier1);
         association1b.setPosition (position1);
         // save
-        positionMasterSession.saveDomainSpecificIdentifierAssociationBean (association0before);
-        positionMasterSession.saveDomainSpecificIdentifierAssociationBean (association0now);
-        positionMasterSession.saveDomainSpecificIdentifierAssociationBean (association1a);
-        positionMasterSession.saveDomainSpecificIdentifierAssociationBean (association1b);
+        positionMasterSession.saveIdentifierAssociationBean (association0before);
+        positionMasterSession.saveIdentifierAssociationBean (association0now);
+        positionMasterSession.saveIdentifierAssociationBean (association1a);
+        positionMasterSession.saveIdentifierAssociationBean (association1b);
         // get by domain identifier
-        Collection<DomainSpecificIdentifierAssociationBean> beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (_instantBefore, identifier0);
+        Collection<IdentifierAssociationBean> beans = positionMasterSession.getIdentifierAssociationBeanByIdentifier (_instantBefore, identifier0);
         assertNotNull (beans);
         assertEquals (1, beans.size ());
         assertTrue (beans.contains (association0before));
-        for (DomainSpecificIdentifierAssociationBean bean : beans) {
+        for (IdentifierAssociationBean bean : beans) {
           assertEquals (identifier0, bean.getDomainSpecificIdentifier()); 
         }
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (_instantNow, identifier0);
+        beans = positionMasterSession.getIdentifierAssociationBeanByIdentifier (_instantNow, identifier0);
         assertNotNull (beans);
         assertEquals (1, beans.size ());
         assertTrue (beans.contains (association0now));
-        for (DomainSpecificIdentifierAssociationBean bean : beans) {
+        for (IdentifierAssociationBean bean : beans) {
           assertEquals (identifier0, bean.getDomainSpecificIdentifier()); 
         }
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (_instantNow, identifier1);
+        beans = positionMasterSession.getIdentifierAssociationBeanByIdentifier (_instantNow, identifier1);
         assertNotNull (beans);
         assertEquals (2, beans.size ());
         assertTrue (beans.contains (association1a));
         assertTrue (beans.contains (association1b));
-        for (DomainSpecificIdentifierAssociationBean bean : beans) {
+        for (IdentifierAssociationBean bean : beans) {
           assertEquals (identifier1, bean.getDomainSpecificIdentifier()); 
         }
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (_instantNow, "domain 0", "identifier 2");
+        beans = positionMasterSession.getIdentifierAssociationBeanByIdentifier (_instantNow, "domain 0", "identifier 2");
         assertNotNull (beans);
         assertEquals (0, beans.size ());
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByDomainIdentifier (_instantNow, "domain 2", "identifier 0");
+        beans = positionMasterSession.getIdentifierAssociationBeanByIdentifier (_instantNow, "domain 2", "identifier 0");
         assertNotNull (beans);
         assertEquals (0, beans.size ());
         // get by position
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByPosition (_instantBefore, position0);
+        beans = positionMasterSession.getIdentifierAssociationBeanByPosition (_instantBefore, position0);
         assertNotNull (beans);
         assertEquals (2, beans.size ());
         assertTrue (beans.contains (association0before));
         assertTrue (beans.contains (association1a));
-        for (DomainSpecificIdentifierAssociationBean bean : beans) {
+        for (IdentifierAssociationBean bean : beans) {
           assertEquals (position0, bean.getPosition ()); 
         }
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByPosition (_instantBefore, position1);
+        beans = positionMasterSession.getIdentifierAssociationBeanByPosition (_instantBefore, position1);
         assertNotNull (beans);
         assertEquals (1, beans.size ());
         assertTrue (beans.contains (association1b));
-        for (DomainSpecificIdentifierAssociationBean bean : beans) {
+        for (IdentifierAssociationBean bean : beans) {
           assertEquals (position1, bean.getPosition ()); 
         }
-        beans = positionMasterSession.getDomainSpecificIdentifierAssociationBeanByPosition (_instantNow, position1);
+        beans = positionMasterSession.getIdentifierAssociationBeanByPosition (_instantNow, position1);
         assertNotNull (beans);
         assertEquals (2, beans.size ());
         assertTrue (beans.contains (association0now));
         assertTrue (beans.contains (association1b));
-        for (DomainSpecificIdentifierAssociationBean bean : beans) {
+        for (IdentifierAssociationBean bean : beans) {
           assertEquals (position1, bean.getPosition ()); 
         }
         return null;
