@@ -36,17 +36,4 @@ public class StandardRulesTest {
     assertEquals(msg, normalizedMsg);
   }
   
-  @Test
-  public void openGamma() {
-    NormalizationRuleSet ruleSet = StandardRules.getNoNormalization();
-    
-    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
-    msg.add("Foo", "1");
-    msg.add("Bar", 2.0);
-    msg.add("Baz", 500);
-    
-    FudgeFieldContainer normalizedMsg = ruleSet.getNormalizedMessage(msg, _store);
-    assertEquals(msg, normalizedMsg);
-  }
-
 }

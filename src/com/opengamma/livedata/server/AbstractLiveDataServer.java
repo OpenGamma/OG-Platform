@@ -184,7 +184,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     return _connectionStatus;
   }
   
-  private void setConnectionStatus(ConnectionStatus connectionStatus) {
+  void setConnectionStatus(ConnectionStatus connectionStatus) {
     _connectionStatus = connectionStatus;
     s_logger.info("Connection status changed to " + connectionStatus);
   }
@@ -225,7 +225,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
   }
   
-  public void connect() {
+  public synchronized void connect() {
     if (getConnectionStatus() != ConnectionStatus.NOT_CONNECTED) {
       throw new IllegalStateException("Can only connect if not connected");      
     }
@@ -233,7 +233,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     setConnectionStatus(ConnectionStatus.CONNECTED);
   }
   
-  public void disconnect() {
+  public synchronized void disconnect() {
     if (getConnectionStatus() != ConnectionStatus.CONNECTED) {
       throw new IllegalStateException("Can only disconnect if connected");      
     }
