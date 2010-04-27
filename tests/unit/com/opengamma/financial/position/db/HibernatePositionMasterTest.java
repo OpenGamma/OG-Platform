@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioId;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.id.Identifier;
@@ -32,8 +33,6 @@ import com.opengamma.util.test.HibernateTest;
 
 /**
  * Tests the basic behavior of the public HibernatePositionMaster methods.
- * 
- * @author Andrew Griffin
  */
 public class HibernatePositionMasterTest extends HibernateTest {
 
@@ -131,11 +130,11 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testPortfolioNode () {
     createTestEquityOptionPortfolio ();
-    PortfolioNode portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, "doesn't exist"));
+    PortfolioNode portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME, "doesn't exist"));
     assertNull (portfolioNode);
     portfolioNode = _posMaster.getPortfolioNode (new Identifier ("BAD DOMAIN", "node 1"));
     assertNull (portfolioNode);
-    portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN, "node 1"));
+    portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME, "node 1"));
     assertNotNull (portfolioNode);
     assertEquals ("Options on AAPL US Equity", portfolioNode.getName ());
     assertEquals (5, portfolioNode.getPositions ().size ());
@@ -144,11 +143,11 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testPosition () {
     createTestEquityOptionPortfolio ();
-    Position position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_DOMAIN, "doesn't exist"));
+    Position position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_SCHEME, "doesn't exist"));
     assertNull (position);
     position = _posMaster.getPosition (new Identifier ("BAD DOMAIN", "10"));
     assertNull (position);
-    position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_DOMAIN, "10"));
+    position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_SCHEME, "10"));
     assertNotNull (position);
     assertEquals ("10", position.getIdentityKey ().getValue ());
     assertEquals (new BigDecimal (10), position.getQuantity ());
@@ -161,19 +160,19 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testRootPortfolio () {
     createTestEquityOptionPortfolio ();
-    Portfolio portfolio = _posMaster.getRootPortfolio ("doesn't exist");
+    Portfolio portfolio = _posMaster.getPortfolio(PortfolioId.of("doesn't exist"));
     assertNull (portfolio);
-    portfolio = _posMaster.getRootPortfolio ("Test Equity Option Portfolio");
+    portfolio = _posMaster.getPortfolio(PortfolioId.of("Test Equity Option Portfolio"));
     assertNotNull (portfolio);
     assertEquals ("Test Equity Option Portfolio", portfolio.getName ());
-    Collection<Position> positions = portfolio.getPositions ();
+    Collection<Position> positions = portfolio.getRootNode().getPositions();
     assertNotNull (positions);
     assertEquals (0, positions.size ());
-    Collection<PortfolioNode> nodes = portfolio.getSubNodes ();
+    Collection<PortfolioNode> nodes = portfolio.getRootNode().getChildNodes();
     assertNotNull (nodes);
     assertEquals (2, nodes.size ());
     for (PortfolioNode node : nodes) {
-      assertEquals (0, node.getSubNodes ().size ());
+      assertEquals (0, node.getChildNodes ().size ());
       assertEquals (5, node.getPositions ().size ());
     }
   }
@@ -181,12 +180,12 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testRootPortfolioNames () {
     createTestEquityOptionPortfolio ();
-    Collection<String> names = _posMaster.getRootPortfolioNames ();
-    assertNotNull (names);
-    assertEquals (1, names.size ());
-    assertTrue (names.contains ("Test Equity Option Portfolio"));
+    Collection<PortfolioId> ids = _posMaster.getPortfolioIds();
+    assertNotNull (ids);
+    assertEquals (1, ids.size ());
+    assertTrue (ids.contains ("Test Equity Option Portfolio"));
   }
-  
+
   // TODO test the PositionMaster with requests at different points in time
   
 }
