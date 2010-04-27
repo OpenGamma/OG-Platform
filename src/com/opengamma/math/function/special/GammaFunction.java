@@ -29,7 +29,7 @@ public class GammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    return Math.exp(Gamma.logGamma(x));
+    return 0.;// return Math.exp(Gamma.logGamma(x));
   }
 
 }

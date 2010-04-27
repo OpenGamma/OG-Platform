@@ -46,7 +46,7 @@ public class IncompleteGammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
+    return 0.;// return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
   }
 
 }

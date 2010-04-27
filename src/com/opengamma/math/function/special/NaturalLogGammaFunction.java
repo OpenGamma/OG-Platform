@@ -21,6 +21,6 @@ public class NaturalLogGammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    return Gamma.logGamma(x);
+    return 0.;// Gamma.logGamma(x);
   }
 }

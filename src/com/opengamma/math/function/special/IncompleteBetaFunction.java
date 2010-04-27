@@ -40,7 +40,9 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
       throw new IllegalArgumentException("b must be greater than or equal to zero");
     _a = a;
     _b = b;
-    _beta = Math.exp(Beta.logBeta(a, b));
+    _beta = 0;// Math.exp(Beta.logBeta(a, b));
+    _maxIter = 10000;
+    _eps = 1e-12;
   }
 
   /**
@@ -68,7 +70,7 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
       throw new IllegalArgumentException("Maximum number of iterations must be greater than zero");
     _a = a;
     _b = b;
-    _beta = Math.exp(Beta.logBeta(a, b));
+    _beta = 0.;// Math.exp(Beta.logBeta(a, b));
     _eps = eps;
     _maxIter = maxIter;
   }
@@ -81,6 +83,6 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
   public Double evaluate(final Double x) {
     if (x < 0 || x > 1)
       throw new IllegalArgumentException("x must be in the range 0 to 1");
-    return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter) / _beta;
+    return 0.;// Beta.regularizedBeta(x, _a, _b, _eps, _maxIter) / _beta;
   }
 }
