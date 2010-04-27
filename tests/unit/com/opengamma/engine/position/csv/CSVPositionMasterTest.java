@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.math.BigDecimal;
-import java.util.Iterator;
 
 import org.junit.Test;
 
@@ -18,16 +17,9 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.id.Identifier;
 
 /**
- * 
- *
- * @author kirk
+ * Test CSVPositionMaster.
  */
 public class CSVPositionMasterTest {
-  
-  @Test
-  public void parseLineNull() {
-    assertNull(CSVPositionMaster.parseLine(null));
-  }
 
   @Test
   public void parseLineEmpty() {
@@ -38,7 +30,7 @@ public class CSVPositionMasterTest {
   public void parseLineTooShort() {
     assertNull(CSVPositionMaster.parseLine("foo,bar"));
   }
-  
+
   @Test
   public void parseLineOneIdentifierTrim() {
     Position position = CSVPositionMaster.parseLine("    98.4 , KIRK   , MY-ID");
@@ -68,9 +60,7 @@ public class CSVPositionMasterTest {
     assertNotNull(position.getSecurityKey());
     assertEquals(3, position.getSecurityKey().getIdentifiers().size());
     
-    Iterator<Identifier> idIter = position.getSecurityKey().getIdentifiers().iterator();
-    while(idIter.hasNext()) {
-      Identifier id = idIter.next();
+    for (Identifier id : position.getSecurityKey().getIdentifiers()) {
       assertNotNull(id);
       assertNotNull(id.getScheme());
       assertNotNull(id.getValue());

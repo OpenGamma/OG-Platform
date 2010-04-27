@@ -7,8 +7,6 @@ package com.opengamma.engine.position;
 
 /**
  * Callback interface allowing the position master to be traversed.
- *
- * @author kirk
  */
 public interface PortfolioNodeTraversalCallback {
 

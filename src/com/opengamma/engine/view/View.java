@@ -24,8 +24,6 @@ import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * The base implementation of the {@link View} interface.
- *
- * @author kirk
  */
 public class View implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
@@ -151,10 +149,10 @@ public class View implements Lifecycle {
   }
   
   public void reloadPortfolio() {
-    OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getRootPortfolioName());
-    Portfolio portfolio = getProcessingContext().getPositionMaster().getRootPortfolio(getDefinition().getRootPortfolioName());
+    OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
+    Portfolio portfolio = getProcessingContext().getPositionMaster().getPortfolio(getDefinition().getPortfolioId());
     if(portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio named " + getDefinition().getRootPortfolioName());
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio: " + getDefinition().getPortfolioId());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
@@ -175,12 +173,12 @@ public class View implements Lifecycle {
   }
 
   public PortfolioNode getPositionRoot() {
-    if(getPortfolioEvaluationModel() == null) {
+    if (getPortfolioEvaluationModel() == null) {
       return null;
     }
-    return getPortfolioEvaluationModel().getPortfolio();
+    return getPortfolioEvaluationModel().getPortfolio().getRootNode();
   }
-  
+
   public synchronized void recalculationPerformed(ViewComputationResultModelImpl result) {
     // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
     // of some kind. It's synchronized and blocks the recalc thread, so a slow

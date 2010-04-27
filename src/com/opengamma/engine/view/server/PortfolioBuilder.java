@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -14,24 +14,26 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 
+/**
+ * Fudge message builder for {@code Portfolio}.
+ */
 public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
-  
+
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, Portfolio portfolio) {
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
-    PortfolioNodeBuilder.addPortfolioNodeFields (context, msg, portfolio);
+    PortfolioNodeBuilder.addPortfolioNodeFields(context, msg, portfolio.getRootNode());
     return msg;
   }
-  
+
   @Override
-  public Portfolio buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public Portfolio buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     // Portfolio
-    final String name = message.getFieldValue (String.class, message.getByName (PortfolioNodeBuilder.FIELD_NAME));
-    final PortfolioImpl portfolio = new PortfolioImpl (name);
+    final String name = message.getFieldValue(String.class, message.getByName(PortfolioNodeBuilder.FIELD_NAME));
+    final PortfolioImpl portfolio = new PortfolioImpl(name);
     // PortfolioNode
-    PortfolioNodeBuilder.readPortfolioNodeFields (context, message, portfolio);
+    PortfolioNodeBuilder.readPortfolioNodeFields(context, message, portfolio.getRootNode());
     return portfolio;
   }
-  
-  
+
 }

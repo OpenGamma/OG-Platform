@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
@@ -79,7 +78,7 @@ public class PortfolioEvaluationModel {
   }
 
   /**
-   * @return the rootNode
+   * @return the portfolio
    */
   public Portfolio getPortfolio() {
     return _portfolio;
@@ -133,7 +132,7 @@ public class PortfolioEvaluationModel {
     
     resolveSecurities(viewProcessingContext);
     
-    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio(), viewProcessingContext.getSecurityMaster());
+    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio().getRootNode(), viewProcessingContext.getSecurityMaster());
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     
@@ -169,8 +168,8 @@ public class PortfolioEvaluationModel {
   
   protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
     // TODO kirk 2010-03-07 -- Need to switch to OperationTimer for this.
-    OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", getPortfolio().getPortfolioName());
-    Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(getPortfolio());
+    OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", getPortfolio().getName());
+    Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(getPortfolio().getRootNode());
     ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(viewProcessingContext.getExecutorService());
     
     boolean failed = false;
@@ -199,8 +198,8 @@ public class PortfolioEvaluationModel {
         failed = true;
       }
     }
-    if(failed) {
-      throw new OpenGammaRuntimeException("Unable to resolve all securities for Portfolio " + getPortfolio().getPortfolioName());
+    if (failed) {
+      throw new OpenGammaRuntimeException("Unable to resolve all securities for Portfolio " + getPortfolio().getName());
     }
     timer.finished();
   }
@@ -245,7 +244,7 @@ public class PortfolioEvaluationModel {
       }
     }
     
-    for(PortfolioNode subNode : node.getSubNodes()) {
+    for(PortfolioNode subNode : node.getChildNodes()) {
       result.addAll(getSecurityKeysForResolution(subNode));
     }
     
@@ -275,8 +274,8 @@ public class PortfolioEvaluationModel {
       populatedPosition.setIdentityKey(position.getIdentityKey());
       populatedNode.addPosition(populatedPosition);
     }
-    for(PortfolioNode subNode : node.getSubNodes()) {
-      populatedNode.addSubNode(getPopulatedPortfolioNode(subNode, secMaster));
+    for (PortfolioNode child : node.getChildNodes()) {
+      populatedNode.addChildNode(getPopulatedPortfolioNode(child, secMaster));
     }
     return populatedNode;
   }
@@ -292,7 +291,7 @@ public class PortfolioEvaluationModel {
   
   protected void loadPositions(PortfolioNode node) {
     getPopulatedPositions().addAll(node.getPositions());
-    for(PortfolioNode child : node.getSubNodes()) {
+    for (PortfolioNode child : node.getChildNodes()) {
       loadPositions(child);
     }
   }

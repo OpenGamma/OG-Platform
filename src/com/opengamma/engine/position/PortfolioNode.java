@@ -5,42 +5,70 @@
  */
 package com.opengamma.engine.position;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
 
 /**
- * A node within the position master system.
+ * A node within a portfolio tree.
  * <p>
- * The position master consists of a tree/acyclic graph of nodes that hold the
- * positions in a suitable structure.
- *
- * @author kirk
+ * A portfolio holds all positions within a flexible tree structure.
+ * This interface represents a node in the tree holding a list of child nodes and positions.
+ * Positions are the leaves in the tree and do not implement this interface.
  */
 public interface PortfolioNode extends Identifiable {
 
   /**
    * The key to be used to refer to a node in identifiers.
    */
-  public static final IdentificationScheme PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN = new IdentificationScheme("PortfolioNodeIdentityKey");   
+  public static final IdentificationScheme PORTFOLIO_NODE_IDENTITY_KEY_SCHEME = new IdentificationScheme("PortfolioNodeIdentityKey");   
 
   /**
-   * Gets the positions which are direct children of this node.
-   * @return the positions, never null
+   * Gets the identity key of the node.
+   * @return the identity key, null if not uniquely identified
    */
-  Collection<Position> getPositions();
+  @Override
+  Identifier getIdentityKey();
 
   /**
-   * Gets the child nodes which are direct children of this node.
-   * @return the child nodes, never null
-   */
-  Collection<PortfolioNode> getSubNodes();
-
-  /**
-   * Gets the name of the node.
-   * @return the name
+   * Gets the name of the node intended for display purposes.
+   * @return the name, not null
    */
   String getName();
+
+  /**
+   * Gets the total size of the children, including nodes and positions.
+   * @return the size of the nodes and position
+   */
+  int size();
+
+  /**
+   * Gets the nodes which are immediate children of this node.
+   * @return the child nodes, unmodifiable, never null
+   */
+  List<PortfolioNode> getChildNodes();
+
+  /**
+   * Gets the positions immediate children of this node.
+   * @return the positions, unmodifiable, never null
+   */
+  List<Position> getPositions();
+
+  /**
+   * Recursively finds a specific node from this node by identity key.
+   * If this node matches it is returned.
+   * @param identityKey  the identity key, null returns null
+   * @return the node, null if not found
+   */
+  PortfolioNode getNode(Identifier identityKey);
+
+  /**
+   * Recursively finds a specific position from this node by identity key.
+   * @param identityKey  the identity key, null returns null
+   * @return the position, null if not found
+   */
+  Position getPosition(Identifier identityKey);
 
 }

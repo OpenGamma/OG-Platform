@@ -62,11 +62,11 @@ public class ComputationTargetSpecification implements Serializable {
     // REVIEW kirk 2010-03-31 -- Does this belong up in ComputationTargetType somewhere?
     if((type == null) && (target instanceof Identifier)) {
       dsid = (Identifier) target;
-      if(ObjectUtils.equals(dsid.getScheme(), PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
+      if (ObjectUtils.equals(dsid.getScheme(), PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME)) {
         type = ComputationTargetType.MULTIPLE_POSITIONS;
-      } else if(ObjectUtils.equals(dsid.getScheme(), Position.POSITION_IDENTITY_KEY_DOMAIN)) {
+      } else if (ObjectUtils.equals(dsid.getScheme(), Position.POSITION_IDENTITY_KEY_SCHEME)) {
         type = ComputationTargetType.POSITION;
-      } else if(ObjectUtils.equals(dsid.getScheme(), Security.SECURITY_IDENTITY_KEY_DOMAIN)) {
+      } else if (ObjectUtils.equals(dsid.getScheme(), Security.SECURITY_IDENTITY_KEY_DOMAIN)) {
         type = ComputationTargetType.SECURITY;
       } else {
         type = ComputationTargetType.PRIMITIVE;
