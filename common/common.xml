@@ -201,6 +201,7 @@
 				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
 				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
+			<sysproperty key="user.name" value="${user.name}" />
 			<sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
 			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
 			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
