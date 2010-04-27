@@ -74,6 +74,17 @@ public class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
+  public String getAllColumnsSQL (String catalog, String schema, String table) {
+    if (schema == null) {
+      schema = POSTGRES_DEFAULT_SCHEMA;
+    }
+    StringBuilder sql = new StringBuilder ("SELECT column_name AS name,data_type AS datatype,is_nullable AS allowsnull,column_default AS defaultvalue FROM information_schema.columns WHERE table_catalog='");
+    sql.append (catalog).append ("' AND table_schema='").append (schema).append ("' AND table_name='");
+    sql.append (table).append ("'");
+    return sql.toString ();
+  }
+
+  @Override
   public String getCreateSchemaSQL(String schema) {
     return "CREATE SCHEMA " + schema;
   }
@@ -97,5 +108,4 @@ public class PostgresDialect extends AbstractDBDialect {
         "template1");
   }
   
-
 }

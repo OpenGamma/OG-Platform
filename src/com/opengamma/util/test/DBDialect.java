@@ -65,5 +65,10 @@ public interface DBDialect {
    */
   public void executeSql(String catalog, String sql);
   
+  /**
+   * Returns a string describing the structure of the database. It may be a set of statements to construct it or
+   * other representation. Comparison of the string must be the same as structural and content equality.
+   */
+  public String describeDatabase (String catalog);
 
 }
