@@ -60,18 +60,23 @@ abstract public class DBTest implements TableCreationCallback {
   @Parameters
   public static Collection<Object[]> getDatabaseTypes() {
     String databaseType = System.getProperty("test.database.type");
-    boolean useLatestOnly = false;
+    String previousVersionCountString = System.getProperty("test.database.previousVersions");
+    int previousVersionCount;
     if (databaseType == null) {
       databaseType = "derby"; // If you run from Eclipse, use Derby only
-      useLatestOnly = true;
+    }
+    if (previousVersionCountString == null) {
+      previousVersionCount = 0; // If you run from Eclipse, use current version only
+    } else {
+      previousVersionCount = Integer.parseInt (previousVersionCountString);
     }
     ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
       final DBTool dbTool = TestProperties.getDbTool (db);
-      final String[] versions = dbTool.getDatabaseVersions ();
-      for (int i = versions.length - 1; i >= 0; i--) {
-        returnValue.add(new Object[] { db, versions[i] });
-        if (useLatestOnly) break; // If run from Eclipse, only do the most recent version
+      final String[] versions = dbTool.getDatabaseCreatableVersions ();
+      for (int i = 0; i < versions.length; i++) {
+        returnValue.add (new Object[] { db, versions[i] });
+        if (i >= previousVersionCount) break;
       }
     }
     return returnValue;

@@ -40,6 +40,10 @@ abstract public class DBUpgradeTest extends DBTest {
     super (databaseType, databaseVersion);
   }
   
+  static {
+    System.setProperty ("test.database.previousVersions", Integer.toString (Integer.MAX_VALUE));
+  }
+  
   @Test
   public void testDatabaseUpgrade () {
     for (Triple<String,String,String> comparison : _comparisons) {

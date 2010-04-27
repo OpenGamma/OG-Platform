@@ -6,8 +6,9 @@
 package com.opengamma.util.test;
 
 import java.io.File;
-import java.io.FilenameFilter;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +34,11 @@ import com.opengamma.OpenGammaRuntimeException;
  * @author pietari
  */
 public class DBTool extends Task {
+  
+  public static final String DATABASE_FOLDER = "db";
+  public static final String DATABASE_SCRIPT_FOLDER_PREFIX = "scripts_";
+  public static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
+  public static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
   
   public interface TableCreationCallback {
     
@@ -289,65 +295,73 @@ public class DBTool extends Task {
     executeSql(catalog, sql);
   }
   
-  private void createTables(String catalog, File file, String[] scriptDirs, int index) {
+  private void createTables(String catalog, File[] scriptDirs, int index) {
     if (index < 0) {
       throw new IllegalArgumentException ("Invalid creation or target version (" + getCreateVersion () + "/" + getTargetVersion () + ")");
     }
-    final String version = scriptDirs[index].substring (8);
+    final String version = scriptDirs[index].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ());
     if (getTargetVersion ().compareTo (version) >= 0) {
-      final File scriptDir = new File (file, scriptDirs[index]);
       if (getCreateVersion ().compareTo (version) >= 0) {
-        final File createFile = new File (scriptDir, "create-db.sql");
+        final File createFile = new File (scriptDirs[index], DATABASE_CREATE_SCRIPT);
         if (createFile.exists ()) {
           System.out.println ("Creating DB version " + version);
           executeScript (catalog, createFile);
           return;
         }
       }
-      createTables (catalog, file, scriptDirs, index - 1);
-      final File upgradeFile = new File (scriptDir, "upgrade-db.sql");
+      createTables (catalog, scriptDirs, index - 1);
+      final File upgradeFile = new File (scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
       if (upgradeFile.exists ()) {
         System.out.println ("Upgrading to DB version " + version);
         executeScript (catalog, upgradeFile);
         return;
       }
     } else {
-      createTables (catalog, file, scriptDirs, index - 1);
+      createTables (catalog, scriptDirs, index - 1);
     }
   }
   
-  public void createTables(String catalog, final TableCreationCallback callback) {
-    final File file = new File(_basedir, "db/" + _dialect.getDatabaseName());
-    final String[] scriptDirs = file.list (new FilenameFilter () {
+  private File[] getScriptDirs () {
+    final File file = new File(_basedir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
+    final File[] scriptDirs = file.listFiles (new FileFilter () {
       @Override
-      public boolean accept(File dir, String name) {
-        return name.startsWith ("scripts_");
+      public boolean accept(File pathname) {
+        return pathname.getName ().startsWith (DATABASE_SCRIPT_FOLDER_PREFIX);
       }
     });
     Arrays.sort (scriptDirs);
+    return scriptDirs;
+  }
+  
+  public void createTables(String catalog, final TableCreationCallback callback) {
+    final File[] scriptDirs = getScriptDirs ();
     if (getTargetVersion () == null) {
-      setTargetVersion (scriptDirs[scriptDirs.length - 1].substring (8));
+      setTargetVersion (scriptDirs[scriptDirs.length - 1].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ()));
     }
     if (getCreateVersion () == null) {
       setCreateVersion (getTargetVersion ());
     }
-    createTables (catalog, file, scriptDirs, scriptDirs.length - 1);
+    // TODO the callback ...
+    createTables (catalog, scriptDirs, scriptDirs.length - 1);
   }
   
-  public String[] getDatabaseVersions () {
-    final File file = new File(_basedir, "db/" + _dialect.getDatabaseName());
-    final String[] scriptDirs = file.list (new FilenameFilter () {
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.startsWith ("scripts_");
+  /**
+   * Returns version numbers of any that have a "create" script and the most recent (in descending order).
+   */
+  public String[] getDatabaseCreatableVersions () {
+    final File[] scriptDirs = getScriptDirs ();
+    final ArrayList<String> versions = new ArrayList<String> ();
+    for (int i = scriptDirs.length - 1; i >= 0; i--) {
+      if (versions.size () == 0) {
+        versions.add (scriptDirs[i].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ()));
+      } else {
+        final File createScript = new File (scriptDirs[i], DATABASE_CREATE_SCRIPT);
+        if (createScript.exists ()) {
+          versions.add (scriptDirs[i].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ()));
+        }
       }
-    });
-    Arrays.sort (scriptDirs);
-    final String[] versions = new String[scriptDirs.length];
-    for (int i = 0; i < scriptDirs.length; i++) {
-      versions[i] = scriptDirs[i].substring (8);
     }
-    return versions;
+    return versions.toArray (new String[versions.size ()]);
   }
   
   public void executeSql(String catalog, String sql) {
