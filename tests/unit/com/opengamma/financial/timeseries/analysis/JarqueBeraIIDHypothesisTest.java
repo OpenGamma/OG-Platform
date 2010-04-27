@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 /**
@@ -28,9 +31,9 @@ public class JarqueBeraIIDHypothesisTest extends IIDHypothesisTestCase {
   public void test() {
     super.testNullTS(JARQUE_BERA);
     super.testEmptyTS(JARQUE_BERA);
-    // assertTrue(JARQUE_BERA.evaluate(RANDOM));
-    // assertFalse(JARQUE_BERA.evaluate(SIGNAL));
-    // assertFalse(JARQUE_BERA.evaluate(INCREASING));
+    assertTrue(JARQUE_BERA.evaluate(RANDOM));
+    assertFalse(JARQUE_BERA.evaluate(SIGNAL));
+    assertFalse(JARQUE_BERA.evaluate(INCREASING));
   }
 
 }

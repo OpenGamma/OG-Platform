@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -48,7 +50,7 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
     final double eps = 1e-5;
     for (int i = 0; i < 100; i++) {
       x = RANDOM.nextDouble();
-      // assertEquals(x, F.evaluate(T.getCDF(x)), eps);
+      assertEquals(x, F.evaluate(T.getCDF(x)), eps);
     }
   }
 }

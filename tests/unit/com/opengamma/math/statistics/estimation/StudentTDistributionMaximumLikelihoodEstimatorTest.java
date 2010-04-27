@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.estimation;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -39,7 +41,7 @@ public class StudentTDistributionMaximumLikelihoodEstimatorTest {
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();
     }
-    // final StudentTDistribution p2 = (StudentTDistribution) ESTIMATOR.evaluate(x);
-    // assertEquals(p2.getDegreesOfFreedom(), nu, eps);
+    final StudentTDistribution p2 = (StudentTDistribution) ESTIMATOR.evaluate(x);
+    assertEquals(p2.getDegreesOfFreedom(), nu, eps);
   }
 }

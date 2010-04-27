@@ -5,6 +5,10 @@
  */
 package com.opengamma.math.function.special;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.special.Beta;
+
+import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -18,10 +22,8 @@ import com.opengamma.math.function.Function1D;
  * 
  * This class uses the Commons Math library implementation of the Beta function <a href="http://commons.apache.org/math/api-2.1/index.html">
  * 
- * @author emcleod
  */
 public class IncompleteBetaFunction extends Function1D<Double, Double> {
-  private final double _beta;
   private final double _a;
   private final double _b;
   private final double _eps;
@@ -40,7 +42,6 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
       throw new IllegalArgumentException("b must be greater than or equal to zero");
     _a = a;
     _b = b;
-    _beta = 0;// Math.exp(Beta.logBeta(a, b));
     _maxIter = 10000;
     _eps = 1e-12;
   }
@@ -70,7 +71,6 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
       throw new IllegalArgumentException("Maximum number of iterations must be greater than zero");
     _a = a;
     _b = b;
-    _beta = 0.;// Math.exp(Beta.logBeta(a, b));
     _eps = eps;
     _maxIter = maxIter;
   }
@@ -83,6 +83,10 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
   public Double evaluate(final Double x) {
     if (x < 0 || x > 1)
       throw new IllegalArgumentException("x must be in the range 0 to 1");
-    return 0.;// Beta.regularizedBeta(x, _a, _b, _eps, _maxIter) / _beta;
+    try {
+      return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter);
+    } catch (final MathException e) {
+      throw new ConvergenceException(e);
+    }
   }
 }

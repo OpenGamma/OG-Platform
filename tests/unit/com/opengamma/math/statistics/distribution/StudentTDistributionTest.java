@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -38,12 +40,12 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
   @Test
   public void test() {
     ProbabilityDistribution<Double> dist = new StudentTDistribution(1, ENGINE);
-    // testCDFWithNull(dist);
-    // testPDFWithNull(dist);
-    // testInverseCDF(X, dist);
+    testCDFWithNull(dist);
+    testPDFWithNull(dist);
+    testInverseCDF(X, dist);
     for (int i = 0; i < 10; i++) {
       dist = new StudentTDistribution(DOF[i], ENGINE);
-      // assertEquals(P[i], dist.getCDF(X[i]), EPS);
+      assertEquals(P[i], dist.getCDF(X[i]), EPS);
     }
   }
 
@@ -55,9 +57,9 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
     double x;
     for (int i = 0; i < 100; i++) {
       x = RANDOM.nextDouble();
-      // assertEquals(highDOF.getCDF(x), normal.getCDF(x), eps);
-      // assertEquals(highDOF.getPDF(x), normal.getPDF(x), eps);
-      // assertEquals(highDOF.getInverseCDF(x), normal.getInverseCDF(x), eps);
+      assertEquals(highDOF.getCDF(x), normal.getCDF(x), eps);
+      assertEquals(highDOF.getPDF(x), normal.getPDF(x), eps);
+      assertEquals(highDOF.getInverseCDF(x), normal.getInverseCDF(x), eps);
     }
   }
 }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -33,11 +35,11 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunctionTest extends Ortho
     final Double[] w2 = f2.getWeights();
     final Double[] x1 = f1.getAbscissas();
     final Double[] x2 = f2.getAbscissas();
-    // assertTrue(w1.length == w2.length);
-    // assertTrue(x1.length == x2.length);
+    assertTrue(w1.length == w2.length);
+    assertTrue(x1.length == x2.length);
     for (int i = 0; i < n; i++) {
-      // assertEquals(w1[i], w2[i], EPS);
-      // assertEquals(x1[i], x2[n - 1 - i], EPS);
+      assertEquals(w1[i], w2[i], EPS);
+      assertEquals(x1[i], x2[n - 1 - i], EPS);
     }
     final Double[] w3 = f3.getWeights();
     final Double[] x3 = f3.getAbscissas();
@@ -51,8 +53,8 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunctionTest extends Ortho
 
     };
     for (int i = 0; i < n; i++) {
-      // assertEquals(chebyshevWeight, w3[i], EPS);
-      // assertEquals(chebyshevAbscissa.evaluate(i), x3[i], EPS);
+      assertEquals(chebyshevWeight, w3[i], EPS);
+      assertEquals(chebyshevAbscissa.evaluate(i), x3[i], EPS);
     }
   }
 

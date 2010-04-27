@@ -8,10 +8,7 @@ package com.opengamma.math.function.special;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.Function2D;
 
-/**
- * 
- * @author emcleod
- */
+//TODO either find another implementation or delete this class
 public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
   private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
   private final double EPS = 1e-8;
@@ -51,7 +48,7 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
     for (int i = 0; i < 12; i++) {
       if (x <= 0)
         return 0.;
-      err = gammaIncomplete.evaluate(a, x) - p;
+      err = gammaIncomplete.evaluate(x) - p;
       if (a > 1) {
         t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));
       } else {

@@ -5,6 +5,10 @@
  */
 package com.opengamma.math.function.special;
 
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.special.Gamma;
+
+import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -17,7 +21,7 @@ import com.opengamma.math.function.Function1D;
  * where {@latex.inline $a > 0$}.
  * 
  * This class is a wrapper for the Commons Math library implementation of the incomplete gamma function <a href="http://commons.apache.org/math/api-2.1/index.html">
- * @author emcleod
+ *
  */
 public class IncompleteGammaFunction extends Function1D<Double, Double> {
   private final int _maxIter;
@@ -46,7 +50,11 @@ public class IncompleteGammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    return 0.;// return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
+    try {
+      return Gamma.regularizedGammaP(_a, x, _eps, _maxIter);
+    } catch (final MathException e) {
+      throw new ConvergenceException(e);
+    }
   }
 
 }

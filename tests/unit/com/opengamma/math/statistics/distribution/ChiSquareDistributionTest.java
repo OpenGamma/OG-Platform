@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 /**
@@ -39,8 +41,8 @@ public class ChiSquareDistributionTest extends ProbabilityDistributionTestCase {
     testInverseCDFWithNull(dist);
     for (int i = 0; i < 5; i++) {
       dist = new ChiSquareDistribution(DOF[i], ENGINE);
-      // assertEquals(1 - dist.getCDF(X[i]), Q[i], EPS);
-      // assertEquals(dist.getInverseCDF(dist.getCDF(X[i])), X[i], EPS);
+      assertEquals(1 - dist.getCDF(X[i]), Q[i], EPS);
+      assertEquals(dist.getInverseCDF(dist.getCDF(X[i])), X[i], EPS);
     }
   }
 }

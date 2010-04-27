@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.var;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
@@ -54,7 +57,7 @@ public class StudentTLinearVaRCalculatorTest {
       }
 
     }, 0.);
-    // assertEquals(NORMAL.evaluate(stats), HIGH_DOF.evaluate(stats), 1e-6);
-    // assertTrue(STUDENT_T.evaluate(stats) > NORMAL.evaluate(stats));
+    assertEquals(NORMAL.evaluate(stats), HIGH_DOF.evaluate(stats), 1e-6);
+    assertTrue(STUDENT_T.evaluate(stats) > NORMAL.evaluate(stats));
   }
 }
