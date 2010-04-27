@@ -21,8 +21,8 @@ import com.opengamma.util.test.HibernateTest;
  */
 public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
   
-  public HibernatePersistentSubscriptionManagerTest(String databaseType) {
-    super(databaseType);
+  public HibernatePersistentSubscriptionManagerTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   @Override
