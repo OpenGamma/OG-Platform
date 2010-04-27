@@ -31,8 +31,8 @@ public class HibernateUserManagerTest extends HibernateTest {
   private TransactionStatus _transaction;
   private HibernateUserManager _userManager;
   
-  public HibernateUserManagerTest(String databaseType) {
-    super(databaseType);
+  public HibernateUserManagerTest(String databaseType, final String databaseVersion) {
+    super(databaseType, databaseVersion);
   }
   
   @Override
