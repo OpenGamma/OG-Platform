@@ -59,7 +59,7 @@ public class DerbyDialect extends AbstractDBDialect {
   
   @Override
   public String getAllSchemasSQL(String catalog) {
-    return "SELECT schemaid AS name FROM SYS.SYSSCHEMAS";
+    return "SELECT schemaname AS name FROM SYS.SYSSCHEMAS";
   }
 
   @Override
@@ -69,7 +69,7 @@ public class DerbyDialect extends AbstractDBDialect {
     		"FROM SYS.SYSCONSTRAINTS, SYS.SYSTABLES " +
     		"WHERE SYS.SYSTABLES.tableid = SYS.SYSCONSTRAINTS.tableid AND type = 'F'";
     if (schema != null) {
-      sql += " AND schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "'";      
+      sql += " AND SYS.SYSCONSTRAINTS.schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "')";
     }
     return sql;
   }
@@ -83,9 +83,19 @@ public class DerbyDialect extends AbstractDBDialect {
   public String getAllTablesSQL(String catalog, String schema) {
     String sql = "SELECT tablename AS name FROM SYS.SYSTABLES WHERE tabletype = 'T'";
     if (schema != null) {
-      sql += " AND schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "'";
+      sql += " AND schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "')";
     }
     return sql;
+  }
+  
+  @Override
+  public String getAllColumnsSQL (String catalog, String schema, String table) {
+    StringBuilder sql = new StringBuilder ("SELECT c.columnname AS name,c.columndatatype AS datatype,'' AS allowsnull,c.columndefault AS defaultvalue FROM SYS.SYSCOLUMNS AS c INNER JOIN SYS.SYSTABLES AS t ON c.referenceid=t.tableid WHERE t.tablename='");
+    sql.append (table).append ("'");
+    if (schema != null) {
+      sql.append (" AND t.schemaid=(SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname='").append (schema).append ("')");
+    }
+    return sql.toString ();
   }
 
   @Override
@@ -106,8 +116,7 @@ public class DerbyDialect extends AbstractDBDialect {
   public CatalogCreationStrategy getCatalogCreationStrategy() {
     return new DerbyCatalogCreationStrategy();
   }
-
-
+  
   private class DerbyCatalogCreationStrategy implements CatalogCreationStrategy {
     
     private File getFile() {

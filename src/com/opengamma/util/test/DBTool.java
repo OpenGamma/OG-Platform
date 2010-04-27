@@ -6,7 +6,10 @@
 package com.opengamma.util.test;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +35,17 @@ import com.opengamma.OpenGammaRuntimeException;
  */
 public class DBTool extends Task {
   
+  public static final String DATABASE_FOLDER = "db";
+  public static final String DATABASE_SCRIPT_FOLDER_PREFIX = "scripts_";
+  public static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
+  public static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
+  
+  public interface TableCreationCallback {
+    
+    public void tablesCreatedOrUpgraded (final String version);
+    
+  }
+  
   // What to do - should be set once
   private String _catalog;
   private String _schema;
@@ -42,6 +56,8 @@ public class DBTool extends Task {
   private boolean _createTables = false;
   private String _testDbType;
   private String _basedir;
+  private String _targetVersion;
+  private String _createVersion;
   
   // What to do it on - can change
   private DBDialect _dialect;
@@ -90,9 +106,6 @@ public class DBTool extends Task {
     _dialect.shutdown();
   }
   
-  
-  
-  
   public void setDbServerHost(String dbServerHost) {
     _dbServerHost = dbServerHost;
   }
@@ -124,9 +137,6 @@ public class DBTool extends Task {
   public void setJdbcUrl(String jdbcUrl) {
     _jdbcUrl = jdbcUrl;
   }
-  
-  
-
   
   public String getCatalog() {
     return _catalog;
@@ -182,6 +192,22 @@ public class DBTool extends Task {
     TestProperties.setBaseDir(_basedir);
   }
   
+  public void setCreateVersion (final String createVersion) {
+    _createVersion = createVersion;
+  }
+  
+  public String getCreateVersion () {
+    return _createVersion;
+  }
+  
+  public void setTargetVersion (final String targetVersion) {
+    _targetVersion = targetVersion;
+  }
+  
+  public String getTargetVersion () {
+    return _targetVersion;
+  }
+  
   public void setCreateTables(boolean create) {
     _createTables = create;
   }
@@ -190,10 +216,6 @@ public class DBTool extends Task {
     setCreateTables(create.equalsIgnoreCase("true"));
   }
   
-  
-  
-  
-
   public void createTestSchema() {
     createSchema(getTestCatalog(), getTestSchema());
   }
@@ -206,8 +228,6 @@ public class DBTool extends Task {
     clearTables(getTestCatalog(), getTestSchema());
   }
 
-
- 
   public void createSchema(String catalog, String schema) {
     _dialect.createSchema(catalog, schema);
   }
@@ -220,7 +240,9 @@ public class DBTool extends Task {
     _dialect.clearTables(catalog, schema);    
   }
   
-  
+  public String describeDatabase () {
+    return _dialect.describeDatabase (getTestCatalog ());
+  }
   
   public static String getTestCatalogStatic() {
     return "test_" + System.getProperty("user.name");
@@ -259,12 +281,11 @@ public class DBTool extends Task {
   
   
   
-  public void createTestTables() {
-    createTables(getTestCatalog());
+  public void createTestTables(final TableCreationCallback callback) {
+    createTables(getTestCatalog(), callback);
   }
   
-  public void createTables(String catalog) {
-    File file = new File(_basedir, "db/" + _dialect.getDatabaseName() + "/create-db.sql");
+  private void executeScript (String catalog, File file) {
     String sql;
     try {
       sql = FileUtils.readFileToString(file);
@@ -274,12 +295,78 @@ public class DBTool extends Task {
     executeSql(catalog, sql);
   }
   
+  private void createTables(String catalog, File[] scriptDirs, int index) {
+    if (index < 0) {
+      throw new IllegalArgumentException ("Invalid creation or target version (" + getCreateVersion () + "/" + getTargetVersion () + ")");
+    }
+    final String version = scriptDirs[index].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ());
+    if (getTargetVersion ().compareTo (version) >= 0) {
+      if (getCreateVersion ().compareTo (version) >= 0) {
+        final File createFile = new File (scriptDirs[index], DATABASE_CREATE_SCRIPT);
+        if (createFile.exists ()) {
+          System.out.println ("Creating DB version " + version);
+          executeScript (catalog, createFile);
+          return;
+        }
+      }
+      createTables (catalog, scriptDirs, index - 1);
+      final File upgradeFile = new File (scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
+      if (upgradeFile.exists ()) {
+        System.out.println ("Upgrading to DB version " + version);
+        executeScript (catalog, upgradeFile);
+        return;
+      }
+    } else {
+      createTables (catalog, scriptDirs, index - 1);
+    }
+  }
+  
+  private File[] getScriptDirs () {
+    final File file = new File(_basedir, DATABASE_FOLDER + File.separatorChar + _dialect.getDatabaseName());
+    final File[] scriptDirs = file.listFiles (new FileFilter () {
+      @Override
+      public boolean accept(File pathname) {
+        return pathname.getName ().startsWith (DATABASE_SCRIPT_FOLDER_PREFIX);
+      }
+    });
+    Arrays.sort (scriptDirs);
+    return scriptDirs;
+  }
+  
+  public void createTables(String catalog, final TableCreationCallback callback) {
+    final File[] scriptDirs = getScriptDirs ();
+    if (getTargetVersion () == null) {
+      setTargetVersion (scriptDirs[scriptDirs.length - 1].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ()));
+    }
+    if (getCreateVersion () == null) {
+      setCreateVersion (getTargetVersion ());
+    }
+    // TODO the callback ...
+    createTables (catalog, scriptDirs, scriptDirs.length - 1);
+  }
+  
+  /**
+   * Returns version numbers of any that have a "create" script and the most recent (in descending order).
+   */
+  public String[] getDatabaseCreatableVersions () {
+    final File[] scriptDirs = getScriptDirs ();
+    final ArrayList<String> versions = new ArrayList<String> ();
+    for (int i = scriptDirs.length - 1; i >= 0; i--) {
+      if (versions.size () == 0) {
+        versions.add (scriptDirs[i].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ()));
+      } else {
+        final File createScript = new File (scriptDirs[i], DATABASE_CREATE_SCRIPT);
+        if (createScript.exists ()) {
+          versions.add (scriptDirs[i].getName ().substring (DATABASE_SCRIPT_FOLDER_PREFIX.length ()));
+        }
+      }
+    }
+    return versions.toArray (new String[versions.size ()]);
+  }
+  
   public void executeSql(String catalog, String sql) {
     _dialect.executeSql(catalog, sql);    
   }
-  
-  
-  
   
   @Override
   public void execute() throws BuildException {
@@ -333,7 +420,7 @@ public class DBTool extends Task {
     if (_createTables) {
       System.out.println("Creating tables...");
       initialise();
-      createTables(_catalog);
+      createTables(_catalog, null);
     }
     
     if (_createTestDb) {
@@ -351,7 +438,7 @@ public class DBTool extends Task {
         initialise();
         dropTestSchema(); // make sure it's empty if it already existed
         createTestSchema();
-        createTestTables();
+        createTestTables(null);
         shutdown();
       }
     }
@@ -382,7 +469,9 @@ public class DBTool extends Task {
     options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it (including tables). " +
         "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
         "to specify server, user, or password.");
-    options.addOption("createtables", "createtables", true, "Runs {basedir}/db/{dbtype}/create-db.sql.");
+    options.addOption("createtables", "createtables", true, "Runs {basedir}/db/{dbtype}/scripts_<latest version>/create-db.sql.");
+    options.addOption("targetversion", "targetversion", true, "Version number for the end result database. Optional. If not specified, assumes latest version.");
+    options.addOption("createversion", "createversion", true, "Version number to run the creation script from. Optional. If not specified, defaults to {targetversion}.");
     options.addOption("basedir", "basedir", true, "Base directory for reading create db scripts and property files. Optional. If not specified, the working directory is used.");
     
     CommandLineParser parser = new PosixParser();
@@ -408,6 +497,8 @@ public class DBTool extends Task {
     tool.setCreateTestDb(line.getOptionValue("createtestdb"));
     tool.setCreateTables(line.getOptionValue("createtables"));
     tool.setBasedir(line.getOptionValue("basedir"));
+    tool.setTargetVersion(line.getOptionValue("targetversion"));
+    tool.setCreateVersion(line.getOptionValue("createversion"));
     
     try {
       tool.execute();
