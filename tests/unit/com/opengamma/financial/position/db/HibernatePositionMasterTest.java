@@ -23,12 +23,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioId;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -160,9 +159,9 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testRootPortfolio () {
     createTestEquityOptionPortfolio ();
-    Portfolio portfolio = _posMaster.getPortfolio(PortfolioId.of("doesn't exist"));
+    Portfolio portfolio = _posMaster.getPortfolio(new Identifier("Test", "doesn't exist"));
     assertNull (portfolio);
-    portfolio = _posMaster.getPortfolio(PortfolioId.of("Test Equity Option Portfolio"));
+    portfolio = _posMaster.getPortfolio(new Identifier("Test", "Test Equity Option Portfolio"));
     assertNotNull (portfolio);
     assertEquals ("Test Equity Option Portfolio", portfolio.getName ());
     Collection<Position> positions = portfolio.getRootNode().getPositions();
@@ -180,7 +179,7 @@ public class HibernatePositionMasterTest extends HibernateTest {
   @Test
   public void testRootPortfolioNames () {
     createTestEquityOptionPortfolio ();
-    Collection<PortfolioId> ids = _posMaster.getPortfolioIds();
+    Collection<Identifier> ids = _posMaster.getPortfolioIds();
     assertNotNull (ids);
     assertEquals (1, ids.size ());
     assertTrue (ids.contains ("Test Equity Option Portfolio"));

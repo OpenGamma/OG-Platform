@@ -17,11 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioId;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.id.Identifier;
 
 /**
  * An aggregator of portfolios.
@@ -36,11 +36,12 @@ public class PortfolioAggregator {
   }
   
   public Portfolio aggregate(Portfolio inputPortfolio) {
-    String aggPortfolioId = buildPortfolioName(inputPortfolio.getId().getValue());
+    String aggPortfolioId = buildPortfolioName(inputPortfolio.getIdentityKey().getValue());
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
-    PortfolioImpl aggPortfolio = new PortfolioImpl(PortfolioId.of(aggPortfolioId), aggPortfolioName);
+    Identifier aggId = new Identifier(inputPortfolio.getIdentityKey().getScheme(), aggPortfolioId);
+    PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName);
     aggregate(aggPortfolio.getRootNode(), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return aggPortfolio;
   }

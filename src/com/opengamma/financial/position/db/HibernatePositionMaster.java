@@ -25,7 +25,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioId;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
@@ -167,19 +166,19 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(PortfolioId portfolioId) {
+  public Portfolio getPortfolio(Identifier portfolioId) {
     return getPortfolio(TimeSource.system().instant(), portfolioId);
   }
 
-  public Portfolio getPortfolio(final InstantProvider now, final PortfolioId portfolioId) {
+  public Portfolio getPortfolio(final InstantProvider now, final Identifier portfolioId) {
     return (Portfolio) getHibernateTemplate().execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(final Session session) throws HibernateException, SQLException {
         final PositionMasterSession positionMasterSession = new PositionMasterSession(session);
-        if (portfolioId.getValue().startsWith("h8/") == false) {
+        if (portfolioId.isNotScheme("h8")) {
           throw new IllegalArgumentException("Invalid portfolio id for Hibernate: " + portfolioId);
         }
-        final PortfolioBean dbPortfolio = positionMasterSession.getPortfolioBeanByIdentifier(now, portfolioId.getValue().substring(3));
+        final PortfolioBean dbPortfolio = positionMasterSession.getPortfolioBeanByIdentifier(now, portfolioId.getValue());
         if (dbPortfolio == null) {
           s_logger.debug("portfolio {} not found at {}", portfolioId, now);
           return null;
@@ -194,20 +193,20 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<PortfolioId> getPortfolioIds() {
+  public Set<Identifier> getPortfolioIds() {
     return getPortfolioIds(TimeSource.system().instant());
   }
 
   @SuppressWarnings("unchecked")
-  public Set<PortfolioId> getPortfolioIds(final InstantProvider now) {
-    return (Set<PortfolioId>) getHibernateTemplate().execute(new HibernateCallback() {
+  public Set<Identifier> getPortfolioIds(final InstantProvider now) {
+    return (Set<Identifier>) getHibernateTemplate().execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(final Session session) throws HibernateException, SQLException {
         final PositionMasterSession positionMasterSession = new PositionMasterSession(session);
         final Collection<PortfolioBean> dbPortfolios = positionMasterSession.getAllPortfolioBeans(now);
-        final Set<PortfolioId> portfolioIds = new HashSet<PortfolioId>();
+        final Set<Identifier> portfolioIds = new HashSet<Identifier>();
         for (PortfolioBean dbPortfolio : dbPortfolios) {
-          portfolioIds.add(PortfolioId.of("h8/" + dbPortfolio.getId()));
+          portfolioIds.add(new Identifier("h8", dbPortfolio.getIdentifier()));
         }
         return portfolioIds;
       }
