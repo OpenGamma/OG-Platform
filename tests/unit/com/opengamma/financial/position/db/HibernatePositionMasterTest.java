@@ -157,12 +157,17 @@ public class HibernatePositionMasterTest extends HibernateTest {
     assertEquals ("ID 10", dsids.getIdentifier (new IdentificationScheme ("Test 2")));
   }
   
+  @Test(expected=IllegalArgumentException.class)
+  public void testRootPortfolioInvalid () {
+    _posMaster.getPortfolio (PortfolioId.of ("doesn't exist"));
+  }
+  
   @Test
   public void testRootPortfolio () {
     createTestEquityOptionPortfolio ();
-    Portfolio portfolio = _posMaster.getPortfolio(PortfolioId.of("doesn't exist"));
+    Portfolio portfolio = _posMaster.getPortfolio(PortfolioId.of("h8/doesn't exist"));
     assertNull (portfolio);
-    portfolio = _posMaster.getPortfolio(PortfolioId.of("Test Equity Option Portfolio"));
+    portfolio = _posMaster.getPortfolio(PortfolioId.of("h8/Test Equity Option Portfolio"));
     assertNotNull (portfolio);
     assertEquals ("Test Equity Option Portfolio", portfolio.getName ());
     Collection<Position> positions = portfolio.getRootNode().getPositions();

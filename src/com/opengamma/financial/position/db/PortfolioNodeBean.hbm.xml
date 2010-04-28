@@ -7,7 +7,8 @@
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
-    <property name="identifier" type="string" not-null="true" />
+    <property name="identifier" type="string" />
+    <!-- Node identifier is not-null in the database, but we must temporarily allow nulls so that we can allocate IDs -->
     <property name="startDate" type="date" />
     <property name="endDate" type="date" />
     <property name="name" type="string" />

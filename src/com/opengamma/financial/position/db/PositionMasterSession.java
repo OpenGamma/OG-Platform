@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.UUID;
 
 import javax.time.InstantProvider;
 
@@ -107,6 +106,22 @@ public class PositionMasterSession {
     return query.list ();
   }
   
+  private static void saveOrUpdateIdentifiableBean (final Session session, final String identifierPrefix, final DateIdentifiableBean bean) {
+    if (bean.getId () != null) {
+      if (bean.getIdentifier () == null) {
+        bean.setIdentifier (identifierPrefix + bean.getId ());
+      }
+      session.update (bean);
+    } else {
+      bean.setId ((Long)session.save (bean));
+      if (bean.getIdentifier () == null) {
+        bean.setIdentifier (identifierPrefix + bean.getId ());
+        session.update (bean);
+      }
+    }
+    session.flush ();
+  }
+  
   public void savePortfolioBean (final PortfolioBean bean) {
     if (bean.getName () == null) {
       throw new NullPointerException ("name cannot be null in PortfolioBean");
@@ -117,15 +132,7 @@ public class PositionMasterSession {
     if (bean.getRoot ().getId () == null) {
       savePortfolioNodeBean (bean.getRoot ());
     }
-    if (bean.getIdentifier () == null) {
-      bean.setIdentifier (UUID.randomUUID ().toString ());
-    }
-    if (bean.getId () != null) {
-      getSession ().update (bean);
-    } else {
-      bean.setId ((Long)getSession ().save (bean));
-    }
-    getSession ().flush ();
+    saveOrUpdateIdentifiableBean (getSession (), "portfolio", bean);
   }
   
   public PortfolioNodeBean getPortfolioNodeBeanByIdentifier (final InstantProvider now, final String identifier) {
@@ -206,15 +213,7 @@ public class PositionMasterSession {
         savePortfolioNodeBeanTransaction (session, bean.getAncestor ());
       }
     }
-    if (bean.getIdentifier () == null) {
-      bean.setIdentifier (UUID.randomUUID ().toString ());
-    }
-    if (bean.getId () != null) {
-      session.update (bean);
-    } else {
-      bean.setId ((Long)session.save (bean));
-    }
-    session.flush ();
+    saveOrUpdateIdentifiableBean (session, "node", bean);
     // get all nodes previously above this
     Query query = session.getNamedQuery ("PortfolioNode.many.byDescendantId");
     query.setLong ("descendantId", bean.getId ());
@@ -327,15 +326,7 @@ public class PositionMasterSession {
     if (bean.getQuantity () == null) {
       throw new NullPointerException ("position must specify a quantity");
     }
-    if (bean.getIdentifier () == null) {
-      bean.setIdentifier (UUID.randomUUID ().toString ());
-    }
-    if (bean.getId () != null) {
-      getSession ().update (bean);
-    } else {
-      bean.setId ((Long)getSession ().save (bean));
-    }
-    getSession ().flush ();
+    saveOrUpdateIdentifiableBean (getSession (), "position", bean);
   }
   
   public void addPositionToPortfolioNode (final PositionBean position, final PortfolioNodeBean portfolioNode) {
