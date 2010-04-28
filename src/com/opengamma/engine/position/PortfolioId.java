@@ -44,10 +44,10 @@ public final class PortfolioId implements Comparable<PortfolioId>, Serializable 
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the identifier.
+   * Gets the value of the identifier.
    * @return the identifier, not empty, never null
    */
-  public String getId() {
+  public String getValue() {
     return _id;
   }
 

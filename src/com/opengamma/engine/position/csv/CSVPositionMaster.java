@@ -137,7 +137,7 @@ public class CSVPositionMaster implements PositionMaster {
 
   @Override
   public Portfolio getPortfolio(PortfolioId portfolioId) {
-    if (portfolioId == null || _portfolioFiles.containsKey(portfolioId.getId())) {
+    if (portfolioId == null || _portfolioFiles.containsKey(portfolioId.getValue())) {
       return null;
     }
     return loadPortfolio(portfolioId, _portfolioFiles.get(portfolioId));
@@ -168,7 +168,7 @@ public class CSVPositionMaster implements PositionMaster {
 
   private Portfolio loadPortfolio(PortfolioId portfolioId, InputStream inStream) throws IOException {
     int currPosition = 0;
-    PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getId());
+    PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
     _nodesByIdentityKey.put(portfolio.getRootNode().getIdentityKey(), portfolio.getRootNode());
     
     BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
@@ -177,7 +177,7 @@ public class CSVPositionMaster implements PositionMaster {
       currPosition++;
       PositionBean position = parseLine(line);
       if (position != null) {
-        String identityKey = portfolioId.getId() + "-" + currPosition;
+        String identityKey = portfolioId.getValue() + "-" + currPosition;
         position.setIdentityKey(identityKey);
         portfolio.getRootNode().addPosition(position);
         _positionsByIdentityKey.put(position.getIdentityKey(), position);

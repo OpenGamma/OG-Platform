@@ -123,7 +123,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
   public String toString() {
     return new StringBuilder()
       .append("Portfolio[")
-      .append(getId().getId())
+      .append(getId().getValue())
       .append("]")
       .toString();
   }

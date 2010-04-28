@@ -16,9 +16,9 @@ public class PortfolioIdTest {
 
   @Test
   public void test_construction() {
-    PortfolioId test = PortfolioId.of("Name");
-    assertEquals("Name", test.getId());
-    assertEquals("Name", test.toString());
+    PortfolioId test = PortfolioId.of("Id");
+    assertEquals("Id", test.getValue());
+    assertEquals("Id", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
