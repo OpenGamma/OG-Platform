@@ -26,7 +26,7 @@ import com.opengamma.id.Identifier;
 public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   public static final String FIELD_NAME = "name";
-  public static final String FIELD_PORTFOLIOID = "portfolioId";
+  public static final String FIELD_IDENTIFIER = "identifier";
   public static final String FIELD_USERNAME = "userName";
   public static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
   public static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
@@ -35,7 +35,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(FIELD_NAME, null, viewDefinition.getName());
-    message.add(FIELD_PORTFOLIOID, null, viewDefinition.getPortfolioId());
+    context.objectToFudgeMsg (message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId ());
     message.add(FIELD_USERNAME, null, viewDefinition.getUserName());
     Map<String,ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
     for (ViewCalculationConfiguration calculationConfiguration: calculationConfigurations.values()) {
@@ -52,7 +52,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     final ViewDefinition viewDefinition = new ViewDefinition (
         message.getFieldValue(String.class, message.getByName (FIELD_NAME)),
-        message.getFieldValue(Identifier.class, message.getByName(FIELD_PORTFOLIOID)),
+        context.fieldValueToObject(Identifier.class, message.getByName (FIELD_IDENTIFIER)),
         message.getFieldValue(String.class, message.getByName(FIELD_USERNAME)));
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {
