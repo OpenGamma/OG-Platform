@@ -19,7 +19,7 @@ import com.opengamma.math.function.Function1D;
  * P(a, x) = \\frac{\\gamma(a, x)}{\\Gamma(a)}\\int_0^x e^{-t}t^{a-1}dt
  * \\end{equation*}}
  * where {@latex.inline $a > 0$}.
- * 
+ * <p>
  * This class is a wrapper for the Commons Math library implementation of the incomplete gamma function <a href="http://commons.apache.org/math/api-2.1/index.html">
  *
  */

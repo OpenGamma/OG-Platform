@@ -12,7 +12,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  * The natural logarithm of the Gamma function {@link GammaFunction}.
- * 
+ * <p>
  * This class is a wrapper for the Commons Math library implementation of the logGamma function <a href="http://commons.apache.org/math/api-2.1/index.html">
  * 
  */

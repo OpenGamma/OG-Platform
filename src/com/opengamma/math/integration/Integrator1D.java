@@ -10,12 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- * 
- */
-
 public abstract class Integrator1D<T, U, V> implements Integrator<T, Function1D<V, V>, V> {
   private static final Logger s_Log = LoggerFactory.getLogger(Integrator1D.class);
 

@@ -16,10 +16,10 @@ import com.opengamma.math.function.Function1D;
  * The incomplete beta function is defined as:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{equation*}
- * \\I_x(a, b)=\\frac{B_x(a, b)}{B(a, b)}\\int_0^x t^{a-1}(1-t)^{b-1}dt
+ * I_x(a, b)=\\frac{B_x(a, b)}{B(a, b)}\\int_0^x t^{a-1}(1-t)^{b-1}dt
  * \\end{equation*}}
- * where {latex.inline a, b > 0}.
- * 
+ * where {latex.inline $a, b > 0$}.
+ * <p>
  * This class uses the Commons Math library implementation of the Beta function <a href="http://commons.apache.org/math/api-2.1/index.html">
  * 
  */
