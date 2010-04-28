@@ -17,7 +17,9 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Strips all fields out of the message except the ones you want to explicitly accept.
+ * <p>
+ * If no field is accepted, the message is extinguished. 
  *
  * @author pietari
  */
@@ -55,8 +57,12 @@ public class FieldFilter implements NormalizationRule {
       }
       normalizedMsg.add(field);
     }
-    return normalizedMsg;
     
+    if (normalizedMsg.getAllFields().isEmpty()) {
+      return null; // extinguish message
+    }
+    
+    return normalizedMsg;
   }
   
 }

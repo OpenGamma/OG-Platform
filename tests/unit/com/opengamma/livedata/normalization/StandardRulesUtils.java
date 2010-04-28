@@ -8,7 +8,12 @@ package com.opengamma.livedata.normalization;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
+
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
+
+import com.google.common.collect.Sets;
 
 /**
  * 
@@ -19,9 +24,17 @@ public class StandardRulesUtils {
   
   public static void validateOpenGammaMsg(FudgeFieldContainer msg) {
     assertNotNull(msg);
-    assertTrue(msg.getAllFields().size() >= 1 && msg.getAllFields().size() <= 2);
+    
+    Set<String> acceptableFields = Sets.newHashSet(
+        MarketDataFieldNames.INDICATIVE_VALUE_FIELD,
+        MarketDataFieldNames.VOLUME
+        );
+    for (FudgeField field : msg.getAllFields()) {
+      assertTrue(acceptableFields + " does not contain " + field.getName(), acceptableFields.contains(field.getName()));
+    }
+    
     assertNotNull(msg.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
-    assertTrue(msg.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) > 0.0);    
+    assertTrue(msg.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) > 0.0);
   }
 
 }
