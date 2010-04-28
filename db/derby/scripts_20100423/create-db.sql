@@ -262,7 +262,7 @@ create table sec_futurebundleidentifier (
 
 create table pos_position (
     id bigint not null,
-    identifier varchar(255) not null,
+    identifier varchar(255),
     startDate date,
     endDate date,
     quantity decimal not null,
@@ -286,7 +286,7 @@ create table pos_identifierassociation (
 
 create table pos_portfolionode (
     id bigint not null,
-    identifier varchar(255) not null,
+    identifier varchar(255),
     startDate date,
     endDate date,
     name varchar(255),
@@ -316,7 +316,7 @@ create index pos_ix_nodeinclusion on pos_nodeinclusion (node_id);
 
 create table pos_portfolio (
     id bigint not null,
-    identifier varchar(255) not null,
+    identifier varchar(255),
     startDate date,
     endDate date,
     name varchar(255) not null,

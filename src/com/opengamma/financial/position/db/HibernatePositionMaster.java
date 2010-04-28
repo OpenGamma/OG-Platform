@@ -39,12 +39,23 @@ import com.opengamma.util.ArgumentChecker;
  * A Hibernate database backed implementation of a PositionMaster. 
  */
 public class HibernatePositionMaster implements PositionMaster, InitializingBean {
+  
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "HibernatePositionMaster";
 
   private static final Logger s_logger = LoggerFactory.getLogger(HibernatePositionMaster.class);
   
   private HibernateTemplate _hibernateTemplate;
+  private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
   
   public HibernatePositionMaster () {
+  }
+  
+  public String getIdentifierScheme () {
+    return _identifierScheme;
+  }
+  
+  public void setIdentifierScheme (final String identifierScheme) {
+    _identifierScheme = identifierScheme;
   }
   
   public void setSessionFactory (final SessionFactory sessionFactory) {
@@ -171,13 +182,13 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
 
   public Portfolio getPortfolio(final InstantProvider now, final Identifier portfolioId) {
+    if (portfolioId.isNotScheme(getIdentifierScheme ())) {
+      throw new IllegalArgumentException("Invalid portfolio id for HibernatePositionMaster: " + portfolioId);
+    }
     return (Portfolio) getHibernateTemplate().execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(final Session session) throws HibernateException, SQLException {
         final PositionMasterSession positionMasterSession = new PositionMasterSession(session);
-        if (portfolioId.isNotScheme("h8")) {
-          throw new IllegalArgumentException("Invalid portfolio id for Hibernate: " + portfolioId);
-        }
         final PortfolioBean dbPortfolio = positionMasterSession.getPortfolioBeanByIdentifier(now, portfolioId.getValue());
         if (dbPortfolio == null) {
           s_logger.debug("portfolio {} not found at {}", portfolioId, now);
@@ -206,7 +217,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
         final Collection<PortfolioBean> dbPortfolios = positionMasterSession.getAllPortfolioBeans(now);
         final Set<Identifier> portfolioIds = new HashSet<Identifier>();
         for (PortfolioBean dbPortfolio : dbPortfolios) {
-          portfolioIds.add(new Identifier("h8", dbPortfolio.getIdentifier()));
+          portfolioIds.add(new Identifier(getIdentifierScheme (), dbPortfolio.getIdentifier()));
         }
         return portfolioIds;
       }

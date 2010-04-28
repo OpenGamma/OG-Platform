@@ -7,7 +7,7 @@
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
-    <property name="identifier" type="string" not-null="true" />
+    <property name="identifier" type="string" />
     <property name="startDate" type="date" />
     <property name="endDate" type="date" />
     <property name="quantity" type="big_decimal" />

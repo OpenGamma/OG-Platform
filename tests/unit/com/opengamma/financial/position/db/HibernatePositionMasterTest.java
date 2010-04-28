@@ -62,6 +62,7 @@ public class HibernatePositionMasterTest extends HibernateTest {
     super.setUp();
     _posMaster = new HibernatePositionMaster();
     _posMaster.setSessionFactory(getSessionFactory());
+    _posMaster.setIdentifierScheme ("Test");
     s_logger.debug ("PosMaster initialization complete {}", _posMaster);
   }
   
@@ -118,6 +119,7 @@ public class HibernatePositionMasterTest extends HibernateTest {
         addDomainSpecificIdentifierToPosition (posSession, "T US 04/17/10 C22 Equity", createTestPosition (posSession, node)); // 10
         final PortfolioBean portfolio = new PortfolioBean ();
         portfolio.setName ("Test Equity Option Portfolio");
+        portfolio.setIdentifier ("test equity option");
         portfolio.setRoot (root);
         posSession.savePortfolioBean (portfolio);
         return null;
@@ -156,17 +158,12 @@ public class HibernatePositionMasterTest extends HibernateTest {
     assertEquals ("ID 10", dsids.getIdentifier (new IdentificationScheme ("Test 2")));
   }
   
-  @Test(expected=IllegalArgumentException.class)
-  public void testRootPortfolioInvalid () {
-    _posMaster.getPortfolio (PortfolioId.of ("doesn't exist"));
-  }
-  
   @Test
   public void testRootPortfolio () {
     createTestEquityOptionPortfolio ();
     Portfolio portfolio = _posMaster.getPortfolio(new Identifier("Test", "doesn't exist"));
     assertNull (portfolio);
-    portfolio = _posMaster.getPortfolio(new Identifier("Test", "Test Equity Option Portfolio"));
+    portfolio = _posMaster.getPortfolio(new Identifier("Test", "test equity option"));
     assertNotNull (portfolio);
     assertEquals ("Test Equity Option Portfolio", portfolio.getName ());
     Collection<Position> positions = portfolio.getRootNode().getPositions();
@@ -187,7 +184,7 @@ public class HibernatePositionMasterTest extends HibernateTest {
     Collection<Identifier> ids = _posMaster.getPortfolioIds();
     assertNotNull (ids);
     assertEquals (1, ids.size ());
-    assertTrue (ids.contains ("Test Equity Option Portfolio"));
+    assertTrue (ids.contains (new Identifier ("Test", "test equity option")));
   }
 
   // TODO test the PositionMaster with requests at different points in time
