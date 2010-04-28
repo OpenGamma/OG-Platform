@@ -172,6 +172,13 @@ public class View implements Lifecycle {
     return _mostRecentResult;
   }
 
+  public Portfolio getPortfolio() {
+    if (getPortfolioEvaluationModel() == null) {
+      return null;
+    }
+    return getPortfolioEvaluationModel().getPortfolio();
+  }
+
   public PortfolioNode getPositionRoot() {
     if (getPortfolioEvaluationModel() == null) {
       return null;
