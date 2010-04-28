@@ -25,7 +25,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 public class FieldFilterTest {
   
   @Test
-  public void nonEmptyFieldsToAccept() {
+  public void normalCase() {
     Set<String> fieldsToAccept = new HashSet<String>();
     fieldsToAccept.add("Foo");    
     fieldsToAccept.add("Bar");
@@ -43,7 +43,21 @@ public class FieldFilterTest {
   }
   
   @Test
-  public void emptyFieldsToAccept() {
+  public void extinguishmentWithNonEmptyFieldsToAccept() {
+    Set<String> fieldsToAccept = new HashSet<String>();
+    fieldsToAccept.add("Foo");    
+    fieldsToAccept.add("Bar");
+    FieldFilter filter = new FieldFilter(fieldsToAccept);
+    
+    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    msg.add("Foo2", "1");
+    
+    MutableFudgeFieldContainer normalized = filter.apply(msg, new FieldHistoryStore());
+    assertNull(normalized);
+  }
+  
+  @Test
+  public void extinguishmentWithEmptyFieldsToAccept() {
     Set<String> fieldsToAccept = new HashSet<String>();
     FieldFilter filter = new FieldFilter(fieldsToAccept);
     
@@ -51,7 +65,7 @@ public class FieldFilterTest {
     msg.add("Foo", "1");
     
     MutableFudgeFieldContainer normalized = filter.apply(msg, new FieldHistoryStore());
-    assertNull(normalized.getByName("Foo"));
+    assertNull(normalized);
   }
-
+  
 }
