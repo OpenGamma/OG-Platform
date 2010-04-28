@@ -19,9 +19,8 @@ import com.opengamma.livedata.server.FieldHistoryStore;
  */
 public class IndicativeValueCalculator implements NormalizationRule {
   
-  // REVIEW kirk 2010-04-15 -- Shouldn't these be static/constants? Some reason they're not? 
-  private final double _tolerance = 0.00001;
-  private final double _maxSpreadToUseMidPoint = 0.05;
+  private final static double TOLERANCE = 0.00001;
+  private final static double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.05;
 
   @Override
   public MutableFudgeFieldContainer apply(
@@ -41,7 +40,7 @@ public class IndicativeValueCalculator implements NormalizationRule {
       
       // Not a bid/ask update at all?
       if (bid == null && ask == null) {
-        return msg;
+        return lastKnownIndicativeValue(msg, fieldHistory);
       }
       
       // If only bid or ask was updated, fill in the other one from history.
@@ -53,7 +52,7 @@ public class IndicativeValueCalculator implements NormalizationRule {
       }
       
       // Too big of a spread for midpoint to be meaningful?
-      if (Math.abs(bid) > _tolerance && (Math.abs(ask - bid) / Math.abs(bid) > _maxSpreadToUseMidPoint)) {
+      if (Math.abs(bid) > TOLERANCE && (Math.abs(ask - bid) / Math.abs(bid) > MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT)) {
         // Try to resort to last, though if this fails use midpoint anyway.
         Double last = lkv.getDouble(LAST_FIELD);
         if (last != null) {
@@ -78,13 +77,29 @@ public class IndicativeValueCalculator implements NormalizationRule {
     // try using LAST.
     Double last = msg.getDouble(LAST_FIELD);
     if (last == null) {
-      return msg;
+      return lastKnownIndicativeValue(msg, fieldHistory);
     }
     
     msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, last);
     return msg;
   }
   
-  
+  /**
+   * Tries to populate IndicativeValue from the history.
+   */
+  private MutableFudgeFieldContainer lastKnownIndicativeValue(
+      MutableFudgeFieldContainer msg,
+      FieldHistoryStore fieldHistory) {
+    
+    FudgeFieldContainer lkv = fieldHistory.getLastKnownValues();
+    
+    Double lastKnownIndicativeValue = lkv.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    if (lastKnownIndicativeValue == null) {
+      return msg;      
+    }
+    
+    msg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, lastKnownIndicativeValue);
+    return msg;
+  }
 
 }

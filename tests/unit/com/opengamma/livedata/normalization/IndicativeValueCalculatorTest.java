@@ -118,5 +118,71 @@ public class IndicativeValueCalculatorTest {
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(100.0, normalized.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD), 0.0001);
   }
+  
+  @Test
+  public void useHistoricalIndicativeValue() {
+    IndicativeValueCalculator calculator = new IndicativeValueCalculator();
+    
+    MutableFudgeFieldContainer historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    historicalMsg.add(MarketDataFieldNames.BID_FIELD, 50.0);
+    historicalMsg.add(MarketDataFieldNames.ASK_FIELD, 51.0);
+    historicalMsg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, 50.52);
+    
+    FieldHistoryStore store = new FieldHistoryStore();
+    store.liveDataReceived(historicalMsg);
+    
+    MutableFudgeFieldContainer newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    newMsg.add(MarketDataFieldNames.LAST_FIELD, 50.89);
+    
+    MutableFudgeFieldContainer normalized = calculator.apply(newMsg, store);
+    assertEquals(2, normalized.getAllFields().size());
+    assertEquals(50.52, normalized.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD), 0.0001);
+  }
+  
+  @Test
+  public void useHistoricalIndicativeValueWithEmptyMsg() {
+    IndicativeValueCalculator calculator = new IndicativeValueCalculator();
+    
+    MutableFudgeFieldContainer historicalMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    historicalMsg.add(MarketDataFieldNames.INDICATIVE_VALUE_FIELD, 50.52);
+    
+    FieldHistoryStore store = new FieldHistoryStore();
+    store.liveDataReceived(historicalMsg);
+    
+    MutableFudgeFieldContainer newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    
+    MutableFudgeFieldContainer normalized = calculator.apply(newMsg, store);
+    assertEquals(1, normalized.getAllFields().size());
+    assertEquals(50.52, normalized.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD), 0.0001);
+  }
+  
+  @Test
+  public void noIndicativeValueAvailable() {
+    IndicativeValueCalculator calculator = new IndicativeValueCalculator();
+    
+    FieldHistoryStore store = new FieldHistoryStore();
+    
+    MutableFudgeFieldContainer newMsg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    
+    MutableFudgeFieldContainer normalized = calculator.apply(newMsg, store);
+    assertEquals(0, normalized.getAllFields().size());
+  }
+  
+  @Test
+  public void zeroBid() {
+    IndicativeValueCalculator calculator = new IndicativeValueCalculator();
+    
+    MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    msg.add(MarketDataFieldNames.BID_FIELD, 0.0);
+    msg.add(MarketDataFieldNames.ASK_FIELD, 1.0);
+    msg.add(MarketDataFieldNames.LAST_FIELD, 0.57);
+    
+    FieldHistoryStore store = new FieldHistoryStore();
+    store.liveDataReceived(msg);
+    
+    MutableFudgeFieldContainer normalized = calculator.apply(msg, store);
+    assertEquals(4, normalized.getAllFields().size());
+    assertEquals(0.5, normalized.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD), 0.0001);
+  }
 
 }
