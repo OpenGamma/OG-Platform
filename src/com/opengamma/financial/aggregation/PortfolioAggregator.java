@@ -36,7 +36,7 @@ public class PortfolioAggregator {
   }
   
   public Portfolio aggregate(Portfolio inputPortfolio) {
-    String aggPortfolioId = buildPortfolioName(inputPortfolio.getId().getId());
+    String aggPortfolioId = buildPortfolioName(inputPortfolio.getId().getValue());
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);

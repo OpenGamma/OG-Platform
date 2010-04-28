@@ -176,10 +176,10 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
       @Override
       public Object doInHibernate(final Session session) throws HibernateException, SQLException {
         final PositionMasterSession positionMasterSession = new PositionMasterSession(session);
-        if (portfolioId.getId().startsWith("h8/") == false) {
+        if (portfolioId.getValue().startsWith("h8/") == false) {
           throw new IllegalArgumentException("Invalid portfolio id for Hibernate: " + portfolioId);
         }
-        final PortfolioBean dbPortfolio = positionMasterSession.getPortfolioBeanByIdentifier(now, portfolioId.getId().substring(3));
+        final PortfolioBean dbPortfolio = positionMasterSession.getPortfolioBeanByIdentifier(now, portfolioId.getValue().substring(3));
         if (dbPortfolio == null) {
           s_logger.debug("portfolio {} not found at {}", portfolioId, now);
           return null;
