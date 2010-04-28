@@ -8,8 +8,6 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -191,7 +189,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return _scheme.getName() + "::" + _value;
   }
 
   //-------------------------------------------------------------------------
