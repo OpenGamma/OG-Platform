@@ -21,14 +21,14 @@ public interface PositionMaster {
    * Gets the list of all portfolio identifiers.
    * @return the portfolio identifiers, unmodifiable, never null
    */
-  Set<PortfolioId> getPortfolioIds();
+  Set<Identifier> getPortfolioIds();
 
   /**
    * Gets a specific root portfolio by name.
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */
-  Portfolio getPortfolio(PortfolioId identifier);
+  Portfolio getPortfolio(Identifier identifier);
 
   /**
    * Finds a specific node from any portfolio by identity key.

@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.position;
 
+import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 
 /**
@@ -15,13 +16,13 @@ import com.opengamma.id.Identifier;
  * <p>
  * A portfolio typically has meta-data.
  */
-public interface Portfolio {
+public interface Portfolio extends Identifiable {
 
   /**
    * Gets the identifier of the portfolio.
    * @return the identifier, never null
    */
-  PortfolioId getId();
+  Identifier getIdentityKey();
 
   /**
    * Gets the name of the portfolio intended for display purposes.

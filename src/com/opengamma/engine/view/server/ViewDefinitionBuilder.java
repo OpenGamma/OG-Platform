@@ -16,9 +16,9 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.engine.position.PortfolioId;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.id.Identifier;
 
 /**
  * Fudge message builder for {@code ViewDefinition}.
@@ -35,7 +35,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(FIELD_NAME, null, viewDefinition.getName());
-    message.add(FIELD_PORTFOLIOID, null, viewDefinition.getPortfolioId().getValue());
+    message.add(FIELD_PORTFOLIOID, null, viewDefinition.getPortfolioId());
     message.add(FIELD_USERNAME, null, viewDefinition.getUserName());
     Map<String,ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
     for (ViewCalculationConfiguration calculationConfiguration: calculationConfigurations.values()) {
@@ -52,7 +52,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     final ViewDefinition viewDefinition = new ViewDefinition (
         message.getFieldValue(String.class, message.getByName (FIELD_NAME)),
-        PortfolioId.of(message.getFieldValue(String.class, message.getByName(FIELD_PORTFOLIOID))),
+        message.getFieldValue(Identifier.class, message.getByName(FIELD_PORTFOLIOID)),
         message.getFieldValue(String.class, message.getByName(FIELD_USERNAME)));
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {

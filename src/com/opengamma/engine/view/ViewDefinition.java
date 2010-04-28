@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.opengamma.engine.position.PortfolioId;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,13 +23,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewDefinition implements Serializable {
   private final String _name;
-  private final PortfolioId _portfolioId;
+  private final Identifier _portfolioId;
   private final String _userName;
   private Long _minimumRecalculationPeriod;
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
-  public ViewDefinition(String name, PortfolioId portfolioId, String userName) {
+  public ViewDefinition(String name, Identifier portfolioId, String userName) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(portfolioId, "Portfolio id");
     ArgumentChecker.notNull(userName, "User name");
@@ -51,7 +51,7 @@ public class ViewDefinition implements Serializable {
     return _name;
   }
 
-  public PortfolioId getPortfolioId() {
+  public Identifier getPortfolioId() {
     return _portfolioId;
   }
   

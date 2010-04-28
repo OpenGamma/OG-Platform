@@ -21,7 +21,7 @@ public class InMemoryPositionMaster implements PositionMaster {
   /**
    * The portfolios.
    */
-  private final Map<PortfolioId, Portfolio> _portfolios = new ConcurrentHashMap<PortfolioId, Portfolio>();
+  private final Map<Identifier, Portfolio> _portfolios = new ConcurrentHashMap<Identifier, Portfolio>();
   /**
    * A cache of nodes by identity key.
    */
@@ -46,7 +46,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * Gets the list of all portfolio identifiers.
    * @return the portfolio identifiers, unmodifiable, never null
    */
-  public Set<PortfolioId> getPortfolioIds() {
+  public Set<Identifier> getPortfolioIds() {
     return _portfolios.keySet();
   }
 
@@ -55,7 +55,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */
-  public Portfolio getPortfolio(PortfolioId identifier) {
+  public Portfolio getPortfolio(Identifier identifier) {
     return _portfolios.get(identifier);
   }
 
@@ -84,8 +84,8 @@ public class InMemoryPositionMaster implements PositionMaster {
    */
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-    _portfolios.put(portfolio.getId(), portfolio);
-    addToCache(portfolio.getId().getValue(), portfolio.getRootNode());
+    _portfolios.put(portfolio.getIdentityKey(), portfolio);
+    addToCache(portfolio.getIdentityKey().getValue(), portfolio.getRootNode());
   }
 
   /**

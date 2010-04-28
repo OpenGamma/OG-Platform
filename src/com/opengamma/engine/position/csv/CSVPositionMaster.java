@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioId;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -54,7 +53,7 @@ public class CSVPositionMaster implements PositionMaster {
   /**
    * The map of portfolio files by identifier.
    */
-  private final Map<PortfolioId, File> _portfolioFiles = new TreeMap<PortfolioId, File>();
+  private final Map<Identifier, File> _portfolioFiles = new TreeMap<Identifier, File>();
   /**
    * The nodes by identity key.
    */
@@ -109,7 +108,7 @@ public class CSVPositionMaster implements PositionMaster {
         continue;
       }
       String portfolioName = buildPortfolioName(file.getName());
-      _portfolioFiles.put(PortfolioId.of(portfolioName), file);
+      _portfolioFiles.put(new Identifier("CSV", portfolioName), file);
     }
   }
 
@@ -131,12 +130,12 @@ public class CSVPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<PortfolioId> getPortfolioIds() {
+  public Set<Identifier> getPortfolioIds() {
     return Collections.unmodifiableSet(_portfolioFiles.keySet());
   }
 
   @Override
-  public Portfolio getPortfolio(PortfolioId portfolioId) {
+  public Portfolio getPortfolio(Identifier portfolioId) {
     if (portfolioId == null || _portfolioFiles.containsKey(portfolioId.getValue())) {
       return null;
     }
@@ -154,7 +153,7 @@ public class CSVPositionMaster implements PositionMaster {
   }
 
   //-------------------------------------------------------------------------
-  private Portfolio loadPortfolio(PortfolioId portfolioId, File file) {
+  private Portfolio loadPortfolio(Identifier portfolioId, File file) {
     FileInputStream fis = null;
     try {
       fis = new FileInputStream(file);
@@ -166,7 +165,7 @@ public class CSVPositionMaster implements PositionMaster {
     }
   }
 
-  private Portfolio loadPortfolio(PortfolioId portfolioId, InputStream inStream) throws IOException {
+  private Portfolio loadPortfolio(Identifier portfolioId, InputStream inStream) throws IOException {
     int currPosition = 0;
     PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
     _nodesByIdentityKey.put(portfolio.getRootNode().getIdentityKey(), portfolio.getRootNode());

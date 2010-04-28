@@ -9,6 +9,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.opengamma.id.Identifier;
+
 /**
  * Test PortfolioImpl.
  */
@@ -16,12 +18,12 @@ public class PortfolioImplTest {
 
   @Test
   public void test_construction_String() {
-    PortfolioImpl test = new PortfolioImpl("NameAndId");
-    assertEquals(PortfolioId.of("NameAndId"), test.getId());
-    assertEquals("NameAndId", test.getName());
+    PortfolioImpl test = new PortfolioImpl("Id");
+    assertEquals(id("Basic", "Id"), test.getIdentityKey());
+    assertEquals("Id", test.getName());
     assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
     assertEquals(0, test.getRootNode().size());
-    assertEquals("Portfolio[NameAndId]", test.toString());
+    assertEquals("Portfolio[Basic::Id]", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
@@ -37,12 +39,12 @@ public class PortfolioImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_PortfolioIdString() {
-    PortfolioImpl test = new PortfolioImpl(PortfolioId.of("Id"), "Name");
-    assertEquals(PortfolioId.of("Id"), test.getId());
+    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
+    assertEquals(id("Scheme", "Id"), test.getIdentityKey());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
     assertEquals(0, test.getRootNode().size());
-    assertEquals("Portfolio[Id]", test.toString());
+    assertEquals("Portfolio[Scheme::Id]", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
@@ -52,18 +54,18 @@ public class PortfolioImplTest {
 
   @Test(expected=NullPointerException.class)
   public void test_construction_PortfolioIdString_nullName() {
-    new PortfolioImpl(PortfolioId.of("Id"), null);
+    new PortfolioImpl(id("Scheme", "Id"), null);
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_PortfolioIdStringNode() {
     PortfolioNodeImpl root = new PortfolioNodeImpl("Foo");
-    PortfolioImpl test = new PortfolioImpl(PortfolioId.of("Id"), "Name", root);
-    assertEquals(PortfolioId.of("Id"), test.getId());
+    PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name", root);
+    assertEquals(id("Scheme", "Id"), test.getIdentityKey());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() == root);
-    assertEquals("Portfolio[Id]", test.toString());
+    assertEquals("Portfolio[Scheme::Id]", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
@@ -73,12 +75,16 @@ public class PortfolioImplTest {
 
   @Test(expected=NullPointerException.class)
   public void test_construction_PortfolioIdStringNode_nullName() {
-    new PortfolioImpl(PortfolioId.of("Id"), null, new PortfolioNodeImpl());
+    new PortfolioImpl(id("Scheme", "Id"), null, new PortfolioNodeImpl());
   }
 
   @Test(expected=NullPointerException.class)
   public void test_construction_PortfolioIdStringNode_nullRoot() {
-    new PortfolioImpl(PortfolioId.of("Id"), "Name", null);
+    new PortfolioImpl(id("Scheme", "Id"), "Name", null);
+  }
+
+  private Identifier id(String scheme, String value) {
+    return new Identifier(scheme, value);
   }
 
 }

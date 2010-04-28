@@ -18,7 +18,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
   /**
    * The id.
    */
-  private final PortfolioId _id;
+  private final Identifier _id;
   /**
    * The name.
    */
@@ -33,7 +33,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
    * @param id  the portfolio identifier, not null
    * @param name  the name to use, not null
    */
-  public PortfolioImpl(PortfolioId id, String name) {
+  public PortfolioImpl(Identifier id, String name) {
     this(id, name, new PortfolioNodeImpl());
   }
 
@@ -42,7 +42,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
    * @param id  the portfolio identifier, not null
    */
   public PortfolioImpl(String identifier) {
-    this(PortfolioId.of(identifier), identifier, new PortfolioNodeImpl());
+    this(new Identifier("Basic", identifier), identifier, new PortfolioNodeImpl());
   }
 
   /**
@@ -51,7 +51,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
    * @param name  the name to use, not null
    * @param rootNode  the root node, not null
    */
-  public PortfolioImpl(PortfolioId id, String name, PortfolioNodeImpl rootNode) {
+  public PortfolioImpl(Identifier id, String name, PortfolioNodeImpl rootNode) {
     ArgumentChecker.notNull(id, "identifier");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(rootNode, "root node");
@@ -66,7 +66,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
    * @return the identifier, never null
    */
   @Override
-  public PortfolioId getId() {
+  public Identifier getIdentityKey() {
     return _id;
   }
 
@@ -123,7 +123,7 @@ public class PortfolioImpl implements Portfolio, Serializable {
   public String toString() {
     return new StringBuilder()
       .append("Portfolio[")
-      .append(getId().getValue())
+      .append(getIdentityKey())
       .append("]")
       .toString();
   }
