@@ -16,8 +16,8 @@ public final class RealFunctionIntegrator1DFactory {
   public static final RombergIntegrator1D ROMBERG_INSTANCE = new RombergIntegrator1D();
   public static final String SIMPSON = "Simpson";
   public static final SimpsonIntegrator1D SIMPSON_INSTANCE = new SimpsonIntegrator1D();
-  public static final String EXTENDED_TRAPEZOIDAL = "ExtendedTrapezoidal";
-  public static final ExtendedTrapezoidIntegrator1D EXTENDED_TRAPEZOIDAL_INSTANCE = new ExtendedTrapezoidIntegrator1D();
+  public static final String EXTENDED_TRAPEZOID = "ExtendedTrapezoid";
+  public static final ExtendedTrapezoidIntegrator1D EXTENDED_TRAPEZOID_INSTANCE = new ExtendedTrapezoidIntegrator1D();
 
   private static final Map<String, Integrator1D<Double, Function1D<Double, Double>, Double>> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -29,8 +29,8 @@ public final class RealFunctionIntegrator1DFactory {
     instanceNames.put(ROMBERG_INSTANCE.getClass(), ROMBERG);
     staticInstances.put(SIMPSON, SIMPSON_INSTANCE);
     instanceNames.put(SIMPSON_INSTANCE.getClass(), SIMPSON);
-    staticInstances.put(EXTENDED_TRAPEZOIDAL, EXTENDED_TRAPEZOIDAL_INSTANCE);
-    instanceNames.put(EXTENDED_TRAPEZOIDAL_INSTANCE.getClass(), EXTENDED_TRAPEZOIDAL);
+    staticInstances.put(EXTENDED_TRAPEZOID, EXTENDED_TRAPEZOID_INSTANCE);
+    instanceNames.put(EXTENDED_TRAPEZOID_INSTANCE.getClass(), EXTENDED_TRAPEZOID);
     s_staticInstances = new HashMap<String, Integrator1D<Double, Function1D<Double, Double>, Double>>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
