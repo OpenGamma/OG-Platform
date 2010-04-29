@@ -5,27 +5,50 @@
  */
 package com.opengamma.engine.function;
 
+import javax.time.calendar.Clock;
+
 import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
+
 /**
- * Currently a placeholder.
+ * Holds values that will be provided to a {@link FunctionInvoker} during invocation.
  *
- * @author kirk
  */
 public class FunctionExecutionContext extends AbstractFunctionContext {
+  public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
+  public static final String VIEW_PROCESSOR_QUERY_NAME = "viewProcessorQuery";
+  public static final String SNAPSHOT_EPOCH_TIME_NAME = "snapshotEpochTime";
+  public static final String SNAPSHOT_CLOCK_NAME = "snapshotClock";
+
   public HistoricalDataProvider getHistoricalDataProvider() {
-    return (HistoricalDataProvider) get("historicalDataProvider");
+    return (HistoricalDataProvider) get(HISTORICAL_DATA_PROVIDER_NAME);
   }
   
   public void setHistoricalDataProvider(HistoricalDataProvider historicalDataProvider) {
-    put("historicalDataProvider", historicalDataProvider);
+    put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
   }
   
   public ViewProcessorQuery getViewProcessorQuery() {
-    return (ViewProcessorQuery) get("viewProcessorQuery");
+    return (ViewProcessorQuery) get(VIEW_PROCESSOR_QUERY_NAME);
   }
   
   public void setViewProcessorQuery(ViewProcessorQuery viewProcessorQuery) {
-    put("viewProcessorQuery", viewProcessorQuery);
+    put(VIEW_PROCESSOR_QUERY_NAME, viewProcessorQuery);
+  }
+  
+  public Long getSnapshotEpochTime() {
+    return (Long) get(SNAPSHOT_EPOCH_TIME_NAME);
+  }
+  
+  public void setSnapshotEpochTime(Long snapshotEpochTime) {
+    put(SNAPSHOT_EPOCH_TIME_NAME, snapshotEpochTime);
+  }
+
+  public Clock getSnapshotClock() {
+    return (Clock) get(SNAPSHOT_CLOCK_NAME);
+  }
+  
+  public void setSnapshotClock(Clock snapshotClock) {
+    put(SNAPSHOT_CLOCK_NAME, snapshotClock);
   }
 }
