@@ -377,7 +377,7 @@
 	<!-- CLOVER -->
 	<import file="${common.dir}/clover-common.xml"/>
 	
-	<target name="clover-setup" depends="guard-noclover">
+	<target name="clover-setup" depends="taskdef-clover, guard-noclover">
 		<clover-setup
 			initstring="${clover.db.dir}"
 		>
@@ -385,7 +385,7 @@
 		</clover-setup>
 	</target>
 	
-	<target name="clover-html-report" depends="guard-noclover">
+	<target name="clover-html-report" depends="taskdef-clover, guard-noclover">
 		<clover-html-report
 			initstring="${clover.db.dir}"
 			outdir="${clover.html.report.dir}"

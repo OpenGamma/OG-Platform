@@ -92,6 +92,7 @@
 		<attribute name="target" />
 		<attribute name="buildpathref" />
 		<sequential>
+			<echo message="Executing @{target} on sub-project @{buildpathref}"/>
 			<subant target="@{target}" buildpathref="@{buildpathref}">
 				<property name="og.build.invoked" value="true" />
 			</subant>
@@ -147,7 +148,7 @@
 	</target>
 	
 	<import file="${common.dir}/clover-common.xml"/>
-	<target name="clover" depends="buildlist, guard-noclover"
+	<target name="clover" depends="buildlist, taskdef-clover, guard-noclover"
 		description="run all unit tests with Clover enabled and produce one merged report">
 		<og-subant target="tests-with-clover" buildpathref="build-path"/>
 		<clover-merge initstring="${clover.db.dir}">

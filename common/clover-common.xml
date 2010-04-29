@@ -8,9 +8,9 @@
     <fail message="Target requires Clover, which isn't installed, probably because /ogdev can't be located."/>
   </target>
   
-  <available file="${clover.local.jar.file}" property="skip.download"/>
+  <!-- <available file="${clover.local.jar.file}" property="skip.download"/> -->
   
-  <target name="download-clover" unless="skip.download">
+  <target name="download-clover">
     <mkdir dir="${clover.local.dir}" />
     <copy todir="${clover.local.dir}" file="${clover.jar.file}"/>
     <copy todir="${clover.local.dir}" file="${clover.license.file}"/>
