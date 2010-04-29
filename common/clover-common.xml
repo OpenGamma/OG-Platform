@@ -1,0 +1,12 @@
+<project name="clover-common">
+  <!-- CLOVER -->
+  <taskdef resource="cloverlib.xml" classpath="${clover.jar.file}"/>
+  <target name="-check.clover">
+    <available property="clover.installed"
+    classname="com.cenqua.clover.CloverInstr" />
+  </target>
+  <target name="guard-noclover" depends="-check.clover" unless="clover.installed">
+    <fail message="Target requires Clover, which isn't installed, probably because /ogdev can't be located."/>
+  </target>
+  
+</project>

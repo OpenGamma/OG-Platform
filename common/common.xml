@@ -345,7 +345,6 @@
 	</target>
 	
 	<target name="clean-tests" description="--> clean all test generated files">
-		<delete includeemptydirs="true" failonerror="false" dir="${clover.db.dir}"/>
 		<delete includeemptydirs="true" failonerror="false" dir="${tests.junit.dir}"/>
 	</target>
 	
@@ -375,16 +374,9 @@
 	</target>
 
 	<!-- CLOVER -->
-	<taskdef resource="cloverlib.xml" classpath="${clover.jar.file}"/>
-	<target name="-check.clover">
-		<available property="clover.installed"
-		classname="com.cenqua.clover.CloverInstr" />
-	</target>
-	<target name="guard.noclover" depends="-check.clover" unless="clover.installed">
-		<fail message="Target requires Clover, which isn't installed, probably because /ogdev can't be located."/>
-	</target>
+	<import file="${common.dir}/clover-common.xml"/>
 	
-	<target name="clover.setup" depends="guard.noclover">
+	<target name="clover-setup" depends="guard-noclover">
 		<clover-setup
 			initstring="${clover.db.dir}"
 		>
@@ -392,7 +384,7 @@
 		</clover-setup>
 	</target>
 	
-	<target name="clover.html.report" depends="guard.noclover">
+	<target name="clover-html-report" depends="guard-noclover">
 		<clover-html-report
 			initstring="${clover.db.dir}"
 			outdir="${clover.html.report.dir}"
@@ -400,12 +392,8 @@
 		</clover-html-report>
 	</target>
 	
-	<target name="tests-with-clover" description="-> Build and run all tests with local Clover reports generated">
-		<antcall target="clean"/>
-		<antcall target="clover.setup"/>
-		<antcall target="compile"/>
-		<antcall target="tests"/>
-		<antcall target="clover.html.report"/>
+	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated"
+		depends="clean, clover-setup, compile, tests, clover-html-report">
 	</target>
 	
 </project>
