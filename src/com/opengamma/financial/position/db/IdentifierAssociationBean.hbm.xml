@@ -3,28 +3,28 @@
   "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.financial.position.db">
-  <class name="DomainSpecificIdentifierAssociationBean" table="pos_domainspecificidentifierassociation">
+  <class name="IdentifierAssociationBean" table="pos_identifierassociation">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <property name="startDate" type="date" />
     <property name="endDate" type="date" />
     <many-to-one name="position" column="position_id" class="PositionBean" />
-    <property name="domain" type="string" not-null="true" />
+    <property name="scheme" type="string" not-null="true" />
     <property name="identifier" type="string" not-null="true" />
   </class>
-  <query name="DomainSpecificIdentifierAssociationBean.many.byDomainIdentifier">
+  <query name="IdentifierAssociationBean.many.byIdentifier">
     from 
-      DomainSpecificIdentifierAssociationBean as a 
+      IdentifierAssociationBean as a 
     where
       (a.startDate is null or a.startDate &lt;= :now) and
       (a.endDate is null or a.endDate &gt; :now) and
-      a.domain = :domain and
+      a.scheme = :scheme and
       a.identifier = :identifier
   </query>
-  <query name="DomainSpecificIdentifierAssociationBean.many.byPosition">
+  <query name="IdentifierAssociationBean.many.byPosition">
     from
-      DomainSpecificIdentifierAssociationBean as a
+      IdentifierAssociationBean as a
     where
       (a.startDate is null or a.startDate &lt;= :now) and
       (a.endDate is null or a.endDate &gt; :now) and

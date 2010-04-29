@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.time.InstantProvider;
 import javax.time.TimeSource;
@@ -35,8 +37,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A Hibernate database backed implementation of a PositionMaster. 
- * 
- * @author Andrew Griffin
  */
 public class HibernatePositionMaster implements PositionMaster, InitializingBean {
 
@@ -68,7 +68,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
     private final BigDecimal _quantity;
     private final IdentifierBundle _securityKey;
     private PositionImpl (final String identifier, final BigDecimal quantity, final IdentifierBundle securityKey) {
-      _identityKey = new Identifier (POSITION_IDENTITY_KEY_DOMAIN, identifier);
+      _identityKey = new Identifier (POSITION_IDENTITY_KEY_SCHEME, identifier);
       _quantity = quantity;
       _securityKey = securityKey;
     }
@@ -93,9 +93,9 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   // TODO this is a slow way of constructing the Node graph - there are a number of recursive queries. One of the bulk fetches could be used and the graph built up from the information in each node
   
   private Position positionBeanToPosition (final PositionMasterSession session, final InstantProvider now, final PositionBean position) {
-    final Collection<DomainSpecificIdentifierAssociationBean> assocBeans = session.getDomainSpecificIdentifierAssociationBeanByPosition (now, position);
+    final Collection<IdentifierAssociationBean> assocBeans = session.getIdentifierAssociationBeanByPosition (now, position);
     final Collection<Identifier> dsids = new ArrayList<Identifier> (assocBeans.size ());
-    for (DomainSpecificIdentifierAssociationBean assocBean : assocBeans) {
+    for (IdentifierAssociationBean assocBean : assocBeans) {
       dsids.add (assocBean.getDomainSpecificIdentifier ());
     }
     return new PositionImpl (position.getIdentifier (), position.getQuantity (), new IdentifierBundle (dsids));
@@ -106,7 +106,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
     for (PortfolioNodeBean child : session.getPortfolioNodeBeanByImmediateAncestor (now, bean)) {
       final PortfolioNodeImpl childNode = new PortfolioNodeImpl (child.getName ());
       loadPortfolioNodeChildren (session, now, childNode, child);
-      node.addSubNode (childNode);
+      node.addChildNode (childNode);
     }
     for (final PositionBean position : session.getPositionBeanByImmediatePortfolioNode (now, bean)) {
       node.addPosition (positionBeanToPosition (session, now, position));
@@ -114,7 +114,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
   
   public PortfolioNode getPortfolioNode (final InstantProvider now, final Identifier identityKey) {
-    if (!identityKey.getScheme ().equals (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_DOMAIN)) {
+    if (!identityKey.getScheme ().equals (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME)) {
       s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getScheme ());
       return null;
     }
@@ -141,7 +141,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   }
   
   public Position getPosition (final InstantProvider now, final Identifier identityKey) {
-    if (!identityKey.getScheme ().equals (Position.POSITION_IDENTITY_KEY_DOMAIN)) {
+    if (!identityKey.getScheme ().equals (Position.POSITION_IDENTITY_KEY_SCHEME)) {
       s_logger.debug ("rejecting invalid identity key domain '{}'", identityKey.getScheme ());
       return null;
     }
@@ -163,52 +163,54 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   public Position getPosition(final Identifier identityKey) {
     return getPosition (TimeSource.system ().instant (), identityKey);
   }
-  
-  public Portfolio getRootPortfolio(final InstantProvider now, final String portfolioName) {
-    return (Portfolio)getHibernateTemplate ().execute (new HibernateCallback () {
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Portfolio getPortfolio(Identifier portfolioId) {
+    return getPortfolio(TimeSource.system().instant(), portfolioId);
+  }
+
+  public Portfolio getPortfolio(final InstantProvider now, final Identifier portfolioId) {
+    return (Portfolio) getHibernateTemplate().execute(new HibernateCallback() {
       @Override
-      public Object doInHibernate (final Session session) throws HibernateException, SQLException {
-        final PositionMasterSession positionMasterSession = new PositionMasterSession (session);
-        final Collection<PortfolioBean> beans = positionMasterSession.getPortfolioBeanByName(now, portfolioName);
-        if (beans.isEmpty ()) {
-          s_logger.debug ("portfolio {} not found at {}", portfolioName, now);
+      public Object doInHibernate(final Session session) throws HibernateException, SQLException {
+        final PositionMasterSession positionMasterSession = new PositionMasterSession(session);
+        if (portfolioId.isNotScheme("h8")) {
+          throw new IllegalArgumentException("Invalid portfolio id for Hibernate: " + portfolioId);
+        }
+        final PortfolioBean dbPortfolio = positionMasterSession.getPortfolioBeanByIdentifier(now, portfolioId.getValue());
+        if (dbPortfolio == null) {
+          s_logger.debug("portfolio {} not found at {}", portfolioId, now);
           return null;
         }
-        if (beans.size () > 1) {
-          s_logger.warn ("{} beans returned for portfolio '{}'", beans.size (), portfolioName);
-        }
-        final PortfolioBean bean = beans.iterator ().next ();
-        final PortfolioImpl portfolio = new PortfolioImpl (bean.getName ());
-        loadPortfolioNodeChildren (positionMasterSession, now, portfolio, bean.getRoot ());
+        final PortfolioNodeImpl rootNode = new PortfolioNodeImpl();
+        final PortfolioImpl portfolio = new PortfolioImpl(portfolioId, dbPortfolio.getName(), rootNode);
+        loadPortfolioNodeChildren(positionMasterSession, now, rootNode, dbPortfolio.getRoot());
         return portfolio;
       }
     });
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public Portfolio getRootPortfolio(String portfolioName) {
-    return getRootPortfolio (TimeSource.system ().instant (), portfolioName);
+  public Set<Identifier> getPortfolioIds() {
+    return getPortfolioIds(TimeSource.system().instant());
   }
-  
+
   @SuppressWarnings("unchecked")
-  public Collection<String> getRootPortfolioNames (final InstantProvider now) {
-    return (Collection<String>)getHibernateTemplate ().execute (new HibernateCallback () {
+  public Set<Identifier> getPortfolioIds(final InstantProvider now) {
+    return (Set<Identifier>) getHibernateTemplate().execute(new HibernateCallback() {
       @Override
-      public Object doInHibernate (final Session session) throws HibernateException, SQLException {
-        final PositionMasterSession positionMasterSession = new PositionMasterSession (session);
-        final Collection<PortfolioBean> portfolios = positionMasterSession.getAllPortfolioBeans (now);
-        final Collection<String> portfolioNames = new ArrayList<String> ();
-        for (PortfolioBean portfolio : portfolios) {
-          portfolioNames.add (portfolio.getName ());
+      public Object doInHibernate(final Session session) throws HibernateException, SQLException {
+        final PositionMasterSession positionMasterSession = new PositionMasterSession(session);
+        final Collection<PortfolioBean> dbPortfolios = positionMasterSession.getAllPortfolioBeans(now);
+        final Set<Identifier> portfolioIds = new HashSet<Identifier>();
+        for (PortfolioBean dbPortfolio : dbPortfolios) {
+          portfolioIds.add(new Identifier("h8", dbPortfolio.getIdentifier()));
         }
-        return portfolioNames;
+        return portfolioIds;
       }
     });
   }
-  
-  @Override
-  public Collection<String> getRootPortfolioNames() {
-    return getRootPortfolioNames (TimeSource.system ().instant ());
-  }
-  
+
 }

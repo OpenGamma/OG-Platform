@@ -21,11 +21,10 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.id.Identifier;
 
 /**
- * 
- *
- * @author jim
+ * An aggregator of portfolios.
  */
 public class PortfolioAggregator {
   @SuppressWarnings("unused")
@@ -36,17 +35,20 @@ public class PortfolioAggregator {
     _aggregationFunctions = Arrays.asList(aggregationFunctions);
   }
   
-  public PortfolioNode aggregate(Portfolio inputPortfolio) {
-    String aggregatedPortfolioName = buildPortfolioName(inputPortfolio.getPortfolioName());
+  public Portfolio aggregate(Portfolio inputPortfolio) {
+    String aggPortfolioId = buildPortfolioName(inputPortfolio.getIdentityKey().getValue());
+    String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
-    flatten((PortfolioNode) inputPortfolio, flattenedPortfolio);
-    PortfolioNode root = aggregate(new PortfolioImpl(aggregatedPortfolioName), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
-    return root;
+    flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
+    Identifier aggId = new Identifier(inputPortfolio.getIdentityKey().getScheme(), aggPortfolioId);
+    PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName);
+    aggregate(aggPortfolio.getRootNode(), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
+    return aggPortfolio;
   }
   
   protected void flatten(PortfolioNode portfolioNode, List<Position> flattenedPortfolio) {
     flattenedPortfolio.addAll(portfolioNode.getPositions());    
-    for (PortfolioNode subNode : portfolioNode.getSubNodes()) {
+    for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
       flatten(subNode, flattenedPortfolio);
     }
   }
@@ -56,7 +58,7 @@ public class PortfolioAggregator {
    * @param flattenedPortfolio
    * @return
    */
-  protected PortfolioNode aggregate(PortfolioNodeImpl inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
+  protected void aggregate(PortfolioNodeImpl inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
     Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
     // drop into buckets - could drop straight into tree but this is easier because we can use faster lookups as we're going.
@@ -73,7 +75,7 @@ public class PortfolioAggregator {
     }
     for (String bucketName : buckets.keySet()) {
       PortfolioNodeImpl newNode = new PortfolioNodeImpl(bucketName);
-      inputNode.addSubNode(newNode);
+      inputNode.addChildNode(newNode);
       if (functionList.isEmpty()) {
         for (Position position : buckets.get(bucketName)) {
           newNode.addPosition(position);
@@ -82,7 +84,6 @@ public class PortfolioAggregator {
         aggregate(newNode, buckets.get(bucketName), new ArrayDeque<AggregationFunction<?>>(functionList)); // make a copy for each bucket.
       }
     }
-    return inputNode;
   }
 
   protected String buildPortfolioName(String existingName) {
