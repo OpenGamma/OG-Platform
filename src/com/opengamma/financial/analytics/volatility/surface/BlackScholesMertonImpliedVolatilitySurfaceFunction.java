@@ -16,6 +16,8 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -50,7 +52,7 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction implements FunctionInvoker {
-
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceFunction.class);
   private final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> _volatilitySurfaceModel;
 
   public BlackScholesMertonImpliedVolatilitySurfaceFunction() {
@@ -114,6 +116,12 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final FudgeFieldContainer underlyingMarketData = (FudgeFieldContainer) inputs.getValue(underlyingMarketDataReq);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveReq);
     // TODO cost-of-carry model
+    if(optionMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
+      s_logger.warn("No indicative value for option price, have {}", optionMarketData);
+    }
+    if(underlyingMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
+      s_logger.warn("No indicative value for underlying price, have {}", underlyingMarketData);
+    }
     final double optionPrice = optionMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final double spotPrice = underlyingMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
 

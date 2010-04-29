@@ -9,10 +9,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -39,6 +40,7 @@ import com.opengamma.util.time.Expiry;
  * @author emcleod
  */
 public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonModelFunction.class);
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _model = new BlackScholesMertonModel();
 
   @Override
@@ -55,7 +57,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()));
+      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
       // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
@@ -80,10 +82,15 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   }
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final OptionSecurity option, final FunctionInputs inputs) {
-    final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()))))
-        .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+  protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+    final ZonedDateTime now = relevantTime.zonedDateTime();
+    FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()));
+    Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    if(spotAsObject == null) {
+      s_logger.warn("Didn't have indicative value for {}, did have {}", option.getUnderlyingIdentityKey().getIdentityKey(), underlyingLiveData);
+      throw new NullPointerException("No spot value for underlying instrument.");
+    }
+    final double spot = spotAsObject;
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
     // TODO cost of carry model
