@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.fudgemsg.FudgeFieldContainer;
@@ -58,7 +57,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()));
+      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
       // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
@@ -83,8 +82,8 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   }
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final OptionSecurity option, final FunctionInputs inputs) {
-    final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
+  protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+    final ZonedDateTime now = relevantTime.zonedDateTime();
     FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()));
     Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     if(spotAsObject == null) {

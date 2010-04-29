@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.time.calendar.Clock;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -91,7 +93,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final StandardOptionDataBundle data = getDataBundle(option, inputs);
+    final StandardOptionDataBundle data = getDataBundle(executionContext.getSnapshotClock(), option, inputs);
     final OptionDefinition definition = getOptionDefinition(option);
     final Set<Greek> requiredGreeks = new HashSet<Greek>();
     for (final ValueRequirement dV : desiredValues) {
@@ -133,7 +135,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   }
 
   protected ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, id);
+    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
   }
 
   protected ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {
@@ -153,5 +155,5 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
 
   protected abstract OptionDefinition getOptionDefinition(OptionSecurity option);
 
-  protected abstract StandardOptionDataBundle getDataBundle(OptionSecurity option, FunctionInputs inputs);
+  protected abstract StandardOptionDataBundle getDataBundle(Clock relevantTime, OptionSecurity option, FunctionInputs inputs);
 }
