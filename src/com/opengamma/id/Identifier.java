@@ -8,8 +8,6 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -35,8 +33,6 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>Bloomberg Ticker</li>
  *   <li>Trading system OTC trade ID</li>
  * </ul>
- *
- * @author kirk
  */
 public final class Identifier implements Identifiable, Comparable<Identifier>, Cloneable, Serializable {
 
@@ -61,11 +57,11 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   /**
    * Constructs an identifier from the scheme and standalone identifier.
    * @param scheme  the scheme, not null
-   * @param standaloneId  the standalone identifier, not null
+   * @param standaloneId  the standalone identifier, not empty, not null
    */
   public Identifier(IdentificationScheme scheme, String standaloneId) {
     ArgumentChecker.notNull(scheme, "scheme");
-    ArgumentChecker.notNull(standaloneId, "standaloneId");
+    ArgumentChecker.notEmpty(standaloneId, "standaloneId");
     _scheme = scheme;
     _value = standaloneId;
   }
@@ -104,6 +100,42 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
    */
   public IdentificationScheme getScheme() {
     return _scheme;
+  }
+
+  /**
+   * Checks of the identification scheme equals the specified scheme.
+   * @param scheme  the scheme to check for, null returns false
+   * @return true if the schemes match
+   */
+  public boolean isScheme(IdentificationScheme scheme) {
+    return _scheme.equals(scheme);
+  }
+
+  /**
+   * Checks of the identification scheme equals the specified scheme.
+   * @param scheme  the scheme to check for, null returns true
+   * @return true if the schemes are different
+   */
+  public boolean isNotScheme(IdentificationScheme scheme) {
+    return _scheme.equals(scheme) == false;
+  }
+
+  /**
+   * Checks of the identification scheme equals the specified scheme.
+   * @param scheme  the scheme to check for, null returns false
+   * @return true if the schemes match
+   */
+  public boolean isScheme(String scheme) {
+    return _scheme.getName().equals(scheme);
+  }
+
+  /**
+   * Checks of the identification scheme equals the specified scheme.
+   * @param scheme  the scheme to check for, null returns true
+   * @return true if the schemes are different
+   */
+  public boolean isNotScheme(String scheme) {
+    return _scheme.getName().equals(scheme) == false;
   }
 
   /**
@@ -157,7 +189,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return _scheme.getName() + "::" + _value;
   }
 
   //-------------------------------------------------------------------------

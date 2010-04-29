@@ -29,8 +29,6 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>A trading system instance name for trades and positions.</li>
  *   <li>RIC for a Reuters-provided market data object.</li>
  * </ul>
- *
- * @author kirk
  */
 public class IdentificationScheme implements Serializable, Cloneable, Comparable<IdentificationScheme> {
 
@@ -66,10 +64,10 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
 
   /**
    * Constructs a scheme using the specified name.
-   * @param name  the scheme name, not null
+   * @param name  the scheme name, not empty, not null
    */
   public IdentificationScheme(String name) {
-    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notEmpty(name, "name");
     _name = name;
   }
 

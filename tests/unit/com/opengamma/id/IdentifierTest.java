@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -12,12 +12,11 @@ import org.junit.Test;
 
 /**
  * Test Identifier. 
- *
- * @author kirk
  */
 public class IdentifierTest {
 
   private static final IdentificationScheme SCHEME = new IdentificationScheme("Scheme");
+  private static final IdentificationScheme OTHER_SCHEME = new IdentificationScheme("Other");
 
   public void test_constructor_IdentificationScheme_String() {
     Identifier test = new Identifier(SCHEME, "foo");
@@ -35,6 +34,11 @@ public class IdentifierTest {
     new Identifier(SCHEME, (String) null);
   }
 
+  @Test(expected=IllegalArgumentException.class)
+  public void test_constructor_IdentificationScheme_String_emptyId() {
+    new Identifier(SCHEME, "");
+  }
+
   public void test_constructor_String_String() {
     Identifier test = new Identifier("Scheme", "foo");
     assertEquals("Scheme", test.getScheme().getName());
@@ -50,6 +54,39 @@ public class IdentifierTest {
   public void test_constructor_String_String_nullId() {
     new Identifier(SCHEME, (String) null);
     assertEquals(new IdentificationScheme("Bloomberg"), (new Identifier("Bloomberg", "foo")).getScheme());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_isScheme_IdentificationScheme() {
+    Identifier test = new Identifier(SCHEME, "value");
+    assertEquals(test.isScheme(SCHEME), true);
+    assertEquals(test.isScheme(OTHER_SCHEME), false);
+    assertEquals(test.isScheme((IdentificationScheme) null), false);
+  }
+
+  @Test
+  public void test_isNotScheme_IdentificationScheme() {
+    Identifier test = new Identifier(SCHEME, "value");
+    assertEquals(test.isNotScheme(SCHEME), false);
+    assertEquals(test.isNotScheme(OTHER_SCHEME), true);
+    assertEquals(test.isNotScheme((IdentificationScheme) null), true);
+  }
+
+  @Test
+  public void test_isScheme_String() {
+    Identifier test = new Identifier(SCHEME, "value");
+    assertEquals(test.isScheme("Scheme"), true);
+    assertEquals(test.isScheme("Other"), false);
+    assertEquals(test.isScheme((String) null), false);
+  }
+
+  @Test
+  public void test_isNotScheme_String() {
+    Identifier test = new Identifier(SCHEME, "value");
+    assertEquals(test.isNotScheme("Scheme"), false);
+    assertEquals(test.isNotScheme("Other"), true);
+    assertEquals(test.isNotScheme((String) null), true);
   }
 
   //-------------------------------------------------------------------------

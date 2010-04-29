@@ -7,14 +7,12 @@ package com.opengamma.id;
 
 /**
  * Provides uniform access to objects that can supply a standard identifier.
- *
- * @author pietari
  */
 public interface Identifiable {
 
   /**
    * Gets the identifier for the instance.
-   * @return the identifier, not null
+   * @return the identifier, may be null
    */
   Identifier getIdentityKey();
 
