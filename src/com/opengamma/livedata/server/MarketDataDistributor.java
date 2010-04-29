@@ -39,7 +39,14 @@ public class MarketDataDistributor {
   /**
    * The last (normalized) message that was sent to clients.
    */
-  private FudgeFieldContainer _lastKnownValue = null;
+  private volatile FudgeFieldContainer _lastKnownValue = null;
+  
+  /** 
+   * A history store to be used by the FieldHistoryUpdater normalization rule.
+   * What fields exactly are stored in this history is dependent on 
+   * that rule.
+   */
+  private final FieldHistoryStore _history = new FieldHistoryStore();
   
   
   /**
@@ -66,11 +73,11 @@ public class MarketDataDistributor {
     return _distributionSpec;
   }
 
-  public synchronized FudgeFieldContainer getLastKnownValue() {
+  public FudgeFieldContainer getLastKnownValue() {
     return _lastKnownValue;
   }
 
-  private synchronized void setLastKnownValue(FudgeFieldContainer lastKnownValue) {
+  private void setLastKnownValue(FudgeFieldContainer lastKnownValue) {
     _lastKnownValue = lastKnownValue;
   }
   
@@ -91,20 +98,32 @@ public class MarketDataDistributor {
    * @return The normalized message. Null if in the process of normalization,
    * the message became empty and therefore should not be sent.
    */
-  public FudgeFieldContainer getNormalizedMessage(FudgeFieldContainer msg) {
-    return _distributionSpec.getNormalizedMessage(msg, getSubscription().getLiveDataHistory());
+  private FudgeFieldContainer normalize(FudgeFieldContainer msg) {
+    FudgeFieldContainer normalizedMsg = _distributionSpec.getNormalizedMessage(msg, _history);
+    if (normalizedMsg != null) {
+      setLastKnownValue(normalizedMsg);
+    }
+    return normalizedMsg;
+  }
+  
+  /**
+   * Updates field history without sending any market data to field receivers. 
+   * 
+   * @param liveDataFields Unnormalized market data from underlying market data API.
+   */
+  public void updateFieldHistory(FudgeFieldContainer msg) {
+    normalize(msg);    
   }
   
   /**
    * Sends normalized market data to field receivers. 
    * 
    * @param liveDataFields Unnormalized market data from underlying market data API.
-   * @see #setFieldReceivers
    */
-  public void liveDataReceived(FudgeFieldContainer liveDataFields) {
+  public void distributeLiveData(FudgeFieldContainer liveDataFields) {
     FudgeFieldContainer normalizedMsg;
     try {
-      normalizedMsg = getNormalizedMessage(liveDataFields);
+      normalizedMsg = normalize(liveDataFields);
     } catch (RuntimeException e) {
       s_logger.error("Normalizing " + liveDataFields + " to " + this + " failed.", e);
       return;
@@ -113,16 +132,20 @@ public class MarketDataDistributor {
     if (normalizedMsg != null) {
       setLastKnownValue(normalizedMsg);
       
-      for (MarketDataSender sender : _marketDataSenders) {
-        try {
-          sender.sendMarketData(_distributionSpec, normalizedMsg);
-        } catch (RuntimeException e) {
-          s_logger.error("MarketDataSender " + sender + " failed", e);
+      if (getSubscription().isActive()) {
+        for (MarketDataSender sender : _marketDataSenders) {
+          try {
+            sender.sendMarketData(_distributionSpec, normalizedMsg);
+          } catch (RuntimeException e) {
+            s_logger.error("MarketDataSender " + sender + " failed", e);
+          }
         }
       }
     } else {
       s_logger.debug("Not sending Live Data update (empty message).");
     }
   }
+  
+
   
 }

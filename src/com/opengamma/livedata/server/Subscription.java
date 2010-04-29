@@ -39,11 +39,14 @@ public class Subscription {
    */
   private final Map<DistributionSpecification, MarketDataDistributor> _distributors = new ConcurrentHashMap<DistributionSpecification, MarketDataDistributor>();
   
-  /** Handle to underlying (e.g., Bloomberg/Reuters) subscription */
+  /** 
+   * Handle to underlying (e.g., Bloomberg/Reuters) subscription.
+   * May be null if the subscription is not currently active.
+   */
   private volatile Object _handle;
   
   /** 
-   * History of ticks received from the underlying market data source
+   * History of ticks received from the underlying market data API, in its native format.
    */
   private final FieldHistoryStore _history = new FieldHistoryStore();
   
@@ -74,13 +77,10 @@ public class Subscription {
    */
   Subscription(
       String securityUniqueId,
-      Object handle,
       boolean persistent) {
     ArgumentChecker.notNull(securityUniqueId, "Security unique ID");
-    ArgumentChecker.notNull(handle, "Subscription handle");
     
     _securityUniqueId = securityUniqueId;
-    _handle = handle;
     setPersistent(persistent);
     
     _creationTime = new Date();
@@ -91,6 +91,9 @@ public class Subscription {
     _handle = handle;
   }
 
+  /**
+   * @return May return null if the subscription is not currently active. 
+   */
   public Object getHandle() {
     return _handle;
   }
@@ -151,17 +154,29 @@ public class Subscription {
   FieldHistoryStore getLiveDataHistory() {
     return _history;
   }
+  
+  public void initialSnapshotReceived(FudgeFieldContainer liveDataFields) {
+    _history.liveDataReceived(liveDataFields);
+    
+    for (MarketDataDistributor distributor : getDistributors()) {
+      distributor.updateFieldHistory(liveDataFields);
+    }
+  }
 
   public void liveDataReceived(FudgeFieldContainer liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
-    for (MarketDataDistributor distributionSpec : getDistributors()) {
-      distributionSpec.liveDataReceived(liveDataFields);
+    for (MarketDataDistributor distributor : getDistributors()) {
+      distributor.distributeLiveData(liveDataFields);
     }
   }
   
   public synchronized boolean isPersistent() {
     return _persistent;
+  }
+  
+  public boolean isActive() {
+    return getHandle() != null;
   }
   
   /**

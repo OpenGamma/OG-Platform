@@ -70,6 +70,12 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   protected void doDisconnect() {
     _numDisconnections++;
   }
+  
+  @Override
+  protected boolean snapshotOnSubscriptionStartRequired(
+      Subscription subscription) {
+    return false;
+  }
 
   public int getNumConnections() {
     return _numConnections;

@@ -172,7 +172,14 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    */
   protected abstract void doDisconnect();
   
-  
+  /**
+   * In some cases, the underlying market data API may not, when a subscription is created,
+   * return a full image of all fields. If so, we need to get the full image explicitly.
+   * 
+   * @param subscription The subscription currently being created 
+   * @return true if a snapshot should be made when a new subscription is created, false otherwise. 
+   */
+  protected abstract boolean snapshotOnSubscriptionStartRequired(Subscription subscription);
   
   
   
@@ -278,6 +285,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         if (!subscription.isPersistent() && persistent) {
           changePersistent(subscription, true);
         }
+        
+        subscription.createDistribution(distributionSpec, getMarketDataSenders());
 
       } else {
 
@@ -288,32 +297,33 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
               + getUniqueIdDomain());
         }
         
-        // REVIEW kirk 2010-04-16 -- There's a potential race condition here:
-        // - Get snapshot time t1
-        // - Start subscription
-        // - First tick comes in at t2
-        // - Pump the snapshot through the system
-        // In this case, we have the tick at t2 hitting the chain before the snapshot.
-        // However, while this is a theoretical race condition, I'm not sure whether in practice
-        // it justifies extended fixes at this time.
+        // Setup the subscription.
+        subscription = new Subscription(securityUniqueId, persistent);
+        subscription.createDistribution(distributionSpec, getMarketDataSenders());
         
-        // First, grab a snapshot of the data, BEFORE the background subscription is started.
-        FudgeFieldContainer snapshot = doSnapshot(securityUniqueId);
+        // In some cases, the underlying market data API may not, when the subscription is started,
+        // return a full image of all fields. If so, we need to get the full image explicitly.
+        if (snapshotOnSubscriptionStartRequired(subscription)) {
+          FudgeFieldContainer snapshot = doSnapshot(securityUniqueId);
+          subscription.initialSnapshotReceived(snapshot);
+        }
+        
+        // this is necessary so we don't lose any updates immediately after doSubscribe(). See AbstractLiveDataServer#liveDataReceived()
+        // and how it calls AbstractLiveDataServer#getSubscription()
+        _securityUniqueId2Subscription.put(securityUniqueId,
+            subscription); 
 
         // Setup the subscription in the underlying data provider.
-        Object subscriptionHandle = doSubscribe(securityUniqueId);
-
-        // Setup the subscription.
-        subscription = new Subscription(securityUniqueId, subscriptionHandle, 
-            persistent);
+        try {
+          Object subscriptionHandle = doSubscribe(securityUniqueId);
+          subscription.setHandle(subscriptionHandle);
+        } catch (RuntimeException e) {
+          _securityUniqueId2Subscription.remove(securityUniqueId);
+          throw e;
+        }
 
         _currentlyActiveSubscriptions.add(subscription);
-        _securityUniqueId2Subscription.put(securityUniqueId,
-            subscription);
         
-        // Pump the snapshot before telling listeners.
-        liveDataReceived(securityUniqueId, snapshot);
-
         for (SubscriptionListener listener : _subscriptionListeners) {
           try {
             listener.subscribed(subscription);
@@ -328,8 +338,6 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       _fullyQualifiedSpec2Subscription.put(fullyQualifiedSpec,
           subscription);
       
-      subscription.createDistribution(distributionSpec, getMarketDataSenders());
-    
     } finally {
       _subscriptionLock.unlock();
     }
@@ -501,8 +509,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
         s_logger.info("Unsubscribing from {}", subscription);
 
-        doUnsubscribe(subscription.getHandle());
         actuallyUnsubscribed = true;
+        
+        Object subscriptionHandle = subscription.getHandle();
+        if (subscriptionHandle != null) {
+          doUnsubscribe(subscriptionHandle);
+        }
 
         _currentlyActiveSubscriptions.remove(subscription);
         _securityUniqueId2Subscription.remove(subscription
