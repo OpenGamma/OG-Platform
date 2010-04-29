@@ -60,7 +60,7 @@ public class NewtonCotesIntegrator1D extends Integrator1D<Double, Function1D<Dou
   }
 
   public NewtonCotesIntegrator1D(final RuleType ruleType) {
-    this(ruleType, 20);
+    this(ruleType, 64);
   }
 
   public NewtonCotesIntegrator1D(final RuleType ruleType, final int n) {

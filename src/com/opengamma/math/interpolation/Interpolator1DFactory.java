@@ -8,9 +8,6 @@ package com.opengamma.math.interpolation;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author kirk
- */
 public final class Interpolator1DFactory {
   public static final String LINEAR = "Linear";
   public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
