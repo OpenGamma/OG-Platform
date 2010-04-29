@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 // NOTE kirk 2010-03-07 -- This class is intentionally NOT Serializable, as we expect
 // that this will contain lots of interface implementations for things like data providers
 // which are not Serializable. It's thus a runtime configuration object rather than a
+// static configuration object.
 
 /**
  * The base class for any multi-valued map-like context which may be provided
