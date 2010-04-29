@@ -391,6 +391,13 @@
 			outdir="${clover.html.report.dir}"
 		>
 		</clover-html-report>
+		<clover-report
+			initstring="${clover.db.dir}"
+			>
+			<current outfile="${clover.xml.report.file}">
+				<format type="xml"/>
+			</current>
+		</clover-report>
 	</target>
 	
 	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated"
