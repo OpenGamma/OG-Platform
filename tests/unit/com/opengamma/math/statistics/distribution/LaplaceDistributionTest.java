@@ -55,8 +55,6 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
 
   @Test
   public void test() {
-    if (retry(2))
-      return;
     testCDFWithNull(LAPLACE);
     testPDFWithNull(LAPLACE);
     testInverseCDFWithNull(LAPLACE);

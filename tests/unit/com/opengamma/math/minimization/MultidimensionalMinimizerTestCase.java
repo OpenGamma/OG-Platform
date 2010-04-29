@@ -9,13 +9,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.opengamma.math.function.FunctionND;
-import com.opengamma.util.test.ProbabilisticTestCase;
 
 /**
  * 
  * @author emcleod
  */
-public class MultidimensionalMinimizerTestCase extends ProbabilisticTestCase {
+public class MultidimensionalMinimizerTestCase {
   private static final int DIMENSION = 2;
   private static final double EPS = 1e-6;
   private static final FunctionND<Double, Double> F_1D = new FunctionND<Double, Double>(1) {
