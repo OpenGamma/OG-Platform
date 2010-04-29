@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 
-public class RombergIntegrator1DTest extends Integrator1DTestCase {
-  private static final Integrator1D<Double, Function1D<Double, Double>, Double> INTEGRATOR = new RombergIntegrator1D();
+public class SimpsonIntegrator1DTest extends Integrator1DTestCase {
+  private static final Integrator1D<Double, Function1D<Double, Double>, Double> INTEGRATOR = new SimpsonIntegrator1D();
 
   @Override
   public Integrator1D<Double, Function1D<Double, Double>, Double> getIntegrator() {
@@ -40,4 +40,5 @@ public class RombergIntegrator1DTest extends Integrator1DTestCase {
   public void test() {
     super.test();
   }
+
 }
