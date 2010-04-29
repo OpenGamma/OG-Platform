@@ -5,10 +5,6 @@
  */
 package com.opengamma.math.matrix;
 
-/**
- * @author emcleod
- * 
- */
 public class DoubleMatrix1D implements Matrix<Double[]> {
   private final Double[] _data;
   private final double[] _primitives;
@@ -17,22 +13,24 @@ public class DoubleMatrix1D implements Matrix<Double[]> {
   public DoubleMatrix1D(final Double[] data) {
     if (data == null)
       throw new IllegalArgumentException("Cannot initialize matrix with null data");
-    _data = data;
     _elements = data.length;
     _primitives = new double[_elements];
+    _data = new Double[_elements];
     for (int i = 0; i < _elements; i++) {
       _primitives[i] = data[i];
+      _data[i] = data[i];
     }
   }
 
   public DoubleMatrix1D(final double[] primitives) {
     if (primitives == null)
       throw new IllegalArgumentException("Cannot initialize matrix with null data");
-    _primitives = primitives;
     _elements = primitives.length;
     _data = new Double[_elements];
+    _primitives = new double[_elements];
     for (int i = 0; i < _elements; i++) {
       _data[i] = primitives[i];
+      _primitives[i] = primitives[i];
     }
   }
 

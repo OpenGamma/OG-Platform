@@ -5,10 +5,6 @@
  */
 package com.opengamma.math.matrix;
 
-/**
- * @author emcleod
- * 
- */
 public class DoubleMatrix2D implements Matrix<Double[][]> {
   private final Double[][] _data;
   private final double[][] _primitives;
@@ -19,9 +15,9 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
   public DoubleMatrix2D(final double[][] primitives) {
     if (primitives == null)
       throw new IllegalArgumentException("Cannot initialize matrix with null data");
-    _primitives = primitives;
     if (primitives.length == 0) {
       _data = new Double[0][0];
+      _primitives = new double[0][0];
       _elements = 0;
       _rows = 0;
       _columns = 0;
@@ -29,11 +25,13 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
       _rows = primitives.length;
       _columns = primitives[0].length;
       _data = new Double[_rows][_columns];
+      _primitives = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
         if (primitives[i].length != _columns)
           throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = primitives[i][j];
+          _primitives[i][j] = primitives[i][j];
         }
       }
       _elements = _rows * _columns;
@@ -43,9 +41,9 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
   public DoubleMatrix2D(final Double[][] data) {
     if (data == null)
       throw new IllegalArgumentException("Cannot initialize matrix with null data");
-    _data = data;
     if (data.length == 0) {
       _primitives = new double[0][0];
+      _data = new Double[0][0];
       _elements = 0;
       _rows = 0;
       _columns = 0;
@@ -53,11 +51,13 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
       _rows = data.length;
       _columns = data[0].length;
       _primitives = new double[_rows][_columns];
+      _data = new Double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
         if (data[i].length != _columns)
           throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
         for (int j = 0; j < _columns; j++) {
           _primitives[i][j] = data[i][j];
+          _data[i][j] = data[i][j];
         }
       }
       _elements = _rows * _columns;
