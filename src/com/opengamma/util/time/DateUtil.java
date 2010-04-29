@@ -8,6 +8,7 @@ package com.opengamma.util.time;
 import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
+import javax.time.TimeSource;
 import javax.time.calendar.Calendrical;
 import javax.time.calendar.Clock;
 import javax.time.calendar.DayOfWeek;
@@ -360,6 +361,24 @@ public class DateUtil {
   public static LocalDate toLocalDate(String date) {
     ArgumentChecker.notNull(date, "date");
     return YYYYMMDD_LOCAL_DATE.parse(date, LocalDate.rule());
+  }
+  
+  // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing
+  // in JSR-310.
+  public static Clock epochFixedClockDefaultZone(long epochMilliseconds) {
+    Instant instant = Instant.millis(epochMilliseconds);
+    TimeSource timeSource = TimeSource.fixed(instant);
+    Clock clock = Clock.clockDefaultZone(timeSource);
+    return clock;
+  }
+
+  // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing
+  // in JSR-310.
+  public static Clock epochFixedClockUTC(long epochMilliseconds) {
+    Instant instant = Instant.millis(epochMilliseconds);
+    TimeSource timeSource = TimeSource.fixed(instant);
+    Clock clock = Clock.clock(timeSource, TimeZone.UTC);
+    return clock;
   }
 
 
