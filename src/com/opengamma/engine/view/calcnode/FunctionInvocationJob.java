@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.ViewComputationCache;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtil;
 
 /**
  * The job that will actually invoke a {@link FunctionDefinition} as part
@@ -33,6 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FunctionInvocationJob implements Runnable {
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationJob.class);
+  private final CalculationJobSpecification _jobSpecification;
   private final String _functionUniqueIdentifier;
   private final Collection<ValueSpecification> _resolvedInputs;
   private final ViewComputationCache _computationCache;
@@ -44,6 +46,7 @@ public class FunctionInvocationJob implements Runnable {
   
   
   public FunctionInvocationJob(
+      CalculationJobSpecification jobSpec,
       String functionUniqueIdentifier,
       Collection<ValueSpecification> resolvedInputs,
       ViewComputationCache computationCache,
@@ -52,6 +55,7 @@ public class FunctionInvocationJob implements Runnable {
       ViewProcessorQuery viewProcessorQuery,
       ComputationTarget computationTarget,
       Set<ValueRequirement> desiredValues) {
+    ArgumentChecker.notNull(jobSpec, "Job specification");
     ArgumentChecker.notNull(functionUniqueIdentifier, "Function identifier");
     ArgumentChecker.notNull(resolvedInputs, "Resolved inputs");
     ArgumentChecker.notNull(computationCache, "Computation Cache");
@@ -60,6 +64,7 @@ public class FunctionInvocationJob implements Runnable {
     ArgumentChecker.notNull(viewProcessorQuery, "ViewProcessorQuery");
     ArgumentChecker.notNull(computationTarget, "Computation target");
     ArgumentChecker.notNull(desiredValues, "Desired value requirements");
+    _jobSpecification = jobSpec;
     _functionUniqueIdentifier = functionUniqueIdentifier;
     _resolvedInputs = resolvedInputs;
     _computationCache = computationCache;
@@ -70,6 +75,13 @@ public class FunctionInvocationJob implements Runnable {
     _desiredValues = desiredValues;
   }
   
+  /**
+   * @return the jobSpecification
+   */
+  public CalculationJobSpecification getJobSpecification() {
+    return _jobSpecification;
+  }
+
   /**
    * @return the functionUniqueReference
    */
@@ -136,6 +148,8 @@ public class FunctionInvocationJob implements Runnable {
     
     FunctionInputs functionInputs = assembleInputs();
     getFunctionExecutionContext().setViewProcessorQuery(getViewProcessorQuery());
+    getFunctionExecutionContext().setSnapshotEpochTime(getJobSpecification().getIterationTimestamp());
+    getFunctionExecutionContext().setSnapshotClock(DateUtil.epochFixedClockUTC(getJobSpecification().getIterationTimestamp()));
     Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, getTarget(), getDesiredValues());
     cacheResults(results);
   }
