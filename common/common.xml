@@ -400,4 +400,12 @@
 		</clover-html-report>
 	</target>
 	
+	<target name="tests-with-clover" description="-> Build and run all tests with local Clover reports generated">
+		<antcall target="clean"/>
+		<antcall target="clover.setup"/>
+		<antcall target="compile"/>
+		<antcall target="tests"/>
+		<antcall target="clover.html.report"/>
+	</target>
+	
 </project>
