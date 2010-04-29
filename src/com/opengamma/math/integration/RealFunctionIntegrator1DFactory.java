@@ -17,7 +17,7 @@ public final class RealFunctionIntegrator1DFactory {
   public static final String SIMPSON = "Simpson";
   public static final SimpsonIntegrator1D SIMPSON_INSTANCE = new SimpsonIntegrator1D();
   public static final String EXTENDED_TRAPEZOIDAL = "ExtendedTrapezoidal";
-  public static final ExtendedTrapezoidalIntegrator1D EXTENDED_TRAPEZOIDAL_INSTANCE = new ExtendedTrapezoidalIntegrator1D();
+  public static final ExtendedTrapezoidIntegrator1D EXTENDED_TRAPEZOIDAL_INSTANCE = new ExtendedTrapezoidIntegrator1D();
 
   private static final Map<String, Integrator1D<Double, Function1D<Double, Double>, Double>> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
