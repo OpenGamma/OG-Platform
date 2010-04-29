@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -9,8 +9,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
@@ -19,123 +18,185 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
- * A simple JavaBean-based implementation of {@link Position}.
- *
- * @author kirk
+ * A simple mutable implementation of {@code Position}.
  */
 public class PositionBean implements Position, Serializable {
-  private final BigDecimal _quantity;
-  private final IdentifierBundle _securityKey;
-  private Security _security;
+
+  /**
+   * The identity key of the whole position.
+   */
   private Identifier _identityKey;
-  
-  public PositionBean(BigDecimal quantity, Identifier identifier) {
+  /**
+   * The amount of the position.
+   */
+  private final BigDecimal _quantity;
+  /**
+   * The identity key specifying the security.
+   */
+  private final IdentifierBundle _securityKey;
+  /**
+   * The security.
+   */
+  private Security _security;
+
+  /**
+   * Creates a position from an amount of a security identified by key.
+   * @param quantity  the amount of the position, not null
+   * @param securityKey  the security identifier, not null
+   */
+  public PositionBean(BigDecimal quantity, Identifier securityKey) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityKey, "identity key");
     _quantity = quantity;
-    _securityKey = new IdentifierBundle(identifier);
+    _securityKey = new IdentifierBundle(securityKey);
     _security = null;
   }
-  
+
+  /**
+   * Creates a position from an amount of a security identified by key.
+   * @param quantity  the amount of the position, not null
+   * @param securityKey  the security identifier, not null
+   */
   public PositionBean(BigDecimal quantity, IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityKey, "identity key");
     _quantity = quantity;
     _securityKey = securityKey;
     _security = null;
   }
-  
+
+  /**
+   * Creates a position from an amount of a security identified by key.
+   * @param quantity  the amount of the position, not null
+   * @param securityKey  the security identifier, not null
+   * @param security  the security, not null
+   */
   public PositionBean(BigDecimal quantity, IdentifierBundle securityKey, Security security) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityKey, "identity key");
+    ArgumentChecker.notNull(security, "security");
     _quantity = quantity;
     _securityKey = securityKey;
-    _security = security;
-  }
-  
-  public PositionBean(BigDecimal quantity, Security security) {
-    _quantity = quantity;
-    _security = security;
-    _securityKey = security.getIdentifiers() != null ? new IdentifierBundle(security.getIdentifiers()) : null;
-  }
-
-  @Override
-  public BigDecimal getQuantity() {
-    return _quantity;
-  }
-
-  @Override
-  public IdentifierBundle getSecurityKey() {
-    return _securityKey;
-  }
-  
-  @Override
-  public Security getSecurity() {
-    return _security;
-  }
-  
-  public void setSecurity(Security security) {
     _security = security;
   }
 
   /**
-   * @return the identityKey
+   * Creates a position from an amount of a security identified by key.
+   * @param quantity  the amount of the position, not null
+   * @param security  the security, not null
    */
+  public PositionBean(BigDecimal quantity, Security security) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(security, "security");
+    _quantity = quantity;
+    _securityKey = security.getIdentifiers() != null ? new IdentifierBundle(security.getIdentifiers()) : new IdentifierBundle();
+    _security = security;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the identity key of the position.
+   * @return the identity key, null if not uniquely identified
+   */
+  @Override
   public Identifier getIdentityKey() {
     return _identityKey;
   }
 
   /**
-   * @param identityKey the identityKey to set
+   * Sets the identity key of the node.
+   * @param identityKey  the new identity key, not null
    */
-  public void setIdentityKey(String identityKey) {
-    _identityKey = new Identifier(POSITION_IDENTITY_KEY_DOMAIN, identityKey);
-  }
-  
   public void setIdentityKey(Identifier identityKey) {
     ArgumentChecker.notNull(identityKey, "Identity key");
-    if (!POSITION_IDENTITY_KEY_DOMAIN.equals(identityKey.getScheme())) {
-      throw new IllegalArgumentException("Wrong domain specified:" + identityKey.getScheme());
+    if (identityKey.isNotScheme(POSITION_IDENTITY_KEY_SCHEME)) {
+      throw new IllegalArgumentException("Wrong scheme specified: " + identityKey.getScheme());
     }
     _identityKey = identityKey; 
   }
 
+  /**
+   * Sets the identity key identifier of the node.
+   * @param identityKey  the new identity key identifier, not null
+   */
+  public void setIdentityKey(String identityKey) {
+    _identityKey = new Identifier(POSITION_IDENTITY_KEY_SCHEME, identityKey);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the amount of the position held in terms of the security.
+   * @return the amount of the position
+   */
+  public BigDecimal getQuantity() {
+    return _quantity;
+  }
+
+  /**
+   * Gets a key to the security being held.
+   * <p>
+   * This allows the security to be referenced without actually loading the security itself.
+   * @return the security key
+   */
+  public IdentifierBundle getSecurityKey() {
+    return _securityKey;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the security being held, returning {@code null} if it has not been loaded.
+   * <p>
+   * This method is guaranteed to return a security within an analytic function.
+   * @return the security
+   */
+  public Security getSecurity() {
+    return _security;
+  }
+
+  /**
+   * Sets the security being held.
+   * @param security  the security, may be null
+   */
+  public void setSecurity(Security security) {
+    _security = security;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null) {
-      return false;
+    if (obj instanceof PositionBean) {
+      PositionBean other = (PositionBean) obj;
+      return CompareUtils.compareWithNull(_quantity, other._quantity) == 0 &&
+              ObjectUtils.equals(_securityKey, other._securityKey) &&
+              ObjectUtils.equals(_security, other._security);
     }
-    if(!(obj instanceof PositionBean)) {
-      return false;
-    }
-    PositionBean other = (PositionBean) obj;
-    // Use comparison here to deal with scale issues with BigDecimal comparisons.
-    if(CompareUtils.compareWithNull(getQuantity(), other.getQuantity()) != 0) {
-      return false;
-    }
-    if(!ObjectUtils.equals(getSecurityKey(), other.getSecurityKey())) {
-      return false;
-    }
-    if(!ObjectUtils.equals(getSecurity(), other.getSecurity())) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
   public int hashCode() {
     int hashCode = 65;
-    hashCode += getQuantity().hashCode();
-    if(getSecurityKey() != null) {
+    hashCode += _quantity.hashCode();
+    hashCode <<= 5;
+    hashCode += _securityKey.hashCode();
+    if (getSecurity() != null) {
       hashCode <<= 5;
-      hashCode += getSecurityKey().hashCode();
-    } else if(getSecurity() != null) {
-      hashCode <<= 5;
-      hashCode += getSecurity().hashCode();
+      hashCode += _security.hashCode();
     }
     return hashCode;
   }
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new StrBuilder()
+      .append("Position[")
+      .append(_quantity)
+      .append(' ')
+      .append(_security != null ? _security : _securityKey)
+      .toString();
   }
 
 }

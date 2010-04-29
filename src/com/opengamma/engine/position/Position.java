@@ -8,6 +8,7 @@ package com.opengamma.engine.position;
 import java.math.BigDecimal;
 
 import com.opengamma.engine.security.Security;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.IdentificationScheme;
@@ -21,15 +22,20 @@ import com.opengamma.id.IdentificationScheme;
  * The security itself may be unresolved. An unresolved position is where only the reference
  * to the underlying security is held instead of the full data.
  * An unresolved position will return null when {@link #getSecurity()} is called.
- * 
- * @author kirk
  */
 public interface Position extends Identifiable {
 
   /**
    * The key to be used to refer to a position in identifiers.
    */
-  public static final IdentificationScheme POSITION_IDENTITY_KEY_DOMAIN = new IdentificationScheme("PositionIdentityKey");
+  public static final IdentificationScheme POSITION_IDENTITY_KEY_SCHEME = new IdentificationScheme("PositionIdentityKey");
+
+  /**
+   * Gets the identity key of the position.
+   * @return the identity key, null if not uniquely identified
+   */
+  @Override
+  Identifier getIdentityKey();
 
   /**
    * Gets the amount of the position held in terms of the security.

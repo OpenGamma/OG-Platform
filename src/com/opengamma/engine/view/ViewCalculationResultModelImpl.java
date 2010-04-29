@@ -18,9 +18,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
 
 /**
- * 
- *
- * @author kirk
+ * A simple implementation of the calculation result model.
  */
 public class ViewCalculationResultModelImpl implements Serializable,
     ViewCalculationResultModel {
@@ -61,8 +59,8 @@ public class ViewCalculationResultModelImpl implements Serializable,
     if(!_values.containsKey(targetSpec)) {
       _values.put(targetSpec, new HashMap<String, ComputedValue>());
     }
-    for (PortfolioNode subNode : node.getSubNodes()) {
-      recursiveAddPortfolio(subNode);
+    for (PortfolioNode child : node.getChildNodes()) {
+      recursiveAddPortfolio(child);
     }
   }
 

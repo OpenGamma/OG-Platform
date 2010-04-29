@@ -6,13 +6,10 @@
 package com.opengamma.engine.position;
 
 /**
- * An implementation of {@link PortfolioNodeTraversalCallback} which has all callback
- * methods as no-ops. Subclasses should override the particular methods they require.
- *
- * @author kirk
+ * A simple no-op implementation of {@code PortfolioNodeTraversalCallback}.
+ * Subclasses should override the particular methods they require.
  */
-public class AbstractPortfolioNodeTraversalCallback
-implements PortfolioNodeTraversalCallback {
+public class AbstractPortfolioNodeTraversalCallback implements PortfolioNodeTraversalCallback {
 
   @Override
   public void postOrderOperation(PortfolioNode portfolioNode) {

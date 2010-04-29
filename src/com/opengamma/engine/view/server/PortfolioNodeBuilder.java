@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -18,6 +18,9 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 
+/**
+ * Fudge message builder for {@code PortfolioNode}.
+ */
 public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   
   public static final String FIELD_POSITIONS = "positions";
@@ -44,7 +47,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   public static void addPortfolioNodeFields (FudgeSerializationContext context, MutableFudgeFieldContainer msg, PortfolioNode portfolioNode) {
     // PortfolioNode
     msg.add (FIELD_POSITIONS, encodePositions (context, portfolioNode.getPositions ()));
-    msg.add (FIELD_SUBNODES, encodeSubNodes (context, portfolioNode.getSubNodes ()));
+    msg.add (FIELD_SUBNODES, encodeSubNodes (context, portfolioNode.getChildNodes ()));
     msg.add (FIELD_NAME, portfolioNode.getName ());
     // Identifiable
     msg.add (FIELD_IDENTITYKEY, portfolioNode.getIdentityKey ().getValue ()); 
@@ -65,7 +68,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   
   private static void readSubNodes (FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl portfolioNode) {
     for (FudgeField field : message) {
-      portfolioNode.addSubNode (context.fieldValueToObject (PortfolioNode.class, field));
+      portfolioNode.addChildNode(context.fieldValueToObject(PortfolioNode.class, field));
     }
   }
   

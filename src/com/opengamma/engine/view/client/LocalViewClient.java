@@ -74,7 +74,7 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public Portfolio getPortfolio() {
-    return (Portfolio)getView().getPositionRoot();
+    return (Portfolio) getView().getPortfolio();
   }
 
   @Override

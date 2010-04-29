@@ -12,19 +12,42 @@ import com.opengamma.util.ArgumentChecker;
 // more code that depends on this class the easier it is to port to that system.
 
 /**
- * 
- *
- * @author kirk
+ * A manager for traversing the tree of nodes.
  */
 public class PortfolioNodeTraverser {
-  public enum TraversalStyle { DFS, BFS };
+
+  /**
+   * Enumeration of traversal styles.
+   */
+  public enum TraversalStyle {
+    /** Depth first. */
+    DFS,
+    /** Breadth first. */
+    BFS,
+  };
+
+  /**
+   * The traversal style.
+   */
   private final TraversalStyle _traversalStyle;
+  /**
+   * The callback.
+   */
   private final PortfolioNodeTraversalCallback _callback;
-  
+
+  /**
+   * Creates a traverser.
+   * @param callback  the callback to invoke, not null
+   */
   public PortfolioNodeTraverser(PortfolioNodeTraversalCallback callback) {
     this(TraversalStyle.DFS, callback);
   }
-  
+
+  /**
+   * Creates a traverser.
+   * @param traversalStyle  the style of traversal, not null
+   * @param callback  the callback to invoke, not null
+   */
   public PortfolioNodeTraverser(TraversalStyle traversalStyle, PortfolioNodeTraversalCallback callback) {
     ArgumentChecker.notNull(traversalStyle, "Traversal Style");
     ArgumentChecker.notNull(callback, "Traversal Callback");
@@ -32,59 +55,73 @@ public class PortfolioNodeTraverser {
     _callback = callback;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the traversalStyle
+   * Gets the traversal style to be used.
+   * @return the traversal style, never null
    */
   public TraversalStyle getTraversalStyle() {
     return _traversalStyle;
   }
 
   /**
-   * @return the callback
+   * Gets the callback to be used.
+   * @return the callback, never null
    */
   public PortfolioNodeTraversalCallback getCallback() {
     return _callback;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Traverse the nodes.
+   * @param portfolioNode  the node to start from, null does nothing
+   */
   public void traverse(PortfolioNode portfolioNode) {
-    traverse(portfolioNode, true);
-  }
-  
-  protected void traverse(PortfolioNode portfolioNode, boolean firstPass) {
-    if(portfolioNode == null) {
+    if (portfolioNode == null) {
       return;
     }
-    if(firstPass) {
+    traverse(portfolioNode, true);
+  }
+
+  /**
+   * Traverse the nodes.
+   * @param portfolioNode  the node to start from, not null
+   * @param firstPass  true if first pass
+   */
+  protected void traverse(PortfolioNode portfolioNode, boolean firstPass) {
+    if (firstPass) {
       getCallback().preOrderOperation(portfolioNode);
-      
       for(Position position : portfolioNode.getPositions()) {
         getCallback().preOrderOperation(position);
       }
     }
     
-    if(getTraversalStyle() == TraversalStyle.DFS) {
-      assert firstPass == true;
-      for(PortfolioNode subNode : portfolioNode.getSubNodes()) {
-        traverse(subNode, true);
-      }
-    } else if(getTraversalStyle() == TraversalStyle.BFS) {
-      if(!firstPass) {
-        for(PortfolioNode subNode : portfolioNode.getSubNodes()) {
+    switch (getTraversalStyle()) {
+      case DFS:
+        assert firstPass == true;
+        for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
           traverse(subNode, true);
         }
-        for(PortfolioNode subNode : portfolioNode.getSubNodes()) {
-          traverse(subNode, false);
+        break;
+      case BFS:
+        if (!firstPass) {
+          for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
+            traverse(subNode, true);
+          }
+          for (PortfolioNode subNode : portfolioNode.getChildNodes()) {
+            traverse(subNode, false);
+          }
         }
-      }
-    } else {
-      throw new IllegalStateException("Only BFS and DFS currently supported.");
+        break;
+      default:
+        throw new IllegalStateException("Only BFS and DFS currently supported");
     }
-
-    if(firstPass) {
-      for(Position position : portfolioNode.getPositions()) {
+    
+    if (firstPass) {
+      for (Position position : portfolioNode.getPositions()) {
         getCallback().postOrderOperation(position);
       }
-      
       getCallback().postOrderOperation(portfolioNode);
     }
   }

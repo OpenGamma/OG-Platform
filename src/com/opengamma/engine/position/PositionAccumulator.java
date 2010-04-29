@@ -13,33 +13,49 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Recursively loads all positions under a particular {@link PortfolioNode}.
- *
- * @author kirk
  */
-public class PositionAccumulator{
-  private final Set<Position> _positions = new HashSet<Position>();
-  
-  public PositionAccumulator(PortfolioNode portfolioNode) {
-    ArgumentChecker.notNull(portfolioNode, "Portfolio Node");
-    new PortfolioNodeTraverser(new Callback()).traverse(portfolioNode);
-  }
-  
+public class PositionAccumulator {
+
   /**
-   * @return the positions
+   * Gets all the positions beneath the starting node.
+   * @param startNode  the starting node, not null
+   * @return
+   */
+  public static Set<Position> getAccumulatedPositions(PortfolioNode startNode) {
+    return new PositionAccumulator(startNode).getPositions();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * The set of positions.
+   */
+  private final Set<Position> _positions = new HashSet<Position>();
+
+  /**
+   * Creates an accumulator starting from the specified node.
+   * @param startNode  the starting node, not null
+   */
+  public PositionAccumulator(PortfolioNode startNode) {
+    ArgumentChecker.notNull(startNode, "Portfolio Node");
+    new PortfolioNodeTraverser(new Callback()).traverse(startNode);
+  }
+
+  /**
+   * Gets the positions that were found.
+   * @return the positions, never null
    */
   public Set<Position> getPositions() {
     return Collections.unmodifiableSet(_positions);
   }
 
+  /**
+   * Callback to match the positions.
+   */
   private class Callback extends AbstractPortfolioNodeTraversalCallback {
     @Override
     public void preOrderOperation(Position position) {
       _positions.add(position);
     }
-  }
-  
-  public static Set<Position> getAccumulatedPositions(PortfolioNode portfolioNode) {
-    return new PositionAccumulator(portfolioNode).getPositions();
   }
 
 }
