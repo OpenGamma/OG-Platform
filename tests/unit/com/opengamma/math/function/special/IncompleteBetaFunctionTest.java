@@ -6,7 +6,6 @@
 package com.opengamma.math.function.special;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -15,41 +14,52 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- */
 public class IncompleteBetaFunctionTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-9;
+  private static final double A = 0.4;
+  private static final double B = 0.2;
+  private static final int MAX_ITER = 10000;
+  private static final Function1D<Double, Double> BETA = new IncompleteBetaFunction(A, B);
 
-  @Test
-  public void testInputs() {
-    try {
-      new IncompleteBetaFunction(-1, 0.5);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      new IncompleteBetaFunction(0.5, -1.2);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    final Function1D<Double, Double> f = new IncompleteBetaFunction(0.5, 0.5);
-    try {
-      f.evaluate(-0.5);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      f.evaluate(1.5);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeA1() {
+    new IncompleteBetaFunction(-A, B);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeA2() {
+    new IncompleteBetaFunction(-A, B, EPS, MAX_ITER);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeB1() {
+    new IncompleteBetaFunction(A, -B);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeB2() {
+    new IncompleteBetaFunction(A, -B, EPS, MAX_ITER);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeEps() {
+    new IncompleteBetaFunction(A, B, -EPS, MAX_ITER);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeIter() {
+    new IncompleteBetaFunction(A, B, EPS, -MAX_ITER);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testLow() {
+    BETA.evaluate(-0.3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testHigh() {
+    BETA.evaluate(1.5);
   }
 
   @Test

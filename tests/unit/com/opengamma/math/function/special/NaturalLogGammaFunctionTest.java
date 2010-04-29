@@ -6,28 +6,18 @@
 package com.opengamma.math.function.special;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- */
 public class NaturalLogGammaFunctionTest {
   private static final Function1D<Double, Double> LN_GAMMA = new NaturalLogGammaFunction();
   private static final double EPS = 1e-9;
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testNegativeNumber() {
-    try {
-      LN_GAMMA.evaluate(-0.1);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    LN_GAMMA.evaluate(-0.1);
   }
 
   @Test

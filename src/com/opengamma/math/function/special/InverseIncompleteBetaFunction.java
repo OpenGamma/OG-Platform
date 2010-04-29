@@ -8,10 +8,7 @@ package com.opengamma.math.function.special;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- */
+//TODO either find another implementation or delete this class
 public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
   private final double _a;
   private final double _b;

@@ -12,10 +12,6 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
 import com.opengamma.math.matrix.MatrixAlgebra;
 
-/**
- * @author emcleod
- * 
- */
 public class DeltaGammaCovarianceMatrixStandardDeviationCalculator extends Function1D<ParametricVaRDataBundle, Double> {
   private final MatrixAlgebra _algebra;
 
