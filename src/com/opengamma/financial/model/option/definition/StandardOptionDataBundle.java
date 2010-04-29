@@ -13,8 +13,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
- * 
  */
 public class StandardOptionDataBundle {
   private final DiscountCurve _discountCurve;
