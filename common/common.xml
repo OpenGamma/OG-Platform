@@ -321,6 +321,7 @@
 		description="--> cleans the local repository for the current module">
 		<ivy:info file="${ivy.file}" />
 		<delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}" />
+		<delete includeemptydirs="true" failonerror="false" dir="${bootstrap.dir}"/>
 	</target>
 
 	<target name="clean-lib"
