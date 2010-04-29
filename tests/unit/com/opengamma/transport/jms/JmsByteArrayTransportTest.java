@@ -18,18 +18,16 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import com.opengamma.transport.ByteArrayRequestReceiver;
 import com.opengamma.transport.CollectingByteArrayMessageReceiver;
-import com.opengamma.util.test.ProbabilisticTestCase;
 
 /**
  * 
  *
  * @author kirk
  */
-public class JmsByteArrayTransportTest extends ProbabilisticTestCase {
+public class JmsByteArrayTransportTest {
 
   @Test
   public void topicConduit() throws Exception {
-    if (retry (2)) return;
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
@@ -77,7 +75,6 @@ public class JmsByteArrayTransportTest extends ProbabilisticTestCase {
   
   @Test
   public void requestConduit() throws Exception {
-    if (retry (2)) return;
     String topicName = "JmsByteArrayTransportTest-requestConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
