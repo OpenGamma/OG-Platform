@@ -8,8 +8,6 @@ package com.opengamma.id;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -82,15 +80,6 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
 
   //-------------------------------------------------------------------------
   @Override
-  protected IdentificationScheme clone() {
-    try {
-      return (IdentificationScheme) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError("Cloning actually IS supported");
-    }
-  }
-
-  @Override
   public int compareTo(IdentificationScheme obj) {
     return _name.compareTo(obj._name);
   }
@@ -114,7 +103,7 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return _name;
   }
 
 }

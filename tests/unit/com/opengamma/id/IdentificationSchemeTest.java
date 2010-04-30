@@ -6,7 +6,6 @@
 package com.opengamma.id;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
@@ -28,13 +27,6 @@ public class IdentificationSchemeTest {
   @Test(expected=IllegalArgumentException.class)
   public void test_constructor_emptyNameProvided() {
     new IdentificationScheme("");
-  }
-
-  @Test
-  public void test_clone() {
-    IdentificationScheme test = new IdentificationScheme("d1");
-    assertEquals(test, test.clone());
-    assertNotSame(test, test.clone());
   }
 
   @Test
@@ -77,6 +69,12 @@ public class IdentificationSchemeTest {
     IdentificationScheme d1b = new IdentificationScheme("d1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
+  }
+
+  @Test
+  public void test_toString() {
+    IdentificationScheme test = new IdentificationScheme("Scheme");
+    assertEquals("Scheme", test.toString());
   }
 
 }

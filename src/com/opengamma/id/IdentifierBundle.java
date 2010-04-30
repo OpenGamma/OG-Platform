@@ -148,10 +148,7 @@ public final class IdentifierBundle implements Serializable {
   }
 
   protected int calcHashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((_identifiers == null) ? 0 : _identifiers.hashCode());
-    return result;
+    return 31 + _identifiers.hashCode();
   }
 
   @Override
