@@ -120,7 +120,7 @@ public class PositionReference implements Serializable, Cloneable {
     FudgeFieldContainer msg = envelope.getMessage();
     BigDecimal quantity = new BigDecimal(msg.getString(QUANTITY_FIELD_NAME));
     FudgeFieldContainer identifierMsg = msg.getMessage(SECURITY_IDENTITY_KEY_FIELD_NAME);
-    Identifier identifier = new Identifier(identifierMsg);
+    Identifier identifier = Identifier.fromFudgeMsg(identifierMsg);
     return new PositionReference(quantity, identifier);
   }
 }
