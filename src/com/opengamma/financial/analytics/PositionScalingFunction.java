@@ -53,7 +53,7 @@ implements FunctionInvoker {
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, 
       ComputationTarget target) {
-    ValueRequirement requirement = new ValueRequirement(_requirementName, target.getSpecification());
+    ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
     ValueSpecification specification = new ValueSpecification(requirement);
     return Collections.singleton(specification);
   }
@@ -74,7 +74,7 @@ implements FunctionInvoker {
       ComputationTarget target,
       Set<ValueRequirement> desiredValues) {
     Object value = inputs.getValue(_requirementName);
-    ValueRequirement requirement = new ValueRequirement(_requirementName, target.getSpecification());
+    ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
     ValueSpecification specification = new ValueSpecification(requirement);
     ComputedValue scaledValue = null;
     if(value instanceof Double) {

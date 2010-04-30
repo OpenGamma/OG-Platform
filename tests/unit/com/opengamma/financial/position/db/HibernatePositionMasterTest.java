@@ -26,8 +26,8 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.HibernateTest;
 
 /**
@@ -127,64 +127,76 @@ public class HibernatePositionMasterTest extends HibernateTest {
       
     });
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void testPortfolioNode () {
-    createTestEquityOptionPortfolio ();
-    PortfolioNode portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME, "doesn't exist"));
-    assertNull (portfolioNode);
-    portfolioNode = _posMaster.getPortfolioNode (new Identifier ("BAD DOMAIN", "node 1"));
-    assertNull (portfolioNode);
-    portfolioNode = _posMaster.getPortfolioNode (new Identifier (PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME, "node 1"));
-    assertNotNull (portfolioNode);
-    assertEquals ("Options on AAPL US Equity", portfolioNode.getName ());
-    assertEquals (5, portfolioNode.getPositions ().size ());
+  public void testPortfolioIds() {
+    createTestEquityOptionPortfolio();
+    Collection<UniqueIdentifier> ids = _posMaster.getPortfolioIds();
+    assertNotNull(ids);
+    assertEquals(1, ids.size());
+    assertTrue(ids.contains(UniqueIdentifier.of("Test", "test equity option")));
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void testPosition () {
-    createTestEquityOptionPortfolio ();
-    Position position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_SCHEME, "doesn't exist"));
-    assertNull (position);
-    position = _posMaster.getPosition (new Identifier ("BAD DOMAIN", "10"));
-    assertNull (position);
-    position = _posMaster.getPosition (new Identifier (Position.POSITION_IDENTITY_KEY_SCHEME, "10"));
-    assertNotNull (position);
-    assertEquals ("10", position.getIdentityKey ().getValue ());
-    assertEquals (new BigDecimal (10), position.getQuantity ());
-    final IdentifierBundle dsids = position.getSecurityKey();
-    assertNotNull (dsids);
-    assertEquals ("T US 04/17/10 C22 Equity", dsids.getIdentifier (new IdentificationScheme ("Test 1")));
-    assertEquals ("ID 10", dsids.getIdentifier (new IdentificationScheme ("Test 2")));
-  }
-  
-  @Test
-  public void testRootPortfolio () {
-    createTestEquityOptionPortfolio ();
-    Portfolio portfolio = _posMaster.getPortfolio(new Identifier("Test", "doesn't exist"));
-    assertNull (portfolio);
-    portfolio = _posMaster.getPortfolio(new Identifier("Test", "test equity option"));
-    assertNotNull (portfolio);
-    assertEquals ("Test Equity Option Portfolio", portfolio.getName ());
+  public void testPortfolio() {
+    createTestEquityOptionPortfolio();
+    Portfolio portfolio = _posMaster.getPortfolio(UniqueIdentifier.of("Test", "doesn't exist"));
+    assertNull(portfolio);
+    portfolio = _posMaster.getPortfolio(UniqueIdentifier.of("Test", "test equity option"));
+    assertNotNull(portfolio);
+    assertEquals("Test Equity Option Portfolio", portfolio.getName());
     Collection<Position> positions = portfolio.getRootNode().getPositions();
-    assertNotNull (positions);
-    assertEquals (0, positions.size ());
+    assertNotNull(positions);
+    assertEquals(0, positions.size());
     Collection<PortfolioNode> nodes = portfolio.getRootNode().getChildNodes();
-    assertNotNull (nodes);
-    assertEquals (2, nodes.size ());
+    assertNotNull(nodes);
+    assertEquals(2, nodes.size());
     for (PortfolioNode node : nodes) {
-      assertEquals (0, node.getChildNodes ().size ());
-      assertEquals (5, node.getPositions ().size ());
+      assertEquals(0, node.getChildNodes().size());
+      assertEquals(5, node.getPositions().size());
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void testRootPortfolioNames () {
-    createTestEquityOptionPortfolio ();
-    Collection<Identifier> ids = _posMaster.getPortfolioIds();
-    assertNotNull (ids);
-    assertEquals (1, ids.size ());
-    assertTrue (ids.contains (new Identifier ("Test", "test equity option")));
+  public void testPortfolioNode() {
+    createTestEquityOptionPortfolio();
+    PortfolioNode portfolioNode = _posMaster.getPortfolioNode(UniqueIdentifier.of("Test", "doesn't exist"));
+    assertNull(portfolioNode);
+    portfolioNode = _posMaster.getPortfolioNode(UniqueIdentifier.of("Test", "node 1"));
+    assertNotNull(portfolioNode);
+    assertEquals("Options on AAPL US Equity", portfolioNode.getName());
+    assertEquals(5, portfolioNode.getPositions().size());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPortfolioNode_invalidScheme() {
+    createTestEquityOptionPortfolio();
+    _posMaster.getPortfolioNode(UniqueIdentifier.of ("BAD SCHEME", "node 1"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void testPosition() {
+    createTestEquityOptionPortfolio();
+    Position position = _posMaster.getPosition(UniqueIdentifier.of("Test", "doesn't exist"));
+    assertNull(position);
+    position = _posMaster.getPosition(UniqueIdentifier.of("Test", "10"));
+    assertNotNull(position);
+    assertEquals("10", position.getUniqueIdentifier().getValue());
+    assertEquals(new BigDecimal(10), position.getQuantity());
+    final IdentifierBundle dsids = position.getSecurityKey();
+    assertNotNull(dsids);
+    assertEquals("T US 04/17/10 C22 Equity", dsids.getIdentifier(new IdentificationScheme("Test 1")));
+    assertEquals("ID 10", dsids.getIdentifier(new IdentificationScheme("Test 2")));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPosition_invalidScheme() {
+    createTestEquityOptionPortfolio();
+    _posMaster.getPosition(UniqueIdentifier.of ("BAD SCHEME", "10"));
   }
 
   // TODO test the PositionMaster with requests at different points in time
