@@ -72,7 +72,7 @@ public class LiveDataSpecification {
   
   public static LiveDataSpecification fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
     String normalizationRuleSetId = fudgeMsg.getString(NORMALIZATION_RULE_SET_ID_FIELD_NAME);
-    IdentifierBundle ids = new IdentifierBundle(fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
+    IdentifierBundle ids = IdentifierBundle.fromFudgeMsg(fudgeMsg.getMessage(DOMAIN_SPECIFIC_IDS_FIELD_NAME));
     return new LiveDataSpecification(normalizationRuleSetId, ids);    
   }
   
