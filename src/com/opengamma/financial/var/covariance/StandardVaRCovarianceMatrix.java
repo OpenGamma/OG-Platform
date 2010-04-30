@@ -5,16 +5,6 @@
  */
 package com.opengamma.financial.var.covariance;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import cern.colt.matrix.DoubleMatrix2D;
-
-import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
-import com.opengamma.financial.var.StandardVaRDataBundle;
-import com.opengamma.timeseries.DoubleTimeSeries;
 
 /**
  * 

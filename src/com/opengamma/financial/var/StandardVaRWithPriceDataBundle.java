@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
