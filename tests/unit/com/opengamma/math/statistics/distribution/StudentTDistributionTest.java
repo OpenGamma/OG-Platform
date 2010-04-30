@@ -12,10 +12,6 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-/**
- * 
- * @author emcleod
- */
 public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double[] X = new double[] { 0.32492, 0.270722, 0.717558, 1.372184, 1.36343, 1.770933, 2.13145, 2.55238, 2.80734, 3.6896 };

@@ -15,10 +15,6 @@ import com.opengamma.math.statistics.descriptive.SampleFisherKurtosisCalculator;
 import com.opengamma.math.statistics.descriptive.SampleSkewnessCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 
-/**
- * @author emcleod
- * 
- */
 public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.7;
   private static final double B = 0.5;

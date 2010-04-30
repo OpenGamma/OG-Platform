@@ -10,10 +10,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-/**
- * @author emcleod
- * 
- */
 public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 1.5;
   private static final double SIGMA = 0.6;

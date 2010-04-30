@@ -15,10 +15,6 @@ import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
 import com.opengamma.math.statistics.descriptive.PopulationVarianceCalculator;
 
-/**
- * @author emcleod
- * 
- */
 public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.4;
   private static final double SIGMA = 1.4;
