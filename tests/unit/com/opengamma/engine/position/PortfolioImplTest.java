@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Test PortfolioImpl.
@@ -18,9 +18,9 @@ public class PortfolioImplTest {
 
   @Test
   public void test_construction_String() {
-    PortfolioImpl test = new PortfolioImpl("Id");
-    assertEquals(id("Basic", "Id"), test.getIdentityKey());
-    assertEquals("Id", test.getName());
+    PortfolioImpl test = new PortfolioImpl("Basic::Id");
+    assertEquals(id("Basic", "Id"), test.getUniqueIdentifier());
+    assertEquals("Basic::Id", test.getName());
     assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
     assertEquals(0, test.getRootNode().size());
     assertEquals("Portfolio[Basic::Id]", test.toString());
@@ -40,7 +40,7 @@ public class PortfolioImplTest {
   @Test
   public void test_construction_PortfolioIdString() {
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name");
-    assertEquals(id("Scheme", "Id"), test.getIdentityKey());
+    assertEquals(id("Scheme", "Id"), test.getUniqueIdentifier());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
     assertEquals(0, test.getRootNode().size());
@@ -60,9 +60,9 @@ public class PortfolioImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_PortfolioIdStringNode() {
-    PortfolioNodeImpl root = new PortfolioNodeImpl("Foo");
+    PortfolioNodeImpl root = new PortfolioNodeImpl();
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name", root);
-    assertEquals(id("Scheme", "Id"), test.getIdentityKey());
+    assertEquals(id("Scheme", "Id"), test.getUniqueIdentifier());
     assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() == root);
     assertEquals("Portfolio[Scheme::Id]", test.toString());
@@ -83,8 +83,8 @@ public class PortfolioImplTest {
     new PortfolioImpl(id("Scheme", "Id"), "Name", null);
   }
 
-  private Identifier id(String scheme, String value) {
-    return new Identifier(scheme, value);
+  private UniqueIdentifier id(String scheme, String value) {
+    return UniqueIdentifier.of(scheme, value);
   }
 
 }

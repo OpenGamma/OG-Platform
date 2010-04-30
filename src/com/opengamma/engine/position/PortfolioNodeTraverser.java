@@ -58,7 +58,7 @@ public class PortfolioNodeTraverser {
   //-------------------------------------------------------------------------
   /**
    * Gets the traversal style to be used.
-   * @return the traversal style, never null
+   * @return the traversal style, not null
    */
   public TraversalStyle getTraversalStyle() {
     return _traversalStyle;
@@ -66,7 +66,7 @@ public class PortfolioNodeTraverser {
 
   /**
    * Gets the callback to be used.
-   * @return the callback, never null
+   * @return the callback, not null
    */
   public PortfolioNodeTraversalCallback getCallback() {
     return _callback;

@@ -14,6 +14,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
@@ -23,15 +24,15 @@ import com.opengamma.util.CompareUtils;
 public class PositionBean implements Position, Serializable {
 
   /**
-   * The identity key of the whole position.
+   * The identifier of the whole position.
    */
-  private Identifier _identityKey;
+  private UniqueIdentifier _identifier;
   /**
    * The amount of the position.
    */
   private final BigDecimal _quantity;
   /**
-   * The identity key specifying the security.
+   * The identifier specifying the security.
    */
   private final IdentifierBundle _securityKey;
   /**
@@ -46,7 +47,7 @@ public class PositionBean implements Position, Serializable {
    */
   public PositionBean(BigDecimal quantity, Identifier securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(securityKey, "identity key");
+    ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
     _securityKey = new IdentifierBundle(securityKey);
     _security = null;
@@ -59,7 +60,7 @@ public class PositionBean implements Position, Serializable {
    */
   public PositionBean(BigDecimal quantity, IdentifierBundle securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(securityKey, "identity key");
+    ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
     _securityKey = securityKey;
     _security = null;
@@ -69,58 +70,81 @@ public class PositionBean implements Position, Serializable {
    * Creates a position from an amount of a security identified by key.
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
-   * @param security  the security, not null
    */
-  public PositionBean(BigDecimal quantity, IdentifierBundle securityKey, Security security) {
+  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, Identifier securityKey) {
+    ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(quantity, "quantity");
-    ArgumentChecker.notNull(securityKey, "identity key");
-    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(securityKey, "security key");
+    _identifier = identifier;
     _quantity = quantity;
-    _securityKey = securityKey;
-    _security = security;
+    _securityKey = new IdentifierBundle(securityKey);
+    _security = null;
   }
 
   /**
    * Creates a position from an amount of a security identified by key.
    * @param quantity  the amount of the position, not null
+   * @param securityKey  the security identifier, not null
+   */
+  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, IdentifierBundle securityKey) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityKey, "security key");
+    _identifier = identifier;
+    _quantity = quantity;
+    _securityKey = securityKey;
+    _security = null;
+  }
+
+  /**
+   * Creates a position from an amount of a security.
+   * @param quantity  the amount of the position, not null
    * @param security  the security, not null
    */
-  public PositionBean(BigDecimal quantity, Security security) {
+  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, Security security) {
+    ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(security, "security");
+    _identifier = identifier;
     _quantity = quantity;
     _securityKey = security.getIdentifiers() != null ? new IdentifierBundle(security.getIdentifiers()) : new IdentifierBundle();
     _security = security;
   }
 
+  /**
+   * Creates a position from an amount of a security.
+   * @param quantity  the amount of the position, not null
+   * @param securityKey  the security identifier, not null
+   * @param security  the security, not null
+   */
+  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, IdentifierBundle securityKey, Security security) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(securityKey, "security key");
+    ArgumentChecker.notNull(security, "security");
+    _identifier = identifier;
+    _quantity = quantity;
+    _securityKey = securityKey;
+    _security = security;
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets the identity key of the position.
-   * @return the identity key, null if not uniquely identified
+   * Gets the unique identifier of the position.
+   * @return the identifier, not null
    */
   @Override
-  public Identifier getIdentityKey() {
-    return _identityKey;
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _identifier;
   }
 
   /**
-   * Sets the identity key of the node.
-   * @param identityKey  the new identity key, not null
+   * Sets the unique identifier of the position.
+   * @param identifier  the new identifier, not null
    */
-  public void setIdentityKey(Identifier identityKey) {
-    ArgumentChecker.notNull(identityKey, "Identity key");
-    if (identityKey.isNotScheme(POSITION_IDENTITY_KEY_SCHEME)) {
-      throw new IllegalArgumentException("Wrong scheme specified: " + identityKey.getScheme());
-    }
-    _identityKey = identityKey; 
-  }
-
-  /**
-   * Sets the identity key identifier of the node.
-   * @param identityKey  the new identity key identifier, not null
-   */
-  public void setIdentityKey(String identityKey) {
-    _identityKey = new Identifier(POSITION_IDENTITY_KEY_SCHEME, identityKey);
+  public void setUniqueIdentifier(UniqueIdentifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    _identifier = identifier;
   }
 
   //-------------------------------------------------------------------------
@@ -128,6 +152,7 @@ public class PositionBean implements Position, Serializable {
    * Gets the amount of the position held in terms of the security.
    * @return the amount of the position
    */
+  @Override
   public BigDecimal getQuantity() {
     return _quantity;
   }
@@ -138,6 +163,7 @@ public class PositionBean implements Position, Serializable {
    * This allows the security to be referenced without actually loading the security itself.
    * @return the security key
    */
+  @Override
   public IdentifierBundle getSecurityKey() {
     return _securityKey;
   }
@@ -149,6 +175,7 @@ public class PositionBean implements Position, Serializable {
    * This method is guaranteed to return a security within an analytic function.
    * @return the security
    */
+  @Override
   public Security getSecurity() {
     return _security;
   }
@@ -193,9 +220,11 @@ public class PositionBean implements Position, Serializable {
   public String toString() {
     return new StrBuilder()
       .append("Position[")
-      .append(_quantity)
+      .append(getUniqueIdentifier())
+      .append(", ")
+      .append(getQuantity())
       .append(' ')
-      .append(_security != null ? _security : _securityKey)
+      .append(getSecurity() != null ? getSecurity() : getSecurityKey())
       .toString();
   }
 

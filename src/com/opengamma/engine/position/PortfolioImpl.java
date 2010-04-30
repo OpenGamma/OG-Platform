@@ -7,7 +7,9 @@ package com.opengamma.engine.position;
 
 import java.io.Serializable;
 
-import com.opengamma.id.Identifier;
+import org.apache.commons.lang.text.StrBuilder;
+
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -16,13 +18,13 @@ import com.opengamma.util.ArgumentChecker;
 public class PortfolioImpl implements Portfolio, Serializable {
 
   /**
-   * The id.
+   * The identifier.
    */
-  private final Identifier _id;
+  private UniqueIdentifier _identifier;
   /**
    * The name.
    */
-  private final String _name;
+  private String _name;
   /**
    * The root node.
    */
@@ -30,60 +32,78 @@ public class PortfolioImpl implements Portfolio, Serializable {
 
   /**
    * Creates a portfolio with the specified identifier.
-   * @param id  the portfolio identifier, not null
+   * @param identifier  the portfolio identifier, not null
    * @param name  the name to use, not null
    */
-  public PortfolioImpl(Identifier id, String name) {
-    this(id, name, new PortfolioNodeImpl());
+  public PortfolioImpl(UniqueIdentifier identifier, String name) {
+    this(identifier, name, new PortfolioNodeImpl());
   }
 
   /**
-   * Creates a portfolio with the specified identifier which is also used for the name.
-   * @param id  the portfolio identifier, not null
+   * Creates a portfolio with the specified identifier in the format {@code <SCHEME>::<VALUE>}.
+   * @param identifierStr  the portfolio identifier, not null
    */
-  public PortfolioImpl(String identifier) {
-    this(new Identifier("Basic", identifier), identifier, new PortfolioNodeImpl());
+  public PortfolioImpl(String identifierStr) {
+    this(UniqueIdentifier.parse(identifierStr), identifierStr, new PortfolioNodeImpl());
   }
 
   /**
    * Creates a portfolio with the specified identifier and root node.
-   * @param id  the portfolio identifier, not null
+   * @param identifier  the portfolio identifier, not null
    * @param name  the name to use, not null
    * @param rootNode  the root node, not null
    */
-  public PortfolioImpl(Identifier id, String name, PortfolioNodeImpl rootNode) {
-    ArgumentChecker.notNull(id, "identifier");
+  public PortfolioImpl(UniqueIdentifier identifier, String name, PortfolioNodeImpl rootNode) {
+    ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(rootNode, "root node");
-    _id = id;
+    _identifier = identifier;
     _name = name;
     _rootNode = rootNode;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the identifier of the portfolio.
-   * @return the identifier, never null
+   * Gets the unique identifier of the portfolio.
+   * @return the identifier, not null
    */
   @Override
-  public Identifier getIdentityKey() {
-    return _id;
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _identifier;
+  }
+
+  /**
+   * Sets the unique identifier of the portfolio.
+   * @param identifier  the new identifier, not null
+   */
+  public void setUniqueIdentifier(UniqueIdentifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    _identifier = identifier;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the name of the portfolio intended for display purposes.
-   * @return the name, never null
+   * @return the name, not null
    */
   @Override
   public String getName() {
     return _name;
   }
 
+  /**
+   * Sets the name of the portfolio intended for display purposes.
+   * @param name  the name, not empty, not null
+   */
+  public void setName(String name) {
+    ArgumentChecker.notEmpty(name, "name");
+    _name = name;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the root node in the portfolio.
-   * @return the root node of the tree structure, never null
+   * @return the root node of the tree structure, not null
    */
   @Override
   public PortfolioNodeImpl getRootNode() {
@@ -101,29 +121,31 @@ public class PortfolioImpl implements Portfolio, Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Finds a specific node from this portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific node from this portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
-  public PortfolioNode getNode(Identifier identityKey) {
-    return _rootNode.getNode(identityKey);
+  @Override
+  public PortfolioNode getNode(UniqueIdentifier identifier) {
+    return _rootNode.getNode(identifier);
   }
 
   /**
-   * Finds a specific position from this portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific position from this portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
-  public Position getPosition(Identifier identityKey) {
-    return _rootNode.getPosition(identityKey);
+  @Override
+  public Position getPosition(UniqueIdentifier identifier) {
+    return _rootNode.getPosition(identifier);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return new StringBuilder()
+    return new StrBuilder()
       .append("Portfolio[")
-      .append(getIdentityKey())
+      .append(getUniqueIdentifier())
       .append("]")
       .toString();
   }

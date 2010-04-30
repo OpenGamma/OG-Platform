@@ -13,6 +13,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Test PortfolioNodeImpl.
@@ -22,6 +23,7 @@ public class PortfolioNodeImplTest {
   @Test
   public void test_construction() {
     PortfolioNodeImpl test = new PortfolioNodeImpl();
+    assertEquals(null, test.getUniqueIdentifier());
     assertEquals("", test.getName());
     assertEquals(0, test.getChildNodes().size());
     assertEquals(0, test.getPositions().size());
@@ -32,23 +34,30 @@ public class PortfolioNodeImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_String() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl("Name");
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
+    assertEquals(UniqueIdentifier.of("A", "B"), test.getUniqueIdentifier());
     assertEquals("Name", test.getName());
     assertEquals(0, test.getChildNodes().size());
     assertEquals(0, test.getPositions().size());
     assertEquals(0, test.size());
-    assertEquals("PortfolioNode[Name, 0 child-nodes, 0 positions]", test.toString());
+    assertEquals("PortfolioNode[A::B, 0 child-nodes, 0 positions]", test.toString());
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test
   public void test_construction_String_null() {
-    new PortfolioImpl(null);
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), null);
+    assertEquals(UniqueIdentifier.of("A", "B"), test.getUniqueIdentifier());
+    assertEquals("", test.getName());
+    assertEquals(0, test.getChildNodes().size());
+    assertEquals(0, test.getPositions().size());
+    assertEquals(0, test.size());
+    assertEquals("PortfolioNode[A::B, 0 child-nodes, 0 positions]", test.toString());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_setName() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl("Name");
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
     assertEquals("Name", test.getName());
     test.setName("NewName");
     assertEquals("NewName", test.getName());

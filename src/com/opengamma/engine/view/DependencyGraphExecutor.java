@@ -292,7 +292,7 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     CalculationJob job = new CalculationJob(
         jobSpec,
         depNode.getFunctionDefinition().getUniqueIdentifier(),
-        depNode.getComputationTarget().getSpecification(),
+        depNode.getComputationTarget().toSpecification(),
         resolvedInputs,
         desiredValues);
     

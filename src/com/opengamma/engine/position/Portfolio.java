@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.position;
 
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A portfolio of positions, typically having business-level meaning.
@@ -16,17 +16,17 @@ import com.opengamma.id.Identifier;
  * <p>
  * A portfolio typically has meta-data.
  */
-public interface Portfolio extends Identifiable {
+public interface Portfolio extends UniqueIdentifiable {
 
   /**
-   * Gets the identifier of the portfolio.
-   * @return the identifier, never null
+   * Gets the unique identifier of the portfolio.
+   * @return the identifier, not null
    */
-  Identifier getIdentityKey();
+  UniqueIdentifier getUniqueIdentifier();
 
   /**
    * Gets the name of the portfolio intended for display purposes.
-   * @return the name, never null
+   * @return the name, not null
    */
   String getName();
 
@@ -35,22 +35,22 @@ public interface Portfolio extends Identifiable {
    * <p>
    * The positions stored in a portfolios are held in a tree structure.
    * This method accesses the root of the tree structure.
-   * @return the root node of the tree structure, never null
+   * @return the root node of the tree structure, not null
    */
   PortfolioNode getRootNode();
 
   /**
-   * Finds a specific node from this portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific node from this portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
-  PortfolioNode getNode(Identifier identityKey);
+  PortfolioNode getNode(UniqueIdentifier identifier);
 
   /**
-   * Finds a specific position from this portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific position from this portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
-  Position getPosition(Identifier identityKey);
+  Position getPosition(UniqueIdentifier identifier);
 
 }

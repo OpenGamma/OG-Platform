@@ -7,7 +7,7 @@ package com.opengamma.engine.position;
 
 import java.util.Set;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A master structure of all positions held by the organization.
@@ -19,29 +19,29 @@ public interface PositionMaster {
 
   /**
    * Gets the list of all portfolio identifiers.
-   * @return the portfolio identifiers, unmodifiable, never null
+   * @return the portfolio identifiers, unmodifiable, not null
    */
-  Set<Identifier> getPortfolioIds();
+  Set<UniqueIdentifier> getPortfolioIds();
 
   /**
    * Gets a specific root portfolio by name.
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */
-  Portfolio getPortfolio(Identifier identifier);
+  Portfolio getPortfolio(UniqueIdentifier identifier);
 
   /**
-   * Finds a specific node from any portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific node from any portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
-  PortfolioNode getPortfolioNode(Identifier identityKey);
+  PortfolioNode getPortfolioNode(UniqueIdentifier identifier);
 
   /**
-   * Finds a specific position from any portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific position from any portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
-  Position getPosition(Identifier identityKey);
+  Position getPosition(UniqueIdentifier identifier);
 
 }

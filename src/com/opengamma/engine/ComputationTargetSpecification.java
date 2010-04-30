@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -14,108 +14,118 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.Identifiable;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A specification of a particular computation target that will be resolved
  * later on in a computation process.
- *
- * @author kirk
  */
 public class ComputationTargetSpecification implements Serializable {
+
   public static final String TYPE_FIELD_NAME = "computationTargetType";
   public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
-  
+
+  /**
+   * The type of the target.
+   */
   private final ComputationTargetType _type;
+  /**
+   * The identifier of the target.
+   */
   private final Identifier _identifier;
-  
+
+  /**
+   * Construct a specification that refers to the specified object.
+   * 
+   * @param target  the target to create a specification for, may be null
+   */
+  public ComputationTargetSpecification(Object target) {
+    _type = ComputationTargetType.determineFromTarget(target);
+    switch (_type) {
+      case MULTIPLE_POSITIONS:
+      case POSITION: {
+        UniqueIdentifier identifier = ((UniqueIdentifiable) target).getUniqueIdentifier();
+        _identifier = Identifier.of(identifier.getScheme(), identifier.getValue());
+        break;
+      }
+      case SECURITY:  // TODO: remove once SECURITY only uses UniqueIdentifiable
+      case PRIMITIVE: {
+        if (target instanceof Identifiable) {
+          _identifier = ((Identifiable) target).getIdentityKey();
+        } else if (target instanceof Identifier) {
+          _identifier = (Identifier) target;
+        } else {
+          _identifier = null;
+        }
+        break;
+      }
+      default:
+        throw new OpenGammaRuntimeException("Unhandled computation target type: " + _type);
+    }
+  }
+
+  /**
+   * Creates a lightweight specification of a computation target.
+   * @param type  the type of the target, not null
+   * @param identifier  the target identifier, may be null
+   */
+  public ComputationTargetSpecification(ComputationTargetType targetType, UniqueIdentifier identifier) {
+    ArgumentChecker.notNull(targetType, "target type");
+    if (targetType != ComputationTargetType.PRIMITIVE) {
+      ArgumentChecker.notNull(identifier, "identifier");
+    }
+    _type = targetType;
+    _identifier = identifier == null ? null : Identifier.of(identifier.getScheme(), identifier.getValue());
+  }
+
+  /**
+   * Creates a lightweight specification of a computation target.
+   * @param type  the type of the target, not null
+   * @param identifier  the target identifier, may be null
+   */
   public ComputationTargetSpecification(ComputationTargetType targetType, Identifier identifier) {
-    ArgumentChecker.notNull(targetType, "Computation Target Type");
-    switch(targetType) {
-    case SECURITY:
-    case POSITION:
-    case MULTIPLE_POSITIONS:
-      ArgumentChecker.notNull(identifier, "Identifier (required for this target type)");
-      break;
-    default:
-      // Not required for Primitive.
-      break;
+    ArgumentChecker.notNull(targetType, "target type");
+    if (targetType != ComputationTargetType.PRIMITIVE) {
+      ArgumentChecker.notNull(identifier, "identifier");
     }
     _type = targetType;
     _identifier = identifier;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Construct a specification that refers to the specified object.
-   * 
-   * @param target
-   */
-  public ComputationTargetSpecification(Object target) {
-    Identifier dsid = null;
-    ComputationTargetType type = ComputationTargetType.determineFromTarget(target);
-    // Special DSID logic.
-    // REVIEW kirk 2010-03-31 -- Does this belong up in ComputationTargetType somewhere?
-    if((type == null) && (target instanceof Identifier)) {
-      dsid = (Identifier) target;
-      if (ObjectUtils.equals(dsid.getScheme(), PortfolioNode.PORTFOLIO_NODE_IDENTITY_KEY_SCHEME)) {
-        type = ComputationTargetType.MULTIPLE_POSITIONS;
-      } else if (ObjectUtils.equals(dsid.getScheme(), Position.POSITION_IDENTITY_KEY_SCHEME)) {
-        type = ComputationTargetType.POSITION;
-      } else if (ObjectUtils.equals(dsid.getScheme(), Security.SECURITY_IDENTITY_KEY_DOMAIN)) {
-        type = ComputationTargetType.SECURITY;
-      } else {
-        type = ComputationTargetType.PRIMITIVE;
-      }
-    }
-    if(type == null) {
-      throw new IllegalArgumentException("Cannot determine a target type for " + target);
-    }
-    if((dsid == null) && (target instanceof Identifiable)) {
-      dsid = ((Identifiable)target).getIdentityKey();
-    }
-    
-    _type = type;
-    _identifier = dsid;
-  }
-
-  /**
-   * @return the type
+   * Gets the type of the target.
+   * @return the type, not null
    */
   public ComputationTargetType getType() {
     return _type;
   }
 
   /**
-   * @return the identifier
+   * Gets the identifier to the actual target.
+   * @return the identifier, may be null
    */
   public Identifier getIdentifier() {
     return _identifier;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null) {
-      return false;
+    if (obj instanceof ComputationTargetSpecification) {
+      ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
+      return _type == other._type &&
+          ObjectUtils.equals(_identifier, other._identifier);
     }
-    if(!(obj instanceof ComputationTargetSpecification)) {
-      return false;
-    }
-    ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
-    if(_type != other._type) {
-      return false;
-    }
-    if(!ObjectUtils.equals(_identifier, other._identifier)) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
@@ -133,20 +143,21 @@ public class ComputationTargetSpecification implements Serializable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-  
-  public void toFudgeMsg (FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
+
+  //-------------------------------------------------------------------------
+  public void toFudgeMsg(FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(TYPE_FIELD_NAME, _type.name());
-    
     FudgeFieldContainer identifierMsg = _identifier.toFudgeMsg(fudgeContext);
     msg.add(IDENTIFIER_FIELD_NAME, identifierMsg);
   }
-  
+
   public static ComputationTargetSpecification fromFudgeMsg(FudgeFieldContainer msg) {
-    if(msg == null) {
+    if (msg == null) {
       return null;
     }
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
     Identifier identifier = new Identifier(msg.getMessage(IDENTIFIER_FIELD_NAME));
     return new ComputationTargetSpecification(type, identifier);
   }
+
 }
