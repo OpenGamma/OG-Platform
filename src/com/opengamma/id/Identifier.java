@@ -111,15 +111,6 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
     this(new IdentificationScheme(schemeName), standaloneId);
   }
 
-  /**
-   * Constructs an identifier from a Fudge message.
-   * @param fudgeMsg  the fudge message, not null
-   */
-  public Identifier(FudgeFieldContainer fudgeMsg) {
-    _scheme = new IdentificationScheme(fudgeMsg.getString(SCHEME_FUDGE_FIELD_NAME));
-    _value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the identification scheme.
@@ -227,6 +218,12 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
     msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
+  }
+
+  public static Identifier fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
+    String scheme = fudgeMsg.getString(SCHEME_FUDGE_FIELD_NAME);
+    String value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
+    return Identifier.of(scheme, value);
   }
 
 }

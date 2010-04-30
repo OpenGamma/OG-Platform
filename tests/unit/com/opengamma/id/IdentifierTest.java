@@ -17,75 +17,151 @@ public class IdentifierTest {
   private static final IdentificationScheme SCHEME = new IdentificationScheme("Scheme");
   private static final IdentificationScheme OTHER_SCHEME = new IdentificationScheme("Other");
 
-  public void test_constructor_IdentificationScheme_String() {
-    Identifier test = new Identifier(SCHEME, "foo");
+  @Test
+  public void test_factory_IdentificationScheme_String() {
+    Identifier test = Identifier.of(SCHEME, "value");
     assertEquals("Scheme", test.getScheme().getName());
-    assertEquals("foo", test.getValue());
+    assertEquals("value", test.getValue());
+    assertEquals("Scheme::value", test.toString());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_factory_IdentificationScheme_String_nullScheme() {
+    Identifier.of((IdentificationScheme) null, "value");
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_factory_IdentificationScheme_String_nullValue() {
+    Identifier.of(SCHEME, (String) null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_factory_IdentificationScheme_String_emptyValue() {
+    Identifier.of(SCHEME, "");
+  }
+
+  @Test
+  public void test_factory_String_String() {
+    Identifier test = Identifier.of("Scheme", "value");
+    assertEquals("Scheme", test.getScheme().getName());
+    assertEquals("value", test.getValue());
+    assertEquals("Scheme::value", test.toString());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_factory_String_String_nullScheme() {
+    Identifier.of((String) null, "value");
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_factory_String_String_nullValue() {
+    Identifier.of(SCHEME, (String) null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_factory_String_String_emptyValue() {
+    Identifier.of(SCHEME, "");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_constructor_IdentificationScheme_String() {
+    Identifier test = new Identifier(SCHEME, "value");
+    assertEquals("Scheme", test.getScheme().getName());
+    assertEquals("value", test.getValue());
+    assertEquals("Scheme::value", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
   public void test_constructor_IdentificationScheme_String_nullScheme() {
-    new Identifier((IdentificationScheme) null, "foo");
+    new Identifier((IdentificationScheme) null, "value");
   }
 
   @Test(expected=NullPointerException.class)
-  public void test_constructor_IdentificationScheme_String_nullId() {
+  public void test_constructor_IdentificationScheme_String_nullValue() {
     new Identifier(SCHEME, (String) null);
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_constructor_IdentificationScheme_String_emptyId() {
+  public void test_constructor_IdentificationScheme_String_emptyValue() {
     new Identifier(SCHEME, "");
   }
 
+  @Test
   public void test_constructor_String_String() {
-    Identifier test = new Identifier("Scheme", "foo");
+    Identifier test = new Identifier("Scheme", "value");
     assertEquals("Scheme", test.getScheme().getName());
-    assertEquals("foo", test.getValue());
+    assertEquals("value", test.getValue());
+    assertEquals("Scheme::value", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
   public void test_constructor_String_String_nullScheme() {
-    new Identifier((String) null, "foo");
+    new Identifier((String) null, "value");
   }
 
   @Test(expected=NullPointerException.class)
-  public void test_constructor_String_String_nullId() {
+  public void test_constructor_String_String_nullValue() {
     new Identifier(SCHEME, (String) null);
-    assertEquals(new IdentificationScheme("Bloomberg"), (new Identifier("Bloomberg", "foo")).getScheme());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_constructor_String_String_emptyValue() {
+    new Identifier(SCHEME, "");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parse() {
+    Identifier test = Identifier.parse("Scheme::value");
+    assertEquals(SCHEME, test.getScheme());
+    assertEquals("value", test.getValue());
+    assertEquals("Scheme::value", test.toString());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_parse_invalidFormat() {
+    Identifier.parse("Scheme:value");
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_isScheme_IdentificationScheme() {
     Identifier test = new Identifier(SCHEME, "value");
-    assertEquals(test.isScheme(SCHEME), true);
-    assertEquals(test.isScheme(OTHER_SCHEME), false);
-    assertEquals(test.isScheme((IdentificationScheme) null), false);
+    assertEquals(true, test.isScheme(SCHEME));
+    assertEquals(false, test.isScheme(OTHER_SCHEME));
+    assertEquals(false, test.isScheme((IdentificationScheme) null));
   }
 
   @Test
   public void test_isNotScheme_IdentificationScheme() {
     Identifier test = new Identifier(SCHEME, "value");
-    assertEquals(test.isNotScheme(SCHEME), false);
-    assertEquals(test.isNotScheme(OTHER_SCHEME), true);
-    assertEquals(test.isNotScheme((IdentificationScheme) null), true);
+    assertEquals(false, test.isNotScheme(SCHEME));
+    assertEquals(true, test.isNotScheme(OTHER_SCHEME));
+    assertEquals(true, test.isNotScheme((IdentificationScheme) null));
   }
 
   @Test
   public void test_isScheme_String() {
     Identifier test = new Identifier(SCHEME, "value");
-    assertEquals(test.isScheme("Scheme"), true);
-    assertEquals(test.isScheme("Other"), false);
-    assertEquals(test.isScheme((String) null), false);
+    assertEquals(true, test.isScheme("Scheme"));
+    assertEquals(false, test.isScheme("Other"));
+    assertEquals(false, test.isScheme((String) null));
   }
 
   @Test
   public void test_isNotScheme_String() {
     Identifier test = new Identifier(SCHEME, "value");
-    assertEquals(test.isNotScheme("Scheme"), false);
-    assertEquals(test.isNotScheme("Other"), true);
-    assertEquals(test.isNotScheme((String) null), true);
+    assertEquals(false, test.isNotScheme("Scheme"));
+    assertEquals(true, test.isNotScheme("Other"));
+    assertEquals(true, test.isNotScheme((String) null));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getIdentityKey() {
+    Identifier test = new Identifier(SCHEME, "value");
+    assertEquals(test, test.getIdentityKey());
   }
 
   //-------------------------------------------------------------------------
@@ -95,20 +171,20 @@ public class IdentifierTest {
     Identifier d1b = new Identifier(SCHEME, "d1");
     Identifier d2 = new Identifier(SCHEME, "d2");
     
-    assertEquals(d1a.equals(d1a), true);
-    assertEquals(d1a.equals(d1b), true);
-    assertEquals(d1a.equals(d2), false);
+    assertEquals(true, d1a.equals(d1a));
+    assertEquals(true, d1a.equals(d1b));
+    assertEquals(false, d1a.equals(d2));
     
-    assertEquals(d1b.equals(d1a), true);
-    assertEquals(d1b.equals(d1b), true);
-    assertEquals(d1b.equals(d2), false);
+    assertEquals(true, d1b.equals(d1a));
+    assertEquals(true, d1b.equals(d1b));
+    assertEquals(false, d1b.equals(d2));
     
-    assertEquals(d2.equals(d1a), false);
-    assertEquals(d2.equals(d1b), false);
-    assertEquals(d2.equals(d2), true);
+    assertEquals(false, d2.equals(d1a));
+    assertEquals(false, d2.equals(d1b));
+    assertEquals(true, d2.equals(d2));
     
-    assertEquals(d1b.equals("d1"), false);
-    assertEquals(d1b.equals(null), false);
+    assertEquals(false, d1b.equals("d1"));
+    assertEquals(false, d1b.equals(null));
   }
 
   @Test

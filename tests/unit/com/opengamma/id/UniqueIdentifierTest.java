@@ -15,7 +15,7 @@ import org.junit.Test;
 public class UniqueIdentifierTest {
 
   @Test
-  public void test_constructor_String_String() {
+  public void test_factory_String_String() {
     UniqueIdentifier test = UniqueIdentifier.of("Scheme", "value");
     assertEquals("Scheme", test.getScheme());
     assertEquals("value", test.getValue());
@@ -23,22 +23,22 @@ public class UniqueIdentifierTest {
   }
 
   @Test(expected=NullPointerException.class)
-  public void test_constructor_String_String_nullScheme() {
+  public void test_factory_String_String_nullScheme() {
     UniqueIdentifier.of((String) null, "value");
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_constructor_String_String_emptyScheme() {
+  public void test_factory_String_String_emptyScheme() {
     UniqueIdentifier.of("", "value");
   }
 
   @Test(expected=NullPointerException.class)
-  public void test_constructor_String_String_nullValue() {
+  public void test_factory_String_String_nullValue() {
     UniqueIdentifier.of("Scheme", (String) null);
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_constructor_String_String_emptyValue() {
+  public void test_factory_String_String_emptyValue() {
     UniqueIdentifier.of("Scheme", "");
   }
 
@@ -89,20 +89,20 @@ public class UniqueIdentifierTest {
     UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
     UniqueIdentifier d2 = UniqueIdentifier.of("Scheme", "d2");
     
-    assertEquals(d1a.equals(d1a), true);
-    assertEquals(d1a.equals(d1b), true);
-    assertEquals(d1a.equals(d2), false);
+    assertEquals(true, d1a.equals(d1a));
+    assertEquals(true, d1a.equals(d1b));
+    assertEquals(false, d1a.equals(d2));
     
-    assertEquals(d1b.equals(d1a), true);
-    assertEquals(d1b.equals(d1b), true);
-    assertEquals(d1b.equals(d2), false);
+    assertEquals(true, d1b.equals(d1a));
+    assertEquals(true, d1b.equals(d1b));
+    assertEquals(false, d1b.equals(d2));
     
-    assertEquals(d2.equals(d1a), false);
-    assertEquals(d2.equals(d1b), false);
-    assertEquals(d2.equals(d2), true);
+    assertEquals(false, d2.equals(d1a));
+    assertEquals(false, d2.equals(d1b));
+    assertEquals(true, d2.equals(d2));
     
-    assertEquals(d1b.equals("d1"), false);
-    assertEquals(d1b.equals(null), false);
+    assertEquals(false, d1b.equals("d1"));
+    assertEquals(false, d1b.equals(null));
   }
 
   @Test
