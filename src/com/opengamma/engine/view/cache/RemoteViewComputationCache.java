@@ -26,8 +26,8 @@ public class RemoteViewComputationCache implements ViewComputationCache {
   private final Cache _localCache;
   
   public RemoteViewComputationCache(RemoteCacheClient remoteClient, ViewComputationCacheKey cacheKey, int maxLocalCachedElements) {
-    ArgumentChecker.checkNotNull(remoteClient, "Remote cache client");
-    ArgumentChecker.checkNotNull(cacheKey, "Computation cache key");
+    ArgumentChecker.notNull(remoteClient, "Remote cache client");
+    ArgumentChecker.notNull(cacheKey, "Computation cache key");
     _remoteClient = remoteClient;
     _cacheKey = cacheKey;
     

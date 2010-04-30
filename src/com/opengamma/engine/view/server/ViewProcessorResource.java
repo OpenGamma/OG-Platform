@@ -53,10 +53,10 @@ public class ViewProcessorResource {
   private final ConcurrentMap<String,ResultListener> _listeners = new ConcurrentHashMap<String,ResultListener> ();
   
   public ViewProcessorResource (final JmsTemplate jmsTemplate, final String jmsTopicPrefix, final FudgeContext fudgeContext, final ViewProcessorClient viewProcessorClient) {
-    ArgumentChecker.checkNotNull (jmsTemplate, "JMS template");
-    ArgumentChecker.checkNotNull (jmsTopicPrefix, "JMS topic prefix");
-    ArgumentChecker.checkNotNull (fudgeContext, "Fudge context");
-    ArgumentChecker.checkNotNull (viewProcessorClient, "view processor client");
+    ArgumentChecker.notNull (jmsTemplate, "JMS template");
+    ArgumentChecker.notNull (jmsTopicPrefix, "JMS topic prefix");
+    ArgumentChecker.notNull (fudgeContext, "Fudge context");
+    ArgumentChecker.notNull (viewProcessorClient, "view processor client");
     _jmsTemplate = jmsTemplate;
     _jmsTopicPrefix = jmsTopicPrefix;
     _fudgeContext = fudgeContext;

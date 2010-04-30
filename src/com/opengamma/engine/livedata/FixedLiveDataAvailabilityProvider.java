@@ -26,7 +26,7 @@ public class FixedLiveDataAvailabilityProvider implements
   }
   
   public void addRequirement(ValueRequirement requirement) {
-    ArgumentChecker.checkNotNull(requirement, "Value requirement");
+    ArgumentChecker.notNull(requirement, "Value requirement");
     _availableRequirements.add(requirement);
   }
 

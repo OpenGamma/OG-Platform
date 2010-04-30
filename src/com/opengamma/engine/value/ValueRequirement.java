@@ -35,8 +35,8 @@ public class ValueRequirement implements Serializable {
   }
   
   public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification) {
-    ArgumentChecker.checkNotNull(valueName, "Value name");
-    ArgumentChecker.checkNotNull(targetSpecification, "Computation target specification");
+    ArgumentChecker.notNull(valueName, "Value name");
+    ArgumentChecker.notNull(targetSpecification, "Computation target specification");
     _valueName = valueName.intern();
     _targetSpecification = targetSpecification;
   }

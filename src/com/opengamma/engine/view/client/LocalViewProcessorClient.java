@@ -25,7 +25,7 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
   private final ViewProcessor _viewProcessor;
   
   public LocalViewProcessorClient(ViewProcessor viewProcessor) {
-    ArgumentChecker.checkNotNull(viewProcessor, "View Processor");
+    ArgumentChecker.notNull(viewProcessor, "View Processor");
     _viewProcessor = viewProcessor;
   }
 

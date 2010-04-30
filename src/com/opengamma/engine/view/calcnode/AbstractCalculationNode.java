@@ -38,11 +38,11 @@ public abstract class AbstractCalculationNode {
       FunctionExecutionContext functionExecutionContext,
       ComputationTargetResolver targetResolver, 
       ViewProcessorQuerySender calcNodeQuerySender) {
-    ArgumentChecker.checkNotNull(cacheSource, "Cache Source");
-    ArgumentChecker.checkNotNull(functionRepository, "Function Repository");
-    ArgumentChecker.checkNotNull(functionExecutionContext, "Function Execution Context");
-    ArgumentChecker.checkNotNull(targetResolver, "Target Resolver");
-    ArgumentChecker.checkNotNull(calcNodeQuerySender, "Calc Node Query Sender");
+    ArgumentChecker.notNull(cacheSource, "Cache Source");
+    ArgumentChecker.notNull(functionRepository, "Function Repository");
+    ArgumentChecker.notNull(functionExecutionContext, "Function Execution Context");
+    ArgumentChecker.notNull(targetResolver, "Target Resolver");
+    ArgumentChecker.notNull(calcNodeQuerySender, "Calc Node Query Sender");
     _cacheSource = cacheSource;
     _functionRepository = functionRepository;
     _functionExecutionContext = functionExecutionContext;
@@ -93,7 +93,7 @@ public abstract class AbstractCalculationNode {
     if(target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
     }
-    FunctionInvocationJob invocationJob = new FunctionInvocationJob(job.getFunctionUniqueIdentifier(), job.getInputs(), cache, 
+    FunctionInvocationJob invocationJob = new FunctionInvocationJob(spec, job.getFunctionUniqueIdentifier(), job.getInputs(), cache,
                                                                     getFunctionRepository(), getFunctionExecutionContext(), 
                                                                     new ViewProcessorQuery(getViewProcessorQuerySender(), spec),
                                                                     target, job.getDesiredValues());

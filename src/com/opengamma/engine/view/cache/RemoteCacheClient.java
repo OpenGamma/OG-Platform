@@ -33,7 +33,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
   }
 
   public long getValueSpecificationId(ValueSpecification valueSpec) {
-    ArgumentChecker.checkNotNull(valueSpec, "Value Specification");
+    ArgumentChecker.notNull(valueSpec, "Value Specification");
     Long result = _specificationIds.get(valueSpec);
     if(result != null) {
       return result;
@@ -45,7 +45,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
   }
 
   protected long remoteLookupValueSpecificationId(ValueSpecification valueSpec) {
-    ArgumentChecker.checkNotNull(valueSpec, "Value Specification");
+    ArgumentChecker.notNull(valueSpec, "Value Specification");
     long correlationId = getNextCorrelationId();
     s_logger.info("Requesting value specification ID for {} - Correlation {}", valueSpec, correlationId);
     ValueSpecificationLookupRequest request = new ValueSpecificationLookupRequest(correlationId, valueSpec);

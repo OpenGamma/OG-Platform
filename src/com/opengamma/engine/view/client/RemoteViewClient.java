@@ -98,7 +98,7 @@ import com.opengamma.util.ArgumentChecker;
   
   @Override
   public void addComputationResultListener(ComputationResultListener listener) {
-    ArgumentChecker.checkNotNull (listener, "listener");
+    ArgumentChecker.notNull (listener, "listener");
     synchronized (_resultListeners) {
       if (_resultListeners.isEmpty ()) {
         final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
@@ -123,7 +123,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void addDeltaResultListener(DeltaComputationResultListener listener) {
-    ArgumentChecker.checkNotNull (listener, "listener");
+    ArgumentChecker.notNull (listener, "listener");
     synchronized (_deltaListeners) {
       if (_deltaListeners.isEmpty ()) {
         final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetDeltaResult, VIEW_DELTARESULT);
@@ -148,7 +148,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void removeComputationResultListener(ComputationResultListener listener) {
-    ArgumentChecker.checkNotNull (listener, "listener");
+    ArgumentChecker.notNull (listener, "listener");
     synchronized (_resultListeners) {
       _resultListeners.remove (listener);
       if (_resultListeners.isEmpty ()) {
@@ -162,7 +162,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void removeDeltaResultListener(DeltaComputationResultListener listener) {
-    ArgumentChecker.checkNotNull (listener, "listener");
+    ArgumentChecker.notNull (listener, "listener");
     synchronized (_deltaListeners) {
       _deltaListeners.remove (listener);
       if (_deltaListeners.isEmpty ()) {

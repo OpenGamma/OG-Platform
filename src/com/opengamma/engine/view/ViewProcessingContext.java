@@ -11,7 +11,6 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
@@ -33,7 +32,6 @@ public class ViewProcessingContext {
   private final FunctionResolver _functionResolver;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
-  private final HistoricalDataProvider _historicalDataProvider;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobRequestSender _computationJobRequestSender;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
@@ -44,7 +42,6 @@ public class ViewProcessingContext {
   public ViewProcessingContext(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
-      HistoricalDataProvider historicalDataProvider,
       FunctionRepository functionRepository,
       FunctionResolver functionResolver,
       PositionMaster positionMaster,
@@ -55,22 +52,20 @@ public class ViewProcessingContext {
       FunctionCompilationContext compilationContext,
       ExecutorService executorService
       ) {
-    ArgumentChecker.checkNotNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
-    ArgumentChecker.checkNotNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
-    ArgumentChecker.checkNotNull(historicalDataProvider, "HistoricalDataProvider");
-    ArgumentChecker.checkNotNull(functionRepository, "FunctionRepository");
-    ArgumentChecker.checkNotNull(functionResolver, "FunctionResolver");
-    ArgumentChecker.checkNotNull(positionMaster, "PositionMaster");
-    ArgumentChecker.checkNotNull(securityMaster, "SecurityMaster");
-    ArgumentChecker.checkNotNull(computationCacheSource, "ComputationCacheSource");
-    ArgumentChecker.checkNotNull(computationJobRequestSender, "ComputationJobRequestSender");
-    ArgumentChecker.checkNotNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
-    ArgumentChecker.checkNotNull(compilationContext, "CompilationContext");
-    ArgumentChecker.checkNotNull(executorService, "ExecutorService");
+    ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
+    ArgumentChecker.notNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
+    ArgumentChecker.notNull(functionRepository, "FunctionRepository");
+    ArgumentChecker.notNull(functionResolver, "FunctionResolver");
+    ArgumentChecker.notNull(positionMaster, "PositionMaster");
+    ArgumentChecker.notNull(securityMaster, "SecurityMaster");
+    ArgumentChecker.notNull(computationCacheSource, "ComputationCacheSource");
+    ArgumentChecker.notNull(computationJobRequestSender, "ComputationJobRequestSender");
+    ArgumentChecker.notNull(viewProcessorQueryReceiver, "ViewProcessorQueryReceiver");
+    ArgumentChecker.notNull(compilationContext, "CompilationContext");
+    ArgumentChecker.notNull(executorService, "ExecutorService");
     
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
-    _historicalDataProvider = historicalDataProvider;
     _functionRepository = functionRepository;
     _functionResolver = functionResolver;
     _positionMaster = positionMaster;
@@ -98,13 +93,6 @@ public class ViewProcessingContext {
     return _liveDataSnapshotProvider;
   }
   
-  /**
-   * @return the historical data provider
-   */
-  public HistoricalDataProvider getHistoricalDataProvider() {
-    return _historicalDataProvider;
-  }
-
   /**
    * @return the analyticFunctionRepository
    */

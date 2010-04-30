@@ -14,29 +14,28 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * The encapsulated logic that controls how precisely a view is to be constructed
  * and computed.
- *
- * @author kirk
  */
 public class ViewDefinition implements Serializable {
   private final String _name;
-  private final String _rootPortfolioName;
+  private final Identifier _portfolioId;
   private final String _userName;
   private Long _minimumRecalculationPeriod;
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
-  public ViewDefinition(String name, String rootPortfolioName, String userName) {
-    ArgumentChecker.checkNotNull(name, "View name");
-    ArgumentChecker.checkNotNull(rootPortfolioName, "Root portfolio name");
-    ArgumentChecker.checkNotNull(userName, "User name");
+  public ViewDefinition(String name, Identifier portfolioId, String userName) {
+    ArgumentChecker.notNull(name, "View name");
+    ArgumentChecker.notNull(portfolioId, "Portfolio id");
+    ArgumentChecker.notNull(userName, "User name");
     
     _name = name;
-    _rootPortfolioName = rootPortfolioName;
+    _portfolioId = portfolioId;
     _userName = userName;
   }
   
@@ -52,8 +51,8 @@ public class ViewDefinition implements Serializable {
     return _name;
   }
 
-  public String getRootPortfolioName() {
-    return _rootPortfolioName;
+  public Identifier getPortfolioId() {
+    return _portfolioId;
   }
   
   public String getUserName() {
@@ -76,8 +75,8 @@ public class ViewDefinition implements Serializable {
   }
   
   public void addViewCalculationConfiguration(ViewCalculationConfiguration calcConfig) {
-    ArgumentChecker.checkNotNull(calcConfig, "calculation configuration");
-    ArgumentChecker.checkNotNull(calcConfig.getName(), "Configuration name");
+    ArgumentChecker.notNull(calcConfig, "calculation configuration");
+    ArgumentChecker.notNull(calcConfig.getName(), "Configuration name");
     _calculationConfigurationsByName.put(calcConfig.getName(), calcConfig);
   }
   

@@ -47,8 +47,8 @@ public class DependencyNode {
       FunctionCompilationContext context,
       FunctionDefinition functionDefinition,
       ComputationTarget target) {
-    ArgumentChecker.checkNotNull(functionDefinition, "Function Definition");
-    ArgumentChecker.checkNotNull(target, "Computation Target");
+    ArgumentChecker.notNull(functionDefinition, "Function Definition");
+    ArgumentChecker.notNull(target, "Computation Target");
     if(functionDefinition.getTargetType() != target.getType()) {
       throw new IllegalArgumentException(
           "Provided function of type " + functionDefinition.getTargetType()
@@ -62,13 +62,13 @@ public class DependencyNode {
   }
   
   public void addInputNode(DependencyNode inputNode) {
-    ArgumentChecker.checkNotNull(inputNode, "Input Node");
+    ArgumentChecker.notNull(inputNode, "Input Node");
     _inputNodes.add(inputNode);
     inputNode.addDependentNode(this); // note how we rely on the yucky class-scope encapsulation of private
   }
  
   private void addDependentNode(DependencyNode dependentNode) {
-    ArgumentChecker.checkNotNull(dependentNode, "Dependent Node");
+    ArgumentChecker.notNull(dependentNode, "Dependent Node");
     _dependentNodes.add(dependentNode);
   }
   
@@ -103,8 +103,8 @@ public class DependencyNode {
   }
 
   public void addRequirementMapping(ValueRequirement inputRequirement, ValueSpecification actualValue) {
-    ArgumentChecker.checkNotNull(inputRequirement, "Input Value Requirement");
-    ArgumentChecker.checkNotNull(actualValue, "Actual Value Specification");
+    ArgumentChecker.notNull(inputRequirement, "Input Value Requirement");
+    ArgumentChecker.notNull(actualValue, "Actual Value Specification");
     assert inputNodeProduces(actualValue);
     _requirementMapping.put(inputRequirement, actualValue);
   }

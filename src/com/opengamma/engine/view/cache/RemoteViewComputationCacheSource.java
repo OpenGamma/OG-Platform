@@ -38,7 +38,7 @@ public class RemoteViewComputationCacheSource implements
   }
   
   public RemoteViewComputationCacheSource(RemoteCacheClient remoteClient, int maxLocalCachedElements) {
-    ArgumentChecker.checkNotNull(remoteClient, "Remote computation cache client");
+    ArgumentChecker.notNull(remoteClient, "Remote computation cache client");
     _remoteClient = remoteClient;
     _maxLocalCachedElements = maxLocalCachedElements;
   }

@@ -28,7 +28,6 @@ import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionRepository;
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.PositionMaster;
@@ -58,7 +57,6 @@ public class ViewProcessor implements Lifecycle {
   private PositionMaster _positionMaster;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
-  private HistoricalDataProvider _historicalDataProvider;
   private ViewComputationCacheSource _computationCacheSource;
   private JobRequestSender _computationJobRequestSender;
   private ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
@@ -173,21 +171,6 @@ public class ViewProcessor implements Lifecycle {
   }
   
   /**
-   * @return the historicalDataProvider
-   */
-  public HistoricalDataProvider getHistoricalDataProvider() {
-    return _historicalDataProvider;
-  }
-  
-  /**
-   * @param historicalDataProvider the HistoricalDataProvider to set
-   */
-  public void setHistoricalDataProvider(HistoricalDataProvider historicalDataProvider) {
-    assertNotStarted();
-    _historicalDataProvider = historicalDataProvider;
-  }
-
-  /**
    * @return the computationCacheSource
    */
   public ViewComputationCacheSource getComputationCacheSource() {
@@ -300,7 +283,7 @@ public class ViewProcessor implements Lifecycle {
    * @throws NoSuchElementException if a view with the name is not available
    */
   public View initializeView(String viewName) {
-    ArgumentChecker.checkNotNull(viewName, "View name");
+    ArgumentChecker.notNull(viewName, "View name");
     if(_viewsByName.containsKey(viewName)) {
       return _viewsByName.get(viewName);
     }
@@ -313,7 +296,6 @@ public class ViewProcessor implements Lifecycle {
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataAvailabilityProvider(),
         getLiveDataSnapshotProvider(),
-        getHistoricalDataProvider(),
         getFunctionRepository(),
         new DefaultFunctionResolver(getFunctionRepository()),
         getPositionMaster(),
@@ -387,7 +369,7 @@ public class ViewProcessor implements Lifecycle {
   }
   
   protected View getViewInternal(String viewName) {
-    ArgumentChecker.checkNotNull(viewName, "View name");
+    ArgumentChecker.notNull(viewName, "View name");
     if(_viewsByName.containsKey(viewName)) {
       return _viewsByName.get(viewName);
     }
@@ -528,15 +510,14 @@ public class ViewProcessor implements Lifecycle {
   
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
-    ArgumentChecker.checkNotNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
-    ArgumentChecker.checkNotNullInjected(getFunctionRepository(), "functionRepository");
-    ArgumentChecker.checkNotNullInjected(getSecurityMaster(), "securityMaster");
-    ArgumentChecker.checkNotNullInjected(getPositionMaster(), "positionMaster");
-    ArgumentChecker.checkNotNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
-    ArgumentChecker.checkNotNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
-    ArgumentChecker.checkNotNullInjected(getHistoricalDataProvider(), "historicalDataProvider");
-    ArgumentChecker.checkNotNullInjected(getComputationCacheSource(), "computationCacheSource");
-    ArgumentChecker.checkNotNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
+    ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
+    ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
+    ArgumentChecker.notNullInjected(getSecurityMaster(), "securityMaster");
+    ArgumentChecker.notNullInjected(getPositionMaster(), "positionMaster");
+    ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
+    ArgumentChecker.notNullInjected(getLiveDataSnapshotProvider(), "liveDataSnapshotProvider");
+    ArgumentChecker.notNullInjected(getComputationCacheSource(), "computationCacheSource");
+    ArgumentChecker.notNullInjected(getComputationJobRequestSender(), "computationJobRequestSender");
   }
   
 }

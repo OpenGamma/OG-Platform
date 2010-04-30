@@ -62,11 +62,11 @@ public class DependencyGraphExecutor implements JobResultReceiver {
       DependencyGraph dependencyGraph,
       ViewProcessingContext processingContext,
       SingleComputationCycle cycle) {
-    ArgumentChecker.checkNotNull(viewName, "View Name");
-    ArgumentChecker.checkNotNull(calcConfigName, "Calculation configuration name");
-    ArgumentChecker.checkNotNull(dependencyGraph, "Dependency Graph");
-    ArgumentChecker.checkNotNull(processingContext, "View Processing Context");
-    ArgumentChecker.checkNotNull(cycle, "Computation cycle");
+    ArgumentChecker.notNull(viewName, "View Name");
+    ArgumentChecker.notNull(calcConfigName, "Calculation configuration name");
+    ArgumentChecker.notNull(dependencyGraph, "Dependency Graph");
+    ArgumentChecker.notNull(processingContext, "View Processing Context");
+    ArgumentChecker.notNull(cycle, "Computation cycle");
     _viewName = viewName;
     _calcConfigName = calcConfigName;
     _dependencyGraph = dependencyGraph;

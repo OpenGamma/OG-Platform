@@ -71,10 +71,10 @@ public class SingleComputationCycle {
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
       ViewDefinition viewDefinition) {
-    ArgumentChecker.checkNotNull(viewName, "View name");
-    ArgumentChecker.checkNotNull(processingContext, "View processing context");
-    ArgumentChecker.checkNotNull(portfolioEvaluationModel, "Portfolio evaluation model");
-    ArgumentChecker.checkNotNull(resultModel, "Result model");
+    ArgumentChecker.notNull(viewName, "View name");
+    ArgumentChecker.notNull(processingContext, "View processing context");
+    ArgumentChecker.notNull(portfolioEvaluationModel, "Portfolio evaluation model");
+    ArgumentChecker.notNull(resultModel, "Result model");
 
     _viewName = viewName;
     _processingContext = processingContext;

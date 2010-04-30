@@ -36,8 +36,8 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
       JobRequestSender overflowSender,
       CalculationNodeRequestReceiver calculationNode,
       int nLocalWorkers) {
-    ArgumentChecker.checkNotNull(overflowSender, "Overflow Sender");
-    ArgumentChecker.checkNotNull(calculationNode, "Calculation node");
+    ArgumentChecker.notNull(overflowSender, "Overflow Sender");
+    ArgumentChecker.notNull(calculationNode, "Calculation node");
     Validate.isTrue(nLocalWorkers > 0, "Must specify a positive number of local workers.");
     
     _overflowSender = overflowSender;
@@ -65,8 +65,8 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
 
   @Override
   public void sendRequest(CalculationJob job, JobResultReceiver resultReceiver) {
-    ArgumentChecker.checkNotNull(job, "Calculation Job");
-    ArgumentChecker.checkNotNull(resultReceiver, "Job result receiver");
+    ArgumentChecker.notNull(job, "Calculation Job");
+    ArgumentChecker.notNull(resultReceiver, "Job result receiver");
     
     Runnable runnable = new LocalDispatchRunnable(job, resultReceiver);
     if(!_offerQueue.offer(runnable)) {

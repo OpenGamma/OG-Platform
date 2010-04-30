@@ -40,7 +40,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   private final Cache _multiSecuritiesCache;
 
   public EHCachingSecurityMaster(SecurityMaster underlying) {
-    ArgumentChecker.checkNotNull(underlying, "Security Master");
+    ArgumentChecker.notNull(underlying, "Security Master");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
     EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
@@ -57,7 +57,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
       long timeToLiveSeconds, long timeToIdleSeconds, boolean diskPersistent,
       long diskExpiryThreadIntervalSeconds,
       RegisteredEventListeners registeredEventListeners) {
-    ArgumentChecker.checkNotNull(underlying, "Security Master");
+    ArgumentChecker.notNull(underlying, "Security Master");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
     EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE, maxElementsInMemory,
@@ -74,8 +74,8 @@ public class EHCachingSecurityMaster implements SecurityMaster {
   }
 
   public EHCachingSecurityMaster(SecurityMaster underlying, CacheManager manager) {
-    ArgumentChecker.checkNotNull(underlying, "Security Master");
-    ArgumentChecker.checkNotNull(manager, "CacheManager");
+    ArgumentChecker.notNull(underlying, "Security Master");
+    ArgumentChecker.notNull(manager, "CacheManager");
     _underlying = underlying;
     EHCacheUtils.addCache(manager, SINGLE_SECURITY_CACHE);
     EHCacheUtils.addCache(manager, MULTI_SECURITIES_CACHE);
@@ -86,9 +86,9 @@ public class EHCachingSecurityMaster implements SecurityMaster {
 
   public EHCachingSecurityMaster(SecurityMaster underlying,
       Cache singleSecCache, Cache multiSecCache) {
-    ArgumentChecker.checkNotNull(underlying, "Security Master");
-    ArgumentChecker.checkNotNull(singleSecCache, "Single Security Cache");
-    ArgumentChecker.checkNotNull(multiSecCache, "Multi Security Cache");
+    ArgumentChecker.notNull(underlying, "Security Master");
+    ArgumentChecker.notNull(singleSecCache, "Single Security Cache");
+    ArgumentChecker.notNull(multiSecCache, "Multi Security Cache");
     _underlying = underlying;
     CacheManager manager = EHCacheUtils.createCacheManager();
     EHCacheUtils.addCache(manager, singleSecCache);
@@ -173,7 +173,7 @@ public class EHCachingSecurityMaster implements SecurityMaster {
    */
   @SuppressWarnings("unchecked")
   public void refresh(Object secKey) {
-    ArgumentChecker.checkNotNull(secKey, "Security Key");
+    ArgumentChecker.notNull(secKey, "Security Key");
     Element element = _multiSecuritiesCache.get(secKey);
     if (element != null) {
       Serializable value = element.getValue();

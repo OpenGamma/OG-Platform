@@ -45,8 +45,8 @@ public class ComputationTarget implements Serializable {
    * @param value The value provided.
    */
   public static void checkValueValid(ComputationTargetType type, Object value) {
-    ArgumentChecker.checkNotNull(type, "Computation Target Type");
-    ArgumentChecker.checkNotNull(value, "Value");
+    ArgumentChecker.notNull(type, "Computation Target Type");
+    ArgumentChecker.notNull(value, "Value");
     
     // Now check argument assignment.
     switch(type) {

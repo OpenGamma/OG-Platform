@@ -24,8 +24,8 @@ import com.opengamma.util.ArgumentChecker;
   private final long _snapshotTimestamp;
   
   public ViewComputationCacheKey(String viewName, String calculationConfigurationName, long snapshotTimestamp) {
-    ArgumentChecker.checkNotNull(viewName, "view name");
-    ArgumentChecker.checkNotNull(calculationConfigurationName, "calculation configuration name");
+    ArgumentChecker.notNull(viewName, "view name");
+    ArgumentChecker.notNull(calculationConfigurationName, "calculation configuration name");
     
     _viewName = viewName;
     _calculationConfigurationName = calculationConfigurationName;

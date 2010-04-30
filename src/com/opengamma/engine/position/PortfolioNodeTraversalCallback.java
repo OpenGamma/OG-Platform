@@ -6,17 +6,16 @@
 package com.opengamma.engine.position;
 
 /**
- * 
- *
- * @author kirk
+ * Callback interface allowing the position master to be traversed.
  */
 public interface PortfolioNodeTraversalCallback {
 
   void preOrderOperation(PortfolioNode portfolioNode);
-  
+
   void postOrderOperation(PortfolioNode portfolioNode);
-  
+
   void preOrderOperation(Position position);
-  
+
   void postOrderOperation(Position position);
+
 }

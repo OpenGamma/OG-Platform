@@ -25,7 +25,7 @@ public class LocalViewClient implements ViewClient {
   private final View _view;
   
   public LocalViewClient(View view) {
-    ArgumentChecker.checkNotNull(view, "View");
+    ArgumentChecker.notNull(view, "View");
     _view = view;
   }
 
@@ -64,8 +64,7 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public ViewComputationResultModel getMostRecentResult() {
-    // TODO Auto-generated method stub
-    return null;
+    return getView().getMostRecentResult();
   }
 
   @Override
@@ -75,7 +74,7 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public Portfolio getPortfolio() {
-    return (Portfolio)getView().getPositionRoot();
+    return (Portfolio) getView().getPortfolio();
   }
 
   @Override

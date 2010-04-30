@@ -22,7 +22,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A lose specification for a {@link Position} in a particular {@link Security},
+ * A loose specification for a {@link Position} in a particular {@link Security},
  * identified by its Identity Key.
  *
  * @author kirk
@@ -34,16 +34,16 @@ public class PositionReference implements Serializable, Cloneable {
   private final Identifier _securityIdentityKey;
   
   public PositionReference(BigDecimal quantity, Identifier securityIdentityKey) {
-    ArgumentChecker.checkNotNull(quantity, "Quantity");
-    ArgumentChecker.checkNotNull(securityIdentityKey, "Security IdentityKey");
+    ArgumentChecker.notNull(quantity, "Quantity");
+    ArgumentChecker.notNull(securityIdentityKey, "Security IdentityKey");
     _quantity = quantity;
     _securityIdentityKey = securityIdentityKey;
   }
   
   public PositionReference(Position position) {
-    ArgumentChecker.checkNotNull(position, "Position");
-    ArgumentChecker.checkNotNull(position.getSecurity(), "Position's Security");
-    ArgumentChecker.checkNotNull(position.getSecurity().getIdentityKey(), "Position's Security's IdentityKey");
+    ArgumentChecker.notNull(position, "Position");
+    ArgumentChecker.notNull(position.getSecurity(), "Position's Security");
+    ArgumentChecker.notNull(position.getSecurity().getIdentityKey(), "Position's Security's IdentityKey");
     _quantity = position.getQuantity();
     _securityIdentityKey = position.getSecurity().getIdentityKey();
   }
