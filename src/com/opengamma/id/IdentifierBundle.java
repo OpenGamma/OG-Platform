@@ -8,16 +8,15 @@ package com.opengamma.id;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
@@ -33,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public class IdentifierBundle implements Serializable {
+public final class IdentifierBundle implements Serializable {
 
   /**
    * Fudge message key for the identifier set.
@@ -78,7 +77,7 @@ public class IdentifierBundle implements Serializable {
     if ((identifiers == null) || (identifiers.length == 0)) {
       _identifiers = Collections.emptySet();
     } else {
-      _identifiers = Collections.unmodifiableSet(new HashSet<Identifier>(Arrays.asList(identifiers)));
+      _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(Arrays.asList(identifiers)));
     }
     _hashCode = calcHashCode();
   }
@@ -91,25 +90,8 @@ public class IdentifierBundle implements Serializable {
     if (identifiers == null) {
       _identifiers = Collections.emptySet();
     } else {
-      _identifiers = Collections.unmodifiableSet(new HashSet<Identifier>(identifiers));
+      _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(identifiers));
     }
-    _hashCode = calcHashCode();
-  }
-
-  /**
-   * Constructs an identifier from a Fudge message.
-   * @param fudgeMsg  the fudge message, not null
-   */
-  public IdentifierBundle(FudgeFieldContainer fudgeMsg) {
-    Set<Identifier> identifiers = new HashSet<Identifier>();
-    for (FudgeField field : fudgeMsg.getAllByName(ID_FUDGE_FIELD_NAME)) {
-      if (!(field.getValue() instanceof FudgeFieldContainer)) {
-        throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
-      }
-      Identifier identifier = new Identifier((FudgeFieldContainer) field.getValue());
-      identifiers.add(identifier);
-    }
-    _identifiers = Collections.unmodifiableSet(identifiers);
     _hashCode = calcHashCode();
   }
 
@@ -121,7 +103,7 @@ public class IdentifierBundle implements Serializable {
   //-------------------------------------------------------------------------
   /**
    * Gets the collection of identifiers in the bundle.
-   * @return the identifier collection, not null
+   * @return the identifier collection, unmodifiable, not null
    */
   public Set<Identifier> getIdentifiers() {
     return _identifiers;
@@ -155,24 +137,18 @@ public class IdentifierBundle implements Serializable {
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    IdentifierBundle other = (IdentifierBundle) obj;
-    if (!ObjectUtils.equals(_identifiers, other._identifiers)) {
-      return false;
     }
-    return true;
+    if (obj instanceof IdentifierBundle) {
+      IdentifierBundle other = (IdentifierBundle) obj;
+      return _identifiers.equals(other._identifiers);
+    }
+    return false;
   }
 
   protected int calcHashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((_identifiers == null) ? 0 : _identifiers.hashCode());
-    return result;
+    return 31 + _identifiers.hashCode();
   }
 
   @Override
@@ -182,15 +158,12 @@ public class IdentifierBundle implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getSimpleName()).append("[");
-    List<String> idsAsText = new ArrayList<String>();
-    for (Identifier identifier : _identifiers) {
-      idsAsText.add(identifier.getScheme().getName() + ":" + identifier.getValue());
-    }
-    sb.append(StringUtils.join(idsAsText, ", "));
-    sb.append("]");
-    return sb.toString();
+    return new StrBuilder()
+      .append("Bundle")
+      .append("[")
+      .appendWithSeparators(_identifiers, ", ")
+      .append("]")
+      .toString();
   }
 
   //-------------------------------------------------------------------------
@@ -201,6 +174,17 @@ public class IdentifierBundle implements Serializable {
       msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeMessageFactory));
     }
     return msg;
+  }
+
+  public static IdentifierBundle fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
+    Set<Identifier> identifiers = new HashSet<Identifier>();
+    for (FudgeField field : fudgeMsg.getAllByName(ID_FUDGE_FIELD_NAME)) {
+      if (field.getValue() instanceof FudgeFieldContainer == false) {
+        throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
+      }
+      identifiers.add(Identifier.fromFudgeMsg((FudgeFieldContainer) field.getValue()));
+    }
+    return new IdentifierBundle(identifiers);
   }
 
 }
