@@ -10,13 +10,11 @@ import static org.junit.Assert.fail;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.test.ProbabilisticTestCase;
-
 /**
  * 
  * @author emcleod
  */
-public class ProbabilityDistributionTestCase extends ProbabilisticTestCase {
+public class ProbabilityDistributionTestCase {
   protected static final double EPS = 1e-5;
   protected static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
 

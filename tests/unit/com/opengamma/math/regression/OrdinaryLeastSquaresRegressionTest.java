@@ -13,13 +13,11 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.test.ProbabilisticTestCase;
-
 /**
  * 
  * @author emcleod
  */
-public class OrdinaryLeastSquaresRegressionTest extends ProbabilisticTestCase {
+public class OrdinaryLeastSquaresRegressionTest {
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-2;
@@ -27,8 +25,6 @@ public class OrdinaryLeastSquaresRegressionTest extends ProbabilisticTestCase {
 
   @Test
   public void test() {
-    if (retry(2))
-      return;
     final int n = 20;
     final Double[][] x = new Double[n][5];
     final Double[] y1 = new Double[n];
