@@ -8,12 +8,9 @@ package com.opengamma.math.minimization;
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.FunctionND;
 
-/**
- * 
- * @author emcleod
- */
 public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
-  private final double DELTA = Math.random();
+  // TODO better delta
+  private final double DELTA = 0.35;
   private static final double EPS = 1e-12;
   private static final double OFFSET = 1e-15;
   private static final int MAX_FUNCTION_EVAL = 5000;

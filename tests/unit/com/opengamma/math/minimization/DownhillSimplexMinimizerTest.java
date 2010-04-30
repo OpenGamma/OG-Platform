@@ -7,16 +7,10 @@ package com.opengamma.math.minimization;
 
 import org.junit.Test;
 
-/**
- * 
- * @author emcleod
- */
 public class DownhillSimplexMinimizerTest extends MultidimensionalMinimizerTestCase {
 
   @Test
   public void test() {
-    if (retry(2))
-      return;
     final MultidimensionalMinimizer MINIMIZER = new DownhillSimplexMinimizer();
     super.testInputs(MINIMIZER);
     super.test(MINIMIZER);
