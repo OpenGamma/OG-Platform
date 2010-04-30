@@ -5,14 +5,12 @@
  */
 package com.opengamma.util;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An implementation of {@link ThreadFactory} which allows the naming of
  * threads rather than simple use of a numeric thread factory ID.
- * Code largely taken from {@link Executors.DefaultThreadFactory}.
  *
  * @author kirk
  */
