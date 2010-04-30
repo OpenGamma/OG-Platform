@@ -7,12 +7,14 @@ package com.opengamma.util.test;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.opengamma.util.tuple.Triple;
 
@@ -40,8 +42,9 @@ abstract public class DBUpgradeTest extends DBTest {
     super (databaseType, databaseVersion);
   }
   
-  static {
-    System.setProperty ("test.database.previousVersions", Integer.toString (Integer.MAX_VALUE));
+  @Parameters
+  public static Collection<Object[]> getParameters() {
+    return getParameters (Integer.MAX_VALUE);
   }
   
   @Test
