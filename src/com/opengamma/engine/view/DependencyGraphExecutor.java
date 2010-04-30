@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -49,7 +50,9 @@ public class DependencyGraphExecutor implements JobResultReceiver {
   private final ViewProcessingContext _processingContext;
   private final SingleComputationCycle _cycleState;
   // Running State:
-  private final Set<DependencyNode> _nodesToExecute = new HashSet<DependencyNode>();
+  // Use a LinkedHashSet here as we add in the order that we probably want to
+  // execute (Depth-First with post-order), so this is optimal.
+  private final Set<DependencyNode> _nodesToExecute = new LinkedHashSet<DependencyNode>();
   private final Set<DependencyNode> _executingNodes = new HashSet<DependencyNode>();
   private final Map<CalculationJobSpecification, DependencyNode> _executingSpecifications =
     new ConcurrentHashMap<CalculationJobSpecification, DependencyNode>();
@@ -111,6 +114,10 @@ public class DependencyGraphExecutor implements JobResultReceiver {
   }
 
   public synchronized void executeGraph(long iterationTimestamp, AtomicLong jobIdSource) {
+    if(allNodesExecuted(getDependencyGraph().getNodes())) {
+      return;
+    }
+    
     addAllNodesToExecute(getDependencyGraph().getNodes());
     markLiveDataSourcingFunctionsCompleted();
     
@@ -145,6 +152,25 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     }
   }
   
+  /**
+   * Returns {@code true} if all nodes have actually already been executed,
+   * saving us from creating and moving all nodes from this collection through
+   * the node workflow.
+   * Doesn't have to walk down the graph from each node because if a node
+   * has executed, we don't have to check the inputs.
+   * 
+   * @param nodes
+   * @return
+   */
+  protected boolean allNodesExecuted(Collection<DependencyNode> nodes) {
+    for(DependencyNode node: nodes) {
+      if(!getCycleState().isExecuted(node)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   protected void markSubgraphAsFailed(DependencyNode node) {
     _nodesToExecute.remove(node); // we assume dispatched jobs are a lost cause.
     getCycleState().markFailed(node);
@@ -163,13 +189,14 @@ public class DependencyGraphExecutor implements JobResultReceiver {
   }
   
   protected void addAllNodesToExecute(DependencyNode node) {
-    // REVIEW kirk 2010-01-03 -- Should we have an optimization here that checks
-    // before enqueuing? It makes the logic a little more complex but MIGHT help
-    // some cycles. MIGHT being the operative word.
     for(DependencyNode inputNode : node.getInputNodes()) {
       addAllNodesToExecute(inputNode);
     }
-    _nodesToExecute.add(node);
+    if(getCycleState().isExecuted(node)) {
+      _executedNodes.add(node);
+    } else {
+      _nodesToExecute.add(node);
+    }
   }
 
   /**
