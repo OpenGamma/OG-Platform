@@ -295,7 +295,7 @@ public class DBTool extends Task {
     executeSql(catalog, sql);
   }
   
-  private void createTables(String catalog, File[] scriptDirs, int index) {
+  private void createTables(String catalog, File[] scriptDirs, int index, TableCreationCallback callback) {
     if (index < 0) {
       throw new IllegalArgumentException ("Invalid creation or target version (" + getCreateVersion () + "/" + getTargetVersion () + ")");
     }
@@ -306,18 +306,20 @@ public class DBTool extends Task {
         if (createFile.exists ()) {
           System.out.println ("Creating DB version " + version);
           executeScript (catalog, createFile);
+          callback.tablesCreatedOrUpgraded (version);
           return;
         }
       }
-      createTables (catalog, scriptDirs, index - 1);
+      createTables (catalog, scriptDirs, index - 1, callback);
       final File upgradeFile = new File (scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
       if (upgradeFile.exists ()) {
         System.out.println ("Upgrading to DB version " + version);
         executeScript (catalog, upgradeFile);
+        callback.tablesCreatedOrUpgraded (version);
         return;
       }
     } else {
-      createTables (catalog, scriptDirs, index - 1);
+      createTables (catalog, scriptDirs, index - 1, callback);
     }
   }
   
@@ -341,8 +343,7 @@ public class DBTool extends Task {
     if (getCreateVersion () == null) {
       setCreateVersion (getTargetVersion ());
     }
-    // TODO the callback ...
-    createTables (catalog, scriptDirs, scriptDirs.length - 1);
+    createTables (catalog, scriptDirs, scriptDirs.length - 1, callback);
   }
   
   /**

@@ -56,20 +56,8 @@ abstract public class DBTest implements TableCreationCallback {
       _dbtool.createTestTables(this);
     }
   }
-  
-  @Parameters
-  public static Collection<Object[]> getDatabaseTypes() {
-    String databaseType = System.getProperty("test.database.type");
-    String previousVersionCountString = System.getProperty("test.database.previousVersions");
-    int previousVersionCount;
-    if (databaseType == null) {
-      databaseType = "derby"; // If you run from Eclipse, use Derby only
-    }
-    if (previousVersionCountString == null) {
-      previousVersionCount = 0; // If you run from Eclipse, use current version only
-    } else {
-      previousVersionCount = Integer.parseInt (previousVersionCountString);
-    }
+
+  protected static Collection<Object[]> getParameters (final String databaseType, final int previousVersionCount) {
     ArrayList<Object[]> returnValue = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
       final DBTool dbTool = TestProperties.getDbTool (db);
@@ -80,6 +68,26 @@ abstract public class DBTest implements TableCreationCallback {
       }
     }
     return returnValue;
+  }
+  
+  protected static Collection<Object[]> getParameters (final int previousVersionCount) {
+    String databaseType = System.getProperty("test.database.type");
+    if (databaseType == null) {
+      databaseType = "derby"; // If you run from Eclipse, use Derby only
+    }
+    return getParameters (databaseType, previousVersionCount);
+  }
+
+  @Parameters
+  public static Collection<Object[]> getParameters() {
+    String previousVersionCountString = System.getProperty("test.database.previousVersions");
+    int previousVersionCount;
+    if (previousVersionCountString == null) {
+      previousVersionCount = 0; // If you run from Eclipse, use current version only
+    } else {
+      previousVersionCount = Integer.parseInt (previousVersionCountString);
+    }
+    return getParameters (previousVersionCount);
   }
   
   @Before
