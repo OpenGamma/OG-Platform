@@ -74,7 +74,7 @@ public class IdentificationScheme implements Serializable, Cloneable, Comparable
   //-------------------------------------------------------------------------
   /**
    * Gets the scheme name.
-   * @return the scheme name, never null
+   * @return the scheme name, not null
    */
   public String getName() {
     return _name;
