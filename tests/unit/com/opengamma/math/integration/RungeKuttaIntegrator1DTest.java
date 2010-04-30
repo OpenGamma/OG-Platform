@@ -1,0 +1,79 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.math.integration;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+import com.opengamma.math.function.Function1D;
+
+public class RungeKuttaIntegrator1DTest {
+
+  private static final double ROOT_2PI = Math.sqrt(2.0 * java.lang.Math.PI);
+
+  private static final Function1D<Double, Double> CUBE = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      return x * x * x;
+    }
+
+  };
+
+  private static final Function1D<Double, Double> TRIANGLE = new Function1D<Double, Double>() {
+
+    @Override
+    public Double evaluate(final Double x) {
+      if (x > 1.0 || x < 0.0)
+        return x - Math.floor(x);
+
+      return x;
+
+    }
+
+  };
+
+  private static final Function1D<Double, Double> MIX_NORM = new Function1D<Double, Double>() {
+    private final double[] W = new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 };
+    private final double[] MU = new double[] { 0.0, -0.4, 0.5, 0.0, 0.01234583 };
+    private final double[] SIGMA = new double[] { 3.0, 0.1, 5.0, 0.001, 0.0001 };
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public Double evaluate(final Double x) {
+      final int n = W.length;
+      double res = 0.0;
+      double expo;
+      for (int i = 0; i < n; i++) {
+        expo = (x - MU[i]) * (x - MU[i]) / SIGMA[i] / SIGMA[i];
+        res += W[i] * Math.exp(-0.5 * expo) / ROOT_2PI / SIGMA[i];
+      }
+      return res;
+
+    }
+
+  };
+
+  @Test
+  public void test() {
+    final double eps = 1e-9;
+    final int minSteps = 10;
+    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
+
+    double lower = 0;
+    double upper = 2.0;
+    assertEquals(4.0, integrator.integrate(CUBE, lower, upper), eps);
+
+    lower = 0.0;
+    upper = 1.5;
+    assertEquals(0.625, integrator.integrate(TRIANGLE, lower, upper), eps);
+
+    lower = -30;
+    upper = 30;
+    assertEquals(1.0, integrator.integrate(MIX_NORM, lower, upper), eps);
+  }
+}
