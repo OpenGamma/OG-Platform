@@ -8,9 +8,11 @@ package com.opengamma.id;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -76,5 +78,37 @@ public class IdentifierBundleTest {
     IdentifierBundle decoded = new IdentifierBundle(msg);
     assertEquals(input, decoded);
   }
+  
+  @Test
+  public void nullIdentifierConstructor() {
+    IdentifierBundle bundle = new IdentifierBundle((Identifier)null);
+    assertNotNull(bundle.getIdentifiers());
+    assertTrue(bundle.getIdentifiers().isEmpty());
+  }
 
+  @Test
+  public void emptyIdentifierArrayConstructor() {
+    IdentifierBundle bundle = new IdentifierBundle(new Identifier[0]);
+    assertNotNull(bundle.getIdentifiers());
+    assertTrue(bundle.getIdentifiers().isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void nullIdentifierCollectionConstructor() {
+    IdentifierBundle bundle = new IdentifierBundle((List)null);
+    assertNotNull(bundle.getIdentifiers());
+    assertTrue(bundle.getIdentifiers().isEmpty());
+  }
+  
+  @Test
+  public void mapForm() {
+    IdentifierBundle input = new IdentifierBundle(_id11, _id22);
+    
+    assertEquals("V1", input.getIdentifier(new IdentificationScheme("D1")));
+    assertEquals("V2", input.getIdentifier(new IdentificationScheme("D2")));
+    assertNull(input.getIdentifier(new IdentificationScheme("Kirk Wylie")));
+    assertNull(input.getIdentifier(null));
+  }
+  
 }
