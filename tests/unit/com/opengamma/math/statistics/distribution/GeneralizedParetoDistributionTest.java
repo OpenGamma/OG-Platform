@@ -23,7 +23,7 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
   private static final double MU = 0.4;
   private static final double SIGMA = 1.4;
   private static final double KSI = 0.2;
-  private static final ProbabilityDistribution<Double> DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI);
+  private static final ProbabilityDistribution<Double> DIST = new GeneralizedParetoDistribution(MU, SIGMA, KSI, ENGINE);
   private static final double LARGE_X = 1e20;
 
   @Test(expected = IllegalArgumentException.class)
