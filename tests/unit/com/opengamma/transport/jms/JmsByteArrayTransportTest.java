@@ -13,6 +13,8 @@ import java.util.Random;
 import javax.jms.ConnectionFactory;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
@@ -25,9 +27,12 @@ import com.opengamma.transport.CollectingByteArrayMessageReceiver;
  * @author kirk
  */
 public class JmsByteArrayTransportTest {
-
-  @Test
-  public void topicConduit() throws Exception {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);
+  
+  private static final long TIMEOUT = 5000;
+  
+  private void topicConduitImpl () throws Exception {
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     JmsTemplate jmsTemplate = new JmsTemplate();
@@ -58,10 +63,11 @@ public class JmsByteArrayTransportTest {
     long startTime = System.currentTimeMillis();
     while(collectingReceiver.getMessages().isEmpty()) {
       Thread.sleep(10l);
-      if((System.currentTimeMillis() - startTime) > 5000l) {
-        fail("Did not receive a message in 5 seconds.");
+      if((System.currentTimeMillis() - startTime) > TIMEOUT) {
+        fail("Did not receive a message in " + (TIMEOUT / 1000) + " seconds.");
       }
     }
+    s_logger.debug ("topicConduit message received {}ms before timeout limit", TIMEOUT - (System.currentTimeMillis () - startTime));
     assertEquals(1, collectingReceiver.getMessages().size());
     byte[] receivedBytes = collectingReceiver.getMessages().get(0);
     assertEquals(randomBytes.length, receivedBytes.length);
@@ -71,6 +77,21 @@ public class JmsByteArrayTransportTest {
     
     container.stop();
     container.destroy();
+  }
+
+  @Test
+  public void topicConduit() throws Exception {
+    try {
+      topicConduitImpl ();
+    } catch (Exception e) {
+      s_logger.warn ("Retrying topicConduit after {}", e);
+      try {
+        topicConduitImpl ();
+        s_logger.info ("topicConduit completed on second attempt");
+      } catch (Exception e2) {
+        throw e2;
+      }
+    }
   }
   
   @Test
@@ -114,10 +135,11 @@ public class JmsByteArrayTransportTest {
     long startTime = System.currentTimeMillis();
     while(collectingReceiver.getMessages().isEmpty()) {
       Thread.sleep(10l);
-      if((System.currentTimeMillis() - startTime) > 5000l) {
-        fail("Did not receive a response in 5 seconds.");
+      if((System.currentTimeMillis() - startTime) > TIMEOUT) {
+        fail("Did not receive a response in " + (TIMEOUT / 1000) + " seconds.");
       }
     }
+    s_logger.debug ("requestConduit message received {}ms before timeout limit", TIMEOUT - (System.currentTimeMillis () - startTime));
     assertEquals(1, collectingReceiver.getMessages().size());
     byte[] receivedBytes = collectingReceiver.getMessages().get(0);
     assertEquals(responseBytes.length, receivedBytes.length);
