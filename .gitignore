@@ -4,6 +4,7 @@ foo~
 classes/
 dist/
 ivy/
+bootstrap/
 tests/classes/
 tests/output/
 .settings/org.eclipse.ltk.core.refactoring.prefs
