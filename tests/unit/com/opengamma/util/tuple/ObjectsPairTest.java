@@ -196,4 +196,22 @@ public class ObjectsPairTest {
     // can't test for different hash codes as they might not be different
   }
 
+  @Test
+  public void testOf_Double_double() {
+    ObjectsPair<Double,Double> test = Pair.of(Double.valueOf(1.5), -0.3d);
+    assertEquals(test.getFirst(), Double.valueOf(1.5d));
+    assertEquals(test.getSecond(), Double.valueOf(-0.3d));
+    assertEquals(test.getKey(), Double.valueOf(1.5d));
+    assertEquals(test.getValue(), Double.valueOf(-0.3d));
+  }
+
+  @Test
+  public void testOf_double_Double() {
+    ObjectsPair<Double,Double> test = Pair.of(1.5d, Double.valueOf(-0.3d));
+    assertEquals(test.getFirst(), Double.valueOf(1.5d));
+    assertEquals(test.getSecond(), Double.valueOf(-0.3d));
+    assertEquals(test.getKey(), Double.valueOf(1.5d));
+    assertEquals(test.getValue(), Double.valueOf(-0.3d));
+  }
+
 }

@@ -54,7 +54,7 @@ public class GUIDGenerator {
    * @param macAddress
    * @return
    */
-  private static long generateClockSeqAndNode(String macAddress) {
+  private synchronized static long generateClockSeqAndNode(String macAddress) {
     if (macAddress != null) {
       s_clockSeqAndNode |= parseLong(macAddress);
     } else {

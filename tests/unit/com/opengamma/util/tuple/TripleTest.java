@@ -6,11 +6,12 @@
 package com.opengamma.util.tuple;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
+import java.util.List;
 
-import com.opengamma.util.tuple.Triple;
+import org.junit.Test;
 
 /**
  * Test Triple.
@@ -259,6 +260,35 @@ public class TripleTest {
     assertEquals(d.hashCode(), d.hashCode());
     assertEquals(e.hashCode(), e.hashCode());
     // can't test for different hash codes as they might not be different
+  }
+  
+  @Test
+  public void toList() {
+    Triple<String, String, String> a = new Triple<String, String, String>("Jay-Z", "Black Album", "99 Problems");
+    List<String> asList = a.toList();
+    assertNotNull(asList);
+    assertEquals(3, asList.size());
+    assertEquals("Jay-Z", asList.get(0));
+    assertEquals("Black Album", asList.get(1));
+    assertEquals("99 Problems", asList.get(2));
+  }
+
+  @Test
+  public void toFirstPair() {
+    Triple<String, String, String> a = new Triple<String, String, String>("Jay-Z", "Black Album", "99 Problems");
+    Pair<String, String> pair = a.toFirstPair();
+    assertNotNull(pair);
+    assertEquals("Jay-Z", pair.getFirst());
+    assertEquals("Black Album", pair.getSecond());
+  }
+
+  @Test
+  public void toSecondPair() {
+    Triple<String, String, String> a = new Triple<String, String, String>("Jay-Z", "Black Album", "99 Problems");
+    Pair<String, String> pair = a.toSecondPair();
+    assertNotNull(pair);
+    assertEquals("Black Album", pair.getFirst());
+    assertEquals("99 Problems", pair.getSecond());
   }
 
 }
