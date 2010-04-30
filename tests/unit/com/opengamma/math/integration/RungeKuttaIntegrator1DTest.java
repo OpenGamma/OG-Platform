@@ -58,6 +58,21 @@ public class RungeKuttaIntegrator1DTest {
 
   };
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeAbsTol() {
+    new RungeKuttaIntegrator1D(-1.0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeRelTol() {
+    new RungeKuttaIntegrator1D(1e-7, -1.0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testLessTahnOneStep() {
+    new RungeKuttaIntegrator1D(0);
+  }
+
   @Test
   public void test() {
     final double eps = 1e-9;
