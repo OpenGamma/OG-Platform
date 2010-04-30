@@ -156,7 +156,7 @@ public class ComputationTargetSpecification implements Serializable {
       return null;
     }
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
-    Identifier identifier = new Identifier(msg.getMessage(IDENTIFIER_FIELD_NAME));
+    Identifier identifier = Identifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
     return new ComputationTargetSpecification(type, identifier);
   }
 
