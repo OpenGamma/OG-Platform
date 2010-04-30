@@ -8,8 +8,10 @@ package com.opengamma.math.integration;
 import com.opengamma.math.function.Function1D;
 
 /**
- * 
- * 
+ * Adapted from the forth-order Runge-Kutta method for solving ODE
+ * (<a href="http://en.wikipedia.org/wiki/RungeÐKutta_methods/>)
+ * It is a very robust integrator and should be used before trying more
+ * specialized methods
  */
 public class RungeKuttaIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
 
@@ -37,6 +39,10 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Function1D<Doub
 
   public RungeKuttaIntegrator1D(final double tol, final int minSteps) {
     this(tol, tol, minSteps);
+  }
+
+  public RungeKuttaIntegrator1D(final double atol, final double rtol) {
+    this(atol, rtol, DEF_MIN_STEPS);
   }
 
   public RungeKuttaIntegrator1D(final double tol) {
