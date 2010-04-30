@@ -15,14 +15,13 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A unique identifier within the OpenGamma system.
+ * An immutable identifier for an item.
  * <p>
- * The identifier is formed from two parts.
- * The first is the standalone identifier, which is a simple string.
- * The second is the {@link IdentificationScheme scheme} that provides meaning
- * to the standalone identifier.
- * The standalone identifier is meaningless without the scheme, as the same standalone
- * identifier can refer to two different things in two different schemes.
+ * The identifier is formed from two parts, the scheme and the value.
+ * The {@link IdentificationScheme scheme} defines a single way of identifying items,
+ * while the value is an identifier within that scheme.
+ * A value from one scheme may refer to a completely different real-world item than
+ * the same value from a different scheme.
  * <p>
  * Real-world examples of {@code Identifier} include instances of:
  * <ul>
@@ -39,20 +38,57 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   /**
    * Fudge message key for the scheme.
    */
-  public static final String DOMAIN_FUDGE_FIELD_NAME = "Domain";
+  public static final String SCHEME_FUDGE_FIELD_NAME = "Scheme";
   /**
    * Fudge message key for the value.
    */
   public static final String VALUE_FUDGE_FIELD_NAME = "Value";
 
   /**
-   * The scheme that provides meaning to the standalone identifier.
+   * The scheme that categorizes the value.
    */
   private final IdentificationScheme _scheme;
   /**
-   * The standalone identifier.
+   * The value (identifier) within the scheme.
    */
   private final String _value;
+
+  /**
+   * Obtains an identifier from a scheme and value.
+   * @param scheme  the scheme of the identifier, not empty, not null
+   * @param value  the value of the identifier, not empty, not null
+   * @return the identifier, not null
+   */
+  public static Identifier of(IdentificationScheme scheme, String value) {
+    return new Identifier(scheme, value);
+  }
+
+  /**
+   * Obtains an identifier from a scheme and value.
+   * @param scheme  the scheme of the identifier, not empty, not null
+   * @param value  the value of the identifier, not empty, not null
+   * @return the identifier, not null
+   */
+  public static Identifier of(String scheme, String value) {
+    return new Identifier(scheme, value);
+  }
+
+  /**
+   * Obtains an identifier from a formatted scheme and value.
+   * <p>
+   * This parses the identifier from the form produced by {@code toString()}
+   * which is {@code <SCHEME>::<VALUE>}.
+   * @param str  the identifier to parse, not null
+   * @return the identifier, not null
+   * @throws IllegalArgumentException if the identifier cannot be parsed
+   */
+  public static Identifier parse(String str) {
+    int pos = str.indexOf("::");
+    if (pos < 0) {
+      throw new IllegalArgumentException("Invalid identifier format: " + str);
+    }
+    return new Identifier(str.substring(0, pos), str.substring(pos + 2));
+  }
 
   /**
    * Constructs an identifier from the scheme and standalone identifier.
@@ -80,23 +116,15 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
    * @param fudgeMsg  the fudge message, not null
    */
   public Identifier(FudgeFieldContainer fudgeMsg) {
-    String domain = fudgeMsg.getString(DOMAIN_FUDGE_FIELD_NAME);
-    String value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
-    if (domain == null) {
-      throw new NullPointerException("Message does not contain field " + DOMAIN_FUDGE_FIELD_NAME);
-    }
-    if (value == null) {
-      throw new NullPointerException("Message does not contain field " + VALUE_FUDGE_FIELD_NAME);
-    }
-    _scheme = new IdentificationScheme(domain);
-    _value = value;
+    _scheme = new IdentificationScheme(fudgeMsg.getString(SCHEME_FUDGE_FIELD_NAME));
+    _value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Gets the identification scheme.
    * This provides the universe within which the standalone identifier has meaning.
-   * @return the scheme, never null
+   * @return the scheme, not null
    */
   public IdentificationScheme getScheme() {
     return _scheme;
@@ -140,7 +168,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
 
   /**
    * Gets the standalone identifier.
-   * @return the value, never null
+   * @return the value, not null
    */
   public String getValue() {
     return _value;
@@ -152,15 +180,11 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  protected Identifier clone() {
-    try {
-      return (Identifier) super.clone();
-    } catch (CloneNotSupportedException e) {
-      throw new AssertionError("Cloning is definitely supported.");
-    }
-  }
-
+  /**
+   * Compares the identifiers, sorting alphabetically by scheme followed by value.
+   * @param other  the other identifier, not null
+   * @return negative if this is less, zero if equal, positive if greater
+   */
   @Override
   public int compareTo(Identifier o) {
     if (_scheme.compareTo(o._scheme) != 0) {
@@ -187,6 +211,10 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
     return _scheme.getName().hashCode() ^ _value.hashCode();
   }
 
+  /**
+   * Returns the identifier in the form {@code <SCHEME>::<VALUE>}.
+   * @return the identifier, not null
+   */
   @Override
   public String toString() {
     return _scheme.getName() + "::" + _value;
@@ -196,7 +224,7 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
     ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
-    msg.add(DOMAIN_FUDGE_FIELD_NAME, getScheme().getName());
+    msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
   }

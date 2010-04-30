@@ -121,7 +121,7 @@ public class IdentifierBundle implements Serializable {
   //-------------------------------------------------------------------------
   /**
    * Gets the collection of identifiers in the bundle.
-   * @return the identifier collection, never null
+   * @return the identifier collection, not null
    */
   public Set<Identifier> getIdentifiers() {
     return _identifiers;

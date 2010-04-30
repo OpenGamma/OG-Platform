@@ -6,7 +6,6 @@
 package com.opengamma.id;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
@@ -90,13 +89,6 @@ public class IdentifierTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
-  public void test_clone() {
-    Identifier test = new Identifier(SCHEME, "value");
-    assertEquals(test, test.clone());
-    assertNotSame(test, test.clone());
-  }
-
   @Test
   public void test_equals() {
     Identifier d1a = new Identifier(SCHEME, "d1");
