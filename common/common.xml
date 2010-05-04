@@ -29,7 +29,7 @@
 			special installation
 		-->
 		<echo message="installing ivy..." />
-		<get src="http://ivyrepo.opengamma.com/org/apache/ant/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" 
+		<get src="http://ivyrepo.opengamma.com/org.apache.ant/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" 
 			 dest="${ivy.jar.file}" username="opengamma" password="opengamma" usetimestamp="true" />
 	</target>
 
