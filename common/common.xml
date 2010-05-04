@@ -1,19 +1,3 @@
-
-	<!--
-		Licensed to the Apache Software Foundation (ASF) under one or more
-		contributor license agreements. See the NOTICE file distributed with
-		this work for additional information regarding copyright ownership.
-		The ASF licenses this file to you under the Apache License, Version
-		2.0 (the "License"); you may not use this file except in compliance
-		with the License. You may obtain a copy of the License at
-
-		http://www.apache.org/licenses/LICENSE-2.0 Unless required by
-		applicable law or agreed to in writing, software distributed under the
-		License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-		CONDITIONS OF ANY KIND, either express or implied. See the License for
-		the specific language governing permissions and limitations under the
-		License.
-	-->
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<!-- Load the environment variables first -->
@@ -21,16 +5,23 @@
 	<!-- also, try a property file because some JVMs don't support env properly -->
 	<property file="${user.home}/.OG-Build-common.properties" />
 
+	<!-- Set where the OGDEV dir is. We do this outside build.properties so that
+	     we can reference it in build.properties. -->
+	<property file="${common.dir}/ogdev.properties"/>
+	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}"><os family="windows" /></condition>
+		
 	<!-- project detaults -->
 	<property file="${common.dir}/build.properties" />
 
+	<!-- REVIEW kirk 2010-04-29 - I believe this can be changed to reference ogdev.dir, but I don't want to
+	     break everybody's settings. -->
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 	<available file="${ivy.jar.file}" property="skip.download"/>
-
+	
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
 		<!--
@@ -51,6 +42,7 @@
 	</target>
 
 	<target name="load-ivy" depends="taskdef-ivy">
+		<mkdir dir="${lib.dir}" />
 		<ivy:settings file="${common.dir}/ivysettings.xml" />
 	</target>
 
@@ -71,12 +63,6 @@
 
 	<target name="resolve" depends="clean-lib, load-ivy"
 		description="--> resolve and retrieve dependencies with ivy">
-		<mkdir dir="${lib.dir}" />
-		<!--
-			not usually necessary, ivy creates the directory IF there are
-			dependencies
-		-->
-
 		<!--
 			the call to resolve is not mandatory, retrieve makes an implicit call
 			if we don't
@@ -180,15 +166,10 @@
 	</target>
 
 	<property name="test.database.type" value="all"/>  <!-- derby, postgres, all. -->
+	<property name="test.database.previousVersions" value="1"/>  <!-- number of previous versions to test upgrade scripts from -->
 	
-	<target name="tests" depends="create-test-db,junit-batch,junit-report" description="--> run unit tests and generate report"/>
+	<target name="tests" depends="junit-batch,junit-report" description="--> run unit tests and generate report"/>
 	
-	<target name="create-test-db" if="dbscript.dir"> <!-- Use dbscript.dir to deduce that there is a test database to be created -->
-		<taskdef name="dbtool" classname="com.opengamma.util.test.DBTool" classpathref="lib.path.id" />
-		<dbtool createTestDb="${test.database.type}"
-				basedir="${basedir}"/>
-	</target>
-
 	<target name="junit-batch" depends="compile-tests">
 		<mkdir dir="${tests.junit.dir}/xml" />
 		<!-- if junit.logback defines a class, use that as an arg to the JVM for logging. Otherwise, create a dummy arg (-Dcom.opengamma.ogbuild=0) -->
@@ -200,6 +181,7 @@
 				<pathelement path="${classes.dir}" />
 				<pathelement path="${tests.classes.dir}" />
 				<pathelement path="${config.dir}" />
+				<pathelement path="${clover.jar.file}" />
 			</classpath>
 			<jvmarg value="${junit.logback.jvmarg}" />
 			<assertions>
@@ -210,8 +192,10 @@
 				<fileset dir="${tests.src.dir}" includes="**/*Test.java" />
 				<fileset dir="${tests.dir}/interop" includes="**/*Test.java" erroronmissingdir="false" />
 			</batchtest>
+			<sysproperty key="user.name" value="${user.name}" />
 			<sysproperty key="test.properties" value="${basedir}/tests.properties"/> <!-- Read in TestProperties.java -->
-			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in HibernateTest.java -->
+			<sysproperty key="test.database.type" value="${test.database.type}"/> <!-- Read in DBTest.java -->
+			<sysproperty key="test.database.previousVersions" value="${test.database.previousVersions}"/> <!-- Read in DBTest.java -->
 		</junit>
 	</target>
 
@@ -336,6 +320,7 @@
 		description="--> cleans the local repository for the current module">
 		<ivy:info file="${ivy.file}" />
 		<delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}" />
+		<delete includeemptydirs="true" failonerror="false" dir="${bootstrap.dir}"/>
 	</target>
 
 	<target name="clean-lib"
@@ -359,7 +344,11 @@
 		<delete file="${fudge.proto.gitIgnoreFlag}" />
 	</target>
 	
-	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-src"
+	<target name="clean-tests" description="--> clean all test generated files">
+		<delete includeemptydirs="true" failonerror="false" dir="${tests.junit.dir}"/>
+	</target>
+	
+	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-src, clean-tests"
 		description="--> clean the project" />
 	
 	<target name="run-hbm2ddl" depends="load-ivy,compile"
@@ -384,4 +373,34 @@
 		</hibernatetool>
 	</target>
 
+	<!-- CLOVER -->
+	<import file="${common.dir}/clover-common.xml"/>
+	
+	<target name="clover-setup" depends="taskdef-clover, guard-noclover">
+		<clover-setup
+			initstring="${clover.db.dir}"
+		>
+			<!--<fileset dir="${src.dir}"/>-->
+		</clover-setup>
+	</target>
+	
+	<target name="clover-html-report" depends="taskdef-clover, guard-noclover">
+		<clover-html-report
+			initstring="${clover.db.dir}"
+			outdir="${clover.html.report.dir}"
+		>
+		</clover-html-report>
+		<clover-report
+			initstring="${clover.db.dir}"
+			>
+			<current outfile="${clover.xml.report.file}">
+				<format type="xml"/>
+			</current>
+		</clover-report>
+	</target>
+	
+	<target name="tests-with-clover" description="--> Build and run all tests with local Clover reports generated"
+		depends="clean, clover-setup, compile, tests, clover-html-report">
+	</target>
+	
 </project>

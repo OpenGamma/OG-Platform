@@ -22,6 +22,10 @@
 	<property file="${user.home}/.OG-Build-common.properties" />
 
 	<property file="build.properties" />
+	<!-- Set where the OGDEV dir is. We do this outside build.properties so that
+	     we can reference it in build.properties. -->
+	<property file="${common.dir}/ogdev.properties"/>
+	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}"><os family="windows" /></condition>
 	<property file="${common.dir}/build.properties" />
 
 	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
@@ -88,6 +92,7 @@
 		<attribute name="target" />
 		<attribute name="buildpathref" />
 		<sequential>
+			<echo message="Executing @{target} on sub-project @{buildpathref}"/>
 			<subant target="@{target}" buildpathref="@{buildpathref}">
 				<property name="og.build.invoked" value="true" />
 			</subant>
@@ -140,6 +145,31 @@
 		description="delete repository, clean ivy cache, and clean all projects">
 		<delete dir="${repository.dir}" />
 		<ivy:cleancache />
+	</target>
+	
+	<import file="${common.dir}/clover-common.xml"/>
+	<target name="clover" depends="buildlist, taskdef-clover, guard-noclover"
+		description="run all unit tests with Clover enabled and produce one merged report">
+		<og-subant target="tests-with-clover" buildpathref="build-path"/>
+		<clover-merge initstring="${clover.db.dir}">
+			<cloverDb span="30 mins"  initstring="projects/Fudge-Java/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/Fudge-Proto/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Analytics/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Bloomberg/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Engine/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Financial/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-LiveData/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Util/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Integration/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-TimeSeriesStorage/tests/output/clover.db" />
+			<cloverDb span="30 mins"  initstring="projects/OG-Reuters/tests/output/clover.db" />
+		</clover-merge>
+		<clover-html-report
+			initstring="${clover.db.dir}"
+			outdir="${clover.html.report.dir}"
+		>
+		</clover-html-report>
 	</target>
 
 	<target name="clone-or-pull" description="clone or pull all projects from git">

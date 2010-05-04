@@ -3,3 +3,5 @@ derby.log
 projects/
 repository/
 ivy/
+bootstrap/
+tests/
