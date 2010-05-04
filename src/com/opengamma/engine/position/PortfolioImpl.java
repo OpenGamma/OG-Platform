@@ -93,10 +93,10 @@ public class PortfolioImpl implements Portfolio, Serializable {
 
   /**
    * Sets the name of the portfolio intended for display purposes.
-   * @param name  the name, not empty, not null
+   * @param name  the name, not null
    */
   public void setName(String name) {
-    ArgumentChecker.notEmpty(name, "name");
+    ArgumentChecker.notNull(name, "name");
     _name = name;
   }
 

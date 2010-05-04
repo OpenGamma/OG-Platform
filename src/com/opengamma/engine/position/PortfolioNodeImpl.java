@@ -187,7 +187,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   @Override
   public PortfolioNode getNode(UniqueIdentifier identifier) {
     if (identifier != null) {
-      if (_identifier.equals(identifier)) {
+      if (identifier.equals(_identifier)) {
         return this;
       }
       for (PortfolioNode child : _childNodes) {
@@ -209,7 +209,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   public Position getPosition(UniqueIdentifier identifier) {
     if (identifier != null) {
       for (Position child : _positions) {
-        if (_identifier.equals(child.getUniqueIdentifier())) {
+        if (identifier.equals(child.getUniqueIdentifier())) {
           return child;
         }
       }

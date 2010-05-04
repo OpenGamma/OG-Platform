@@ -6,6 +6,7 @@
 package com.opengamma.engine.position;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -56,11 +57,30 @@ public class PortfolioNodeImplTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_setUniqueIdentifier() {
+    PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
+    test.setUniqueIdentifier(UniqueIdentifier.of("Scheme2", "Id2"));
+    assertEquals(UniqueIdentifier.of("Scheme2", "Id2"), test.getUniqueIdentifier());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_setUniqueIdentifier_null() {
+    PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
+    test.setUniqueIdentifier(null);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_setName() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of("A", "B"), "Name");
-    assertEquals("Name", test.getName());
-    test.setName("NewName");
-    assertEquals("NewName", test.getName());
+    PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
+    test.setName("Name2");
+    assertEquals("Name2", test.getName());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_setName_null() {
+    PortfolioImpl test = new PortfolioImpl(UniqueIdentifier.of("Scheme", "Id"), "Name");
+    test.setName(null);
   }
 
   //-------------------------------------------------------------------------
@@ -182,6 +202,28 @@ public class PortfolioNodeImplTest {
     assertEquals(1, test.getChildNodes().size());
     assertEquals(1, test.getPositions().size());
     assertEquals(2, test.size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getNode_Identifier() {
+    PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
+    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");
+    root.addChildNode(child);
+    assertSame(root, root.getNode(UniqueIdentifier.of("Root", "A")));
+    assertSame(child, root.getNode(UniqueIdentifier.of("Child", "A")));
+    assertEquals(null, root.getNode(UniqueIdentifier.of("NotFound", "A")));
+  }
+
+  @Test
+  public void test_getPosition_Identifier() {
+    PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
+    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of("Child", "A"), "Name");
+    Position position = new PositionBean(UniqueIdentifier.of("Child", "A"), BigDecimal.ZERO, Identifier.of("A", "B"));
+    root.addChildNode(child);
+    child.addPosition(position);
+    assertSame(position, root.getPosition(UniqueIdentifier.of("Child", "A")));
+    assertEquals(null, root.getPosition(UniqueIdentifier.of("NotFound", "A")));
   }
 
 }
