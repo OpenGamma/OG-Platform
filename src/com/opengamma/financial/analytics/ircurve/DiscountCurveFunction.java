@@ -98,7 +98,7 @@ implements FunctionInvoker {
       return false;
     }
     return ObjectUtils.equals(
-        target.getUniqueIdentifier(),
+        target.getIdentityKey(),
         getDefinition().getCurrency().getIdentityKey());
   }
 

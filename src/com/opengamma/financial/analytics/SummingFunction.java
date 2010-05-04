@@ -65,12 +65,12 @@ implements FunctionInvoker {
     Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;
     for(Position position : allPositions) {
-      Object positionValue = inputs.getValue(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getIdentityKey()));
+      Object positionValue = inputs.getValue(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       currentSum = addValue(currentSum, positionValue);
     }
     ComputedValue computedValue = new ComputedValue(
         new ValueSpecification(
-            new ValueRequirement(_requirementName, ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey())),
+            new ValueRequirement(_requirementName, ComputationTargetType.MULTIPLE_POSITIONS, node.getUniqueIdentifier())),
         currentSum);
     return Collections.singleton(computedValue);
   }
@@ -103,7 +103,7 @@ implements FunctionInvoker {
     Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     for(Position position : allPositions) {
-      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getIdentityKey()));
+      requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
     }
     return requirements;
   }
@@ -113,7 +113,7 @@ implements FunctionInvoker {
       ComputationTarget target) {
     PortfolioNode node = target.getPortfolioNode();
     ValueSpecification result = new ValueSpecification(
-        new ValueRequirement(_requirementName, ComputationTargetType.MULTIPLE_POSITIONS, node.getIdentityKey()));
+        new ValueRequirement(_requirementName, ComputationTargetType.MULTIPLE_POSITIONS, node.getUniqueIdentifier()));
     return Collections.singleton(result);
   }
 

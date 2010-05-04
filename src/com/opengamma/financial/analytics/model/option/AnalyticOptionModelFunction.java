@@ -109,7 +109,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
       final Greek greek = AVAILABLE_GREEKS.get(dV.getValueName());
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final GreekResult<?> greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option.getIdentityKey()));
+      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option));
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
       results.add(resultValue);
     }
@@ -124,7 +124,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     final OptionSecurity security = (OptionSecurity) target.getSecurity();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueName : AVAILABLE_GREEKS.keySet()) {
-      results.add(new ValueSpecification(new ValueRequirement(valueName, security.getIdentityKey())));
+      results.add(new ValueSpecification(new ValueRequirement(valueName, security)));
     }
     return results;
   }

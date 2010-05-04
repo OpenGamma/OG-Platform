@@ -21,7 +21,7 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * An aggregator of portfolios.
@@ -36,13 +36,13 @@ public class PortfolioAggregator {
   }
   
   public Portfolio aggregate(Portfolio inputPortfolio) {
-    String aggPortfolioId = buildPortfolioName(inputPortfolio.getIdentityKey().getValue());
+    String aggPortfolioId = buildPortfolioName(inputPortfolio.getUniqueIdentifier().getValue());
     String aggPortfolioName = buildPortfolioName(inputPortfolio.getName());
     List<Position> flattenedPortfolio = new ArrayList<Position>();
     flatten(inputPortfolio.getRootNode(), flattenedPortfolio);
-    Identifier aggId = new Identifier(inputPortfolio.getIdentityKey().getScheme(), aggPortfolioId);
+    UniqueIdentifier aggId = UniqueIdentifier.of(inputPortfolio.getUniqueIdentifier().getScheme(), aggPortfolioId);
     PortfolioImpl aggPortfolio = new PortfolioImpl(aggId, aggPortfolioName);
-    aggregate(aggPortfolio.getRootNode(), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
+    aggregate((PortfolioNodeImpl) aggPortfolio.getRootNode(), flattenedPortfolio, new ArrayDeque<AggregationFunction<?>>(_aggregationFunctions));
     return aggPortfolio;
   }
   
@@ -74,7 +74,8 @@ public class PortfolioAggregator {
       }
     }
     for (String bucketName : buckets.keySet()) {
-      PortfolioNodeImpl newNode = new PortfolioNodeImpl(bucketName);
+      PortfolioNodeImpl newNode = new PortfolioNodeImpl();
+      newNode.setName(bucketName);
       inputNode.addChildNode(newNode);
       if (functionList.isEmpty()) {
         for (Position position : buckets.get(bucketName)) {
