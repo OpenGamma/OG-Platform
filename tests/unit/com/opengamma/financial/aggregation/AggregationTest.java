@@ -25,7 +25,7 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.EquitySecurity;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
