@@ -7,6 +7,8 @@ package com.opengamma.engine.view.client;
 
 import java.util.Set;
 
+import com.opengamma.engine.view.ViewDefinition;
+
 /**
  * 
  *
@@ -38,4 +40,6 @@ public interface ViewProcessorClient {
   
   void stopLiveCalculation(String viewName);
   
+  // REVIEW jim 26-Apr-2010 -- should really allow access to view definition repository.
+  ViewDefinition getViewDefinition(String viewName);
 }
