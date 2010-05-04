@@ -6,7 +6,10 @@
 package com.opengamma.id;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
 import org.junit.Test;
 
 /**
@@ -111,6 +114,18 @@ public class UniqueIdentifierTest {
     UniqueIdentifier d1b = UniqueIdentifier.of("Scheme", "d1");
     
     assertEquals(d1a.hashCode(), d1b.hashCode());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_fudgeEncoding() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    assertNotNull(msg);
+    assertEquals(2, msg.getNumFields());
+    
+    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(msg);
+    assertEquals(test, decoded);
   }
 
 }
