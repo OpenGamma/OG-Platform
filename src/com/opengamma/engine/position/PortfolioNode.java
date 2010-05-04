@@ -7,9 +7,8 @@ package com.opengamma.engine.position;
 
 import java.util.List;
 
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A node within a portfolio tree.
@@ -18,19 +17,13 @@ import com.opengamma.id.Identifier;
  * This interface represents a node in the tree holding a list of child nodes and positions.
  * Positions are the leaves in the tree and do not implement this interface.
  */
-public interface PortfolioNode extends Identifiable {
+public interface PortfolioNode extends UniqueIdentifiable {
 
   /**
-   * The key to be used to refer to a node in identifiers.
+   * Gets the unique identifier of the node.
+   * @return the identifier, not null
    */
-  public static final IdentificationScheme PORTFOLIO_NODE_IDENTITY_KEY_SCHEME = new IdentificationScheme("PortfolioNodeIdentityKey");   
-
-  /**
-   * Gets the identity key of the node.
-   * @return the identity key, null if not uniquely identified
-   */
-  @Override
-  Identifier getIdentityKey();
+  UniqueIdentifier getUniqueIdentifier();
 
   /**
    * Gets the name of the node intended for display purposes.
@@ -46,29 +39,29 @@ public interface PortfolioNode extends Identifiable {
 
   /**
    * Gets the nodes which are immediate children of this node.
-   * @return the child nodes, unmodifiable, never null
+   * @return the child nodes, unmodifiable, not null
    */
   List<PortfolioNode> getChildNodes();
 
   /**
    * Gets the positions immediate children of this node.
-   * @return the positions, unmodifiable, never null
+   * @return the positions, unmodifiable, not null
    */
   List<Position> getPositions();
 
   /**
-   * Recursively finds a specific node from this node by identity key.
+   * Recursively finds a specific node from this node by identifier.
    * If this node matches it is returned.
-   * @param identityKey  the identity key, null returns null
+   * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
-  PortfolioNode getNode(Identifier identityKey);
+  PortfolioNode getNode(UniqueIdentifier identifier);
 
   /**
-   * Recursively finds a specific position from this node by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Recursively finds a specific position from this node by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
-  Position getPosition(Identifier identityKey);
+  Position getPosition(UniqueIdentifier identifier);
 
 }

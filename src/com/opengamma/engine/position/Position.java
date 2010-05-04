@@ -8,10 +8,9 @@ package com.opengamma.engine.position;
 import java.math.BigDecimal;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * A position held within a portfolio.
@@ -23,19 +22,13 @@ import com.opengamma.id.IdentificationScheme;
  * to the underlying security is held instead of the full data.
  * An unresolved position will return null when {@link #getSecurity()} is called.
  */
-public interface Position extends Identifiable {
+public interface Position extends UniqueIdentifiable {
 
   /**
-   * The key to be used to refer to a position in identifiers.
+   * Gets the unique identifier of the position.
+   * @return the identifier, not null
    */
-  public static final IdentificationScheme POSITION_IDENTITY_KEY_SCHEME = new IdentificationScheme("PositionIdentityKey");
-
-  /**
-   * Gets the identity key of the position.
-   * @return the identity key, null if not uniquely identified
-   */
-  @Override
-  Identifier getIdentityKey();
+  UniqueIdentifier getUniqueIdentifier();
 
   /**
    * Gets the amount of the position held in terms of the security.

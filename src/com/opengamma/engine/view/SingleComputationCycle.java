@@ -308,6 +308,7 @@ public class SingleComputationCycle {
   }
   
   // Dependency Node Maintenance:
+  // REVIEW kirk 2010-04-30 -- Is this good locking? I'm not entirely sure.
   public boolean isExecuted(DependencyNode node) {
     if(node == null) {
       return true;

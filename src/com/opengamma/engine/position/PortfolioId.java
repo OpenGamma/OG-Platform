@@ -27,7 +27,7 @@ public final class PortfolioId implements Comparable<PortfolioId>, Serializable 
   /**
    * Obtains an identifier.
    * @param identifier  the identifier of the portfolio, not empty, not null
-   * @return the portfolio id, never null
+   * @return the portfolio id, not null
    */
   public static PortfolioId of(String identifier) {
     return new PortfolioId(identifier);
@@ -45,7 +45,7 @@ public final class PortfolioId implements Comparable<PortfolioId>, Serializable 
   //-------------------------------------------------------------------------
   /**
    * Gets the value of the identifier.
-   * @return the identifier, not empty, never null
+   * @return the identifier, not empty, not null
    */
   public String getValue() {
     return _id;
@@ -81,7 +81,7 @@ public final class PortfolioId implements Comparable<PortfolioId>, Serializable 
 
   /**
    * Returns the identifier.
-   * @return the identifier, not empty, never null
+   * @return the identifier, not empty, not null
    */
   @Override
   public String toString() {

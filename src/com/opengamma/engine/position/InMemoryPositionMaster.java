@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,19 +21,19 @@ public class InMemoryPositionMaster implements PositionMaster {
   /**
    * The portfolios.
    */
-  private final Map<Identifier, Portfolio> _portfolios = new ConcurrentHashMap<Identifier, Portfolio>();
+  private final Map<UniqueIdentifier, Portfolio> _portfolios = new ConcurrentHashMap<UniqueIdentifier, Portfolio>();
   /**
-   * A cache of nodes by identity key.
+   * A cache of nodes by identifier.
    */
-  private final Map<Identifier, PortfolioNode> _portfolioNodesByIdentityKey = new ConcurrentHashMap<Identifier, PortfolioNode>();
+  private final Map<UniqueIdentifier, PortfolioNode> _nodes = new ConcurrentHashMap<UniqueIdentifier, PortfolioNode>();
   /**
-   * A cache of positions by identity key.
+   * A cache of positions by identifier.
    */
-  private final Map<Identifier, Position> _positionsByIdentityKey = new ConcurrentHashMap<Identifier, Position>();
+  private final Map<UniqueIdentifier, Position> _positions = new ConcurrentHashMap<UniqueIdentifier, Position>();
   /**
-   * The next index for the identity key.
+   * The next index for the identifier.
    */
-  private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
+  private final AtomicLong _nextIdentityKey = new AtomicLong();
 
   /**
    * Creates an empty position master.
@@ -44,9 +44,9 @@ public class InMemoryPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   /**
    * Gets the list of all portfolio identifiers.
-   * @return the portfolio identifiers, unmodifiable, never null
+   * @return the portfolio identifiers, unmodifiable, not null
    */
-  public Set<Identifier> getPortfolioIds() {
+  public Set<UniqueIdentifier> getPortfolioIds() {
     return _portfolios.keySet();
   }
 
@@ -55,26 +55,26 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */
-  public Portfolio getPortfolio(Identifier identifier) {
+  public Portfolio getPortfolio(UniqueIdentifier identifier) {
     return _portfolios.get(identifier);
   }
 
   /**
-   * Finds a specific node from any portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific node from any portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
-  public PortfolioNode getPortfolioNode(Identifier identityKey) {
-    return _portfolioNodesByIdentityKey.get(identityKey);
+  public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
+    return _nodes.get(identifier);
   }
 
   /**
-   * Finds a specific position from any portfolio by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Finds a specific position from any portfolio by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
-  public Position getPosition(Identifier identityKey) {
-    return _positionsByIdentityKey.get(identityKey);
+  public Position getPosition(UniqueIdentifier identifier) {
+    return _positions.get(identifier);
   }
 
   //-------------------------------------------------------------------------`
@@ -84,8 +84,8 @@ public class InMemoryPositionMaster implements PositionMaster {
    */
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
-    _portfolios.put(portfolio.getIdentityKey(), portfolio);
-    addToCache(portfolio.getIdentityKey().getValue(), portfolio.getRootNode());
+    _portfolios.put(portfolio.getUniqueIdentifier(), portfolio);
+    addToCache(portfolio.getUniqueIdentifier().getValue(), portfolio.getRootNode());
   }
 
   /**
@@ -97,19 +97,19 @@ public class InMemoryPositionMaster implements PositionMaster {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
-      String identityKey = portfolioId + "-" + _nextIdentityKey.getAndIncrement();
-      nodeImpl.setIdentityKey(identityKey);
+      UniqueIdentifier identifier = UniqueIdentifier.of("Memory", portfolioId + "-" + _nextIdentityKey.incrementAndGet());
+      nodeImpl.setUniqueIdentifier(identifier);
     }
-    _portfolioNodesByIdentityKey.put(node.getIdentityKey(), node);
+    _nodes.put(node.getUniqueIdentifier(), node);
     
     // position
     for (Position position : node.getPositions()) {
       if (position instanceof PositionBean) {
-        PositionBean positionBean = (PositionBean) position;
-        String identityKey = portfolioId + "-" + _nextIdentityKey.getAndIncrement();
-        positionBean.setIdentityKey(identityKey);
+        PositionBean positionImpl = (PositionBean) position;
+        UniqueIdentifier identifier = UniqueIdentifier.of("Memory", portfolioId + "-" + _nextIdentityKey.incrementAndGet());
+        positionImpl.setUniqueIdentifier(identifier);
       }
-      _positionsByIdentityKey.put(position.getIdentityKey(), position);
+      _positions.put(position.getUniqueIdentifier(), position);
     }
     
     // recurse
