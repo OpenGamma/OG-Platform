@@ -15,7 +15,7 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -30,7 +30,7 @@ public class ComputationTargetSpecificationTest {
   private static final Identifier ID = Identifier.of("A", "B");
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
-  private static final Position POSITION = new PositionBean(UID, new BigDecimal(1), new IdentifierBundle());
+  private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), new IdentifierBundle());
   private static final DefaultSecurity SECURITY = new DefaultSecurity();
   static {
     SECURITY.setIdentityKey(ID);

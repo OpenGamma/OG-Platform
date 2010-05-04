@@ -149,7 +149,7 @@ public class PortfolioImplTest {
   @Test
   public void test_getPosition_Identifier() {
     PortfolioNodeImpl root = new PortfolioNodeImpl(UniqueIdentifier.of("Root", "A"), "Name");
-    Position position = new PositionBean(UniqueIdentifier.of("Child", "A"), BigDecimal.ZERO, Identifier.of("A", "B"));
+    Position position = new PositionImpl(UniqueIdentifier.of("Child", "A"), BigDecimal.ZERO, Identifier.of("A", "B"));
     root.addPosition(position);
     PortfolioImpl test = new PortfolioImpl(id("Scheme", "Id"), "Name", root);
     assertSame(position, test.getPosition(UniqueIdentifier.of("Child", "A")));

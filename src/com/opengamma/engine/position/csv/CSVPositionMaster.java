@@ -32,7 +32,7 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
@@ -184,7 +184,7 @@ public class CSVPositionMaster implements PositionMaster {
     int curIndex = 1;
     UniqueIdentifier positionId = UniqueIdentifier.of(portfolioId.getScheme(), Integer.toString(curIndex));
     while ((line = in.readLine()) != null) {
-      PositionBean position = parseLine(line, positionId);
+      PositionImpl position = parseLine(line, positionId);
       if (position != null) {
         ((PortfolioNodeImpl) portfolio.getRootNode()).addPosition(position);
         _positions.put(position.getUniqueIdentifier(), position);
@@ -200,7 +200,7 @@ public class CSVPositionMaster implements PositionMaster {
    * @param positionId  the portfolio id, not null
    * @return the position
    */
-  /* package for testing */ static PositionBean parseLine(String line, UniqueIdentifier positionId) {
+  /* package for testing */ static PositionImpl parseLine(String line, UniqueIdentifier positionId) {
     String[] tokens = StringUtils.split(line, ',');
     if (tokens.length < 3) {
       return null;
@@ -219,7 +219,7 @@ public class CSVPositionMaster implements PositionMaster {
     IdentifierBundle securityKey = new IdentifierBundle(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
-    return new PositionBean(positionId, quantity, securityKey);
+    return new PositionImpl(positionId, quantity, securityKey);
   }
 
 }

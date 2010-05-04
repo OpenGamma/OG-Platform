@@ -104,8 +104,8 @@ public class InMemoryPositionMaster implements PositionMaster {
     
     // position
     for (Position position : node.getPositions()) {
-      if (position instanceof PositionBean) {
-        PositionBean positionImpl = (PositionBean) position;
+      if (position instanceof PositionImpl) {
+        PositionImpl positionImpl = (PositionImpl) position;
         UniqueIdentifier identifier = UniqueIdentifier.of("Memory", portfolioId + "-" + _nextIdentityKey.incrementAndGet());
         positionImpl.setUniqueIdentifier(identifier);
       }

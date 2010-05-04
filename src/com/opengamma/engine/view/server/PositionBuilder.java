@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -38,7 +38,7 @@ public class PositionBuilder implements FudgeBuilder<Position> {
 
   @Override
   public Position buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    return new PositionBean(
+    return new PositionImpl(
         context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER)),
         message.getFieldValue(BigDecimal.class, message.getByName(FIELD_QUANTITY)),
         context.fieldValueToObject(IdentifierBundle.class, message.getByName(FIELD_SECURITYKEY)));

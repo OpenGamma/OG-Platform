@@ -36,7 +36,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
@@ -270,7 +270,7 @@ public class PortfolioEvaluationModel {
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      PositionBean populatedPosition = new PositionBean(
+      PositionImpl populatedPosition = new PositionImpl(
           position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
       populatedNode.addPosition(populatedPosition);
     }

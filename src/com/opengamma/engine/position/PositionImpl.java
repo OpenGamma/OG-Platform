@@ -21,7 +21,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * A simple mutable implementation of {@code Position}.
  */
-public class PositionBean implements Position, Serializable {
+public class PositionImpl implements Position, Serializable {
 
   /**
    * The identifier of the whole position.
@@ -45,7 +45,7 @@ public class PositionBean implements Position, Serializable {
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionBean(BigDecimal quantity, Identifier securityKey) {
+  public PositionImpl(BigDecimal quantity, Identifier securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
@@ -58,7 +58,7 @@ public class PositionBean implements Position, Serializable {
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionBean(BigDecimal quantity, IdentifierBundle securityKey) {
+  public PositionImpl(BigDecimal quantity, IdentifierBundle securityKey) {
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
     _quantity = quantity;
@@ -71,7 +71,7 @@ public class PositionBean implements Position, Serializable {
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, Identifier securityKey) {
+  public PositionImpl(UniqueIdentifier identifier, BigDecimal quantity, Identifier securityKey) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
@@ -86,7 +86,7 @@ public class PositionBean implements Position, Serializable {
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
-  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, IdentifierBundle securityKey) {
+  public PositionImpl(UniqueIdentifier identifier, BigDecimal quantity, IdentifierBundle securityKey) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
@@ -101,7 +101,7 @@ public class PositionBean implements Position, Serializable {
    * @param quantity  the amount of the position, not null
    * @param security  the security, not null
    */
-  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, Security security) {
+  public PositionImpl(UniqueIdentifier identifier, BigDecimal quantity, Security security) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(security, "security");
@@ -117,7 +117,7 @@ public class PositionBean implements Position, Serializable {
    * @param securityKey  the security identifier, not null
    * @param security  the security, not null
    */
-  public PositionBean(UniqueIdentifier identifier, BigDecimal quantity, IdentifierBundle securityKey, Security security) {
+  public PositionImpl(UniqueIdentifier identifier, BigDecimal quantity, IdentifierBundle securityKey, Security security) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(securityKey, "security key");
@@ -194,8 +194,8 @@ public class PositionBean implements Position, Serializable {
     if (this == obj) {
       return true;
     }
-    if (obj instanceof PositionBean) {
-      PositionBean other = (PositionBean) obj;
+    if (obj instanceof PositionImpl) {
+      PositionImpl other = (PositionImpl) obj;
       return CompareUtils.compareWithNull(_quantity, other._quantity) == 0 &&
               ObjectUtils.equals(_securityKey, other._securityKey) &&
               ObjectUtils.equals(_security, other._security);
@@ -225,6 +225,7 @@ public class PositionBean implements Position, Serializable {
       .append(getQuantity())
       .append(' ')
       .append(getSecurity() != null ? getSecurity() : getSecurityKey())
+      .append(']')
       .toString();
   }
 
