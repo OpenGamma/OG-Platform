@@ -11,8 +11,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -20,15 +20,13 @@ import org.junit.Test;
 
 /**
  * Test IdentifierBundle.
- *
- * @author kirk
  */
 public class IdentifierBundleTest {
 
-  private final Identifier _id11 = new Identifier(new IdentificationScheme("D1"), "V1");
-  private final Identifier _id21 = new Identifier(new IdentificationScheme("D2"), "V1");
-  private final Identifier _id12 = new Identifier(new IdentificationScheme("D1"), "V2");
-  private final Identifier _id22 = new Identifier(new IdentificationScheme("D2"), "V2");
+  private final Identifier _id11 = Identifier.of(new IdentificationScheme("D1"), "V1");
+  private final Identifier _id21 = Identifier.of(new IdentificationScheme("D2"), "V1");
+  private final Identifier _id12 = Identifier.of(new IdentificationScheme("D1"), "V2");
+  private final Identifier _id22 = Identifier.of(new IdentificationScheme("D2"), "V2");
 
   @Test
   public void noIdentifiers() {
@@ -65,20 +63,11 @@ public class IdentifierBundleTest {
     assertFalse(new IdentifierBundle(_id21, _id22).equals(new IdentifierBundle(_id11, _id12)));
   }
 
-  @Test
-  public void fudgeEncoding() {
-    IdentifierBundle input = new IdentifierBundle(
-        new Identifier(new IdentificationScheme("id1"), "value1"),
-        new Identifier(new IdentificationScheme("id2"), "value2")
-      );
-    FudgeFieldContainer msg = input.toFudgeMsg(new FudgeContext());
-    assertNotNull(msg);
-    assertEquals(2, msg.getNumFields());
-    
-    IdentifierBundle decoded = IdentifierBundle.fromFudgeMsg(msg);
-    assertEquals(input, decoded);
+  @Test(expected=NullPointerException.class)
+  public void multipleIdentifier_noNulls() {
+    new IdentifierBundle(_id11, null, _id12);
   }
-  
+
   @Test
   public void nullIdentifierConstructor() {
     IdentifierBundle bundle = new IdentifierBundle((Identifier)null);
@@ -93,10 +82,9 @@ public class IdentifierBundleTest {
     assertTrue(bundle.getIdentifiers().isEmpty());
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void nullIdentifierCollectionConstructor() {
-    IdentifierBundle bundle = new IdentifierBundle((List)null);
+    IdentifierBundle bundle = new IdentifierBundle((Collection<Identifier>) null);
     assertNotNull(bundle.getIdentifiers());
     assertTrue(bundle.getIdentifiers().isEmpty());
   }
@@ -109,6 +97,48 @@ public class IdentifierBundleTest {
     assertEquals("V2", input.getIdentifier(new IdentificationScheme("D2")));
     assertNull(input.getIdentifier(new IdentificationScheme("Kirk Wylie")));
     assertNull(input.getIdentifier(null));
+  }
+
+  @Test
+  public void withIdentifier() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withIdentifier(Identifier.of("A", "C"));
+    assertEquals(1, base.size());
+    assertEquals(2, test.size());
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "C")));
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void withIdentifier_null() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    base.withIdentifier(null);
+  }
+
+  @Test
+  public void withoutIdentifier_match() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withoutIdentifier(Identifier.of("A", "B"));
+    assertEquals(1, base.size());
+    assertEquals(0, test.size());
+  }
+
+  @Test
+  public void withoutIdentifier_noMatch() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withoutIdentifier(Identifier.of("A", "C"));
+    assertEquals(1, base.size());
+    assertEquals(1, test.size());
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));
+  }
+
+  @Test
+  public void withoutIdentifier_null() {
+    IdentifierBundle base = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle test = base.withoutIdentifier(null);
+    assertEquals(1, base.size());
+    assertEquals(1, test.size());
+    assertTrue(test.getIdentifiers().contains(Identifier.of("A", "B")));
   }
 
   //-------------------------------------------------------------------------
@@ -174,6 +204,21 @@ public class IdentifierBundleTest {
   public void test_toString_nonEmpty() {
     IdentifierBundle test = new IdentifierBundle(_id11, _id12);
     assertEquals("Bundle[" + _id11.toString() + ", " + _id12.toString() + "]", test.toString());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void fudgeEncoding() {
+    IdentifierBundle input = new IdentifierBundle(
+        Identifier.of(new IdentificationScheme("id1"), "value1"),
+        Identifier.of(new IdentificationScheme("id2"), "value2")
+      );
+    FudgeFieldContainer msg = input.toFudgeMsg(new FudgeContext());
+    assertNotNull(msg);
+    assertEquals(2, msg.getNumFields());
+    
+    IdentifierBundle decoded = IdentifierBundle.fromFudgeMsg(msg);
+    assertEquals(input, decoded);
   }
 
 }
