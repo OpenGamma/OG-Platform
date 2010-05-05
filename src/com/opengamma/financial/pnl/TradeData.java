@@ -5,13 +5,9 @@
  */
 package com.opengamma.financial.pnl;
 
-/**
- * @author emcleod
- *
- */
 public enum TradeData {
   NUMBER_OF_CONTRACTS,
 
   // Option-specific
-  POINT_VALUE
+  OPTION_POINT_VALUE
 }

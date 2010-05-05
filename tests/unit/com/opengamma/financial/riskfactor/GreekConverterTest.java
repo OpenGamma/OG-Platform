@@ -63,14 +63,14 @@ public class GreekConverterTest {
     final Map<Object, Double> m3 = new HashMap<Object, Double>();
     m1.put(Underlying.SPOT_PRICE, SPOT_PRICE);
     m1.put(TradeData.NUMBER_OF_CONTRACTS, N);
-    m1.put(TradeData.POINT_VALUE, PV);
+    m1.put(TradeData.OPTION_POINT_VALUE, PV);
     m2.put(Underlying.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
     m2.put(TradeData.NUMBER_OF_CONTRACTS, N);
-    m2.put(TradeData.POINT_VALUE, PV);
+    m2.put(TradeData.OPTION_POINT_VALUE, PV);
     m3.put(Underlying.SPOT_PRICE, SPOT_PRICE);
     m3.put(Underlying.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
     m3.put(TradeData.NUMBER_OF_CONTRACTS, N);
-    m3.put(TradeData.POINT_VALUE, PV);
+    m3.put(TradeData.OPTION_POINT_VALUE, PV);
     map.put(Greek.DELTA, m1);
     map.put(Greek.GAMMA, m1);
     map.put(Greek.VEGA, m2);

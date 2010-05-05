@@ -23,10 +23,6 @@ import com.opengamma.financial.pnl.Underlying;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.function.Function1D;
 
-/**
- * @author emcleod
- *
- */
 public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<Sensitivity, RiskFactorResult<?>>> {
   private final GreekVisitor<Sensitivity> _visitor = new GreekToValueGreekVisitor();
 
@@ -70,17 +66,17 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
     final Map<Object, Double> underlyings = data.getAllUnderlyingDataForGreek(greek);
     if (order instanceof FirstOrder) {
       final Underlying underlying = ((FirstOrder) order).getVariable();
-      return greekValue * underlyings.get(underlying) * underlyings.get(TradeData.POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
+      return greekValue * underlyings.get(underlying) * underlyings.get(TradeData.OPTION_POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
     }
     if (order instanceof SecondOrder) {
       final Underlying underlying = ((SecondOrder) order).getVariable();
       final double x = underlyings.get(underlying);
-      return greekValue * x * x * underlyings.get(TradeData.POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
+      return greekValue * x * x * underlyings.get(TradeData.OPTION_POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
     }
     if (order instanceof MixedSecondOrder) {
       final MixedSecondOrder mixedFirst = ((MixedSecondOrder) order);
       return greekValue * underlyings.get(mixedFirst.getFirstVariable().getVariable()) * underlyings.get(mixedFirst.getSecondVariable().getVariable())
-          * underlyings.get(TradeData.POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
+          * underlyings.get(TradeData.OPTION_POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
     }
     throw new IllegalArgumentException("Can currently only handle first-, mixed-second- and second-order greeks");// TODO
   }
