@@ -77,6 +77,7 @@ public final class IdentifierBundle implements Serializable {
     if ((identifiers == null) || (identifiers.length == 0)) {
       _identifiers = Collections.emptySet();
     } else {
+      ArgumentChecker.noNulls(identifiers, "identifiers");
       _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(Arrays.asList(identifiers)));
     }
     _hashCode = calcHashCode();
@@ -90,6 +91,7 @@ public final class IdentifierBundle implements Serializable {
     if (identifiers == null) {
       _identifiers = Collections.emptySet();
     } else {
+      ArgumentChecker.noNulls(identifiers, "identifiers");
       _identifiers = Collections.unmodifiableSet(new TreeSet<Identifier>(identifiers));
     }
     _hashCode = calcHashCode();
@@ -109,6 +111,31 @@ public final class IdentifierBundle implements Serializable {
     return _identifiers;
   }
 
+  /**
+   * Returns a new bundle with the specified identifier added.
+   * This instance is immutable and unaffected by this method call.
+   * @param identifier  the identifier to add to the returned bundle, not null
+   * @return the new bundle, not null
+   */
+  public IdentifierBundle withIdentifier(Identifier identifier) {
+    Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
+    ids.add(identifier);
+    return new IdentifierBundle(ids);
+  }
+
+  /**
+   * Returns a new bundle with the specified identifier removed.
+   * This instance is immutable and unaffected by this method call.
+   * @param identifier  the identifier to remove from the returned bundle, null ignored
+   * @return the new bundle, not null
+   */
+  public IdentifierBundle withoutIdentifier(Identifier identifier) {
+    Set<Identifier> ids = new HashSet<Identifier>(_identifiers);
+    ids.remove(identifier);
+    return new IdentifierBundle(ids);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the standalone identifier for the specified scheme.
    * <p>
