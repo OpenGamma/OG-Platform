@@ -17,32 +17,41 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
  * 
- * Romberg's method estimates an integral by repeatedly using Richardson extrapolation (<a href="http://en.wikipedia.org/wiki/Richardson_extrapolation"/> on the trapezium rule.
- * The function to be integrated must have continuous derivatives. This is a Newton-Cotes method (i.e. the integrand is evaluated at equally spaced points on the abscissa). 
- *  
+ * Romberg's method estimates an integral by repeatedly using <a
+ * href="http://en.wikipedia.org/wiki/Richardson_extrapolation">Richardson
+ * extrapolation</a> on the trapezium rule. The function to be integrated must
+ * have continuous derivatives. This is a Newton-Cotes method (i.e. the
+ * integrand is evaluated at equally spaced points on the abscissa).
+ * 
  */
-public class RombergIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
-  private static final Logger s_Log = LoggerFactory.getLogger(RombergIntegrator1D.class);
-  private final UnivariateRealIntegrator _integrator = new RombergIntegrator();
+public class RombergIntegrator1D extends
+		Integrator1D<Double, Function1D<Double, Double>, Double> {
+	private static final Logger s_Log = LoggerFactory
+			.getLogger(RombergIntegrator1D.class);
+	private final UnivariateRealIntegrator _integrator = new RombergIntegrator();
 
-  @Override
-  public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
-    if (f == null)
-      throw new IllegalArgumentException("Function was null");
-    if (lower == null)
-      throw new IllegalArgumentException("Lower bound was null");
-    if (upper == null)
-      throw new IllegalArgumentException("Upper bound was null");
-    try {
-      if (lower < upper) {
-        return _integrator.integrate(CommonsMathWrapper.wrap(f), lower, upper);
-      }
-      s_Log.info("Upper bound was less than lower bound; swapping bounds and negating result");
-      return -_integrator.integrate(CommonsMathWrapper.wrap(f), upper, lower);
-    } catch (final FunctionEvaluationException e) {
-      throw new MathException(e);
-    } catch (final org.apache.commons.math.ConvergenceException e) {
-      throw new com.opengamma.math.ConvergenceException(e);
-    }
-  }
+	@Override
+	public Double integrate(final Function1D<Double, Double> f,
+			final Double lower, final Double upper) {
+		if (f == null)
+			throw new IllegalArgumentException("Function was null");
+		if (lower == null)
+			throw new IllegalArgumentException("Lower bound was null");
+		if (upper == null)
+			throw new IllegalArgumentException("Upper bound was null");
+		try {
+			if (lower < upper) {
+				return _integrator.integrate(CommonsMathWrapper.wrap(f), lower,
+						upper);
+			}
+			s_Log
+					.info("Upper bound was less than lower bound; swapping bounds and negating result");
+			return -_integrator.integrate(CommonsMathWrapper.wrap(f), upper,
+					lower);
+		} catch (final FunctionEvaluationException e) {
+			throw new MathException(e);
+		} catch (final org.apache.commons.math.ConvergenceException e) {
+			throw new com.opengamma.math.ConvergenceException(e);
+		}
+	}
 }

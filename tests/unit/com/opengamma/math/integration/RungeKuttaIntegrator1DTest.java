@@ -53,6 +53,16 @@ public class RungeKuttaIntegrator1DTest {
         res += W[i] * Math.exp(-0.5 * expo) / ROOT_2PI / SIGMA[i];
       }
       return res;
+    }
+  };
+
+  private static final Function1D<Double, Double> SIN_INV_X = new Function1D<Double, Double>() {
+    @Override
+    public Double evaluate(final Double x) {
+      final double eps = 1e-127;
+      if (Math.abs(x) < eps)
+        return 0.0;
+      return Math.sin(1.0 / x);
 
     }
 
@@ -91,4 +101,17 @@ public class RungeKuttaIntegrator1DTest {
     upper = 30;
     assertEquals(1.0, integrator.integrate(MIX_NORM, lower, upper), eps);
   }
+
+  @Test
+  public void testCutoff() {
+
+    final double eps = 1e-9;
+    final int minSteps = 10;
+    final Integrator1D<Double, Function1D<Double, Double>, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
+    final double lower = -1.0;
+    final double upper = 1.0;
+    assertEquals(0.0, integrator.integrate(SIN_INV_X, lower, upper), eps);
+
+  }
+
 }

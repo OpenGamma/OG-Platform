@@ -10,10 +10,6 @@ import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
-/**
- * 
- * @author emcleod
- */
 public class AutoregressiveTimeSeriesPACFOrderIdentifier {
   private final int _maxOrder;
   private final double _level;
@@ -39,8 +35,8 @@ public class AutoregressiveTimeSeriesPACFOrderIdentifier {
     Integer order = null;
     final Double[] data = ts.valuesArray();
     for (int i = 1; i < _maxOrder; i++) {
-      final Double[] y = new Double[n - i];
-      final Double[][] x = new Double[n - i][i];
+      final double[] y = new double[n - i];
+      final double[][] x = new double[n - i][i];
       for (int j = n - 1; j >= i; j--) {
         y[j - i] = data[j];
         for (int k = 1; k <= i; k++) {

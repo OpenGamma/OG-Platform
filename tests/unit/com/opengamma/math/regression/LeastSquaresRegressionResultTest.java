@@ -16,10 +16,6 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 
-/**
- * 
- * @author emcleod
- */
 public class LeastSquaresRegressionResultTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-2;
@@ -51,9 +47,9 @@ public class LeastSquaresRegressionResultTest {
 
     };
     final int n = 100;
-    final Double[][] x = new Double[n][2];
-    final Double[] y1 = new Double[n];
-    final Double[] y2 = new Double[n];
+    final double[][] x = new double[n][2];
+    final double[] y1 = new double[n];
+    final double[] y2 = new double[n];
     for (int i = 0; i < n; i++) {
       x[i][0] = RANDOM.nextDouble();
       x[i][1] = RANDOM.nextDouble();
@@ -70,22 +66,22 @@ public class LeastSquaresRegressionResultTest {
       // Expected
     }
     try {
-      result1.getPredictedValue(new Double[] { 2.4, 2.5, 3.4 });
+      result1.getPredictedValue(new double[] { 2.4, 2.5, 3.4 });
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      result2.getPredictedValue(new Double[] { 1.3 });
+      result2.getPredictedValue(new double[] { 1.3 });
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    Double[] z;
+    double[] z;
     for (int i = 0; i < 10; i++) {
-      z = new Double[] { RANDOM.nextDouble(), RANDOM.nextDouble() };
-      assertEquals(f1.evaluate(z), result1.getPredictedValue(z), EPS);
-      assertEquals(f2.evaluate(z), result2.getPredictedValue(z), EPS);
+      z = new double[] { RANDOM.nextDouble(), RANDOM.nextDouble() };
+      assertEquals(f1.evaluate(z[0], z[1]), result1.getPredictedValue(z), EPS);
+      assertEquals(f2.evaluate(z[0], z[1]), result2.getPredictedValue(z), EPS);
     }
   }
 }

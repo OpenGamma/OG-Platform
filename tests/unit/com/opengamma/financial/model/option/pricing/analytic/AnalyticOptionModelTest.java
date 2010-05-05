@@ -47,11 +47,12 @@ public class AnalyticOptionModelTest {
   private static final Expiry ONE_YEAR = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final EuropeanVanillaOptionDefinition PUT = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, false);
   private static final EuropeanVanillaOptionDefinition CALL = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, true);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.06), 0.02, new ConstantVolatilitySurface(0.24), 15.,
-      DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(
+      new ConstantInterestRateDiscountCurve(0.06), 0.02, new ConstantVolatilitySurface(0.24), 15., DATE);
   private static final double EPS = 1e-2;
 
-  public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(final AnalyticOptionModel<S, T> model, final S definition) {
+  public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(
+      final AnalyticOptionModel<S, T> model, final S definition) {
     try {
       model.getPricingFunction(null);
       fail();
@@ -69,9 +70,11 @@ public class AnalyticOptionModelTest {
 
   @Test
   public void testFiniteDifferenceAgainstBSM() {
-    final Set<Greek> greekTypes = EnumSet.of(Greek.FAIR_PRICE, Greek.ZETA, Greek.CARRY_RHO, Greek.DELTA, Greek.DZETA_DVOL, Greek.ELASTICITY, Greek.PHI, Greek.RHO, Greek.THETA,
-        Greek.VARIANCE_VEGA, Greek.VEGA, Greek.VEGA_P, Greek.ZETA_BLEED, Greek.VARIANCE_VANNA, Greek.DELTA_BLEED, Greek.GAMMA, Greek.GAMMA_P, Greek.VANNA, Greek.VARIANCE_VOMMA,
-        Greek.VEGA_BLEED, Greek.VOMMA, Greek.VOMMA_P, Greek.DVANNA_DVOL, Greek.GAMMA_BLEED, Greek.GAMMA_P_BLEED, Greek.SPEED, Greek.SPEED_P, Greek.ULTIMA, Greek.VARIANCE_ULTIMA,
+    final Set<Greek> greekTypes = EnumSet.of(Greek.FAIR_PRICE, Greek.ZETA, Greek.CARRY_RHO, Greek.DELTA,
+        Greek.DZETA_DVOL, Greek.ELASTICITY, Greek.PHI, Greek.RHO, Greek.THETA, Greek.VARIANCE_VEGA, Greek.VEGA,
+        Greek.VEGA_P, Greek.ZETA_BLEED, Greek.VARIANCE_VANNA, Greek.DELTA_BLEED, Greek.GAMMA, Greek.GAMMA_P,
+        Greek.VANNA, Greek.VARIANCE_VOMMA, Greek.VEGA_BLEED, Greek.VOMMA, Greek.VOMMA_P, Greek.DVANNA_DVOL,
+        Greek.GAMMA_BLEED, Greek.GAMMA_P_BLEED, Greek.SPEED, Greek.SPEED_P, Greek.ULTIMA, Greek.VARIANCE_ULTIMA,
         Greek.ZOMMA, Greek.ZOMMA_P);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);
     GreekResultCollection finiteDifference = DUMMY_MODEL.getGreeks(PUT, DATA, greekTypes);
