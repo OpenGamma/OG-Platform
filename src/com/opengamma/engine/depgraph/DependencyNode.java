@@ -126,7 +126,7 @@ public class DependencyNode {
     if(requirement.getTargetSpecification().getType() != getComputationTarget().getType()) {
       return null;
     }
-    if(!ObjectUtils.equals(requirement.getTargetSpecification().getIdentifier(), getComputationTarget().getUniqueIdentifier())) {
+    if(!ObjectUtils.equals(requirement.getTargetSpecification().getIdentifier(), getComputationTarget().getIdentityKey())) {
       return null;
     }
     for(ValueSpecification outputSpec : _outputValues) {
@@ -168,7 +168,7 @@ public class DependencyNode {
     sb.append("DependencyNode[");
     sb.append(getFunctionDefinition().getShortName());
     sb.append(" on ");
-    sb.append(getComputationTarget().getSpecification());
+    sb.append(getComputationTarget().toSpecification());
     sb.append("]");
     return sb.toString();
   }

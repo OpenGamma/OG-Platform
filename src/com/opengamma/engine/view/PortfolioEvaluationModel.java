@@ -36,7 +36,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PortfolioNodeTraverser;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
@@ -240,7 +240,7 @@ public class PortfolioEvaluationModel {
       } else if(position.getSecurityKey() != null) {
         result.add(position.getSecurityKey());
       } else {
-        throw new IllegalArgumentException("For position " + position.getIdentityKey() + " no security or security key provided.");
+        throw new IllegalArgumentException("Security or security key must be provided: " + position.getUniqueIdentifier());
       }
     }
     
@@ -261,7 +261,7 @@ public class PortfolioEvaluationModel {
       return null;
     }
     PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
-    populatedNode.setIdentityKey(node.getIdentityKey());
+    populatedNode.setUniqueIdentifier(node.getUniqueIdentifier());
     for(Position position : node.getPositions()) {
       Security security = position.getSecurity();
       if(position.getSecurity() == null) {
@@ -270,8 +270,8 @@ public class PortfolioEvaluationModel {
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      PositionBean populatedPosition = new PositionBean(position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
-      populatedPosition.setIdentityKey(position.getIdentityKey());
+      PositionImpl populatedPosition = new PositionImpl(
+          position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
       populatedNode.addPosition(populatedPosition);
     }
     for (PortfolioNode child : node.getChildNodes()) {

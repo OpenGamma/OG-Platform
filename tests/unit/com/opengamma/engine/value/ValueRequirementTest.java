@@ -38,7 +38,7 @@ public class ValueRequirementTest {
   @Test
   public void validConstructors() {
     new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
-    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, null);
+    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (Identifier) null);
   }
   
   @Test
@@ -63,7 +63,7 @@ public class ValueRequirementTest {
     assertFalse(req1.hashCode() == req2.hashCode());
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, null);
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (Identifier) null);
     assertFalse(req1.hashCode() == req2.hashCode());
   }
   
@@ -83,7 +83,7 @@ public class ValueRequirementTest {
     assertFalse(req1.equals(req2));
     req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
     assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, null);
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (Identifier) null);
     assertFalse(req1.equals(req2));
     
   }

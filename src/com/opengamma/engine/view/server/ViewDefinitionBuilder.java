@@ -18,7 +18,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Fudge message builder for {@code ViewDefinition}.
@@ -52,7 +52,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     final ViewDefinition viewDefinition = new ViewDefinition (
         message.getFieldValue(String.class, message.getByName (FIELD_NAME)),
-        context.fieldValueToObject(Identifier.class, message.getByName (FIELD_IDENTIFIER)),
+        context.fieldValueToObject(UniqueIdentifier.class, message.getByName (FIELD_IDENTIFIER)),
         message.getFieldValue(String.class, message.getByName(FIELD_USERNAME)));
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {

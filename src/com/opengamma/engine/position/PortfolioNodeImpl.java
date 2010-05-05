@@ -11,7 +11,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.opengamma.id.Identifier;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrBuilder;
+
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -20,9 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 public class PortfolioNodeImpl implements PortfolioNode, Serializable {
 
   /**
-   * The identity key of the node.
+   * The identifier of the node.
    */
-  private Identifier _identityKey;
+  private UniqueIdentifier _identifier;
   /**
    * The name.
    */
@@ -37,49 +40,40 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   private final List<Position> _positions = new ArrayList<Position>();
 
   /**
-   * Creates a node with an empty name.
+   * Creates a portfolio with an empty name.
    */
   public PortfolioNodeImpl() {
     _name = "";
   }
 
   /**
-   * Creates a node with the specified name.
-   * @param name  the name to use, not null
+   * Creates a portfolio with the specified identifier.
+   * @param identifier  the portfolio identifier, not null
+   * @param name  the name to use, null treated as empty
    */
-  public PortfolioNodeImpl(String name) {
-    ArgumentChecker.notNull(name, "name");
-    _name = name;
+  public PortfolioNodeImpl(UniqueIdentifier identifier, String name) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    _identifier = identifier;
+    _name = StringUtils.defaultString(name);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the identity key of the node.
-   * @return the identity key, null if not uniquely identified
+   * Gets the unique identifier of the node.
+   * @return the identifier, not null
    */
   @Override
-  public Identifier getIdentityKey() {
-    return _identityKey;
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _identifier;
   }
 
   /**
-   * Sets the identity key of the node.
-   * @param identityKey  the new identity key, not null
+   * Sets the unique identifier of the node.
+   * @param identifier  the new identifier, not null
    */
-  public void setIdentityKey(Identifier identityKey) {
-    ArgumentChecker.notNull(identityKey, "Identity key");
-    if (identityKey.isNotScheme(PORTFOLIO_NODE_IDENTITY_KEY_SCHEME)) {
-      throw new IllegalArgumentException("Wrong scheme specified: " + identityKey.getScheme());
-    }
-    _identityKey = identityKey; 
-  }
-
-  /**
-   * Sets the identity key identifier of the node.
-   * @param identityKey  the new identity key identifier, not null
-   */
-  public void setIdentityKey(String identityKey) {
-    _identityKey = new Identifier(PORTFOLIO_NODE_IDENTITY_KEY_SCHEME, identityKey);
+  public void setUniqueIdentifier(UniqueIdentifier identifier) {
+    ArgumentChecker.notNull(identifier, "identifier");
+    _identifier = identifier;
   }
 
   //-------------------------------------------------------------------------
@@ -94,10 +88,10 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
 
   /**
    * Sets the name of the node intended for display purposes.
-   * @param name
+   * @param name  the name, not empty, not null
    */
   public void setName(String name) {
-    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notEmpty(name, "name");
     _name = name;
   }
 
@@ -114,7 +108,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   //-------------------------------------------------------------------------
   /**
    * Gets the nodes which are immediate children of this node.
-   * @return the child nodes, unmodifiable, never null
+   * @return the child nodes, unmodifiable, not null
    */
   @Override
   public List<PortfolioNode> getChildNodes() {
@@ -150,7 +144,7 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   //-------------------------------------------------------------------------
   /**
    * Gets the positions which are immediate children of this node.
-   * @return the positions, unmodifiable, never null
+   * @return the positions, unmodifiable, not null
    */
   @Override
   public List<Position> getPositions() {
@@ -185,19 +179,19 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Recursively finds a specific node from this node by identity key.
+   * Recursively finds a specific node from this node by identifier.
    * If this node matches it is returned.
-   * @param identityKey  the identity key, null returns null
+   * @param identifier  the identifier, null returns null
    * @return the node, null if not found
    */
   @Override
-  public PortfolioNode getNode(Identifier identityKey) {
-    if (identityKey != null) {
-      if (_identityKey.equals(identityKey)) {
+  public PortfolioNode getNode(UniqueIdentifier identifier) {
+    if (identifier != null) {
+      if (identifier.equals(_identifier)) {
         return this;
       }
       for (PortfolioNode child : _childNodes) {
-        PortfolioNode result = child.getNode(identityKey);
+        PortfolioNode result = child.getNode(identifier);
         if (result != null) {
           return result;
         }
@@ -207,20 +201,20 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   }
 
   /**
-   * Recursively finds a specific position from this node by identity key.
-   * @param identityKey  the identity key, null returns null
+   * Recursively finds a specific position from this node by identifier.
+   * @param identifier  the identifier, null returns null
    * @return the position, null if not found
    */
   @Override
-  public Position getPosition(Identifier identityKey) {
-    if (identityKey != null) {
+  public Position getPosition(UniqueIdentifier identifier) {
+    if (identifier != null) {
       for (Position child : _positions) {
-        if (_identityKey.equals(child.getIdentityKey())) {
+        if (identifier.equals(child.getUniqueIdentifier())) {
           return child;
         }
       }
       for (PortfolioNode child : _childNodes) {
-        Position result = child.getPosition(identityKey);
+        Position result = child.getPosition(identifier);
         if (result != null) {
           return result;
         }
@@ -232,9 +226,9 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return new StringBuilder()
+    return new StrBuilder()
       .append("PortfolioNode[")
-      .append(getName())
+      .append(getUniqueIdentifier())
       .append(", ")
       .append(_childNodes.size())
       .append(" child-nodes, ")

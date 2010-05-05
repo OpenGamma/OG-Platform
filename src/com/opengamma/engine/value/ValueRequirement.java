@@ -10,13 +10,14 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,6 +32,10 @@ public class ValueRequirement implements Serializable {
   private final ComputationTargetSpecification _targetSpecification;
   
   public ValueRequirement(String valueName, ComputationTargetType targetType, Identifier targetKey) {
+    this(valueName, new ComputationTargetSpecification(targetType, targetKey));
+  }
+  
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetKey) {
     this(valueName, new ComputationTargetSpecification(targetType, targetKey));
   }
   

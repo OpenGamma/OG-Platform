@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -28,12 +30,14 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionBean;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -53,15 +57,15 @@ public class CSVPositionMaster implements PositionMaster {
   /**
    * The map of portfolio files by identifier.
    */
-  private final Map<Identifier, File> _portfolioFiles = new TreeMap<Identifier, File>();
+  private final ConcurrentMap<UniqueIdentifier, Object> _portfolios = new ConcurrentSkipListMap<UniqueIdentifier, Object>();
   /**
-   * The nodes by identity key.
+   * The nodes by identifier.
    */
-  private final Map<Identifier, PortfolioNode> _nodesByIdentityKey = new TreeMap<Identifier, PortfolioNode>();
+  private final Map<UniqueIdentifier, PortfolioNode> _nodes = new TreeMap<UniqueIdentifier, PortfolioNode>();
   /**
-   * The positions by identity key.
+   * The positions by identifier.
    */
-  private final Map<Identifier, Position> _positionsByIdentityKey = new TreeMap<Identifier, Position>();
+  private final Map<UniqueIdentifier, Position> _positions = new TreeMap<UniqueIdentifier, Position>();
 
   /**
    * Creates an empty CSV position master.
@@ -108,7 +112,7 @@ public class CSVPositionMaster implements PositionMaster {
         continue;
       }
       String portfolioName = buildPortfolioName(file.getName());
-      _portfolioFiles.put(new Identifier("CSV", portfolioName), file);
+      _portfolios.put(UniqueIdentifier.of("CSV-" + file.getName(), portfolioName), file);
     }
   }
 
@@ -130,30 +134,36 @@ public class CSVPositionMaster implements PositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<Identifier> getPortfolioIds() {
-    return Collections.unmodifiableSet(_portfolioFiles.keySet());
+  public Set<UniqueIdentifier> getPortfolioIds() {
+    return Collections.unmodifiableSet(_portfolios.keySet());
   }
 
   @Override
-  public Portfolio getPortfolio(Identifier portfolioId) {
-    if (portfolioId == null || _portfolioFiles.containsKey(portfolioId.getValue())) {
-      return null;
+  public Portfolio getPortfolio(UniqueIdentifier portfolioId) {
+    Object portfolio = _portfolios.get(portfolioId);
+    if (portfolio instanceof File) {
+      Portfolio created = loadPortfolio(portfolioId, (File) portfolio);
+      _portfolios.replace(portfolioId, portfolio, created);
+      portfolio = _portfolios.get(portfolioId);
     }
-    return loadPortfolio(portfolioId, _portfolioFiles.get(portfolioId));
+    if (portfolio instanceof Portfolio) {
+      return (Portfolio) portfolio;
+    }
+    return null;
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(Identifier identityKey) {
-    return _nodesByIdentityKey.get(identityKey);
+  public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
+    return _nodes.get(identifier);
   }
 
   @Override
-  public Position getPosition(Identifier identityKey) {
-    return _positionsByIdentityKey.get(identityKey);
+  public Position getPosition(UniqueIdentifier identifier) {
+    return _positions.get(identifier);
   }
 
   //-------------------------------------------------------------------------
-  private Portfolio loadPortfolio(Identifier portfolioId, File file) {
+  private Portfolio loadPortfolio(UniqueIdentifier portfolioId, File file) {
     FileInputStream fis = null;
     try {
       fis = new FileInputStream(file);
@@ -165,21 +175,20 @@ public class CSVPositionMaster implements PositionMaster {
     }
   }
 
-  private Portfolio loadPortfolio(Identifier portfolioId, InputStream inStream) throws IOException {
-    int currPosition = 0;
+  private Portfolio loadPortfolio(UniqueIdentifier portfolioId, InputStream inStream) throws IOException {
     PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
-    _nodesByIdentityKey.put(portfolio.getRootNode().getIdentityKey(), portfolio.getRootNode());
+    _nodes.put(portfolio.getRootNode().getUniqueIdentifier(), portfolio.getRootNode());
     
     BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
     String line = null;
+    int curIndex = 1;
+    UniqueIdentifier positionId = UniqueIdentifier.of(portfolioId.getScheme(), Integer.toString(curIndex));
     while ((line = in.readLine()) != null) {
-      currPosition++;
-      PositionBean position = parseLine(line);
+      PositionImpl position = parseLine(line, positionId);
       if (position != null) {
-        String identityKey = portfolioId.getValue() + "-" + currPosition;
-        position.setIdentityKey(identityKey);
-        portfolio.getRootNode().addPosition(position);
-        _positionsByIdentityKey.put(position.getIdentityKey(), position);
+        ((PortfolioNodeImpl) portfolio.getRootNode()).addPosition(position);
+        _positions.put(position.getUniqueIdentifier(), position);
+        positionId = UniqueIdentifier.of(portfolioId.getScheme(), Integer.toString(++curIndex));
       }
     }
     s_logger.info("{} parsed stream with {} positions", portfolioId, portfolio.getRootNode().getPositions().size());
@@ -188,9 +197,10 @@ public class CSVPositionMaster implements PositionMaster {
 
   /**
    * @param line  the line to parse, not null
-   * @return
+   * @param positionId  the portfolio id, not null
+   * @return the position
    */
-  /* package for testing */ static PositionBean parseLine(String line) {
+  /* package for testing */ static PositionImpl parseLine(String line, UniqueIdentifier positionId) {
     String[] tokens = StringUtils.split(line, ',');
     if (tokens.length < 3) {
       return null;
@@ -209,7 +219,7 @@ public class CSVPositionMaster implements PositionMaster {
     IdentifierBundle securityKey = new IdentifierBundle(securityIdentifiers);
     s_logger.debug("Loaded position: {} in {}", quantity, securityKey);
     
-    return new PositionBean(quantity, securityKey);
+    return new PositionImpl(positionId, quantity, securityKey);
   }
 
 }

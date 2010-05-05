@@ -13,27 +13,34 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Fudge message builder for {@code Portfolio}.
  */
 public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
 
+  public static final String FIELD_IDENTIFIER = "identifier";
+  public static final String FIELD_NAME = "name";
+  public static final String FIELD_ROOT = "root";
+
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
-    final MutableFudgeFieldContainer msg = context.newMessage ();
-    PortfolioNodeBuilder.addPortfolioNodeFields(context, msg, portfolio.getRootNode());
-    return msg;
+    final MutableFudgeFieldContainer message = context.newMessage ();
+    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueIdentifier());
+    message.add(FIELD_NAME, portfolio.getName());
+    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getUniqueIdentifier());
+    return message;
   }
 
   @Override
   public Portfolio buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    // Portfolio
-    final String name = message.getFieldValue(String.class, message.getByName(PortfolioNodeBuilder.FIELD_NAME));
-    final PortfolioImpl portfolio = new PortfolioImpl(name);
-    // PortfolioNode
-    PortfolioNodeBuilder.readPortfolioNodeFields(context, message, portfolio.getRootNode());
-    return portfolio;
+    final UniqueIdentifier id = context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER));
+    final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
+    final PortfolioNode node = context.fieldValueToObject(PortfolioNode.class, message.getByName(FIELD_ROOT));
+    return new PortfolioImpl(id, name, (PortfolioNodeImpl) node);
   }
 
 }

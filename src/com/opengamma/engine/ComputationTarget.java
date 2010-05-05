@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -14,122 +14,158 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.Identifiable;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A fully resolved target, sufficient for computation invocation.
- *
- * @author kirk
  */
 public class ComputationTarget implements Serializable {
-  private final ComputationTargetType _type;
-  private final Identifiable _value;
-  
-  public ComputationTarget(ComputationTargetType type, Identifiable value) {
-    checkValueValid(type, value);
-    
-    _type = type;
-    _value = value;
-  }
-  
+
   /**
-   * Determine whether the value provided is valid given the computation target type
-   * specified.
-   * If it is not valid, this method will throw an {@link IllegalArgumentException}.
-   * If it is not provided but required, this method will throw an
-   * {@link NullPointerException}.
-   * 
-   * @param type  The target type required.
-   * @param value The value provided.
+   * The type of the target.
    */
-  public static void checkValueValid(ComputationTargetType type, Object value) {
-    ArgumentChecker.notNull(type, "Computation Target Type");
-    ArgumentChecker.notNull(value, "Value");
-    
-    // Now check argument assignment.
-    switch(type) {
-    case PRIMITIVE:
-      // Value can be null or anything else for a primitive. No constraints apply.
-      break;
-    case SECURITY:
-      if(!(value instanceof Security)) {
-        throw new IllegalArgumentException("SECURITY target type requires value of type Security. Provided " + value);
-      }
-      break;
-    case POSITION:
-      if(!(value instanceof Position)) {
-        throw new IllegalArgumentException("POSITION target type requires value of type Position. Provided " + value);
-      }
-      break;
-    case MULTIPLE_POSITIONS:
-      if(!(value instanceof PortfolioNode)) {
-        throw new IllegalArgumentException("MULTIPLE_POSITIONS target type requires value of type PortfolioNode. Provided " + value);
-      }
-      break;
-    default:
-      throw new AssertionError("Unimplemented ComputationTargetType");
-    }
+  private final ComputationTargetType _type;
+  /**
+   * The actual target.
+   */
+  private final Object _value;
+
+  /**
+   * Creates a target for computation.
+   * @param value  the target itself, may be null
+   */
+  public ComputationTarget(Object value) {
+    _type = ComputationTargetType.determineFromTarget(value);
+    _value = value;
   }
 
   /**
-   * @return the type
+   * Creates a target for computation.
+   * @param type  the type of the target, not null
+   * @param value  the target itself, may be null
+   * @throws IllegalArgumentException if the value is invalid for the type
+   */
+  public ComputationTarget(ComputationTargetType type, Object value) {
+    ArgumentChecker.notNull(type, "type");
+    if (type.isCompatible(value) == false) {
+      throw new IllegalArgumentException("Value is invalid for type: " + type);
+    }
+    _type = type;
+    _value = value;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the type of the target.
+   * @return the type, not null
    */
   public ComputationTargetType getType() {
     return _type;
   }
+
   /**
-   * @return the value
+   * Gets the actual target.
+   * @return the target, may be null
    */
-  public Identifiable getValue() {
+  public Object getValue() {
     return _value;
   }
-  
-  public Identifier getUniqueIdentifier() {
-    return getValue().getIdentityKey();
-  }
-  
-  public Security getSecurity() {
-    if(getType() != ComputationTargetType.SECURITY) {
-      throw new IllegalStateException("Requested a Security for a target of type " + getType());
+
+  /**
+   * Gets the unique identifier (old fashioned "identity key"), if one exists.
+   * @return the unique identifier, may be null
+   */
+  public Identifier getIdentityKey() {
+    // TODO: remove once Security is UniqueIdentifiable
+    Object value = getValue();
+    if (value instanceof Identifiable) {
+      return ((Identifiable) value).getIdentityKey();
     }
-    return (Security)getValue();
+    if (value instanceof UniqueIdentifiable) {
+      UniqueIdentifier key = ((UniqueIdentifiable) value).getUniqueIdentifier();
+      return Identifier.of(key.getScheme(), key.getValue());
+    }
+    return null;
   }
 
-  public Position getPosition() {
-    if(getType() != ComputationTargetType.POSITION) {
-      throw new IllegalStateException("Requested a Position for a target of type " + getType());
+  /**
+   * Gets the unique identifier, if one exists.
+   * @return the unique identifier, may be null
+   */
+  public UniqueIdentifier getUniqueIdentifier() {
+    Object value = getValue();
+    if (value instanceof UniqueIdentifiable) {
+      return ((UniqueIdentifiable) value).getUniqueIdentifier();
     }
-    return (Position)getValue();
+    if (value instanceof Identifiable) {  // TODO: remove once Security is UniqueIdentifiable
+      Identifier key = ((Identifiable) value).getIdentityKey();
+      return UniqueIdentifier.of(key.getScheme().getName(), key.getValue());
+    }
+    return null;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Safely converts the target to a {@code PortfolioNode}.
+   * @return the portfolio node, not null
+   * @throws IllegalStateException if the type is not MULTIPLE_POSITIONS
+   */
   public PortfolioNode getPortfolioNode() {
-    if(getType() != ComputationTargetType.MULTIPLE_POSITIONS) {
+    if (getType() != ComputationTargetType.MULTIPLE_POSITIONS) {
       throw new IllegalStateException("Requested a PortfolioNode for a target of type " + getType());
     }
-    return (PortfolioNode)getValue();
+    return (PortfolioNode) getValue();
   }
 
+  /**
+   * Safely converts the target to a {@code Position}.
+   * @return the position, not null
+   * @throws IllegalStateException if the type is not POSITION
+   */
+  public Position getPosition() {
+    if (getType() != ComputationTargetType.POSITION) {
+      throw new IllegalStateException("Requested a Position for a target of type " + getType());
+    }
+    return (Position) getValue();
+  }
+
+  /**
+   * Safely converts the target to a {@code Security}.
+   * @return the security, not null
+   * @throws IllegalStateException if the type is not SECURITY
+   */
+  public Security getSecurity() {
+    if (getType() != ComputationTargetType.SECURITY) {
+      throw new IllegalStateException("Requested a Security for a target of type " + getType());
+    }
+    return (Security) getValue();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a specification that is equivalent to this target.
+   * @return the specification equivalent to this target, not null
+   */
+  public ComputationTargetSpecification toSpecification() {
+    return new ComputationTargetSpecification(_type, getIdentityKey());
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null) {
-      return false;
+    if (obj instanceof ComputationTarget) {
+      ComputationTarget other = (ComputationTarget) obj;
+      return _type == other._type &&
+          ObjectUtils.equals(_value, other._value);
     }
-    if(!(obj instanceof ComputationTarget)) {
-      return false;
-    }
-    ComputationTarget other = (ComputationTarget) obj;
-    if(_type != other._type) {
-      return false;
-    }
-    if(!ObjectUtils.equals(_value, other._value)) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
@@ -137,7 +173,7 @@ public class ComputationTarget implements Serializable {
     final int prime = 31;
     int result = 1;
     result = prime * result + _type.hashCode();
-    if(_value != null) {
+    if (_value != null) {
       result = prime * result + _value.hashCode();
     }
     return result;
@@ -146,10 +182,6 @@ public class ComputationTarget implements Serializable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-  
-  public ComputationTargetSpecification getSpecification() {
-    return new ComputationTargetSpecification(_type, getUniqueIdentifier());
   }
 
 }

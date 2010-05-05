@@ -17,17 +17,19 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Fudge message builder for {@code PortfolioNode}.
  */
 public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
-  
+
   public static final String FIELD_POSITIONS = "positions";
   public static final String FIELD_SUBNODES = "subNodes";
   public static final String FIELD_NAME = "name";
-  public static final String FIELD_IDENTITYKEY = "identityKey";
-  
+  public static final String FIELD_IDENTIFIER = "identifier";
+
+  //-------------------------------------------------------------------------
   private static FudgeFieldContainer encodePositions (FudgeSerializationContext context, Collection<Position> collection) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (Position position : collection) {
@@ -35,7 +37,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     }
     return msg;
   }
-  
+
   private static FudgeFieldContainer encodeSubNodes (FudgeSerializationContext context, Collection<PortfolioNode> collection) {
     final MutableFudgeFieldContainer msg = context.newMessage ();
     for (PortfolioNode node : collection) {
@@ -43,50 +45,38 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
     }
     return msg;
   }
-  
-  public static void addPortfolioNodeFields (FudgeSerializationContext context, MutableFudgeFieldContainer msg, PortfolioNode portfolioNode) {
-    // PortfolioNode
-    msg.add (FIELD_POSITIONS, encodePositions (context, portfolioNode.getPositions ()));
-    msg.add (FIELD_SUBNODES, encodeSubNodes (context, portfolioNode.getChildNodes ()));
-    msg.add (FIELD_NAME, portfolioNode.getName ());
-    // Identifiable
-    msg.add (FIELD_IDENTITYKEY, portfolioNode.getIdentityKey ().getValue ()); 
-  }
-  
+
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, PortfolioNode portfolioNode) {
-    final MutableFudgeFieldContainer msg = context.newMessage ();
-    addPortfolioNodeFields (context, msg, portfolioNode);
-    return msg;
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, PortfolioNode node) {
+    final MutableFudgeFieldContainer message = context.newMessage ();
+    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, node.getUniqueIdentifier());
+    message.add(FIELD_NAME, node.getName());
+    message.add(FIELD_POSITIONS, encodePositions(context, node.getPositions()));
+    message.add(FIELD_SUBNODES, encodeSubNodes(context, node.getChildNodes()));
+    return message;
   }
-  
-  private static void readPositions (FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl portfolioNode) {
+
+  //-------------------------------------------------------------------------
+  private static void readPositions(FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl node) {
     for (FudgeField field : message) {
-      portfolioNode.addPosition (context.fieldValueToObject (Position.class, field));
+      node.addPosition(context.fieldValueToObject(Position.class, field));
     }
   }
-  
-  private static void readSubNodes (FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl portfolioNode) {
+
+  private static void readSubNodes(FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl node) {
     for (FudgeField field : message) {
-      portfolioNode.addChildNode(context.fieldValueToObject(PortfolioNode.class, field));
+      node.addChildNode(context.fieldValueToObject(PortfolioNode.class, field));
     }
   }
-  
-  public static void readPortfolioNodeFields (FudgeDeserializationContext context, FudgeFieldContainer message, PortfolioNodeImpl portfolioNode) {
-    // PortfolioNode
-    readPositions (context, message.getFieldValue (FudgeFieldContainer.class, message.getByName (FIELD_POSITIONS)), portfolioNode);
-    readSubNodes (context, message.getFieldValue (FudgeFieldContainer.class, message.getByName (FIELD_SUBNODES)), portfolioNode);
-    // Identifiable
-    portfolioNode.setIdentityKey (message.getFieldValue (String.class, message.getByName (FIELD_IDENTITYKEY)));
-  }
-  
+
   @Override
   public PortfolioNode buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final String name = message.getFieldValue (String.class, message.getByName (FIELD_NAME));
-    final PortfolioNodeImpl portfolioNode = new PortfolioNodeImpl (name);
-    readPortfolioNodeFields (context, message, portfolioNode);
-    return portfolioNode;
+    final UniqueIdentifier id = context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER));
+    final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
+    final PortfolioNodeImpl node = new PortfolioNodeImpl(id, name);
+    readPositions(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_POSITIONS)), node);
+    readSubNodes(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_SUBNODES)), node);
+    return node;
   }
-  
-  
+
 }

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
 
@@ -69,6 +70,11 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
   @Override
   public boolean isOneOffComputationSupported() {
     return false;
+  }
+  
+  // TODO 2010-03-29 Andrew -- this is a hack; both ends should have a ViewDefinitionRepository they should be referring to (or share one)
+  public ViewDefinition getViewDefinition(String viewName) {
+    return getViewProcessor().getViewDefinitionRepository().getDefinition(viewName);
   }
 
   @Override

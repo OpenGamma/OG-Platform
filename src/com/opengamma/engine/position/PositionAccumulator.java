@@ -42,7 +42,7 @@ public class PositionAccumulator {
 
   /**
    * Gets the positions that were found.
-   * @return the positions, never null
+   * @return the positions, not null
    */
   public Set<Position> getPositions() {
     return Collections.unmodifiableSet(_positions);
