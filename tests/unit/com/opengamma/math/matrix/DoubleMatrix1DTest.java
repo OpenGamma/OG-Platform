@@ -12,10 +12,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-/**
- * @author emcleod
- * 
- */
 public class DoubleMatrix1DTest {
 
   @Test(expected = IllegalArgumentException.class)
