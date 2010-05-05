@@ -26,6 +26,7 @@ import org.springframework.context.Lifecycle;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
@@ -356,7 +357,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @return Never null.
    * @throws RuntimeException If no snapshot could be obtained
    */
-  public FudgeFieldContainer snapshot(LiveDataSpecification liveDataSpecificationFromClient) {
+  public LiveDataValueUpdateBean snapshot(LiveDataSpecification liveDataSpecificationFromClient) {
     verifyConnectionOk();
     
     DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
@@ -366,7 +367,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
     if (currentlyActiveDistributor != null 
         && currentlyActiveDistributor.getLastKnownValue() != null) {
-      return currentlyActiveDistributor.getLastKnownValue();
+      return currentlyActiveDistributor.getLastKnownValueUpdate();
     }
     
     String securityUniqueId = fullyQualifiedSpec.getIdentifier(getUniqueIdDomain());
@@ -379,7 +380,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     FudgeFieldContainer msg = doSnapshot(securityUniqueId);
     
     FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(msg);
-    return normalizedMsg;
+    return new LiveDataValueUpdateBean(0, fullyQualifiedSpec, normalizedMsg);
   }
   
   /**
@@ -434,7 +435,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         LiveDataSubscriptionResponse response;
         if (subscriptionRequest.getType() == SubscriptionType.SNAPSHOT) {
           
-          FudgeFieldContainer snapshot = snapshot(requestedSpecification);
+          LiveDataValueUpdateBean snapshot = snapshot(requestedSpecification);
           response = new LiveDataSubscriptionResponse(
               requestedSpecification,
               LiveDataSubscriptionResult.SUCCESS,

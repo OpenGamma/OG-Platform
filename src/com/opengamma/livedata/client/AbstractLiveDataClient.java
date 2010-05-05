@@ -8,7 +8,10 @@ package com.opengamma.livedata.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
@@ -24,6 +27,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -48,6 +52,8 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private final Lock _subscriptionLock = new ReentrantLock();
   private final Set<SubscriptionHandle> _pendingSubscriptions =
     new HashSet<SubscriptionHandle>();
+  private final Map<LiveDataSpecification, Set<SubscriptionHandle>> _fullyQualifiedSpec2PendingSubscriptions =
+    new HashMap<LiveDataSpecification, Set<SubscriptionHandle>>();
   private final Set<LiveDataSpecification> _activeSubscriptionSpecifications =
     new HashSet<LiveDataSpecification>();
   
@@ -135,7 +141,9 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       }
     }
     
-    handleSubscriptionRequest(subscriptionHandles);
+    if (!subscriptionHandles.isEmpty()) {
+      handleSubscriptionRequest(subscriptionHandles);
+    }
   }
   
   @Override
@@ -199,7 +207,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       success = listener._responsesReceived.await(timeout, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.interrupted();
-      return null;
+      throw new OpenGammaRuntimeException("Thread interrupted when obtaining snapshot");
     }
     
     if (success) {
@@ -225,61 +233,78 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     return snapshots.iterator().next();
   }
 
+  /**
+   * @param subHandle Not null, not empty
+   */
   protected abstract void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandle);
   
   
+  protected void subscriptionStartingToReceiveTicks(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
+    synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
+      
+      Set<SubscriptionHandle> subscriptionHandleSet = _fullyQualifiedSpec2PendingSubscriptions.get(response.getFullyQualifiedSpecification());
+      if (subscriptionHandleSet == null) {
+        subscriptionHandleSet = new HashSet<SubscriptionHandle>();
+        _fullyQualifiedSpec2PendingSubscriptions.put(response.getFullyQualifiedSpecification(), subscriptionHandleSet);
+      }
+      
+      subscriptionHandleSet.add(subHandle);
+    } 
+  }
   
   protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
-      _subscriptionLock.lock();
-      try {
-        removePendingSubscription(subHandle);
-        _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
-        getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
-      } finally {
-        _subscriptionLock.unlock();
-      }
+    _subscriptionLock.lock();
+    try {
+      removePendingSubscription(subHandle);
+      _activeSubscriptionSpecifications.add(response.getFullyQualifiedSpecification());
+      getValueDistributor().addListener(response.getFullyQualifiedSpecification(), subHandle.getListener());
+
+    } finally {
+      _subscriptionLock.unlock();
     }
-    subHandle.getListener().subscriptionResultReceived(response);
   }
   
   protected void subscriptionRequestFailed(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
-      _subscriptionLock.lock();
-      try {
-        removePendingSubscription(subHandle);
-      } finally {
-        _subscriptionLock.unlock();
-      }
+    _subscriptionLock.lock();
+    try {
+      removePendingSubscription(subHandle);
+    } finally {
+      _subscriptionLock.unlock();
     }
-    subHandle.getListener().subscriptionResultReceived(response);
   }
   
   protected boolean addPendingSubscription(SubscriptionHandle subHandle) {
-    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
-      _subscriptionLock.lock();
-      try {
-        if(_pendingSubscriptions.contains(subHandle)) {
-          return false;
-        }
-        _pendingSubscriptions.add(subHandle);
-        return true;
-      } finally {
-        _subscriptionLock.unlock();
+    _subscriptionLock.lock();
+    try {
+      if(_pendingSubscriptions.contains(subHandle)) {
+        return false;
       }
-    } else {
-      return false;
+      _pendingSubscriptions.add(subHandle);
+      return true;
+    } finally {
+      _subscriptionLock.unlock();
     }
   }
   
   protected void removePendingSubscription(SubscriptionHandle subHandle) {
-    if (subHandle.getSubscriptionType() != SubscriptionType.SNAPSHOT) {
-      _subscriptionLock.lock();
-      try {
-        _pendingSubscriptions.remove(subHandle);
-      } finally {
-        _subscriptionLock.unlock();
+    _subscriptionLock.lock();
+    try {
+      _pendingSubscriptions.remove(subHandle);
+      
+      synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
+        for (Iterator<Set<SubscriptionHandle>> iterator = _fullyQualifiedSpec2PendingSubscriptions.values().iterator(); iterator.hasNext(); ) {
+          Set<SubscriptionHandle> handleSet = iterator.next();
+          boolean removed = handleSet.remove(subHandle);
+          if (removed && handleSet.isEmpty()) {
+            iterator.remove();
+          }
+        }
+        
+        subHandle.releaseTicksOnHold();
       }
+    
+    } finally {
+      _subscriptionLock.unlock();
     }
   }
   
@@ -325,6 +350,22 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   @Override
   public String getDefaultNormalizationRuleSetId() {
     return StandardRules.getOpenGammaRuleSetId();
+  }
+  
+  protected void valueUpdate(LiveDataValueUpdateBean update) {
+    
+    s_logger.debug("{}", update);
+    
+    synchronized (_fullyQualifiedSpec2PendingSubscriptions) { 
+      Set<SubscriptionHandle> pendingSubscriptions = _fullyQualifiedSpec2PendingSubscriptions.get(update.getSpecification());
+      if (pendingSubscriptions != null) {
+        for (SubscriptionHandle pendingSubscription : pendingSubscriptions) {
+          pendingSubscription.addTickOnHold(update);      
+        }
+      }
+    }
+    
+    getValueDistributor().notifyListeners(update);
   }
   
 }

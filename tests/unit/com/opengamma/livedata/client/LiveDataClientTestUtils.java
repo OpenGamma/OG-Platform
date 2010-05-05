@@ -11,8 +11,13 @@ import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.MarketDataFudgeJmsSender;
+import com.opengamma.livedata.server.MarketDataFudgeSender;
+import com.opengamma.livedata.server.MarketDataSender;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
+import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
+import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
+import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.transport.jms.ActiveMQTestUtil;
@@ -23,6 +28,24 @@ import com.opengamma.transport.jms.ActiveMQTestUtil;
  * @author pietari
  */
 public class LiveDataClientTestUtils {
+  
+  public static DistributedLiveDataClient getInMemoryConduitClient(AbstractLiveDataServer server) {
+    ByteArrayFudgeRequestSender requestSender = new ByteArrayFudgeRequestSender(
+        new InMemoryByteArrayRequestConduit(
+            new FudgeRequestDispatcher(
+                new SubscriptionRequestReceiver(server))));
+    DistributedLiveDataClient liveDataClient = new DistributedLiveDataClient(requestSender);
+    
+    MarketDataSender marketDataSender = new MarketDataFudgeSender(
+        new ByteArrayFudgeMessageSender(
+            new DirectInvocationByteArrayMessageSender(
+                new ByteArrayFudgeMessageReceiver(liveDataClient))));
+    server.addMarketDataSender(marketDataSender);
+    
+    liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());
+    
+    return liveDataClient;
+  }
   
   public static JmsLiveDataClient getJmsClient(AbstractLiveDataServer server) {
     SubscriptionRequestReceiver subReceiver = new SubscriptionRequestReceiver(server);

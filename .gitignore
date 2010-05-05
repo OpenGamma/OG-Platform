@@ -12,3 +12,4 @@ lib/
 /.fudge-proto-gitignore
 derby.log
 db/derby/test_*
+db/derby/blank/

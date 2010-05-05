@@ -20,6 +20,7 @@ import com.opengamma.id.IdentificationScheme;
 import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdate;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
 
 /**
  * 
@@ -93,13 +94,13 @@ public class ValueDistributorTest {
     
     distributor.addListener(spec1, listener1);
     
-    long timestamp = System.currentTimeMillis();
-    distributor.notifyListeners(timestamp, spec1, _fudgeContext.newMessage());
+    long sequenceNumber = 12345;
+    distributor.notifyListeners(new LiveDataValueUpdateBean(sequenceNumber, spec1, _fudgeContext.newMessage()));
     
     List<LiveDataValueUpdate> updates = listener1.getValueUpdates();
     assertEquals(1, updates.size());
     LiveDataValueUpdate update = updates.get(0);
-    assertEquals(timestamp, update.getRelevantTimestamp());
+    assertEquals(sequenceNumber, update.getSequenceNumber());
     assertEquals(spec1, update.getSpecification());
     assertNotNull(update.getFields());
   }

@@ -71,7 +71,7 @@ public interface LiveDataClient {
       Collection<LiveDataSpecification> requestedSpecifications,
       long timeout);
   
-  public String getDefaultNormalizationRuleSetId();
+  String getDefaultNormalizationRuleSetId();
   
   // REVIEW kirk 2009-09-29 -- Once I figure out a cleaner way to implement these than the
   // original version, these will be re-added.

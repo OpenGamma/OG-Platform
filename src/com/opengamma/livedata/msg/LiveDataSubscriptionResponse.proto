@@ -26,7 +26,7 @@ namespace com.opengamma.livedata.msg {
     string tickDistributionSpecification;
     
     /** Will be filled in if subscription type = SNAPSHOT */ 
-    optional message snapshot;
+    optional com.opengamma.livedata.LiveDataValueUpdateBean snapshot;
   }
 
 }

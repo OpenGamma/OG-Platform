@@ -6,7 +6,9 @@
 package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -26,10 +28,18 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   private final List<String> _unsubscriptions = new ArrayList<String>();
   private volatile int _numConnections = 0;
   private volatile int _numDisconnections = 0;
+  private final Map<String, FudgeFieldContainer> _uniqueId2MarketData;
   
   public MockLiveDataServer(IdentificationScheme domain) {
+    this(domain, Collections.<String, FudgeFieldContainer>emptyMap());
+  }
+  
+  public MockLiveDataServer(IdentificationScheme domain,
+      Map<String, FudgeFieldContainer> uniqueId2Snapshot) {
     ArgumentChecker.notNull(domain, "Identification domain");
+    ArgumentChecker.notNull(uniqueId2Snapshot, "Snapshot map");
     _domain = domain;
+    _uniqueId2MarketData = uniqueId2Snapshot;
   }
   
   @Override
@@ -50,7 +60,18 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   
   @Override
   protected FudgeFieldContainer doSnapshot(String uniqueId) {
-    return FudgeContext.GLOBAL_DEFAULT.newMessage();
+    FudgeFieldContainer snapshot = _uniqueId2MarketData.get(uniqueId);
+    if (snapshot == null) {
+      snapshot = FudgeContext.GLOBAL_DEFAULT.newMessage();
+    }
+    return snapshot;
+  }
+  
+  public void sendLiveDataToClient() {
+    for (Subscription subscription : getSubscriptions()) {
+      FudgeFieldContainer marketData = doSnapshot(subscription.getSecurityUniqueId());
+      liveDataReceived(subscription.getSecurityUniqueId(), marketData);
+    }
   }
 
   public List<String> getActualSubscriptions() {

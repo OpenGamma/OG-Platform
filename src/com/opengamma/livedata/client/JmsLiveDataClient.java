@@ -80,6 +80,18 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     listenerContainer.afterPropertiesSet();
     listenerContainer.start();
   }
+  
+  @Override
+  public synchronized void stopReceivingTicks(String tickDistributionSpecification) {
+    DefaultMessageListenerContainer listenerContainer = _listenerContainersBySpec.get(tickDistributionSpecification);
+    if (listenerContainer == null) {
+      return;
+    }
+    
+    listenerContainer.stop();
+    listenerContainer.destroy();
+    _listenerContainersBySpec.remove(tickDistributionSpecification);
+  }
 
   @Override
   public boolean isRunning() {

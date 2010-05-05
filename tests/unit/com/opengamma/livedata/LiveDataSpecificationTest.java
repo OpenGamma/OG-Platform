@@ -21,10 +21,12 @@ import com.opengamma.id.IdentificationScheme;
  */
 public class LiveDataSpecificationTest {
   
+  public static final IdentificationScheme TEST_IDENTIFICATION_SCHEME = new IdentificationScheme("bar");
+  public static final LiveDataSpecification TEST_LIVE_DATA_SPEC = new LiveDataSpecification("Foo", new Identifier(TEST_IDENTIFICATION_SCHEME, "baz"));
+  
   @Test
   public void fudge() {
-    LiveDataSpecification lds = new LiveDataSpecification("Foo", new Identifier(new IdentificationScheme("bar"), "baz"));
-    FudgeFieldContainer container = lds.toFudgeMsg(new FudgeContext());
+    FudgeFieldContainer container = TEST_LIVE_DATA_SPEC.toFudgeMsg(new FudgeContext());
     
     LiveDataSpecification deserialized = LiveDataSpecification.fromFudgeMsg(container);
     assertNotNull(deserialized);

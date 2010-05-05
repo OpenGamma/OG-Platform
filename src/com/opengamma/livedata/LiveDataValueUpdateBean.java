@@ -20,16 +20,16 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  */
 public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     Serializable {
-  private static final String RELEVANT_TIMESTAMP_FIELD_NAME = "relevantTimestamp";
+  private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequenceNumber";
   private static final String SPECIFICATION_FIELD_NAME = "specification";
   private static final String FIELDS_FIELD_NAME = "fields";
-  private final long _relevantTimestamp;
+  private final long _sequenceNumber;
   private final LiveDataSpecification _specification;
   private final FudgeFieldContainer _fieldContainer;
   
-  public LiveDataValueUpdateBean(long relevantTimestamp, LiveDataSpecification specification, FudgeFieldContainer fieldContainer) {
+  public LiveDataValueUpdateBean(long sequenceNumber, LiveDataSpecification specification, FudgeFieldContainer fieldContainer) {
     // TODO kirk 2009-09-29 -- Check Inputs.
-    _relevantTimestamp = relevantTimestamp;
+    _sequenceNumber = sequenceNumber;
     _specification = specification;
     _fieldContainer = fieldContainer;
   }
@@ -40,8 +40,8 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   }
 
   @Override
-  public long getRelevantTimestamp() {
-    return _relevantTimestamp;
+  public long getSequenceNumber() {
+    return _sequenceNumber;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
-    msg.add(RELEVANT_TIMESTAMP_FIELD_NAME, getRelevantTimestamp());
+    msg.add(SEQUENCE_NUMBER_FIELD_NAME, getSequenceNumber());
     if(getSpecification() != null) {
       msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeMessageFactory));
     }
@@ -62,11 +62,11 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   }
   
   public static LiveDataValueUpdateBean fromFudgeMsg(FudgeFieldContainer msg) {
-    Long relevantTimestamp = msg.getLong(RELEVANT_TIMESTAMP_FIELD_NAME);
+    Long sequenceNumber = msg.getLong(SEQUENCE_NUMBER_FIELD_NAME);
     FudgeFieldContainer specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
     FudgeFieldContainer fields = msg.getMessage(FIELDS_FIELD_NAME);
     // REVIEW kirk 2009-10-28 -- Right thing to do here?
-    if(relevantTimestamp == null) {
+    if(sequenceNumber == null) {
       return null;
     }
     if(specificationFields == null) {
@@ -76,7 +76,7 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
       return null;
     }
     LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(specificationFields);
-    return new LiveDataValueUpdateBean(relevantTimestamp, spec, fields);
+    return new LiveDataValueUpdateBean(sequenceNumber, spec, fields);
   }
 
   @Override

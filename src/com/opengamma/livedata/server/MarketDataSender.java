@@ -14,5 +14,5 @@ import org.fudgemsg.FudgeFieldContainer;
  */
 public interface MarketDataSender {
 
-  void sendMarketData(DistributionSpecification distributionSpecification, FudgeFieldContainer normalizedMarketDataMsg);
+  void sendMarketData(MarketDataDistributor distributor, FudgeFieldContainer normalizedMarketDataMsg);
 }

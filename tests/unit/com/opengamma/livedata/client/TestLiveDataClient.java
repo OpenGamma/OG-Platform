@@ -8,10 +8,12 @@ package com.opengamma.livedata.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 
@@ -24,6 +26,7 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
   
   private final List<LiveDataSpecification> _cancelRequests = new ArrayList<LiveDataSpecification>();
   private final List<Collection<SubscriptionHandle>> _subscriptionRequests = new ArrayList<Collection<SubscriptionHandle>>();
+  private final AtomicLong _sequenceGenerator = new AtomicLong(0);
   
   @Override
   protected void cancelPublication(LiveDataSpecification fullyQualifiedSpecification) {
@@ -54,6 +57,7 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
   }
   
   public void marketDataReceived(LiveDataSpecification fullyQualifiedSpecification, FudgeFieldContainer fields) {
-    getValueDistributor().notifyListeners(System.currentTimeMillis(), fullyQualifiedSpecification, fields);
+    LiveDataValueUpdateBean bean = new LiveDataValueUpdateBean(_sequenceGenerator.incrementAndGet(), fullyQualifiedSpecification, fields);
+    getValueDistributor().notifyListeners(bean);
   }
 }

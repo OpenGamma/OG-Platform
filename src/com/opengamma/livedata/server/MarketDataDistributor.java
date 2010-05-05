@@ -7,11 +7,13 @@ package com.opengamma.livedata.server;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -48,6 +50,11 @@ public class MarketDataDistributor {
    */
   private final FieldHistoryStore _history = new FieldHistoryStore();
   
+  /**
+   * Stores how many normalized messages have been sent to clients.  
+   */
+  private final AtomicLong _numMessagesSent = new AtomicLong(0);
+  
   
   /**
    * @param marketDataSenders It is recommended that a thread-safe collection 
@@ -76,6 +83,13 @@ public class MarketDataDistributor {
   public FudgeFieldContainer getLastKnownValue() {
     return _lastKnownValue;
   }
+  
+  public LiveDataValueUpdateBean getLastKnownValueUpdate() {
+    return new LiveDataValueUpdateBean(
+        getNumMessagesSent(), // 0-based as it should be 
+        getDistributionSpec().getFullyQualifiedLiveDataSpecification(), 
+        getLastKnownValue());
+  }
 
   private void setLastKnownValue(FudgeFieldContainer lastKnownValue) {
     _lastKnownValue = lastKnownValue;
@@ -91,6 +105,10 @@ public class MarketDataDistributor {
    */
   public Subscription getSubscription() {
     return _subscription;
+  }
+  
+  public long getNumMessagesSent() {
+    return _numMessagesSent.get();
   }
   
   /**
@@ -111,16 +129,18 @@ public class MarketDataDistributor {
    * 
    * @param liveDataFields Unnormalized market data from underlying market data API.
    */
-  public void updateFieldHistory(FudgeFieldContainer msg) {
+  public synchronized void updateFieldHistory(FudgeFieldContainer msg) {
     normalize(msg);    
   }
   
   /**
    * Sends normalized market data to field receivers. 
+   * <p>
+   * Serialized to ensure a well-defined distribution order for this topic.
    * 
    * @param liveDataFields Unnormalized market data from underlying market data API.
    */
-  public void distributeLiveData(FudgeFieldContainer liveDataFields) {
+  public synchronized void distributeLiveData(FudgeFieldContainer liveDataFields) {
     FudgeFieldContainer normalizedMsg;
     try {
       normalizedMsg = normalize(liveDataFields);
@@ -132,20 +152,19 @@ public class MarketDataDistributor {
     if (normalizedMsg != null) {
       setLastKnownValue(normalizedMsg);
       
-      if (getSubscription().isActive()) {
-        for (MarketDataSender sender : _marketDataSenders) {
-          try {
-            sender.sendMarketData(_distributionSpec, normalizedMsg);
-          } catch (RuntimeException e) {
-            s_logger.error("MarketDataSender " + sender + " failed", e);
-          }
+      for (MarketDataSender sender : _marketDataSenders) {
+        try {
+          sender.sendMarketData(this, normalizedMsg);
+        } catch (RuntimeException e) {
+          s_logger.error("MarketDataSender " + sender + " failed", e);
         }
       }
+      
+      _numMessagesSent.incrementAndGet();
+    
     } else {
       s_logger.debug("Not sending Live Data update (empty message).");
     }
   }
-  
-
   
 }

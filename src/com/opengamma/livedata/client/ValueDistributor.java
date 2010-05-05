@@ -10,8 +10,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.fudgemsg.FudgeFieldContainer;
-
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
@@ -72,9 +70,8 @@ public class ValueDistributor {
   
   // TODO kirk 2009-09-29 -- This should be handed an executor service to
   // invoke the updates asynchronously.
-  public void notifyListeners(long timestamp, LiveDataSpecification fullyQualifiedSpecification, FudgeFieldContainer fields) {
-    LiveDataValueUpdateBean updateBean = new LiveDataValueUpdateBean(timestamp, fullyQualifiedSpecification, fields);
-    Set<LiveDataListener> listeners = _listenersBySpec.get(fullyQualifiedSpecification);
+  public void notifyListeners(LiveDataValueUpdateBean updateBean) {
+    Set<LiveDataListener> listeners = _listenersBySpec.get(updateBean.getSpecification());
     if(listeners == null) {
       return;
     }

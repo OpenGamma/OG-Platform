@@ -32,10 +32,16 @@ public class MarketDataFudgeSender implements MarketDataSender {
   }
 
   @Override
-  public void sendMarketData(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
-      LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(System.currentTimeMillis(), distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
-      FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
-      getFudgeMessageSender().send(fudgeMsg);
+  public void sendMarketData(MarketDataDistributor distributor, FudgeFieldContainer normalizedMsg) {
+    DistributionSpecification distributionSpec = distributor.getDistributionSpec();
+    
+    LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(
+        distributor.getNumMessagesSent(), // 0-based as it should be 
+        distributionSpec.getFullyQualifiedLiveDataSpecification(), 
+        normalizedMsg);
+
+    FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeMessageSender().getFudgeContext());
+    getFudgeMessageSender().send(fudgeMsg);
   }
 
 }

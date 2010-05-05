@@ -57,12 +57,11 @@ public class MarketDataFudgeJmsSender implements MarketDataSender {
   }
 
   @Override
-  public void sendMarketData(DistributionSpecification distributionSpec, FudgeFieldContainer normalizedMsg) {
+  public void sendMarketData(MarketDataDistributor distributor, FudgeFieldContainer normalizedMsg) {
     
-    LiveDataValueUpdateBean liveDataValueUpdateBean = new LiveDataValueUpdateBean(
-        System.currentTimeMillis(), 
-        distributionSpec.getFullyQualifiedLiveDataSpecification(), 
-        normalizedMsg);
+    DistributionSpecification distributionSpec = distributor.getDistributionSpec();
+    
+    LiveDataValueUpdateBean liveDataValueUpdateBean = distributor.getLastKnownValueUpdate();
     s_logger.debug("Sending Live Data update {}", liveDataValueUpdateBean);
     
     FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(getFudgeContext());
