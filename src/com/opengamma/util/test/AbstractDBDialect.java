@@ -456,7 +456,7 @@ abstract public class AbstractDBDialect implements DBDialect {
         final List<Pair<String,String>> foreignKeys = getAllForeignKeyConstraints (catalog, schema, stmt);
         Collections.sort (foreignKeys, FirstThenSecondPairComparator.INSTANCE);
         for (Pair<String,String> foreignKey : foreignKeys) {
-          description.append ("foreign key: ").append (foreignKey.getSecond ()).append ('.').append (foreignKey.getFirst ()).append ("\r\n");
+          description.append ("foreign key: ").append (foreignKey.getFirst ()).append ('.').append (foreignKey.getSecond ()).append ("\r\n");
         }
       }
     } catch (SQLException e) {
