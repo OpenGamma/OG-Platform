@@ -18,7 +18,6 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends RelativeTimeSeriesReturnCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(SimpleNetRelativeTimeSeriesReturnCalculator.class);

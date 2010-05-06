@@ -23,7 +23,6 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * <i>D<sub>t</sub></i> is the dividend at price <i>t</i> and
  * <i>P<sub>t-1</sub></i> is the price at time <i>t-1</i>.
  * 
- * @author emcleod
  */
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {

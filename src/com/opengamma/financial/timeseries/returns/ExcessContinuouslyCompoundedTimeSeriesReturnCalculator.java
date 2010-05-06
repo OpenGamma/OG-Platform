@@ -18,7 +18,6 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  * return of that asset and the return of a reference asset. This class
  * calculates the excess continuously-compounded return.
  * 
- * @author emcleod
  */
 
 public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
