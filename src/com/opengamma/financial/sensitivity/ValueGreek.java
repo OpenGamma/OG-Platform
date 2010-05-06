@@ -13,4 +13,12 @@ public class ValueGreek extends Sensitivity<Greek> {
     super(underlying, underlying.getOrder());
   }
 
+  public ValueGreek(final Greek underlying, final String label) {
+    super(underlying, underlying.getOrder(), label);
+  }
+
+  @Override
+  public String toString() {
+    return "Value[" + getUnderlying() + (getLabel() == null ? "]" : ", " + getLabel() + "]");
+  }
 }
