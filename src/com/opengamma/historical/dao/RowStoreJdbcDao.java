@@ -57,19 +57,53 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   private static final Logger s_logger = LoggerFactory.getLogger(RowStoreJdbcDao.class);
   
-  private static final String DESCRIPTION_COLUMN = "description";
+  private static final String SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS = "selectQuotedObjectFromIdentifiers";
+  private static final String LOAD_ALL_DATA_PROVIDER = "loadAllDataProvider";
+  private static final String SELECT_DATA_PROVIDER_ID = "selectDataProviderID";
+  private static final String LOAD_TIME_SERIES_DELTA = "loadTimeSeriesDelta";
+  private static final String DELETE_DATA_POINT = "deleteDataPoint";
+  private static final String INSERT_TIME_SERIES_DELTA_U = "insertTimeSeriesDeltaU";
+  private static final String UPDATE_TIME_SERIES = "updateTimeSeries";
+  private static final String FIND_DATA_POINT_BY_DATE_AND_ID = "findDataPointByDateAndID";
+  private static final String INSERT_TIME_SERIES_KEY = "insertTimeSeriesKey";
+  private static final String INSERT_TIME_SERIES = "insertTimeSeries";
+  private static final String GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER = "getTimeSeriesKeyIDByIdentifier";
+  private static final String GET_TIME_SERIES_KEY_ID_BY_QUOTED_OBJECT = "getTimeSeriesKeyIDByQuotedObject";
+  private static final String GET_TIME_SERIES_BY_ID = "getTimeSeriesByID";
+  private static final String DELETE_TIME_SERIES_BY_ID = "deleteTimeSeriesByID";
+  private static final String FIND_DOMAIN_SPEC_IDENTIFIERS_BY_QUOTED_OBJECT = "findDomainSpecIdentifiersByQuotedObject";
+  private static final String FIND_DATA_PROVIDER_BY_ID = "findDataProviderByID";
+  private static final String FIND_DATA_SOURCE_BY_ID = "findDataSourceByID";
+  private static final String FIND_OBSERVATION_TIME_BY_ID = "findObservationTimeByID";
+  private static final String FIND_QUOTED_OBJECT_BY_ID = "findQuotedObjectByID";
+  private static final String FIND_DATA_FIELD_BY_ID = "findDataFieldByID";
+  private static final String FIND_DOMAIN_BY_ID = "findDomainByID";
+  
+  private static final String INSERT_TIME_SERIES_DELTA_D = "insertTimeSeriesDeltaD";
+  private static final String INSERT_TIME_SERIES_DELTA_I = "insertTimeSeriesDeltaI";
+  
+  private static final String INSERT_DATA_PROVIDER = "insertDataProvider";
+  private static final String INSERT_DATA_FIELD = "insertDataField";
+  private static final String INSERT_OBSERVATION_TIME = "insertObservationTime";
+  private static final Object INSERT_QUOTED_OBJECT = "insertQuotedObject";
+  private static final String INSERT_DATA_SOURCE = "insertDataSource";
+  private static final String INSERT_DOMAIN = "insertDomain";
+  
   private static final String NAME_COLUMN = "name";
-  private static final String ID_COLUMN = "id";
   private static final String IDENTIFIER_COLUMN = "identifier";
-  private static final String DOMAIN_SPEC_IDENTIFIER_TABLE = "domain_spec_identifier"; 
-  private static final String DATA_SOURCE_TABLE = "data_source";
-  private static final String DATA_PROVIDER_TABLE = "data_provider";
-  private static final String QUOTED_OBJECT_TABLE = "quoted_object";
-  private static final String DATA_FIELD_TABLE = "data_field";
-  private static final String OBSERVATION_TIME_TABLE = "observation_time";
-  private static final String DOMAIN_TABLE = "domain";
 
   private static final long MILLIS_IN_DAY = 86400000l;
+
+  private static final String SELECT_DATA_SOURCE_ID = "selectDataSourceID";
+  private static final String SELECT_DATA_FIELD_ID = "selectDataFieldID";
+  private static final String SELECT_OBSERVATION_TIME_ID = "selectObservationTimeID";
+  private static final String SELECT_QUOTED_OBJECT_ID = "selectQuotedObjectID";
+  private static final Object LOAD_ALL_OBSERVATION_TIMES = "loadAllObservationTimes";
+  private static final Object LOAD_ALL_QUOTED_OBJECTS = "loadAllQuotedObjects";
+  private static final Object LOAD_ALL_DATA_FIELDS = "loadAllDataFields";
+  private static final Object LOAD_ALL_DATA_SOURCES = "loadAllDataSources";
+  private static final Object SELECT_DOMAIN_ID = "selectDomainID";
+  private static final Object LOAD_ALL_DOMAIN = "loadAllDomain";
   
   private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 
@@ -97,7 +131,6 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     
     DoubleTimeSeries<Date> sqlDateDoubleTimeSeries = timeSeries.toSQLDateDoubleTimeSeries();
-
     s_logger.debug("adding timeseries for {} with dataSource={}, dataProvider={}, dataField={}, observationTime={} startdate={} endate={}", 
         new Object[]{domainIdentifiers, dataSource, dataProvider, field, observationTime, timeSeries.getEarliestTime(), timeSeries.getLatestTime()});
     String quotedObject = findQuotedObject(domainIdentifiers);
@@ -121,8 +154,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
     }
     
-    String insertSQL = "INSERT INTO time_series_data (time_series_id, ts_date, value) VALUES (:timeSeriesID, :date, :value)";
-    String insertDelta = "INSERT INTO time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:timeSeriesID, :timeStamp, :date, :value, 'I')";
+    Map<String, String> sqlQueries = getSqlQueries();
+    String insertSQL = sqlQueries.get(INSERT_TIME_SERIES);
+    String insertDelta = sqlQueries.get(INSERT_TIME_SERIES_DELTA_I);
     
     Date now = new Date(System.currentTimeMillis());
     s_logger.debug("timeStamp = {}", DATE_FORMAT.format(now));
@@ -164,50 +198,57 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
 
   @Override
   public String findDataFieldByID(int id) {
-    return findNamedDimensionByID(DATA_FIELD_TABLE, id);
+    s_logger.debug("looking up data field by id={}", id);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_DATA_FIELD_BY_ID);
+    return findNamedDimensionByID(sql, id);
   }
 
   @Override
   public int createDataProvider(String dataProvider, String description) {
-    insertNamedDimension(DATA_PROVIDER_TABLE, dataProvider, description);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_DATA_PROVIDER);
+    insertNamedDimension(sql, dataProvider, description);
     return getDataProviderID(dataProvider);
   }
+
+  /**
+   * @return
+   */
+  protected abstract Map<String, String> getSqlQueries();
 
   /**
    * @param dataProvider
    * @param description
    */
-  private void insertNamedDimension(String tableName, String name, String description) {
-    ArgumentChecker.notNull(tableName, "table");
-    ArgumentChecker.notNull(name, "name");
-    s_logger.debug("inserting into table={} values({}, {})", new Object[]{tableName, name, description});
-    String sql = "INSERT INTO " + tableName + " (" + NAME_COLUMN + ", " + DESCRIPTION_COLUMN + ") VALUES (:name, :description)";
+  private void insertNamedDimension(String sql, String name, String description) {
+    s_logger.debug("running sql={} with values({}, {})", new Object[]{sql, name, description});
     SqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("name", name, Types.VARCHAR)
       .addValue("description", description, Types.VARCHAR);
-
     _simpleJdbcTemplate.update(sql, parameters);
   }
 
   @Override
   public String findDataProviderByID(int id) {
-    return findNamedDimensionByID(DATA_PROVIDER_TABLE, id);
+    s_logger.debug("looking up data provider by id={}", id);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_DATA_PROVIDER_BY_ID);
+    return findNamedDimensionByID(sql, id);
   }
 
   /**
    * @param id
    * @return
    */
-  private String findNamedDimensionByID(String tableName, int id) {
-    ArgumentChecker.notNull(tableName, "table");
-    s_logger.debug("looking up named dimension from table={} id={}", tableName, id);
-    final StringBuffer sql = new StringBuffer("SELECT ").append(NAME_COLUMN).append(" FROM ").append(tableName).append(" WHERE ").append(ID_COLUMN).append(" = :id");
+  private String findNamedDimensionByID(String sql, int id) {
+    s_logger.debug("running sql={}", sql);
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("id", id, Types.INTEGER);
     String result = null;
     try {
       result = _simpleJdbcTemplate.queryForObject(sql.toString(), String.class, parameters);
     } catch (EmptyResultDataAccessException e) {
-      s_logger.debug("Empty row return for id = {} from table = {}", id, tableName);
+      s_logger.debug("Empty row return for id={} from sql={}", id, sql);
       result = null;
     }
     return result;
@@ -215,13 +256,18 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
 
   @Override
   public int createDataSource(String dataSource, String description) {
-    insertNamedDimension(DATA_SOURCE_TABLE, dataSource, description);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_DATA_SOURCE);
+    insertNamedDimension(sql, dataSource, description);
     return getDataSourceID(dataSource);
   }
 
   @Override
   public String findDataSourceByID(int id) {
-    return findNamedDimensionByID(DATA_SOURCE_TABLE, id);
+    s_logger.debug("looking up data source by id={}", id);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_DATA_SOURCE_BY_ID);
+    return findNamedDimensionByID(sql, id);
   }
   
   protected String findQuotedObject(final IdentifierBundle domainIdentifiers) {
@@ -230,11 +276,10 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     if (size < 1) {
       return result;
     }
+    Map<String, String> sqlQueries = getSqlQueries();
+    String selectQuoted = sqlQueries.get(SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS);
     
-    StringBuffer sqlBuffer = new StringBuffer();
-    sqlBuffer.append("SELECT qo.name, count(qo.name) as count FROM ").append(QUOTED_OBJECT_TABLE).append(" qo, ")
-    .append(DOMAIN_SPEC_IDENTIFIER_TABLE).append(" dsi, ").append(DOMAIN_TABLE).append(" d ")
-    .append("WHERE d.id = dsi.domain_id AND qo.id = dsi.quoted_obj_id AND (");
+    StringBuilder sqlBuffer = new StringBuilder(selectQuoted).append(" AND (");
     int orCounter = 1;
     Object[] parameters = new Object[size*2];
     int paramIndex = 0;
@@ -268,15 +313,14 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     TransactionStatus transactionStatus = _transactionManager.getTransaction(_transactionDefinition);
     
     s_logger.debug("creating/updating domainSpecIdentifiers {}", domainIdentifiers);
+    Map<String, String> sqlQueries = getSqlQueries();
     try {
       //find existing identifiers
       Set<Identifier> resolvedIdentifiers = new HashSet<Identifier>(domainIdentifiers.getIdentifiers());
       int size = domainIdentifiers.size();
       if (size > 0) {
-        StringBuffer sqlBuffer = new StringBuffer();
-        sqlBuffer.append("SELECT qo.name, count(qo.name) as count FROM ").append(QUOTED_OBJECT_TABLE).append(" qo, ")
-        .append(DOMAIN_SPEC_IDENTIFIER_TABLE).append(" dsi, ").append(DOMAIN_TABLE).append(" d ")
-        .append("WHERE d.id = dsi.domain_id AND qo.id = dsi.quoted_obj_id AND (");
+        String selectQuoted = sqlQueries.get(SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS);
+        StringBuilder sqlBuffer = new StringBuilder(selectQuoted).append(" AND (");
         int orCounter = 1;
         Object[] parameters = new Object[size*2];
         int paramIndex = 0;
@@ -329,14 +373,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         batchArgs[index++] = new MapSqlParameterSource(valueMap);
       }
       
+      String insertSQL = sqlQueries.get("insertDomainSpecIdentifier");
       
-      String sql = "INSERT into " + DOMAIN_SPEC_IDENTIFIER_TABLE + 
-        " (quoted_obj_id, domain_id, identifier) VALUES (" +
-        "(SELECT id FROM " + QUOTED_OBJECT_TABLE + " WHERE name = :quotedObject) ," +
-        "(SELECT id FROM " + DOMAIN_TABLE + " WHERE name = :domain), " +
-        ":identifier)" ;
-      
-      _simpleJdbcTemplate.batchUpdate(sql, batchArgs);
+      _simpleJdbcTemplate.batchUpdate(insertSQL, batchArgs);
       _transactionManager.commit(transactionStatus);
       
     } catch (Throwable t) {
@@ -349,40 +388,50 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
 
   @Override
   public int createObservationTime(String observationTime, String description) {
-    insertNamedDimension(OBSERVATION_TIME_TABLE, observationTime, description);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_OBSERVATION_TIME);
+    insertNamedDimension(sql, observationTime, description);
     return getObservationTimeID(observationTime);
   }
 
   @Override
   public int createQuotedObject(String name, String description) {
-    insertNamedDimension(QUOTED_OBJECT_TABLE, name, description);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_QUOTED_OBJECT);
+    insertNamedDimension(sql, name, description);
     return getQuotedObjectID(name);
   }
 
   @Override
   public int createDataField(String field, String description) {
-    insertNamedDimension(DATA_FIELD_TABLE, field, description);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_DATA_FIELD);
+    insertNamedDimension(sql, field, description);
     return getDataFieldID(field);
   }
 
   @Override
   public Set<String> getAllDataProviders() {
-    return getAllNamedDimensionNames(DATA_PROVIDER_TABLE);
+    s_logger.debug("loading all dataProviders");
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(LOAD_ALL_DATA_PROVIDER);
+    return getAllNamedDimensionNames(sql);
   }
 
   @Override
   public Set<String> getAllDataSources() {
-    return getAllNamedDimensionNames(DATA_SOURCE_TABLE);
+    s_logger.debug("loading all Datasources");
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(LOAD_ALL_DATA_SOURCES);
+    return getAllNamedDimensionNames(sql);
   }
 
   /**
    * @return
    */
-  private Set<String> getAllNamedDimensionNames(final String tableName) {
-    ArgumentChecker.notNull(tableName, "tableName");
-    s_logger.debug("gettting all names from table = {}", tableName);
-    final StringBuffer sql = new StringBuffer("SELECT ").append(NAME_COLUMN).append(" fROM ").append(tableName);
-    List<String> queryResult = _simpleJdbcTemplate.query(sql.toString(), new ParameterizedRowMapper<String>() {
+  private Set<String> getAllNamedDimensionNames(final String sql) {
+    s_logger.debug("loading all dimension names for sql={}", sql);
+    List<String> queryResult = _simpleJdbcTemplate.query(sql, new ParameterizedRowMapper<String>() {
       @Override
       public String mapRow(ResultSet rs, int rowNum) throws SQLException {
         return rs.getString(NAME_COLUMN);
@@ -393,51 +442,72 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   @Override
   public String findQuotedObjectByID(int id) {
-    return findNamedDimensionByID(QUOTED_OBJECT_TABLE, id);
+    s_logger.debug("looking up quotedObject by id={}", id);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_QUOTED_OBJECT_BY_ID);
+    return findNamedDimensionByID(sql, id);
   }
   
   @Override
   public String findObservationTimeByID(int id) {
-    return findNamedDimensionByID(OBSERVATION_TIME_TABLE, id);
+    s_logger.debug("looking up observation time by id={}", id);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_OBSERVATION_TIME_BY_ID);
+    return findNamedDimensionByID(sql, id);
   }
 
   @Override
   public Set<String> getAllObservationTimes() {
-    return getAllNamedDimensionNames(OBSERVATION_TIME_TABLE);
+    s_logger.debug("loading all observationTimes");
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(LOAD_ALL_OBSERVATION_TIMES);
+    return getAllNamedDimensionNames(sql);
   }
 
   @Override
   public Set<String> getAllQuotedObjects() {
-    return getAllNamedDimensionNames(QUOTED_OBJECT_TABLE);
+    s_logger.debug("loading all quotedObjects");
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(LOAD_ALL_QUOTED_OBJECTS);
+    return getAllNamedDimensionNames(sql);
   }
 
   @Override
   public Set<String> getAllTimeSeriesFields() {
-    return getAllNamedDimensionNames(DATA_FIELD_TABLE);
+    s_logger.debug("loading all dataFields");
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(LOAD_ALL_DATA_FIELDS);
+    return getAllNamedDimensionNames(sql);
+  }
+  
+  @Override
+  public Set<String> getAllDomains() {
+    s_logger.debug("loading all domain");
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(LOAD_ALL_DOMAIN);
+    return getAllNamedDimensionNames(sql);
   }
 
   @Override
   public int getDataProviderID(String name) {
-    return getNamedDimensionID(DATA_PROVIDER_TABLE, name);
+    s_logger.debug("looking up id for dataProvider={}", name);
+    String sql = getSqlQueries().get(SELECT_DATA_PROVIDER_ID);
+    return getNamedDimensionID(sql, name);
   }
 
   /**
-   * @param name
+   * @param name 
    * @return
    */
-  private int getNamedDimensionID(final String tableName, final String name) {
-    ArgumentChecker.notNull(tableName, "tableName");
-    ArgumentChecker.notNull(name, "name");
-    
-    s_logger.debug("looking up id from table={} with name={}", tableName, name);
-    final StringBuffer sql = new StringBuffer("SELECT ").append(ID_COLUMN).append(" FROM ").append(tableName).append(" WHERE ").append(NAME_COLUMN).append(" = :name");
+  private int getNamedDimensionID(final String sql, final String name) {
+    s_logger.debug("looking up id from sql={} with name={}", sql, name);
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("name", name);
 
     int result = -1;
     try {
-      result = _simpleJdbcTemplate.queryForInt(sql.toString(), parameters);
+      result = _simpleJdbcTemplate.queryForInt(sql, parameters);
     } catch(EmptyResultDataAccessException e) {
-      s_logger.debug("Empty row return for name = {} from table = {}", name, tableName);
+      s_logger.debug("Empty row return for name = {} from sql = {}", name, sql);
       result = -1;
     }
     s_logger.debug("id = {}", result);
@@ -446,36 +516,46 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
 
   @Override
   public int getDataSourceID(String name) {
-    return getNamedDimensionID(DATA_SOURCE_TABLE, name);
+    s_logger.debug("looking up id for dataSource={}", name);
+    String sql = getSqlQueries().get(SELECT_DATA_SOURCE_ID);
+    return getNamedDimensionID(sql, name);
   }
 
   @Override
   public int getDataFieldID(String name) {
-    return getNamedDimensionID(DATA_FIELD_TABLE, name);
+    s_logger.debug("looking up id for dataField={}", name);
+    String sql = getSqlQueries().get(SELECT_DATA_FIELD_ID);
+    return getNamedDimensionID(sql, name);
   }
 
   @Override
   public int getObservationTimeID(String name) {
-    return getNamedDimensionID(OBSERVATION_TIME_TABLE, name);
+    s_logger.debug("looking up id for observationTime={}", name);
+    String sql = getSqlQueries().get(SELECT_OBSERVATION_TIME_ID);
+    return getNamedDimensionID(sql, name);
   }
 
   @Override
   public int getQuotedObjectID(String name) {
-    return getNamedDimensionID(QUOTED_OBJECT_TABLE, name);
+    s_logger.debug("looking up id for quotedObject={}", name);
+    String sql = getSqlQueries().get(SELECT_QUOTED_OBJECT_ID);
+    return getNamedDimensionID(sql, name);
+  }
+  
+  @Override
+  public int getDomainID(String name) {
+    s_logger.debug("looking up id for domain={}", name);
+    String sql = getSqlQueries().get(SELECT_DOMAIN_ID);
+    return getNamedDimensionID(sql, name);
   }
 
-  
-  
   @Override
   public IdentifierBundle findDomainSpecIdentifiersByQuotedObject(String name) {
     ArgumentChecker.notNull(name, "name");
     s_logger.debug("looking up domainSpecIdentifiers using quotedObj={}", name);
-    
-    String sql = "SELECT d.name, dsi.identifier " +
-    		         "FROM domain_spec_identifier dsi, domain d, quoted_object qo " +
-    		         "WHERE dsi.domain_id = d.id " +
-    		         "AND qo.id = dsi.quoted_obj_id " +
-    		         "AND qo.name = :quotedObject ORDER BY d.name";
+        
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_DOMAIN_SPEC_IDENTIFIERS_BY_QUOTED_OBJECT);
     
     SqlParameterSource parameterSource = new MapSqlParameterSource("quotedObject", name);
     List<Identifier> queryResult = _simpleJdbcTemplate.query(sql, new ParameterizedRowMapper<Identifier>() {
@@ -492,23 +572,18 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   
   @Override
   public int createDomain(String domain, String description) {
-    insertNamedDimension(DOMAIN_TABLE, domain, description);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_DOMAIN);
+    insertNamedDimension(sql, domain, description);
     return getDomainID(domain);
   }
 
   @Override
   public String findDomainByID(int id) {
-    return findNamedDimensionByID(DOMAIN_TABLE, id);
-  }
-
-  @Override
-  public Set<String> getAllDomains() {
-    return getAllNamedDimensionNames(DOMAIN_TABLE);
-  }
-
-  @Override
-  public int getDomainID(String name) {
-    return getNamedDimensionID(DOMAIN_TABLE, name);
+    s_logger.debug("looking up domain by id={}", id);
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(FIND_DOMAIN_BY_ID);
+    return findNamedDimensionByID(sql, id);
   }
   
   @Override
@@ -535,14 +610,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     if (getObservationTimeID(observationTime) == -1) {
       createObservationTime(observationTime, null);
     }
-    String sql = "INSERT into time_series_key " +
-    		" (quoted_obj_id, data_source_id, data_provider_id, data_field_id, observation_time_id)" +
-    		" VALUES " +
-    		"((SELECT id from quoted_object where name = :quotedObject)," +
-    		" (SELECT id from data_source where name = :dataSource)," +
-    		" (SELECT id from data_provider where name = :dataProvider)," +
-    		" (SELECT id from data_field where name = :dataField)," +
-    		" (SELECT id from observation_time where name = :observationTime))";
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(INSERT_TIME_SERIES_KEY);
     
     SqlParameterSource parameterSource = new MapSqlParameterSource()
       .addValue("quotedObject", quotedObject)
@@ -567,21 +636,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("Looking up timeSeriesKeyID by identifier with domainSpecId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{domainSpecId, dataSource, dataProvider, dataField, observationTime});
     
-    String sql = "SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
-      " domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
-      " WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
-      " AND tsKey.quoted_obj_id = qo.id " +
-      " AND tsKey.data_source_id = ds.id " +
-      " AND tsKey.data_provider_id = dp.id " +
-      " AND tsKey.data_field_id = df.id" +
-      " AND observation_time_id = ot.id " +
-      " AND dsi.identifier = :identifier " +
-      " AND d.name = :domain " +
-      " AND ds.name = :dataSource " +
-      " AND dp.name = :dataProvider " +
-      " AND df.name = :dataField " +
-      " AND ot.name = :observationTime ";
-    
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER);
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
     .addValue("domain", domainSpecId.getScheme().getName(), Types.VARCHAR)
     .addValue("dataSource", dataSource, Types.VARCHAR)
@@ -613,25 +669,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("looking up timeSeriesKeyID by quotedObject with quotedObj={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{quotedObject, dataSource, dataProvider, dataField, observationTime});
     
-    String sql = "SELECT tskey.id FROM " +
-    		" time_series_key tskey, " +
-    		" quoted_object qo,  " +
-    		" data_source ds, " +
-    		" data_provider dp, " +
-    		" data_field df, " +
-    		" observation_time ot" +
-    		" WHERE " +
-    		" tskey.quoted_obj_id = qo.id " +
-    		" AND tskey.data_source_id = ds.id " +
-    		" AND tskey.data_provider_id = dp.id " +
-    		" AND tskey.data_field_id = df.id " +
-    		" AND tskey.observation_time_id = ot.id " +
-    		" AND qo.name = :quotedObject " +
-    		" AND ds.name = :dataSource " +
-    		" AND dp.name = :dataProvider " +
-    		" AND df.name = :dataField " +
-    		" AND ot.name = :observationTime";
-    
+    Map<String, String> sqlQueries = getSqlQueries();
+    String sql = sqlQueries.get(GET_TIME_SERIES_KEY_ID_BY_QUOTED_OBJECT);
+     
     SqlParameterSource parameterSource = new MapSqlParameterSource()
     .addValue("quotedObject", quotedObject, Types.VARCHAR)
     .addValue("dataSource", dataSource, Types.VARCHAR)
@@ -665,7 +705,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
     
-    String selectTSSQL = "SELECT ts_date, value FROM time_series_data where time_series_id = :tsID";
+    Map<String, String> sqlQueries = getSqlQueries();
+    String selectTSSQL = sqlQueries.get(GET_TIME_SERIES_BY_ID);
     MapSqlParameterSource tsIDParameter = new MapSqlParameterSource().addValue("tsID", tsID, Types.INTEGER);
     
     List<Pair<Date, Double>> queryResult = _simpleJdbcTemplate.query(selectTSSQL, new ParameterizedRowMapper<Pair<Date, Double>>() {
@@ -679,8 +720,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       }
     }, tsIDParameter);
     
-    String deleteSql = "DELETE FROM time_series_data WHERE time_series_id = :tsID";
-    String insertDelta = "INSERT INTO time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:timeSeriesID, :timeStamp, :date, :value, 'D')";
+    String deleteSql = sqlQueries.get(DELETE_TIME_SERIES_BY_ID);
+    String insertDelta = sqlQueries.get(INSERT_TIME_SERIES_DELTA_D);
     
     Date now = new Date(System.currentTimeMillis());
     s_logger.debug("timeStamp = {}", DATE_FORMAT.format(now));
@@ -740,29 +781,16 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     s_logger.debug("getting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
         new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
-    
-    StringBuilder sql = new StringBuilder("SELECT ts_date, value FROM time_series_data tsd " +
-        " WHERE time_series_id = (SELECT tsKey.id FROM time_series_key tsKey, quoted_object qo, domain_spec_identifier dsi," +
-        " domain d, data_source ds, data_provider dp, data_field df, observation_time ot " +
-        " WHERE dsi.domain_id = d.id AND dsi.quoted_obj_id = qo.id " +
-        " AND tsKey.quoted_obj_id = qo.id " +
-        " AND tsKey.data_source_id = ds.id " +
-        " AND tsKey.data_provider_id = dp.id " +
-        " AND tsKey.data_field_id = df.id" +
-        " AND observation_time_id = ot.id " +
-        " AND dsi.identifier = :identifier " +
-        " AND d.name = :domain " +
-        " AND ds.name = :dataSource " +
-        " AND dp.name = :dataProvider " +
-        " AND df.name = :dataField " +
-        " AND ot.name = :observationTime)");
+  
+    String sql = null;
+    Map<String, String> sqlQueries = getSqlQueries();
     
     if (start != null & end != null) {
-        sql.append(" AND ( tsd.ts_date >= :startDate AND ts_date <= :endDate )");
-    } 
+        sql = sqlQueries.get("loadTimeSeriesWithDates");
+    }  else {
+      sql = sqlQueries.get("loadTimeSeries");
+    }
     
-    sql.append(" ORDER BY ts_date");
-       
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
       .addValue("domain", domainSpecId.getScheme().getName(), Types.VARCHAR)
       .addValue("dataSource", dataSource, Types.VARCHAR)
@@ -778,7 +806,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     final List<Double> values = new ArrayList<Double>();
     
     NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
-    parameterJdbcOperations.query(sql.toString(), parameters, new RowCallbackHandler() {
+    parameterJdbcOperations.query(sql, parameters, new RowCallbackHandler() {
       
       @Override
       public void processRow(ResultSet rs) throws SQLException {
@@ -808,7 +836,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
     
-    String selectSQL = "SELECT value FROM time_series_data WHERE time_series_id = :tsID AND ts_date = :date";
+    Map<String, String> sqlQueries = getSqlQueries();
+    String selectSQL = sqlQueries.get(FIND_DATA_POINT_BY_DATE_AND_ID);
     
     MapSqlParameterSource parameters = new MapSqlParameterSource()
     .addValue("tsID", tsID, Types.INTEGER)
@@ -816,12 +845,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     Double oldValue = _simpleJdbcTemplate.queryForObject(selectSQL, Double.class, parameters);
     
-    String updateSql = "UPDATE time_series_data " +
-      " SET value = :newValue " +
-      " WHERE time_series_id = :tsID " +
-      " AND ts_date = :date ";
-    
-    String insertDelta = "INSERT INTO time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:tsID, :timeStamp, :date, :oldValue, 'U')";
+    String updateSql = sqlQueries.get(UPDATE_TIME_SERIES);
+    String insertDelta = sqlQueries.get(INSERT_TIME_SERIES_DELTA_U);
     
     Date now = new Date(System.currentTimeMillis());
     s_logger.debug("timeStamp = {}", DATE_FORMAT.format(now));
@@ -862,14 +887,15 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     Date sqlDate = toSQLDate(date);
     
-    String selectTSSQL = "SELECT value FROM time_series_data where time_series_id = :tsID AND ts_date = :date";
+    Map<String, String> sqlQueries = getSqlQueries();
+    String selectTSSQL = sqlQueries.get(FIND_DATA_POINT_BY_DATE_AND_ID);
     MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("tsID", tsID, Types.INTEGER);
     parameters.addValue("date", sqlDate, Types.DATE);
     
     Double oldValue = _simpleJdbcTemplate.queryForObject(selectTSSQL, Double.class, parameters);
     
-    String deleteSql = "DELETE FROM time_series_data WHERE time_series_id = :tsID AND ts_date = :date";
-    String insertDelta = "INSERT INTO time_series_data_delta (time_series_id, time_stamp, ts_date, old_value, operation) VALUES (:timeSeriesID, :timeStamp, :date, :value, 'D')";
+    String deleteSql = sqlQueries.get(DELETE_DATA_POINT);
+    String insertDelta = sqlQueries.get(INSERT_TIME_SERIES_DELTA_D);
     
     Date now = new Date(System.currentTimeMillis());
     s_logger.debug("timeStamp = {}", DATE_FORMAT.format(now));
@@ -909,7 +935,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
     
-    String selectDeltaSql = "SELECT ts_date, old_value, operation FROM time_series_data_delta WHERE time_series_id = :tsID AND time_stamp >= :time ORDER BY time_stamp desc";
+    Map<String, String> sqlQueries = getSqlQueries();
+    String selectDeltaSql = sqlQueries.get(LOAD_TIME_SERIES_DELTA);
     
     MapSqlParameterSource parameterSource = new MapSqlParameterSource();
     parameterSource.addValue("time", toSQLDate(timeStamp), Types.TIMESTAMP);

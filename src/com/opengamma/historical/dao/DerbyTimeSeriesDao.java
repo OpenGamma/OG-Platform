@@ -5,6 +5,8 @@
  */
 package com.opengamma.historical.dao;
 
+import java.util.Map;
+
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 /**
@@ -13,6 +15,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
  * @author yomi
  */
 public class DerbyTimeSeriesDao extends RowStoreJdbcDao {
+  
+  private Map<String, String> _namedSQLMap;
 
   /**
    * @param dataSource
@@ -25,5 +29,14 @@ public class DerbyTimeSeriesDao extends RowStoreJdbcDao {
   protected boolean isTriggerSupported() {
     return false;
   }
+  
+  public void setNamedSQLMap(Map<String, String> namedSQLMap) {
+    _namedSQLMap = namedSQLMap;
+  }
 
+  @Override
+  protected Map<String, String> getSqlQueries() {
+    return _namedSQLMap;
+  }
+  
 }
