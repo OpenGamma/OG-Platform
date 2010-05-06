@@ -45,12 +45,12 @@ public class CachingDistributionSpecificationResolver implements DistributionSpe
 
   @Override
   public DistributionSpecification getDistributionSpecification(
-      LiveDataSpecification fullyResolvedSpec) {
+      LiveDataSpecification liveDataSpecificationFromClient) {
     
-    Element cachedDistSpec = _cache.get(new LiveDataSpecification(fullyResolvedSpec));
+    Element cachedDistSpec = _cache.get(liveDataSpecificationFromClient);
     if (cachedDistSpec == null) {
-      DistributionSpecification distSpec = _underlying.getDistributionSpecification(fullyResolvedSpec);
-      cachedDistSpec = new Element(new LiveDataSpecification(fullyResolvedSpec), distSpec);
+      DistributionSpecification distSpec = _underlying.getDistributionSpecification(liveDataSpecificationFromClient);
+      cachedDistSpec = new Element(liveDataSpecificationFromClient, distSpec);
       _cache.put(cachedDistSpec);
     }
     return (DistributionSpecification) cachedDistSpec.getValue();
