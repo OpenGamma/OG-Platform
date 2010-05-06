@@ -19,7 +19,6 @@ import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.math.function.Function1D;
 
 /**
- * @author emcleod
  *
  */
 public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, Map<PositionGreek, RiskFactorResult<?>>> {

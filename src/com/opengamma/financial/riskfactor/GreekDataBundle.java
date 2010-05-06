@@ -11,10 +11,6 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 
-/**
- * @author emcleod
- *
- */
 public class GreekDataBundle {
   private final GreekResultCollection _greekValues;
   private final Map<Greek, Map<Object, Double>> _underlyingData;

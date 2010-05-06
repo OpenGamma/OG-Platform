@@ -11,10 +11,6 @@ import com.opengamma.math.function.Function2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 
-/**
- * 
- * @author emcleod
- */
 public abstract class CovarianceCalculator extends Function2D<DoubleTimeSeries<?>, Double> {
 
   protected void testTimeSeries(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
