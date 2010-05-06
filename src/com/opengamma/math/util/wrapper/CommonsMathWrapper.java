@@ -20,6 +20,9 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  */
 public class CommonsMathWrapper {
 
+  private CommonsMathWrapper() {
+  }
+
   public static UnivariateRealFunction wrap(final Function1D<Double, Double> f) {
     return new UnivariateRealFunction() {
 

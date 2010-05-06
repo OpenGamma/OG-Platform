@@ -89,6 +89,17 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
     return _columns;
   }
 
+  public DoubleMatrix2D getTranspose() {
+
+    final double[][] primitives = new double[_columns][_rows];
+    for (int i = 0; i < _rows; i++)
+      for (int j = 0; j < _columns; j++) {
+        primitives[i][j] = _primitives[j][i];
+      }
+
+    return new DoubleMatrix2D(primitives);
+  }
+
   /*
    * (non-Javadoc)
    * 
