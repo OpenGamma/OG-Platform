@@ -15,10 +15,6 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 
-/**
- * 
- * @author emcleod
- */
 public class AdaptiveLeastSquaresRegressionTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
   private static final double BETA_2 = -0.9;
@@ -55,7 +51,8 @@ public class AdaptiveLeastSquaresRegressionTest {
     new AdaptiveLeastSquaresRegression(new LeastSquaresRegression() {
 
       @Override
-      public LeastSquaresRegressionResult regress(final Double[][] x, final Double[][] weights, final Double[] y, final boolean useIntercept) {
+      public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y,
+          final boolean useIntercept) {
         return null;
       }
     }, -0.5);
@@ -63,8 +60,8 @@ public class AdaptiveLeastSquaresRegressionTest {
 
   @Test
   public void test() {
-    final Double[] y = new Double[N];
-    final Double[][] x = new Double[N][3];
+    final double[] y = new double[N];
+    final double[][] x = new double[N][3];
     for (int i = 0; i < N; i++) {
       y[i] = F2.evaluate(X[i]);
       for (int j = 1; j < 3; j++) {
@@ -73,7 +70,7 @@ public class AdaptiveLeastSquaresRegressionTest {
       x[i][0] = i % 2 == 0 ? -1. : 1.;
     }
     final LeastSquaresRegressionResult result = ADAPTIVE.regress(x, null, y, false);
-    final Double[] betas = result.getBetas();
+    final double[] betas = result.getBetas();
     assertEquals(betas.length, 2);
     assertEquals(betas[0], BETA_2, EPS);
     assertEquals(betas[1], BETA_3, EPS);

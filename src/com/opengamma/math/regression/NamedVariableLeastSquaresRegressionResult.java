@@ -12,28 +12,27 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * @author emcleod
- */
 public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
   private static final Logger s_Log = LoggerFactory.getLogger(NamedVariableLeastSquaresRegressionResult.class);
   private final List<String> _independentVariableNames;
   private final LeastSquaresRegressionResult _result;
   private final String INTERCEPT_STRING = "Intercept";
 
-  public NamedVariableLeastSquaresRegressionResult(final List<String> independentVariableNames, final LeastSquaresRegressionResult result) {
+  public NamedVariableLeastSquaresRegressionResult(final List<String> independentVariableNames,
+      final LeastSquaresRegressionResult result) {
     super(result);
     if (independentVariableNames == null)
       throw new IllegalArgumentException("List of independent variable names was null");
     _independentVariableNames = new ArrayList<String>();
     if (result.hasIntercept()) {
       if (independentVariableNames.size() != result.getBetas().length - 1)
-        throw new IllegalArgumentException("Length of variable name array did not match number of results in the regression");
+        throw new IllegalArgumentException(
+            "Length of variable name array did not match number of results in the regression");
       _independentVariableNames.add(INTERCEPT_STRING);
     } else {
       if (independentVariableNames.size() != result.getBetas().length)
-        throw new IllegalArgumentException("Length of variable name array did not match number of results in the regression");
+        throw new IllegalArgumentException(
+            "Length of variable name array did not match number of results in the regression");
     }
     _independentVariableNames.addAll(independentVariableNames);
     _result = result;
@@ -60,7 +59,7 @@ public class NamedVariableLeastSquaresRegressionResult extends LeastSquaresRegre
       s_Log.warn("Map was empty: returning 0");
       return 0.;
     }
-    final Double[] betas = getBetas();
+    final double[] betas = getBetas();
     double sum = 0;
     if (hasIntercept()) {
       if (namesAndValues.size() < betas.length - 1)

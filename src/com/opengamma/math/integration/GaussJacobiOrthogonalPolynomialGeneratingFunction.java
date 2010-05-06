@@ -100,7 +100,8 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
           c = 2 * (k - 1 + _alpha) * (k - 1 + _beta) * alphaBeta2;
           p1 = (b * p2 - c * p3) / a;
         }
-        pp = (n * (_alpha - _beta - alphaBeta2 * z) * p1 + 2 * (n + _alpha) * (n + _beta) * p2) / (alphaBeta2 * (1 - z * z));
+        pp = (n * (_alpha - _beta - alphaBeta2 * z) * p1 + 2 * (n + _alpha) * (n + _beta) * p2)
+            / (alphaBeta2 * (1 - z * z));
         z1 = z;
         z = z1 - p1 / pp;
         if (Math.abs(z - z1) <= EPS) {
@@ -110,8 +111,8 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
       if (j == max)
         throw new ConvergenceException("Could not converge in " + max + " iterations");
       x[i] = z;
-      w[i] = Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n) - LOG_GAMMA_FUNCTION.evaluate(n + 1.)
-          - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
+      w[i] = Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n)
+          - LOG_GAMMA_FUNCTION.evaluate(n + 1.) - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
           * alphaBeta2 * Math.pow(2, alphaBeta) / (pp * p2);
     }
     return new GaussianQuadratureFunction(x, w);

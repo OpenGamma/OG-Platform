@@ -11,10 +11,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 
- * @author emcleod
- */
 public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
   private static final Logger s_Log = LoggerFactory.getLogger(AdaptiveLeastSquaresRegression.class);
   private final LeastSquaresRegression _regression;
@@ -30,7 +26,8 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
   }
 
   @Override
-  public LeastSquaresRegressionResult regress(final Double[][] x, final Double[][] weights, final Double[] y, final boolean useIntercept) {
+  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y,
+      final boolean useIntercept) {
     final LeastSquaresRegressionResult result = _regression.regress(x, weights, y, useIntercept);
     if (areCoefficientsSignificant(result.getPValues())) {
       final List<Integer> tempIndex = new ArrayList<Integer>();
@@ -47,11 +44,12 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     }
   }
 
-  private LeastSquaresRegressionResult getBestResult(final LeastSquaresRegressionResult result, final Double[][] x, final Double[][] w, final Double[] y, final boolean useIntercept) {
-    final Double[] pValues = result.getPValues();
+  private LeastSquaresRegressionResult getBestResult(final LeastSquaresRegressionResult result, final double[][] x,
+      final double[][] w, final double[] y, final boolean useIntercept) {
+    final double[] pValues = result.getPValues();
     final List<Integer> significantIndex = new ArrayList<Integer>();
     int i = 0;
-    for (final Double p : pValues) {
+    for (final double p : pValues) {
       if (isCoefficientSignificant(p)) {
         significantIndex.add(i);
       }
@@ -69,8 +67,8 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     }
     if (newLength == pValues.length)
       return new NamedVariableLeastSquaresRegressionResult(getNames(significantIndex), result);
-    final Double[][] newX = new Double[x.length][newLength];
-    final Double[][] newW = w == null ? null : new Double[x.length][newLength];
+    final double[][] newX = new double[x.length][newLength];
+    final double[][] newW = w == null ? null : new double[x.length][newLength];
     int k;
     for (i = 0; i < x.length; i++) {
       k = 0;
@@ -104,15 +102,15 @@ public class AdaptiveLeastSquaresRegression extends LeastSquaresRegression {
     return names;
   }
 
-  private boolean areCoefficientsSignificant(final Double[] pValue) {
-    for (final Double p : pValue) {
+  private boolean areCoefficientsSignificant(final double[] pValue) {
+    for (final double p : pValue) {
       if (!isCoefficientSignificant(p))
         return false;
     }
     return true;
   }
 
-  private boolean isCoefficientSignificant(final Double pValue) {
+  private boolean isCoefficientSignificant(final double pValue) {
     if (pValue > _significanceLevel)
       return false;
     return true;

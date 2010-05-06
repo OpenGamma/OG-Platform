@@ -11,17 +11,12 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
-/**
- * 
- * @author emcleod
- * 
- */
-
 public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
   private final Algebra _algebra = new Algebra();
 
   @Override
-  public LeastSquaresRegressionResult regress(final Double[][] x, final Double[][] weights, final Double[] y, final boolean useIntercept) {
+  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y,
+      final boolean useIntercept) {
     if (weights == null)
       throw new IllegalArgumentException("Cannot perform GLS regression without an array of weights");
     checkData(x, weights, y);
@@ -38,23 +33,25 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
     final DoubleMatrix2D w = DoubleFactory2D.dense.make(wArray);
     final DoubleMatrix2D transpose = _algebra.transpose(matrix);
-    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(w, matrix))), transpose), w), vector);
-    final Double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
-    final Double[] betas = convertArray(betasVector.toArray());
+    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(
+        transpose, _algebra.mult(w, matrix))), transpose), w), vector);
+    final double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
+    final double[] betas = convertArray(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final Double[][] x, final Double[] y, final Double[] betas, final Double[] yModel, final boolean useIntercept) {
-    Double yMean = 0.;
-    for (final Double y1 : y) {
+  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y,
+      final double[] betas, final double[] yModel, final boolean useIntercept) {
+    double yMean = 0.;
+    for (final double y1 : y) {
       yMean += y1;
     }
     yMean /= y.length;
     final int n = x.length;
-    final Double[] residuals = new Double[n];
+    final double[] residuals = new double[n];
     for (int i = 0; i < n; i++) {
       residuals[i] = y[i] - yModel[i];
     }
-    return new WeightedLeastSquaresRegressionResult(betas, residuals, null, null, null, null, null, null, useIntercept);
+    return new WeightedLeastSquaresRegressionResult(betas, residuals, 0.0, null, 0.0, 0.0, null, null, useIntercept);
   }
 }

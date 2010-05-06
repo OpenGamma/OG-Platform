@@ -7,12 +7,6 @@ package com.opengamma.math.integration;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- * 
- */
-
 public class GaussianQuadratureFunction extends Function1D<Function1D<Double, Double>, Double[]> {
   private final Double[] _weights;
   private final Double[] _abscissas;

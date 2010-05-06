@@ -23,17 +23,14 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 
-/**
- * 
- * @author emcleod
- */
 public class NamedVariableLeastSquaresRegressionResultTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-2;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullNames() {
-    new NamedVariableLeastSquaresRegressionResult(null, new LeastSquaresRegressionResult(null, null, null, null, null, null, null, null, false));
+    new NamedVariableLeastSquaresRegressionResult(null, new LeastSquaresRegressionResult(null, null, 0, null, 0, 0,
+        null, null, false));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -44,8 +41,9 @@ public class NamedVariableLeastSquaresRegressionResultTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNonMatchingInputs() {
     final List<String> names = Arrays.asList("A", "B");
-    final Double[] array = new Double[] { 1. };
-    final LeastSquaresRegressionResult result = new LeastSquaresRegressionResult(array, array, 0., array, 0., 0., array, array, false);
+    final double[] array = new double[] { 1. };
+    final LeastSquaresRegressionResult result = new LeastSquaresRegressionResult(array, array, 0., array, 0., 0.,
+        array, array, false);
     new NamedVariableLeastSquaresRegressionResult(names, result);
   }
 
@@ -71,19 +69,21 @@ public class NamedVariableLeastSquaresRegressionResultTest {
       }
 
     };
-    final Double[][] x = new Double[n][2];
-    final Double[] y1 = new Double[n];
-    final Double[] y2 = new Double[n];
+    final double[][] x = new double[n][2];
+    final double[] y1 = new double[n];
+    final double[] y2 = new double[n];
     for (int i = 0; i < n; i++) {
       x[i][0] = RANDOM.nextDouble();
       x[i][1] = RANDOM.nextDouble();
-      y1[i] = f1.evaluate(x[i]);
-      y2[i] = f2.evaluate(x[i]);
+      y1[i] = f1.evaluate(x[i][0], x[i][1]);
+      y2[i] = f2.evaluate(x[i][0], x[i][1]);
     }
     final LeastSquaresRegression ols = new OrdinaryLeastSquaresRegression();
     final List<String> names = Arrays.asList("1", "2");
-    final NamedVariableLeastSquaresRegressionResult result1 = new NamedVariableLeastSquaresRegressionResult(names, ols.regress(x, null, y1, false));
-    final NamedVariableLeastSquaresRegressionResult result2 = new NamedVariableLeastSquaresRegressionResult(names, ols.regress(x, null, y2, true));
+    final NamedVariableLeastSquaresRegressionResult result1 = new NamedVariableLeastSquaresRegressionResult(names, ols
+        .regress(x, null, y1, false));
+    final NamedVariableLeastSquaresRegressionResult result2 = new NamedVariableLeastSquaresRegressionResult(names, ols
+        .regress(x, null, y2, true));
     try {
       result1.getPredictedValue((Map<String, Double>) null);
       fail();
@@ -99,7 +99,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    Double x1, x2, x3;
+    double x1, x2, x3;
     final Map<String, Double> var = new HashMap<String, Double>();
     for (int i = 0; i < 10; i++) {
       x1 = RANDOM.nextDouble();

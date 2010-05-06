@@ -5,16 +5,12 @@
  */
 package com.opengamma.math.regression;
 
-/**
- * 
- * @author emcleod
- */
-
 public abstract class LeastSquaresRegression {
 
-  public abstract LeastSquaresRegressionResult regress(Double[][] x, Double[][] weights, Double[] y, boolean useIntercept);
+  public abstract LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y,
+      boolean useIntercept);
 
-  protected void checkData(final Double[][] x, final Double[][] weights, final Double[] y) {
+  protected void checkData(final double[][] x, final double[][] weights, final double[] y) {
     checkData(x, y);
     if (weights != null) {
       if (weights.length == 0)
@@ -22,14 +18,14 @@ public abstract class LeastSquaresRegression {
       if (weights.length != x.length)
         throw new IllegalArgumentException("Independent variable and weight arrays are not the same length");
       final int n = weights[0].length;
-      for (final Double[] w : weights) {
+      for (final double[] w : weights) {
         if (w.length != n)
           throw new IllegalArgumentException("Need a rectangular array of weight");
       }
     }
   }
 
-  protected void checkData(final Double[][] x, final Double[] weights, final Double[] y) {
+  protected void checkData(final double[][] x, final double[] weights, final double[] y) {
     checkData(x, y);
     if (weights != null) {
       if (weights.length == 0)
@@ -39,7 +35,7 @@ public abstract class LeastSquaresRegression {
     }
   }
 
-  protected void checkData(final Double[][] x, final Double[] y) {
+  protected void checkData(final double[][] x, final double[] y) {
     if (x == null)
       throw new IllegalArgumentException("Independent variable array was null");
     if (y == null)
@@ -51,15 +47,16 @@ public abstract class LeastSquaresRegression {
     if (x.length != y.length)
       throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
     final int n = x[0].length;
-    for (final Double[] x1 : x) {
+    for (final double[] x1 : x) {
       if (x1.length != n)
         throw new IllegalArgumentException("Need a rectangular array of independent variables");
     }
     if (y.length <= x[0].length)
-      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
+      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only "
+          + x[0].length + " data points");
   }
 
-  protected double[][] addInterceptVariable(final Double[][] x, final boolean useIntercept) {
+  protected double[][] addInterceptVariable(final double[][] x, final boolean useIntercept) {
     final double[][] result = useIntercept ? new double[x.length][x[0].length + 1] : new double[x.length][x[0].length];
     for (int i = 0; i < x.length; i++) {
       if (useIntercept) {
@@ -76,8 +73,8 @@ public abstract class LeastSquaresRegression {
     return result;
   }
 
-  protected Double[][] convertArray(final double[][] x) {
-    final Double[][] result = new Double[x.length][x[0].length];
+  protected double[][] convertArray(final double[][] x) {
+    final double[][] result = new double[x.length][x[0].length];
     for (int i = 0; i < result.length; i++) {
       for (int j = 0; j < result[0].length; j++) {
         result[i][j] = x[i][j];
@@ -86,8 +83,8 @@ public abstract class LeastSquaresRegression {
     return result;
   }
 
-  protected Double[] convertArray(final double[] x) {
-    final Double[] result = new Double[x.length];
+  protected double[] convertArray(final double[] x) {
+    final double[] result = new double[x.length];
     for (int i = 0; i < result.length; i++) {
       result[i] = x[i];
     }

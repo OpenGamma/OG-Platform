@@ -9,32 +9,28 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-/**
- * 
- * @author emcleod
- */
 public class GeneralizedLeastSquaresRegressionTest {
   private static final double EPS = 1e-9;
 
   @Test
   public void test() {
-    final Double a0 = 2.3;
-    final Double a1 = 4.7;
-    final Double a2 = -0.99;
-    final Double a3 = -5.1;
-    final Double a4 = 0.27;
+    final double a0 = 2.3;
+    final double a1 = 4.7;
+    final double a2 = -0.99;
+    final double a3 = -5.1;
+    final double a4 = 0.27;
     final int n = 30;
-    final Double[][] x = new Double[n][4];
-    final Double[] yIntercept = new Double[n];
-    final Double[] yNoIntercept = new Double[n];
-    final Double[][] w = new Double[n][n];
-    Double y, x1, x2, x3, x4;
+    final double[][] x = new double[n][4];
+    final double[] yIntercept = new double[n];
+    final double[] yNoIntercept = new double[n];
+    final double[][] w = new double[n][n];
+    double y, x1, x2, x3, x4;
     for (int i = 0; i < n; i++) {
-      x1 = (double) i;
+      x1 = i;
       x2 = x1 * x1;
       x3 = Math.sqrt(x1);
       x4 = x1 * x2;
-      x[i] = new Double[] { x1, x2, x3, x4 };
+      x[i] = new double[] { x1, x2, x3, x4 };
       y = x1 * a1 + x2 * a2 + x3 * a3 + x4 * a4;
       yNoIntercept[i] = y;
       yIntercept[i] = y + a0;
@@ -59,14 +55,15 @@ public class GeneralizedLeastSquaresRegressionTest {
     testRegressions(n, 4, gls, ols);
   }
 
-  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1, final LeastSquaresRegressionResult regression2) {
-    final Double[] r1 = regression1.getResiduals();
-    final Double[] r2 = regression2.getResiduals();
+  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1,
+      final LeastSquaresRegressionResult regression2) {
+    final double[] r1 = regression1.getResiduals();
+    final double[] r2 = regression2.getResiduals();
     for (int i = 0; i < n; i++) {
       assertEquals(r1[i], r2[i], EPS);
     }
-    final Double[] b1 = regression1.getBetas();
-    final Double[] b2 = regression2.getBetas();
+    final double[] b1 = regression1.getBetas();
+    final double[] b2 = regression2.getBetas();
     for (int i = 0; i < k; i++) {
       assertEquals(b1[i], b2[i], EPS);
     }

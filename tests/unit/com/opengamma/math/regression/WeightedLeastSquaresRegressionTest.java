@@ -14,32 +14,28 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-/**
- * 
- * @author emcleod
- */
 public class WeightedLeastSquaresRegressionTest {
   private static final RandomEngine RANDOM = new MersenneTwister(MersenneTwister64.DEFAULT_SEED);
   private static final double EPS = 1e-2;
 
   @Test
   public void test() {
-    final Double a0 = 2.3;
-    final Double a1 = -4.5;
-    final Double a2 = 0.76;
-    final Double a3 = 3.4;
+    final double a0 = 2.3;
+    final double a1 = -4.5;
+    final double a2 = 0.76;
+    final double a3 = 3.4;
     final int n = 30;
-    final Double[][] x = new Double[n][3];
-    final Double[] yIntercept = new Double[n];
-    final Double[] yNoIntercept = new Double[n];
-    final Double[][] w1 = new Double[n][n];
-    final Double[] w2 = new Double[n];
-    Double y, x1, x2, x3;
+    final double[][] x = new double[n][3];
+    final double[] yIntercept = new double[n];
+    final double[] yNoIntercept = new double[n];
+    final double[][] w1 = new double[n][n];
+    final double[] w2 = new double[n];
+    double y, x1, x2, x3;
     for (int i = 0; i < n; i++) {
-      x1 = (double) i;
+      x1 = i;
       x2 = x1 * x1;
       x3 = Math.sqrt(x1);
-      x[i] = new Double[] { x1, x2, x3 };
+      x[i] = new double[] { x1, x2, x3 };
       y = x1 * a1 + x2 * a2 + x3 * a3;
       yNoIntercept[i] = y;
       yIntercept[i] = y + a0;
@@ -52,7 +48,7 @@ public class WeightedLeastSquaresRegressionTest {
     final WeightedLeastSquaresRegression wlsRegression = new WeightedLeastSquaresRegression();
     final OrdinaryLeastSquaresRegression olsRegression = new OrdinaryLeastSquaresRegression();
     try {
-      wlsRegression.regress(x, (Double[]) null, yNoIntercept, false);
+      wlsRegression.regress(x, (double[]) null, yNoIntercept, false);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -71,20 +67,21 @@ public class WeightedLeastSquaresRegressionTest {
     testRegressions(n, 3, wls, ols);
   }
 
-  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1, final LeastSquaresRegressionResult regression2) {
-    final Double[] r1 = regression1.getResiduals();
-    final Double[] r2 = regression2.getResiduals();
+  private void testRegressions(final int n, final int k, final LeastSquaresRegressionResult regression1,
+      final LeastSquaresRegressionResult regression2) {
+    final double[] r1 = regression1.getResiduals();
+    final double[] r2 = regression2.getResiduals();
     for (int i = 0; i < n; i++) {
       assertEquals(r1[i], r2[i], EPS);
     }
-    final Double[] b1 = regression1.getBetas();
-    final Double[] t1 = regression1.getTStatistics();
-    final Double[] p1 = regression1.getPValues();
-    final Double[] s1 = regression1.getStandardErrorOfBetas();
-    final Double[] b2 = regression2.getBetas();
-    final Double[] t2 = regression2.getTStatistics();
-    final Double[] p2 = regression2.getPValues();
-    final Double[] s2 = regression2.getStandardErrorOfBetas();
+    final double[] b1 = regression1.getBetas();
+    final double[] t1 = regression1.getTStatistics();
+    final double[] p1 = regression1.getPValues();
+    final double[] s1 = regression1.getStandardErrorOfBetas();
+    final double[] b2 = regression2.getBetas();
+    final double[] t2 = regression2.getTStatistics();
+    final double[] p2 = regression2.getPValues();
+    final double[] s2 = regression2.getStandardErrorOfBetas();
     for (int i = 0; i < k; i++) {
       assertEquals(b1[i], b2[i], EPS);
       assertEquals(t1[i], t2[i], EPS);
