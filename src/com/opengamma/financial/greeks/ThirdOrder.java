@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.greeks;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import com.opengamma.financial.pnl.Underlying;
 
 /**
- * @author emcleod
  * 
  */
 public class ThirdOrder extends Order {
@@ -42,6 +44,11 @@ public class ThirdOrder extends Order {
 
   public Underlying getVariable() {
     return _variable;
+  }
+
+  @Override
+  public Set<Underlying> getUnderlyings() {
+    return EnumSet.of(_variable);
   }
 
   /*

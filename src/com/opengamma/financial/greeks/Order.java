@@ -5,8 +5,11 @@
  */
 package com.opengamma.financial.greeks;
 
+import java.util.Set;
+
+import com.opengamma.financial.pnl.Underlying;
+
 /**
- * @author emcleod
  * 
  */
 public abstract class Order {
@@ -17,4 +20,6 @@ public abstract class Order {
   public abstract <T> T accept(OrderVisitor<T> visitor);
 
   public abstract OrderType getOrderType();
+
+  public abstract Set<Underlying> getUnderlyings();
 }

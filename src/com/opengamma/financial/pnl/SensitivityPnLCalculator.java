@@ -18,7 +18,6 @@ import com.opengamma.math.matrix.Matrix;
 import com.opengamma.math.matrix.MatrixAlgebra;
 
 /**
- * @author emcleod
  *
  */
 public class SensitivityPnLCalculator extends Function1D<PnLDataBundle, Double[]> {
@@ -40,17 +39,17 @@ public class SensitivityPnLCalculator extends Function1D<PnLDataBundle, Double[]
     if (data == null)
       throw new IllegalArgumentException("PnL data bundle was null");
     final Map<Underlying, DoubleMatrix1D[]> underlyings = data.getUnderlyingData();
-    final Map<Sensitivity, Matrix<?>> matrices = data.getMatrices();
+    final Map<Sensitivity<?>, Matrix<?>> matrices = data.getMatrices();
     final int n = data.getLength();
     final Double[] pnl = new Double[n];
     double sum;
-    Sensitivity s;
+    Sensitivity<?> s;
     Matrix<?> m;
     Order o;
     DoubleMatrix1D v1, v2;
     for (int i = 0; i < n; i++) {
       sum = 0;
-      for (final Map.Entry<Sensitivity, Matrix<?>> entry : matrices.entrySet()) {
+      for (final Map.Entry<Sensitivity<?>, Matrix<?>> entry : matrices.entrySet()) {
         s = entry.getKey();
         m = entry.getValue();
         o = s.getOrder();

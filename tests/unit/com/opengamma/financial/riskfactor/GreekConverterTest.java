@@ -23,10 +23,10 @@ import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.Underlying;
 import com.opengamma.financial.sensitivity.Sensitivity;
+import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.math.function.Function1D;
 
 /**
- * @author emcleod
  *
  */
 public class GreekConverterTest {
@@ -42,8 +42,8 @@ public class GreekConverterTest {
   private static final double SPOT_PRICE = 100;
   private static final double IMPLIED_VOLATILITY = 0.5;
   private static final Function1D<GreekDataBundle, Map<PositionGreek, RiskFactorResult<?>>> G_TO_PG_CONVERTER = new GreekToPositionGreekConverter();
-  private static final Function1D<GreekDataBundle, Map<Sensitivity, RiskFactorResult<?>>> G_TO_VG_CONVERTER = new GreekToValueGreekConverter();
-  private static final Function1D<PositionGreekDataBundle, Map<Sensitivity, RiskFactorResult<?>>> PG_TO_VG_CONVERTER = new PositionGreekToValueGreekConverter();
+  private static final Function1D<GreekDataBundle, Map<Sensitivity<Greek>, RiskFactorResult<?>>> G_TO_VG_CONVERTER = new GreekToValueGreekConverter();
+  private static final Function1D<PositionGreekDataBundle, Map<Sensitivity<Greek>, RiskFactorResult<?>>> PG_TO_VG_CONVERTER = new PositionGreekToValueGreekConverter();
   private static final GreekResultCollection GREEKS;
   private static final GreekDataBundle GREEKS_DATA;
   private static final double EPS = 1e-7;
@@ -141,7 +141,7 @@ public class GreekConverterTest {
       }
 
     };
-    final Map<PositionGreek, RiskFactorResult<?>> riskFactors = Collections.<PositionGreek, RiskFactorResult<?>> singletonMap(PositionGreek.POSITION_DELTA, temp);
+    final Map<PositionGreek, RiskFactorResult<?>> riskFactors = Collections.<PositionGreek, RiskFactorResult<?>> singletonMap(new PositionGreek(Greek.DELTA), temp);
     final Map<Greek, Map<Object, Double>> data = Collections.<Greek, Map<Object, Double>> singletonMap(Greek.DELTA, Collections.<Object, Double> singletonMap(
         TradeData.NUMBER_OF_CONTRACTS, N));
     PG_TO_VG_CONVERTER.evaluate(new PositionGreekDataBundle(riskFactors, data));
@@ -150,24 +150,24 @@ public class GreekConverterTest {
   @Test
   public void test() {
     final Map<PositionGreek, RiskFactorResult<?>> positionGreeks = G_TO_PG_CONVERTER.evaluate(GREEKS_DATA);
-    assertEquals((Double) positionGreeks.get(PositionGreek.POSITION_DELTA).getResult(), DELTA.getResult() * N, EPS);
-    assertEquals((Double) positionGreeks.get(PositionGreek.POSITION_GAMMA).getResult(), GAMMA.getResult() * N, EPS);
-    assertEquals((Double) positionGreeks.get(PositionGreek.POSITION_VANNA).getResult(), VANNA.getResult() * N, EPS);
-    assertTrue(positionGreeks.get(PositionGreek.POSITION_VEGA) instanceof MultipleRiskFactorResult);
-    Map<Object, Double> m = ((MultipleRiskFactorResult) positionGreeks.get(PositionGreek.POSITION_VEGA)).getResult();
+    assertEquals((Double) positionGreeks.get(new PositionGreek(Greek.DELTA)).getResult(), DELTA.getResult() * N, EPS);
+    assertEquals((Double) positionGreeks.get(new PositionGreek(Greek.GAMMA)).getResult(), GAMMA.getResult() * N, EPS);
+    assertEquals((Double) positionGreeks.get(new PositionGreek(Greek.VANNA)).getResult(), VANNA.getResult() * N, EPS);
+    assertTrue(positionGreeks.get(new PositionGreek(Greek.VEGA)) instanceof MultipleRiskFactorResult);
+    Map<Object, Double> m = ((MultipleRiskFactorResult) positionGreeks.get(new PositionGreek(Greek.VEGA))).getResult();
     assertEquals(m.size(), 2);
     assertEquals(m.get(VEGA_1), VEGA_V1 * N, EPS);
     assertEquals(m.get(VEGA_2), VEGA_V2 * N, EPS);
-    final Map<Sensitivity, RiskFactorResult<?>> valueGreeks = G_TO_VG_CONVERTER.evaluate(GREEKS_DATA);
-    assertEquals((Double) valueGreeks.get(Sensitivity.VALUE_DELTA).getResult(), DELTA.getResult() * N * PV * SPOT_PRICE, EPS);
-    assertEquals((Double) valueGreeks.get(Sensitivity.VALUE_GAMMA).getResult(), GAMMA.getResult() * N * PV * SPOT_PRICE * SPOT_PRICE, EPS);
-    assertEquals((Double) valueGreeks.get(Sensitivity.VALUE_VANNA).getResult(), VANNA.getResult() * N * PV * SPOT_PRICE * IMPLIED_VOLATILITY, EPS);
-    assertTrue(valueGreeks.get(Sensitivity.VALUE_VEGA) instanceof MultipleRiskFactorResult);
-    m = ((MultipleRiskFactorResult) valueGreeks.get(Sensitivity.VALUE_VEGA)).getResult();
+    final Map<Sensitivity<Greek>, RiskFactorResult<?>> valueGreeks = G_TO_VG_CONVERTER.evaluate(GREEKS_DATA);
+    assertEquals((Double) valueGreeks.get(new ValueGreek(Greek.DELTA)).getResult(), DELTA.getResult() * N * PV * SPOT_PRICE, EPS);
+    assertEquals((Double) valueGreeks.get(new ValueGreek(Greek.GAMMA)).getResult(), GAMMA.getResult() * N * PV * SPOT_PRICE * SPOT_PRICE, EPS);
+    assertEquals((Double) valueGreeks.get(new ValueGreek(Greek.VANNA)).getResult(), VANNA.getResult() * N * PV * SPOT_PRICE * IMPLIED_VOLATILITY, EPS);
+    assertTrue(valueGreeks.get(new ValueGreek(Greek.VEGA)) instanceof MultipleRiskFactorResult);
+    m = ((MultipleRiskFactorResult) valueGreeks.get(new ValueGreek(Greek.VEGA))).getResult();
     assertEquals(m.size(), 2);
     assertEquals(m.get(VEGA_1), VEGA_V1 * N * PV * IMPLIED_VOLATILITY, EPS);
     assertEquals(m.get(VEGA_2), VEGA_V2 * N * PV * IMPLIED_VOLATILITY, EPS);
-    final Map<Sensitivity, RiskFactorResult<?>> valueGreeksFromPositionGreeks = PG_TO_VG_CONVERTER.evaluate(new PositionGreekDataBundle(positionGreeks, GREEKS_DATA
+    final Map<Sensitivity<Greek>, RiskFactorResult<?>> valueGreeksFromPositionGreeks = PG_TO_VG_CONVERTER.evaluate(new PositionGreekDataBundle(positionGreeks, GREEKS_DATA
         .getAllUnderlyingData()));
     assertEquals(valueGreeksFromPositionGreeks, valueGreeks);
   }

@@ -12,15 +12,14 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.Matrix;
 
 /**
- * @author emcleod
  *
  */
 public class PnLDataBundle {
   private final Map<Underlying, DoubleMatrix1D[]> _underlyingData;
-  private final Map<Sensitivity, Matrix<?>> _matrices;
+  private final Map<Sensitivity<?>, Matrix<?>> _matrices;
   private final int _n;
 
-  public PnLDataBundle(final Map<Underlying, DoubleMatrix1D[]> underlyingData, final Map<Sensitivity, Matrix<?>> matrices) {
+  public PnLDataBundle(final Map<Underlying, DoubleMatrix1D[]> underlyingData, final Map<Sensitivity<?>, Matrix<?>> matrices) {
     if (underlyingData == null)
       throw new IllegalArgumentException("Underlying data map was null");
     if (underlyingData.size() == 0)
@@ -38,7 +37,7 @@ public class PnLDataBundle {
     return _underlyingData;
   }
 
-  public Map<Sensitivity, Matrix<?>> getMatrices() {
+  public Map<Sensitivity<?>, Matrix<?>> getMatrices() {
     return _matrices;
   }
 
