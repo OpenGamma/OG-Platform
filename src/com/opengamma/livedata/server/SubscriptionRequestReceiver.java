@@ -44,12 +44,17 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
   public FudgeFieldContainer requestReceived(
       FudgeDeserializationContext context,
       FudgeMsgEnvelope requestEnvelope) {
-    FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
-    LiveDataSubscriptionRequest subscriptionRequest = LiveDataSubscriptionRequest.fromFudgeMsg(context, requestFudgeMsg);
-    s_logger.info("Received subscription request on behalf of {}", subscriptionRequest.getUserName());
-    LiveDataSubscriptionResponseMsg subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
-    FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
-    return responseFudgeMsg;
+    try {
+      FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
+      LiveDataSubscriptionRequest subscriptionRequest = LiveDataSubscriptionRequest.fromFudgeMsg(context, requestFudgeMsg);
+      s_logger.info("Received subscription request on behalf of {}", subscriptionRequest.getUserName());
+      LiveDataSubscriptionResponseMsg subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
+      FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
+      return responseFudgeMsg;
+    } catch (RuntimeException e) {
+      s_logger.error("Unexpected exception when processing subscription request", e);
+      throw e;      
+    }
   }
 
 }
