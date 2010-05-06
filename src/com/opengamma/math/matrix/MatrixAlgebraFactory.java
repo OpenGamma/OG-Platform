@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MatrixAlgebraFactory {
   public static final String COLT = "Colt";
-  public static final MatrixAlgebra COLT_ALGEBRA = new ColtMatrixAlgebra();
+  public static final ColtMatrixAlgebra COLT_ALGEBRA = new ColtMatrixAlgebra();
   private static final Map<String, MatrixAlgebra> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
