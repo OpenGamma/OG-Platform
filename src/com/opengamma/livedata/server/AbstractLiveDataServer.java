@@ -416,9 +416,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
         // Entitlement check
         if (!getEntitlementChecker().isEntitled(
-            subscriptionRequest.getUserName(), distributionSpec)) {
-          s_logger.info("User {} not entitled to specification {}",
-              subscriptionRequest.getUserName(), requestedSpecification);
+            subscriptionRequest.getUser(), distributionSpec)) {
+          s_logger.info("{} is not entitled to {}",
+              subscriptionRequest.getUser(), requestedSpecification);
           // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to
           // get a user message.
           responses.add(new LiveDataSubscriptionResponse(
@@ -472,7 +472,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
 
     return new LiveDataSubscriptionResponseMsg(subscriptionRequest
-        .getUserName(), responses);
+        .getUser(), responses);
   }
 
   /**

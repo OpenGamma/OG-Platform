@@ -10,7 +10,7 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
 
 /**
- * 
+ * This class is only useful in tests.
  *
  * @author pietari
  */
@@ -20,7 +20,7 @@ public class NaiveDistributionSpecificationResolver implements DistributionSpeci
   public DistributionSpecification getDistributionSpecification(
       LiveDataSpecification spec) throws IllegalArgumentException {
     return new DistributionSpecification(
-        spec.getIdentifiers(),
+        spec.getIdentifiers().getIdentifiers().iterator().next(), 
         StandardRules.getNoNormalization(),
         spec.getIdentifiers().toString());
   }

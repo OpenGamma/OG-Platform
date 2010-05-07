@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
@@ -21,6 +22,6 @@ public interface IdResolver {
    * 
    * @return The unique ID. Null if it was not found.
    */
-  IdentifierBundle resolve(IdentifierBundle ids);
+  Identifier resolve(IdentifierBundle ids);
 
 }

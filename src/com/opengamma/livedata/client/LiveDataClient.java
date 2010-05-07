@@ -11,6 +11,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 
 /**
@@ -21,17 +22,12 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
  */
 public interface LiveDataClient {
   
-  // REVIEW kirk 2009-09-29 -- When we have a better handle on security
-  // principals, this needs to be changed.
-  
   /**
    * Creates a non-persistent subscription to market data.
    * Returns immediately without waiting for a reply from the server.
-   * The reply should be processed later by the listener.
-   * <p> 
-   * If already subscribed under this user name, will not do anything.
+   * The reply will be sent later to the listener.
    */
-  void subscribe(String userName,
+  void subscribe(UserPrincipal user,
       LiveDataSpecification requestedSpecification, 
       LiveDataListener listener);
   
@@ -39,12 +35,12 @@ public interface LiveDataClient {
    * Equivalent to calling {@link #subscribe(String userName, LiveDataSpecification requestedSpecification, LiveDataListener listener)}
    * for each specification individually, but may be more efficient. 
    */
-  void subscribe(String userName,
+  void subscribe(UserPrincipal user,
       Collection<LiveDataSpecification> requestedSpecifications, 
       LiveDataListener listener);
   
-  void unsubscribe(String userName, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener);
-  void unsubscribe(String userName, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener);
+  void unsubscribe(UserPrincipal user, LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener);
+  void unsubscribe(UserPrincipal user, Collection<LiveDataSpecification> fullyQualifiedSpecifications, LiveDataListener listener);
   
   /**
    * Asks for a snapshot from the server. 
@@ -56,7 +52,7 @@ public interface LiveDataClient {
    * @param timeout In milliseconds. If the timeout is non-positive, this method will not wait at all, so null will be returned.
    * @throws OpenGammaRuntimeException If timeout was reached without reply from server
    */
-  LiveDataSubscriptionResponse snapshot(String userName,
+  LiveDataSubscriptionResponse snapshot(UserPrincipal user,
       LiveDataSpecification requestedSpecification,
       long timeout);
   
@@ -67,7 +63,7 @@ public interface LiveDataClient {
    * @return The returned response will be complete, i.e., it will contain <code>requestedSpecifications.size()</code> entries.
    * @throws OpenGammaRuntimeException If timeout was reached without reply from server 
    */
-  Collection<LiveDataSubscriptionResponse> snapshot(String userName,
+  Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user,
       Collection<LiveDataSpecification> requestedSpecifications,
       long timeout);
   

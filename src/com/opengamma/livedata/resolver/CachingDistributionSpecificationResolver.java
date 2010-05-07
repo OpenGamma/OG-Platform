@@ -53,7 +53,7 @@ public class CachingDistributionSpecificationResolver implements DistributionSpe
       cachedDistSpec = new Element(liveDataSpecificationFromClient, distSpec);
       _cache.put(cachedDistSpec);
     }
-    return (DistributionSpecification) cachedDistSpec.getValue();
+    return (DistributionSpecification) cachedDistSpec.getObjectValue();
   }
 
 }

@@ -11,6 +11,7 @@ import java.util.Collections;
 
 import org.junit.Test;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
@@ -26,7 +27,7 @@ public class MarketDataDistributorTest {
   public void sequenceNumber() {
     MarketDataDistributor mdd = new MarketDataDistributor(
         new DistributionSpecification(
-            new IdentifierBundle(),
+            new Identifier("RIC", "AAPL.O"),
             StandardRules.getNoNormalization(),
             "LiveData.Bloomberg.Equity.AAPL"),
         new Subscription("", false),

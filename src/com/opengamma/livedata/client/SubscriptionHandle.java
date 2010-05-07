@@ -22,6 +22,7 @@ import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,7 +35,7 @@ public class SubscriptionHandle {
   
   private static final Logger s_logger = LoggerFactory.getLogger(SubscriptionHandle.class);
   
-  private final String _userName;
+  private final UserPrincipal _user;
   private final SubscriptionType _subscriptionType;
   private final LiveDataSpecification _requestedSpecification;
   private final LiveDataListener _listener;
@@ -42,25 +43,25 @@ public class SubscriptionHandle {
   private LiveDataValueUpdateBean _snapshotOnHold = null;
   
   public SubscriptionHandle(
-      String userName,
+      UserPrincipal user,
       SubscriptionType subscriptionType,
       LiveDataSpecification requestedSpecification,
       LiveDataListener listener) {
-    ArgumentChecker.notNull(userName, "User Name");
+    ArgumentChecker.notNull(user, "User credentials");
     ArgumentChecker.notNull(subscriptionType, "Subscription type");
     ArgumentChecker.notNull(requestedSpecification, "Requested Specification");
     ArgumentChecker.notNull(listener, "Live Data Listener");
-    _userName = userName;
+    _user = user;
     _subscriptionType = subscriptionType;
     _requestedSpecification = requestedSpecification;
     _listener = listener;
   }
 
   /**
-   * @return the userName
+   * @return the user principal
    */
-  public String getUserName() {
-    return _userName;
+  public UserPrincipal getUser() {
+    return _user;
   }
   
   public SubscriptionType getSubscriptionType() {

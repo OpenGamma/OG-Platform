@@ -30,6 +30,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.transport.ByteArrayMessageSender;
 import com.opengamma.util.ArgumentChecker;
@@ -129,13 +130,13 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   
   
   @Override
-  public void subscribe(String userName,
+  public void subscribe(UserPrincipal user,
       Collection<LiveDataSpecification> requestedSpecifications,
       LiveDataListener listener) {
     
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
-      SubscriptionHandle subHandle = new SubscriptionHandle(userName, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
+      SubscriptionHandle subHandle = new SubscriptionHandle(user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
       if(addPendingSubscription(subHandle)) {
         subscriptionHandles.add(subHandle);                      
       }
@@ -147,9 +148,9 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   @Override
-  public void subscribe(String userName, LiveDataSpecification requestedSpecification,
+  public void subscribe(UserPrincipal user, LiveDataSpecification requestedSpecification,
       LiveDataListener listener) {
-    subscribe(userName, Collections.singleton(requestedSpecification), listener);
+    subscribe(user, Collections.singleton(requestedSpecification), listener);
   }
   
 
@@ -185,18 +186,18 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   @Override
-  public Collection<LiveDataSubscriptionResponse> snapshot(String userName,
+  public Collection<LiveDataSubscriptionResponse> snapshot(UserPrincipal user,
       Collection<LiveDataSpecification> requestedSpecifications,
       long timeout) {
     
-    ArgumentChecker.notNull(userName, "User name");
+    ArgumentChecker.notNull(user, "User");
     ArgumentChecker.notNull(requestedSpecifications, "Live Data specifications");
     
     SnapshotListener listener = new SnapshotListener(requestedSpecifications.size());
     
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
-      SubscriptionHandle subHandle = new SubscriptionHandle(userName, SubscriptionType.SNAPSHOT, requestedSpecification, listener);
+      SubscriptionHandle subHandle = new SubscriptionHandle(user, SubscriptionType.SNAPSHOT, requestedSpecification, listener);
       subscriptionHandles.add(subHandle);                      
     }
     
@@ -218,11 +219,11 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
 
   @Override
-  public LiveDataSubscriptionResponse snapshot(String userName,
+  public LiveDataSubscriptionResponse snapshot(UserPrincipal user,
       LiveDataSpecification requestedSpecification,
       long timeout) {
     
-    Collection<LiveDataSubscriptionResponse> snapshots = snapshot(userName, 
+    Collection<LiveDataSubscriptionResponse> snapshots = snapshot(user, 
         Collections.singleton(requestedSpecification), 
         timeout);
     
@@ -311,12 +312,12 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   
   
   @Override
-  public void unsubscribe(String userName,
+  public void unsubscribe(UserPrincipal user,
       Collection<LiveDataSpecification> fullyQualifiedSpecifications,
       LiveDataListener listener) {
     for (LiveDataSpecification fullyQualifiedSpecification : fullyQualifiedSpecifications) {
       s_logger.info("Unsubscribing by {} to {} delivered to {}",
-          new Object[] {userName, fullyQualifiedSpecification, listener} );
+          new Object[] {user, fullyQualifiedSpecification, listener} );
       boolean unsubscribeToSpec = false;
       _subscriptionLock.lock();
       try {
@@ -339,10 +340,10 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
 
   @Override
-  public void unsubscribe(String userName,
+  public void unsubscribe(UserPrincipal user,
       LiveDataSpecification fullyQualifiedSpecification,
       LiveDataListener listener) {
-    unsubscribe(userName, Collections.singleton(fullyQualifiedSpecification), listener);
+    unsubscribe(user, Collections.singleton(fullyQualifiedSpecification), listener);
   }
 
   protected abstract void cancelPublication(LiveDataSpecification fullyQualifiedSpecification);

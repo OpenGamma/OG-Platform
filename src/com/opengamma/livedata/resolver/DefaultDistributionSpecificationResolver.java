@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
@@ -42,8 +43,8 @@ public class DefaultDistributionSpecificationResolver implements DistributionSpe
     
     ArgumentChecker.notNull(spec, "Live Data specification");
     
-    IdentifierBundle identifiers = _idResolver.resolve(spec.getIdentifiers());
-    if (identifiers == null) {
+    Identifier identifier = _idResolver.resolve(spec.getIdentifiers());
+    if (identifier == null) {
       throw new IllegalArgumentException("ID cannot be resolved to a valid market data line: " + spec.getIdentifiers());       
     }
     
@@ -52,10 +53,10 @@ public class DefaultDistributionSpecificationResolver implements DistributionSpe
       throw new IllegalArgumentException("Normalization rule not found: " + spec.getNormalizationRuleSetId());
     }
     
-    String jmsTopic = _jmsTopicNameResolver.resolve(identifiers, normalizationRule);
+    String jmsTopic = _jmsTopicNameResolver.resolve(identifier, normalizationRule);
     
     DistributionSpecification distributionSpec = new DistributionSpecification(
-        identifiers,
+        identifier,
         normalizationRule,
         jmsTopic);
     return distributionSpec;

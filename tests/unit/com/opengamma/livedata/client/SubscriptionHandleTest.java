@@ -16,6 +16,7 @@ import com.opengamma.livedata.CollectingLiveDataListener;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * 
@@ -23,6 +24,8 @@ import com.opengamma.livedata.msg.SubscriptionType;
  * @author kirk
  */
 public class SubscriptionHandleTest {
+  
+  private final UserPrincipal _user = new UserPrincipal("kirk", "127.0.0.1");
 
   @Test
   public void equalsDifferentRequestedSpecification() {
@@ -31,8 +34,8 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle1 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
-    SubscriptionHandle handle2 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification,  listener);
+    SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
+    SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification,  listener);
     assertTrue(handle1.equals(handle2));
   }
 
@@ -43,8 +46,8 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle1 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
-    SubscriptionHandle handle2 = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
+    SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
+    SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     assertEquals(handle1.hashCode(), handle2.hashCode());
   }
   
@@ -55,7 +58,7 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, spec, listener);
+    SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
     handle.addTickOnHold(new LiveDataValueUpdateBean(500, spec, FudgeContext.EMPTY_MESSAGE));
     handle.addSnapshotOnHold(new LiveDataValueUpdateBean(501, spec, FudgeContext.EMPTY_MESSAGE));
@@ -75,7 +78,7 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, spec, listener);
+    SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
     handle.addTickOnHold(new LiveDataValueUpdateBean(500, spec, FudgeContext.EMPTY_MESSAGE));
     handle.addTickOnHold(new LiveDataValueUpdateBean(501, spec, FudgeContext.EMPTY_MESSAGE));
@@ -97,7 +100,7 @@ public class SubscriptionHandleTest {
           "NormalizationId1",
           new Identifier("Domain1", "Value1"));
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
-    SubscriptionHandle handle = new SubscriptionHandle("kirk", SubscriptionType.NON_PERSISTENT, spec, listener);
+    SubscriptionHandle handle = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, spec, listener);
     
     handle.addTickOnHold(new LiveDataValueUpdateBean(500, spec, FudgeContext.EMPTY_MESSAGE));
     handle.addSnapshotOnHold(new LiveDataValueUpdateBean(501, spec, FudgeContext.EMPTY_MESSAGE));

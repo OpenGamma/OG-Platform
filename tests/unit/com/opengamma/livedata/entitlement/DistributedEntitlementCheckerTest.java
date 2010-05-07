@@ -15,6 +15,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.DistributedEntitlementChecker;
 import com.opengamma.livedata.entitlement.EntitlementServer;
 import com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
@@ -43,7 +44,8 @@ public class DistributedEntitlementCheckerTest {
     LiveDataSpecification testSpec = new LiveDataSpecification(
         "TestNormalization",
         new Identifier(new IdentificationScheme("test1"), "test1"));
-    assertTrue(client.isEntitled("megan", testSpec));
+    UserPrincipal megan = new UserPrincipal("megan", "127.0.0.1");
+    assertTrue(client.isEntitled(megan, testSpec));
     
   }
 

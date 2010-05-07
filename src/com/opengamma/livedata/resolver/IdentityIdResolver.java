@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.resolver;
 
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 
 /**
@@ -15,8 +16,11 @@ import com.opengamma.id.IdentifierBundle;
 public class IdentityIdResolver implements IdResolver {
 
   @Override
-  public IdentifierBundle resolve(IdentifierBundle ids) {
-    return ids;
+  public Identifier resolve(IdentifierBundle ids) {
+    if (ids.getIdentifiers().size() != 1) {
+      throw new IllegalArgumentException("This resolver only supports singleton bundles");
+    }
+    return ids.getIdentifiers().iterator().next();
   }
   
 

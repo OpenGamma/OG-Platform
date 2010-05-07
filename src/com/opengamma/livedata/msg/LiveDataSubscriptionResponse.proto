@@ -7,7 +7,7 @@
 namespace com.opengamma.livedata.msg {
 
   message LiveDataSubscriptionResponseMsg {
-    required string requestingUserName;
+    required UserPrincipal requestingUser;
     required repeated LiveDataSubscriptionResponse responses;   
   }
   

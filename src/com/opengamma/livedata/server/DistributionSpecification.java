@@ -5,11 +5,11 @@
  */
 package com.opengamma.livedata.server;
 
-import java.io.Serializable;
-
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.fudgemsg.FudgeFieldContainer;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.util.ArgumentChecker;
@@ -23,10 +23,10 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class DistributionSpecification implements Serializable {
+public class DistributionSpecification {
   
   /** What market data is being distributed (e.g., AAPL stock) */
-  private final IdentifierBundle _identifiers;
+  private final Identifier _marketDataUniqueId;
   
   /** Topic it's published to */
   private final String _jmsTopic;
@@ -34,21 +34,25 @@ public class DistributionSpecification implements Serializable {
   /** The format it's distributed in */
   private final NormalizationRuleSet _normalizationRuleSet;
   
-  public DistributionSpecification(IdentifierBundle identifiers, 
+  public DistributionSpecification(Identifier marketDataUniqueId, 
       NormalizationRuleSet normalizationRuleSet,
       String jmsTopic) {
-    ArgumentChecker.notNull(identifiers, "Identifier(s) for the market data ticker this distribution spec relates to");
+    ArgumentChecker.notNull(marketDataUniqueId, "Unique identifier for the market data ticker this distribution spec relates to");
     ArgumentChecker.notNull(normalizationRuleSet, "Normalization rules to apply before sending data to the JMS topic");
     ArgumentChecker.notNull(jmsTopic, "JMS topic name");
-    _identifiers = identifiers;
+    _marketDataUniqueId = marketDataUniqueId;
     _normalizationRuleSet = normalizationRuleSet;
     _jmsTopic = jmsTopic;
   }
   
+  public Identifier getMarketDataUniqueIdentifier() {
+    return _marketDataUniqueId;
+  }
+
   public LiveDataSpecification getFullyQualifiedLiveDataSpecification() {
     return new LiveDataSpecification(
         _normalizationRuleSet.getId(),
-        _identifiers);
+        _marketDataUniqueId);
   }
   
   public boolean matches(LiveDataSpecification liveDataSpec) {
@@ -97,43 +101,12 @@ public class DistributionSpecification implements Serializable {
   
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result
-        + ((_identifiers == null) ? 0 : _identifiers.hashCode());
-    result = prime * result + ((_jmsTopic == null) ? 0 : _jmsTopic.hashCode());
-    result = prime
-        * result
-        + ((_normalizationRuleSet == null) ? 0 : _normalizationRuleSet
-            .hashCode());
-    return result;
+    return HashCodeBuilder.reflectionHashCode(this);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    DistributionSpecification other = (DistributionSpecification) obj;
-    if (_identifiers == null) {
-      if (other._identifiers != null)
-        return false;
-    } else if (!_identifiers.equals(other._identifiers))
-      return false;
-    if (_jmsTopic == null) {
-      if (other._jmsTopic != null)
-        return false;
-    } else if (!_jmsTopic.equals(other._jmsTopic))
-      return false;
-    if (_normalizationRuleSet == null) {
-      if (other._normalizationRuleSet != null)
-        return false;
-    } else if (!_normalizationRuleSet.equals(other._normalizationRuleSet))
-      return false;
-    return true;
-  }
+    return EqualsBuilder.reflectionEquals(this, obj);
+  }  
 
 }

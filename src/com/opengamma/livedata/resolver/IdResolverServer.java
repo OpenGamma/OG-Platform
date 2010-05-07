@@ -12,7 +12,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.ResolveRequest;
 import com.opengamma.livedata.msg.ResolveResponse;
@@ -42,10 +42,10 @@ public class IdResolverServer implements FudgeRequestReceiver {
     s_logger.debug("Received resolve request for {}", resolveRequest.getRequestedSpecification());
     
     LiveDataSpecification requestedSpec = resolveRequest.getRequestedSpecification();
-    IdentifierBundle resolvedIds = _delegate.resolve(requestedSpec.getIdentifiers());
+    Identifier resolvedId = _delegate.resolve(requestedSpec.getIdentifiers());
     LiveDataSpecification resolvedSpec = new LiveDataSpecification(
         requestedSpec.getNormalizationRuleSetId(),
-        resolvedIds);
+        resolvedId);
     
     ResolveResponse response = new ResolveResponse(resolvedSpec);
     FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));

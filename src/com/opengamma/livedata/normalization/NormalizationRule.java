@@ -5,8 +5,6 @@
  */
 package com.opengamma.livedata.normalization;
 
-import java.io.Serializable;
-
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.livedata.server.FieldHistoryStore;
@@ -16,7 +14,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
  *
  * @author pietari
  */
-public interface NormalizationRule extends Serializable {
+public interface NormalizationRule {
   
   /**
    * Applies the normalization rule. 

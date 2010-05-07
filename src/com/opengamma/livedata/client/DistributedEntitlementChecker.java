@@ -18,6 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.EntitlementRequest;
 import com.opengamma.livedata.msg.EntitlementResponse;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
@@ -45,10 +46,10 @@ public class DistributedEntitlementChecker {
     _fudgeContext = fudgeContext;
   }
 
-  public boolean isEntitled(String userName,
+  public boolean isEntitled(UserPrincipal user,
       LiveDataSpecification specification) {
-    s_logger.info("Sending message to qualify {} on {}", userName, specification);
-    FudgeFieldContainer requestMessage = composeRequestMessage(userName, specification);
+    s_logger.info("Sending message to qualify {} on {}", user, specification);
+    FudgeFieldContainer requestMessage = composeRequestMessage(user, specification);
     final AtomicBoolean responseReceived = new AtomicBoolean(false);
     final AtomicBoolean isEntitled = new AtomicBoolean(false);
     _requestSender.sendRequest(requestMessage, new FudgeMessageReceiver() {
@@ -84,9 +85,9 @@ public class DistributedEntitlementChecker {
    * @param fullyQualifiedSpecification
    * @return
    */
-  protected FudgeFieldContainer composeRequestMessage(String userName,
+  protected FudgeFieldContainer composeRequestMessage(UserPrincipal user,
       LiveDataSpecification fullyQualifiedSpecification) {
-    EntitlementRequest request = new EntitlementRequest(userName, new LiveDataSpecification(fullyQualifiedSpecification));
+    EntitlementRequest request = new EntitlementRequest(user, new LiveDataSpecification(fullyQualifiedSpecification));
     return request.toFudgeMsg(new FudgeSerializationContext(_fudgeContext));
   }
 

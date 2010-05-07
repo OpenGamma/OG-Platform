@@ -8,6 +8,7 @@ package com.opengamma.livedata.entitlement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.security.user.User;
 import com.opengamma.security.user.UserManager;
@@ -44,9 +45,9 @@ public class UserEntitlementChecker implements LiveDataEntitlementChecker {
   }
 
   @Override
-  public boolean isEntitled(String userName, DistributionSpecification distributionSpec) {
+  public boolean isEntitled(UserPrincipal userPrincipal, DistributionSpecification distributionSpec) {
     
-    User user = _userManager.getUser(userName);
+    User user = _userManager.getUser(userPrincipal.getUserName());
     if (user == null) {
       return false;
     }

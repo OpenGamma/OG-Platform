@@ -25,8 +25,8 @@ namespace com.opengamma.livedata.msg {
 
   message LiveDataSubscriptionRequest {
   
-    /** User name of client making the request */
-    required string userName;
+    /** User making the request */
+    UserPrincipal user;
     
     /** What kind of subscription is required */
     required SubscriptionType type;

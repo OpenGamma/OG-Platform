@@ -38,7 +38,7 @@ public class CachingDistributionSpecificationResolverTest {
         new Identifier("foo", "bar"));
     
     DistributionSpecification returnValue = new DistributionSpecification(
-        new IdentifierBundle(id),
+        id,
         StandardRules.getNoNormalization(),
         "testtopic");
     

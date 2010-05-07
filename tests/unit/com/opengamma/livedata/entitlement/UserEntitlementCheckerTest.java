@@ -16,8 +16,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.opengamma.id.IdentifierBundle;
-import com.opengamma.livedata.entitlement.UserEntitlementChecker;
+import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.DistributionSpecification;
@@ -59,45 +60,48 @@ public class UserEntitlementCheckerTest {
     UserEntitlementChecker userEntitlementChecker = new UserEntitlementChecker(userManager);
     
     DistributionSpecification aaplOnBloomberg = new DistributionSpecification(
-        new IdentifierBundle(),
+        new Identifier(IdentificationScheme.BLOOMBERG_BUID, "EQ12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Equity.AAPL"); 
     
     DistributionSpecification aaplOnBloombergWithNormalization = new DistributionSpecification(
-        new IdentifierBundle(),
+        new Identifier(IdentificationScheme.BLOOMBERG_BUID, "EQ12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Equity.AAPL.MyWeirdNormalizationRule"); 
     
     DistributionSpecification bondOnBloomberg = new DistributionSpecification(
-        new IdentifierBundle(),
+        new Identifier(IdentificationScheme.BLOOMBERG_BUID, "BOND12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.Bond.IBMBOND123"); 
     
     DistributionSpecification bondOnBloombergWithNormalization = new DistributionSpecification(
-        new IdentifierBundle(),
+        new Identifier(IdentificationScheme.BLOOMBERG_BUID, "BOND12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.Bond.IBMBOND123.MyWeirdNormalizationRule");
 
     DistributionSpecification fxOnBloomberg = new DistributionSpecification(
-        new IdentifierBundle(),
+        new Identifier(IdentificationScheme.BLOOMBERG_BUID, "FX12345"),
         StandardRules.getNoNormalization(),
         "LiveData.Bloomberg.FX.EURUSD");
     
     DistributionSpecification fxOnBloombergWithNormalization = new DistributionSpecification(
-        new IdentifierBundle(),
+        new Identifier(IdentificationScheme.BLOOMBERG_BUID, "FX12345"),
         new NormalizationRuleSet("MyWeirdNormalizationRule"),
         "LiveData.Bloomberg.FX.EURUSD.MyWeirdNormalizationRule");
     
-    Assert.assertTrue(userEntitlementChecker.isEntitled("john", aaplOnBloomberg));
-    Assert.assertTrue(userEntitlementChecker.isEntitled("john", aaplOnBloombergWithNormalization));
-    Assert.assertTrue(userEntitlementChecker.isEntitled("john", bondOnBloomberg));
-    Assert.assertFalse(userEntitlementChecker.isEntitled("john", bondOnBloombergWithNormalization));
-    Assert.assertFalse(userEntitlementChecker.isEntitled("john", fxOnBloomberg));
-    Assert.assertFalse(userEntitlementChecker.isEntitled("john", fxOnBloombergWithNormalization));
+    UserPrincipal john = new UserPrincipal("john", "127.0.0.1");
+    
+    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloomberg));
+    Assert.assertTrue(userEntitlementChecker.isEntitled(john, aaplOnBloombergWithNormalization));
+    Assert.assertTrue(userEntitlementChecker.isEntitled(john, bondOnBloomberg));
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, bondOnBloombergWithNormalization));
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloomberg));
+    Assert.assertFalse(userEntitlementChecker.isEntitled(john, fxOnBloombergWithNormalization));
     
     // non-existent user
-    Assert.assertFalse(userEntitlementChecker.isEntitled("mike", aaplOnBloomberg)); 
-    Assert.assertFalse(userEntitlementChecker.isEntitled("mike", fxOnBloomberg)); 
+    UserPrincipal mike = new UserPrincipal("mike", "127.0.0.1");
+    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, aaplOnBloomberg)); 
+    Assert.assertFalse(userEntitlementChecker.isEntitled(mike, fxOnBloomberg)); 
   }
 
 }

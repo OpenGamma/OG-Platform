@@ -27,6 +27,7 @@ import com.opengamma.livedata.LiveDataSpecificationTest;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.server.MockLiveDataServer;
 
@@ -39,6 +40,7 @@ public class DistributedLiveDataClientTest {
   
   private static String TEST_ID_1 = "id1";
   private static String TEST_ID_2 = "id2";
+  private static UserPrincipal TEST_USER = new UserPrincipal("alice", "127.0.0.1");
   
   private MockLiveDataServer _server;
   private DistributedLiveDataClient _client;
@@ -70,7 +72,7 @@ public class DistributedLiveDataClientTest {
   public void connectionToMarketDataApiDown() {
     // don't start server
     
-    LiveDataSubscriptionResponse response = _client.snapshot("alice", LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, 1000);
+    LiveDataSubscriptionResponse response = _client.snapshot(TEST_USER, LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, 1000);
     assertNotNull(response);
     assertEquals(LiveDataSubscriptionResult.INTERNAL_ERROR, response.getSubscriptionResult());
     assertEquals("Connection to market data API down", response.getUserMessage());
@@ -80,7 +82,7 @@ public class DistributedLiveDataClientTest {
   public void singleSnapshot() {
     _server.start();
     
-    LiveDataSubscriptionResponse response = _client.snapshot("alice", LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, 1000);
+    LiveDataSubscriptionResponse response = _client.snapshot(TEST_USER, LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, 1000);
     assertNotNull(response);
     assertEquals(LiveDataSubscriptionResult.SUCCESS, response.getSubscriptionResult());
     assertNotNull(response.getSnapshot());
@@ -97,7 +99,7 @@ public class DistributedLiveDataClientTest {
     LiveDataSpecification spec2 = new LiveDataSpecification(StandardRules.getNoNormalization().getId(), 
         new Identifier(LiveDataSpecificationTest.TEST_IDENTIFICATION_SCHEME, TEST_ID_2));
     
-    Collection<LiveDataSubscriptionResponse> responses = _client.snapshot("alice", Sets.newHashSet(spec1, spec2), 1000);
+    Collection<LiveDataSubscriptionResponse> responses = _client.snapshot(TEST_USER, Sets.newHashSet(spec1, spec2), 1000);
     assertNotNull(responses);
     assertEquals(2, responses.size());
     for (LiveDataSubscriptionResponse response : responses) {
@@ -121,7 +123,7 @@ public class DistributedLiveDataClientTest {
     
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     
-    _client.subscribe("lisa", LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, listener);
+    _client.subscribe(TEST_USER, LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, listener);
     
     assertEquals(1, listener.getSubscriptionResponses().size());
     assertEquals(LiveDataSubscriptionResult.SUCCESS, listener.getSubscriptionResponses().get(0).getSubscriptionResult());
@@ -148,7 +150,7 @@ public class DistributedLiveDataClientTest {
     
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     
-    _client.subscribe("alice", Sets.newHashSet(spec1, spec2), listener);
+    _client.subscribe(TEST_USER, Sets.newHashSet(spec1, spec2), listener);
     
     assertEquals(2, listener.getSubscriptionResponses().size());
     assertEquals(LiveDataSubscriptionResult.SUCCESS, listener.getSubscriptionResponses().get(0).getSubscriptionResult());
@@ -181,11 +183,11 @@ public class DistributedLiveDataClientTest {
     
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     
-    _client.subscribe("alice", LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, listener);
+    _client.subscribe(TEST_USER, LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, listener);
     
     assertEquals(1, _server.getSubscriptions().size());
     
-    _client.unsubscribe("alice", LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, listener);
+    _client.unsubscribe(TEST_USER, LiveDataSpecificationTest.TEST_LIVE_DATA_SPEC, listener);
     
     // there would need to be a timeout before actual unsubscribe happens 
     assertEquals(1, _server.getSubscriptions().size());

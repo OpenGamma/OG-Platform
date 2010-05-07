@@ -1,0 +1,23 @@
+/**
+ * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+ 
+namespace com.opengamma.livedata.msg {
+
+  message UserPrincipal {
+    
+    /** User name of client making the request */
+    required string userName;
+    
+    /** IP address of client making the request */
+    required string ipAddress;
+    
+    binding Java {
+      methods "equals, hashCode";
+    }
+    
+  }
+  
+}

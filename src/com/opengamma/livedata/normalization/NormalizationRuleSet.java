@@ -5,7 +5,6 @@
  */
 package com.opengamma.livedata.normalization;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author pietari
  */
-public class NormalizationRuleSet implements Serializable {
+public class NormalizationRuleSet {
   
   private static final FudgeContext FUDGE_CONTEXT = FudgeContext.GLOBAL_DEFAULT;
   

@@ -26,6 +26,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
@@ -79,17 +80,17 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   protected void handleSubscriptionRequest(Collection<SubscriptionHandle> subHandles) {
     ArgumentChecker.notEmpty(subHandles, "Subscription handle collection");
     
-    // Determine common username and subscription type
-    String username = null;
+    // Determine common user and subscription type
+    UserPrincipal user = null;
     SubscriptionType type = null;
     
     ArrayList<LiveDataSpecification> specs = new ArrayList<LiveDataSpecification>();
     for (SubscriptionHandle subHandle : subHandles) {
       specs.add(new LiveDataSpecification(subHandle.getRequestedSpecification()));
       
-      if (username == null) {
-        username = subHandle.getUserName();
-      } else if (!username.equals(subHandle.getUserName())) {
+      if (user == null) {
+        user = subHandle.getUser();
+      } else if (!user.equals(subHandle.getUser())) {
         throw new OpenGammaRuntimeException("Not all usernames are equal");        
       }
       
@@ -101,7 +102,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     }
     
     // Build request message
-    LiveDataSubscriptionRequest subReqMessage = new LiveDataSubscriptionRequest(username, type, specs);
+    LiveDataSubscriptionRequest subReqMessage = new LiveDataSubscriptionRequest(user, type, specs);
     FudgeFieldContainer requestMessage = subReqMessage.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
     
     // Build response receiver
@@ -125,7 +126,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     protected final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _successResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
     protected final Map<SubscriptionHandle, LiveDataSubscriptionResponse> _failedResponses = new HashMap<SubscriptionHandle, LiveDataSubscriptionResponse>();
     
-    protected String _userName = null;
+    protected UserPrincipal _user = null;
     
     public AbstractSubscriptionResponseReceiver(Collection<SubscriptionHandle> subHandles) {
       _spec2SubHandle = new HashMap<LiveDataSpecification, SubscriptionHandle>();
@@ -184,10 +185,10 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
           throw new OpenGammaRuntimeException("Could not find handle corresponding to request " + response.getRequestedSpecification());
         }
         
-        if (_userName != null && !_userName.equals(handle.getUserName())) {
+        if (_user != null && !_user.equals(handle.getUser())) {
           throw new OpenGammaRuntimeException("Not all usernames are equal");
         }
-        _userName = handle.getUserName();
+        _user = handle.getUser();
         
         if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
           _successResponses.put(handle, response);
@@ -279,7 +280,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
         successLiveDataSpecs.add(response.getRequestedSpecification());                
       }
       
-      Collection<LiveDataSubscriptionResponse> snapshots = DistributedLiveDataClient.this.snapshot(_userName, successLiveDataSpecs, TIMEOUT);
+      Collection<LiveDataSubscriptionResponse> snapshots = DistributedLiveDataClient.this.snapshot(_user, successLiveDataSpecs, TIMEOUT);
         
       for (LiveDataSubscriptionResponse response : snapshots) {
         

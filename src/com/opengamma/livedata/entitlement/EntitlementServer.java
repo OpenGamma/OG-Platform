@@ -43,11 +43,11 @@ public class EntitlementServer implements FudgeRequestReceiver {
   public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
     FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
     EntitlementRequest entitlementRequest = EntitlementRequest.fromFudgeMsg(context, requestFudgeMsg);
-    s_logger.debug("Received entitlement request from {} for {}", entitlementRequest.getUserName(), entitlementRequest.getLiveDataSpecification());
+    s_logger.debug("Received entitlement request from {} for {}", entitlementRequest.getUser(), entitlementRequest.getLiveDataSpecification());
     
     DistributionSpecification distSpec = _distributionSpecResolver.getDistributionSpecification(entitlementRequest.getLiveDataSpecification());
     
-    boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUserName(), distSpec);
+    boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUser(), distSpec);
     
     EntitlementResponse response = new EntitlementResponse(isEntitled);
     FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));

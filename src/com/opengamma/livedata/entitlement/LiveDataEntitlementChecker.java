@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.server.DistributionSpecification;
 
 
@@ -22,5 +23,5 @@ import com.opengamma.livedata.server.DistributionSpecification;
  */
 public interface LiveDataEntitlementChecker {
 
-  boolean isEntitled(String userName, DistributionSpecification distributionSpec);
+  boolean isEntitled(UserPrincipal user, DistributionSpecification distributionSpec);
 }
