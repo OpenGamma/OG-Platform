@@ -9,9 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * @author emcleod
- * 
  *         Many functions only need one argument: extending this function
  *         eliminates the need to create an array.
  * @param <S>

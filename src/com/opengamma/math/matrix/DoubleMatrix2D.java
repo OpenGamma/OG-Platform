@@ -89,6 +89,28 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
     return _columns;
   }
 
+  public DoubleMatrix2D multiply(final DoubleMatrix2D a, final DoubleMatrix2D b) {
+    if (a == null || b == null)
+      throw new IllegalArgumentException("Passed in a null");
+    final int p = b._rows;
+    if (a._columns != p)
+      throw new IllegalArgumentException("Matrix size mismatch");
+    final int m = a._rows;
+    final int n = b._columns;
+    double sum;
+    final double[][] res = new double[m][n];
+    int i, j, k;
+    for (i = 0; i < m; i++) {
+      for (j = 0; j < n; j++) {
+        sum = 0.0;
+        for (k = 0; k < p; k++)
+          sum += a._primitives[i][k] * b._primitives[k][j];
+        res[i][j] = sum;
+      }
+    }
+    return new DoubleMatrix2D(res);
+  }
+
   public DoubleMatrix2D getTranspose() {
 
     final double[][] primitives = new double[_columns][_rows];

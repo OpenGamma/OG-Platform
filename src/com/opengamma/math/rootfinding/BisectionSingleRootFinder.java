@@ -7,11 +7,6 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- * 
- */
 public class BisectionSingleRootFinder extends RealSingleRootFinder {
   private final double _accuracy;
   private static final int MAX_ITER = 100;
