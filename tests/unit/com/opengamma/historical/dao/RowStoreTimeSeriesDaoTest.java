@@ -34,6 +34,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.test.DBTest;
@@ -56,7 +57,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   private static final String LCLOSE_OBSERVATION_TIME = "LCLOSE";
   private static final String CLOSE_DATA_FIELD = "CLOSE";
   private static final String CMPL_DATA_PROVIDER = "CMPL";
-  private static final String BBG_DATA_SOURCE = "BBG";
+  private static final String BBG_DATA_SOURCE = "BLOOMBERG";
 
   private Random _random = new Random();
   private TimeSeriesDao _timeseriesDao;
@@ -383,11 +384,11 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void addTimeSeries() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      Identifier domainSpecificIdentifier = new Identifier("d" + i, "id" + i);
+      IdentifierBundle identifiers = new IdentifierBundle(new Identifier("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(timeSeries, actualTS);
     }
     //test set of domain identifiers
@@ -402,13 +403,13 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     _timeseriesDao.addTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
     
-    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(domainSpeIdentifiers, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     
-    actualTS = _timeseriesDao.getTimeSeries(cusipID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    actualTS = _timeseriesDao.getHistoricalTimeSeries(new IdentifierBundle(cusipID), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     
-    actualTS = _timeseriesDao.getTimeSeries(bbgUniqueID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    actualTS = _timeseriesDao.getHistoricalTimeSeries(new IdentifierBundle(bbgUniqueID), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     
   }
@@ -417,22 +418,22 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void getTimeSeriesWithDateRange() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      Identifier domainSpecificIdentifier = new Identifier("d" + i, "id" + i);
+      IdentifierBundle bundle = new IdentifierBundle(new Identifier("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(domainSpecificIdentifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       
       LocalDate earliestDate = timeSeries.getEarliestTime();
       LocalDate latestDate = timeSeries.getLatestTime();
       //test end dates
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, earliestDate, latestDate);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, earliestDate, latestDate);
       assertEquals(timeSeries, actualTS);
       //test subSeries
       LocalDate start = earliestDate.plusDays(1);
       LocalDate end = latestDate.minusDays(1);
       if (start.isBefore(end) || start.equals(end)) {
         timeSeries = (LocalDateDoubleTimeSeries)timeSeries.subSeries(start, end);
-        actualTS = _timeseriesDao.getTimeSeries(domainSpecificIdentifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, start, end);
+        actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, start, end);
         assertEquals(timeSeries, actualTS);
       }
     }
@@ -441,21 +442,21 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   @Test
   public void deleteTimeSeries() throws Exception {
     addRandonTimeSeriesToDB(2);
-    Set<Identifier> deletedIdentifiers = new HashSet<Identifier>();
+    Set<IdentifierBundle> deletedIdentifiers = new HashSet<IdentifierBundle>();
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      Identifier identifier = new Identifier("d" + i, "id" + i);
+      IdentifierBundle identifier = new IdentifierBundle(new Identifier("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       //add timeseries to datastore and assert it is in datasource
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(timeSeries, actualTS);
       deletedIdentifiers.add(identifier);
     }
-    for (Identifier identifier : deletedIdentifiers) {
+    for (IdentifierBundle identifier : deletedIdentifiers) {
       _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
     }
   }
@@ -465,22 +466,22 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     //add time series
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      Identifier identifier = new Identifier("d" + i, "id" + i);
+      IdentifierBundle identifier = new IdentifierBundle(new Identifier("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       //assert timeseries are in datastore
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(timeSeries, actualTS);
       //delete timeseries
       _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
       // add timeseries to existing identifiers in the datastore
       timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(timeSeries, actualTS);
     }
   }
@@ -488,8 +489,8 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   @Test
   public void getEmptyTimeSeries() throws Exception {
     addRandonTimeSeriesToDB(2);
-    Identifier bbgtickerID = new Identifier("bbgTicker", "AAPL US Equity");
-    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(bbgtickerID, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    IdentifierBundle bundle = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "AAPL US Equity"));
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
   }
   
@@ -497,11 +498,11 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void updateDataPoint() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      Identifier identifier = new Identifier("d" + i, "id" + i);
+      IdentifierBundle identifier = new IdentifierBundle(new Identifier("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(timeSeries, actualTS);
       
       //update datapoint
@@ -515,7 +516,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       ArrayLocalDateDoubleTimeSeries updatedTS = new ArrayLocalDateDoubleTimeSeries(dates, values);
       
       _timeseriesDao.updateDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, date, newValue);
-      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(updatedTS, actualTS);
     }
   }
@@ -524,13 +525,13 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void deleteDataPoint() throws Exception {
     addRandonTimeSeriesToDB(2);
     for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      Identifier identifier = new Identifier("d" + i, "id" + i);
+      IdentifierBundle identifier = new IdentifierBundle(new Identifier("d" + i, "id" + i));
       LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
       //add timeseries to datastore
-      _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+      _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
           LCLOSE_OBSERVATION_TIME, timeSeries);
       //assert timeseries 
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(timeSeries, actualTS);
       
       //delete random datapoints
@@ -543,14 +544,14 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       ArrayLocalDateDoubleTimeSeries deletedTS = new ArrayLocalDateDoubleTimeSeries(dates, values);
       _timeseriesDao.deleteDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, deletedDate);
       
-      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       assertEquals(deletedTS, actualTS);
     }
   }
   
   @Test
   public void getTimeSeriesSnapShot() throws Exception {
-    Identifier identifier = new Identifier("d1", "id1");
+    IdentifierBundle identifier = new IdentifierBundle(new Identifier("d1", "id1"));
     
     SortedMap<ZonedDateTime, DoubleTimeSeries<LocalDate>> timeStampTSMap = new TreeMap<ZonedDateTime, DoubleTimeSeries<LocalDate>>();
     LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
@@ -560,9 +561,9 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       currentTimeSeriesMap.put(timeSeries.getTime(i), timeSeries.getValueAt(i));
     }
     
-    _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
+    _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
         LCLOSE_OBSERVATION_TIME, timeSeries);
-    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
@@ -575,7 +576,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       Double newValue = _random.nextDouble();
       currentTimeSeriesMap.put(updateDate, newValue);
       _timeseriesDao.updateDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, updateDate, newValue);
-      actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
       timeSeries = new ArrayLocalDateDoubleTimeSeries(new ArrayList<LocalDate>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
       assertEquals(timeSeries, actualTS); 
       timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
@@ -587,23 +588,22 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     LocalDate deleteDate = times.get(ranIndx);
     currentTimeSeriesMap.remove(deleteDate);
     _timeseriesDao.deleteDataPoint(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, deleteDate);
-    actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     timeSeries = new ArrayLocalDateDoubleTimeSeries(new ArrayList<LocalDate>(currentTimeSeriesMap.keySet()), new ArrayList<Double>(currentTimeSeriesMap.values()));
     assertEquals(timeSeries, actualTS); 
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //delete timeSeries
     _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
-    actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     timeSeries = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     assertEquals(timeSeries, actualTS); 
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
     //add new timeseries
     timeSeries = makeRandomTimeSeries();
-    _timeseriesDao.addTimeSeries(new IdentifierBundle(identifier), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
-        LCLOSE_OBSERVATION_TIME, timeSeries);
-    actualTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, timeSeries);
+    actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeSeries, actualTS);
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
@@ -622,7 +622,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, snapshotTS);
     //after last delta should return latest timeseries
     ZonedDateTime afterDelta = timeStampTSMap.lastKey().plusMinutes(1);
-    DoubleTimeSeries<LocalDate> latestTS = _timeseriesDao.getTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
+    DoubleTimeSeries<LocalDate> latestTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
     assertEquals(timeStampTSMap.get(timeStampTSMap.lastKey()), latestTS);
     snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, afterDelta);
     assertEquals(latestTS, snapshotTS);

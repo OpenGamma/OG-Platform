@@ -54,9 +54,11 @@ import com.opengamma.util.tuple.Pair;
  * @author yomi
  */
 public abstract class RowStoreJdbcDao implements TimeSeriesDao {
-  
   private static final Logger s_logger = LoggerFactory.getLogger(RowStoreJdbcDao.class);
   
+  private static final int INVALID_KEY = -1;
+  private static final String LOAD_TIME_SERIES = "loadTimeSeries";
+  private static final String LOAD_TIME_SERIES_WITH_DATES = "loadTimeSeriesWithDates";
   private static final String SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS = "selectQuotedObjectFromIdentifiers";
   private static final String LOAD_ALL_DATA_PROVIDER = "loadAllDataProvider";
   private static final String SELECT_DATA_PROVIDER_ID = "selectDataProviderID";
@@ -149,7 +151,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     }
     
     int timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
-    if (timeSeriesKeyID == -1) {
+    if (timeSeriesKeyID == INVALID_KEY) {
       createTimeSeriesKey(quotedObject, dataSource, dataProvider, field, observationTime);
       timeSeriesKeyID = getTimeSeriesKeyIDByQuotedObject(quotedObject, dataSource, dataProvider, field, observationTime);
     }
@@ -355,7 +357,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         }
         
       }
-      if (getQuotedObjectID(quotedObject) == -1) {
+      if (getQuotedObjectID(quotedObject) == INVALID_KEY) {
         createQuotedObject(quotedObject, quotedObject);
       }
       
@@ -363,7 +365,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       int index = 0;
       for (Identifier domainSpecificIdentifier : resolvedIdentifiers) {
         String domainName = domainSpecificIdentifier.getScheme().getName();
-        if (getDomainID(domainName) == -1) {
+        if (getDomainID(domainName) == INVALID_KEY) {
           createDomain(domainName, domainName);
         }
         Map<String, Object> valueMap = new HashMap<String, Object>();
@@ -503,12 +505,12 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("looking up id from sql={} with name={}", sql, name);
     SqlParameterSource parameters = new MapSqlParameterSource().addValue("name", name);
 
-    int result = -1;
+    int result = INVALID_KEY;
     try {
       result = _simpleJdbcTemplate.queryForInt(sql, parameters);
     } catch(EmptyResultDataAccessException e) {
       s_logger.debug("Empty row return for name = {} from sql = {}", name, sql);
-      result = -1;
+      result = INVALID_KEY;
     }
     s_logger.debug("id = {}", result);
     return result;
@@ -598,16 +600,16 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     s_logger.debug("creating timeSeriesKey with quotedObj={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{quotedObject, dataSource, dataProvider, dataField, observationTime});
     
-    if (getDataSourceID(dataSource) == -1) {
+    if (getDataSourceID(dataSource) == INVALID_KEY) {
       createDataSource(dataSource, null);
     }
-    if (getDataProviderID(dataProvider) == -1) {
+    if (getDataProviderID(dataProvider) == INVALID_KEY) {
       createDataProvider(dataProvider, null);
     }
-    if (getDataFieldID(dataField) == -1) {
+    if (getDataFieldID(dataField) == INVALID_KEY) {
       createDataField(dataField, null);
     }
-    if (getObservationTimeID(observationTime) == -1) {
+    if (getObservationTimeID(observationTime) == INVALID_KEY) {
       createObservationTime(observationTime, null);
     }
     Map<String, String> sqlQueries = getSqlQueries();
@@ -623,37 +625,51 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     _simpleJdbcTemplate.update(sql, parameterSource);
   }
   
-  protected int getTimeSeriesKeyIDByIdentifier(Identifier domainSpecId, String dataSource,
+  protected int getTimeSeriesKeyIDByIdentifierBundle(IdentifierBundle identifierBundle, String dataSource,
       String dataProvider, String dataField, String observationTime) {
-    ArgumentChecker.notNull(domainSpecId, "domainSpecId");
+    ArgumentChecker.notNull(identifierBundle, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
-    ArgumentChecker.notNull(observationTime, "observationTime");
     
-    int result = -1;
+    int result = INVALID_KEY;
     
-    s_logger.debug("Looking up timeSeriesKeyID by identifier with domainSpecId={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
-        new Object[]{domainSpecId, dataSource, dataProvider, dataField, observationTime});
+    s_logger.debug("Looking up timeSeriesKeyID by identifiers for identifiers={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
+        new Object[]{identifierBundle, dataSource, dataProvider, dataField, observationTime});
     
     Map<String, String> sqlQueries = getSqlQueries();
-    String sql = sqlQueries.get(GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER);
-    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
-    .addValue("domain", domainSpecId.getScheme().getName(), Types.VARCHAR)
-    .addValue("dataSource", dataSource, Types.VARCHAR)
-    .addValue("dataProvider", dataProvider, Types.VARCHAR)
-    .addValue("dataField", dataField, Types.VARCHAR)
-    .addValue("observationTime", observationTime, Types.VARCHAR);
-    
-    try {
-      result = _simpleJdbcTemplate.queryForInt(sql, parameters);
-    } catch(EmptyResultDataAccessException e) {
-      s_logger.debug("Empty row returned for timeSeriesKeyID");
-      result = -1;
+    String sql = null;
+    if (observationTime != null) {
+      sql = sqlQueries.get("getTimeSeriesKeyIDByIdentifierWithObservationTime");
+    } else {
+      sql = sqlQueries.get(GET_TIME_SERIES_KEY_ID_BY_IDENTIFIER);
     }
-    
-    s_logger.debug("timeSeriesKeyID = {}", result);
+    Set<Identifier> identifiers = identifierBundle.getIdentifiers();
+    for (Identifier identifier : identifiers) {
+      MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", identifier.getValue())
+      .addValue("domain", identifier.getScheme().getName(), Types.VARCHAR)
+      .addValue("dataSource", dataSource, Types.VARCHAR)
+      .addValue("dataProvider", dataProvider, Types.VARCHAR)
+      .addValue("dataField", dataField, Types.VARCHAR);
+      if (observationTime != null) {
+        parameters.addValue("observationTime", observationTime, Types.VARCHAR);
+      }
+      
+      try {
+        result = _simpleJdbcTemplate.queryForInt(sql, parameters);
+      } catch(EmptyResultDataAccessException e) {
+        s_logger.debug("Empty timeserieskey  returned for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", new Object[]{identifier, dataSource, dataProvider, dataField, observationTime});
+        result = INVALID_KEY;
+      }
+      
+      if (result != INVALID_KEY) {
+        s_logger.debug("timeSeriesKeyID = {}", result);
+        return result;
+      }
+    }
+    //no timeseries key found
     return result;
+    
   }
   
   protected int getTimeSeriesKeyIDByQuotedObject(String quotedObject, String dataSource,
@@ -664,7 +680,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.notNull(dataField, "dataField");
     ArgumentChecker.notNull(observationTime, "observationTime");
     
-    int result = -1;
+    int result = INVALID_KEY;
     
     s_logger.debug("looking up timeSeriesKeyID by quotedObject with quotedObj={}, dataSource={}, dataProvider={}, dataField={}, observationTime={}", 
         new Object[]{quotedObject, dataSource, dataProvider, dataField, observationTime});
@@ -683,7 +699,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       result = _simpleJdbcTemplate.queryForInt(sql, parameterSource);
     } catch(EmptyResultDataAccessException e) {
       s_logger.debug("Empty row returned for timeSeriesKeyID");
-      result = -1;
+      result = INVALID_KEY;
     }
     
     s_logger.debug("timeSeriesKeyID = {}", result);
@@ -691,19 +707,19 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
   
   @Override
-  public void deleteTimeSeries(Identifier domainSpecId,
+  public void deleteTimeSeries(IdentifierBundle identifiers,
       String dataSource, String dataProvider, String field,
       String observationTime) {
-    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(field, "field");
     ArgumentChecker.notNull(observationTime, "observationTime");
     
     s_logger.debug("deleting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
-        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
+        new Object[]{identifiers, dataSource, dataProvider, field, observationTime});
     
-    int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
+    int tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
     
     Map<String, String> sqlQueries = getSqlQueries();
     String selectTSSQL = sqlQueries.get(GET_TIME_SERIES_BY_ID);
@@ -752,51 +768,48 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     }
     
   }
+  //need to merge with historicalDataProvider  
+//  public LocalDateDoubleTimeSeries getTimeSeries(Identifier domainSpecId,
+//      String dataSource, String dataProvider, String field,
+//      String observationTime) {
+//    return getTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
+//  }
+//
+//  public LocalDateDoubleTimeSeries getTimeSeries(Identifier domainSpecId,
+//      String dataSource, String dataProvider, String field,
+//      String observationTime, LocalDate start, LocalDate end) {
+//    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, start, end);
+//    return timeSeries.toLocalDateDoubleTimeSeries();
+//  }
   
-  
-  
-  @Override
-  public LocalDateDoubleTimeSeries getTimeSeries(Identifier domainSpecId,
-      String dataSource, String dataProvider, String field,
-      String observationTime) {
-    return getTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
-  }
-
-  @Override
-  public LocalDateDoubleTimeSeries getTimeSeries(Identifier domainSpecId,
-      String dataSource, String dataProvider, String field,
-      String observationTime, LocalDate start, LocalDate end) {
-    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, start, end);
-    return timeSeries.toLocalDateDoubleTimeSeries();
-  }
-  
-  private DoubleTimeSeries<Date> loadTimeSeries(Identifier domainSpecId,
+  private DoubleTimeSeries<Date> loadTimeSeries(IdentifierBundle identifiers,
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate start, LocalDate end) {
-    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(field, "field");
-    ArgumentChecker.notNull(observationTime, "observationTime");
     
-    s_logger.debug("getting timeseries for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", 
-        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime});
+    s_logger.debug("getting timeseries for identifiers={} dataSource={} dataProvider={} dataField={} observationTime={}", 
+        new Object[]{identifiers, dataSource, dataProvider, field, observationTime});
+    
+    int timeSeriesKey = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
+    if (timeSeriesKey == INVALID_KEY) {
+      s_logger.debug("empty timeseries returned for identifiers={}, dataSource={} dataProvider={} dataField={} observationTime={}", 
+          new Object[]{identifiers, dataSource, dataProvider, field, observationTime});
+      return ArraySQLDateDoubleTimeSeries.EMPTY_SERIES;
+    }
   
     String sql = null;
     Map<String, String> sqlQueries = getSqlQueries();
     
     if (start != null & end != null) {
-        sql = sqlQueries.get("loadTimeSeriesWithDates");
+        sql = sqlQueries.get(LOAD_TIME_SERIES_WITH_DATES);
     }  else {
-      sql = sqlQueries.get("loadTimeSeries");
+      sql = sqlQueries.get(LOAD_TIME_SERIES);
     }
     
-    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", domainSpecId.getValue())
-      .addValue("domain", domainSpecId.getScheme().getName(), Types.VARCHAR)
-      .addValue("dataSource", dataSource, Types.VARCHAR)
-      .addValue("dataProvider", dataProvider, Types.VARCHAR)
-      .addValue("dataField", field, Types.VARCHAR)
-      .addValue("observationTime", observationTime, Types.VARCHAR);
+    MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("timeSeriesKey", timeSeriesKey, Types.INTEGER);
     if (start != null & end != null) {
       parameters.addValue("startDate", toSQLDate(start), Types.DATE);
       parameters.addValue("endDate", toSQLDate(end), Types.DATE);
@@ -819,11 +832,11 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
 
   @Override
-  public void updateDataPoint(Identifier domainSpecId,
+  public void updateDataPoint(IdentifierBundle identifiers,
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate date, Double value) {
     
-    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(identifiers, "identifiers");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(field, "field");
@@ -832,9 +845,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.notNull(value, "value");
     
     s_logger.debug("updating dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} with values(date={}, value={})", 
-        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime, date, value});
+        new Object[]{identifiers, dataSource, dataProvider, field, observationTime, date, value});
     
-    int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
+    int tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
     
     Map<String, String> sqlQueries = getSqlQueries();
     String selectSQL = sqlQueries.get(FIND_DATA_POINT_BY_DATE_AND_ID);
@@ -870,10 +883,10 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   }
   
   @Override
-  public void deleteDataPoint(Identifier domainSpecId,
+  public void deleteDataPoint(IdentifierBundle identifiers,
       String dataSource, String dataProvider, String field,
       String observationTime, LocalDate date) {
-    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(identifiers, "identifier");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(field, "field");
@@ -881,9 +894,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     ArgumentChecker.notNull(date, "date");
     
     s_logger.debug("deleting dataPoint for identifier={} dataSource={} dataProvider={} dataField={} observationTime={} date={}", 
-        new Object[]{domainSpecId, dataSource, dataProvider, field, observationTime, date});
+        new Object[]{identifiers, dataSource, dataProvider, field, observationTime, date});
     
-    int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
+    int tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
     
     Date sqlDate = toSQLDate(date);
     
@@ -919,21 +932,36 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     }
     
   }
+  
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(IdentifierBundle dsids, String dataSource,
+      String dataProvider, String field) {
+    return getHistoricalTimeSeries(dsids, dataSource, dataProvider, field, null, null);
+  }
+
+  @Override
+  public LocalDateDoubleTimeSeries getHistoricalTimeSeries(IdentifierBundle dsids, String dataSource,
+      String dataProvider, String field, LocalDate start, LocalDate end) {
+    //load timeseries without observationTime field
+    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(dsids, dataSource, dataProvider, field, null, start, end);
+    return timeSeries.toLocalDateDoubleTimeSeries();
+  }
+  
 
   @Override
   public LocalDateDoubleTimeSeries getTimeSeriesSnapShot(
-      Identifier domainSpecId, String dataSource,
+      IdentifierBundle identifiers, String dataSource,
       String dataProvider, String field, String observationTime,
       ZonedDateTime timeStamp) {
     
-    ArgumentChecker.notNull(domainSpecId, "identifier");
+    ArgumentChecker.notNull(identifiers, "identifierss");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(field, "field");
     ArgumentChecker.notNull(observationTime, "observationTime");
     ArgumentChecker.notNull(timeStamp, "time");
     
-    int tsID = getTimeSeriesKeyIDByIdentifier(domainSpecId, dataSource, dataProvider, field, observationTime);
+    int tsID = getTimeSeriesKeyIDByIdentifierBundle(identifiers, dataSource, dataProvider, field, observationTime);
     
     Map<String, String> sqlQueries = getSqlQueries();
     String selectDeltaSql = sqlQueries.get(LOAD_TIME_SERIES_DELTA);
@@ -957,7 +985,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       }
     });
     
-    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(domainSpecId, dataSource, dataProvider, field, observationTime, null, null);
+    DoubleTimeSeries<Date> timeSeries = loadTimeSeries(identifiers, dataSource, dataProvider, field, observationTime, null, null);
     
     MapSQLDateDoubleTimeSeries tsMap = new MapSQLDateDoubleTimeSeries(timeSeries);
     
