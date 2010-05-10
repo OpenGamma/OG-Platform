@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -12,7 +12,6 @@ import java.util.Date;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.engine.security.Security;
 import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
 import com.opengamma.financial.security.option.AmericanVanillaFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -25,7 +24,7 @@ import com.opengamma.financial.security.option.OTCOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /* package */ class OptionSecurityBeanOperation extends AbstractBeanOperation<OptionSecurity,OptionSecurityBean> {
   
@@ -36,8 +35,8 @@ import com.opengamma.id.Identifier;
   }
   
   @Override
-  public OptionSecurity createSecurity (final Identifier identifier, final OptionSecurityBean bean) {
-    return bean.getOptionSecurityType ().accept (new OptionSecurityType.Visitor<OptionSecurity> () {
+  public OptionSecurity createSecurity (final UniqueIdentifier uid, final OptionSecurityBean bean) {
+    OptionSecurity sec = bean.getOptionSecurityType ().accept (new OptionSecurityType.Visitor<OptionSecurity> () {
 
       @Override
       public OptionSecurity visitAmericanEquityOptionType() {
@@ -45,7 +44,7 @@ import com.opengamma.id.Identifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
+            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName ()
             );
@@ -57,7 +56,7 @@ import com.opengamma.id.Identifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
+            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName ()
             );
@@ -70,7 +69,7 @@ import com.opengamma.id.Identifier;
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
             bean.getPower (),
-            new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
+            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName ()
             );
@@ -82,7 +81,7 @@ import com.opengamma.id.Identifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
+            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName (),
             bean.isMargined ());
@@ -94,7 +93,7 @@ import com.opengamma.id.Identifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
+            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getExchange ().getName (),
             bean.isMargined ());
@@ -106,13 +105,15 @@ import com.opengamma.id.Identifier;
             bean.getOptionType (),
             bean.getStrike (),
             dateToExpiry (bean.getExpiry ()),
-            new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
+            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
             bean.getCounterparty (),
             currencyBeanToCurrency (bean.getCurrency2 ()),
             currencyBeanToCurrency (bean.getCurrency3 ()));
       }
     });
+    sec.setUniqueIdentifier(uid != null ? uid : HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString()));
+    return sec;
   }
 
   @Override
@@ -125,7 +126,7 @@ import com.opengamma.id.Identifier;
           ObjectUtils.equals(bean.getOptionType (), security.getOptionType ()) &&
           ObjectUtils.equals(bean.getStrike (), security.getStrike ()) &&
           ObjectUtils.equals(dateToExpiry (bean.getExpiry ()), security.getExpiry ()) &&
-          ObjectUtils.equals(bean.getUnderlyingIdentityKey (), security.getUnderlyingIdentityKey ()) &&
+          ObjectUtils.equals(bean.getUnderlyingIdentityKey (), security.getUnderlyingSecurity ()) &&
           ObjectUtils.equals(currencyBeanToCurrency (bean.getCurrency1 ()), security.getCurrency ());
       }
       
@@ -197,7 +198,7 @@ import com.opengamma.id.Identifier;
         bean.setOptionType(security.getOptionType ());
         bean.setStrike(security.getStrike ());
         bean.setExpiry(new Date (security.getExpiry ().toInstant ().toEpochMillisLong ()));
-        bean.setUnderlyingIdentityKey(security.getUnderlyingIdentityKey().getValue());
+        bean.setUnderlyingIdentityKey(security.getUnderlyingSecurity().getValue());
         bean.setCurrency1(secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()));
         return bean;
       }

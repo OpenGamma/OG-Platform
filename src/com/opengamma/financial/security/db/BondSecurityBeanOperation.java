@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -21,7 +21,7 @@ import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /* package */ class BondSecurityBeanOperation extends AbstractBeanOperation<BondSecurity,BondSecurityBean> {
   
@@ -32,8 +32,8 @@ import com.opengamma.id.Identifier;
   }
   
   @Override
-  public BondSecurity createSecurity (final Identifier identifier, final BondSecurityBean bean) {
-    return bean.getBondType ().accept (new BondType.Visitor<BondSecurity> () {
+  public BondSecurity createSecurity (final UniqueIdentifier uid, final BondSecurityBean bean) {
+    BondSecurity sec = bean.getBondType ().accept (new BondType.Visitor<BondSecurity> () {
 
       @Override
       public BondSecurity visitCorporateBondType() {
@@ -120,6 +120,8 @@ import com.opengamma.id.Identifier;
       }
       
     });
+    sec.setUniqueIdentifier(uid != null ? uid : HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString()));
+    return sec;
   }
 
   @Override

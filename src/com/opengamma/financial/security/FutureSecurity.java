@@ -11,27 +11,48 @@ import com.opengamma.financial.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
- *
- * @author Andrew
+ * A {@code Security} used to model futures.
  */
 public abstract class FutureSecurity extends FinancialSecurity {
-  
+
+  /**
+   * The security type of equity.
+   */
   public static final String FUTURE_TYPE = "FUTURE";
-  
+
+  /**
+   * The expiry of the security.
+   */
   private final Expiry _expiry;
+  /**
+   * The trading exchange.
+   */
   private final String _tradingExchange;
+  /**
+   * The settlement exchange.
+   */
   private final String _settlementExchange;
+  /**
+   * The currency.
+   */
   private final Currency _currency;
-  
-  public FutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency) {
+
+  /**
+   * Creates a future security.
+   * @param expiry
+   * @param tradingExchange
+   * @param settlementExchange
+   * @param currency
+   */
+  public FutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency) {
+    super(FUTURE_TYPE);
     _expiry = expiry;
     _tradingExchange = tradingExchange;
     _settlementExchange = settlementExchange;
     _currency = currency;
-    setSecurityType (FUTURE_TYPE);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * @return the expiry
    */
@@ -43,14 +64,14 @@ public abstract class FutureSecurity extends FinancialSecurity {
    * @return the month
    */
   public MonthOfYear getMonth() {
-    return getExpiry ().getExpiry ().getMonthOfYear ();
+    return getExpiry().getExpiry().getMonthOfYear();
   }
 
   /**
    * @return the year
    */
   public int getYear() {
-    return getExpiry ().getExpiry ().getYear ();
+    return getExpiry().getExpiry().getYear();
   }
 
   /**
@@ -66,15 +87,19 @@ public abstract class FutureSecurity extends FinancialSecurity {
   public String getSettlementExchange() {
     return _settlementExchange;
   }
-  
-  public Currency getCurrency () {
+
+  /**
+   * @return the currency
+   */
+  public Currency getCurrency() {
     return _currency;
   }
-  
-  public abstract <T> T accept (FutureSecurityVisitor<T> visitor);
-  
-  public final <T> T accept (FinancialSecurityVisitor<T> visitor) {
-    return accept ((FutureSecurityVisitor<T>)visitor);
+
+  //-------------------------------------------------------------------------
+  public abstract <T> T accept(FutureSecurityVisitor<T> visitor);
+
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return accept((FutureSecurityVisitor<T>) visitor);
   }
-  
+
 }

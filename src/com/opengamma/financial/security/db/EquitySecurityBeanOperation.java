@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -13,7 +13,7 @@ import java.util.Date;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /* package */ class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
   
@@ -63,14 +63,14 @@ import com.opengamma.id.Identifier;
   }
 
   @Override
-  public EquitySecurity createSecurity(final Identifier identifier, final EquitySecurityBean bean) {
+  public EquitySecurity createSecurity(final UniqueIdentifier uid, final EquitySecurityBean bean) {
     EquitySecurity result = new EquitySecurity();
     result.setCompanyName(bean.getCompanyName());
     result.setCurrency(currencyBeanToCurrency(bean.getCurrency()));
     result.setExchange(bean.getExchange().getDescription());
     result.setExchangeCode(bean.getExchange().getName());
-    result.setTicker(identifier.getValue());
-    result.setIdentityKey(identifier.getValue());
+    //result.setTicker(id);  // TODO: not in the db bean...
+    result.setUniqueIdentifier(uid != null ? uid : HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString()));
     result.setGICSCode(gicsCodeBeanToGICSCode (bean.getGICSCode ()));
     return result;
   }

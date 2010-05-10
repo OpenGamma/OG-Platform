@@ -29,7 +29,7 @@ import com.opengamma.financial.security.option.AmericanVanillaOption;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -45,8 +45,8 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
   @Override
   protected SkewKurtosisOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final Identifier optionID = option.getIdentityKey();
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()))))
+    final UniqueIdentifier optionID = option.getUniqueIdentifier();
+    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()))))
         .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(optionID));
@@ -83,11 +83,11 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey()));
+      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
-      requirements.add(getSkewRequirement(option.getIdentityKey()));
-      requirements.add(getKurtosisRequirement(option.getIdentityKey()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
+      requirements.add(getSkewRequirement(option.getUniqueIdentifier()));
+      requirements.add(getKurtosisRequirement(option.getUniqueIdentifier()));
       // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
       return requirements;
     }
@@ -99,11 +99,11 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     return "GramCharlierModel";
   }
 
-  private ValueRequirement getSkewRequirement(final Identifier id) {
-    return new ValueRequirement(SkewKurtosisFromImpliedVolatilityFunction.SKEW, ComputationTargetType.SECURITY, id);
+  private ValueRequirement getSkewRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(SkewKurtosisFromImpliedVolatilityFunction.SKEW, ComputationTargetType.SECURITY, uid);
   }
 
-  private ValueRequirement getKurtosisRequirement(final Identifier id) {
-    return new ValueRequirement(SkewKurtosisFromImpliedVolatilityFunction.KURTOSIS, ComputationTargetType.SECURITY, id);
+  private ValueRequirement getKurtosisRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(SkewKurtosisFromImpliedVolatilityFunction.KURTOSIS, ComputationTargetType.SECURITY, uid);
   }
 }

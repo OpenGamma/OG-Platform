@@ -32,6 +32,7 @@ import com.opengamma.financial.security.InterestRateFutureSecurity;
 import com.opengamma.financial.security.MetalFutureSecurity;
 import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /* package */ class FutureSecurityBeanOperation extends AbstractBeanOperation<FutureSecurity,FutureSecurityBean> {
   
@@ -42,8 +43,8 @@ import com.opengamma.id.Identifier;
   }
   
   @Override
-  public FutureSecurity createSecurity (final Identifier identifier, final FutureSecurityBean bean) {
-    return bean.getFutureType ().accept (new FutureType.Visitor<FutureSecurity> () {
+  public FutureSecurity createSecurity (final UniqueIdentifier uid, final FutureSecurityBean bean) {
+    FutureSecurity sec = bean.getFutureType ().accept (new FutureType.Visitor<FutureSecurity> () {
 
       @Override
       public FutureSecurity visitBondFutureType() {
@@ -150,6 +151,8 @@ import com.opengamma.id.Identifier;
       }
 
     });
+    sec.setUniqueIdentifier(uid != null ? uid : HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString()));
+    return sec;
   }
 
   @Override

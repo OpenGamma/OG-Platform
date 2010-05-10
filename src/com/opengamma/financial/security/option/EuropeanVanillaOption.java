@@ -5,12 +5,9 @@
  */
 package com.opengamma.financial.security.option;
 
-
 /**
- * 
- *
- * @author jim
+ * A European option.
  */
 public interface EuropeanVanillaOption extends Option {
-  
+
 }

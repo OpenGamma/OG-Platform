@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -42,6 +42,7 @@ import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -82,8 +83,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
-    final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getIdentityKey());
-    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(optionSec.getUnderlyingIdentityKey().getIdentityKey());
+    final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getUniqueIdentifier());
+    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(optionSec.getUnderlyingSecurity());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getIdentityKey());
     // TODO will need a cost-of-carry model as well
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
@@ -108,8 +109,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
 
     // Get inputs:
-    final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getIdentityKey());
-    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(optionSec.getUnderlyingIdentityKey());
+    final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getUniqueIdentifier());
+    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(optionSec.getUnderlyingSecurity());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getIdentityKey());
 
     final FudgeFieldContainer optionMarketData = (FudgeFieldContainer) inputs.getValue(optionMarketDataReq);
@@ -151,12 +152,12 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     return ComputationTargetType.SECURITY;
   }
 
-  private ValueRequirement getOptionMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
+  private ValueRequirement getOptionMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
   }
 
-  private ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
+  private ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {

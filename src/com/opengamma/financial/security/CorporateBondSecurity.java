@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -16,12 +16,10 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.time.Expiry;
 
 /**
- * This is a placeholder class - Corporate bonds aren't supported at the moment.
- *
- * @author Andrew
+ * A {@code Security} used to model corporate bonds - NOT YET IMPLEMENTED.
  */
 public class CorporateBondSecurity extends BondSecurity {
-  
+
   /**
    * @param issuerName
    * @param issuerType
@@ -66,9 +64,10 @@ public class CorporateBondSecurity extends BondSecurity {
     throw new OpenGammaRuntimeException ("not implemented");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public <T> T accept(BondSecurityVisitor<T> visitor) {
-    return visitor.visitCorporateBondSecurity (this);
+    return visitor.visitCorporateBondSecurity(this);
   }
-  
+
 }

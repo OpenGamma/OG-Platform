@@ -10,10 +10,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
@@ -24,15 +27,29 @@ import com.opengamma.engine.security.WritableSecurityMaster;
 import com.opengamma.financial.Currency;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 public class HibernateSecurityMaster implements WritableSecurityMaster {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
   private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "HibernateSecurityMaster";
   protected static final String MODIFIED_BY = "";
 
   private HibernateTemplate _hibernateTemplate = null;
-  
+  private String _identifierScheme = IDENTIFIER_SCHEME_DEFAULT;
+
+  /**
+   * Creates a unique identifier.
+   * @param value  the value, not null
+   */
+  public static UniqueIdentifier createUniqueIdentifier(String value) {
+    // TODO: this static method is broken as it should use getIdentifierScheme()
+    return UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, value);
+  }
+
   private static void loadBeanOperation (final BeanOperation<?,?> beanOperation) {
     SUPPORTED_SECURITY_TYPES.add (beanOperation.getSecurityType ());
     BEAN_OPERATIONS_BY_SECURITY.put (beanOperation.getSecurityClass (), beanOperation);
@@ -74,7 +91,15 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
+
+  public String getIdentifierScheme () {
+    return _identifierScheme;
+  }
   
+  public void setIdentifierScheme (final String identifierScheme) {
+    _identifierScheme = identifierScheme;
+  }
+
   // for unit testing
   /*package*/ HibernateTemplate getHibernateTemplate() {
     return _hibernateTemplate;
@@ -83,18 +108,61 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   // PUBLIC API
   
   @SuppressWarnings("unchecked")
-  public Security getSecurity(final Date now, final Identifier identifier, final boolean populateWithOtherIdentifiers) {
+  public Security getSecurity(final Date now, final UniqueIdentifier uid, final boolean populateWithOtherIdentifiers) {
+    if (uid.getScheme().equals(getIdentifierScheme()) == false) {
+      s_logger.debug("rejecting invalid identity key domain '{}'", uid.getScheme());
+      throw new IllegalArgumentException("Invalid identifier for HibernateSecurityMaster: " + uid);
+    }
     return (Security)_hibernateTemplate.execute(new HibernateCallback() {
       @Override
-      public Object doInHibernate(Session session) throws HibernateException,
-          SQLException {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
-        SecurityBean security = secMasterSession.getSecurityBean(now, identifier);
+        SecurityBean security = secMasterSession.getSecurityBean(now, uid);
         // we use the DefaultSecurity interface because we need access to setIdentifiers
         if (security != null) {
-          final BeanOperation beanOperation = getBeanOperation (security);
-          security = beanOperation.resolve (secMasterSession, now, security);
-          final DefaultSecurity result = (DefaultSecurity)beanOperation.createSecurity (identifier, security);
+          final BeanOperation beanOperation = getBeanOperation(security);
+          security = beanOperation.resolve(secMasterSession, now, security);
+          final DefaultSecurity result = (DefaultSecurity) beanOperation.createSecurity(uid, security);
+          final List<Identifier> identifiers = new ArrayList<Identifier>();
+//          if (populateWithOtherIdentifiers) {
+//            Query identifierQuery = session.getNamedQuery("SecurityBean.one.byDateIdentifier");
+//            identifierQuery.setParameter("security", security.getFirstVersion());
+//            identifierQuery.setDate("now", now);
+//            List<IdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
+//            for (IdentifierAssociationBean associationBean : otherIdentifiers) {
+//              identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
+//            }
+//          }
+          if (populateWithOtherIdentifiers) {
+            Query identifierQuery = session.getNamedQuery("IdentifierAssociationBean.many.byDateSecurity");
+            identifierQuery.setParameter("security", security.getFirstVersion());
+            identifierQuery.setDate("now", now);
+            List<IdentifierAssociationBean> otherIdentifiers = identifierQuery.list();
+            for (IdentifierAssociationBean associationBean : otherIdentifiers) {
+              identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
+            }
+          }
+          result.setIdentifiers(new IdentifierBundle(identifiers));
+          result.setName(StringUtils.defaultString(security.getDisplayName()));
+          return result;
+        }
+        return null;
+      }
+    });
+  }
+  
+  @SuppressWarnings("unchecked")
+  public Security getSecurity(final Date now, final IdentifierBundle bundle, final boolean populateWithOtherIdentifiers) {
+    return (Security)_hibernateTemplate.execute(new HibernateCallback() {
+      @Override
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        SecurityBean security = secMasterSession.getSecurityBean(now, bundle);
+        // we use the DefaultSecurity interface because we need access to setIdentifiers
+        if (security != null) {
+          final BeanOperation beanOperation = getBeanOperation(security);
+          security = beanOperation.resolve(secMasterSession, now, security);
+          final DefaultSecurity result = (DefaultSecurity) beanOperation.createSecurity(null, security);
           final List<Identifier> identifiers = new ArrayList<Identifier>();
           if (populateWithOtherIdentifiers) {
             Query identifierQuery = session.getNamedQuery("IdentifierAssociationBean.many.byDateSecurity");
@@ -104,11 +172,9 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
             for (IdentifierAssociationBean associationBean : otherIdentifiers) {
               identifiers.add(Converters.identifierBeanToIdentifier(associationBean.getIdentifier()));
             }
-          } else {
-            identifiers.add(identifier);
           }
-          result.setIdentifiers(identifiers);
-          result.setDisplayName (security.getDisplayName ());
+          result.setIdentifiers(new IdentifierBundle(identifiers));
+          result.setName(StringUtils.defaultString(security.getDisplayName()));
           return result;
         }
         return null;
@@ -117,8 +183,8 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   }
   
   @Override
-  public void putSecurity (final Date now, final Security security) {
-    _hibernateTemplate.execute (new HibernateCallback () {
+  public UniqueIdentifier putSecurity (final Date now, final Security security) {
+    return (UniqueIdentifier) _hibernateTemplate.execute (new HibernateCallback () {
       @Override
       public Object doInHibernate (final Session session) throws HibernateException, SQLException {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
@@ -140,7 +206,11 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
         } else {
           throw new OpenGammaRuntimeException ("SecurityBean of unexpected type " + bean);
         }
-        return null;
+        UniqueIdentifier uid = HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString());
+        if (security instanceof DefaultSecurity) {
+          ((DefaultSecurity) security).setUniqueIdentifier(uid);
+        }
+        return uid;
       }
     });
   }
@@ -183,19 +253,19 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
     });
 
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public Set<String> getAllSecurityTypes() {
-    return SUPPORTED_SECURITY_TYPES;
+  public Security getSecurity(UniqueIdentifier uid) {
+    return getSecurity(new Date(), uid, true);
   }
 
   // TODO: consider if this needs to take a date
   @Override
   public Collection<Security> getSecurities(IdentifierBundle secKey) {
-    Collection<Identifier> identifiers = secKey.getIdentifiers();
     Collection<Security> results = new HashSet<Security>();
-    for (Identifier dsi : identifiers) {
-      Security security = getSecurity(new Date(), dsi, true);
+    for (Identifier id : secKey) {
+      Security security = getSecurity(new IdentifierBundle(id));
       if (security != null) {
         results.add(security);
       }
@@ -206,19 +276,18 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   // TODO: consider if this needs to take a date
   @Override
   public Security getSecurity(IdentifierBundle secKey) {
-    Collection<Identifier> identifiers = secKey.getIdentifiers();
-    for (Identifier dsi : identifiers) {
-      Security security = getSecurity(new Date(), dsi, true);
+    for (Identifier id : secKey) {
+      Security security = getSecurity(new Date(), new IdentifierBundle(id), true);
       if (security != null) {
         return security;
       }
     }
     return null;
   }
-  
+
   @Override
-  public Security getSecurity(Identifier identityKey) {
-    return getSecurity(new Date(), identityKey, true);
+  public Set<String> getAllSecurityTypes() {
+    return SUPPORTED_SECURITY_TYPES;
   }
-  
+
 }

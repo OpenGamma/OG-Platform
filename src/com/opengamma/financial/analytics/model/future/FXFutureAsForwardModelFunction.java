@@ -75,7 +75,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
       greek = AVAILABLE_GREEKS.get(v.getValueName());
       assert greek != null : "Should have thrown IllegalArgumentException above.";
       final GreekResult<?> greekResult = greeks.get(greek);
-      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getIdentityKey()));
+      final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()));
       final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
       results.add(resultValue);
     }
@@ -111,7 +111,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
       final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
       for (final String name : AVAILABLE_GREEKS.keySet()) {
-        results.add(new ValueSpecification(new ValueRequirement(name, ComputationTargetType.SECURITY, future.getIdentityKey())));
+        results.add(new ValueSpecification(new ValueRequirement(name, ComputationTargetType.SECURITY, future.getUniqueIdentifier())));
       }
       return results;
     }

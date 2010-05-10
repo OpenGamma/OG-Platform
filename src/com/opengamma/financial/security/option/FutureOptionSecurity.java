@@ -6,22 +6,25 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
- *
- * @author emcleod
+ * A future option security.
  */
 public abstract class FutureOptionSecurity extends ExchangeTradedOptionSecurity {
+
+  /**
+   * The security type.
+   */
   public static final String FUTURE_OPTION_TYPE = "FUTURE_OPTION";
+
   private final boolean _isMargined;
 
-  public FutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentityKey, final Currency currency,
+  public FutureOptionSecurity(final OptionType optionType,
+      final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier, final Currency currency,
       final String exchange, final boolean isMargined) {
-    super(optionType, strike, expiry, underlyingIdentityKey, currency, exchange);
-    setSecurityType(FUTURE_OPTION_TYPE);
+    super(FUTURE_OPTION_TYPE, optionType, strike, expiry, underlyingIdentifier, currency, exchange);
     _isMargined = isMargined;
   }
 
@@ -29,10 +32,12 @@ public abstract class FutureOptionSecurity extends ExchangeTradedOptionSecurity 
     return _isMargined;
   }
 
+  //-------------------------------------------------------------------------
   public abstract <T> T accept(FutureOptionSecurityVisitor<T> visitor);
 
   @Override
   public final <T> T accept(final ExchangeTradedOptionSecurityVisitor<T> visitor) {
     return accept((FutureOptionSecurityVisitor<T>) visitor);
   }
+
 }

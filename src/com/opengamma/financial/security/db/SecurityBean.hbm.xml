@@ -37,8 +37,7 @@
       a.security = s.firstVersion and
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
-      a.identifier.scheme = :scheme and
-      a.identifier.identifier = :identifier and
+      s.id = :securityuid and
       s.effectiveDateTime &lt;= :now and
       not exists (select 
                     latest.id

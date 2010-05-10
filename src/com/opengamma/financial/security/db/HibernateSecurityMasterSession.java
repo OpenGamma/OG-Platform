@@ -13,6 +13,8 @@ import org.hibernate.Transaction;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 public class HibernateSecurityMasterSession {
   private Session _session;
@@ -359,22 +361,20 @@ public class HibernateSecurityMasterSession {
   
   // Generic Securities
 
-  /* package */ SecurityBean getSecurityBean(Date now, final Identifier identifier) {
-    Query query = getSession().getNamedQuery(
-        "SecurityBean.one.byDateIdentifier");
-    query.setString("scheme", identifier.getScheme().getName());
-    query.setString("identifier", identifier.getValue());
+  /* package */ SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
+    Query query = getSession().getNamedQuery("SecurityBean.one.byDateIdentifier");
+    query.setString("securityuid", uid.getValue());
     query.setDate("now", now);
     SecurityBean security = (SecurityBean) query.uniqueResult();
     return security;
   }
 
-  /* package */ SecurityBean getSecurityBean(Date now, Collection<Identifier> identifiers) {
+  /* package */ SecurityBean getSecurityBean(Date now, IdentifierBundle bundle) {
+    Collection<Identifier> identifiers = bundle.getIdentifiers();
     Set<String> schemes = getListOfSchemes(identifiers);
     for (String scheme : schemes) {
       final Set<String> ids = getListOfValuesForScheme(scheme, identifiers);
-      Query query = getSession().getNamedQuery(
-          "SecurityBean.one.byDateIdentifiers");
+      Query query = getSession().getNamedQuery("SecurityBean.one.byDateIdentifiers");
       query.setString("scheme", scheme);
       query.setParameterList("identifiers", ids);
       query.setDate("now", now);
@@ -390,7 +390,7 @@ public class HibernateSecurityMasterSession {
   
   /* package */ <S extends Security,SBean extends SecurityBean> SBean createSecurityBean (final BeanOperation<S,SBean> beanOperation, final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
     final SBean bean = beanOperation.createBean (this, security);
-    persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getDisplayName (), bean);
+    persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getName (), bean);
     beanOperation.postPersistBean (this, effectiveDateTime, bean);
     return bean;
   }
