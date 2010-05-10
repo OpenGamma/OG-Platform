@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -32,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public final class IdentifierBundle implements Serializable {
+public final class IdentifierBundle implements Iterable<Identifier>, Serializable {
 
   /**
    * Fudge message key for the identifier set.
@@ -159,6 +160,38 @@ public final class IdentifierBundle implements Serializable {
    */
   public int size() {
     return _identifiers.size();
+  }
+
+  /**
+   * Returns an iterator over the identifiers in the bundle.
+   * @return the identifiers in the bundle, not null
+   */
+  public Iterator<Identifier> iterator() {
+    return _identifiers.iterator();
+  }
+
+  /**
+   * Checks if this bundle contains any key from the specified bundle.
+   * @param bundle  the bundle to search for, not null
+   * @return true if this bundle contains any key from the specified bundle
+   */
+  public boolean containsAny(IdentifierBundle bundle) {
+    ArgumentChecker.notNull(bundle, "bundle");
+    for (Identifier identifier : bundle.getIdentifiers()) {
+      if (_identifiers.contains(identifier)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if this bundle contains the specified key.
+   * @param identifier  the key to search for, null returns false
+   * @return true if this bundle contains any key from the specified bundle
+   */
+  public boolean contains(Identifier identifier) {
+    return identifier != null && _identifiers.contains(identifier);
   }
 
   //-------------------------------------------------------------------------

@@ -13,6 +13,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -147,6 +150,54 @@ public class IdentifierBundleTest {
     assertEquals(0, new IdentifierBundle().size());
     assertEquals(1, new IdentifierBundle(_id11).size());
     assertEquals(2, new IdentifierBundle(_id11, _id12).size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_iterator() {
+    Set<Identifier> expected = new HashSet<Identifier>();
+    expected.add(_id11);
+    expected.add(_id12);
+    Iterable<Identifier> base = new IdentifierBundle(_id11, _id12);
+    Iterator<Identifier> test = base.iterator();
+    assertEquals(true, test.hasNext());
+    assertEquals(true, expected.remove(test.next()));
+    assertEquals(true, test.hasNext());
+    assertEquals(true, expected.remove(test.next()));
+    assertEquals(false, test.hasNext());
+    assertEquals(0, expected.size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_containsAny() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    assertEquals(true, test.containsAny(new IdentifierBundle(_id11, _id12)));
+    assertEquals(true, test.containsAny(new IdentifierBundle(_id11)));
+    assertEquals(true, test.containsAny(new IdentifierBundle(_id12)));
+    assertEquals(false, test.containsAny(new IdentifierBundle(_id21)));
+    assertEquals(false, test.containsAny(new IdentifierBundle()));
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_containsAny_null() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    test.containsAny(null);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_contains() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    assertEquals(true, test.contains(_id11));
+    assertEquals(true, test.contains(_id11));
+    assertEquals(false, test.contains(_id21));
+  }
+
+  @Test
+  public void test_contains_null() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    assertEquals(false, test.contains(null));
   }
 
   //-------------------------------------------------------------------------
