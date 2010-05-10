@@ -21,7 +21,6 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * <p>
  * A single-period time series return calculator.
  * 
- * @author emcleod
  */
 
 public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> {

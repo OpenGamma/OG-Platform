@@ -5,14 +5,16 @@
  */
 package com.opengamma.financial.greeks;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import com.opengamma.financial.pnl.Underlying;
 
 /**
- * @author emcleod
  * 
  */
 public class MixedThirdOrder extends Order {
-  // TODO I'm not thrilled with this class - it makes sense that this class is
+  // REVIEW I'm not thrilled with this class - it makes sense that this class is
   // the container for F_{x,y,z} and F_{x,y,y} but the get methods seem quite
   // inelegant for the second case
   private final FirstOrder _firstVariable;
@@ -69,6 +71,11 @@ public class MixedThirdOrder extends Order {
 
   public FirstOrder getThirdVariable() {
     return _thirdVariable;
+  }
+
+  @Override
+  public Set<Underlying> getUnderlyings() {
+    return EnumSet.of(_firstVariable.getVariable(), _secondVariable.getVariable(), _thirdVariable.getVariable());
   }
 
   /*

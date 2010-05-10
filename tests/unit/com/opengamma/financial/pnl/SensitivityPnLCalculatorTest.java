@@ -13,7 +13,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.sensitivity.Sensitivity;
+import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -22,7 +24,6 @@ import com.opengamma.math.matrix.Matrix;
 import com.opengamma.math.matrix.MatrixAlgebra;
 
 /**
- * @author emcleod
  *
  */
 public class SensitivityPnLCalculatorTest {
@@ -43,7 +44,7 @@ public class SensitivityPnLCalculatorTest {
   public void testUnsupportedData() {
     final Map<Underlying, DoubleMatrix1D[]> u = Collections.<Underlying, DoubleMatrix1D[]> singletonMap(Underlying.SPOT_PRICE, new DoubleMatrix1D[] { new DoubleMatrix1D(
         new double[] { 3.4 }) });
-    final Map<Sensitivity, Matrix<?>> m = Collections.<Sensitivity, Matrix<?>> singletonMap(Sensitivity.VALUE_SPEED, new DoubleMatrix2D(new double[][] { { 2 } }));
+    final Map<Sensitivity<?>, Matrix<?>> m = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(new ValueGreek(Greek.SPEED), new DoubleMatrix2D(new double[][] { { 2 } }));
     CALCULATOR.evaluate(new PnLDataBundle(u, m));
   }
 
@@ -59,11 +60,11 @@ public class SensitivityPnLCalculatorTest {
     final Map<Underlying, DoubleMatrix1D[]> u = new HashMap<Underlying, DoubleMatrix1D[]>();
     u.put(Underlying.SPOT_PRICE, spotChange);
     u.put(Underlying.IMPLIED_VOLATILITY, volChange);
-    final Map<Sensitivity, Matrix<?>> m = new HashMap<Sensitivity, Matrix<?>>();
-    m.put(Sensitivity.VALUE_DELTA, new DoubleMatrix1D(new double[] { 1000 }));
-    m.put(Sensitivity.VALUE_GAMMA, new DoubleMatrix2D(new double[][] { { -20000 } }));
-    m.put(Sensitivity.VALUE_VEGA, new DoubleMatrix1D(new double[] { 300 }));
-    m.put(Sensitivity.VALUE_VANNA, new DoubleMatrix2D(new double[][] { { 4000 } }));
+    final Map<Sensitivity<?>, Matrix<?>> m = new HashMap<Sensitivity<?>, Matrix<?>>();
+    m.put(new ValueGreek(Greek.DELTA), new DoubleMatrix1D(new double[] { 1000 }));
+    m.put(new ValueGreek(Greek.GAMMA), new DoubleMatrix2D(new double[][] { { -20000 } }));
+    m.put(new ValueGreek(Greek.VEGA), new DoubleMatrix1D(new double[] { 300 }));
+    m.put(new ValueGreek(Greek.VANNA), new DoubleMatrix2D(new double[][] { { 4000 } }));
     final PnLDataBundle data = new PnLDataBundle(u, m);
     final Double[] pnl = CALCULATOR.evaluate(data);
     for (int i = 0; i < n; i++) {

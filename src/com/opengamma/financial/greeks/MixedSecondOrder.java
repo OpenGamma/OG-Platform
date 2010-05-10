@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.greeks;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import com.opengamma.financial.pnl.Underlying;
 
 /**
- * @author emcleod
  * 
  */
 public class MixedSecondOrder extends Order {
@@ -53,6 +55,11 @@ public class MixedSecondOrder extends Order {
 
   public FirstOrder getSecondVariable() {
     return _secondVariable;
+  }
+
+  @Override
+  public Set<Underlying> getUnderlyings() {
+    return EnumSet.of(_firstVariable.getVariable(), _secondVariable.getVariable());
   }
 
   /*

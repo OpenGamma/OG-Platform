@@ -13,28 +13,27 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
 
 /**
- * @author emcleod
  * 
  */
 public class ParametricWithMeanVaRDataBundle extends ParametricVaRDataBundle {
-  private final Map<Sensitivity, DoubleMatrix1D> _mean;
+  private final Map<Sensitivity<?>, DoubleMatrix1D> _mean;
 
-  public ParametricWithMeanVaRDataBundle(final Map<Sensitivity, DoubleMatrix1D> mean, final Map<Sensitivity, Matrix<?>> sensitivities,
-      final Map<Sensitivity, DoubleMatrix2D> covariances) {
+  public ParametricWithMeanVaRDataBundle(final Map<Sensitivity<?>, DoubleMatrix1D> mean, final Map<Sensitivity<?>, Matrix<?>> sensitivities,
+      final Map<Sensitivity<?>, DoubleMatrix2D> covariances) {
     super(sensitivities, covariances);
     testData(sensitivities, mean);
     _mean = mean;
   }
 
-  public DoubleMatrix1D getMean(final Sensitivity greek) {
+  public DoubleMatrix1D getMean(final Sensitivity<?> greek) {
     return _mean.get(greek);
   }
 
-  private void testData(final Map<Sensitivity, Matrix<?>> sensitivities, final Map<Sensitivity, DoubleMatrix1D> mean) {
+  private void testData(final Map<Sensitivity<?>, Matrix<?>> sensitivities, final Map<Sensitivity<?>, DoubleMatrix1D> mean) {
     if (mean == null)
       throw new IllegalArgumentException("Mean data were null");
     Matrix<?> m;
-    for (final Sensitivity s : sensitivities.keySet()) {
+    for (final Sensitivity<?> s : sensitivities.keySet()) {
       m = sensitivities.get(s);
       if (mean.containsKey(s)) {
         if (m instanceof DoubleMatrix1D) {

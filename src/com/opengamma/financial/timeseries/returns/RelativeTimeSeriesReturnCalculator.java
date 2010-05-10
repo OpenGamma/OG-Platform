@@ -13,7 +13,6 @@ import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
- * @author emcleod
  */
 public abstract class RelativeTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
 

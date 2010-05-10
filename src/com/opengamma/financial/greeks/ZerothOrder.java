@@ -5,8 +5,12 @@
  */
 package com.opengamma.financial.greeks;
 
+import java.util.Collections;
+import java.util.Set;
+
+import com.opengamma.financial.pnl.Underlying;
+
 /**
- * @author emcleod
  * 
  */
 public class ZerothOrder extends Order {
@@ -31,5 +35,10 @@ public class ZerothOrder extends Order {
   @Override
   public OrderType getOrderType() {
     return OrderType.ZEROTH;
+  }
+
+  @Override
+  public Set<Underlying> getUnderlyings() {
+    return Collections.emptySet();
   }
 }

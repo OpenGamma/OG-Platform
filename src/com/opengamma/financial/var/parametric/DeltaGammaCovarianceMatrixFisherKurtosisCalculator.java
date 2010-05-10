@@ -5,7 +5,9 @@
  */
 package com.opengamma.financial.var.parametric;
 
+import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.sensitivity.Sensitivity;
+import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -13,12 +15,13 @@ import com.opengamma.math.matrix.Matrix;
 import com.opengamma.math.matrix.MatrixAlgebra;
 
 /**
- * @author emcleod
  * 
  */
 public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function1D<ParametricVaRDataBundle, Double> {
   private final MatrixAlgebra _algebra;
   private final Function1D<ParametricVaRDataBundle, Double> _std;
+  private static final Sensitivity<Greek> VALUE_DELTA = new ValueGreek(Greek.DELTA);
+  private static final Sensitivity<Greek> VALUE_GAMMA = new ValueGreek(Greek.GAMMA);
 
   public DeltaGammaCovarianceMatrixFisherKurtosisCalculator(final MatrixAlgebra algebra) {
     if (algebra == null)
@@ -36,12 +39,12 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculator extends Function
   public Double evaluate(final ParametricVaRDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Data were null");
-    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(Sensitivity.VALUE_DELTA);
-    final Matrix<?> gamma = data.getSensitivityData(Sensitivity.VALUE_GAMMA);
+    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(VALUE_DELTA);
+    final Matrix<?> gamma = data.getSensitivityData(VALUE_GAMMA);
     if (gamma == null || gamma.getNumberOfElements() == 0)
       return 0.;
     final DoubleMatrix2D gammaMatrix = (DoubleMatrix2D) gamma;
-    final DoubleMatrix2D deltaCovariance = data.getCovarianceMatrix(Sensitivity.VALUE_DELTA);
+    final DoubleMatrix2D deltaCovariance = data.getCovarianceMatrix(VALUE_DELTA);
     if (gammaMatrix.getNumberOfColumns() != deltaCovariance.getNumberOfColumns())
       throw new IllegalArgumentException("Gamma matrix and covariance matrix were incompatible sizes");
     final Matrix<?> product = _algebra.multiply(gammaMatrix, deltaCovariance);

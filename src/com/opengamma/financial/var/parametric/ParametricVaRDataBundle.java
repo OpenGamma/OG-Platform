@@ -15,28 +15,27 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
 
 /**
- * @author emcleod
  * 
  */
 public class ParametricVaRDataBundle {
-  private final Map<Sensitivity, Matrix<?>> _sensitivities;
-  private final Map<Sensitivity, DoubleMatrix2D> _covariances;
+  private final Map<Sensitivity<?>, Matrix<?>> _sensitivities;
+  private final Map<Sensitivity<?>, DoubleMatrix2D> _covariances;
 
-  public ParametricVaRDataBundle(final Map<Sensitivity, Matrix<?>> sensitivities, final Map<Sensitivity, DoubleMatrix2D> covariances) {
-    _sensitivities = new HashMap<Sensitivity, Matrix<?>>();
-    _covariances = new HashMap<Sensitivity, DoubleMatrix2D>();
+  public ParametricVaRDataBundle(final Map<Sensitivity<?>, Matrix<?>> sensitivities, final Map<Sensitivity<?>, DoubleMatrix2D> covariances) {
+    _sensitivities = new HashMap<Sensitivity<?>, Matrix<?>>();
+    _covariances = new HashMap<Sensitivity<?>, DoubleMatrix2D>();
     testData(sensitivities, covariances);
   }
 
-  public Matrix<?> getSensitivityData(final Sensitivity greek) {
+  public Matrix<?> getSensitivityData(final Sensitivity<?> greek) {
     return _sensitivities.get(greek);
   }
 
-  public DoubleMatrix2D getCovarianceMatrix(final Sensitivity greek) {
+  public DoubleMatrix2D getCovarianceMatrix(final Sensitivity<?> greek) {
     return _covariances.get(greek);
   }
 
-  private void testData(final Map<Sensitivity, Matrix<?>> sensitivities, final Map<Sensitivity, DoubleMatrix2D> covariances) {
+  private void testData(final Map<Sensitivity<?>, Matrix<?>> sensitivities, final Map<Sensitivity<?>, DoubleMatrix2D> covariances) {
     if (sensitivities == null)
       throw new IllegalArgumentException("Sensitivities map was null");
     if (covariances == null)
@@ -45,7 +44,7 @@ public class ParametricVaRDataBundle {
       throw new IllegalArgumentException("Have more covariance matrices than sensitivity types");
     Matrix<?> m1;
     DoubleMatrix2D m2;
-    for (final Sensitivity s : sensitivities.keySet()) {
+    for (final Sensitivity<?> s : sensitivities.keySet()) {
       m1 = sensitivities.get(s);
       if (m1 == null)
         throw new IllegalArgumentException("Null value for " + s + " in sensitivity data");

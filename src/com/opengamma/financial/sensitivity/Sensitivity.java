@@ -1,130 +1,76 @@
 package com.opengamma.financial.sensitivity;
 
-import com.opengamma.financial.greeks.FirstOrder;
-import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.Order;
-import com.opengamma.financial.greeks.SecondOrder;
-import com.opengamma.financial.pnl.Underlying;
 
-public enum Sensitivity {
-  VALUE_DELTA {
+public abstract class Sensitivity<T> {
+  private final T _underlying;
+  private final Order _order;
+  private final String _label;
 
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitValueDelta();
-    }
+  public Sensitivity(final T underlying, final Order order) {
+    this(underlying, order, null);
+  }
 
-    @Override
-    public Order getOrder() {
-      return new FirstOrder(Underlying.SPOT_PRICE);
-    }
-  },
-  VALUE_GAMMA {
+  public Sensitivity(final T underlying, final Order order, final String label) {
+    _underlying = underlying;
+    _order = order;
+    _label = label;
+  }
 
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitValueGamma();
-    }
+  public T getUnderlying() {
+    return _underlying;
+  }
 
-    @Override
-    public Order getOrder() {
-      return new SecondOrder(Underlying.SPOT_PRICE);
-    }
+  public Order getOrder() {
+    return _order;
+  }
 
-  },
-  VALUE_VANNA {
-    private final Greek Underlying = Greek.VANNA;
+  public String getLabel() {
+    return _label;
+  }
 
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitValueVanna();
-    }
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_label == null) ? 0 : _label.hashCode());
+    result = prime * result + ((_order == null) ? 0 : _order.hashCode());
+    result = prime * result + ((_underlying == null) ? 0 : _underlying.hashCode());
+    return result;
+  }
 
-    @Override
-    public Order getOrder() {
-      return Underlying.getOrder();
-    }
-  },
-  VALUE_VEGA {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitValueVega();
-    }
-
-    @Override
-    public Order getOrder() {
-      return new FirstOrder(Underlying.IMPLIED_VOLATILITY);
-    }
-
-  },
-  VALUE_THETA {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitValueTheta();
-    }
-
-    @Override
-    public Order getOrder() {
-      return new FirstOrder(Underlying.TIME);
-    }
-
-  },
-  VALUE_SPEED {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitValueSpeed();
-    }
-
-    @Override
-    public Order getOrder() {
-      return Greek.SPEED.getOrder();
-    }
-
-  },
-  PV01 {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitPV01();
-    }
-
-    @Override
-    public Order getOrder() {
-      return new FirstOrder(Underlying.YIELD_CURVE);
-    }
-
-  },
-  DURATION {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitDuration();
-    }
-
-    @Override
-    public Order getOrder() {
-      return new FirstOrder(Underlying.BOND_YIELD);
-    }
-
-  },
-  CONVEXITY {
-
-    @Override
-    public <T> T accept(final SensitivityVisitor<T> visitor) {
-      return visitor.visitConvexity();
-    }
-
-    @Override
-    public Order getOrder() {
-      return new SecondOrder(Underlying.BOND_YIELD);
-    }
-  };
-
-  public abstract <T> T accept(SensitivityVisitor<T> visitor);
-
-  public abstract Order getOrder();
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final Sensitivity other = (Sensitivity) obj;
+    if (_label == null) {
+      if (other._label != null)
+        return false;
+    } else if (!_label.equals(other._label))
+      return false;
+    if (_order == null) {
+      if (other._order != null)
+        return false;
+    } else if (!_order.equals(other._order))
+      return false;
+    if (_underlying == null) {
+      if (other._underlying != null)
+        return false;
+    } else if (!_underlying.equals(other._underlying))
+      return false;
+    return true;
+  }
 
 }
