@@ -37,7 +37,6 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author emcleod
  */
 public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonModelFunction.class);
@@ -84,9 +83,9 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   @Override
   protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
-    Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-    if(spotAsObject == null) {
+    final FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
+    final Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+    if (spotAsObject == null) {
       s_logger.warn("Didn't have indicative value for {}, did have {}", option.getUnderlyingSecurity(), underlyingLiveData);
       throw new NullPointerException("No spot value for underlying instrument.");
     }

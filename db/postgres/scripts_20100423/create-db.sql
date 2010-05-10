@@ -79,9 +79,9 @@ create table sec_equity (
     currency_id int8 not null,
     gicscode_id int8,
     primary key (id),
-  	constraint fk_equity2currency foreign key (currency_id) references sec_currency(id),
-  	constraint fk_equity2exchange foreign key (exchange_id) references sec_exchange(id),
-  	constraint fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
+  	constraint sec_fk_equity2currency foreign key (currency_id) references sec_currency(id),
+  	constraint sec_fk_equity2exchange foreign key (exchange_id) references sec_exchange(id),
+  	constraint sec_fk_equity2gics foreign key (gicscode_id) references sec_gics(id)
 );
 
 create table sec_option (
@@ -106,10 +106,10 @@ create table sec_option (
     counterparty varchar(255),
     margined bool,
     primary key (id),
-    constraint fk_option2currency1 foreign key (currency1_id) references sec_currency (id),
-    constraint fk_option2currency2 foreign key (currency2_id) references sec_currency (id),
-    constraint fk_option2currency3 foreign key (currency3_id) references sec_currency (id),
-    constraint fk_option2exchange foreign key (exchange_id) references sec_exchange (id)
+    constraint sec_fk_option2currency1 foreign key (currency1_id) references sec_currency (id),
+    constraint sec_fk_option2currency2 foreign key (currency2_id) references sec_currency (id),
+    constraint sec_fk_option2currency3 foreign key (currency3_id) references sec_currency (id),
+    constraint sec_fk_option2exchange foreign key (exchange_id) references sec_exchange (id)
 );
 
 create table sec_frequency (
@@ -194,15 +194,15 @@ create table sec_bond (
     paramount double precision not null,
     redemptionvalue double precision not null,
     primary key (id),
-    constraint fk_bond2issuertype foreign key (issuertype_id) references sec_issuertype (id),
-    constraint fk_bond2market foreign key (market_id) references sec_market (id),
-    constraint fk_bond2currency foreign key (currency_id) references sec_currency (id),
-    constraint fk_bond2yieldconvention foreign key (yieldconvention_id) references sec_yieldconvention (id),
-    constraint fk_bond2guaranteetype foreign key (guaranteetype_id) references sec_guaranteetype (id),
-    constraint fk_bond2coupontype foreign key (coupontype_id) references sec_coupontype (id),
-    constraint fk_bond2frequency foreign key (couponfrequency_id) references sec_frequency (id),
-    constraint fk_bond2daycount foreign key (daycountconvention_id) references sec_daycount (id),
-    constraint fk_bond2businessdayconvention foreign key (businessdayconvention_id) references sec_businessdayconvention (id)
+    constraint sec_fk_bond2issuertype foreign key (issuertype_id) references sec_issuertype (id),
+    constraint sec_fk_bond2market foreign key (market_id) references sec_market (id),
+    constraint sec_fk_bond2currency foreign key (currency_id) references sec_currency (id),
+    constraint sec_fk_bond2yieldconvention foreign key (yieldconvention_id) references sec_yieldconvention (id),
+    constraint sec_fk_bond2guaranteetype foreign key (guaranteetype_id) references sec_guaranteetype (id),
+    constraint sec_fk_bond2coupontype foreign key (coupontype_id) references sec_coupontype (id),
+    constraint sec_fk_bond2frequency foreign key (couponfrequency_id) references sec_frequency (id),
+    constraint sec_fk_bond2daycount foreign key (daycountconvention_id) references sec_daycount (id),
+    constraint sec_fk_bond2businessdayconvention foreign key (businessdayconvention_id) references sec_businessdayconvention (id)
 );
 
 create table sec_future (
@@ -229,15 +229,15 @@ create table sec_future (
     underlying_scheme varchar(255),
     underlying_identifier varchar(255), 
     primary key (id),
-    constraint fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
-    constraint fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
-    constraint fk_future2currency1 foreign key (currency1_id) references sec_currency (id),
-    constraint fk_future2currency2 foreign key (currency2_id) references sec_currency (id),
-    constraint fk_future2currency3 foreign key (currency3_id) references sec_currency (id),
-    constraint fk_future2bondfuturetype foreign key (bondtype_id) references sec_bondfuturetype (id),
-    constraint fk_future2commodityfuturetype foreign key (commoditytype_id) references sec_commodityfuturetype (id),
-    constraint fk_future2cashrate foreign key (cashratetype_id) references sec_cashrate (id),
-    constraint fk_future2unit foreign key (unitname_id) references sec_unit (id)
+    constraint sec_fk_future2exchange1 foreign key (tradingexchange_id) references sec_exchange (id),
+    constraint sec_fk_future2exchange2 foreign key (settlementexchange_id) references sec_exchange (id),
+    constraint sec_fk_future2currency1 foreign key (currency1_id) references sec_currency (id),
+    constraint sec_fk_future2currency2 foreign key (currency2_id) references sec_currency (id),
+    constraint sec_fk_future2currency3 foreign key (currency3_id) references sec_currency (id),
+    constraint sec_fk_future2bondfuturetype foreign key (bondtype_id) references sec_bondfuturetype (id),
+    constraint sec_fk_future2commodityfuturetype foreign key (commoditytype_id) references sec_commodityfuturetype (id),
+    constraint sec_fk_future2cashrate foreign key (cashratetype_id) references sec_cashrate (id),
+    constraint sec_fk_future2unit foreign key (unitname_id) references sec_unit (id)
 );
 
 create table sec_futurebundle (
