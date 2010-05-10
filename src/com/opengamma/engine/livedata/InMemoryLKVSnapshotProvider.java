@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 // REVIEW kirk 2010-04-23 -- This needs to be much better synchronized as it acts
 // as the lower-level implementation for a lot of different uses.
@@ -34,15 +35,15 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, Li
     new HashMap<Long, Map<ValueRequirement, ComputedValue>>();
 
   @Override
-  public void addSubscription(String userName, ValueRequirement valueRequirement) {
+  public void addSubscription(UserPrincipal user, ValueRequirement valueRequirement) {
     // Do nothing. All values are externally provided.
     s_logger.debug("Added subscription to {}", valueRequirement);
   }
   
   @Override
-  public void addSubscription(String userName, Set<ValueRequirement> valueRequirements) {
+  public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     for (ValueRequirement requirement : valueRequirements) {
-      addSubscription(userName, requirement);      
+      addSubscription(user, requirement);      
     }
   }
 

@@ -6,6 +6,8 @@
 package com.opengamma.engine.view;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +16,9 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -24,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewDefinition implements Serializable {
   private final String _name;
   private final UniqueIdentifier _portfolioId;
-  private final String _userName;
+  private final UserPrincipal _user;
   private Long _minimumRecalculationPeriod;
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
@@ -36,7 +40,22 @@ public class ViewDefinition implements Serializable {
     
     _name = name;
     _portfolioId = portfolioId;
-    _userName = userName;
+    
+    try {
+      _user = new UserPrincipal(userName, InetAddress.getLocalHost().getHostAddress());
+    } catch (UnknownHostException e) {
+      throw new OpenGammaRuntimeException("Could not obtain local host address", e);
+    }
+  }
+  
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal user) {
+    ArgumentChecker.notNull(name, "View name");
+    ArgumentChecker.notNull(portfolioId, "Portfolio id");
+    ArgumentChecker.notNull(user, "User name");
+    
+    _name = name;
+    _portfolioId = portfolioId;
+    _user = user;
   }
   
   public Set<String> getAllValueRequirements() {
@@ -55,8 +74,8 @@ public class ViewDefinition implements Serializable {
     return _portfolioId;
   }
   
-  public String getUserName() {
-    return _userName;
+  public UserPrincipal getUser() {
+    return _user;
   }
   public Collection<ViewCalculationConfiguration> getAllCalculationConfigurations() {
     return new ArrayList<ViewCalculationConfiguration>(_calculationConfigurationsByName.values());

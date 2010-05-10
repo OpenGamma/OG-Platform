@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.TestLiveDataClient;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * 
@@ -28,6 +29,9 @@ import com.opengamma.livedata.client.TestLiveDataClient;
  * @author pietari
  */
 public class LiveDataSnapshotProviderTest {
+  
+  UserPrincipal TEST_USER = new UserPrincipal("kirk", "127.0.0.1");
+  UserPrincipal TEST_USER_2 = new UserPrincipal("alice", "127.0.0.1");
   
   protected ValueRequirement constructRequirement(String ticker) {
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.PRIMITIVE, new Identifier("testdomain", ticker));
@@ -38,12 +42,12 @@ public class LiveDataSnapshotProviderTest {
     TestLiveDataClient client = new TestLiveDataClient();
     LiveDataSnapshotProviderImpl snapshotter = new LiveDataSnapshotProviderImpl(client, new InMemorySecurityMaster());
     
-    snapshotter.addSubscription("Test User", constructRequirement("test1"));
-    snapshotter.addSubscription("Test User", constructRequirement("test2"));
+    snapshotter.addSubscription(TEST_USER, constructRequirement("test1"));
+    snapshotter.addSubscription(TEST_USER, constructRequirement("test2"));
     
-    snapshotter.addSubscription("Test User", constructRequirement("test3"));
-    snapshotter.addSubscription("Test User", constructRequirement("test3"));
-    snapshotter.addSubscription("Test User 2", constructRequirement("test3"));
+    snapshotter.addSubscription(TEST_USER, constructRequirement("test3"));
+    snapshotter.addSubscription(TEST_USER, constructRequirement("test3"));
+    snapshotter.addSubscription(TEST_USER_2, constructRequirement("test3"));
     
     MutableFudgeFieldContainer msg1 = new FudgeContext().newMessage();
     msg1.add("Foo", 52.07);
