@@ -34,10 +34,6 @@ public class DoubleMatrix1D implements Matrix<Double[]> {
     }
   }
 
-  public Double[] getDataAsObjectArray() {
-    return _data;
-  }
-
   public double[] getDataAsPrimitiveArray() {
     return _primitives;
   }

@@ -69,10 +69,6 @@ public class DoubleMatrix2D implements Matrix<Double[][]> {
 
   }
 
-  public Double[][] getDataAsObjectArray() {
-    return _data;
-  }
-
   public double[][] getDataAsPrimitiveArray() {
     return _primitives;
   }

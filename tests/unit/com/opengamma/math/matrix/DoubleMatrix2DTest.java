@@ -29,9 +29,7 @@ public class DoubleMatrix2DTest {
   public void testEmptyArray() {
     final DoubleMatrix2D d = new DoubleMatrix2D(new double[0][0]);
     final double[][] primitive = d.getDataAsPrimitiveArray();
-    final Double[][] object = d.getDataAsObjectArray();
     assertEquals(primitive.length, 0);
-    assertEquals(object.length, 0);
     assertEquals(d.getNumberOfColumns(), 0);
     assertEquals(d.getNumberOfRows(), 0);
     assertEquals(d.getNumberOfElements(), 0);
@@ -51,7 +49,7 @@ public class DoubleMatrix2DTest {
     assertEquals(d.getNumberOfRows(), m);
     assertEquals(d.getNumberOfColumns(), n);
     assertEquals(d.getNumberOfElements(), m * n);
-    final Double[][] y = d.getDataAsObjectArray();
+    final double[][] y = d.getDataAsPrimitiveArray();
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
         assertEquals(x[i][j], y[i][j], 1e-15);
