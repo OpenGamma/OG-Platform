@@ -46,7 +46,7 @@ abstract public class DBTest implements TableCreationCallback {
    * such a good idea.
    */
   @Before
-  public void init () {
+  public void setUp () throws Exception {
     String prevVersion = s_databaseTypeVersion.get (getDatabaseType ());
     if ((prevVersion == null) || !prevVersion.equals (getDatabaseVersion ())) {
       s_databaseTypeVersion.put (getDatabaseType (), getDatabaseVersion ());
@@ -55,6 +55,12 @@ abstract public class DBTest implements TableCreationCallback {
       _dbtool.createTestSchema();
       _dbtool.createTestTables(this);
     }
+    _dbtool.clearTestTables();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    _dbtool.shutdown(); // avoids locking issues with Derby
   }
 
   protected static Collection<Object[]> getParameters (final String databaseType, final int previousVersionCount) {
@@ -90,16 +96,6 @@ abstract public class DBTest implements TableCreationCallback {
     return getParameters (previousVersionCount);
   }
   
-  @Before
-  public void setUp() throws Exception {
-    _dbtool.clearTestTables();
-  }
-  
-  @After
-  public void tearDown() throws Exception {
-    _dbtool.shutdown(); // avoids locking issues with Derby
-  }
-
   public DBTool getDbTool() {
     return _dbtool;
   }
