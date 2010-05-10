@@ -377,6 +377,29 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertEquals(dts2.getTime(4), unionResult.getTime(7));
     assertEquals(dts2.getTime(5), unionResult.getTime(8));
   }
+  
+  @Test
+  public void testScalarOperators() {
+    assertOperationSuccessful(createStandardTimeSeries().add(10.0), new double[] {11.0, 12.0, 13.0, 14.0, 15.0, 16.0});
+    assertOperationSuccessful(createStandardTimeSeries().subtract(1.0), new double[] {0.0, 1.0, 2.0, 3.0, 4.0, 5.0});
+    assertOperationSuccessful(createStandardTimeSeries().multiply(2.0), new double[] {2.0, 4.0, 6.0, 8.0, 10.0, 12.0});
+    assertOperationSuccessful(createStandardTimeSeries().divide(2.0), new double[] {0.5, 1.0, 1.5, 2.0, 2.5, 3.0});
+    assertOperationSuccessful(createStandardTimeSeries().power(2.0), new double[] {1.0, 4.0, 9.0, 16.0, 25.0, 36.0});
+    assertOperationSuccessful(createStandardTimeSeries().minimum(2.0), new double[] {1.0, 2.0, 2.0, 2.0, 2.0, 2.0});
+    assertOperationSuccessful(createStandardTimeSeries().maximum(2.5), new double[] {2.5, 2.5, 3.0, 4.0, 5.0, 6.0});
+    assertOperationSuccessful(createStandardTimeSeries().average(2.0), new double[] {1.5, 2.0, 2.5, 3.0, 3.5, 4.0});
+  }
+  
+  protected static void assertOperationSuccessful(DoubleTimeSeries<?> result, double[] expected) {
+    assert expected.length == 6;
+    assertEquals(expected[0], result.getValueAt(0), 0.001);
+    assertEquals(expected[1], result.getValueAt(1), 0.001);
+    assertEquals(expected[2], result.getValueAt(2), 0.001);
+    assertEquals(expected[3], result.getValueAt(3), 0.001);
+    assertEquals(expected[4], result.getValueAt(4), 0.001);
+    assertEquals(expected[5], result.getValueAt(5), 0.001);
+    assertEquals(6, result.size());
+  }
 
 
 }
