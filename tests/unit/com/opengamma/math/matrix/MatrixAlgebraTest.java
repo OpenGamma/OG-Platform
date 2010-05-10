@@ -17,8 +17,12 @@ import org.junit.Test;
  */
 public class MatrixAlgebraTest {
   private static final MatrixAlgebra ALGEBRA = new MyMatrixAlgebra();
-  private static final MatrixAlgebra comAlgebra = new CommonsMatrixAlgebra();
-  private static final MatrixAlgebra coltAlgebra = new ColtMatrixAlgebra();
+  //private static final MatrixAlgebra comAlgebra = new CommonsMatrixAlgebra();
+  //private static final MatrixAlgebra coltAlgebra = new ColtMatrixAlgebra();
+
+  private static final MatrixAlgebra comAlgebra = MatrixAlgebraFactory.getMatrixAlgebra("Commons");
+  private static final MatrixAlgebra coltAlgebra = MatrixAlgebraFactory.getMatrixAlgebra("Colt");
+
   private static final Matrix<?> M1 = new DoubleMatrix1D(new double[] { 1, 2 });
   private static final Matrix<?> M2 = new DoubleMatrix1D(new double[] { 3, 4 });
   private static final Matrix<?> M3 = new DoubleMatrix2D(
