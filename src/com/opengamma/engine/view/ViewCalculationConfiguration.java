@@ -25,6 +25,12 @@ public class ViewCalculationConfiguration implements Serializable {
   private final Map<String, Set<String>> _requirementsBySecurityType =
     new TreeMap<String, Set<String>>();
   
+  /**
+   * Start with an empty delta definition which will perform simple equality comparisons. This should be customized as
+   * required for the view configuration.
+   */
+  private final DeltaDefinition _deltaDefinition = new DeltaDefinition();
+  
   public ViewCalculationConfiguration(ViewDefinition definition, String name) {
     ArgumentChecker.notNull(definition, "Parent view definition");
     ArgumentChecker.notNull(name, "Calculation configuration name");
@@ -44,6 +50,13 @@ public class ViewCalculationConfiguration implements Serializable {
    */
   public String getName() {
     return _name;
+  }
+  
+  /**
+   * @return the delta definition
+   */
+  public DeltaDefinition getDeltaDefinition() {
+    return _deltaDefinition;
   }
 
   public Map<String, Set<String>> getValueRequirementsBySecurityTypes() {

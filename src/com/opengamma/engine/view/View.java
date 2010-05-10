@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -262,15 +261,17 @@ public class View implements Lifecycle {
         }
       } else {
         // Have to individual delta.
+        DeltaDefinition deltaDefinition = getDefinition().getCalculationConfiguration(calcConfigName).getDeltaDefinition();
         for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
           ComputedValue resultValue = resultEntry.getValue();
           ComputedValue previousValue = previousValues.get(resultEntry.getKey());
-          if(previousValue == null) {
-            deltaModel.addValue(calcConfigName, resultEntry.getValue());
-          } else if(!ObjectUtils.equals(resultValue, previousValue)) {
-            // That comparison INTENTIONALLY checks the whole value rather than value.getValue().
-            // This is so that we can capture changes to the ValueSpecification metadata
-            // in between invocations.
+          // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
+          // computation cycle, not the value that we last emitted as a delta. It is therefore important that the
+          // DeltaComparers take this into account in their implementation of isDelta. E.g. they should compare the
+          // values after truncation to the required decimal place, rather than testing whether the difference of the
+          // full values is greater than some threshold; this way, there will always be a point beyond which a change
+          // is detected, even in the event of gradual creep.
+          if(deltaDefinition.isDelta(previousValue, resultValue)) {
             deltaModel.addValue(calcConfigName, resultEntry.getValue());
           }
         }
