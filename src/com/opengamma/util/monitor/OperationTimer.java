@@ -26,16 +26,17 @@ public class OperationTimer {
     ArgumentChecker.notNull(logger, "Logger");
     ArgumentChecker.notNull(format, "Reporting format");
     
-    _startTime = System.currentTimeMillis();
+    _startTime = System.nanoTime();
     _logger = logger;
     _format = format;
     _arguments = arguments;
   }
   
   public void finished() {
-    long stopTime = System.currentTimeMillis();
+    long stopTime = System.nanoTime();
     long duration = stopTime - _startTime;
-    getReporter().report(duration, _logger, _format, _arguments);
+    long durationInMilliseconds = duration / 1000;
+    getReporter().report(durationInMilliseconds, _logger, _format, _arguments);
   }
   
   private static final OperationTimeReporter REPORTER = new LoggingOperationTimeReporter();
