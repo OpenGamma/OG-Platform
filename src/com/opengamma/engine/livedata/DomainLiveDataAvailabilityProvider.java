@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -18,51 +18,56 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.util.ArgumentChecker;
 
-
 /**
- *
- *
- * @author kirk
+ * Data provider for live data.
  */
-public class DomainLiveDataAvailabilityProvider
-implements LiveDataAvailabilityProvider {
-  
+public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityProvider {
+
+  /**
+   * The security master to resolve against.
+   */
   private final SecurityMaster _securityMaster;
-  private final Collection<IdentificationScheme> _acceptableDomains;
-  
-  public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableDomains) {
+  /**
+   * The list of acceptable schemes.
+   */
+  private final Collection<IdentificationScheme> _acceptableSchemes;
+
+  /**
+   * Creates a provider.
+   * @param secMaster  the security master, not null
+   * @param acceptableSchemes  the acceptable schemes, not null
+   */
+  public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableSchemes) {
     ArgumentChecker.notNull(secMaster, "Security master");
-    ArgumentChecker.notNull(acceptableDomains, "Available domains");
+    ArgumentChecker.notNull(acceptableSchemes, "Available domains");
     _securityMaster = secMaster;
-    _acceptableDomains = Arrays.asList(acceptableDomains);
+    _acceptableSchemes = Arrays.asList(acceptableSchemes);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean isAvailable(ValueRequirement requirement) {
-    if(!ObjectUtils.equals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName())) {
+    if (!ObjectUtils.equals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName())) {
       return false;
     }
-    
     switch (requirement.getTargetSpecification().getType()) {
-    
-    case PRIMITIVE:
-      IdentificationScheme domain = requirement.getTargetSpecification().getIdentifier().getScheme();
-      return _acceptableDomains.contains(domain);
-    
-    case SECURITY:
-      Security security = _securityMaster.getSecurity(requirement.getTargetSpecification().getIdentifier());
-      if (security == null) {
+      case PRIMITIVE: {
+        IdentificationScheme scheme = requirement.getTargetSpecification().getIdentifier().getScheme();
+        return _acceptableSchemes.contains(scheme);
+      }
+      case SECURITY: {
+        Security security = _securityMaster.getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+        if (security != null) {
+          for (Identifier identifier : security.getIdentifiers()) {
+            if (_acceptableSchemes.contains(identifier.getScheme())) {
+              return true;
+            }
+          }
+        }
         return false;
       }
-      for (Identifier identifier : security.getIdentifiers()) {
-        if (_acceptableDomains.contains(identifier.getScheme())) {
-          return true;
-        }
-      }
-      return false;
-    
-    default:
-      return false;
+      default:
+        return false;
     }
   }
 

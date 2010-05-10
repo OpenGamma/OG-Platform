@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -7,11 +7,11 @@ package com.opengamma.engine.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -19,72 +19,68 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-
+import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A simple purely in-memory implementation of the {@link SecurityMaster}
- * interface.
+ * A simple purely in-memory implementation of the security master.
+ * <p>
  * This class is primarily useful in testing scenarios, or when operating
  * as a cache on top of a slower {@link SecurityMaster} implementation.
- * <p/>
- * The lookup strategy followed is based on a logical OR of the identifiers
- * in the key (e.g. any of them can produce a match). The specific
- * lookup algorithm is:
- * <ol>
- *   <li>Look at each {@link Identifier} obtained from the
- *       {@link SecurityKey} in turn; for each:</li>
- *   <li>Look at the {@link Security} instances added to this instance,
- *       <em>in the order in which they were added</em>, to determine
- *       if there is a match for that {@link Identifier}.</li>
- *   <li>If there is a match for that identifier, match found.</li>
- *   <li>For single {@link Security} lookup, if a match found, return it.</li>
- *   <li>For multiple {@link Security} lookup, identify all matches for all identifiers.</li> 
- * </ol>
- *
- * @author kirk
  */
 public class InMemorySecurityMaster implements SecurityMaster {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(InMemorySecurityMaster.class);
-  // REVIEW kirk 2009-09-01 -- This is grotesquely unoptimized. Areas that
-  // it can be improved:
-  // 1 - Tighten down the synchronization dramatically
-  // 2 - Cache (using putIfAbsent on a series of ConcurrentHashMaps) the
-  //     mapping from SecurityIdentifier to Security.
-  private final AtomicLong _nextIdentityKey = new AtomicLong(1l);
-  private final List<Security> _securities = new ArrayList<Security>();
-  private final Map<Identifier, Security> _securitiesByIdentityKey =
-    new HashMap<Identifier, Security>();
-  
+
+  /**
+   * The securities keyed by identifier.
+   */
+  private final ConcurrentMap<UniqueIdentifier, Security> _securities = new ConcurrentHashMap<UniqueIdentifier, Security>();
+  /**
+   * The next index for the identifier.
+   */
+  private final AtomicLong _nextIdentityKey = new AtomicLong();
+
+  /**
+   * Creates the security master.
+   */
   public InMemorySecurityMaster() {
   }
-  
+
+  /**
+   * Creates the security master from a collection of securities.
+   * @param securities  the securities to start with, null ignored
+   */
   public InMemorySecurityMaster(Collection<? extends DefaultSecurity> securities) {
-    if(securities != null) {
-      for(DefaultSecurity sec : securities) {
-        add(sec);
+    if (securities != null) {
+      for (DefaultSecurity sec : securities) {
+        addSecurity(sec);
       }
     }
   }
-  
-  public synchronized void add(DefaultSecurity security) {
-    if(security.getSecurityType() == null) {
-      s_logger.warn("Security {} lacks a security type.", security);
-    }
-    _securities.add(security);
-    String identityKey = Long.toString(_nextIdentityKey.getAndAdd(1l));
-    security.setIdentityKey(identityKey);
-    _securitiesByIdentityKey.put(security.getIdentityKey(), security);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds a specific security by identifier.
+   * @param identifier  the identifier, null returns null
+   * @return the security, null if not found
+   */
+  public Security getSecurity(UniqueIdentifier identifier) {
+    return identifier == null ? null : _securities.get(identifier);
   }
 
-  @Override
-  public synchronized Collection<Security> getSecurities(IdentifierBundle secKey) {
+  /**
+   * Finds all securities that match the specified bundle of keys.
+   * If there are none specified, this method must return an
+   * empty collection, and not {@code null}.
+   * @param securityKey  the bundle keys to match, not null
+   * @return all securities matching the specified key, empty if no matches, not null
+   */
+  public Collection<Security> getSecurities(IdentifierBundle securityKey) {
     List<Security> result = new ArrayList<Security>();
-    if(secKey == null) {
-      return result;
-    }
-    for(Identifier secId : secKey.getIdentifiers()) {
-      for(Security sec : _securities) {
-        if(sec.getIdentifiers().contains(secId)) {
+    if (securityKey != null) {
+      for (Security sec : _securities.values()) {
+        if (sec.getIdentifiers().containsAny(securityKey)) {
           result.add(sec);
         }
       }
@@ -92,36 +88,55 @@ public class InMemorySecurityMaster implements SecurityMaster {
     return result;
   }
 
-  @Override
-  public synchronized Security getSecurity(IdentifierBundle secKey) {
-    if(secKey == null) {
-      return null;
-    }
-    for(Identifier secId : secKey.getIdentifiers()) {
-      for(Security sec : _securities) {
-        if(sec.getIdentifiers().contains(secId)) {
-          return sec;
+  /**
+   * Finds the single best-fit security that matches the specified bundle of keys.
+   * <p>
+   * This implementation loops through each identifier in the supplied bundle
+   * and searches for a matching security returning the first match.
+   * @param securityKey  the bundle keys to match, not null
+   * @return the single security matching the bundle of keys, null if not found
+   */
+  public Security getSecurity(IdentifierBundle securityKey) {
+    if (securityKey != null) {
+      for (Identifier secId : securityKey.getIdentifiers()) {
+        for (Security sec : _securities.values()) {
+          if (sec.getIdentifiers().contains(secId)) {
+            return sec;
+          }
         }
       }
     }
     return null;
   }
 
-  @Override
+  /**
+   * Obtain all the available security types in this security master.
+   * <p>
+   * The implementation should return the available types, however if this is
+   * not possible it may return all potential types.
+   * @return the set of available security types, not null
+   */
   public Set<String> getAllSecurityTypes() {
     Set<String> result = new TreeSet<String>();
-    for(Security security : _securities) {
-      String secType = security.getSecurityType();
-      if(secType != null) {
-        result.add(secType);
-      }
+    for (Security security : _securities.values()) {
+      result.add(security.getSecurityType());
     }
+    result.remove(null);
     return result;
   }
 
-  @Override
-  public Security getSecurity(Identifier identityKey) {
-    return _securitiesByIdentityKey.get(identityKey);
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a security to the master.
+   * @param security  the security to add, not null
+   */
+  public void addSecurity(DefaultSecurity security) {
+    if (security.getSecurityType() == null) {
+      s_logger.warn("Security {} lacks a security type", security);
+    }
+    UniqueIdentifier identifier = UniqueIdentifier.of("Memory", Long.toString(_nextIdentityKey.incrementAndGet()));
+    security.setUniqueIdentifier(identifier);
+    _securities.putIfAbsent(security.getUniqueIdentifier(), security);
   }
-  
+
 }

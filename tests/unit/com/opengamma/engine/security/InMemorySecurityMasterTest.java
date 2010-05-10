@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -12,21 +12,18 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.junit.Test;
 
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentificationScheme;
 
 /**
- * 
- *
- * @author kirk
+ * Test InMemorySecurityMaster.
  */
 public class InMemorySecurityMasterTest {
-  
+ 
   @Test
   public void empty() {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
@@ -47,8 +44,8 @@ public class InMemorySecurityMasterTest {
     IdentifierBundle secKey3 = new IdentifierBundle(secId1, secId2);
     
     DefaultSecurity sec = new DefaultSecurity();
-    sec.setIdentifiers(Collections.singleton(secId1));
-    secMaster.add(sec);
+    sec.addIdentifier(secId1);
+    secMaster.addSecurity(sec);
     
     assertSame(sec, secMaster.getSecurity(secKey1));
     assertNull(secMaster.getSecurity(secKey2));
@@ -76,12 +73,12 @@ public class InMemorySecurityMasterTest {
     IdentifierBundle secKey3 = new IdentifierBundle(secId1, secId2);
     
     DefaultSecurity sec1 = new DefaultSecurity();
-    sec1.setIdentifiers(Collections.singleton(secId1));
-    secMaster.add(sec1);
+    sec1.addIdentifier(secId1);
+    secMaster.addSecurity(sec1);
     
     DefaultSecurity sec2 = new DefaultSecurity();
-    sec2.setIdentifiers(Collections.singleton(secId2));
-    secMaster.add(sec2);
+    sec2.addIdentifier(secId2);
+    secMaster.addSecurity(sec2);
     
     assertSame(sec1, secMaster.getSecurity(secKey1));
     assertSame(sec2, secMaster.getSecurity(secKey2));

@@ -24,7 +24,7 @@ public interface PositionMaster {
   Set<UniqueIdentifier> getPortfolioIds();
 
   /**
-   * Gets a specific root portfolio by name.
+   * Finds a specific portfolio by identifier.
    * @param identifier  the identifier, null returns null
    * @return the portfolio, null if not found
    */

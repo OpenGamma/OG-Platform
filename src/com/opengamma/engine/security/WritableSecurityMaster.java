@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -7,20 +7,19 @@ package com.opengamma.engine.security;
 
 import java.util.Date;
 
+import com.opengamma.id.UniqueIdentifier;
+
 /**
- * A {@link SecurityMaster} which can persist {@link Security} objects as
- * well as retrieve.
- *
- * @author Andrew Griffin
+ * A security master that can allows update as well as retrieval.
  */
 public interface WritableSecurityMaster extends SecurityMaster {
-  
+
   /**
    * Persist the given security.
    * 
-   * @param now the date at which the security is to be stored, for implementations that can hold multiple versions of a security from different times
-   * @param security the security to store
+   * @param instant  the instant at which the security is to be stored, null if no historical storage
+   * @param security  the security to store, not null
    */
-  public void putSecurity (final Date now, final Security security);
-  
+  public UniqueIdentifier putSecurity(final Date instant, final Security security);
+
 }

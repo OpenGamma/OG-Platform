@@ -117,8 +117,8 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       // Just use the identifier as given.
       return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), requirement.getTargetSpecification().getIdentifier());
     case SECURITY:
-      Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getIdentifier());
-      if(security == null) {
+      Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+      if (security == null) {
         throw new OpenGammaRuntimeException("Unknown security in configured security master: " + requirement.getTargetSpecification().getIdentifier());
       }
       // Package up the other identifiers
