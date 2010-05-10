@@ -19,6 +19,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * Fudge message builder for {@code ViewDefinition}.
@@ -27,7 +28,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
   public static final String FIELD_NAME = "name";
   public static final String FIELD_IDENTIFIER = "identifier";
-  public static final String FIELD_USERNAME = "userName";
+  public static final String FIELD_USER = "user";
   public static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
   public static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
 
@@ -36,7 +37,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(FIELD_NAME, null, viewDefinition.getName());
     context.objectToFudgeMsg (message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId ());
-    message.add(FIELD_USERNAME, null, viewDefinition.getUserName());
+    context.objectToFudgeMsg(message, FIELD_USER, null, viewDefinition.getUser());
     Map<String,ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
     for (ViewCalculationConfiguration calculationConfiguration: calculationConfigurations.values()) {
       final MutableFudgeFieldContainer config = context.newMessage();
@@ -53,7 +54,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     final ViewDefinition viewDefinition = new ViewDefinition (
         message.getFieldValue(String.class, message.getByName (FIELD_NAME)),
         context.fieldValueToObject(UniqueIdentifier.class, message.getByName (FIELD_IDENTIFIER)),
-        message.getFieldValue(String.class, message.getByName(FIELD_USERNAME)));
+        context.fieldValueToObject(UserPrincipal.class, message.getByName(FIELD_USER)));
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {
       final FudgeFieldContainer calcConfig = message.getFieldValue(FudgeFieldContainer.class, calcConfigField);

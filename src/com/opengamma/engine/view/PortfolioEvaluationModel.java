@@ -358,7 +358,7 @@ public class PortfolioEvaluationModel {
     Set<ValueRequirement> liveDataRequirements = getAllLiveDataRequirements();
     
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", liveDataRequirements.size());
-    viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUserName(), liveDataRequirements);
+    viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUser(), liveDataRequirements);
     timer.finished();
   }
   

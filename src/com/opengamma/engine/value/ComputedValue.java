@@ -15,6 +15,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 // NOTE kirk 2009-12-30 -- This is VERY intentionally NOT generified. Having actually
@@ -94,7 +95,25 @@ public class ComputedValue implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    // The fields we're interested in are somewhat deeply nested, so pick them out manually rather than reflecting
+    ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
+    StringBuffer sb = new StringBuffer();
+    style.appendStart(sb, this);
+    ValueSpecification spec = getSpecification();
+    if (spec != null) {
+      ValueRequirement requirements = spec.getRequirementSpecification();
+      if (requirements != null) {
+        style.append(sb, "name", requirements.getValueName(), null);
+        ComputationTargetSpecification targetSpec = requirements.getTargetSpecification();
+        if (targetSpec != null) {
+          style.append(sb, "targetId", targetSpec.getIdentifier(), null);
+          style.append(sb, "targetType", targetSpec.getType(), null);
+        }
+      }
+    }
+    style.append(sb, "value", getValue(), null);
+    style.appendEnd(sb, this);
+    return sb.toString();
   }
   
   public FudgeFieldContainer toFudgeMsg (final FudgeSerializationContext context) {

@@ -28,6 +28,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.client.LiveDataClient;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -84,12 +85,12 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   }
 
   @Override
-  public void addSubscription(String userName, ValueRequirement requirement) {
-    addSubscription(userName, Collections.singleton(requirement));    
+  public void addSubscription(UserPrincipal user, ValueRequirement requirement) {
+    addSubscription(user, Collections.singleton(requirement));    
   }
   
   @Override
-  public void addSubscription(String userName, Set<ValueRequirement> valueRequirements) {
+  public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
       LiveDataSpecification liveDataSpec = constructRequirementLiveDataSpecification(requirement);
@@ -101,7 +102,7 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       }
       requirementsForSpec.add(requirement);
       
-      _liveDataClient.subscribe(userName, liveDataSpec, this);
+      _liveDataClient.subscribe(user, liveDataSpec, this);
     }
     //_liveDataClient.subscribe(userName, liveDataSpecs, this);
   }

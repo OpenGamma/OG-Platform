@@ -31,7 +31,7 @@ public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
     final MutableFudgeFieldContainer message = context.newMessage ();
     context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueIdentifier());
     message.add(FIELD_NAME, portfolio.getName());
-    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getUniqueIdentifier());
+    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getRootNode ());
     return message;
   }
 
