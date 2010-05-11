@@ -1,48 +1,131 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.value;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.math.BigDecimal;
+
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.junit.Test;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.Identifier;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
- *
- * @author kirk
+ * Test ValueRequirement.
  */
 public class ValueRequirementTest {
-  
-  private final static Identifier USD = new Identifier(new IdentificationScheme("currency"), "USD");  
-  private final static Identifier GBP = new Identifier(new IdentificationScheme("currency"), "GBP");
-  
+
+  private static final Identifier USD = new Identifier(new IdentificationScheme("currency"), "USD");  
+  private static final Identifier GBP = new Identifier(new IdentificationScheme("currency"), "GBP");
+  private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("A", "B"), new BigDecimal(1), new IdentifierBundle());
+  private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
+
+  @Test
+  public void test_constructor_Position() {
+    ValueRequirement test = new ValueRequirement("DATA", SPEC);
+    assertEquals("DATA", test.getValueName());
+    assertEquals(SPEC, test.getTargetSpecification());
+  }
+
   @Test(expected=NullPointerException.class)
-  public void nullValueType() {
+  public void test_constructor_nullValue() {
+    new ValueRequirement(null, SPEC);
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_constructor_nullSpec() {
+    new ValueRequirement("DATA", null);
+  }
+
+  @Test
+  public void test_constructor_TypeUniqueIdentifier_Position() {
+    ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    assertEquals("DATA", test.getValueName());
+    assertEquals(SPEC, test.getTargetSpecification());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_constructor_TypeUniqueIdentifier_nullValue() {
+    new ValueRequirement(null, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_constructor_TypeUniqueIdentifier_nullType() {
+    new ValueRequirement("DATA", null, POSITION.getUniqueIdentifier());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_constructor_TypeIdentifier_nullValue() {
     new ValueRequirement(null, ComputationTargetType.PRIMITIVE, USD);
   }
 
   @Test(expected=NullPointerException.class)
-  public void nullComputationTargetType() {
-    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, null, USD);
+  public void test_constructor_TypeIdentifier_nullType() {
+    new ValueRequirement("DATA", null, USD);
   }
-  
+
   @Test
-  public void validConstructors() {
-    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
-    new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (Identifier) null);
+  public void test_constructor_Object_Position() {
+    ValueRequirement test = new ValueRequirement("DATA", POSITION);
+    assertEquals("DATA", test.getValueName());
+    assertEquals(SPEC, test.getTargetSpecification());
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void toStringTest() {
+  public void test_equals() {
+    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
+    assertTrue(req1.equals(req1));
+    assertFalse(req1.equals(null));
+    assertFalse(req1.equals("Rubbish"));
+    
+    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
+    assertTrue(req1.equals(req2));
+    assertTrue(req2.equals(req1));
+    
+    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
+    assertFalse(req1.equals(req2));
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    assertFalse(req1.equals(req2));
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
+    assertFalse(req1.equals(req2));
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
+    assertFalse(req1.equals(req2));
+  }
+
+  @Test
+  public void test_hashCode() {
+    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
+    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
+    
+    assertTrue(req1.hashCode() == req2.hashCode());
+    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
+    assertFalse(req1.hashCode() == req2.hashCode());
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
+    assertFalse(req1.hashCode() == req2.hashCode());
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
+    assertFalse(req1.hashCode() == req2.hashCode());
+    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
+    assertFalse(req1.hashCode() == req2.hashCode());
+  }
+
+  @Test
+  public void test_toString() {
     ValueRequirement valueReq = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
     String toString = valueReq.toString();
     assertNotNull(toString);
@@ -50,42 +133,19 @@ public class ValueRequirementTest {
     assertTrue(toString.contains(ValueRequirementNames.DISCOUNT_CURVE));
     assertTrue(toString.contains(ComputationTargetType.PRIMITIVE.toString()));
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void hashCodeTest() {
-    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
-    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
+  public void test_fudgeEncoding() {
+    ValueRequirement test = new ValueRequirement("DATA", ComputationTargetType.PRIMITIVE, USD);
+    FudgeContext context = new FudgeContext();
+    MutableFudgeFieldContainer msg = context.newMessage();
+    test.toFudgeMsg(context, msg);
+    assertNotNull(msg);
+    assertEquals(3, msg.getNumFields());
     
-    assertTrue(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
-    assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.SECURITY, USD);
-    assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
-    assertFalse(req1.hashCode() == req2.hashCode());
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (Identifier) null);
-    assertFalse(req1.hashCode() == req2.hashCode());
-  }
-  
-  @Test
-  public void equalsTest() {
-    ValueRequirement req1 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
-    
-    assertTrue(req1.equals(req1));
-    assertFalse(req1.equals(null));
-    
-    ValueRequirement req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, USD);
-    assertTrue(req1.equals(req2));
-    
-    req2 = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, USD);
-    assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.SECURITY, USD);
-    assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, GBP);
-    assertFalse(req1.equals(req2));
-    req2 = new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, (Identifier) null);
-    assertFalse(req1.equals(req2));
-    
+    ValueRequirement decoded = ValueRequirement.fromFudgeMsg(msg);
+    assertEquals(test, decoded);
   }
 
 }
