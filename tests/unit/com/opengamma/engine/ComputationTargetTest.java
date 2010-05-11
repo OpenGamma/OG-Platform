@@ -72,8 +72,6 @@ public class ComputationTargetTest {
     assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
     assertEquals(NODE, test.getValue());
     assertEquals(NODE.getUniqueIdentifier(), test.getUniqueIdentifier());
-    assertEquals(NODE.getUniqueIdentifier().getScheme(), test.getIdentityKey().getScheme().getName());
-    assertEquals(NODE.getUniqueIdentifier().getValue(), test.getIdentityKey().getValue());
     assertEquals(NODE, test.getPortfolioNode());
   }
 
@@ -89,8 +87,6 @@ public class ComputationTargetTest {
     assertEquals(ComputationTargetType.POSITION, test.getType());
     assertEquals(POSITION, test.getValue());
     assertEquals(POSITION.getUniqueIdentifier(), test.getUniqueIdentifier());
-    assertEquals(POSITION.getUniqueIdentifier().getScheme(), test.getIdentityKey().getScheme().getName());
-    assertEquals(POSITION.getUniqueIdentifier().getValue(), test.getIdentityKey().getValue());
     assertEquals(POSITION, test.getPosition());
   }
 
@@ -106,8 +102,6 @@ public class ComputationTargetTest {
     assertEquals(ComputationTargetType.SECURITY, test.getType());
     assertEquals(SECURITY, test.getValue());
     assertEquals(SECURITY.getUniqueIdentifier(), test.getUniqueIdentifier());
-    assertEquals(SECURITY.getUniqueIdentifier().getScheme(), test.getIdentityKey().getScheme().getName());
-    assertEquals(SECURITY.getUniqueIdentifier().getValue(), test.getIdentityKey().getValue());
     assertEquals(SECURITY, test.getSecurity());
   }
 
@@ -123,7 +117,6 @@ public class ComputationTargetTest {
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
     assertEquals("Str", test.getValue());
     assertEquals(null, test.getUniqueIdentifier());
-    assertEquals(null, test.getIdentityKey());
   }
 
   //-------------------------------------------------------------------------

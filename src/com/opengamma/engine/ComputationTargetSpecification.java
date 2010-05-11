@@ -59,7 +59,9 @@ public final class ComputationTargetSpecification implements Serializable {
         break;
       }
       case PRIMITIVE: {
-        if (target instanceof Identifiable) {
+        if (target instanceof UniqueIdentifiable) {
+          _uid = ((UniqueIdentifiable) target).getUniqueIdentifier();
+        } else if (target instanceof Identifiable) {
           Identifier id = ((Identifiable) target).getIdentityKey();
           _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else if (target instanceof Identifier) {

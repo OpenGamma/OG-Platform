@@ -126,7 +126,7 @@ public class DependencyNode {
     if(requirement.getTargetSpecification().getType() != getComputationTarget().getType()) {
       return null;
     }
-    if(!ObjectUtils.equals(requirement.getTargetSpecification().getIdentifier(), getComputationTarget().getIdentityKey())) {
+    if(!ObjectUtils.equals(requirement.getTargetSpecification().getUniqueIdentifier(), getComputationTarget().getUniqueIdentifier())) {
       return null;
     }
     for(ValueSpecification outputSpec : _outputValues) {

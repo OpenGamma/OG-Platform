@@ -13,8 +13,6 @@ import org.apache.commons.lang.text.StrBuilder;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -75,23 +73,6 @@ public class ComputationTarget implements Serializable {
   }
 
   /**
-   * Gets the unique identifier (old fashioned "identity key"), if one exists.
-   * @return the unique identifier, may be null
-   */
-  public Identifier getIdentityKey() {
-    // TODO: remove once Security is UniqueIdentifiable
-    Object value = getValue();
-    if (value instanceof Identifiable) {
-      return ((Identifiable) value).getIdentityKey();
-    }
-    if (value instanceof UniqueIdentifiable) {
-      UniqueIdentifier key = ((UniqueIdentifiable) value).getUniqueIdentifier();
-      return Identifier.of(key.getScheme(), key.getValue());
-    }
-    return null;
-  }
-
-  /**
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
@@ -99,10 +80,6 @@ public class ComputationTarget implements Serializable {
     Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
       return ((UniqueIdentifiable) value).getUniqueIdentifier();
-    }
-    if (value instanceof Identifiable) {  // TODO: remove once Security is UniqueIdentifiable
-      Identifier key = ((Identifiable) value).getIdentityKey();
-      return UniqueIdentifier.of(key.getScheme().getName(), key.getValue());
     }
     return null;
   }

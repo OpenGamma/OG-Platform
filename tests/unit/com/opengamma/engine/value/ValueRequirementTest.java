@@ -20,8 +20,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.id.IdentificationScheme;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -30,8 +28,8 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class ValueRequirementTest {
 
-  private static final Identifier USD = new Identifier(new IdentificationScheme("currency"), "USD");  
-  private static final Identifier GBP = new Identifier(new IdentificationScheme("currency"), "GBP");
+  private static final UniqueIdentifier USD = UniqueIdentifier.of("currency", "USD");  
+  private static final UniqueIdentifier GBP = UniqueIdentifier.of("currency", "GBP");
   private static final Position POSITION = new PositionImpl(UniqueIdentifier.of("A", "B"), new BigDecimal(1), new IdentifierBundle());
   private static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
 
