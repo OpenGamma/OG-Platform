@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.engine;
+package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
 import java.util.Set;
@@ -11,18 +11,17 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
 
 /**
- * 
- *
- * @author jim
+ * Test DependencyNode.
  */
 public class DependencyNodeTest {
   
