@@ -11,6 +11,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -198,6 +200,19 @@ public class IdentifierBundleTest {
   public void test_contains_null() {
     IdentifierBundle test = new IdentifierBundle(_id11, _id12);
     assertEquals(false, test.contains(null));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toStringList() {
+    IdentifierBundle test = new IdentifierBundle(_id11, _id12);
+    assertEquals(Arrays.asList(_id11.toString(), _id12.toString()), test.toStringList());
+  }
+
+  @Test
+  public void test_toStringList_empty() {
+    IdentifierBundle test = new IdentifierBundle();
+    assertEquals(new ArrayList<String>(), test.toStringList());
   }
 
   //-------------------------------------------------------------------------

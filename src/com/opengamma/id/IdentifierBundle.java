@@ -8,11 +8,13 @@ package com.opengamma.id;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -192,6 +194,18 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
    */
   public boolean contains(Identifier identifier) {
     return identifier != null && _identifiers.contains(identifier);
+  }
+
+  /**
+   * Converts this bundle to a list of formatted strings.
+   * @return the list of identifiers as strings, not null
+   */
+  public List<String> toStringList() {
+    List<String> list = new ArrayList<String>();
+    for (Identifier id : this) {
+      list.add(id.toString());
+    }
+    return list;
   }
 
   //-------------------------------------------------------------------------
