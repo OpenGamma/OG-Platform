@@ -193,6 +193,10 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     ArgumentChecker.notNull(user, "User");
     ArgumentChecker.notNull(requestedSpecifications, "Live Data specifications");
     
+    if (requestedSpecifications.isEmpty()) {
+      return Collections.emptyList();
+    }
+    
     SnapshotListener listener = new SnapshotListener(requestedSpecifications.size());
     
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   

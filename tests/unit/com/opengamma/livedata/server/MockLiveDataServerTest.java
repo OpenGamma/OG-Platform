@@ -12,10 +12,20 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.msg.SubscriptionType;
+import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.livedata.normalization.StandardRules;
 
 /**
  * 
@@ -80,6 +90,43 @@ public class MockLiveDataServerTest {
     
     assertTrue(_server.unsubscribe(nonpersistent));
     assertFalse(_server.unsubscribe(persistent)); // this version of unsubscribe will not do anything to persistent subscriptions 
+  }
+  
+  @Test
+  public void subscribeUnsubscribeC() {
+    UserPrincipal user = new UserPrincipal("mark", "1.1.1.1");
+    
+    LiveDataSpecification requestedSpec = new LiveDataSpecification(
+        StandardRules.getNoNormalization().getId(), 
+        new Identifier(_domain, "testsub"));
+    
+    LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(
+        user,
+        SubscriptionType.NON_PERSISTENT, 
+        Collections.singleton(requestedSpec));
+    
+    LiveDataSubscriptionResponseMsg response = _server.subscriptionRequestMade(request);
+    
+    checkResponse(user, requestedSpec, response);
+    
+    assertTrue(_server.unsubscribe("testsub"));
+    
+    response = _server.subscriptionRequestMade(request);
+    checkResponse(user, requestedSpec, response);
+    
+    assertTrue(_server.unsubscribe("testsub"));
+  }
+
+  private void checkResponse(UserPrincipal user, LiveDataSpecification requestedSpec,
+      LiveDataSubscriptionResponseMsg response) {
+    assertEquals(user, response.getRequestingUser());
+    assertEquals(1, response.getResponses().size());
+    assertEquals(requestedSpec, response.getResponses().get(0).getRequestedSpecification());
+    assertEquals(requestedSpec, response.getResponses().get(0).getFullyQualifiedSpecification()); // mock server does not modify spec
+    assertEquals(LiveDataSubscriptionResult.SUCCESS, response.getResponses().get(0).getSubscriptionResult());
+    assertEquals(null, response.getResponses().get(0).getSnapshot()); 
+    assertEquals(requestedSpec.getIdentifiers().toString(), response.getResponses().get(0).getTickDistributionSpecification());
+    assertEquals(null, response.getResponses().get(0).getUserMessage());
   }
   
 }

@@ -146,7 +146,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * The map must contain an entry for each <code>uniqueId</code>.
    * Failure to subscribe to any <code>uniqueId</code> should result in an exception being thrown. 
    * 
-   * @param A collection of unique IDs
+   * @param uniqueIds A collection of unique IDs. Not null. May be empty.
    * @return Subscription handles corresponding to the unique IDs.
    * @throws RuntimeException If subscribing to any unique IDs failed.
    */
@@ -156,10 +156,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * Unsubscribes to the given ticker(s) using the underlying market
    * data provider.
    *  
-   * @param subscriptionHandle
-   *          Subscription handle(s) returned by {@link #doSubscribe(Collection uniqueIds)}
+   * @param subscriptionHandles
+   *          Subscription handle(s) returned by {@link #doSubscribe(Collection uniqueIds)}.
+   *          Not null. May be empty.
    */
-  protected abstract void doUnsubscribe(Collection<Object> subscriptionHandle);
+  protected abstract void doUnsubscribe(Collection<Object> subscriptionHandles);
   
   /**
    * Returns an image (i.e., all fields) from the underlying market data provider.
@@ -168,6 +169,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * The map must contain an entry for each <code>uniqueId</code>.
    * Failure to snapshot any <code>uniqueId</code> should result in an exception being thrown. 
    * 
+   * @param uniqueIds Not null. May be empty.
    * @throws RuntimeException If the snapshot could not be obtained.
    */
   protected abstract Map<String, FudgeFieldContainer> doSnapshot(Collection<String> uniqueIds);
@@ -302,7 +304,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   public Map<LiveDataSpecification, SubscriptionResult> subscribe(Collection<LiveDataSpecification> liveDataSpecificationsFromClient, 
       boolean persistent) {
-    ArgumentChecker.notEmpty(liveDataSpecificationsFromClient, "Subscriptions to be created");
+    ArgumentChecker.notNull(liveDataSpecificationsFromClient, "Subscriptions to be created");
+    
+    s_logger.info("Subscribe requested for {}, persistent = {}", liveDataSpecificationsFromClient, persistent);
     
     verifyConnectionOk();
     
@@ -320,6 +324,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         try {
           distributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(specFromClient);
         } catch (RuntimeException e) {
+          s_logger.info("Unable to work out distribution spec for specification {}",
+              specFromClient);
           liveDataSpecFromClient2Result.put(specFromClient, new SubscriptionResult(specFromClient, 
               null, 
               LiveDataSubscriptionResult.NOT_PRESENT, 
@@ -342,6 +348,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           }
           
           subscription.createDistribution(distributionSpec, getMarketDataSenders());
+          liveDataSpecFromClient2Result.put(specFromClient, new SubscriptionResult(specFromClient, 
+              distributionSpec, 
+              LiveDataSubscriptionResult.SUCCESS, 
+              null));                    
     
         } else {
     
@@ -368,23 +378,23 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         }
       }
       
-      if (!newSubscriptionsForWhichSnapshotIsRequired.isEmpty()) {
-        Map<String, FudgeFieldContainer> snapshots = doSnapshot(newSubscriptionsForWhichSnapshotIsRequired);
-        for (Map.Entry<String, FudgeFieldContainer> snapshot : snapshots.entrySet()) {
-          Subscription subscription = securityUniqueId2NewSubscription.get(snapshot.getKey());
-          subscription.initialSnapshotReceived(snapshot.getValue());
-        }
+      s_logger.info("Subscription snapshot required for {}", newSubscriptionsForWhichSnapshotIsRequired);
+      Map<String, FudgeFieldContainer> snapshots = doSnapshot(newSubscriptionsForWhichSnapshotIsRequired);
+      for (Map.Entry<String, FudgeFieldContainer> snapshot : snapshots.entrySet()) {
+        Subscription subscription = securityUniqueId2NewSubscription.get(snapshot.getKey());
+        subscription.initialSnapshotReceived(snapshot.getValue());
       }
     
+      // Setup the subscriptions in the underlying data provider.
       for (Subscription subscription : securityUniqueId2NewSubscription.values()) {
         // this is necessary so we don't lose any updates immediately after doSubscribe(). See AbstractLiveDataServer#liveDataReceived()
         // and how it calls AbstractLiveDataServer#getSubscription()
         _securityUniqueId2Subscription.put(subscription.getSecurityUniqueId(), subscription); 
       }
-    
-      // Setup the subscriptions in the underlying data provider.
+
+      s_logger.info("Creating underlying market data API subscription to {}", securityUniqueId2NewSubscription.keySet());
       Map<String, Object> subscriptionHandles = doSubscribe(securityUniqueId2NewSubscription.keySet());
-      
+    
       // Set up data structures
       for (Map.Entry<String, Object> subscriptionHandle : subscriptionHandles.entrySet()) {
         String securityUniqueId = subscriptionHandle.getKey();
@@ -398,7 +408,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           try {
             listener.subscribed(subscription);
           } catch (RuntimeException e) {
-            s_logger.error("Listener subscribe failed", e);
+            s_logger.error("Listener " + listener + " subscribe failed", e);
           }
         }
           
@@ -421,7 +431,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
     } catch (RuntimeException e) {
       
-      // This is unexpected. Make sure to clean up
+      s_logger.info("Unexpected exception thrown when subscribing. Cleaning up.");
+      
       for (Subscription subscription : securityUniqueId2NewSubscription.values()) {
         _securityUniqueId2Subscription.remove(subscription.getSecurityUniqueId());
         
@@ -451,7 +462,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @throws RuntimeException If no snapshot could be obtained due to unexpected error.
    */
   public Map<LiveDataSpecification, LiveDataValueUpdateBean> snapshot(Collection<LiveDataSpecification> liveDataSpecificationsFromClient) {
-    ArgumentChecker.notEmpty(liveDataSpecificationsFromClient, "Snapshots to be obtained");
+    ArgumentChecker.notNull(liveDataSpecificationsFromClient, "Snapshots to be obtained");
+    
+    s_logger.info("Snapshot requested for {}", liveDataSpecificationsFromClient);
     
     verifyConnectionOk();
     
@@ -468,6 +481,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
       if (currentlyActiveDistributor != null 
           && currentlyActiveDistributor.getLastKnownValue() != null) {
+        s_logger.info("Able to satisfy {} from existing LKV", liveDataSpecificationFromClient);
         returnValue.put(liveDataSpecificationFromClient, currentlyActiveDistributor.getLastKnownValueUpdate());
         continue;
       }
@@ -483,21 +497,20 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       securityUniqueId2LiveDataSpecificationFromClient.put(securityUniqueId, liveDataSpecificationFromClient);      
     }
 
-    if (!snapshotsToActuallyDo.isEmpty()) {
-      Map<String, FudgeFieldContainer> snapshots = doSnapshot(snapshotsToActuallyDo);
-      for (Map.Entry<String, FudgeFieldContainer> snapshotEntry : snapshots.entrySet()) {
-        String securityUniqueId = snapshotEntry.getKey();
-        FudgeFieldContainer msg = snapshotEntry.getValue();
-        
-        LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
-        
-        DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-          .getDistributionSpecification(liveDataSpecFromClient);
-        FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(msg);
-        
-        LiveDataValueUpdateBean snapshot = new LiveDataValueUpdateBean(0, distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
-        returnValue.put(liveDataSpecFromClient, snapshot);
-      }
+    s_logger.info("Need to actually snapshot {}", snapshotsToActuallyDo);
+    Map<String, FudgeFieldContainer> snapshots = doSnapshot(snapshotsToActuallyDo);
+    for (Map.Entry<String, FudgeFieldContainer> snapshotEntry : snapshots.entrySet()) {
+      String securityUniqueId = snapshotEntry.getKey();
+      FudgeFieldContainer msg = snapshotEntry.getValue();
+      
+      LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
+      
+      DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
+        .getDistributionSpecification(liveDataSpecFromClient);
+      FudgeFieldContainer normalizedMsg = distributionSpec.getNormalizedMessage(msg);
+      
+      LiveDataValueUpdateBean snapshot = new LiveDataValueUpdateBean(0, distributionSpec.getFullyQualifiedLiveDataSpecification(), normalizedMsg);
+      returnValue.put(liveDataSpecFromClient, snapshot);
     }
     
     return returnValue; 
@@ -588,50 +601,46 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
     }
     
-    if (!snapshots.isEmpty()) {
-      try {
-        Map<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponses = snapshot(snapshots);
-        for (Map.Entry<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponse : snapshotResponses.entrySet()) {
-          responses.add(new LiveDataSubscriptionResponse(
-              snapshotResponse.getKey(),
-              LiveDataSubscriptionResult.SUCCESS,
-              null,
-              snapshotResponse.getValue().getSpecification(),
-              null,
-              snapshotResponse.getValue()));      
-        }
-      } catch (Exception e) {
-        s_logger.error("Failed to snapshot " + snapshots, e);
+    try {
+      Map<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponses = snapshot(snapshots);
+      for (Map.Entry<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponse : snapshotResponses.entrySet()) {
+        responses.add(new LiveDataSubscriptionResponse(
+            snapshotResponse.getKey(),
+            LiveDataSubscriptionResult.SUCCESS,
+            null,
+            snapshotResponse.getValue().getSpecification(),
+            null,
+            snapshotResponse.getValue()));      
+      }
+    } catch (Exception e) {
+      s_logger.error("Failed to snapshot " + snapshots, e);
+      
+      for (LiveDataSpecification spec : snapshots) {
+        responses.add(new LiveDataSubscriptionResponse(spec,
+            LiveDataSubscriptionResult.INTERNAL_ERROR,
+            e.getMessage(),
+            null,
+            null,
+            null));
         
-        for (LiveDataSpecification spec : snapshots) {
-          responses.add(new LiveDataSubscriptionResponse(spec,
-              LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage(),
-              null,
-              null,
-              null));
-          
-        }
       }
     }
     
-    if (!subscriptions.isEmpty()) {
-      try {
-        Map<LiveDataSpecification, SubscriptionResult> subscriptionResults = subscribe(subscriptions, persistent);
-        for (SubscriptionResult result : subscriptionResults.values()) {
-          responses.add(result.toResponse());      
-        }
-      } catch (Exception e) {
-        s_logger.error("Failed to subscribe to " + subscriptions, e);
-        
-        for (LiveDataSpecification spec : subscriptions) {
-          responses.add(new LiveDataSubscriptionResponse(spec,
-              LiveDataSubscriptionResult.INTERNAL_ERROR,
-              e.getMessage(),
-              null,
-              null,
-              null));
-        }
+    try {
+      Map<LiveDataSpecification, SubscriptionResult> subscriptionResults = subscribe(subscriptions, persistent);
+      for (SubscriptionResult result : subscriptionResults.values()) {
+        responses.add(result.toResponse());      
+      }
+    } catch (Exception e) {
+      s_logger.error("Failed to subscribe to " + subscriptions, e);
+      
+      for (LiveDataSpecification spec : subscriptions) {
+        responses.add(new LiveDataSubscriptionResponse(spec,
+            LiveDataSubscriptionResult.INTERNAL_ERROR,
+            e.getMessage(),
+            null,
+            null,
+            null));
       }
     }
     
