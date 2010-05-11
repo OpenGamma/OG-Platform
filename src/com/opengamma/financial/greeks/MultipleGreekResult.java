@@ -7,15 +7,14 @@ package com.opengamma.financial.greeks;
 
 import java.util.Map;
 
-import com.opengamma.util.ArgumentChecker;
-
 public class MultipleGreekResult implements GreekResult<Map<String, Double>> {
-
   private final Map<String, Double> _result;
 
   public MultipleGreekResult(final Map<String, Double> result) {
-    ArgumentChecker.notNull(result, "Result map");
-    // REVIEW kirk 2010-03-07 -- Is it okay to not take a copy of the result?
+    if (result == null)
+      throw new IllegalArgumentException("Result was null");
+    if (result.isEmpty())
+      throw new IllegalArgumentException("Result was empty");
     _result = result;
   }
 
