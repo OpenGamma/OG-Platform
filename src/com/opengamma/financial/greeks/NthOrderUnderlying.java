@@ -17,10 +17,14 @@ public class NthOrderUnderlying implements Underlying {
   public NthOrderUnderlying(final int order, final UnderlyingType underlying) {
     if (order < 0)
       throw new IllegalArgumentException("Order must be greater than or equal to zero");
-    if (underlying == null)
+    if (underlying == null && order != 0)
       throw new IllegalArgumentException("Underlying type was null");
     _order = order;
-    _underlying = Collections.singleton(underlying);
+    if (order == 0) {
+      _underlying = Collections.emptySet();
+    } else {
+      _underlying = Collections.singleton(underlying);
+    }
   }
 
   @Override
