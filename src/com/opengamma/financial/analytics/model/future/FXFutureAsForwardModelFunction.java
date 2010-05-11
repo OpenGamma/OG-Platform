@@ -35,6 +35,7 @@ import com.opengamma.financial.model.future.pricing.FutureModel;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -96,10 +97,10 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
     if (canApplyTo(context, target)) {
       final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      final Identifier fx = null;//
+      final UniqueIdentifier fx = null;//
       requirements.add(getUnderlyingMarketDataRequirement(fx));
-      requirements.add(getDiscountCurveMarketDataRequirement(future.getNumerator().getIdentityKey()));
-      requirements.add(getDiscountCurveMarketDataRequirement(future.getDenominator().getIdentityKey()));
+      requirements.add(getDiscountCurveMarketDataRequirement(future.getNumerator().getUniqueIdentifier()));
+      requirements.add(getDiscountCurveMarketDataRequirement(future.getDenominator().getUniqueIdentifier()));
       return requirements;
     }
     return null;
@@ -128,11 +129,11 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
     return ComputationTargetType.SECURITY;
   }
 
-  protected ValueRequirement getUnderlyingMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, id);
+  protected ValueRequirement getUnderlyingMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, id);
+  protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 }

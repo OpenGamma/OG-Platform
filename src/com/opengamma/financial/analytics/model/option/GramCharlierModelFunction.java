@@ -48,7 +48,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     final UniqueIdentifier optionID = option.getUniqueIdentifier();
     final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()))))
         .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
+    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(optionID));
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
@@ -84,7 +84,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
-      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
+      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
       requirements.add(getSkewRequirement(option.getUniqueIdentifier()));
       requirements.add(getKurtosisRequirement(option.getUniqueIdentifier()));

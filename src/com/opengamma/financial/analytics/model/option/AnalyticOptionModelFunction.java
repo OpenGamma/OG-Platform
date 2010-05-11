@@ -29,7 +29,6 @@ import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -87,8 +86,8 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
   }
 
-  protected ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, id);
+  protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 
   protected ValueRequirement getCostOfCarryMarketDataRequirement() {

@@ -30,7 +30,6 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
@@ -53,7 +52,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
     final ValueRequirement optionDataRequirement = getOptionMarketDataRequirement(option.getUniqueIdentifier());
     final ValueRequirement underlyingDataRequirement = getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity());
-    final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey());
+    final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
     final FudgeFieldContainer optionData = (FudgeFieldContainer) inputs.getValue(optionDataRequirement);
     final FudgeFieldContainer underlyingData = (FudgeFieldContainer) inputs.getValue(underlyingDataRequirement);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveDataRequirement);
@@ -89,7 +88,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       // above holds)
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
       optionRequirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
-      optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
+      optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       // TODO: add the other stuff
       return optionRequirements;
     }
@@ -129,7 +128,7 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, uid);
   }
 
-  private ValueRequirement getDiscountCurveMarketDataRequirement(final Identifier id) {
-    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, id);
+  private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
+    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 }

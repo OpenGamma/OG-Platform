@@ -57,7 +57,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
-      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
+      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
       // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
       return requirements;
@@ -90,7 +90,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;
-    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
+    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();

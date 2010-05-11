@@ -68,7 +68,7 @@ implements FunctionInvoker {
     _definition = curveSource.getDefinition(_curveCurrency, _curveName);
     _interpolator = Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName());
     _requirements = Collections.unmodifiableSet(buildRequirements(_definition));
-    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, _definition.getCurrency().getIdentityKey()));
+    _result = new ValueSpecification(new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, _definition.getCurrency()));
     _results = Collections.singleton(_result);
   }
   
@@ -98,8 +98,8 @@ implements FunctionInvoker {
       return false;
     }
     return ObjectUtils.equals(
-        target.getIdentityKey(),
-        getDefinition().getCurrency().getIdentityKey());
+        target.getUniqueIdentifier(),
+        getDefinition().getCurrency().getUniqueIdentifier());
   }
 
   @Override

@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 // REVIEW kirk 2009-09-15 -- This REALLY needs to be renamed.
@@ -19,52 +19,77 @@ import com.opengamma.util.ArgumentChecker;
 // It's really not serialization clean, and everything at this level needs to be
 // serialization friendly.
 
-public class Currency implements Identifiable {
-  
-  public static final IdentificationScheme IDENTIFICATION_DOMAIN = new IdentificationScheme("CurrencyISO"); 
-  
-  private Identifier _identifier;
+/**
+ * A currency.
+ */
+public class Currency implements UniqueIdentifiable {
 
-  private Currency(String isoCode) {
-    _identifier = new Identifier(IDENTIFICATION_DOMAIN, isoCode);
+  /**
+   * A scheme for the unique identifier.
+   */
+  public static final String IDENTIFICATION_DOMAIN = "CurrencyISO";
+  /**
+   * A cache of instances.
+   */
+  public static ConcurrentMap<String, Currency> s_instanceMap = new ConcurrentHashMap<String, Currency>();
+
+  /**
+   * The identifier.
+   */
+  private UniqueIdentifier _identifier;
+
+  /**
+   * Obtains a currency.
+   * @param isoCode  the 3 letter ISO code, not null
+   * @return the currency instance, not null
+   */
+  public static Currency getInstance(String isoCode) {
+    ArgumentChecker.notNull(isoCode, "ISO Code");
+    if (isoCode.length() != 3) {
+      throw new IllegalArgumentException("Invalid ISO code");
+    }
+    isoCode = isoCode.toUpperCase(Locale.ENGLISH);
+    s_instanceMap.putIfAbsent(isoCode, new Currency(isoCode));
+    return s_instanceMap.get(isoCode);
   }
-  
+
+  /**
+   * Restricted constructor.
+   * @param isoCode  the ISO code, not null
+   */
+  private Currency(String isoCode) {
+    _identifier = UniqueIdentifier.of(IDENTIFICATION_DOMAIN, isoCode);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the ISO code.
+   * @return the ISO code, not null
+   */
   public String getISOCode() {
     return _identifier.getValue();
   }
-  
+
+  /**
+   * Gets the unique identifier for the currency.
+   * @return the identifier, not null
+   */
   @Override
-  public Identifier getIdentityKey() {
+  public UniqueIdentifier getUniqueIdentifier() {
     return _identifier;
   }
-  
-  public static Map<String, Currency> s_instanceMap = new HashMap<String, Currency>();
-  // is this even necessary or a good idea?  Probably should 
-  public static Currency getInstance(String isoCode) {
-    // REVIEW kirk 2009-09-16 -- This is really not matching good practice:
-    // - Will allow lower-case ISO codes
-    // - Will allow ISO codes outside normal rules (e.g. 3-letter)
-    // - Isn't even concurrency safe
-    ArgumentChecker.notNull(isoCode, "ISO Code");
-    if (s_instanceMap.containsKey(isoCode)) {
-      return s_instanceMap.get(isoCode);
-    } else {
-      Currency curr = new Currency(isoCode);
-      s_instanceMap.put(isoCode, curr);
-      return curr;
-    }
+
+  //-------------------------------------------------------------------------
+  public boolean equals(Object obj) {
+    return (this == obj);  // relies on caching of instances
   }
-  
-  // NOTE: This relies on the above getInstance pattern being used.  If that is ditched, get rid.
-  public boolean equals(Object o) {
-    return (this == o);
-  }
-  
+
   public int hashCode() {
     return _identifier.hashCode();
   }
-  
+
   public String toString() {
     return getISOCode();
   }
+
 }
