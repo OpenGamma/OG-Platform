@@ -363,7 +363,7 @@ public class HibernateSecurityMasterSession {
 
   /* package */ SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
     Query query = getSession().getNamedQuery("SecurityBean.one.byDateIdentifier");
-    query.setString("securityuid", uid.getValue());
+    query.setLong("securityuid", Long.valueOf(uid.getValue()));
     query.setDate("now", now);
     SecurityBean security = (SecurityBean) query.uniqueResult();
     return security;
