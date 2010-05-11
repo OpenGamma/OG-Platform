@@ -56,7 +56,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @return the portfolio, null if not found
    */
   public Portfolio getPortfolio(UniqueIdentifier identifier) {
-    return _portfolios.get(identifier);
+    return identifier == null ? null : _portfolios.get(identifier);
   }
 
   /**
@@ -65,7 +65,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @return the node, null if not found
    */
   public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
-    return _nodes.get(identifier);
+    return identifier == null ? null : _nodes.get(identifier);
   }
 
   /**
@@ -74,7 +74,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    * @return the position, null if not found
    */
   public Position getPosition(UniqueIdentifier identifier) {
-    return _positions.get(identifier);
+    return identifier == null ? null : _positions.get(identifier);
   }
 
   //-------------------------------------------------------------------------`

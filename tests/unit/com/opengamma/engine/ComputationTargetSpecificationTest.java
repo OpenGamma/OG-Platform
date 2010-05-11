@@ -33,7 +33,7 @@ public class ComputationTargetSpecificationTest {
   private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), new IdentifierBundle());
   private static final DefaultSecurity SECURITY = new DefaultSecurity();
   static {
-    SECURITY.setIdentityKey(ID);
+    SECURITY.setUniqueIdentifier(UID);
   }
 
   @Test
@@ -64,7 +64,8 @@ public class ComputationTargetSpecificationTest {
   public void test_constructor_Object_Security() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(SECURITY);
     assertEquals(ComputationTargetType.SECURITY, test.getType());
-    assertEquals(SECURITY.getIdentityKey(), test.getIdentifier());
+    assertEquals(SECURITY.getUniqueIdentifier().getScheme(), test.getIdentifier().getScheme().getName());
+    assertEquals(SECURITY.getUniqueIdentifier().getValue(), test.getIdentifier().getValue());
   }
 
   @Test

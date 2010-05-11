@@ -1,12 +1,10 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.security;
 
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.PATH_IDENTIFIER;
-import static com.opengamma.engine.security.server.SecurityMasterServiceNames.PATH_VALUE;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_ALLSECURITYTYPES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITIES;
 import static com.opengamma.engine.security.server.SecurityMasterServiceNames.SECURITYMASTER_SECURITY;
@@ -17,61 +15,53 @@ import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 
+/**
+ * A remote implementation of security master.
+ */
 public class RemoteSecurityMaster implements SecurityMaster {
-  
+
   private final RestClient _restClient;
-  private final RestTarget _targetSecurities;
-  private final RestTarget _targetSecurity;
-  private final RestTarget _targetAllSecurityTypes;
-  
-  public RemoteSecurityMaster (final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    _restClient = RestClient.getInstance (fudgeContext, null);
-    _targetSecurities = baseTarget.resolveBase (SECURITYMASTER_SECURITIES);
-    _targetSecurity = baseTarget.resolveBase (SECURITYMASTER_SECURITY);
-    _targetAllSecurityTypes = baseTarget.resolve (SECURITYMASTER_ALLSECURITYTYPES);
+  private final RestTarget _targetBase;
+
+  public RemoteSecurityMaster(final FudgeContext fudgeContext, final RestTarget baseTarget) {
+    _restClient = RestClient.getInstance(fudgeContext, null);
+    _targetBase = baseTarget;
   }
-  
+
   protected RestClient getRestClient () {
     return _restClient;
   }
-  
-  protected RestTarget resolveIdentifierBase (final RestTarget base, final Identifier identifier) {
-    return base.resolveBase (PATH_IDENTIFIER).resolveBase (identifier.getScheme ().getName ()).resolveBase (identifier.getValue ());
-  }
-  
-  protected RestTarget resolveIdentifierBundleBase (final RestTarget base, final IdentifierBundle bundle) {
-    RestTarget target = base;
-    for (Identifier identifier : bundle.getIdentifiers ()) {
-      target = resolveIdentifierBase (target, identifier);
-    }
-    return target;
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Security getSecurity(UniqueIdentifier uid) {
+    final RestTarget target = _targetBase.resolveBase("securities").resolveBase("security").resolve(uid.toString());
+    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYMASTER_SECURITY);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public Set<String> getAllSecurityTypes() {
-    return getRestClient ().getSingleValueNotNull (Set.class, _targetAllSecurityTypes, SECURITYMASTER_ALLSECURITYTYPES);
+  public Security getSecurity(IdentifierBundle secKey) {
+    final RestTarget target = _targetBase.resolveBase("securities").resolve("security").resolveQuery("id", secKey.toStringList());
+    return getRestClient().getSingleValueNotNull(Security.class, target, SECURITYMASTER_SECURITY);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Security> getSecurities(IdentifierBundle secKey) {
-    return getRestClient ().getSingleValueNotNull (List.class, resolveIdentifierBundleBase (_targetSecurities, secKey).resolve (PATH_VALUE), SECURITYMASTER_SECURITIES);
+    final RestTarget target = _targetBase.resolveBase("securities").resolveQuery("id", secKey.toStringList());
+    return getRestClient().getSingleValueNotNull(List.class, target, SECURITYMASTER_SECURITIES);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Security getSecurity(IdentifierBundle secKey) {
-    return getRestClient ().getSingleValueNotNull (Security.class, resolveIdentifierBundleBase (_targetSecurity, secKey).resolve (PATH_VALUE), SECURITYMASTER_SECURITY);
+  public Set<String> getAllSecurityTypes() {
+    final RestTarget target = _targetBase.resolveBase("securities").resolve("types");
+    return getRestClient().getSingleValueNotNull(Set.class, target, SECURITYMASTER_ALLSECURITYTYPES);
   }
 
-  @Override
-  public Security getSecurity(Identifier identityKey) {
-    return getRestClient ().getSingleValueNotNull (Security.class, resolveIdentifierBase (_targetSecurity, identityKey).resolve (PATH_VALUE), SECURITYMASTER_SECURITY);
-  }
-  
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -10,65 +10,79 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * A security master implementation that caches another.
  */
 public class CachingSecurityMaster implements SecurityMaster {
+
+  /**
+   * The underlying security master.
+   */
   private final SecurityMaster _underlying;
-  private final Map<IdentifierBundle, Collection<Security>> _identifierBundle2SecurityCollectionCache = new HashMap<IdentifierBundle, Collection<Security>>();
-  private final Map<IdentifierBundle, Security> _identifierBundle2SecurityCache = new HashMap<IdentifierBundle, Security>();
-  private final Map<Identifier, Security> _identityKey2SecurityCache = new HashMap<Identifier, Security>();
-  
+  /**
+   * The cache.
+   */
+  private final Map<UniqueIdentifier, Security> _uidCache = new HashMap<UniqueIdentifier, Security>();
+  /**
+   * The cache.
+   */
+  private final Map<IdentifierBundle, Collection<Security>> _bundleCache = new HashMap<IdentifierBundle, Collection<Security>>();
+
+  /**
+   * Creates a security master.
+   * @param underlying  the underlying master, not null
+   */
   public CachingSecurityMaster(SecurityMaster underlying) {
-    assert underlying != null;
+    ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the underlying
+   * Gets the underlying security master.
+   * @return the underlying security master, not null
    */
   public SecurityMaster getUnderlying() {
     return _underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public Set<String> getAllSecurityTypes() {
-    return getUnderlying().getAllSecurityTypes();
+  public synchronized Security getSecurity(UniqueIdentifier uid) {
+    if (_uidCache.containsKey(uid)) {
+      return _uidCache.get(uid);
+    }
+    Security security = getUnderlying().getSecurity(uid);
+    _uidCache.put(uid, security);
+    return security;
   }
 
   @Override
-  public Collection<Security> getSecurities(IdentifierBundle secKey) {
-    if(_identifierBundle2SecurityCollectionCache.containsKey(secKey)) {
-      return _identifierBundle2SecurityCollectionCache.get(secKey);
+  public synchronized Collection<Security> getSecurities(IdentifierBundle secKey) {
+    if (_bundleCache.containsKey(secKey)) {
+      return _bundleCache.get(secKey);
     }
     Collection<Security> result = getUnderlying().getSecurities(secKey);
-    _identifierBundle2SecurityCollectionCache.put(secKey, result);
+    _bundleCache.put(secKey, result);
     return result;
   }
 
   @Override
   public synchronized Security getSecurity(IdentifierBundle secKey) {
-    if(_identifierBundle2SecurityCache.containsKey(secKey)) {
-      return _identifierBundle2SecurityCache.get(secKey);
+    Collection<Security> matched = getSecurities(secKey);
+    if (matched.isEmpty()) {
+      return null;
     }
-    Security result = getUnderlying().getSecurity(secKey);
-    _identifierBundle2SecurityCache.put(secKey, result);
-    return result;
+    return matched.iterator().next();
   }
 
   @Override
-  public synchronized Security getSecurity(Identifier identityKey) {
-    if(_identityKey2SecurityCache.containsKey(identityKey)) {
-      return _identityKey2SecurityCache.get(identityKey);
-    }
-    Security security = getUnderlying().getSecurity(identityKey);
-    _identityKey2SecurityCache.put(identityKey, security);
-    return security;
+  public Set<String> getAllSecurityTypes() {
+    return getUnderlying().getAllSecurityTypes();
   }
 
 }

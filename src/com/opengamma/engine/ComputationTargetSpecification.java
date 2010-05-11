@@ -48,12 +48,12 @@ public class ComputationTargetSpecification implements Serializable {
     _type = ComputationTargetType.determineFromTarget(target);
     switch (_type) {
       case MULTIPLE_POSITIONS:
-      case POSITION: {
+      case POSITION:
+      case SECURITY: {
         UniqueIdentifier identifier = ((UniqueIdentifiable) target).getUniqueIdentifier();
         _identifier = Identifier.of(identifier.getScheme(), identifier.getValue());
         break;
       }
-      case SECURITY:  // TODO: remove once SECURITY only uses UniqueIdentifiable
       case PRIMITIVE: {
         if (target instanceof Identifiable) {
           _identifier = ((Identifiable) target).getIdentityKey();
@@ -112,6 +112,17 @@ public class ComputationTargetSpecification implements Serializable {
    */
   public Identifier getIdentifier() {
     return _identifier;
+  }
+
+  /**
+   * Gets the unique identifier, if one exists.
+   * @return the unique identifier, may be null
+   */
+  public UniqueIdentifier getUniqueIdentifier() {
+    if (_identifier == null) {
+      return null;
+    }
+    return UniqueIdentifier.of(_identifier.getScheme().getName(), _identifier.getValue());
   }
 
   //-------------------------------------------------------------------------

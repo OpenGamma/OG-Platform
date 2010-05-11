@@ -107,7 +107,7 @@ public class PositionImpl implements Position, Serializable {
     ArgumentChecker.notNull(security, "security");
     _identifier = identifier;
     _quantity = quantity;
-    _securityKey = security.getIdentifiers() != null ? new IdentifierBundle(security.getIdentifiers()) : new IdentifierBundle();
+    _securityKey = security.getIdentifiers();
     _security = security;
   }
 
