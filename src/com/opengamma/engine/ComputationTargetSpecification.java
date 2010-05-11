@@ -91,20 +91,6 @@ public final class ComputationTargetSpecification implements Serializable {
     _uid = uid;
   }
 
-  /**
-   * Creates a lightweight specification of a computation target.
-   * @param type  the type of the target, not null
-   * @param identifier  the target identifier, may be null
-   */
-  public ComputationTargetSpecification(ComputationTargetType targetType, Identifier identifier) {
-    ArgumentChecker.notNull(targetType, "target type");
-    if (targetType != ComputationTargetType.PRIMITIVE) {
-      ArgumentChecker.notNull(identifier, "identifier");
-    }
-    _type = targetType;
-    _uid = (identifier == null ? null : UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue()));
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Gets the type of the target.
@@ -178,8 +164,8 @@ public final class ComputationTargetSpecification implements Serializable {
 
   public static ComputationTargetSpecification fromFudgeMsg(FudgeFieldContainer msg) {
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
-    Identifier identifier = Identifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
-    return new ComputationTargetSpecification(type, identifier);
+    UniqueIdentifier uid = UniqueIdentifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
+    return new ComputationTargetSpecification(type, uid);
   }
 
 }

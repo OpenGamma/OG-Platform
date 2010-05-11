@@ -17,7 +17,6 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.DefaultSecurity;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -27,7 +26,7 @@ import com.opengamma.id.UniqueIdentifier;
 public class ComputationTargetSpecificationTest {
 
   private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "1");
-  private static final Identifier ID = Identifier.of("A", "B");
+  private static final UniqueIdentifier UID2 = UniqueIdentifier.of("Test", "2");
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
   private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), new IdentifierBundle());
@@ -78,7 +77,6 @@ public class ComputationTargetSpecificationTest {
     new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     new ComputationTargetSpecification(ComputationTargetType.SECURITY, UID);
     new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (UniqueIdentifier) null);
-    new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, (Identifier) null);
   }
 
   @Test(expected=NullPointerException.class)
@@ -89,7 +87,6 @@ public class ComputationTargetSpecificationTest {
   @Test(expected=NullPointerException.class)
   public void test_constructor_Type_UniqueIdentifier_nullId() {
     new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, (UniqueIdentifier) null);
-    new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, (Identifier) null);
   }
 
   //-------------------------------------------------------------------------
@@ -125,8 +122,8 @@ public class ComputationTargetSpecificationTest {
   @Test
   public void test_equals_different() {
     ComputationTargetSpecification a = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
-    ComputationTargetSpecification b = new ComputationTargetSpecification(ComputationTargetType.POSITION, ID);
-    ComputationTargetSpecification c = new ComputationTargetSpecification(ComputationTargetType.SECURITY, ID);
+    ComputationTargetSpecification b = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID2);
+    ComputationTargetSpecification c = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UID2);
     
     assertEquals(true, a.equals(a));
     assertEquals(false, a.equals(b));

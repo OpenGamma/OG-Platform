@@ -17,7 +17,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -39,16 +38,6 @@ public final class ValueRequirement implements Serializable {
    * The specification of the object that the value refers to.
    */
   private final ComputationTargetSpecification _targetSpecification;
-
-  /**
-   * Creates a requirement.
-   * @param valueName  the value to load, not null
-   * @param targetType  the target type, not null
-   * @param targetIdentifier  the target identifier, may be null
-   */
-  public ValueRequirement(String valueName, ComputationTargetType targetType, Identifier targetIdentifier) {
-    this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier));
-  }
 
   /**
    * Creates a requirement.
