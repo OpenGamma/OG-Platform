@@ -10,6 +10,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
+
+import javax.ws.rs.core.UriBuilder;
 
 import org.apache.http.client.utils.URIUtils;
 
@@ -80,6 +83,11 @@ public class RestTarget {
     return resolveInternal (encodedSpec (spec) + '/');
   }
   
+  public RestTarget resolveQuery(String key, List<String> values) {
+    URI uri = UriBuilder.fromUri(getURI()).queryParam(key, values.toArray()).build();
+    return new RestTarget(uri, getTaxonomyId());
+  }
+  
   public RestTarget withTaxonomyId (final int taxonomyId) {
     return new RestTarget (getURI (), taxonomyId);
   }
@@ -88,5 +96,5 @@ public class RestTarget {
   public String toString () {
     return "{\"" + getURI () + "\", {Fudge taxonomy " + getTaxonomyId () + "}}";
   }
-  
+
 }
