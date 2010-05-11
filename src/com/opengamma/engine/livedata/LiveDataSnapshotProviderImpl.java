@@ -101,10 +101,8 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
         _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
       }
       requirementsForSpec.add(requirement);
-      
-      _liveDataClient.subscribe(user, liveDataSpec, this);
     }
-    //_liveDataClient.subscribe(userName, liveDataSpecs, this);
+    _liveDataClient.subscribe(user, liveDataSpecs, this);
   }
   
   /**
