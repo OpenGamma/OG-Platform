@@ -8,8 +8,7 @@ package com.opengamma.engine;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
@@ -151,7 +150,7 @@ public class ComputationTarget implements Serializable {
    * @return the specification equivalent to this target, not null
    */
   public ComputationTargetSpecification toSpecification() {
-    return new ComputationTargetSpecification(_type, getIdentityKey());
+    return new ComputationTargetSpecification(_type, getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------
@@ -181,7 +180,13 @@ public class ComputationTarget implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new StrBuilder()
+      .append("CT[")
+      .append(getType())
+      .append(", ")
+      .append(getValue())
+      .append(']')
+      .toString();
   }
 
 }

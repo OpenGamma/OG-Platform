@@ -8,8 +8,7 @@ package com.opengamma.engine;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -22,12 +21,18 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A specification of a particular computation target that will be resolved
+ * An immutable specification of a particular computation target that will be resolved
  * later on in a computation process.
  */
-public class ComputationTargetSpecification implements Serializable {
+public final class ComputationTargetSpecification implements Serializable {
 
+  /**
+   * Fudge field name.
+   */
   public static final String TYPE_FIELD_NAME = "computationTargetType";
+  /**
+   * Fudge field name.
+   */
   public static final String IDENTIFIER_FIELD_NAME = "computationTargetIdentifier";
 
   /**
@@ -37,7 +42,7 @@ public class ComputationTargetSpecification implements Serializable {
   /**
    * The identifier of the target.
    */
-  private final Identifier _identifier;
+  private final UniqueIdentifier _uid;
 
   /**
    * Construct a specification that refers to the specified object.
@@ -50,17 +55,18 @@ public class ComputationTargetSpecification implements Serializable {
       case MULTIPLE_POSITIONS:
       case POSITION:
       case SECURITY: {
-        UniqueIdentifier identifier = ((UniqueIdentifiable) target).getUniqueIdentifier();
-        _identifier = Identifier.of(identifier.getScheme(), identifier.getValue());
+        _uid = ((UniqueIdentifiable) target).getUniqueIdentifier();
         break;
       }
       case PRIMITIVE: {
         if (target instanceof Identifiable) {
-          _identifier = ((Identifiable) target).getIdentityKey();
+          Identifier id = ((Identifiable) target).getIdentityKey();
+          _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else if (target instanceof Identifier) {
-          _identifier = (Identifier) target;
+          Identifier id = (Identifier) target;
+          _uid = UniqueIdentifier.of(id.getScheme().getName(), id.getValue());
         } else {
-          _identifier = null;
+          _uid = null;
         }
         break;
       }
@@ -72,15 +78,15 @@ public class ComputationTargetSpecification implements Serializable {
   /**
    * Creates a lightweight specification of a computation target.
    * @param type  the type of the target, not null
-   * @param identifier  the target identifier, may be null
+   * @param uid  the target identifier, may be null
    */
-  public ComputationTargetSpecification(ComputationTargetType targetType, UniqueIdentifier identifier) {
+  public ComputationTargetSpecification(ComputationTargetType targetType, UniqueIdentifier uid) {
     ArgumentChecker.notNull(targetType, "target type");
     if (targetType != ComputationTargetType.PRIMITIVE) {
-      ArgumentChecker.notNull(identifier, "identifier");
+      ArgumentChecker.notNull(uid, "identifier");
     }
     _type = targetType;
-    _identifier = identifier == null ? null : Identifier.of(identifier.getScheme(), identifier.getValue());
+    _uid = uid;
   }
 
   /**
@@ -94,7 +100,7 @@ public class ComputationTargetSpecification implements Serializable {
       ArgumentChecker.notNull(identifier, "identifier");
     }
     _type = targetType;
-    _identifier = identifier;
+    _uid = (identifier == null ? null : UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue()));
   }
 
   //-------------------------------------------------------------------------
@@ -111,7 +117,10 @@ public class ComputationTargetSpecification implements Serializable {
    * @return the identifier, may be null
    */
   public Identifier getIdentifier() {
-    return _identifier;
+    if (_uid == null) {
+      return null;
+    }
+    return Identifier.of(_uid.getScheme(), _uid.getValue());
   }
 
   /**
@@ -119,10 +128,7 @@ public class ComputationTargetSpecification implements Serializable {
    * @return the unique identifier, may be null
    */
   public UniqueIdentifier getUniqueIdentifier() {
-    if (_identifier == null) {
-      return null;
-    }
-    return UniqueIdentifier.of(_identifier.getScheme().getName(), _identifier.getValue());
+    return _uid;
   }
 
   //-------------------------------------------------------------------------
@@ -134,7 +140,7 @@ public class ComputationTargetSpecification implements Serializable {
     if (obj instanceof ComputationTargetSpecification) {
       ComputationTargetSpecification other = (ComputationTargetSpecification) obj;
       return _type == other._type &&
-          ObjectUtils.equals(_identifier, other._identifier);
+          ObjectUtils.equals(_uid, other._uid);
     }
     return false;
   }
@@ -144,28 +150,31 @@ public class ComputationTargetSpecification implements Serializable {
     final int prime = 31;
     int result = 1;
     result = prime * result + _type.hashCode();
-    if(_identifier != null) {
-      result = prime * result + _identifier.hashCode();
+    if (_uid != null) {
+      result = prime * result + _uid.hashCode();
     }
     return result;
   }
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new StrBuilder()
+      .append("CTSpec[")
+      .append(getType())
+      .append(", ")
+      .append(getUniqueIdentifier())
+      .append(']')
+      .toString();
   }
 
   //-------------------------------------------------------------------------
   public void toFudgeMsg(FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(TYPE_FIELD_NAME, _type.name());
-    FudgeFieldContainer identifierMsg = _identifier.toFudgeMsg(fudgeContext);
+    FudgeFieldContainer identifierMsg = _uid.toFudgeMsg(fudgeContext);
     msg.add(IDENTIFIER_FIELD_NAME, identifierMsg);
   }
 
   public static ComputationTargetSpecification fromFudgeMsg(FudgeFieldContainer msg) {
-    if (msg == null) {
-      return null;
-    }
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
     Identifier identifier = Identifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
     return new ComputationTargetSpecification(type, identifier);

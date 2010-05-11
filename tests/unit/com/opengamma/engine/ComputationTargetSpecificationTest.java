@@ -40,39 +40,35 @@ public class ComputationTargetSpecificationTest {
   public void test_constructor_Object_Portfolio() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);
     assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
-    assertEquals(PORTFOLIO.getUniqueIdentifier().getScheme(), test.getIdentifier().getScheme().getName());
-    assertEquals(PORTFOLIO.getUniqueIdentifier().getValue(), test.getIdentifier().getValue());
+    assertEquals(PORTFOLIO.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Node() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(NODE);
     assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
-    assertEquals(NODE.getUniqueIdentifier().getScheme(), test.getIdentifier().getScheme().getName());
-    assertEquals(NODE.getUniqueIdentifier().getValue(), test.getIdentifier().getValue());
+    assertEquals(NODE.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Position() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(POSITION);
     assertEquals(ComputationTargetType.POSITION, test.getType());
-    assertEquals(POSITION.getUniqueIdentifier().getScheme(), test.getIdentifier().getScheme().getName());
-    assertEquals(POSITION.getUniqueIdentifier().getValue(), test.getIdentifier().getValue());
+    assertEquals(POSITION.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_Security() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(SECURITY);
     assertEquals(ComputationTargetType.SECURITY, test.getType());
-    assertEquals(SECURITY.getUniqueIdentifier().getScheme(), test.getIdentifier().getScheme().getName());
-    assertEquals(SECURITY.getUniqueIdentifier().getValue(), test.getIdentifier().getValue());
+    assertEquals(SECURITY.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
   @Test
   public void test_constructor_Object_null() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(null);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
-    assertEquals(null, test.getIdentifier());
+    assertEquals(null, test.getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------
@@ -103,6 +99,14 @@ public class ComputationTargetSpecificationTest {
     assertEquals(ComputationTargetType.MULTIPLE_POSITIONS, test.getType());
     assertEquals(UID.getScheme(), test.getIdentifier().getScheme().getName());
     assertEquals(UID.getValue(), test.getIdentifier().getValue());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toSpecification() {
+    ComputationTargetSpecification test = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
+    assertEquals(true, test.toString().contains("POSITION"));
+    assertEquals(true, test.toString().contains(UID.toString()));
   }
 
   //-------------------------------------------------------------------------
@@ -138,18 +142,17 @@ public class ComputationTargetSpecificationTest {
   }
 
   @Test
+  public void test_equals_other() {
+    ComputationTargetSpecification a = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
+    assertEquals(false, a.equals(null));
+    assertEquals(false, a.equals("Rubbish"));
+  }
+
+  @Test
   public void test_hashCode() {
     ComputationTargetSpecification a = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     ComputationTargetSpecification b = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
     assertEquals(true, a.equals(b));
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toSpecification() {
-    ComputationTargetSpecification test = new ComputationTargetSpecification(ComputationTargetType.POSITION, UID);
-    assertEquals(true, test.toString().contains("POSITION"));
-    assertEquals(true, test.toString().contains(UID.toString()));
   }
 
 }

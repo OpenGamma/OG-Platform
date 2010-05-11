@@ -15,7 +15,6 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -76,48 +75,38 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    Identifier identifier = specification.getIdentifier();
+    UniqueIdentifier uid = specification.getUniqueIdentifier();
     switch (specification.getType()) {
       case PRIMITIVE: {
-        return new ComputationTarget(specification.getType(), identifier);
+        return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
         Security security = getSecurityMaster().getSecurity(uid);
-        s_logger.info("Resolved security ID {} to security {}", identifier, security);
-        if (security != null) {
-          return new ComputationTarget(ComputationTargetType.SECURITY, security);
-        }
-        break;
+        s_logger.info("Resolved security ID {} to security {}", uid, security);
+        return (security == null ? null : new ComputationTarget(ComputationTargetType.SECURITY, security));
       }
       case POSITION: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
         Position position = getPositionMaster().getPosition(uid);
-        s_logger.info("Resolved position ID {} to position {}", identifier, position);
-        if (position != null) {
-          return new ComputationTarget(ComputationTargetType.POSITION, position);
-        }
-        break;
+        s_logger.info("Resolved position ID {} to position {}", uid, position);
+        return (position == null ? null : new ComputationTarget(ComputationTargetType.POSITION, position));
       }
       case MULTIPLE_POSITIONS: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
         Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", identifier, portfolio);
+        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", uid, portfolio);
         if (portfolio != null) {
           return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolio);
         }
         PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", identifier, node);
+        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", uid, node);
         if (node != null) {
           return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, node);
         }
-        break;
+        return null;
       }
       default: {
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
       }
     }
-    return null;
   }
 
 }

@@ -37,6 +37,7 @@ public class ComputationTargetTest {
     assertEquals(PORTFOLIO, test.getValue());
   }
 
+  @Test
   public void test_constructor_Object_null() {
     ComputationTarget test = new ComputationTarget(null);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
@@ -131,6 +132,51 @@ public class ComputationTargetTest {
     ComputationTarget test = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
     ComputationTargetSpecification expected = new ComputationTargetSpecification(ComputationTargetType.POSITION, POSITION.getUniqueIdentifier());
     assertEquals(expected, test.toSpecification());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_equals_similar() {
+    ComputationTarget a1 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+    ComputationTarget a2 = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+    
+    assertEquals(true, a1.equals(a1));
+    assertEquals(true, a1.equals(a2));
+    assertEquals(true, a2.equals(a1));
+    assertEquals(true, a2.equals(a2));
+  }
+
+  @Test
+  public void test_equals_different() {
+    ComputationTarget a = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+    ComputationTarget b = new ComputationTarget(ComputationTargetType.PRIMITIVE, null);
+    ComputationTarget c = new ComputationTarget(ComputationTargetType.SECURITY, SECURITY);
+    
+    assertEquals(true, a.equals(a));
+    assertEquals(false, a.equals(b));
+    assertEquals(false, a.equals(c));
+    
+    assertEquals(false, b.equals(a));
+    assertEquals(true, b.equals(b));
+    assertEquals(false, b.equals(c));
+    
+    assertEquals(false, c.equals(a));
+    assertEquals(false, c.equals(b));
+    assertEquals(true, c.equals(c));
+  }
+
+  @Test
+  public void test_equals_other() {
+    ComputationTarget a = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+    assertEquals(false, a.equals(null));
+    assertEquals(false, a.equals("Rubbish"));
+  }
+
+  @Test
+  public void test_hashCode() {
+    ComputationTarget a = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+    ComputationTarget b = new ComputationTarget(ComputationTargetType.POSITION, POSITION);
+    assertEquals(true, a.equals(b));
   }
 
 }
