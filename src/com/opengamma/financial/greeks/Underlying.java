@@ -13,7 +13,6 @@ import com.opengamma.financial.pnl.UnderlyingType;
  * 
  */
 public interface Underlying {
-  //TODO rename - isn't really an order if there's an underlying
 
   public int getOrder();
 
