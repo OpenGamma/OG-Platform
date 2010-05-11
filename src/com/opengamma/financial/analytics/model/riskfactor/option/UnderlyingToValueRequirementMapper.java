@@ -21,17 +21,15 @@ public class UnderlyingToValueRequirementMapper {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY,
-              option.getUnderlyingIdentityKey());
+          return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, option.getUnderlyingSecurity());
         case SPOT_VOLATILITY:
-          throw new NotImplementedException("Don't know how to get spot volatility for " + option.getIdentityKey());
+          throw new NotImplementedException("Don't know how to get spot volatility for " + option.getUniqueIdentifier());
         case IMPLIED_VOLATILITY:
-          throw new NotImplementedException("Don't know how to get implied volatility for " + option.getIdentityKey());
+          throw new NotImplementedException("Don't know how to get implied volatility for " + option.getUniqueIdentifier());
         case INTEREST_RATE:
-          return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, option
-              .getIdentityKey());
+          return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, option.getUniqueIdentifier());
         case COST_OF_CARRY:
-          throw new NotImplementedException("Don't know how to get cost of carry for " + option.getIdentityKey());
+          throw new NotImplementedException("Don't know how to get cost of carry for " + option.getUniqueIdentifier());
         default:
           throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying);
       }
