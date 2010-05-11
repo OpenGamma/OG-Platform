@@ -6,7 +6,9 @@
 package com.opengamma.livedata.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,23 +50,37 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   }
 
   @Override
-  protected Object doSubscribe(String uniqueId) {
-    _subscriptions.add(uniqueId);
-    return uniqueId;
+  protected Map<String, Object> doSubscribe(Collection<String> uniqueIds) {
+    Map<String, Object> returnValue = new HashMap<String, Object>();
+    
+    for (String uniqueId : uniqueIds) {
+      _subscriptions.add(uniqueId);
+      returnValue.put(uniqueId, uniqueId);
+    }
+    
+    return returnValue;
   }
 
   @Override
-  protected void doUnsubscribe(Object subscriptionHandle) {
-    _unsubscriptions.add((String) subscriptionHandle);
+  protected void doUnsubscribe(Collection<Object> subscriptionHandles) {
+    for (Object subscriptionHandle : subscriptionHandles) {
+      _unsubscriptions.add((String) subscriptionHandle);
+    }
   }
   
   @Override
-  protected FudgeFieldContainer doSnapshot(String uniqueId) {
-    FudgeFieldContainer snapshot = _uniqueId2MarketData.get(uniqueId);
-    if (snapshot == null) {
-      snapshot = FudgeContext.GLOBAL_DEFAULT.newMessage();
+  protected Map<String, FudgeFieldContainer> doSnapshot(Collection<String> uniqueIds) {
+    Map<String, FudgeFieldContainer> returnValue = new HashMap<String, FudgeFieldContainer>();
+    
+    for (String uniqueId : uniqueIds) {
+      FudgeFieldContainer snapshot = _uniqueId2MarketData.get(uniqueId);
+      if (snapshot == null) {
+        snapshot = FudgeContext.GLOBAL_DEFAULT.newMessage();
+      }
+      returnValue.put(uniqueId, snapshot);
     }
-    return snapshot;
+    
+    return returnValue;
   }
   
   public void sendLiveDataToClient() {

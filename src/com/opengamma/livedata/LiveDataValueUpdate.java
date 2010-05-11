@@ -33,6 +33,7 @@ public interface LiveDataValueUpdate {
   
   /**
    * @return What market data, in what format, this value update contains.
+   * Fully qualified (standardized) by the server.
    */
   LiveDataSpecification getSpecification();
   
