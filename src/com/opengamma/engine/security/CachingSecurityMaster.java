@@ -20,8 +20,9 @@ import com.opengamma.id.IdentifierBundle;
  */
 public class CachingSecurityMaster implements SecurityMaster {
   private final SecurityMaster _underlying;
-  private final Map<IdentifierBundle, Security> _cache = new HashMap<IdentifierBundle, Security>();
-  private final Map<Identifier, Security> _cacheByIdentityKey = new HashMap<Identifier, Security>();
+  private final Map<IdentifierBundle, Collection<Security>> _identifierBundle2SecurityCollectionCache = new HashMap<IdentifierBundle, Collection<Security>>();
+  private final Map<IdentifierBundle, Security> _identifierBundle2SecurityCache = new HashMap<IdentifierBundle, Security>();
+  private final Map<Identifier, Security> _identityKey2SecurityCache = new HashMap<Identifier, Security>();
   
   public CachingSecurityMaster(SecurityMaster underlying) {
     assert underlying != null;
@@ -42,26 +43,31 @@ public class CachingSecurityMaster implements SecurityMaster {
 
   @Override
   public Collection<Security> getSecurities(IdentifierBundle secKey) {
-    return getUnderlying().getSecurities(secKey);
+    if(_identifierBundle2SecurityCollectionCache.containsKey(secKey)) {
+      return _identifierBundle2SecurityCollectionCache.get(secKey);
+    }
+    Collection<Security> result = getUnderlying().getSecurities(secKey);
+    _identifierBundle2SecurityCollectionCache.put(secKey, result);
+    return result;
   }
 
   @Override
   public synchronized Security getSecurity(IdentifierBundle secKey) {
-    if(_cache.containsKey(secKey)) {
-      return _cache.get(secKey);
+    if(_identifierBundle2SecurityCache.containsKey(secKey)) {
+      return _identifierBundle2SecurityCache.get(secKey);
     }
     Security result = getUnderlying().getSecurity(secKey);
-    _cache.put(secKey, result);
+    _identifierBundle2SecurityCache.put(secKey, result);
     return result;
   }
 
   @Override
   public synchronized Security getSecurity(Identifier identityKey) {
-    if(_cacheByIdentityKey.containsKey(identityKey)) {
-      return _cacheByIdentityKey.get(identityKey);
+    if(_identityKey2SecurityCache.containsKey(identityKey)) {
+      return _identityKey2SecurityCache.get(identityKey);
     }
     Security security = getUnderlying().getSecurity(identityKey);
-    _cacheByIdentityKey.put(identityKey, security);
+    _identityKey2SecurityCache.put(identityKey, security);
     return security;
   }
 
