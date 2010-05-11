@@ -119,9 +119,11 @@ public class InMemorySecurityMaster implements SecurityMaster {
   public Set<String> getAllSecurityTypes() {
     Set<String> result = new TreeSet<String>();
     for (Security security : _securities.values()) {
-      result.add(security.getSecurityType());
+      String securityType = security.getSecurityType();
+      if (securityType != null) {
+        result.add(securityType);
+      }
     }
-    result.remove(null);
     return result;
   }
 

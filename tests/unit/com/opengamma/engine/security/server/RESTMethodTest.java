@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -27,9 +27,9 @@ import org.junit.Test;
 
 import com.opengamma.engine.security.DefaultSecurity;
 import com.opengamma.engine.security.InMemorySecurityMaster;
-import com.opengamma.engine.security.Security;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 
 public class RESTMethodTest {
   
@@ -48,10 +48,10 @@ public class RESTMethodTest {
     InMemorySecurityMaster secMaster = new InMemorySecurityMaster();
     Identifier secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
     Identifier secId2 = new Identifier(new IdentificationScheme("d2"), "v2");
-    DefaultSecurity sec1 = new DefaultSecurity("t1", Collections.singleton(secId1));
-    secMaster.add(sec1);
-    DefaultSecurity sec2 = new DefaultSecurity("t2", Collections.singleton(secId2));
-    secMaster.add(sec2);
+    DefaultSecurity sec1 = new DefaultSecurity("t1", new IdentifierBundle(secId1));
+    secMaster.addSecurity(sec1);
+    DefaultSecurity sec2 = new DefaultSecurity("t2", new IdentifierBundle(secId2));
+    secMaster.addSecurity(sec2);
     getSecurityMasterService ().setSecurityMaster (secMaster);
   }
   
@@ -92,7 +92,7 @@ public class RESTMethodTest {
   @Test
   public void testGetSecurityByIdentifier () {
     IdentifierSelectResource req = getSecurityMasterResource ().security ();
-    req = req.addIdentifier (Security.SECURITY_IDENTITY_KEY_DOMAIN.getName (), "1");
+    req = req.addIdentifier ("Memory", "1");
     final FudgeMsgEnvelope fme = req.get ();
     assertNotNull (fme);
     final FudgeFieldContainer msg = fme.getMessage ();

@@ -19,8 +19,8 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * REST resource wrapper for a {@link SecurityMaster}.
@@ -72,7 +72,7 @@ public class SecurityMasterResource {
       }
       
       @Override
-      protected FudgeMsgEnvelope getByIdentifier (final Identifier identifier) {
+      protected FudgeMsgEnvelope getByIdentifier (final UniqueIdentifier identifier) {
         System.out.println ("security.getByIdentifier: " + identifier);
         return returnSecurity (getSecurityMaster ().getSecurity (identifier));
       }

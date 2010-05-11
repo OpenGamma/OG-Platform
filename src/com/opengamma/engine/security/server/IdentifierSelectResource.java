@@ -17,13 +17,14 @@ import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 
 public class IdentifierSelectResource {
   
   public static abstract class Callback {
 
-    protected FudgeMsgEnvelope getByIdentifier (final Identifier identifier) {
-      return getByBundle (new IdentifierBundle (identifier));
+    protected FudgeMsgEnvelope getByIdentifier (final UniqueIdentifier identifier) {
+      throw new UnsupportedOperationException ("not supported");
     }
     
     protected FudgeMsgEnvelope getByBundle (final IdentifierBundle bundle) {
@@ -72,7 +73,9 @@ public class IdentifierSelectResource {
   @Path ("V")
   public FudgeMsgEnvelope get () {
     if (getIdentifiers ().size () == 1) {
-      return getCallback ().getByIdentifier (getIdentifier ());
+      // TODO: separate UID from ID
+      UniqueIdentifier uid = UniqueIdentifier.of(getIdentifier().getScheme().getName(), getIdentifier().getValue());
+      return getCallback().getByIdentifier(uid);
     } else {
       return getCallback ().getByBundle (getIdentifierBundle ());
     }
