@@ -14,12 +14,16 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.MultipleGreekResult;
 import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.pnl.TradeData;
+import com.opengamma.financial.sensitivity.MultiplePositionGreekResult;
+import com.opengamma.financial.sensitivity.PositionGreek;
+import com.opengamma.financial.sensitivity.PositionGreekResult;
+import com.opengamma.financial.sensitivity.SinglePositionGreekResult;
 import com.opengamma.math.function.Function1D;
 
 /**
  *
  */
-public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, Map<PositionGreek, RiskFactorResult<?>>> {
+public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, Map<PositionGreek, PositionGreekResult<?>>> {
 
   /*
    * (non-Javadoc)
@@ -27,31 +31,30 @@ public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, M
    * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
    */
   @Override
-  public Map<PositionGreek, RiskFactorResult<?>> evaluate(final GreekDataBundle data) {
+  public Map<PositionGreek, PositionGreekResult<?>> evaluate(final GreekDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Risk factor data bundle was null");
-    final GreekResultCollection greeks = data.getAllGreekValues();
-    final Map<PositionGreek, RiskFactorResult<?>> riskFactors = new HashMap<PositionGreek, RiskFactorResult<?>>();
+    final GreekResultCollection greeks = data.getGreekResults();
+    final Map<PositionGreek, PositionGreekResult<?>> riskFactors = new HashMap<PositionGreek, PositionGreekResult<?>>();
     Map<String, Double> multipleGreekResult;
-    Map<Object, Double> riskFactorResultMap;
+    Map<String, Double> multiplePositionGreekResult;
     PositionGreek positionGreek;
     for (final Map.Entry<Greek, GreekResult<?>> entry : greeks.entrySet()) {
       positionGreek = new PositionGreek(entry.getKey());
       if (entry.getValue() instanceof SingleGreekResult) {
-        riskFactors.put(positionGreek, new SingleRiskFactorResult((Double) entry.getValue().getResult()
-            * data.getUnderlyingDataForGreek(entry.getKey(), TradeData.NUMBER_OF_CONTRACTS)));
+        riskFactors.put(positionGreek, new SinglePositionGreekResult((Double) entry.getValue().getResult() * data.getUnderlyingDataForObject(TradeData.NUMBER_OF_CONTRACTS)));
       } else if (entry.getValue() instanceof MultipleGreekResult) {
         multipleGreekResult = ((MultipleGreekResult) entry.getValue()).getResult();
-        riskFactorResultMap = new HashMap<Object, Double>();
+        multiplePositionGreekResult = new HashMap<String, Double>();
         for (final Map.Entry<String, Double> e : multipleGreekResult.entrySet()) {
-          riskFactorResultMap.put(e.getKey(), e.getValue()
-              * data.getUnderlyingDataForGreek(entry.getKey(), TradeData.NUMBER_OF_CONTRACTS));
+          multiplePositionGreekResult.put(e.getKey(), e.getValue() * data.getUnderlyingDataForObject(TradeData.NUMBER_OF_CONTRACTS));
         }
-        riskFactors.put(positionGreek, new MultipleRiskFactorResult(riskFactorResultMap));
+        riskFactors.put(positionGreek, new MultiplePositionGreekResult(multiplePositionGreekResult));
       } else {
         throw new IllegalArgumentException("Can only handle SingleGreekResult and MultipleGreekResult");
       }
     }
     return riskFactors;
   }
+
 }

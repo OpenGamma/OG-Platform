@@ -6,12 +6,23 @@
 package com.opengamma.financial.riskfactor;
 
 /**
- * @author emcleod
  * 
  */
-public interface RiskFactorResult<T> {
+public class RiskFactorResult {
+  private final double _result;
 
-  public boolean isMultiValued();
+  public RiskFactorResult(final Double result) {
+    if (result == null)
+      throw new IllegalArgumentException("Risk factor was null");
+    _result = result;
+  }
 
-  public T getResult();
+  public double getResult() {
+    return _result;
+  }
+
+  @Override
+  public String toString() {
+    return "RiskFactorResult[" + getResult() + "]";
+  }
 }
