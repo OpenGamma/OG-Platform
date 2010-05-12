@@ -11,7 +11,6 @@ import java.util.Map;
 /**
  * Contains utility methods for checking inputs to methods.
  *
- * @author kirk
  */
 public final class ArgumentChecker {
 
@@ -36,6 +35,9 @@ public final class ArgumentChecker {
 
   /**
    * Checks that the specified injected parameter is non-null.
+   * As a convention, the name of the parameter should be the exact name that you would
+   * provide in a Spring configuration file.
+   * 
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
    * @throws NullPointerException if the input is null
