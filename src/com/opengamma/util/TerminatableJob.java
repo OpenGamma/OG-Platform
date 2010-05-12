@@ -51,5 +51,12 @@ public abstract class TerminatableJob implements Runnable {
   public void terminate() {
     _terminated.set(true);
   }
+  
+  /**
+   * Return {@code true} iff this job is terminated. 
+   */
+  public boolean isTerminated() {
+    return _terminated.get();
+  }
 
 }
