@@ -23,6 +23,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.function.MockFunction;
 import com.opengamma.engine.livedata.FixedLiveDataAvailabilityProvider;
 import com.opengamma.engine.value.ComputedValue;
@@ -225,6 +226,66 @@ public class DependencyGraphModelTest {
       } else if(ObjectUtils.equals(node.getFunctionDefinition(), fn2)) {
         assertFalse(node.getOutputValues().contains(spec1));
         assertTrue(node.getOutputValues().contains(spec2));
+        assertTrue(node.getInputRequirements().isEmpty());
+        assertTrue(node.getInputNodes().isEmpty());
+      } else {
+        fail("Unexpected function definition");
+      }
+    }
+  }
+  
+  @Test
+  public void doubleLevelLiveData() {
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    UniqueIdentifier targetId = UniqueIdentifier.of("Scheme", "Value");
+    ComputationTarget target = new ComputationTarget(targetId);
+    ValueRequirement req1 = new ValueRequirement("Req-1", targetId);
+    ValueSpecification spec1 = new ValueSpecification(req1);
+    ComputedValue value1 = new ComputedValue(spec1, 14.2);
+    
+    ValueRequirement req2 = new ValueRequirement("Req-2", targetId);
+    
+    MockFunction fn1 = new MockFunction(target,
+        Collections.singleton(req2),
+        Sets.newHashSet(value1));
+    functionRepo.addFunction(fn1, fn1);
+    
+    MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
+    targetResolver.addTarget(target);
+    
+    FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
+    ldap.addRequirement(req2);
+
+    DependencyGraphModel model = new DependencyGraphModel();
+    model.setFunctionRepository(functionRepo);
+    model.setLiveDataAvailabilityProvider(ldap);
+    model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
+    model.setTargetResolver(targetResolver);
+
+    model.addTarget(target, req1);
+    model.removeUnnecessaryOutputs();
+
+    Collection<DependencyGraph> graphs = model.getDependencyGraphs(ComputationTargetType.PRIMITIVE);
+    assertNotNull(graphs);
+    assertEquals(1, graphs.size());
+    DependencyGraph graph = graphs.iterator().next();
+    assertNotNull(graph);
+    assertEquals(target, graph.getComputationTarget());
+    assertTrue(graph.getOutputValues().contains(spec1));
+    
+    Collection<DependencyNode> nodes = graph.getDependencyNodes();
+    assertNotNull(nodes);
+    assertEquals(2, nodes.size());
+    for (DependencyNode node : nodes) {
+      if(ObjectUtils.equals(node.getFunctionDefinition(), fn1)) {
+        assertTrue(node.getOutputValues().contains(spec1));
+        assertTrue(node.getInputRequirements().contains(req2));
+        assertEquals(1, node.getInputNodes().size());
+      } else if(node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
+        assertFalse(node.getOutputValues().contains(spec1));
+        assertEquals(1, node.getOutputValues().size());
+        ValueSpecification outputSpec = node.getOutputValues().iterator().next();
+        assertEquals(req2, outputSpec.getRequirementSpecification());
         assertTrue(node.getInputRequirements().isEmpty());
         assertTrue(node.getInputNodes().isEmpty());
       } else {
