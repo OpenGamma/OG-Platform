@@ -7,6 +7,7 @@ package com.opengamma.id;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
@@ -126,6 +127,18 @@ public class UniqueIdentifierTest {
     
     UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(msg);
     assertEquals(test, decoded);
+  }
+  
+  @Test
+  public void test_getUniqueId() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    assertSame(test, test.getUniqueIdentifier());    
+  }
+  
+  @Test
+  public void test_getSchemeAsObject() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    assertEquals(new IdentificationScheme("id1"), test.getSchemeObject());
   }
 
 }

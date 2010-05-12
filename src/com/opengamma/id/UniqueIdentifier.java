@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
  *   <li>Database key</li>
  * </ul>
  */
-public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Serializable {
+public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Serializable, UniqueIdentifiable {
 
   /**
    * Fudge message key for the scheme.
@@ -105,6 +105,15 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
    */
   public String getValue() {
     return _value;
+  }
+  
+  @Override
+  public UniqueIdentifier getUniqueIdentifier() {
+    return this;
+  }
+  
+  public IdentificationScheme getSchemeObject() {
+    return new IdentificationScheme(getScheme());
   }
 
   //-------------------------------------------------------------------------
