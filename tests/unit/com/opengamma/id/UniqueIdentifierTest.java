@@ -130,9 +130,15 @@ public class UniqueIdentifierTest {
   }
   
   @Test
-  public void testGetUniqueId() {
+  public void test_getUniqueId() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
     assertSame(test, test.getUniqueIdentifier());    
+  }
+  
+  @Test
+  public void test_getSchemeAsObject() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    assertEquals(new IdentificationScheme("id1"), test.getSchemeObject());
   }
 
 }

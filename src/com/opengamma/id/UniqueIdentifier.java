@@ -111,6 +111,10 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   public UniqueIdentifier getUniqueIdentifier() {
     return this;
   }
+  
+  public IdentificationScheme getSchemeObject() {
+    return new IdentificationScheme(getScheme());
+  }
 
   //-------------------------------------------------------------------------
   /**
