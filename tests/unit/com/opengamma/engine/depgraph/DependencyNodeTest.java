@@ -55,7 +55,7 @@ public class DependencyNodeTest {
   }
   
   @Test
-  public void testDepdendentNodes() {
+  public void testDependentNodes() {
     IdentificationScheme domain = new IdentificationScheme("test");
     
     FunctionCompilationContext context = new FunctionCompilationContext();
