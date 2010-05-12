@@ -114,11 +114,11 @@ public class DependencyGraphExecutor implements JobResultReceiver {
   }
 
   public synchronized void executeGraph(long iterationTimestamp, AtomicLong jobIdSource) {
-    if(allNodesExecuted(getDependencyGraph().getNodes())) {
+    if(allNodesExecuted(getDependencyGraph().getDependencyNodes())) {
       return;
     }
     
-    addAllNodesToExecute(getDependencyGraph().getNodes());
+    addAllNodesToExecute(getDependencyGraph().getDependencyNodes());
     markLiveDataSourcingFunctionsCompleted();
     
     while(!_nodesToExecute.isEmpty()) {

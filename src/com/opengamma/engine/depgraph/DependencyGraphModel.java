@@ -126,6 +126,14 @@ public class DependencyGraphModel {
   public void setCompilationContext(FunctionCompilationContext compilationContext) {
     _compilationContext = compilationContext;
   }
+  
+  protected void checkInjectedInputs() {
+    ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
+    ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
+    ArgumentChecker.notNullInjected(getFunctionResolver(), "functionResolver");
+    ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
+  }
+  
   public Set<ValueRequirement> getAllRequiredLiveData() {
     return Collections.unmodifiableSet(_allRequiredLiveData);
   }
@@ -146,6 +154,7 @@ public class DependencyGraphModel {
   public void addTarget(ComputationTarget target, Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(target, "Computation Target");
     ArgumentChecker.notNull(requirements, "Value requirements");
+    checkInjectedInputs();
     
     for(ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
