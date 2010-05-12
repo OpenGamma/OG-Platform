@@ -17,7 +17,10 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.security.DefaultSecurity;
+import com.opengamma.id.Identifiable;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -25,8 +28,21 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class ComputationTargetSpecificationTest {
 
+  private static final Identifier ID = Identifier.of("Test", "0");
   private static final UniqueIdentifier UID = UniqueIdentifier.of("Test", "1");
   private static final UniqueIdentifier UID2 = UniqueIdentifier.of("Test", "2");
+  private static final Identifiable IDENTIFIABLE = new Identifiable() {
+    @Override
+    public Identifier getIdentityKey() {
+      return Identifier.of("Test", "3");
+    }
+  };
+  private static final UniqueIdentifiable UNIQUE_IDENTIFIABLE = new UniqueIdentifiable() {
+    @Override
+    public UniqueIdentifier getUniqueIdentifier() {
+      return UniqueIdentifier.of("Test", "4");
+    }
+  };
   private static final Portfolio PORTFOLIO = new PortfolioImpl(UID, "Name");
   private static final PortfolioNodeImpl NODE = new PortfolioNodeImpl(UID, "Name");
   private static final Position POSITION = new PositionImpl(UID, new BigDecimal(1), new IdentifierBundle());
@@ -68,6 +84,27 @@ public class ComputationTargetSpecificationTest {
     ComputationTargetSpecification test = new ComputationTargetSpecification(null);
     assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
     assertEquals(null, test.getUniqueIdentifier());
+  }
+  
+  @Test
+  public void test_constructor_Object_ID() {
+    ComputationTargetSpecification test = new ComputationTargetSpecification(ID);
+    assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
+    assertEquals(UniqueIdentifier.of("Test", "0"), test.getUniqueIdentifier());
+  }
+
+  @Test
+  public void test_constructor_Object_Identifiable() {
+    ComputationTargetSpecification test = new ComputationTargetSpecification(IDENTIFIABLE);
+    assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
+    assertEquals(UniqueIdentifier.of("Test", "3"), test.getUniqueIdentifier());
+  }
+
+  @Test
+  public void test_constructor_Object_UniqueIdentifiable() {
+    ComputationTargetSpecification test = new ComputationTargetSpecification(UNIQUE_IDENTIFIABLE);
+    assertEquals(ComputationTargetType.PRIMITIVE, test.getType());
+    assertEquals(UNIQUE_IDENTIFIABLE.getUniqueIdentifier(), test.getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------
