@@ -240,16 +240,19 @@
 		<property file="${classes.dir}/${ant.project.name}.properties" />
 	</target>
 
-	<target name="jar" depends="version, compile"
+	<target name="manifest" depends="version">
+		<manifest file="${basedir}/MANIFEST.MF" mode="update">
+			<attribute name="Built-By" value="${user.name}" />
+			<attribute name="Build-Version" value="${version}" />
+			<attribute name="Main-Class" value="${main.class.name}" />
+		</manifest>
+	</target>
+
+	<target name="jar" depends="manifest, compile"
 		description="--> make a jar file for this project">
-		<jar destfile="${jar.file}">
+		<jar destfile="${jar.file}" manifest="${basedir}/MANIFEST.MF">
 			<fileset dir="${classes.dir}" />
 			<fileset dir="${tests.classes.dir}" />
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Build-Version" value="${version}" />
-				<attribute name="Main-Class" value="${main.class.name}" />
-			</manifest>
 		</jar>
 	</target>
 
