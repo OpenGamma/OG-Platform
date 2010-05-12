@@ -20,13 +20,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
-// REVIEW kirk 2009-12-29 -- This is ultimately intended to replace DependencyNode once
-// the current rewrite is done.
-
 /**
- * 
- *
- * @author kirk
+ * A single node in a {@link DependencyGraph}. A node represents
+ * a particular invocation of a particular function at runtime, producing
+ * certain values.
  */
 public class DependencyNode {
   private final FunctionDefinition _functionDefinition;
