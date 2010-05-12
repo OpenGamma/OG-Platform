@@ -3,6 +3,7 @@ foo~
 *.class
 classes/
 dist/
+ivy/
 bootstrap/
 lib/
 tests/classes/
