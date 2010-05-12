@@ -9,7 +9,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class HistoricalVarianceCalculator extends Function1D<Double, Double> {
 
