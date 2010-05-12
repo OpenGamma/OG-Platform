@@ -32,11 +32,12 @@ public class OperationTimer {
     _arguments = arguments;
   }
   
-  public void finished() {
+  public long finished() {
     long stopTime = System.nanoTime();
     long duration = stopTime - _startTime;
     long durationInMilliseconds = duration / 1000;
     getReporter().report(durationInMilliseconds, _logger, _format, _arguments);
+    return durationInMilliseconds;
   }
   
   private static final OperationTimeReporter REPORTER = new LoggingOperationTimeReporter();
