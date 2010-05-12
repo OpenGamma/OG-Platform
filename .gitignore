@@ -4,6 +4,7 @@ foo~
 classes/
 dist/
 ivy/
+bootstrap/
 lib/
 tests/classes/
 tests/output/
