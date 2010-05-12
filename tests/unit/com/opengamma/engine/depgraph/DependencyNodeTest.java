@@ -5,18 +5,14 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.Collections;
-import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.MockFunction;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 
@@ -25,46 +21,19 @@ import com.opengamma.id.Identifier;
  */
 public class DependencyNodeTest {
   
-  private class TestFunction extends AbstractFunction {
-
-    @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-      return target.getType() == ComputationTargetType.PRIMITIVE && target.getValue() instanceof Identifier;
-    }
-
-    @Override
-    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
-      return Collections.emptySet();
-    }
-
-    @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-      return Collections.emptySet();
-    }
-
-    @Override
-    public String getShortName() {
-      return "TestFunction";
-    }
-
-    @Override
-    public ComputationTargetType getTargetType() {
-      return ComputationTargetType.PRIMITIVE;
-    }
-    
-  }
-  
   @Test
   public void testDependentNodes() {
     IdentificationScheme domain = new IdentificationScheme("test");
     
+    FunctionDefinition function = new MockFunction(new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD"));
+    
     FunctionCompilationContext context = new FunctionCompilationContext();
-    DependencyNode node0 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "0")));
-    DependencyNode node1 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "1")));
-    DependencyNode node2 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "2")));
-    DependencyNode node3 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "3")));
-    DependencyNode node4 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "4")));
-    DependencyNode node5 = new DependencyNode(context, new TestFunction(), new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "5")));
+    DependencyNode node0 = new DependencyNode(context, function, new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "0")));
+    DependencyNode node1 = new DependencyNode(context, function, new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "1")));
+    DependencyNode node2 = new DependencyNode(context, function, new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "2")));
+    DependencyNode node3 = new DependencyNode(context, function, new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "3")));
+    DependencyNode node4 = new DependencyNode(context, function, new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "4")));
+    DependencyNode node5 = new DependencyNode(context, function, new ComputationTarget(ComputationTargetType.PRIMITIVE, new Identifier(domain, "5")));
     node0.addInputNode(node1);
     node0.addInputNode(node2);
     node0.addInputNode(node3);
