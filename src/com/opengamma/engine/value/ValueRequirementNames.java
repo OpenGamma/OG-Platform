@@ -167,6 +167,8 @@ public interface ValueRequirementNames {
   public static final String SUM = "Sum";
   public static final String MEDIAN = "Median";
   
+  // History
+  public static final String PNL = "P&L";
   // Risk Aggregates:
   public static final String ISOLATED_VAR = "IsolatedVaR";
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
