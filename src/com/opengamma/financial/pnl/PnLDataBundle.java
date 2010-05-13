@@ -5,85 +5,73 @@
  */
 package com.opengamma.financial.pnl;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.financial.riskfactor.RiskFactorResult;
 import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.Matrix;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
+import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  *
  */
 public class PnLDataBundle {
-  private final Map<Underlying, DoubleMatrix1D[]> _underlyingData;
-  private final Map<Sensitivity<?>, Matrix<?>> _matrices;
-  private final int _n;
+  private final Map<Sensitivity<?>, Map<Object, double[]>> _returns;
+  private final Map<Sensitivity<?>, RiskFactorResult> _sensitivities;
+  private long[] _times;
+  private DateTimeNumericEncoding _encoding;
 
-  public PnLDataBundle(final Map<Underlying, DoubleMatrix1D[]> underlyingData, final Map<Sensitivity<?>, Matrix<?>> matrices) {
-    if (underlyingData == null)
-      throw new IllegalArgumentException("Underlying data map was null");
-    if (underlyingData.size() == 0)
-      throw new IllegalArgumentException("Underlying data map was empty");
-    if (matrices == null)
-      throw new IllegalArgumentException("Matrix map was null");
-    if (matrices.isEmpty())
-      throw new IllegalArgumentException("Matrix map was empty");
-    _underlyingData = underlyingData;
-    _matrices = matrices;
-    _n = underlyingData.values().iterator().next().length;
+  public PnLDataBundle(final Map<Sensitivity<?>, RiskFactorResult> sensitivities, final Map<Sensitivity<?>, Map<Object, DoubleTimeSeries<?>>> returns) {
+    if (sensitivities == null)
+      throw new IllegalArgumentException("Sensitivities map was null");
+    if (sensitivities.isEmpty())
+      throw new IllegalArgumentException("Sensitivities map was empty");
+    if (returns == null)
+      throw new IllegalArgumentException("Returns map was null");
+    if (returns.isEmpty())
+      throw new IllegalArgumentException("Returns map was empty");
+    if (!sensitivities.keySet().equals(returns.keySet()))
+      throw new IllegalArgumentException("Had different set of sensitivities for sensititivity map and returns map");
+    _returns = new HashMap<Sensitivity<?>, Map<Object, double[]>>();
+    _times = null;
+    DoubleTimeSeries<?> ts;
+    for (final Sensitivity<?> s : returns.keySet()) {
+      final Map<Object, double[]> m = new HashMap<Object, double[]>();
+      final Map<Object, DoubleTimeSeries<?>> data = returns.get(s);
+      for (final Object o : data.keySet()) {
+        ts = data.get(o);
+        if (ts == null)
+          throw new IllegalArgumentException("Had a null time series for sensitivity " + s + ", underlying " + o);
+        if (ts.isEmpty())
+          throw new IllegalArgumentException("Had an empty time series for sensitivity " + s + ", underlying " + o);
+        if (_times == null) {
+          final FastLongDoubleTimeSeries fastTS = data.get(o).toFastLongDoubleTimeSeries();
+          _times = fastTS.timesArrayFast();
+          _encoding = fastTS.getEncoding();
+        }
+        m.put(o, ts.toFastLongDoubleTimeSeries().valuesArrayFast());
+      }
+      _returns.put(s, m);
+    }
+    _sensitivities = sensitivities;
   }
 
-  public Map<Underlying, DoubleMatrix1D[]> getUnderlyingData() {
-    return _underlyingData;
+  public Map<Sensitivity<?>, Map<Object, double[]>> getTimeSeriesReturns() {
+    return _returns;
   }
 
-  public Map<Sensitivity<?>, Matrix<?>> getMatrices() {
-    return _matrices;
+  public Map<Sensitivity<?>, RiskFactorResult> getSensitivities() {
+    return _sensitivities;
   }
 
-  public int getLength() {
-    return _n;
+  public long[] getTimes() {
+    return _times;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((_matrices == null) ? 0 : _matrices.hashCode());
-    result = prime * result + ((_underlyingData == null) ? 0 : _underlyingData.hashCode());
-    return result;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    final PnLDataBundle other = (PnLDataBundle) obj;
-    if (_matrices == null) {
-      if (other._matrices != null)
-        return false;
-    } else if (!_matrices.equals(other._matrices))
-      return false;
-    if (_underlyingData == null) {
-      if (other._underlyingData != null)
-        return false;
-    } else if (!_underlyingData.equals(other._underlyingData))
-      return false;
-    return true;
+  public DateTimeNumericEncoding getEncoding() {
+    return _encoding;
   }
 
 }
