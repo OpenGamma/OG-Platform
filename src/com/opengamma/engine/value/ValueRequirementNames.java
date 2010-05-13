@@ -167,6 +167,8 @@ public interface ValueRequirementNames {
   
   // History
   public static final String PNL = "P&L";
+  public static final String PNL_SERIES = "P&L Series";
+  
   // Risk Aggregates:
   public static final String ISOLATED_VAR = "IsolatedVaR";
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
