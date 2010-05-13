@@ -47,8 +47,9 @@ public class SubscriptionRequestReceiver implements FudgeRequestReceiver {
     try {
       FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
       LiveDataSubscriptionRequest subscriptionRequest = LiveDataSubscriptionRequest.fromFudgeMsg(context, requestFudgeMsg);
-      s_logger.info("Received subscription request on behalf of {}", subscriptionRequest.getUser());
+      s_logger.info("Received subscription request {}", subscriptionRequest);
       LiveDataSubscriptionResponseMsg subscriptionResponse = getLiveDataServer().subscriptionRequestMade(subscriptionRequest);
+      s_logger.info("Sending subscription response {}", subscriptionResponse);
       FudgeFieldContainer responseFudgeMsg = subscriptionResponse.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
       return responseFudgeMsg;
     } catch (RuntimeException e) {

@@ -15,13 +15,13 @@ import com.opengamma.util.ArgumentChecker;
  * @author pietari
  */
 public class PersistentSubscription implements Serializable {
-  
+
   /** A unique ID for the market data. Server type specific (Bloomberg unique ID, RIC, ...). */
   private String _id;
-  
+
   protected PersistentSubscription() {
   }
-  
+
   public PersistentSubscription(String id) {
     ArgumentChecker.notNull(id, "ID");
     _id = id;
@@ -34,7 +34,7 @@ public class PersistentSubscription implements Serializable {
   public void setId(String id) {
     _id = id;
   }
-  
+
   public String toString() {
     return _id;
   }
@@ -63,5 +63,5 @@ public class PersistentSubscription implements Serializable {
       return false;
     return true;
   }
-  
+
 }

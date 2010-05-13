@@ -324,8 +324,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         try {
           distributionSpec = getDistributionSpecificationResolver().getDistributionSpecification(specFromClient);
         } catch (RuntimeException e) {
-          s_logger.info("Unable to work out distribution spec for specification {}",
-              specFromClient);
+          s_logger.info("Unable to work out distribution spec for specification " + specFromClient, e);
           liveDataSpecFromClient2Result.put(specFromClient, new SubscriptionResult(specFromClient, 
               null, 
               LiveDataSubscriptionResult.NOT_PRESENT, 
@@ -553,9 +552,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         try {
           distributionSpec = getDistributionSpecificationResolver()
             .getDistributionSpecification(requestedSpecification);
-        } catch (IllegalArgumentException e) {
-          s_logger.info("Unable to work out distribution spec for specification {}",
-              requestedSpecification);
+        } catch (RuntimeException e) {
+          s_logger.info("Unable to work out distribution spec for specification " + requestedSpecification, e);
           responses.add(new LiveDataSubscriptionResponse(
               requestedSpecification,
               LiveDataSubscriptionResult.NOT_PRESENT,
@@ -601,46 +599,50 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
     }
     
-    try {
-      Map<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponses = snapshot(snapshots);
-      for (Map.Entry<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponse : snapshotResponses.entrySet()) {
-        responses.add(new LiveDataSubscriptionResponse(
-            snapshotResponse.getKey(),
-            LiveDataSubscriptionResult.SUCCESS,
-            null,
-            snapshotResponse.getValue().getSpecification(),
-            null,
-            snapshotResponse.getValue()));      
-      }
-    } catch (Exception e) {
-      s_logger.error("Failed to snapshot " + snapshots, e);
-      
-      for (LiveDataSpecification spec : snapshots) {
-        responses.add(new LiveDataSubscriptionResponse(spec,
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            e.getMessage(),
-            null,
-            null,
-            null));
+    if (!snapshots.isEmpty()) {
+      try {
+        Map<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponses = snapshot(snapshots);
+        for (Map.Entry<LiveDataSpecification, LiveDataValueUpdateBean> snapshotResponse : snapshotResponses.entrySet()) {
+          responses.add(new LiveDataSubscriptionResponse(
+              snapshotResponse.getKey(),
+              LiveDataSubscriptionResult.SUCCESS,
+              null,
+              snapshotResponse.getValue().getSpecification(),
+              null,
+              snapshotResponse.getValue()));      
+        }
+      } catch (Exception e) {
+        s_logger.error("Failed to snapshot " + snapshots, e);
         
+        for (LiveDataSpecification spec : snapshots) {
+          responses.add(new LiveDataSubscriptionResponse(spec,
+              LiveDataSubscriptionResult.INTERNAL_ERROR,
+              e.getMessage(),
+              null,
+              null,
+              null));
+          
+        }
       }
     }
     
-    try {
-      Map<LiveDataSpecification, SubscriptionResult> subscriptionResults = subscribe(subscriptions, persistent);
-      for (SubscriptionResult result : subscriptionResults.values()) {
-        responses.add(result.toResponse());      
-      }
-    } catch (Exception e) {
-      s_logger.error("Failed to subscribe to " + subscriptions, e);
-      
-      for (LiveDataSpecification spec : subscriptions) {
-        responses.add(new LiveDataSubscriptionResponse(spec,
-            LiveDataSubscriptionResult.INTERNAL_ERROR,
-            e.getMessage(),
-            null,
-            null,
-            null));
+    if (!subscriptions.isEmpty()) {
+      try {
+        Map<LiveDataSpecification, SubscriptionResult> subscriptionResults = subscribe(subscriptions, persistent);
+        for (SubscriptionResult result : subscriptionResults.values()) {
+          responses.add(result.toResponse());      
+        }
+      } catch (Exception e) {
+        s_logger.error("Failed to subscribe to " + subscriptions, e);
+        
+        for (LiveDataSpecification spec : subscriptions) {
+          responses.add(new LiveDataSubscriptionResponse(spec,
+              LiveDataSubscriptionResult.INTERNAL_ERROR,
+              e.getMessage(),
+              null,
+              null,
+              null));
+        }
       }
     }
     
