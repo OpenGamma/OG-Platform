@@ -8,8 +8,6 @@ package com.opengamma.financial.var.parametric;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.greeks.FirstOrder;
-import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
@@ -18,24 +16,25 @@ import com.opengamma.math.matrix.Matrix;
  * 
  */
 public class ParametricVaRDataBundle {
-  private final Map<Sensitivity<?>, Matrix<?>> _sensitivities;
-  private final Map<Sensitivity<?>, DoubleMatrix2D> _covariances;
+  private final Map<Integer, Matrix<?>> _sensitivities;
+  private final Map<Integer, DoubleMatrix2D> _covariances;
 
-  public ParametricVaRDataBundle(final Map<Sensitivity<?>, Matrix<?>> sensitivities, final Map<Sensitivity<?>, DoubleMatrix2D> covariances) {
-    _sensitivities = new HashMap<Sensitivity<?>, Matrix<?>>();
-    _covariances = new HashMap<Sensitivity<?>, DoubleMatrix2D>();
+  //TODO rewrite in the same way as SensitivityPnLCalculator
+  public ParametricVaRDataBundle(final Map<Integer, Matrix<?>> sensitivities, final Map<Integer, DoubleMatrix2D> covariances) {
+    _sensitivities = new HashMap<Integer, Matrix<?>>();
+    _covariances = new HashMap<Integer, DoubleMatrix2D>();
     testData(sensitivities, covariances);
   }
 
-  public Matrix<?> getSensitivityData(final Sensitivity<?> greek) {
-    return _sensitivities.get(greek);
+  public Matrix<?> getSensitivityData(final int order) {
+    return _sensitivities.get(order);
   }
 
-  public DoubleMatrix2D getCovarianceMatrix(final Sensitivity<?> greek) {
-    return _covariances.get(greek);
+  public DoubleMatrix2D getCovarianceMatrix(final int order) {
+    return _covariances.get(order);
   }
 
-  private void testData(final Map<Sensitivity<?>, Matrix<?>> sensitivities, final Map<Sensitivity<?>, DoubleMatrix2D> covariances) {
+  private void testData(final Map<Integer, Matrix<?>> sensitivities, final Map<Integer, DoubleMatrix2D> covariances) {
     if (sensitivities == null)
       throw new IllegalArgumentException("Sensitivities map was null");
     if (covariances == null)
@@ -44,39 +43,37 @@ public class ParametricVaRDataBundle {
       throw new IllegalArgumentException("Have more covariance matrices than sensitivity types");
     Matrix<?> m1;
     DoubleMatrix2D m2;
-    for (final Sensitivity<?> s : sensitivities.keySet()) {
-      m1 = sensitivities.get(s);
+    for (final Integer order : sensitivities.keySet()) {
+      m1 = sensitivities.get(order);
       if (m1 == null)
-        throw new IllegalArgumentException("Null value for " + s + " in sensitivity data");
-      if (s.getOrder() instanceof FirstOrder) {
+        throw new IllegalArgumentException("Null value for order " + order + " in sensitivity data");
+      if (order == 1) {
         if (!(m1 instanceof DoubleMatrix1D)) {
-          throw new IllegalArgumentException("First order sensitivities must be a vector, not a matrix (have matrix for " + s + ")");
-        } else {
-          _sensitivities.put(s, m1);
+          throw new IllegalArgumentException("First order sensitivities must be a vector, not a matrix (have matrix for order " + order + ")");
         }
+        _sensitivities.put(order, m1);
       } else {
         if (m1 instanceof DoubleMatrix2D) {
           m2 = (DoubleMatrix2D) m1;
           if (m2.getNumberOfColumns() != m2.getNumberOfRows()) {
-            throw new IllegalArgumentException("Sensitivity matrix is not square for " + s);
-          } else {
-            _sensitivities.put(s, m2);
+            throw new IllegalArgumentException("Sensitivity matrix is not square for order " + order);
           }
+          _sensitivities.put(order, m2);
         } else if (m1 instanceof DoubleMatrix1D) {
-          _sensitivities.put(s, getDiagonalMatrix((DoubleMatrix1D) m1));
+          _sensitivities.put(order, getDiagonalMatrix((DoubleMatrix1D) m1));
         } else {
           throw new IllegalArgumentException("Can only handle 1D and 2D matrices");
         }
       }
-      if (covariances.containsKey(s)) {
-        m2 = covariances.get(s);
+      if (covariances.containsKey(order)) {
+        m2 = covariances.get(order);
         if (m2 == null)
           throw new IllegalArgumentException("Null value for " + m2 + " in covariance data");
         if (m2.getNumberOfColumns() != m2.getNumberOfRows())
-          throw new IllegalArgumentException("Covariance matrix for " + s + " was not square");
+          throw new IllegalArgumentException("Covariance matrix for order " + order + " was not square");
         if (m2.getNumberOfColumns() != (m1 instanceof DoubleMatrix1D ? m1.getNumberOfElements() : ((DoubleMatrix2D) m1).getNumberOfRows()))
-          throw new IllegalArgumentException("Covariance matrix and sensitivity matrix sizes do not match for " + s);
-        _covariances.put(s, m2);
+          throw new IllegalArgumentException("Covariance matrix and sensitivity matrix sizes do not match for order " + order);
+        _covariances.put(order, m2);
       }
     }
   }

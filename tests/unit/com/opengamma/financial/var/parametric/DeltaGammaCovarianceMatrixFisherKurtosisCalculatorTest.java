@@ -13,9 +13,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.ColtMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -32,15 +29,13 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculatorTest {
   private static final DoubleMatrix1D DELTA_VECTOR = new DoubleMatrix1D(new double[] { 1, 5 });
   private static final DoubleMatrix2D GAMMA_MATRIX = new DoubleMatrix2D(new double[][] { new double[] { 25, -7.5 }, new double[] { -7.5, 125 } });
   private static final DoubleMatrix2D COVARIANCE_MATRIX = new DoubleMatrix2D(new double[][] { new double[] { 0.0036, -0.0006 }, new double[] { -0.0006, 0.0016 } });
-  private static final Map<Sensitivity<?>, Matrix<?>> SENSITIVITIES = new HashMap<Sensitivity<?>, Matrix<?>>();
-  private static final Map<Sensitivity<?>, DoubleMatrix2D> COVARIANCES = new HashMap<Sensitivity<?>, DoubleMatrix2D>();
-  private static final Sensitivity<Greek> VALUE_DELTA = new ValueGreek(Greek.DELTA);
-  private static final Sensitivity<Greek> VALUE_GAMMA = new ValueGreek(Greek.GAMMA);
+  private static final Map<Integer, Matrix<?>> SENSITIVITIES = new HashMap<Integer, Matrix<?>>();
+  private static final Map<Integer, DoubleMatrix2D> COVARIANCES = new HashMap<Integer, DoubleMatrix2D>();
 
   static {
-    SENSITIVITIES.put(VALUE_DELTA, DELTA_VECTOR);
-    SENSITIVITIES.put(VALUE_GAMMA, GAMMA_MATRIX);
-    COVARIANCES.put(VALUE_DELTA, COVARIANCE_MATRIX);
+    SENSITIVITIES.put(1, DELTA_VECTOR);
+    SENSITIVITIES.put(2, GAMMA_MATRIX);
+    COVARIANCES.put(1, COVARIANCE_MATRIX);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -55,15 +50,15 @@ public class DeltaGammaCovarianceMatrixFisherKurtosisCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGammaMatrixSize() {
-    final Map<Sensitivity<?>, Matrix<?>> m = new HashMap<Sensitivity<?>, Matrix<?>>();
-    m.put(VALUE_DELTA, DELTA_VECTOR);
-    m.put(VALUE_GAMMA, new DoubleMatrix2D(new double[][] { new double[] { 1, 2, 3 }, new double[] { 4, 5, 6 }, new double[] { 7, 8, 9 } }));
+    final Map<Integer, Matrix<?>> m = new HashMap<Integer, Matrix<?>>();
+    m.put(1, DELTA_VECTOR);
+    m.put(2, new DoubleMatrix2D(new double[][] { new double[] { 1, 2, 3 }, new double[] { 4, 5, 6 }, new double[] { 7, 8, 9 } }));
     F.evaluate(new ParametricVaRDataBundle(m, COVARIANCES));
   }
 
   @Test
   public void testNoGamma() {
-    final Map<Sensitivity<?>, Matrix<?>> m = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_DELTA, DELTA_VECTOR);
+    final Map<Integer, Matrix<?>> m = Collections.<Integer, Matrix<?>> singletonMap(1, DELTA_VECTOR);
     final ParametricVaRDataBundle data = new ParametricVaRDataBundle(m, COVARIANCES);
     assertEquals(F.evaluate(data), 0, 1e-15);
   }
