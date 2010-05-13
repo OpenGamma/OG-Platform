@@ -25,7 +25,6 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
@@ -42,6 +41,7 @@ import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekResult;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -49,6 +49,19 @@ import com.opengamma.math.function.Function1D;
 public class OptionGreekToValueGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_Log = LoggerFactory.getLogger(OptionGreekToValueGreekConverterFunction.class);
   private final Function1D<GreekDataBundle, Map<ValueGreek, ValueGreekResult<?>>> _converter = new GreekToValueGreekConverter();
+  private final String _requirementName;
+  
+  public OptionGreekToValueGreekConverterFunction(String requirementName) {
+    ArgumentChecker.notNull(requirementName, "requirement name");
+    _requirementName = requirementName;
+  }
+
+  /**
+   * @return the requirementName
+   */
+  public String getRequirementName() {
+    return _requirementName;
+  }
 
   @SuppressWarnings("unchecked")
   @Override
@@ -63,37 +76,35 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     Underlying order;
     FudgeFieldContainer liveUnderlying;
     Set<UnderlyingType> underlyings;
-    //for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-    for (final String valueName : new String[]{ValueRequirementNames.DELTA} ) {
-      greekResult = inputs.getValue(new ValueRequirement(valueName, security));
-      greek = AvailableGreeks.getGreekForValueRequirementName(valueName);
-      if (greekResult == null) {
-        s_Log.warn("Could not get value for " + valueName + ", continuing");
+    String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
+    greekResult = inputs.getValue(new ValueRequirement(underlyingGreekRequirementName, security));
+    greek = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName);
+    if (greekResult instanceof Double) {
+      greekResultCollection.put(greek, new SingleGreekResult((Double) greekResult));
+    } else if (greekResult instanceof Map<?, ?>) {
+      greekResultCollection.put(greek, new MultipleGreekResult((Map<String, Double>) greekResult));
+    } else {
+      throw new IllegalArgumentException("Got a value for greek " + underlyingGreekRequirementName + " that is neither a Double nor a Map<String, Double>: should never happen " + greekResult);
+    }
+    
+    //TODO check that there isn't already a value for the greek? can't see how it could happen but
+    //overwriting silently in that situation would be bad
+    underlyingData.put(TradeData.NUMBER_OF_CONTRACTS, TradeDataToPositionDataMapper.getData(TradeData.NUMBER_OF_CONTRACTS, target));
+    // TODO kirk 2010-05-13 -- Once we have the point value from the security,
+    // swap these two lines.
+    underlyingData.put(TradeData.POINT_VALUE, 1.);
+    //underlyingData.put(TradeData.POINT_VALUE, security instanceof ExchangeTradedOptionSecurity ? ((ExchangeTradedOptionSecurity) security).getPointValue() : 1);
+    order = greek.getUnderlying();
+    underlyings = order.getUnderlyings();
+    for (final UnderlyingType underlying : underlyings) {
+      liveUnderlying = (FudgeFieldContainer) inputs.getValue(UnderlyingToValueRequirementMapper.getValueRequirement(underlying, security));
+      if (liveUnderlying == null) {
+        s_Log.warn("Could not get value for " + underlying + " for security " + security);
       } else {
-        if (greekResult instanceof Double) {
-          greekResultCollection.put(greek, new SingleGreekResult((Double) greekResult));
-        } else if (greekResult instanceof Map<?, ?>) {
-          greekResultCollection.put(greek, new MultipleGreekResult((Map<String, Double>) greekResult));
-        } else {
-          throw new IllegalArgumentException("Got a value for greek " + valueName + " that is neither a Double nor a Map<String, Double>: should never happen");
-        }
-      }
-      //TODO check that there isn't already a value for the greek? can't see how it could happen but
-      //overwriting silently in that situation would be bad
-      underlyingData.put(TradeData.NUMBER_OF_CONTRACTS, TradeDataToPositionDataMapper.getData(TradeData.NUMBER_OF_CONTRACTS, target));
-      underlyingData.put(TradeData.POINT_VALUE, 1.);
-      //underlyingData.put(TradeData.POINT_VALUE, security instanceof ExchangeTradedOptionSecurity ? ((ExchangeTradedOptionSecurity) security).getPointValue() : 1);
-      order = greek.getUnderlying();
-      underlyings = order.getUnderlyings();
-      for (final UnderlyingType underlying : underlyings) {
-        liveUnderlying = (FudgeFieldContainer) inputs.getValue(UnderlyingToValueRequirementMapper.getValueRequirement(underlying, security));
-        if (liveUnderlying == null) {
-          s_Log.warn("Could not get value for " + underlying + " for security " + security);
-        } else {
-          underlyingData.put(underlying, liveUnderlying.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
-        }
+        underlyingData.put(underlying, liveUnderlying.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
       }
     }
+    
     final GreekDataBundle dataBundle = new GreekDataBundle(greekResultCollection, underlyingData);
     final Map<ValueGreek, ValueGreekResult<?>> sensitivities = _converter.evaluate(dataBundle);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
@@ -127,20 +138,18 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     Set<UnderlyingType> underlyings;
     Underlying order;
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    //for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-    for (final String valueName : new String[]{ValueRequirementNames.DELTA} ) {
-      requirements.add(new ValueRequirement(valueName, security));
-      order = AvailableGreeks.getGreekForValueRequirementName(valueName).getUnderlying();
-      if (order == null) {
-        continue;
-      }
-      underlyings = order.getUnderlyings();
-      if (underlyings.isEmpty()) {
-        //TODO what to do here? will only happen for the price
-      } else {
-        for (final UnderlyingType underlying : underlyings) {
-          requirements.add(UnderlyingToValueRequirementMapper.getValueRequirement(underlying, security));
-        }
+    String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
+    requirements.add(new ValueRequirement(underlyingGreekRequirementName, security));
+    order = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName).getUnderlying();
+    if (order == null) {
+      throw new UnsupportedOperationException("No available order for configured value greek " + getRequirementName());
+    }
+    underlyings = order.getUnderlyings();
+    if (underlyings.isEmpty()) {
+      //TODO what to do here? will only happen for the price
+    } else {
+      for (final UnderlyingType underlying : underlyings) {
+        requirements.add(UnderlyingToValueRequirementMapper.getValueRequirement(underlying, security));
       }
     }
     return requirements;
@@ -153,10 +162,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     }
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    //for (final String valueName : AvailableValueGreeks.getAllPositionGreekNames()) {
-    for (final String valueName : new String[]{ValueRequirementNames.VALUE_DELTA} ) {
-      results.add(new ValueSpecification(new ValueRequirement(valueName, position)));
-    }
+    results.add(new ValueSpecification(new ValueRequirement(getRequirementName(), position)));
     return results;
   }
 

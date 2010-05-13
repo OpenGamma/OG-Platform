@@ -5,22 +5,24 @@
  */
 package com.opengamma.financial.analytics.greeks;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.greeks.Greek;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class AvailableGreeks {
-  private static final Map<String, Greek> AVAILABLE_GREEKS;
+  private static final BiMap<String, Greek> AVAILABLE_GREEKS;
 
   static {
-    AVAILABLE_GREEKS = new HashMap<String, Greek>();
+    AVAILABLE_GREEKS = HashBiMap.create();
     AVAILABLE_GREEKS.put(ValueRequirementNames.FAIR_VALUE, Greek.FAIR_PRICE);
     AVAILABLE_GREEKS.put(ValueRequirementNames.DELTA, Greek.DELTA);
     AVAILABLE_GREEKS.put(ValueRequirementNames.DELTA_BLEED, Greek.DELTA_BLEED);
@@ -87,5 +89,10 @@ public class AvailableGreeks {
 
   public static Map<String, Greek> getAllGreekNamesAndGreeks() {
     return AVAILABLE_GREEKS;
+  }
+  
+  public static String getValueRequirementNameForGreek(Greek greek) {
+    ArgumentChecker.notNull(greek, "greek");
+    return AVAILABLE_GREEKS.inverse().get(greek);
   }
 }

@@ -71,22 +71,30 @@ public class AvailableValueGreeks {
 
   public static ValueGreek getValueGreekForValueRequirementName(final String valueName) {
     if (!AVAILABLE_VALUE_GREEKS.containsKey(valueName))
-      throw new IllegalArgumentException("Could not get position greek for ValueRequirementName " + valueName);
+      throw new IllegalArgumentException("Could not get value greek for ValueRequirementName " + valueName);
     return AVAILABLE_VALUE_GREEKS.get(valueName);
+  }
+  
+  public static String getGreekRequirementNameForValueGreekName(final String valueName) {
+    ValueGreek valueGreek = AVAILABLE_VALUE_GREEKS.get(valueName);
+    if (valueGreek == null) {
+      throw new IllegalArgumentException("Could not get value greek for ValueRequirementName " + valueName); 
+    }
+    return AvailableGreeks.getValueRequirementNameForGreek(valueGreek.getUnderlyingGreek());
   }
 
   public static ValueGreek getValueGreekForValueRequirement(final ValueRequirement requirement) {
     final String greekName = requirement.getValueName();
     if (!AVAILABLE_VALUE_GREEKS.containsKey(greekName))
-      throw new IllegalArgumentException("Could not get position greek for ValueRequirement " + requirement.toString());
+      throw new IllegalArgumentException("Could not get value greek for ValueRequirement " + requirement.toString());
     return AVAILABLE_VALUE_GREEKS.get(greekName);
   }
 
-  public static Set<String> getAllPositionGreekNames() {
+  public static Set<String> getAllValueGreekNames() {
     return AVAILABLE_VALUE_GREEKS.keySet();
   }
 
-  public static Map<String, ValueGreek> getAllpositionGreekNamesAndPositionGreeks() {
+  public static Map<String, ValueGreek> getAllValueGreekNamesAndValueGreeks() {
     return AVAILABLE_VALUE_GREEKS;
   }
 }
