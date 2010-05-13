@@ -8,9 +8,12 @@ package com.opengamma.math.util.wrapper;
 import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
+import org.apache.commons.math.linear.ArrayRealVector;
 import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math.linear.RealVector;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
@@ -39,5 +42,13 @@ public class CommonsMathWrapper {
 
   public static DoubleMatrix2D wrap(final RealMatrix x) {
     return new DoubleMatrix2D(x.getData());
+  }
+
+  public static RealVector wrap(final DoubleMatrix1D x) {
+    return new ArrayRealVector(x.getDataAsPrimitiveArray());
+  }
+
+  public static DoubleMatrix1D wrap(final RealVector x) {
+    return new DoubleMatrix1D(x.getData());
   }
 }

@@ -11,10 +11,6 @@ import cern.colt.matrix.DoubleFactory1D;
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.linalg.Algebra;
 
-/**
- * @author emcleod
- * 
- */
 public class ColtMatrixAlgebra extends MatrixAlgebra {
   private final Algebra _algebra = new Algebra();
 
@@ -37,7 +33,8 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.inverse(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray())).toArray());
+      return new DoubleMatrix2D(_algebra.inverse(
+          DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray())).toArray());
     }
     throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());
   }
@@ -45,8 +42,8 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      return _algebra
-          .mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getDataAsPrimitiveArray()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray()));
+      return _algebra.mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getDataAsPrimitiveArray()),
+          DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray()));
     }
     throw new IllegalArgumentException("Cannot find the inner product of a " + m1.getClass() + " and " + m2.getClass());
   }
@@ -71,9 +68,10 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      final cern.colt.matrix.DoubleMatrix2D x = DoubleFactory2D.dense.make(m1.getNumberOfElements(), m2.getNumberOfElements());
-      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getDataAsPrimitiveArray()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray()),
-          x);
+      final cern.colt.matrix.DoubleMatrix2D x = DoubleFactory2D.dense.make(m1.getNumberOfElements(), m2
+          .getNumberOfElements());
+      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getDataAsPrimitiveArray()),
+          DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getDataAsPrimitiveArray()), x);
       return new DoubleMatrix2D(x.toArray());
     }
     throw new IllegalArgumentException("Cannot find the outer product of a " + m1.getClass() + " and " + m2.getClass());
@@ -92,7 +90,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public double getNorm2(final Matrix<?> m) {
     if (m instanceof DoubleMatrix1D) {
-      return _algebra.norm2(DoubleFactory1D.dense.make(((DoubleMatrix1D) m).getDataAsPrimitiveArray()));
+      return Math.sqrt(_algebra.norm2(DoubleFactory1D.dense.make(((DoubleMatrix1D) m).getDataAsPrimitiveArray())));
     } else if (m instanceof DoubleMatrix2D) {
       return _algebra.norm2(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()));
     }
@@ -112,7 +110,8 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.pow(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()), p).toArray());
+      return new DoubleMatrix2D(_algebra.pow(
+          DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray()), p).toArray());
     }
     throw new NotImplementedException();
   }
@@ -128,7 +127,8 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.transpose(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray())).toArray());
+      return new DoubleMatrix2D(_algebra.transpose(
+          DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getDataAsPrimitiveArray())).toArray());
     }
     throw new NotImplementedException();
   }

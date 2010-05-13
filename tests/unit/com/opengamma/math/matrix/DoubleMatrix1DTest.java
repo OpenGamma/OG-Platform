@@ -28,7 +28,6 @@ public class DoubleMatrix1DTest {
   public void testEmptyArray() {
     final DoubleMatrix1D d = new DoubleMatrix1D(new double[0]);
     assertTrue(Arrays.equals(new double[0], d.getDataAsPrimitiveArray()));
-    assertTrue(Arrays.equals(new Double[0], d.getDataAsObjectArray()));
   }
 
   @Test
@@ -40,7 +39,7 @@ public class DoubleMatrix1DTest {
     }
     DoubleMatrix1D d = new DoubleMatrix1D(x);
     assertEquals(d.getNumberOfElements(), n);
-    final Double[] y = d.getDataAsObjectArray();
+    final double[] y = d.getDataAsPrimitiveArray();
     for (int i = 0; i < n; i++) {
       assertEquals(x[i], y[i], 1e-15);
     }

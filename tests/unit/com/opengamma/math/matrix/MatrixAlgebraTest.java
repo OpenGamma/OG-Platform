@@ -17,11 +17,15 @@ import org.junit.Test;
  */
 public class MatrixAlgebraTest {
   private static final MatrixAlgebra ALGEBRA = new MyMatrixAlgebra();
+  private static final MatrixAlgebra comAlgebra = new CommonsMatrixAlgebra();
+  private static final MatrixAlgebra coltAlgebra = new ColtMatrixAlgebra();
   private static final Matrix<?> M1 = new DoubleMatrix1D(new double[] { 1, 2 });
   private static final Matrix<?> M2 = new DoubleMatrix1D(new double[] { 3, 4 });
-  private static final Matrix<?> M3 = new DoubleMatrix2D(new double[][] { new double[] { 1, 2 }, new double[] { 3, 4 } });
-  private static final Matrix<?> M4 = new DoubleMatrix2D(new double[][] { new double[] { 5, 6 }, new double[] { 7, 8 } });
-  private static final double EPS = 1e-15;
+  private static final Matrix<?> M3 = new DoubleMatrix2D(
+      new double[][] { new double[] { 1, 2 }, new double[] { 3, 4 } });
+  private static final Matrix<?> M4 = new DoubleMatrix2D(
+      new double[][] { new double[] { 5, 6 }, new double[] { 7, 8 } });
+  private final double EPS = 1e-10;
 
   @Test(expected = NotImplementedException.class)
   public void testAddWrongSize() {
@@ -152,5 +156,80 @@ public class MatrixAlgebraTest {
       return null;
     }
 
+  }
+
+  @Test
+  public void testCondition() {
+    assertEquals(comAlgebra.getCondition(M4), coltAlgebra.getCondition(M4), EPS);
+  }
+
+  @Test
+  public void testDeterminant() {
+    assertEquals(comAlgebra.getDeterminant(M4), coltAlgebra.getDeterminant(M4), EPS);
+  }
+
+  @Test
+  public void testNormL1() {
+    assertEquals(comAlgebra.getNorm1(M1), coltAlgebra.getNorm1(M1), EPS);
+    assertEquals(comAlgebra.getNorm1(M4), coltAlgebra.getNorm1(M4), EPS);
+  }
+
+  @Test
+  public void testNormL2() {
+    assertEquals(comAlgebra.getNorm2(M1), coltAlgebra.getNorm2(M1), EPS);
+    assertEquals(comAlgebra.getNorm2(M4), coltAlgebra.getNorm2(M4), EPS);
+  }
+
+  @Test
+  public void testNormLInf() {
+    assertEquals(comAlgebra.getNormInfinity(M1), coltAlgebra.getNormInfinity(M1), EPS);
+    assertEquals(comAlgebra.getNormInfinity(M4), coltAlgebra.getNormInfinity(M4), EPS);
+  }
+
+  @Test
+  public void testTrace() {
+    assertEquals(comAlgebra.getTrace(M4), coltAlgebra.getTrace(M4), EPS);
+  }
+
+  @Test
+  public void testInnerProduct() {
+    assertEquals(comAlgebra.getInnerProduct(M1, M2), coltAlgebra.getInnerProduct(M1, M2), EPS);
+  }
+
+  @Test
+  public void testInverse() {
+    assertTrue(MatrixEquals(comAlgebra.getInverse(M3), coltAlgebra.getInverse(M3), EPS));
+  }
+
+  @Test
+  public void testMultiply() {
+    assertTrue(MatrixEquals((DoubleMatrix2D) comAlgebra.multiply(M3, M4),
+        (DoubleMatrix2D) coltAlgebra.multiply(M3, M4), EPS));
+  }
+
+  @Test
+  public void testOuterProduct() {
+    assertTrue(MatrixEquals(comAlgebra.getOuterProduct(M1, M2), coltAlgebra.getOuterProduct(M1, M2), EPS));
+  }
+
+  @Test
+  public void testPower() {
+    //this will pass by definition as the Commons calls colt
+    assertTrue(MatrixEquals(comAlgebra.getPower(M3, 3), coltAlgebra.getPower(M3, 3), EPS));
+    assertTrue(MatrixEquals(coltAlgebra.getPower(M3, 3), (DoubleMatrix2D) coltAlgebra.multiply(M3, coltAlgebra
+        .multiply(M3, M3)), EPS));
+  }
+
+  private boolean MatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double tol) {
+    final int rows = m1.getNumberOfRows();
+    final int cols = m1.getNumberOfColumns();
+    if (m2.getNumberOfRows() != rows || m2.getNumberOfColumns() != cols)
+      return false;
+    int i, j;
+    for (i = 0; i < rows; i++)
+      for (j = 0; j < rows; j++)
+        if (Math.abs(m1.getElement(i, j) - m2.getElement(i, j)) > tol)
+          return false;
+    return true;
   }
 }
