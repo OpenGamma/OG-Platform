@@ -5,7 +5,7 @@
  */
 package com.opengamma.transport.socket;
 
-import java.io.EOFException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -13,7 +13,6 @@ import java.net.Socket;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
-import org.fudgemsg.FudgeRuntimeIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +83,8 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
       s_logger.warn("Unable to open InputStream for socket {}", new Object[]{socket}, e);
       return;
     }
-    
+
+    is = new BufferedInputStream(is);
     MessageReceiveJob job = new MessageReceiveJob(socket, is);
     _messageReceiveJobs.addJobAndStartThread(job, "Message Receive " + socket.getRemoteSocketAddress());
   }
@@ -119,16 +119,14 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
       FudgeMsgEnvelope envelope = null;
       try {
         envelope = _reader.nextMessageEnvelope();
-      } catch (FudgeRuntimeIOException frio) {
-        if(frio.getCause() instanceof EOFException) {
-          // Special case here specifically for sockets.
-          s_logger.info("Detected that underlying socket is closed but not registering on _socket yet, closing");
-          terminate();
-          return;
-        }
-        s_logger.warn("Unable to read message from underlying stream", frio);
       } catch (Exception e) {
         s_logger.warn("Unable to read message from underlying stream", e);
+        return;
+      }
+      
+      if(envelope == null) {
+        s_logger.info("Nothing available on the stream. Returning and terminating.");
+        terminate();
         return;
       }
 

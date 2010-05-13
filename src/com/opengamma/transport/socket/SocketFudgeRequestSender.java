@@ -60,9 +60,6 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
   @Override
   protected void socketOpened(Socket socket, OutputStream os, InputStream is) {
     _msgWriter = getFudgeContext().createMessageWriter(os);
-    _msgWriter.setDefaultMessageProcessingDirectives(0);
-    _msgWriter.setDefaultMessageVersion(0);
-    _msgWriter.setDefaultTaxonomyId(0);
     
     _msgReader = getFudgeContext().createMessageReader(is);
   }

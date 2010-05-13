@@ -5,6 +5,7 @@
  */
 package com.opengamma.transport.socket;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -96,8 +97,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
     } catch (IOException ioe) {
       throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() +":" + getPortNumber(), ioe);
     }
-    // When FRJ-67 is resolved, this can be commented back in.
-    //os = new BufferedOutputStream(os);
+    os = new BufferedOutputStream(os);
     socketOpened(_socket, os, is);
   }
 
