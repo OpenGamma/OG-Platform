@@ -8,6 +8,7 @@ package com.opengamma.engine.position.csv;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -25,6 +26,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import au.com.bytecode.opencsv.CSVParser;
+import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
@@ -179,12 +183,12 @@ public class CSVPositionMaster implements PositionMaster {
     PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
     _nodes.put(portfolio.getRootNode().getUniqueIdentifier(), portfolio.getRootNode());
     
-    BufferedReader in = new BufferedReader(new InputStreamReader(inStream));
-    String line = null;
+    CSVReader csvReader = new CSVReader(new InputStreamReader(inStream));
+    String[] tokens = null;
     int curIndex = 1;
     UniqueIdentifier positionId = UniqueIdentifier.of(portfolioId.getScheme(), Integer.toString(curIndex));
-    while ((line = in.readLine()) != null) {
-      PositionImpl position = parseLine(line, positionId);
+    while ((tokens = csvReader.readNext()) != null) {
+      PositionImpl position = parseLine(tokens, positionId);
       if (position != null) {
         ((PortfolioNodeImpl) portfolio.getRootNode()).addPosition(position);
         _positions.put(position.getUniqueIdentifier(), position);
@@ -200,8 +204,7 @@ public class CSVPositionMaster implements PositionMaster {
    * @param positionId  the portfolio id, not null
    * @return the position
    */
-  /* package for testing */ static PositionImpl parseLine(String line, UniqueIdentifier positionId) {
-    String[] tokens = StringUtils.split(line, ',');
+  /* package for testing */ static PositionImpl parseLine(String[] tokens, UniqueIdentifier positionId) {
     if (tokens.length < 3) {
       return null;
     }

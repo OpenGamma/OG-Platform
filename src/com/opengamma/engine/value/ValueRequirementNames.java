@@ -1,18 +1,16 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.value;
 
-
 /**
  * A collection of common/standard names for the Value Name property
  * for {@link ValueRequirement} instances.
- *
- * @author kirk
  */
 public interface ValueRequirementNames {
+
   // Market Data Names:
   public static final String MARKET_DATA_HEADER = "MarketDataHeader";
   

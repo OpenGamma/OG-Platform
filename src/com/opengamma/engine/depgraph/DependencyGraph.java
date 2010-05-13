@@ -67,10 +67,6 @@ public class DependencyGraph {
     _outputValues.addAll(node.getOutputValues());
   }
   
-  public Collection<DependencyNode> getNodes() {
-    return Collections.unmodifiableCollection(_dependencyNodes);
-  }
-  
   public void removeUnnecessaryValues() {
     for(DependencyNode node : _dependencyNodes) {
       Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();

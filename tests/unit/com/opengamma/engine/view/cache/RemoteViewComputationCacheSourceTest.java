@@ -18,8 +18,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.InMemoryRequestConduit;
 
@@ -50,7 +49,7 @@ public class RemoteViewComputationCacheSourceTest {
 
   @Test(timeout=10000l)
   public void singleThreadPutLoad() throws InterruptedException {
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), "Value"))));
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
     ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
     
     long timestamp = System.currentTimeMillis();

@@ -8,6 +8,7 @@ package com.opengamma.engine.livedata;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * Allows a view to snapshot and then query the state of financial data.
@@ -16,8 +17,8 @@ import com.opengamma.engine.value.ValueRequirement;
  */
 public interface LiveDataSnapshotProvider {
 
-  void addSubscription(String userName, ValueRequirement valueRequirement);
-  void addSubscription(String userName, Set<ValueRequirement> valueRequirements);
+  void addSubscription(UserPrincipal user, ValueRequirement valueRequirement);
+  void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements);
   
   long snapshot();
 

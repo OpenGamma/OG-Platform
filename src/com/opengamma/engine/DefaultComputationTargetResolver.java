@@ -5,9 +5,6 @@
  */
 package com.opengamma.engine;
 
-import java.util.Collection;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +15,6 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -80,68 +75,37 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    Identifier identifier = specification.getIdentifier();
+    UniqueIdentifier uid = specification.getUniqueIdentifier();
     switch (specification.getType()) {
       case PRIMITIVE: {
-        return new ComputationTarget(specification.getType(), identifier);
+        return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
-        Security security = resolveSecurity(identifier);
-        s_logger.info("Resolved security ID {} to security {}", identifier, security);
-        if (security != null) {
-          return new ComputationTarget(ComputationTargetType.SECURITY, security);
-        }
-        break;
+        Security security = getSecurityMaster().getSecurity(uid);
+        s_logger.info("Resolved security ID {} to security {}", uid, security);
+        return (security == null ? null : new ComputationTarget(ComputationTargetType.SECURITY, security));
       }
       case POSITION: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
         Position position = getPositionMaster().getPosition(uid);
-        s_logger.info("Resolved position ID {} to position {}", identifier, position);
-        if (position != null) {
-          return new ComputationTarget(ComputationTargetType.POSITION, position);
-        }
-        break;
+        s_logger.info("Resolved position ID {} to position {}", uid, position);
+        return (position == null ? null : new ComputationTarget(ComputationTargetType.POSITION, position));
       }
       case MULTIPLE_POSITIONS: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
         Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", identifier, portfolio);
+        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", uid, portfolio);
         if (portfolio != null) {
           return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolio);
         }
         PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", identifier, node);
+        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", uid, node);
         if (node != null) {
           return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, node);
         }
-        break;
+        return null;
       }
       default: {
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
       }
-    }
-    return null;
-  }
-
-  /**
-   * Resolves a security from the security master.
-   * @param identifier  the identifier to resolve.
-   * @return the security, not null
-   */
-  private Security resolveSecurity(Identifier identifier) {
-    if (ObjectUtils.equals(Security.SECURITY_IDENTITY_KEY_DOMAIN, identifier.getScheme())) {
-      return getSecurityMaster().getSecurity(identifier);
-    }
-    // must not be an "identity key", so try a regular identifier in the bundle
-    IdentifierBundle bundle = new IdentifierBundle(identifier);
-    Collection<Security> securities = getSecurityMaster().getSecurities(bundle);
-    if (securities.size() > 1) {
-      s_logger.warn("Got more than one result for {}:{}",identifier, securities);
-    }
-    if (securities.isEmpty()) {
-      return null;
-    } else {
-      return securities.iterator().next();
     }
   }
 

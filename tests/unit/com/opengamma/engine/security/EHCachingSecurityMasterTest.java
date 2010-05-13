@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -9,10 +9,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -22,23 +20,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
- *
- * @author yomi
+ * Test EHCachingSecurityMaster.
  */
 public class EHCachingSecurityMasterTest {
-  
+
   private SecurityMaster _underlyingSecMaster = null;
   private EHCachingSecurityMaster _cachingSecMaster = null;
-  
   private Identifier _secId1 = new Identifier(new IdentificationScheme("d1"), "v1");
   private Identifier _secId2 = new Identifier(new IdentificationScheme("d1"), "v2");
-  
   private DefaultSecurity _security1 = new DefaultSecurity();
   private DefaultSecurity _security2 = new DefaultSecurity();
 
@@ -47,56 +42,63 @@ public class EHCachingSecurityMasterTest {
     _underlyingSecMaster = new InMemorySecurityMaster();
     _cachingSecMaster = new EHCachingSecurityMaster(_underlyingSecMaster);
     
-    _security1.setIdentifiers(Collections.singleton(_secId1));
-    _security2.setIdentifiers(Collections.singleton(_secId2));
-    
+    _security1.addIdentifier(_secId1);
+    _security2.addIdentifier(_secId2);
   }
 
   @After
   public void tearDown() throws Exception {
     _underlyingSecMaster = null;
     if (_cachingSecMaster != null) {
-      CacheManager cacheManager = _cachingSecMaster.getCacheManager();
-      if (cacheManager != null) {
-        cacheManager.shutdown();
-      }
+      _cachingSecMaster.shutdown();
     }
     _cachingSecMaster = null;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void emptyCache() {
-    IdentifierBundle secKey = new IdentifierBundle(_secId1);
+  public void getSecurity_UniqueIdentifier() {
+    addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
-    Security cachedSec = _cachingSecMaster.getSecurity(secKey);
-    assertNull(cachedSec);
+    UniqueIdentifier uid1 = _security1.getUniqueIdentifier();
+    Security underlyingSec = _underlyingSecMaster.getSecurity(uid1);
+    Security cachedSec = _cachingSecMaster.getSecurity(uid1);
+    assertNotNull(underlyingSec);
+    assertNotNull(cachedSec);
+    assertSame(underlyingSec, cachedSec);
+    
     CacheManager cacheManager = _cachingSecMaster.getCacheManager();
     Cache singleSecCache = cacheManager.getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
-    assertEquals(0, singleSecCache.getSize());
-    Element element = singleSecCache.get(secKey);
-    assertNull(element);
-    
-    Collection<Security> cachedSecurities = _cachingSecMaster.getSecurities(secKey);
-    assertNotNull(cachedSecurities);
-    assertTrue(cachedSecurities.isEmpty());
-    
-    assertEquals(0, singleSecCache.getSize());
-    element = singleSecCache.get(secKey);
-    assertNull(element);
+    assertEquals(1, singleSecCache.getSize());
+    Element element = singleSecCache.getQuiet(uid1);
+    assertNotNull(element);
+    for (int i = 1; i < 10; i++) {
+      cachedSec = _cachingSecMaster.getSecurity(uid1);
+      assertNotNull(cachedSec);
+      assertEquals(i, element.getHitCount());
+    }
     Cache multiSecCache = cacheManager.getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
     assertEquals(0, multiSecCache.getSize());
-    element = multiSecCache.get(secKey);
-    assertNull(element);
-    
-    Identifier identityKey = _security1.getIdentityKey();
-    cachedSec = _cachingSecMaster.getSecurity(identityKey);
-    assertEquals(0, singleSecCache.getSize());
-    element = singleSecCache.get(identityKey);
-    assertNull(element);
   }
 
   @Test
-  public void getSecurities() {
+  public void getSecurity_UniqueIdentifier_empty() {
+    CacheManager cacheManager = _cachingSecMaster.getCacheManager();
+    Cache singleSecCache = cacheManager.getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
+    
+    UniqueIdentifier uid = _security1.getUniqueIdentifier();
+    Security cachedSec = _cachingSecMaster.getSecurity(uid);
+    assertNull(cachedSec);
+    assertEquals(0, singleSecCache.getSize());
+    assertEquals(0, multiSecCache.getSize());
+    Element element = singleSecCache.get(uid);
+    assertNull(element);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void getSecurities_IdentifierBundle() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     IdentifierBundle secKey = new IdentifierBundle(_secId1, _secId2);
     
@@ -116,21 +118,37 @@ public class EHCachingSecurityMasterTest {
     assertEquals(1, multiSecCache.getSize());
     
     Element multiElement = multiSecCache.getQuiet(secKey);
-    Element sec1Element = singleSecCache.getQuiet(_security1.getIdentityKey());
-    Element sec2Element = singleSecCache.getQuiet(_security2.getIdentityKey());
+    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
+    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
     assertNotNull(multiElement);
     assertNotNull(sec1Element);
     assertNotNull(sec2Element);
     for (int i = 1; i < 10; i++) {
       _cachingSecMaster.getSecurities(secKey);
       assertEquals(i, multiElement.getHitCount());
-      assertEquals(i, sec1Element.getHitCount());
-      assertEquals(i, sec2Element.getHitCount());
+      assertEquals(0, sec1Element.getHitCount());
+      assertEquals(0, sec2Element.getHitCount());
     }
   }
 
   @Test
-  public void getSecurityBySecurityKey() {
+  public void getSecurities_IdentifierBundle_empty() {
+    IdentifierBundle secKey = new IdentifierBundle(_secId1);
+    CacheManager cacheManager = _cachingSecMaster.getCacheManager();
+    Cache singleSecCache = cacheManager.getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
+    
+    Security cachedSec = _cachingSecMaster.getSecurity(secKey);
+    assertNull(cachedSec);
+    assertEquals(0, singleSecCache.getSize());
+    assertEquals(1, multiSecCache.getSize());
+    Element element = multiSecCache.get(secKey);
+    assertEquals(0, ((Collection<?>) element.getValue()).size());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void getSecurity_IdentifierBundle() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     
     IdentifierBundle secKey1 = new IdentifierBundle(_secId1);
@@ -141,101 +159,70 @@ public class EHCachingSecurityMasterTest {
     assertSame(underlyingSec, cachedSec);
     
     CacheManager cacheManager = _cachingSecMaster.getCacheManager();
+    assertNotNull(cacheManager);
     Cache singleSecCache = cacheManager.getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
+    assertNotNull(singleSecCache);
     assertEquals(1, singleSecCache.getSize());
-    Element element = singleSecCache.getQuiet(secKey1);
-    assertNotNull(element);
-    for (int i = 1; i < 10; i++) {
-      cachedSec = _cachingSecMaster.getSecurity(secKey1);
-      assertNotNull(cachedSec);
-      assertEquals(i, element.getHitCount());
-    }
     Cache multiSecCache = cacheManager.getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
-    assertEquals(0, multiSecCache.getSize());
-  }
-  
-  @Test
-  public void getSecurityByIdentityKey() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    assertNotNull(multiSecCache);
+    assertEquals(1, multiSecCache.getSize());
     
-    Identifier identityKey1 = _security1.getIdentityKey();
-    Security underlyingSec = _underlyingSecMaster.getSecurity(identityKey1);
-    Security cachedSec = _cachingSecMaster.getSecurity(identityKey1);
-    assertNotNull(underlyingSec);
-    assertNotNull(cachedSec);
-    assertSame(underlyingSec, cachedSec);
-    
-    CacheManager cacheManager = _cachingSecMaster.getCacheManager();
-    Cache singleSecCache = cacheManager.getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
-    assertEquals(1, singleSecCache.getSize());
-    Element element = singleSecCache.getQuiet(identityKey1);
-    assertNotNull(element);
+    Element multiElement = multiSecCache.getQuiet(secKey1);
+    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
+    assertNotNull(multiElement);
+    assertNotNull(sec1Element);
     for (int i = 1; i < 10; i++) {
-      cachedSec = _cachingSecMaster.getSecurity(identityKey1);
-      assertNotNull(cachedSec);
-      assertEquals(i, element.getHitCount());
+      _cachingSecMaster.getSecurities(secKey1);
+      assertEquals(i, multiElement.getHitCount());
+      assertEquals(0, sec1Element.getHitCount());
     }
-    Cache multiSecCache = cacheManager.getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
-    assertEquals(0, multiSecCache.getSize());
   }
 
   @Test
-  public void refreshGetSecurityBySecurityKey() {
-    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+  public void getSecurity_IdentifierBundle_empty() {
+    IdentifierBundle secKey = new IdentifierBundle(_secId1);
+    CacheManager cacheManager = _cachingSecMaster.getCacheManager();
+    Cache singleSecCache = cacheManager.getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
+    Cache multiSecCache = cacheManager.getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
     
-    IdentifierBundle secKey1 = new IdentifierBundle(_secId1);
-    _cachingSecMaster.getSecurity(secKey1);
-    Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
-    assertEquals(1, singleSecCache.getSize());
-    Element sec1Element = singleSecCache.getQuiet(secKey1);
-    assertNotNull(sec1Element);
-    for (int i = 1; i < 10; i++) {
-      _cachingSecMaster.getSecurity(secKey1);
-      assertEquals(i, sec1Element.getHitCount());
-    }
-    _cachingSecMaster.refresh(secKey1);
+    Security cachedSec = _cachingSecMaster.getSecurity(secKey);
+    assertNull(cachedSec);
     assertEquals(0, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(secKey1);
-    assertNull(sec1Element);
-    _cachingSecMaster.getSecurity(secKey1);
-    assertEquals(1, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(secKey1);
-    assertNotNull(sec1Element);
-    for (int i = 1; i < 10; i++) {
-      _cachingSecMaster.getSecurity(secKey1);
-      assertEquals(i, sec1Element.getHitCount());
-    }
+    assertEquals(1, multiSecCache.getSize());
+    Element element = multiSecCache.get(secKey);
+    assertEquals(0, ((Collection<?>) element.getValue()).size());
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
-  public void refreshGetSecurityByIdentityKey() {
+  public void refreshGetSecurity_UniqueIdentity() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
-    Identifier identityKey1 = _security1.getIdentityKey();
-    _cachingSecMaster.getSecurity(identityKey1);
+    UniqueIdentifier uid1 = _security1.getUniqueIdentifier();
+    _cachingSecMaster.getSecurity(uid1);
     Cache singleSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.SINGLE_SECURITY_CACHE);
     assertEquals(1, singleSecCache.getSize());
-    Element sec1Element = singleSecCache.getQuiet(identityKey1);
+    Element sec1Element = singleSecCache.getQuiet(uid1);
     assertNotNull(sec1Element);
     for (int i = 1; i < 10; i++) {
-      _cachingSecMaster.getSecurity(identityKey1);
+      _cachingSecMaster.getSecurity(uid1);
       assertEquals(i, sec1Element.getHitCount());
     }
-    _cachingSecMaster.refresh(identityKey1);
+    _cachingSecMaster.refresh(uid1);
     assertEquals(0, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(identityKey1);
+    sec1Element = singleSecCache.getQuiet(uid1);
     assertNull(sec1Element);
-    _cachingSecMaster.getSecurity(identityKey1);
+    _cachingSecMaster.getSecurity(uid1);
     assertEquals(1, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(identityKey1);
+    sec1Element = singleSecCache.getQuiet(uid1);
     assertNotNull(sec1Element);
     for (int i = 1; i < 10; i++) {
-      _cachingSecMaster.getSecurity(identityKey1);
+      _cachingSecMaster.getSecurity(uid1);
       assertEquals(i, sec1Element.getHitCount());
     }
   }
    
   @Test
-  public void refreshGetSecuritiesBySecurityKey() {
+  public void refreshGetSecurities_IdentifierBundle() {
     addSecuritiesToMemorySecurityMaster(_security1, _security2);
     IdentifierBundle secKey = new IdentifierBundle(_secId1, _secId2);
     _cachingSecMaster.getSecurities(secKey);
@@ -244,33 +231,32 @@ public class EHCachingSecurityMasterTest {
     assertEquals(2, singleSecCache.getSize());
     assertEquals(1, multiSecCache.getSize());
     
-    Element sec1Element = singleSecCache.getQuiet(_security1.getIdentityKey());
-    Element sec2Element = singleSecCache.getQuiet(_security2.getIdentityKey());
+    Element sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
+    Element sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
     Element multiElement = multiSecCache.getQuiet(secKey);
     assertNotNull(sec1Element);
     assertNotNull(sec2Element);
     assertNotNull(multiElement);
     for (int i = 1; i < 10; i++) {
       _cachingSecMaster.getSecurities(secKey);
-      assertEquals(i, sec1Element.getHitCount());
-      assertEquals(i, sec2Element.getHitCount());
+      assertEquals(0, sec1Element.getHitCount());
+      assertEquals(0, sec2Element.getHitCount());
       assertEquals(i, multiElement.getHitCount());
     }
     
     _cachingSecMaster.refresh(secKey);
     assertEquals(0, multiSecCache.getSize());
     assertEquals(0, singleSecCache.getSize());
-    sec1Element = singleSecCache.getQuiet(_security1.getIdentityKey());
-    sec2Element = singleSecCache.getQuiet(_security2.getIdentityKey());
+    sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
+    sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
     multiElement = multiSecCache.getQuiet(secKey);
     assertNull(sec1Element);
     assertNull(sec2Element);
     assertNull(multiElement);
     
-    
     _cachingSecMaster.getSecurities(secKey);
-    sec1Element = singleSecCache.getQuiet(_security1.getIdentityKey());
-    sec2Element = singleSecCache.getQuiet(_security2.getIdentityKey());
+    sec1Element = singleSecCache.getQuiet(_security1.getUniqueIdentifier());
+    sec2Element = singleSecCache.getQuiet(_security2.getUniqueIdentifier());
     multiElement = multiSecCache.getQuiet(secKey);
     assertNotNull(sec1Element);
     assertNotNull(sec2Element);
@@ -278,15 +264,43 @@ public class EHCachingSecurityMasterTest {
     for (int i = 1; i < 10; i++) {
       _cachingSecMaster.getSecurities(secKey);
       assertEquals(i, multiElement.getHitCount());
-      assertEquals(i, sec1Element.getHitCount());
-      assertEquals(i, sec2Element.getHitCount());
+      assertEquals(0, sec1Element.getHitCount());
+      assertEquals(0, sec2Element.getHitCount());
     }
   }
     
+  @Test
+  public void refreshGetSecurity_IdentifierBundle() {
+    addSecuritiesToMemorySecurityMaster(_security1, _security2);
+    
+    IdentifierBundle secKey1 = new IdentifierBundle(_secId1);
+    _cachingSecMaster.getSecurity(secKey1);
+    Cache multiSecCache = _cachingSecMaster.getCacheManager().getCache(EHCachingSecurityMaster.MULTI_SECURITIES_CACHE);
+    assertEquals(1, multiSecCache.getSize());
+    Element multiElement = multiSecCache.getQuiet(secKey1);
+    assertNotNull(multiElement);
+    for (int i = 1; i < 10; i++) {
+      _cachingSecMaster.getSecurity(secKey1);
+      assertEquals(i, multiElement.getHitCount());
+    }
+    _cachingSecMaster.refresh(secKey1);
+    assertEquals(0, multiSecCache.getSize());
+    multiElement = multiSecCache.getQuiet(secKey1);
+    assertNull(multiElement);
+    _cachingSecMaster.getSecurity(secKey1);
+    assertEquals(1, multiSecCache.getSize());
+    multiElement = multiSecCache.getQuiet(secKey1);
+    assertNotNull(multiElement);
+    for (int i = 1; i < 10; i++) {
+      _cachingSecMaster.getSecurity(secKey1);
+      assertEquals(i, multiElement.getHitCount());
+    }
+  }
+  
   private void addSecuritiesToMemorySecurityMaster(DefaultSecurity ... securities) {
     InMemorySecurityMaster secMaster = (InMemorySecurityMaster)_underlyingSecMaster;
     for (DefaultSecurity security : securities) {
-      secMaster.add(security);
+      secMaster.addSecurity(security);
     }
   }
 

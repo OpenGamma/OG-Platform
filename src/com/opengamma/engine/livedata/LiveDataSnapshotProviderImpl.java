@@ -28,6 +28,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.client.LiveDataClient;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -84,12 +85,12 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   }
 
   @Override
-  public void addSubscription(String userName, ValueRequirement requirement) {
-    addSubscription(userName, Collections.singleton(requirement));    
+  public void addSubscription(UserPrincipal user, ValueRequirement requirement) {
+    addSubscription(user, Collections.singleton(requirement));    
   }
   
   @Override
-  public void addSubscription(String userName, Set<ValueRequirement> valueRequirements) {
+  public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
       LiveDataSpecification liveDataSpec = constructRequirementLiveDataSpecification(requirement);
@@ -100,10 +101,8 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
         _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
       }
       requirementsForSpec.add(requirement);
-      
-      _liveDataClient.subscribe(userName, liveDataSpec, this);
     }
-    //_liveDataClient.subscribe(userName, liveDataSpecs, this);
+    _liveDataClient.subscribe(user, liveDataSpecs, this);
   }
   
   /**
@@ -117,8 +116,8 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       // Just use the identifier as given.
       return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), requirement.getTargetSpecification().getIdentifier());
     case SECURITY:
-      Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getIdentifier());
-      if(security == null) {
+      Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+      if (security == null) {
         throw new OpenGammaRuntimeException("Unknown security in configured security master: " + requirement.getTargetSpecification().getIdentifier());
       }
       // Package up the other identifiers
