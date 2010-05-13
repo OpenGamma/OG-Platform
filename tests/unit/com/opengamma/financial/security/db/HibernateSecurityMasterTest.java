@@ -343,6 +343,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   
   @Test
   public void testEquityOptionSecurityBeans() {
+    double pointValue = 25;
     Currency dollar = Currency.getInstance ("USD");
     Currency sterling = Currency.getInstance ("GBP");
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
@@ -363,6 +364,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         expiry, 
         americanUnderlyingIdentifier, 
         dollar, 
+        pointValue,
         "DJX");
     equityOption.setIdentifiers (Collections.singleton (americanIdentifier));
     _secMaster.putSecurity (now, equityOption);
@@ -372,6 +374,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         expiry, 
         europeanUnderlyingIdentifier, 
         sterling, 
+        pointValue,
         "UKX");
     equityOption.setIdentifiers (Collections.singleton (europeanIdentifier));
     _secMaster.putSecurity (now, equityOption);
@@ -382,6 +385,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         7.89,
         poweredUnderlyingIdentifier, 
         sterling, 
+        pointValue,
         "UKX");
     equityOption.setIdentifiers (Collections.singleton (poweredIdentifier));
     _secMaster.putSecurity (now, equityOption);
@@ -394,8 +398,9 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (1.23, american.getStrike (), 0);
     Assert.assertEquals (expiry, american.getExpiry ());
     Assert.assertEquals (americanUnderlyingIdentifier, american.getUnderlyingIdentityKey());
-    Assert.assertEquals (dollar, american.getCurrency ());
+    Assert.assertEquals (dollar, american.getCurrency ());    
     Assert.assertEquals ("DJX", american.getExchange ());
+    Assert.assertEquals(pointValue, american.getPointValue(), 0);
     // retrieve the European option
     security = _secMaster.getSecurity (now, europeanIdentifier, true);
     Assert.assertNotNull (security);
@@ -407,6 +412,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (europeanUnderlyingIdentifier, european.getUnderlyingIdentityKey ());
     Assert.assertEquals (sterling, european.getCurrency ());
     Assert.assertEquals ("UKX", european.getExchange ());
+    Assert.assertEquals(pointValue, european.getPointValue(), 0);
     // retrieve the Powered option
     security = _secMaster.getSecurity (now, poweredIdentifier, true);
     Assert.assertNotNull (security);
@@ -419,10 +425,12 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (poweredUnderlyingIdentifier, powered.getUnderlyingIdentityKey ());
     Assert.assertEquals (sterling, powered.getCurrency ());
     Assert.assertEquals ("UKX", powered.getExchange ());
+    Assert.assertEquals(pointValue, powered.getPointValue(), 0);
   }
   
   @Test
   public void testFutureOptionSecurityBeans () {
+    double pointValue = 25;
     Currency dollar = Currency.getInstance ("USD");
     Currency sterling = Currency.getInstance ("GBP");
     Expiry expiry = new Expiry (ZonedDateTime.fromInstant (OffsetDateTime.midnight (2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
@@ -437,6 +445,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         expiry, 
         americanUnderlyingIdentifier, 
         dollar, 
+        pointValue,
         "DJX",
         true);
     futureOption.setIdentifiers (Collections.singleton (americanIdentifier));
@@ -447,6 +456,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
         expiry, 
         europeanUnderlyingIdentifier, 
         sterling, 
+        pointValue,
         "UKX",
         false);
     futureOption.setIdentifiers (Collections.singleton (europeanIdentifier));
@@ -463,6 +473,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (dollar, american.getCurrency ());
     Assert.assertEquals ("DJX", american.getExchange ());
     Assert.assertEquals (true, american.isMargined ());
+    Assert.assertEquals(pointValue, american.getPointValue(), 0);
     // retrieve the European option
     security = _secMaster.getSecurity (now, europeanIdentifier, true);
     Assert.assertNotNull (security);
@@ -475,6 +486,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     Assert.assertEquals (sterling, european.getCurrency ());
     Assert.assertEquals ("UKX", european.getExchange ());
     Assert.assertEquals (false, european.isMargined ());
+    Assert.assertEquals(pointValue, european.getPointValue(), 0);
   }
   
   @Test

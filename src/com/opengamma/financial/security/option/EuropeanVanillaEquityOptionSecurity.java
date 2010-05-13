@@ -15,25 +15,26 @@ import com.opengamma.util.time.Expiry;
  * @author jim
  */
 public class EuropeanVanillaEquityOptionSecurity extends EquityOptionSecurity
-    implements EuropeanVanillaOption {
+implements EuropeanVanillaOption {
 
   /**
    * @param optionType
    * @param strike
    * @param expiry
    */
-  public EuropeanVanillaEquityOptionSecurity(OptionType optionType,
-      double strike, Expiry expiry, Identifier underlyingIdentityKey, Currency currency, final String exchange) {
-    super(optionType, strike, expiry, underlyingIdentityKey, currency, exchange);
+  public EuropeanVanillaEquityOptionSecurity(final OptionType optionType,
+ final double strike, final Expiry expiry, final Identifier underlyingIdentityKey,
+      final Currency currency, final double pointValue, final String exchange) {
+    super(optionType, strike, expiry, underlyingIdentityKey, currency, pointValue, exchange);
   }
 
   @Override
-  public <T> T accept(OptionVisitor<T> visitor) {
+  public <T> T accept(final OptionVisitor<T> visitor) {
     return visitor.visitEuropeanVanillaOption(this);
   }
 
   @Override
-  public <T> T accept(EquityOptionSecurityVisitor<T> visitor) {
+  public <T> T accept(final EquityOptionSecurityVisitor<T> visitor) {
     return visitor.visitEuropeanVanillaEquityOptionSecurity(this);
   }
 

@@ -33,6 +33,7 @@ public class OptionSecurityBean extends SecurityBean {
   private String _counterparty;
   private double _power;
   private boolean _margined;
+  private double _pointValue;
 
   public OptionSecurityBean() {
     super();
@@ -176,6 +177,13 @@ public class OptionSecurityBean extends SecurityBean {
     _margined = margined;
   }
 
+  public double getPointValue() {
+    return _pointValue;
+  }
+  
+  public void setPointValue(double pointValue) {
+    _pointValue = pointValue;
+  }
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof OptionSecurityBean)) {

@@ -26,12 +26,12 @@ public abstract class OTCOptionSecurity extends OptionSecurity {
   public String getCounterparty() {
     return _counterparty;
   }
-  
+
   public abstract <T> T accept (OTCOptionSecurityVisitor<T> visitor);
-  
+
   @Override
-  public final <T> T accept (OptionSecurityVisitor<T> visitor) {
+  public final <T> T accept (final OptionSecurityVisitor<T> visitor) {
     return accept ((OTCOptionSecurityVisitor<T>)visitor);
   }
-  
+
 }

@@ -24,20 +24,21 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
+import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.MultipleGreekResult;
+import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.pnl.TradeData;
-import com.opengamma.financial.pnl.Underlying;
+import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
-import com.opengamma.financial.riskfactor.RiskFactorResult;
-import com.opengamma.financial.sensitivity.Sensitivity;
+import com.opengamma.financial.security.option.ExchangeTradedOptionSecurity;
 import com.opengamma.financial.sensitivity.ValueGreek;
+import com.opengamma.financial.sensitivity.ValueGreekResult;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.function.Function1D;
 
@@ -46,34 +47,21 @@ import com.opengamma.math.function.Function1D;
  */
 public class OptionGreekToValueGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_Log = LoggerFactory.getLogger(OptionGreekToValueGreekConverterFunction.class);
-  private static final Map<String, Sensitivity<Greek>> AVAILABLE_VALUE_GREEKS = new HashMap<String, Sensitivity<Greek>>();
-  private final Function1D<GreekDataBundle, Map<Sensitivity<Greek>, RiskFactorResult<?>>> _converter = new GreekToValueGreekConverter();
-
-  // TODO extract this out in a similar fashion to AvailableGreeks
-  static {
-    AVAILABLE_VALUE_GREEKS.put(ValueRequirementNames.VALUE_DELTA, new ValueGreek(Greek.DELTA));
-    AVAILABLE_VALUE_GREEKS.put(ValueRequirementNames.VALUE_GAMMA, new ValueGreek(Greek.GAMMA));
-    AVAILABLE_VALUE_GREEKS.put(ValueRequirementNames.VALUE_THETA, new ValueGreek(Greek.THETA));
-    AVAILABLE_VALUE_GREEKS.put(ValueRequirementNames.VALUE_VEGA, new ValueGreek(Greek.VEGA));
-    AVAILABLE_VALUE_GREEKS.put(ValueRequirementNames.VALUE_VANNA, new ValueGreek(Greek.VANNA));
-  }
+  private final Function1D<GreekDataBundle, Map<ValueGreek, ValueGreekResult<?>>> _converter = new GreekToValueGreekConverter();
 
   @SuppressWarnings("unchecked")
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) {
     final Security security = target.getSecurity();
     final GreekResultCollection greekResultCollection = new GreekResultCollection();
-    final Map<Greek, Map<Object, Double>> underlyingData = new HashMap<Greek, Map<Object, Double>>();
+    final Map<Object, Double> underlyingData = new HashMap<Object, Double>();
     Object greekResult;
     Greek greek;
-    Map<Object, Double> underlyingDataForGreek;
-    FudgeFieldContainer liveGreeks;
+    Underlying order;
     FudgeFieldContainer liveUnderlying;
-    // I have no idea if this will work. I'm assuming that the greeks are treated as live data
+    Set<UnderlyingType> underlyings;
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      liveGreeks = (FudgeFieldContainer) inputs.getValue(new ValueRequirement(valueName, security));
-      // ?????????????????????????????????????????????????????????????????
       greekResult = inputs.getValue(new ValueRequirement(valueName, security));
       greek = AvailableGreeks.getGreekForValueRequirementName(valueName);
       if (greekResult == null) {
@@ -89,37 +77,32 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
       }
       //TODO check that there isn't already a value for the greek? can't see how it could happen but
       //overwriting silently in that situation would be bad
-      underlyingDataForGreek = new HashMap<Object, Double>();
-      underlyingDataForGreek.put(TradeData.NUMBER_OF_CONTRACTS, TradeDataToPositionDataMapper.getData(
-          TradeData.NUMBER_OF_CONTRACTS, target));
-      ////////////////////////////////////////////////////////////////////////////////////////////
-      //TODO: this value is only 25 because I don't know how to get the point value - change it //
-      underlyingDataForGreek.put(TradeData.OPTION_POINT_VALUE, 25.);                            //
-      //                                                                                        //
-      ////////////////////////////////////////////////////////////////////////////////////////////
-      for(final Underlying underlying : greek.getOrder().getUnderlyings()) {
+      underlyingData.put(TradeData.NUMBER_OF_CONTRACTS, TradeDataToPositionDataMapper.getData(TradeData.NUMBER_OF_CONTRACTS, target));
+      underlyingData.put(TradeData.POINT_VALUE, security instanceof ExchangeTradedOptionSecurity ? ((ExchangeTradedOptionSecurity) security).getPointValue() : 1);
+      order = greek.getUnderlying();
+      underlyings = order.getUnderlyings();
+      for (final UnderlyingType underlying : underlyings) {
         liveUnderlying = (FudgeFieldContainer) inputs.getValue(UnderlyingToValueRequirementMapper.getValueRequirement(underlying, security));
         if (liveUnderlying == null) {
           s_Log.warn("Could not get value for " + underlying + " for security " + security);
         } else {
-          underlyingDataForGreek.put(underlying, liveUnderlying.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
+          underlyingData.put(underlying, liveUnderlying.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
         }
       }
-      underlyingData.put(greek, underlyingDataForGreek);
     }
     final GreekDataBundle dataBundle = new GreekDataBundle(greekResultCollection, underlyingData);
-    final Map<Sensitivity<Greek>, RiskFactorResult<?>> sensitivities = _converter.evaluate(dataBundle);
+    final Map<ValueGreek, ValueGreekResult<?>> sensitivities = _converter.evaluate(dataBundle);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    Sensitivity sensitivity;
-    RiskFactorResult<?> riskFactorResult;
+    ValueGreek valueGreek;
+    ValueGreekResult<?> ValueGreekResult;
     ValueSpecification resultSpecification;
     ComputedValue resultValue;
     for (final ValueRequirement dV : desiredValues) {
       // TODO probably need some checks here
-      sensitivity = AVAILABLE_VALUE_GREEKS.get(dV.getValueName());
-      riskFactorResult = sensitivities.get(sensitivity);
+      valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(dV.getValueName());
+      ValueGreekResult = sensitivities.get(valueGreek);
       resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getSecurity()));
-      resultValue = new ComputedValue(resultSpecification, riskFactorResult.getResult());
+      resultValue = new ComputedValue(resultSpecification, ValueGreekResult.getResult());
       results.add(resultValue);
     }
     return results;
@@ -134,15 +117,17 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final Security security = target.getSecurity();
-      Set<Underlying> underlyings;
+      Set<UnderlyingType> underlyings;
+      Underlying order;
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final String valueName : AvailableGreeks.getAllGreekNames()) {
         requirements.add(new ValueRequirement(valueName, security));
-        underlyings = AvailableGreeks.getGreekForValueRequirementName(valueName).getOrder().getUnderlyings();
-        if(underlyings.isEmpty()) {
+        order = AvailableGreeks.getGreekForValueRequirementName(valueName).getUnderlying();
+        underlyings = order.getUnderlyings();
+        if (underlyings.isEmpty()) {
           //TODO what to do here? will only happen for the price
         } else {
-          for(final Underlying underlying : underlyings) {
+          for (final UnderlyingType underlying : underlyings) {
             requirements.add(UnderlyingToValueRequirementMapper.getValueRequirement(underlying, security));
           }
         }
@@ -157,7 +142,7 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     if (canApplyTo(context, target)) {
       final Security security = target.getSecurity();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      for (final String valueName : AVAILABLE_VALUE_GREEKS.keySet()) {
+      for (final String valueName : AvailableValueGreeks.getAllPositionGreekNames()) {
         results.add(new ValueSpecification(new ValueRequirement(valueName, security)));
       }
     }

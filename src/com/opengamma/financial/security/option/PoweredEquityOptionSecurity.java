@@ -16,21 +16,22 @@ import com.opengamma.util.time.Expiry;
  */
 public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements PoweredOption {
 
-  private double _power;
+  private final double _power;
 
   /**
    * @param optionType
    * @param strike
    * @param expiry
    */
-  public PoweredEquityOptionSecurity(OptionType optionType, double strike,
-      Expiry expiry, double power, Identifier underlyingIdentityKey, Currency currency, final String exchange) {
-    super(optionType, strike, expiry, underlyingIdentityKey, currency, exchange);
+  public PoweredEquityOptionSecurity(final OptionType optionType, final double strike,
+ final Expiry expiry, final double power, final Identifier underlyingIdentityKey,
+      final Currency currency, final double pointValue, final String exchange) {
+    super(optionType, strike, expiry, underlyingIdentityKey, currency, pointValue, exchange);
     _power = power;
   }
 
   @Override
-  public <T> T accept(OptionVisitor<T> visitor) {
+  public <T> T accept(final OptionVisitor<T> visitor) {
     return visitor.visitPoweredOption(this);
   }
 
@@ -40,7 +41,7 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
   }
 
   @Override
-  public <T> T accept(EquityOptionSecurityVisitor<T> visitor) {
+  public <T> T accept(final EquityOptionSecurityVisitor<T> visitor) {
     return visitor.visitPoweredEquityOptionSecurity(this);
   }
 

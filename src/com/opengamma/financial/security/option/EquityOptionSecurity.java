@@ -12,7 +12,6 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author jim
  */
 public abstract class EquityOptionSecurity extends ExchangeTradedOptionSecurity {
   public static final String EQUITY_OPTION_TYPE = "EQUITY_OPTION";
@@ -20,8 +19,8 @@ public abstract class EquityOptionSecurity extends ExchangeTradedOptionSecurity 
   // TODO: jim 23-Sep-2009 -- Add support for regions/countries
 
   public EquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentityKey, final Currency currency,
-      final String exchange) {
-    super(optionType, strike, expiry, underlyingIdentityKey, currency, exchange);
+      final double pointValue, final String exchange) {
+    super(optionType, strike, expiry, underlyingIdentityKey, currency, pointValue, exchange);
     setSecurityType(EQUITY_OPTION_TYPE);
   }
 

@@ -19,7 +19,7 @@ public class TradeDataToPositionDataMapper {
     switch (tradeData) {
       case NUMBER_OF_CONTRACTS:
         return target.getPosition().getQuantity().doubleValue();
-      case OPTION_POINT_VALUE:
+      case POINT_VALUE:
         throw new NotImplementedException("Don't know how to get option point value");
       default:
         throw new NotImplementedException("Don't know how to get value for " + tradeData);

@@ -47,6 +47,7 @@ import com.opengamma.id.Identifier;
             dateToExpiry (bean.getExpiry ()),
             new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
+            bean.getPointValue(),
             bean.getExchange ().getName ()
             );
       }
@@ -59,6 +60,7 @@ import com.opengamma.id.Identifier;
             dateToExpiry (bean.getExpiry ()),
             new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
+            bean.getPointValue(),
             bean.getExchange ().getName ()
             );
       }
@@ -72,6 +74,7 @@ import com.opengamma.id.Identifier;
             bean.getPower (),
             new Identifier(Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
+            bean.getPointValue(),
             bean.getExchange ().getName ()
             );
       }
@@ -84,6 +87,7 @@ import com.opengamma.id.Identifier;
             dateToExpiry (bean.getExpiry ()),
             new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
+            bean.getPointValue(),
             bean.getExchange ().getName (),
             bean.isMargined ());
       }
@@ -96,6 +100,7 @@ import com.opengamma.id.Identifier;
             dateToExpiry (bean.getExpiry ()),
             new Identifier (Security.SECURITY_IDENTITY_KEY_DOMAIN, bean.getUnderlyingIdentityKey ()),
             currencyBeanToCurrency (bean.getCurrency1 ()),
+            bean.getPointValue(),
             bean.getExchange ().getName (),
             bean.isMargined ());
       }

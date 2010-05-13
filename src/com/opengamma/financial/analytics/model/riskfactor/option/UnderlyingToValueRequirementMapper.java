@@ -11,12 +11,12 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.pnl.Underlying;
+import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 
 public class UnderlyingToValueRequirementMapper {
 
-  public static ValueRequirement getValueRequirement(final Underlying underlying, final Security security) {
+  public static ValueRequirement getValueRequirement(final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {

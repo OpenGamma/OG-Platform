@@ -12,15 +12,14 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author emcleod
  */
 public abstract class FutureOptionSecurity extends ExchangeTradedOptionSecurity {
   public static final String FUTURE_OPTION_TYPE = "FUTURE_OPTION";
   private final boolean _isMargined;
 
   public FutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentityKey, final Currency currency,
-      final String exchange, final boolean isMargined) {
-    super(optionType, strike, expiry, underlyingIdentityKey, currency, exchange);
+      final double pointValue, final String exchange, final boolean isMargined) {
+    super(optionType, strike, expiry, underlyingIdentityKey, currency, pointValue, exchange);
     setSecurityType(FUTURE_OPTION_TYPE);
     _isMargined = isMargined;
   }
