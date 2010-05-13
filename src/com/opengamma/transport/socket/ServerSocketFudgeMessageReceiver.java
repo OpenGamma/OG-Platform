@@ -9,9 +9,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -23,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
+import com.opengamma.util.TerminatableJobContainer;
 
 // REVIEW kirk 2010-05-12 -- Potential extensions in the future:
 // - Use NIO for a large number of seldom broadcasting sockets
@@ -47,8 +45,8 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
   private static final Logger s_logger = LoggerFactory.getLogger(ServerSocketFudgeMessageReceiver.class);
   private final FudgeMessageReceiver _underlying;
   private final FudgeContext _context;
-  
-  private Set<SingleMessageReceiveJob> _messageReceiveJobs = new HashSet<SingleMessageReceiveJob>();
+
+  private final TerminatableJobContainer _messageReceiveJobs = new TerminatableJobContainer();
   
   public ServerSocketFudgeMessageReceiver(FudgeMessageReceiver underlying) {
     this(underlying, FudgeContext.GLOBAL_DEFAULT);
@@ -87,39 +85,24 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
       return;
     }
     
-    SingleMessageReceiveJob job = new SingleMessageReceiveJob(socket, is);
-    Thread t = new Thread(job, "Message receive and dispatch");
-    t.setDaemon(true);
-    _messageReceiveJobs.add(job);
-    s_logger.info("Starting thread ID {} to handle messages from {}", t.getId(), socket.getRemoteSocketAddress());
-    t.start();
+    MessageReceiveJob job = new MessageReceiveJob(socket, is);
+    _messageReceiveJobs.addJobAndStartThread(job, "Message Receive " + socket.getRemoteSocketAddress());
   }
   
   
   
   @Override
   protected void cleanupPreAccept() {
-    cleanRunningReceiveJobs();
+    _messageReceiveJobs.cleanupTerminatedInstances();
   }
 
-  protected synchronized void cleanRunningReceiveJobs() {
-    Iterator<SingleMessageReceiveJob> jobIter = _messageReceiveJobs.iterator();
-    while (jobIter.hasNext()) {
-      SingleMessageReceiveJob job = jobIter.next();
-      if(job.isTerminated()) {
-        s_logger.debug("Removing terminated job");
-        jobIter.remove();
-      }
-    }
-  }
-  
-  private class SingleMessageReceiveJob extends TerminatableJob {
+  private class MessageReceiveJob extends TerminatableJob {
     private final Socket _socket;
     private final FudgeMsgReader _reader;
 
     // NOTE kirk 2010-05-12 -- Have to pass in the InputStream explicitly so that
     // we can force the IOException catch up above.
-    public SingleMessageReceiveJob(Socket socket, InputStream inputStream) {
+    public MessageReceiveJob(Socket socket, InputStream inputStream) {
       ArgumentChecker.notNull(socket, "Socket");
       ArgumentChecker.notNull(inputStream, "Socket input stream");
       _socket = socket;
