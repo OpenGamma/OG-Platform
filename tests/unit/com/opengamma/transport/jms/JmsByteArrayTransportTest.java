@@ -30,7 +30,7 @@ public class JmsByteArrayTransportTest {
   
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);
   
-  private static final long TIMEOUT = 5000;
+  private static final long TIMEOUT = 15000;
   
   private void topicConduitImpl () throws Exception {
     String topicName = "JmsByteArrayTransportTest-topicConduit-" + System.getProperty("user.name") + "-" + System.currentTimeMillis();
