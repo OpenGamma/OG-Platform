@@ -82,6 +82,11 @@ public class TaylorExpansionMultiplierCalculatorTest {
     TaylorExpansionMultiplierCalculator.getMultiplier(NEW_TYPE);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData() {
+    TaylorExpansionMultiplierCalculator.getMultiplier(Collections.<Object, Double> singletonMap(UnderlyingType.SPOT_PRICE, null), FIFTH_ORDER);
+  }
+
   @Test
   public void test() {
     assertEquals(TaylorExpansionMultiplierCalculator.getMultiplier(ZEROTH_ORDER), 1, EPS);

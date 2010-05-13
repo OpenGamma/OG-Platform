@@ -5,69 +5,40 @@
  */
 package com.opengamma.financial.pnl;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.greeks.FirstOrder;
-import com.opengamma.financial.greeks.MixedSecondOrder;
-import com.opengamma.financial.greeks.Order;
-import com.opengamma.financial.greeks.SecondOrder;
+import com.opengamma.financial.riskfactor.RiskFactorResult;
+import com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator;
 import com.opengamma.financial.sensitivity.Sensitivity;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.Matrix;
-import com.opengamma.math.matrix.MatrixAlgebra;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  *
  */
-public class SensitivityPnLCalculator extends Function1D<PnLDataBundle, Double[]> {
-  private final MatrixAlgebra _algebra;
+public class SensitivityPnLCalculator extends Function1D<PnLDataBundle, DoubleTimeSeries<?>> {
 
-  public SensitivityPnLCalculator(final MatrixAlgebra algebra) {
-    if (algebra == null)
-      throw new IllegalArgumentException("Matrix algebra calculator was null");
-    _algebra = algebra;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
-  public Double[] evaluate(final PnLDataBundle data) {
+  public DoubleTimeSeries<?> evaluate(final PnLDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("PnL data bundle was null");
-    final Map<Underlying, DoubleMatrix1D[]> underlyings = data.getUnderlyingData();
-    final Map<Sensitivity<?>, Matrix<?>> matrices = data.getMatrices();
-    final int n = data.getLength();
-    final Double[] pnl = new Double[n];
-    double sum;
-    Sensitivity<?> s;
-    Matrix<?> m;
-    Order o;
-    DoubleMatrix1D v1, v2;
-    for (int i = 0; i < n; i++) {
-      sum = 0;
-      for (final Map.Entry<Sensitivity<?>, Matrix<?>> entry : matrices.entrySet()) {
-        s = entry.getKey();
-        m = entry.getValue();
-        o = s.getOrder();
-        if (o instanceof FirstOrder) {
-          sum += _algebra.getInnerProduct(m, underlyings.get(((FirstOrder) o).getVariable())[i]);
-        } else if (o instanceof SecondOrder) {
-          v1 = underlyings.get(((SecondOrder) o).getVariable())[i];
-          sum += 0.5 * _algebra.getInnerProduct(v1, _algebra.multiply(m, v1));
-        } else if (o instanceof MixedSecondOrder) {
-          v1 = underlyings.get(((MixedSecondOrder) o).getFirstVariable().getVariable())[i];
-          v2 = underlyings.get(((MixedSecondOrder) o).getSecondVariable().getVariable())[i];
-          sum += _algebra.getInnerProduct(v1, _algebra.multiply(m, v2));
-        } else {
-          throw new UnsupportedOperationException("Can only handle first, mixed-second and second order sensitivities");
+    final Map<Sensitivity<?>, Map<Object, double[]>> returns = data.getTimeSeriesReturns();
+    final Map<Sensitivity<?>, RiskFactorResult> sensitivities = data.getSensitivities();
+    final long[] times = data.getTimes();
+    final int n = times.length;
+    final double[] pnl = new double[n];
+    for (final Sensitivity<?> s : sensitivities.keySet()) {
+      final Map<Object, double[]> tsData = returns.get(s);
+      final Map<Object, Double> dataForDate = new HashMap<Object, Double>();
+      for (int i = 0; i < n; i++) {
+        for (final Object o : tsData.keySet()) {
+          dataForDate.put(o, tsData.get(o)[i]);
         }
+        pnl[i] += sensitivities.get(s).getResult() * TaylorExpansionMultiplierCalculator.getMultiplier(dataForDate, s.getUnderlying());
       }
-      pnl[i] = sum;
     }
-    return pnl;
+    return new FastArrayLongDoubleTimeSeries(data.getEncoding(), times, pnl);
   }
 }

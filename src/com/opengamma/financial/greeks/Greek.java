@@ -17,7 +17,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(0, null);
     }
 
@@ -30,7 +30,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -43,7 +43,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.COST_OF_CARRY);
     }
 
@@ -56,7 +56,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE);
     }
 
@@ -69,7 +69,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -82,7 +82,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -95,7 +95,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -108,7 +108,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.YIELD);
     }
 
@@ -120,7 +120,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.INTEREST_RATE);
     }
 
@@ -133,7 +133,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.STRIKE);
     }
 
@@ -145,7 +145,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.TIME);
     }
 
@@ -158,7 +158,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VARIANCE);
     }
 
@@ -171,7 +171,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY);
     }
 
@@ -184,7 +184,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -197,7 +197,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -210,7 +210,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1, UnderlyingType.TIME)));
     }
 
@@ -222,7 +222,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE);
     }
 
@@ -235,7 +235,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -248,7 +248,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(2, UnderlyingType.STRIKE);
     }
 
@@ -261,7 +261,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY)));
     }
 
@@ -274,7 +274,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VARIANCE)));
     }
 
@@ -287,7 +287,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(2, UnderlyingType.IMPLIED_VARIANCE);
     }
 
@@ -300,7 +300,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(1, UnderlyingType.TIME)));
     }
 
@@ -313,7 +313,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(2, UnderlyingType.IMPLIED_VOLATILITY);
     }
 
@@ -326,7 +326,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(2, UnderlyingType.IMPLIED_VOLATILITY);
     }
 
@@ -339,7 +339,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE)));
     }
 
@@ -352,7 +352,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE)));
     }
 
@@ -365,7 +365,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -378,7 +378,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(3, UnderlyingType.SPOT_PRICE);
     }
 
@@ -391,7 +391,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -404,7 +404,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(3, UnderlyingType.IMPLIED_VOLATILITY);
     }
 
@@ -417,7 +417,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(3, UnderlyingType.IMPLIED_VARIANCE);
     }
 
@@ -430,7 +430,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return new NthOrderUnderlying(3, UnderlyingType.IMPLIED_VOLATILITY);
     }
 
@@ -443,7 +443,7 @@ public enum Greek {
     }
 
     @Override
-    public Underlying getOrder() {
+    public Underlying getUnderlying() {
       return null;
     }
 
@@ -451,6 +451,6 @@ public enum Greek {
 
   public abstract <T> T accept(GreekVisitor<T> visitor);
 
-  public abstract Underlying getOrder();
+  public abstract Underlying getUnderlying();
 
 }

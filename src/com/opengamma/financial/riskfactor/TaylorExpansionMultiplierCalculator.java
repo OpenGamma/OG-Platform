@@ -12,6 +12,7 @@ import org.apache.commons.math.util.MathUtils;
 import com.opengamma.financial.greeks.MixedOrderUnderlying;
 import com.opengamma.financial.greeks.NthOrderUnderlying;
 import com.opengamma.financial.greeks.Underlying;
+import com.opengamma.financial.pnl.UnderlyingType;
 
 public class TaylorExpansionMultiplierCalculator {
 
@@ -47,9 +48,10 @@ public class TaylorExpansionMultiplierCalculator {
       final int n = nthOrder.getOrder();
       if (n == 0)
         return 1;
-      final Double x = underlyingData.get(nthOrder.getUnderlyings().iterator().next());
+      final UnderlyingType type = nthOrder.getUnderlyings().iterator().next();
+      final Double x = underlyingData.get(type);
       if (x == null)
-        throw new IllegalArgumentException("");
+        throw new IllegalArgumentException("Could not get data for " + type);
       return getMultiplier(underlying) * Math.pow(x, n);
     } else if (underlying instanceof MixedOrderUnderlying) {
       final MixedOrderUnderlying mixedOrder = (MixedOrderUnderlying) underlying;

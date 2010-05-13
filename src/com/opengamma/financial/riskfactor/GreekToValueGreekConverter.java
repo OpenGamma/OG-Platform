@@ -12,8 +12,8 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.MultipleGreekResult;
-import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.greeks.SingleGreekResult;
+import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.sensitivity.MultipleValueGreekResult;
 import com.opengamma.financial.sensitivity.SingleValueGreekResult;
@@ -55,7 +55,7 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
 
   // TODO handle theta separately?
   Double getValueGreek(final Greek greek, final Map<Object, Double> underlyings, final Double greekValue) {
-    final Underlying order = greek.getOrder();
+    final Underlying order = greek.getUnderlying();
     return TaylorExpansionMultiplierCalculator.getMultiplier(underlyings, order) * greekValue * underlyings.get(TradeData.NUMBER_OF_CONTRACTS)
         * underlyings.get(TradeData.POINT_VALUE) / TaylorExpansionMultiplierCalculator.getMultiplier(order);
   }

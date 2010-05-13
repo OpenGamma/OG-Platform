@@ -57,7 +57,7 @@ public class PositionGreekToValueGreekConverter extends Function1D<PositionGreek
 
   //TODO theta?
   Double getValueGreek(final PositionGreek positionGreek, final Map<Object, Double> underlyings, final Double greekValue) {
-    final Underlying order = positionGreek.getUnderlyingGreek().getOrder();
+    final Underlying order = positionGreek.getUnderlyingGreek().getUnderlying();
     return TaylorExpansionMultiplierCalculator.getMultiplier(underlyings, order) * greekValue * underlyings.get(TradeData.POINT_VALUE)
         / TaylorExpansionMultiplierCalculator.getMultiplier(order);
   }
