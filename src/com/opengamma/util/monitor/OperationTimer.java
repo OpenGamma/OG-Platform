@@ -35,7 +35,7 @@ public class OperationTimer {
   public long finished() {
     long stopTime = System.nanoTime();
     long duration = stopTime - _startTime;
-    long durationInMilliseconds = duration / 1000;
+    long durationInMilliseconds = duration / 1000000;
     getReporter().report(durationInMilliseconds, _logger, _format, _arguments);
     return durationInMilliseconds;
   }
