@@ -6,22 +6,30 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
- *
- * @author emcleod
+ * A European future option security.
  */
 public class EuropeanVanillaFutureOptionSecurity extends FutureOptionSecurity implements EuropeanVanillaOption {
 
-  public EuropeanVanillaFutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingUniqueId,
- final Currency currency,
-      final double pointValue, final String exchange, final boolean isMargined) {
-    super(optionType, strike, expiry, underlyingUniqueId, currency, pointValue, exchange, isMargined);
+  /**
+   * Creates the security.
+   * @param optionType
+   * @param strike
+   * @param expiry
+   * @param underlyingIdentifier
+   * @param currency
+   * @param exchange
+   * @param isMargined
+   */
+  public EuropeanVanillaFutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier,
+      final Currency currency, final double pointValue, final String exchange, final boolean isMargined) {
+    super(optionType, strike, expiry, underlyingIdentifier, currency, pointValue, exchange, isMargined);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public <T> T accept(final FutureOptionSecurityVisitor<T> visitor) {
     return visitor.visitEuropeanVanillaFutureOptionSecurity(this);

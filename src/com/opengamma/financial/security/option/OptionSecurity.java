@@ -8,28 +8,45 @@ package com.opengamma.financial.security.option;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.Expiry;
 
 /**
+<<<<<<< HEAD
  * 
  *
+=======
+ * A security modeling an option.
+>>>>>>> 19324f9d012fb5b540d554904f82d8367f311255
  */
 public abstract class OptionSecurity extends FinancialSecurity implements Option {
+
   private final OptionType _optionType;
   private final double _strike;
   private final Expiry _expiry;
-  private final Identifier _underlyingIdentityKey;
+  private final UniqueIdentifier _underlyingIdentifier;
   private final Currency _currency;
 
-  public OptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentityKey, final Currency currency) {
+  /**
+   * Creates a security.
+   * @param securityType
+   * @param optionType
+   * @param strike
+   * @param expiry
+   * @param underlyingIdentityKey
+   * @param currency
+   */
+  public OptionSecurity(final String securityType, final OptionType optionType,
+      final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier, final Currency currency) {
+    super(securityType);
     _optionType = optionType;
     _strike = strike;
     _expiry = expiry;
-    _underlyingIdentityKey = underlyingIdentityKey;
+    _underlyingIdentifier = underlyingIdentifier;
     _currency = currency;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * @return the optionType
    */
@@ -51,21 +68,22 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
     return _expiry;
   }
 
-  public Identifier getUnderlyingIdentityKey() {
-    return _underlyingIdentityKey;
+  public UniqueIdentifier getUnderlyingSecurity() {
+    return _underlyingIdentifier;
   }
 
   public Currency getCurrency() {
     return _currency;
   }
 
+  //-------------------------------------------------------------------------
   public abstract <T> T accept(OptionVisitor<T> visitor);
 
   public abstract <T> T accept(OptionSecurityVisitor<T> visitor);
 
   @Override
-  public final <T> T accept (final FinancialSecurityVisitor<T> visitor) {
-    return accept ((OptionSecurityVisitor<T>)visitor);
+  public final <T> T accept(final FinancialSecurityVisitor<T> visitor) {
+    return accept((OptionSecurityVisitor<T>) visitor);
   }
 
 }

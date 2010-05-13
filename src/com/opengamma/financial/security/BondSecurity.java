@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -15,14 +15,15 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
- *
- * @author Andrew
+ * A {@code Security} used to model bonds.
  */
 public abstract class BondSecurity extends FinancialSecurity {
-  
+
+  /**
+   * The security type for bonds.
+   */
   public static final String BOND_TYPE = "BOND";
-  
+
   private final String _issuerName;
   private final String _issuerType;
   private final String _issuerDomicile;
@@ -46,7 +47,7 @@ public abstract class BondSecurity extends FinancialSecurity {
   private final double _minimumIncrement;
   private final double _parAmount;
   private final double _redemptionValue;
-  
+
   public BondSecurity (
       final String issuerName,
       final String issuerType,
@@ -72,6 +73,7 @@ public abstract class BondSecurity extends FinancialSecurity {
       final double parAmount,
       final double redemptionValue
       ) {
+    super(BOND_TYPE);
     _issuerName = issuerName;
     _issuerType = issuerType;
     _issuerDomicile = issuerDomicile;
@@ -95,9 +97,9 @@ public abstract class BondSecurity extends FinancialSecurity {
     _minimumIncrement = minimumIncrement;
     _parAmount = parAmount;
     _redemptionValue = redemptionValue;
-    setSecurityType (BOND_TYPE);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * @return the issuerName
    */
@@ -258,11 +260,12 @@ public abstract class BondSecurity extends FinancialSecurity {
   public BusinessDayConvention getBusinessDayConvention() {
     return _businessDayConvention;
   }
-  
-  public abstract <T> T accept (BondSecurityVisitor<T> visitor);
-  
-  public final <T> T accept (FinancialSecurityVisitor<T> visitor) {
-    return accept ((BondSecurityVisitor<T>)visitor);
+
+  //-------------------------------------------------------------------------
+  public abstract <T> T accept(BondSecurityVisitor<T> visitor);
+
+  public final <T> T accept(FinancialSecurityVisitor<T> visitor) {
+    return accept((BondSecurityVisitor<T>) visitor);
   }
-  
+
 }

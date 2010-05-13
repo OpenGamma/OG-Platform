@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -8,7 +8,7 @@ package com.opengamma.financial.security.db;
 import java.util.Date;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Operations to convert a real entity to/from a bean and hence to/from the Hibernate database.
@@ -41,7 +41,7 @@ import com.opengamma.id.Identifier;
   /**
    * Convert a bean representation to a security.
    */
-  public S createSecurity (Identifier identifier, SBean bean);
+  public S createSecurity (UniqueIdentifier identifier, SBean bean);
   
   /**
    * Test a bean and security representation for equality.

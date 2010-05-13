@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -15,9 +15,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
- *
- * @author Andrew
+ * A {@code Security} used to model government bonds.
  */
 public class GovernmentBondSecurity extends BondSecurity {
 
@@ -64,9 +62,10 @@ public class GovernmentBondSecurity extends BondSecurity {
         minimumIncrement, parAmount, redemptionValue);
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public <T> T accept(BondSecurityVisitor<T> visitor) {
-    return visitor.visitGovernmentBondSecurity (this);
+    return visitor.visitGovernmentBondSecurity(this);
   }
-  
+
 }

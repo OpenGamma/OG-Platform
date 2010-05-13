@@ -43,10 +43,10 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
   @Override
   protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey().getIdentityKey()))))
+    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()))))
         .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
-    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
+    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
@@ -78,9 +78,9 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingIdentityKey()));
-      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getIdentityKey()));
-      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getIdentityKey()));
+      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
+      requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+      requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
       // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
       return requirements;
     }

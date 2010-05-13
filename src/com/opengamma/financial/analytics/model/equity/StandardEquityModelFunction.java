@@ -37,9 +37,9 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
       final Set<ValueRequirement> desiredValues) {
     final EquitySecurity equity = (EquitySecurity) target.getSecurity();
     final double price = (((FudgeFieldContainer) inputs.getValue(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity
-        .getIdentityKey())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
+        .getUniqueIdentifier())))).getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     return Collections.<ComputedValue> singleton(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY,
-        equity.getIdentityKey())), price));
+        equity.getUniqueIdentifier())), price));
   }
 
   @Override
@@ -56,7 +56,7 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity.getIdentityKey()));
+      requirements.add(new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.SECURITY, equity.getUniqueIdentifier()));
       // TODO need to consider fx here?
       return requirements;
     }
@@ -68,7 +68,7 @@ public class StandardEquityModelFunction extends AbstractFunction implements Fun
     if (canApplyTo(context, target)) {
       final EquitySecurity equity = (EquitySecurity) target.getSecurity();
       return Collections.<ValueSpecification> singleton(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FAIR_VALUE, ComputationTargetType.SECURITY, equity
-          .getIdentityKey())));
+          .getUniqueIdentifier())));
     }
     return null;
   }

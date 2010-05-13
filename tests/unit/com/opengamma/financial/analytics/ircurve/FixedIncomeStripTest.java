@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -7,19 +7,16 @@ package com.opengamma.financial.analytics.ircurve;
 
 import org.junit.Test;
 
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
- *
- * @author kirk
  */
 public class FixedIncomeStripTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void negativeYears() {
-    new FixedIncomeStrip(-5, new Identifier(new IdentificationScheme(""), ""));
+    new FixedIncomeStrip(-5, UniqueIdentifier.of("Test", "A"));
   }
   
   // TODO kirk 2009-12-30 -- Test everything else.

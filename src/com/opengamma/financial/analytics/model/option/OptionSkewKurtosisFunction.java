@@ -16,7 +16,7 @@ import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.option.Option;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * 
@@ -45,10 +45,10 @@ public abstract class OptionSkewKurtosisFunction extends AbstractFunction implem
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      final Identifier id = target.getSecurity().getIdentityKey();
+      final UniqueIdentifier uid = target.getSecurity().getUniqueIdentifier();
       final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      results.add(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, id)));
-      results.add(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, id)));
+      results.add(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid)));
+      results.add(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid)));
       return results;
     }
     return null;

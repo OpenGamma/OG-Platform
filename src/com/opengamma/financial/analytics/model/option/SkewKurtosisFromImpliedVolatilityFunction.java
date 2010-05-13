@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
@@ -43,7 +43,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
-    final Identifier id = option.getIdentityKey();
+    final UniqueIdentifier uid = option.getUniqueIdentifier();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
@@ -54,8 +54,8 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
     final double skew = y * (3 + ySq);
     final double kurtosis = 16 * ySq + 15 * ySq * ySq + 6 * ySq * ySq * ySq + ySq * ySq * ySq * ySq;
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, id)), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, id)), kurtosis));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(SKEW, ComputationTargetType.SECURITY, uid)), skew));
+    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(KURTOSIS, ComputationTargetType.SECURITY, uid)), kurtosis));
     return results;
   }
 
@@ -73,6 +73,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final OptionSecurity option) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, option.getIdentityKey());
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE, ComputationTargetType.SECURITY, option.getUniqueIdentifier());
   }
+
 }

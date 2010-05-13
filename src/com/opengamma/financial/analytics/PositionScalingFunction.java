@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -46,7 +46,7 @@ implements FunctionInvoker {
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
     Position position = target.getPosition();
     Security security = position.getSecurity();
-    ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getIdentityKey());
+    ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueIdentifier());
     return Collections.singleton(requirement);
   }
 
