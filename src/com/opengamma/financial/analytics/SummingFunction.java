@@ -37,8 +37,6 @@ import com.opengamma.util.ArgumentChecker;
  * in the engine.
  * In addition, it is an excellent demonstration of how to write portfolio-node-specific
  * functions.
- *
- * @author kirk
  */
 public class SummingFunction
 extends AbstractFunction
@@ -89,6 +87,8 @@ implements FunctionInvoker {
       BigDecimal previousDecimal = (BigDecimal) previousSum;
       return previousDecimal.add((BigDecimal) currentValue);
     }
+    // REVIEW kirk 2010-05-13 -- When working on FIN-79, this needs to be extended
+    // to handle time series addition.
     throw new IllegalArgumentException("Can only add Doubles and BigDecimal right now.");
   }
 
