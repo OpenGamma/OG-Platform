@@ -31,9 +31,9 @@ public class OptionSecurityBean extends SecurityBean {
   private CurrencyBean _currency3;
   private ExchangeBean _exchange;
   private String _counterparty;
-  private double _power;
-  private boolean _margined;
-  private double _pointValue;
+  private Double _power;
+  private Boolean _margined;
+  private Double _pointValue;
 
   public OptionSecurityBean() {
     super();
@@ -161,29 +161,30 @@ public class OptionSecurityBean extends SecurityBean {
     _exchange = exchange;
   }
   
-  public double getPower () {
+  public Double getPower () {
     return _power;
   }
   
-  public void setPower (final double power) {
+  public void setPower (final Double power) {
     _power = power;
   }
   
-  public boolean isMargined () {
+  public Boolean isMargined () {
     return _margined;
   }
   
-  public void setMargined (final boolean margined) {
+  public void setMargined (final Boolean margined) {
     _margined = margined;
   }
 
-  public double getPointValue() {
+  public Double getPointValue() {
     return _pointValue;
   }
   
-  public void setPointValue(double pointValue) {
+  public void setPointValue(Double pointValue) {
     _pointValue = pointValue;
   }
+  
   @Override
   public boolean equals(final Object other) {
     if (!(other instanceof OptionSecurityBean)) {
@@ -204,6 +205,8 @@ public class OptionSecurityBean extends SecurityBean {
         .append(getExchange(), option.getExchange())
         .append(getCounterparty(), option.getCounterparty())
         .append(getPower(),option.getPower ())
+        .append(isMargined (), option.isMargined ())
+        .append (getPointValue (), option.getPointValue ())
         .isEquals();
   }
 
@@ -219,6 +222,9 @@ public class OptionSecurityBean extends SecurityBean {
         .append(getCurrency3())
         .append(getExchange())
         .append(getCounterparty())
+        .append (getPower ())
+        .append (isMargined ())
+        .append (getPointValue ())
         .toHashCode();
   }
 

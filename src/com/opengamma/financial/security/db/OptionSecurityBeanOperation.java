@@ -137,7 +137,8 @@ import com.opengamma.id.UniqueIdentifier;
       
       private Boolean beanEquals (final ExchangeTradedOptionSecurity security) {
         return beanEquals ((OptionSecurity)security) &&
-          ObjectUtils.equals (bean.getExchange ().getName (), security.getExchange ());
+          ObjectUtils.equals (bean.getExchange ().getName (), security.getExchange ()) &&
+          ObjectUtils.equals (bean.getPointValue (), security.getPointValue ());
       }
       
       private Boolean beanEquals (final FutureOptionSecurity security) {
@@ -211,6 +212,7 @@ import com.opengamma.id.UniqueIdentifier;
       private OptionSecurityBean createSecurityBean (final ExchangeTradedOptionSecurity security) {
         final OptionSecurityBean bean = createSecurityBean ((OptionSecurity)security);
         bean.setExchange(secMasterSession.getOrCreateExchangeBean (security.getExchange (), ""));
+        bean.setPointValue(security.getPointValue ());
         return bean;
       }
       

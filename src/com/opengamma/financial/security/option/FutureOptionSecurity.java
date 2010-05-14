@@ -10,12 +10,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.time.Expiry;
 
 /**
-<<<<<<< HEAD
- * 
- *
-=======
  * A future option security.
->>>>>>> 19324f9d012fb5b540d554904f82d8367f311255
  */
 public abstract class FutureOptionSecurity extends ExchangeTradedOptionSecurity {
 

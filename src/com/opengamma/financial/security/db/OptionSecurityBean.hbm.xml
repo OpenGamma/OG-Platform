@@ -16,6 +16,7 @@
     <many-to-one name="exchange" column="exchange_id" class="ExchangeBean" />
     <property name="counterparty" type="string" />
     <property name="margined" type="boolean" />
+    <property name="pointValue" type="double" />
   </union-subclass>
   <query name="OptionSecurityBean.all">
     from OptionSecurityBean
