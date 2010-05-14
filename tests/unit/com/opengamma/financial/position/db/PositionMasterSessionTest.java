@@ -40,9 +40,9 @@ public class PositionMasterSessionTest extends HibernateTest {
   private static final Logger s_logger = LoggerFactory.getLogger(PositionMasterSessionTest.class);
   
   private final Date _dateNow = new Date ();
-  private final InstantProvider _instantNow = Instant.millis (_dateNow.getTime ());
+  private final InstantProvider _instantNow = Instant.ofMillis (_dateNow.getTime ());
   private final Date _dateBefore = new Date (_dateNow.getTime () - 7l * 24l * 3600l * 1000l);
-  private final InstantProvider _instantBefore = Instant.millis (_dateBefore.getTime ());
+  private final InstantProvider _instantBefore = Instant.ofMillis (_dateBefore.getTime ());
   private HibernateTemplate _template;
   
   public PositionMasterSessionTest(String databaseType, final String databaseVersion) {

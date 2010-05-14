@@ -1,16 +1,14 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.DateAdjusters;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtil;
-import com.opengamma.util.time.FirstDateOfYearAdjuster;
 
 /**
  * Definition for the Actual/Actual day count convention. The day count fraction
@@ -21,11 +19,8 @@ import com.opengamma.util.time.FirstDateOfYearAdjuster;
  * <p>
  * This convention is also known as "Actual/Actual", "Act/Act" or
  * "Act/Act (ISDA)".
- * 
- * @author emcleod
  */
 public class ActualActualISDADayCount extends StatelessDayCount {
-  private static final DateAdjuster FIRST_DAY_OF_YEAR = new FirstDateOfYearAdjuster();
 
   @Override
   public double getBasis(final ZonedDateTime date) {
@@ -33,18 +28,17 @@ public class ActualActualISDADayCount extends StatelessDayCount {
   }
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-    if (firstDate.getYear() == secondDate.getYear()) {
-      return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
+  public double getDayCountFraction(final ZonedDateTime dateTime1, final ZonedDateTime dateTime2) {
+    if (dateTime1.getYear() == dateTime2.getYear()) {
+      return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
     }
-    if (DateUtil.isLeapYear(firstDate) || DateUtil.isLeapYear(secondDate)) {
-      final ZonedDateTime lastDayOfFirstYear = ZonedDateTime.from(DateAdjusters.lastDayOfYear().adjustDate(firstDate.toLocalDate()), firstDate.toLocalTime(), firstDate
-          .getZone());
-      final ZonedDateTime firstDayOfSecondYear = ZonedDateTime.from(FIRST_DAY_OF_YEAR.adjustDate(secondDate.toLocalDate()), secondDate.toLocalTime(), secondDate.getZone());
-      return (1 + DateUtil.getDaysBetween(firstDate, false, lastDayOfFirstYear, true)) / getBasis(firstDate)
-          + DateUtil.getDaysBetween(firstDayOfSecondYear, false, secondDate, true) / getBasis(secondDate);
+    if (DateUtil.isLeapYear(dateTime1) || DateUtil.isLeapYear(dateTime2)) {
+      final ZonedDateTime lastDayOfFirstYear = dateTime1.with(DateAdjusters.lastDayOfYear());
+      final ZonedDateTime firstDayOfSecondYear = dateTime2.with(DateAdjusters.firstDayOfYear());
+      return (1 + DateUtil.getDaysBetween(dateTime1, false, lastDayOfFirstYear, true)) / getBasis(dateTime1)
+          + DateUtil.getDaysBetween(firstDayOfSecondYear, false, dateTime2, true) / getBasis(dateTime2);
     }
-    return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
+    return DateUtil.getDaysBetween(dateTime1, false, dateTime2, true) / getBasis(dateTime1);
   }
 
   @Override

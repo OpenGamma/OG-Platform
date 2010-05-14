@@ -22,7 +22,7 @@ public abstract class BusinessDayConvention {
   public abstract LocalDate adjustDate (Calendar workingDayCalendar, LocalDate date);
 
   public ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime date) {
-    return ZonedDateTime.from(adjustDate(workingDayCalendar, date.toLocalDate()), date.toLocalTime(), date.getZone());
+    return ZonedDateTime.of(adjustDate(workingDayCalendar, date.toLocalDate()), date.toLocalTime(), date.getZone());
   }
 
   public abstract String getConventionName ();
