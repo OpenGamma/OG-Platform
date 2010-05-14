@@ -21,6 +21,8 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 /* package */ class ResultListener implements ComputationResultListener, DeltaComputationResultListener {
   
   // TODO 2010-03-30 Andrew -- needs to give up if no clients are subscribing to a topic (and get itself unregistered with the underlying View)
+  // TODO 2010-05-14 Andrew -- needs to give up if there are no views using it any more (i.e. we're only referenced by the map in ViewProcessorResource) and release the JMS topics
+  // TODO 2010-05-14 Andrew -- needs to detect errors with the JMS and do a graceful recovery (e.g. unregister itself; the client will recall the REST api and cause re-registration if it wants it)
   
   private static final Logger s_logger = LoggerFactory.getLogger(ResultListener.class);
   
@@ -65,8 +67,9 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
       final String topic = getTopicName (viewClient, "computation");
       s_logger.info ("Set up JMS {}", topic);
       _computationResults = new JmsByteArrayMessageSender (topic, getViewProcessor ().getJmsTemplate ());
-      viewClient.addComputationResultListener (this);
     }
+    s_logger.debug ("Adding listener {} to view client {}'s computation result", this, viewClient);
+    viewClient.addComputationResultListener (this);
     return _computationResults.getDestinationName ();
   }
   
@@ -75,9 +78,19 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
       final String topic = getTopicName (viewClient, "delta");
       s_logger.info ("Set up JMS {}", topic);
       _deltaResults = new JmsByteArrayMessageSender (topic, getViewProcessor ().getJmsTemplate ());
-      viewClient.addDeltaResultListener (this);
     }
+    s_logger.debug ("Adding listener {} to view client {}'s computation result", this, viewClient);
+    viewClient.addDeltaResultListener (this);
     return _deltaResults.getDestinationName ();
+  }
+  
+  @Override
+  public String toString () {
+    final StringBuilder sb = new StringBuilder ();
+    sb.append ("ResultListener");
+    if (_deltaResults != null) sb.append (" delta:").append (_deltaResults.getDestinationName ());
+    if (_computationResults != null) sb.append (" computation:").append (_computationResults.getDestinationName ());
+    return sb.toString ();
   }
   
 }

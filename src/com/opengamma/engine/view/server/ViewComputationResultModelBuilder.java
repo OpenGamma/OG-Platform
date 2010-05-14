@@ -97,6 +97,10 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
       public long getResultTimestamp() {
         return resultTimestamp;
       }
+      @Override
+      public String toString () {
+        return "ViewComputationResultModel, input timestamp=" + getInputDataTimestamp () + ", result timestamp=" + getResultTimestamp ();
+      }
     };
   }
   

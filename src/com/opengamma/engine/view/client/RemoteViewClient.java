@@ -114,9 +114,7 @@ import com.opengamma.util.ArgumentChecker;
         }, getFudgeContext ())));
         _resultListenerContainer.setDestinationName(topicName);
         _resultListenerContainer.setPubSubDomain(true);
-        s_logger.info ("About to call .afterPropertiesSet");
         _resultListenerContainer.afterPropertiesSet();
-        s_logger.info ("About to call .start");
         _resultListenerContainer.start();
       }
       _resultListeners.add (listener);
