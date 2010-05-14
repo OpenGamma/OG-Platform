@@ -26,7 +26,7 @@ import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
  */
 public class SimpleYieldToMaturityBondYieldCalculatorTest {
   private static final SimpleYieldToMaturityBondYieldCalculator CALCULATOR = new SimpleYieldToMaturityBondYieldCalculator();
-  private static final ZonedDateTime DATE = ZonedDateTime.fromInstant(Instant.millis(0), TimeZone.UTC);
+  private static final ZonedDateTime DATE = ZonedDateTime.ofInstant(Instant.EPOCH, TimeZone.UTC);
   private static final YearOffsetDoubleTimeSeries CF1;
   private static final YearOffsetDoubleTimeSeries CF2;
   private static final double EPS = 1e-9;
@@ -34,10 +34,11 @@ public class SimpleYieldToMaturityBondYieldCalculatorTest {
   private static final double COUPON = 0.05;
 
   static {
-    final DoubleTimeSeries<Long> dts1 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] { DateUtil.MILLISECONDS_PER_YEAR },
-        new double[] { 1 });
-    final DoubleTimeSeries<Long> dts2 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] { DateUtil.MILLISECONDS_PER_YEAR,
-        DateUtil.MILLISECONDS_PER_YEAR * 5 }, new double[] { COUPON, COUPON + 1 });
+    final DoubleTimeSeries<Long> dts1 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        new long[] { DateUtil.MILLISECONDS_PER_YEAR }, new double[] { 1 });
+    final DoubleTimeSeries<Long> dts2 = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        new long[] { DateUtil.MILLISECONDS_PER_YEAR, DateUtil.MILLISECONDS_PER_YEAR * 5 }, new double[] { COUPON,
+            COUPON + 1 });
     CF1 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts1.toFastLongDoubleTimeSeries());
     CF2 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts2.toFastLongDoubleTimeSeries());
   }
