@@ -14,7 +14,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
 
-public class UnderlyingToValueRequirementMapper {
+public class UnderlyingTypeToValueRequirementMapper {
 
   public static ValueRequirement getValueRequirement(final UnderlyingType underlying, final Security security) {
     if (security instanceof OptionSecurity) {

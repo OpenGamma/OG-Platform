@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 // REVIEW kirk 2010-01-02 -- This version aggregates from the leaf positions for all inputs.
 // For non-linear aggregates and large portfolios, you'll want to use a more refined
@@ -86,6 +87,9 @@ implements FunctionInvoker {
     } else if(currentValue instanceof BigDecimal) {
       BigDecimal previousDecimal = (BigDecimal) previousSum;
       return previousDecimal.add((BigDecimal) currentValue);
+    } else if(currentValue instanceof DoubleTimeSeries<?>) {
+      DoubleTimeSeries<?> previousTS = (DoubleTimeSeries<?>) previousSum;
+      return previousTS.add((DoubleTimeSeries<?>) currentValue);
     }
     // REVIEW kirk 2010-05-13 -- When working on FIN-79, this needs to be extended
     // to handle time series addition.
