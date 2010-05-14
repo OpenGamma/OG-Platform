@@ -30,6 +30,10 @@ public class ViewDefinition implements Serializable {
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _user;
   private Long _minimumRecalculationPeriod;
+  private boolean _computePortfolioNodeCalculations = true;
+  private boolean _computePositionNodeCalculations = true;
+  private boolean _computeSecurityNodeCalculations = false;
+  private boolean _computePrimitiveNodeCalculations = false;
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
@@ -120,6 +124,62 @@ public class ViewDefinition implements Serializable {
    */
   public void setMinimumRecalculationPeriod(Long minimumRecalculationPeriod) {
     _minimumRecalculationPeriod = minimumRecalculationPeriod;
+  }
+
+  /**
+   * @return the computePortfolioNodeCalculations
+   */
+  public boolean isComputePortfolioNodeCalculations() {
+    return _computePortfolioNodeCalculations;
+  }
+
+  /**
+   * @param computePortfolioNodeCalculations the computePortfolioNodeCalculations to set
+   */
+  public void setComputePortfolioNodeCalculations(boolean computePortfolioNodeCalculations) {
+    _computePortfolioNodeCalculations = computePortfolioNodeCalculations;
+  }
+
+  /**
+   * @return the computePositionNodeCalculations
+   */
+  public boolean isComputePositionNodeCalculations() {
+    return _computePositionNodeCalculations;
+  }
+
+  /**
+   * @param computePositionNodeCalculations the computePositionNodeCalculations to set
+   */
+  public void setComputePositionNodeCalculations(boolean computePositionNodeCalculations) {
+    _computePositionNodeCalculations = computePositionNodeCalculations;
+  }
+
+  /**
+   * @return the computeSecurityNodeCalculations
+   */
+  public boolean isComputeSecurityNodeCalculations() {
+    return _computeSecurityNodeCalculations;
+  }
+
+  /**
+   * @param computeSecurityNodeCalculations the computeSecurityNodeCalculations to set
+   */
+  public void setComputeSecurityNodeCalculations(boolean computeSecurityNodeCalculations) {
+    _computeSecurityNodeCalculations = computeSecurityNodeCalculations;
+  }
+
+  /**
+   * @return the computePrimitiveNodeCalculations
+   */
+  public boolean isComputePrimitiveNodeCalculations() {
+    return _computePrimitiveNodeCalculations;
+  }
+
+  /**
+   * @param computePrimitiveNodeCalculations the computePrimitiveNodeCalculations to set
+   */
+  public void setComputePrimitiveNodeCalculations(boolean computePrimitiveNodeCalculations) {
+    _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
   }
 
 }

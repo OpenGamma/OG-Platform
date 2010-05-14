@@ -56,6 +56,7 @@ public class SingleComputationCycle {
   private final long _startTime;
   private final AtomicLong _jobIdSource = new AtomicLong(0l);
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
+  private final ViewDefinition _viewDefinition;
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
   private final Set<DependencyNode> _failedNodes = new HashSet<DependencyNode>();
   private final Map<String, ViewComputationCache> _cachesByCalculationConfiguration =
@@ -75,12 +76,14 @@ public class SingleComputationCycle {
     ArgumentChecker.notNull(processingContext, "View processing context");
     ArgumentChecker.notNull(portfolioEvaluationModel, "Portfolio evaluation model");
     ArgumentChecker.notNull(resultModel, "Result model");
+    ArgumentChecker.notNull(viewDefinition, "View Definition");
 
     _viewName = viewName;
     _processingContext = processingContext;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _resultModel = resultModel;
     _startTime = System.currentTimeMillis();
+    _viewDefinition = viewDefinition;
   }
   
   /**
@@ -136,6 +139,13 @@ public class SingleComputationCycle {
     return _cachesByCalculationConfiguration.get(calcConfigName);
   }
   
+  /**
+   * @return the viewDefinition
+   */
+  public ViewDefinition getViewDefinition() {
+    return _viewDefinition;
+  }
+
   public void prepareInputs() {
     long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
     setSnapshotTime(snapshotTime);
@@ -199,7 +209,8 @@ public class SingleComputationCycle {
   public void executePlans() {
     for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
       s_logger.info("Executing plans for calculation configuration {}", depGraphModel.getCalculationConfigurationName());
-      // NOTE kirk 2010-04-01 -- Yes, this is correct. Yes, it's counterintuitive.
+      // NOTE kirk 2010-04-01 -- Yes, this is correct. Yes, it's counterintuitive that we do things from
+      // larger to smaller graphs.
       // 1) Because we always generate the top-level aggregate nodes right now, we guarantee that by hitting
       //    MULTIPLE_POSITIONS we're guaranteed to hit the POSITION-level nodes because dependency graphs
       //    link to the lower levels that they require. Since we only output at the POSITION level, we're set.
@@ -208,9 +219,6 @@ public class SingleComputationCycle {
       //    dependency graph itself is costly and limits your parallelism.
       // This optimization took multi-calc-node performance up by a factor of 2. Don't mess with it
       // lightly.
-      // I've left the commented out nodes there so that if we ARE in a situation where we need to
-      // evaluate per-lower-level item (for example, if we allow for raw per-unit greeks calculations to flow
-      // out of a result model), then this will ultimately have to be changed.
       
       // There are two ways to execute the different dependency graphs: sequentially or in parallel.
       // Both are implemented, and both work.
@@ -218,10 +226,22 @@ public class SingleComputationCycle {
       // and the additional overhead of thread management slows us down, so I've hard coded it to the sequential
       // form. This should ultimately change if we discover that as graphs get bigger we want to have them
       // running in parallel.
-      executePlansSequential(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
-      //executePlansParallel(depGraphModel, ComputationTargetType.POSITION);
-      //executePlansParallel(depGraphModel, ComputationTargetType.SECURITY);
-      //executePlansParallel(depGraphModel, ComputationTargetType.PRIMITIVE);
+      if(getViewDefinition().isComputePortfolioNodeCalculations()) {
+        executePlansSequential(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+        //executePlansParallel(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+      }
+      if(getViewDefinition().isComputePositionNodeCalculations()) {
+        executePlansSequential(depGraphModel, ComputationTargetType.POSITION);
+        //executePlansParallel(depGraphModel, ComputationTargetType.POSITION);
+      }
+      if(getViewDefinition().isComputeSecurityNodeCalculations()) {
+        executePlansSequential(depGraphModel, ComputationTargetType.SECURITY);
+        //executePlansParallel(depGraphModel, ComputationTargetType.SECURITY);
+      }
+      if(getViewDefinition().isComputePrimitiveNodeCalculations()) {
+        executePlansSequential(depGraphModel, ComputationTargetType.PRIMITIVE);
+        //executePlansParallel(depGraphModel, ComputationTargetType.PRIMITIVE);
+      }
     }
   }
   
