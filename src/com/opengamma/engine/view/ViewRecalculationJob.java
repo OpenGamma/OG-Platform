@@ -75,7 +75,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     long delta = endTime - cycle.getStartTime();
     _totalTime += delta;
     _numExecutions += 1.0;
-    s_logger.debug("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
+    s_logger.info("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
     getView().recalculationPerformed(result);
     // Do this intentionally AFTER alerting the view. Because of the listener system,
     // we have to recompute the delta, because we have to factor in the dispatch time
