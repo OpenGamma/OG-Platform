@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.security.db;
 
 import java.sql.SQLException;
@@ -324,7 +329,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final double pointValue = 25;
     final Currency dollar = Currency.getInstance("USD");
     final Currency sterling = Currency.getInstance("GBP");
-    final Expiry expiry = new Expiry(ZonedDateTime.fromInstant(OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
 
     final Identifier americanIdentifier = Identifier.of("BLOOMBERG", "American equity option");
     final UniqueIdentifier americanUnderlyingIdentifier = HibernateSecurityMaster.createUniqueIdentifier("underlying american option id");
@@ -395,7 +400,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final double pointValue = 25;
     final Currency dollar = Currency.getInstance("USD");
     final Currency sterling = Currency.getInstance("GBP");
-    final Expiry expiry = new Expiry(ZonedDateTime.fromInstant(OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
     final Identifier americanIdentifier = new Identifier("BLOOMBERG", "American future option");
     final UniqueIdentifier americanUnderlyingIdentifier = HibernateSecurityMaster.createUniqueIdentifier("underlying american future id");
     final Identifier europeanIdentifier = new Identifier("BLOOMBERG", "European future option");
@@ -445,7 +450,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final Currency dollar = Currency.getInstance("USD");
     final Currency sterling = Currency.getInstance("GBP");
     final Currency euro = Currency.getInstance("EUR");
-    final Expiry expiry = new Expiry(ZonedDateTime.fromInstant(OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
     final Identifier fxIdentifier = new Identifier("BLOOMBERG", "fx option");
     final UniqueIdentifier fxUnderlyingIdentifier = HibernateSecurityMaster.createUniqueIdentifier("underlying identity");
     final OTCOptionSecurity security = new FXOptionSecurity(OptionType.PUT, 1.23, expiry, fxUnderlyingIdentifier, euro, "counterparty", dollar, sterling);
@@ -467,7 +472,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   @Test
   public void testGovernmentBondSecurityBean() {
     final Date now = new Date();
-    final Expiry expiry = new Expiry(ZonedDateTime.fromInstant(OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
     final Currency dollar = Currency.getInstance("USD");
     final YieldConvention usStreet = YieldConventionFactory.INSTANCE.getYieldConvention("US street");
     final Frequency annual = FrequencyFactory.INSTANCE.getFrequency("annual");
@@ -515,7 +520,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
   public void testSecurityDisplayName() {
     // create a security
     final Date now = new Date();
-    final Expiry expiry = new Expiry(ZonedDateTime.fromInstant(OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
     final Currency dollar = Currency.getInstance("USD");
     final Identifier underlying = new Identifier("BLOOMBERG", "underlying identifier");
     final Identifier actual = new Identifier("BLOOMBERG", "future identifier");
@@ -549,7 +554,7 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     final Date now = new Date();
     final Currency dollar = Currency.getInstance("USD");
     final Currency yen = Currency.getInstance("JPY");
-    final Expiry expiry = new Expiry(ZonedDateTime.fromInstant(OffsetDateTime.midnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.of("UTC")));
+    final Expiry expiry = new Expiry(ZonedDateTime.ofInstant(OffsetDateTime.ofMidnight(2012, 10, 30, ZoneOffset.UTC), TimeZone.UTC));
     final Identifier agricultureId = new Identifier("BLOOMBERG", "agriculture");
     final Identifier bondId = new Identifier("BLOOMBERG", "bond");
     final Identifier energyId = new Identifier("BLOOMBERG", "energy");
