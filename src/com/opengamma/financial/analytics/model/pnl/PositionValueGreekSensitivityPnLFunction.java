@@ -25,7 +25,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTypeToHistoricalTimeSeries;
-import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTypeToValueRequirementMapper;
 import com.opengamma.financial.pnl.PnLDataBundle;
 import com.opengamma.financial.pnl.SensitivityPnLCalculator;
 import com.opengamma.financial.pnl.UnderlyingType;
@@ -35,10 +34,8 @@ import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -77,11 +74,6 @@ public class PositionValueGreekSensitivityPnLFunction extends AbstractFunction i
       final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    
-    for (String valueGreekRequirementName : _valueGreekRequirementNames) {
-      Object valueGreekValue = inputs.getValue(new ValueRequirement(valueGreekRequirementName, position));
-      System.out.println("Got value greek value " + valueGreekValue + " for target " + target);
-    }
     
     ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position));
     Map<Sensitivity<?>, RiskFactorResult> sensitivities = new HashMap<Sensitivity<?>, RiskFactorResult>();
