@@ -56,7 +56,7 @@ import com.opengamma.util.tuple.Pair;
 public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private static final Logger s_logger = LoggerFactory.getLogger(RowStoreJdbcDao.class);
   
-  private static final int INVALID_KEY = -1;
+  public static final int INVALID_KEY = -1;
   private static final String LOAD_TIME_SERIES = "loadTimeSeries";
   private static final String LOAD_TIME_SERIES_WITH_DATES = "loadTimeSeriesWithDates";
   private static final String SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS = "selectQuotedObjectFromIdentifiers";

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static com.opengamma.historical.dao.RowStoreJdbcDao.INVALID_KEY;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -120,7 +121,8 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     assertNull(invalid);
     
     int id = _timeseriesDao.getDataProviderID("Invalid");
-    assertEquals(-1, id);
+    assertEquals(INVALID_KEY, id);
+    
   }
   
   @Test(expected = DataIntegrityViolationException.class)
