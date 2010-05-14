@@ -3,9 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.server.datasender;
 
 import org.fudgemsg.FudgeFieldContainer;
+
+import com.opengamma.livedata.server.MarketDataDistributor;
 
 /**
  * A market data sender sends market data messages to external systems.

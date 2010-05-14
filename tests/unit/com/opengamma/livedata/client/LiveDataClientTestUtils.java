@@ -10,10 +10,10 @@ import javax.jms.ConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.server.AbstractLiveDataServer;
-import com.opengamma.livedata.server.MarketDataFudgeJmsSender;
-import com.opengamma.livedata.server.MarketDataFudgeSender;
-import com.opengamma.livedata.server.MarketDataSender;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
+import com.opengamma.livedata.server.datasender.MarketDataFudgeJmsSender;
+import com.opengamma.livedata.server.datasender.MarketDataFudgeSender;
+import com.opengamma.livedata.server.datasender.MarketDataSender;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
@@ -61,7 +61,8 @@ public class LiveDataClientTestUtils {
     marketDataTemplate.setPubSubDomain(true);
     marketDataTemplate.setConnectionFactory(cf);
     
-    MarketDataFudgeJmsSender mdfjs = new MarketDataFudgeJmsSender(marketDataTemplate);
+    MarketDataFudgeJmsSender mdfjs = new MarketDataFudgeJmsSender();
+    mdfjs.setJmsTemplate(marketDataTemplate);
     server.addMarketDataSender(mdfjs);
     
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());

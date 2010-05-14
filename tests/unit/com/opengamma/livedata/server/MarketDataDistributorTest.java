@@ -15,6 +15,7 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.server.datasender.MarketDataSender;
 
 /**
  * 

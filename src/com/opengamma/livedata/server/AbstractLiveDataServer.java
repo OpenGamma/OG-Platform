@@ -37,6 +37,7 @@ import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
+import com.opengamma.livedata.server.datasender.MarketDataSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
 

@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.server.datasender.MarketDataSender;
 import com.opengamma.util.ArgumentChecker;
 
 /**

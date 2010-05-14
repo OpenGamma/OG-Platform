@@ -27,14 +27,19 @@ public class StandardRulesUtils {
     
     Set<String> acceptableFields = Sets.newHashSet(
         MarketDataFieldNames.INDICATIVE_VALUE_FIELD,
-        MarketDataFieldNames.VOLUME
+        MarketDataFieldNames.VOLUME,
+        MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD
         );
     for (FudgeField field : msg.getAllFields()) {
       assertTrue(acceptableFields + " does not contain " + field.getName(), acceptableFields.contains(field.getName()));
     }
     
     assertNotNull(msg.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD));
-    assertTrue(msg.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) > 0.0);
+    assertTrue(msg.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) >= 0.0);
+    
+    if (msg.getDouble(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD) != null) {
+      assertTrue(msg.getDouble(MarketDataFieldNames.IMPLIED_VOLATILITY_FIELD) >= 0.0);
+    }
   }
 
 }

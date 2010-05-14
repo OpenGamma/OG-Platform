@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.server.datasender;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -18,7 +18,8 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.livedata.server.MarketDataDistributor;
 
 /**
  * 
@@ -28,18 +29,13 @@ import com.opengamma.util.ArgumentChecker;
 public class MarketDataFudgeJmsSender implements MarketDataSender {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataFudgeJmsSender.class);
   
-  private final JmsTemplate _jmsTemplate;
+  private JmsTemplate _jmsTemplate;
   private final FudgeContext _fudgeContext;
   
-  public MarketDataFudgeJmsSender(JmsTemplate jmsTemplate) {
-    this(jmsTemplate, new FudgeContext());
-  }
+  private volatile boolean _interrupted = false;
   
-  public MarketDataFudgeJmsSender(JmsTemplate jmsTemplate, FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(jmsTemplate, "JmsTemplate");
-    ArgumentChecker.notNull(fudgeContext, "Fudge Context");
-    _jmsTemplate = jmsTemplate;
-    _fudgeContext = fudgeContext;
+  public MarketDataFudgeJmsSender() {
+    _fudgeContext = new FudgeContext();
   }
   
   /**
@@ -47,6 +43,10 @@ public class MarketDataFudgeJmsSender implements MarketDataSender {
    */
   public JmsTemplate getJmsTemplate() {
     return _jmsTemplate;
+  }
+  
+  public void setJmsTemplate(JmsTemplate jmsTemplate) {
+    _jmsTemplate = jmsTemplate;
   }
 
   /**
@@ -58,6 +58,10 @@ public class MarketDataFudgeJmsSender implements MarketDataSender {
 
   @Override
   public void sendMarketData(MarketDataDistributor distributor, FudgeFieldContainer normalizedMsg) {
+    if (_interrupted) {
+      s_logger.debug("Interrupted - not sending message {}", normalizedMsg);
+      return;      
+    }
     
     DistributionSpecification distributionSpec = distributor.getDistributionSpec();
     
@@ -76,6 +80,16 @@ public class MarketDataFudgeJmsSender implements MarketDataSender {
         return bytesMessage;
       }
     });
+  }
+  
+  public synchronized void transportInterrupted() {
+    s_logger.error("Transport interrupted");
+    _interrupted = true;
+  }
+
+  public synchronized void transportResumed() {
+    s_logger.info("Transport resumed");
+    _interrupted = false;
   }
 
 }

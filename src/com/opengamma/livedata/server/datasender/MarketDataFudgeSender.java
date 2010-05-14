@@ -3,11 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.server.datasender;
 
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
+import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.livedata.server.MarketDataDistributor;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.util.ArgumentChecker;
 
