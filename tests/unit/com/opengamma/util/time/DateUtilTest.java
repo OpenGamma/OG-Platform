@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -29,8 +29,8 @@ public class DateUtilTest {
 
   @Test
   public void testDifferenceInYears() {
-    final ZonedDateTime startDate = ZonedDateTime.from(LocalDate.of(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime endDate = ZonedDateTime.from(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2000, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     try {
       DateUtil.getDifferenceInYears(null, endDate);
       fail();
@@ -62,9 +62,9 @@ public class DateUtilTest {
 
   @Test
   public void testDateOffsetWithYearFraction() {
-    final ZonedDateTime startDate = ZonedDateTime.from(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.from(LocalDate.of(2002, 1, 1), LocalTime.of(6, 0), TimeZone.UTC);
-    final ZonedDateTime endDate = ZonedDateTime.from(LocalDate.of(2002, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime startDate = ZonedDateTime.of(LocalDate.of(2001, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime offsetDateWithFinancialYearDefinition = ZonedDateTime.of(LocalDate.of(2002, 1, 1), LocalTime.of(6, 0), TimeZone.UTC);
+    final ZonedDateTime endDate = ZonedDateTime.of(LocalDate.of(2002, 1, 1), LocalTime.MIDNIGHT, TimeZone.UTC);
     final double daysPerYear = 365;
     try {
       DateUtil.getDateOffsetWithYearFraction((InstantProvider) null, 1);

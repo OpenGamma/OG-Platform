@@ -20,7 +20,7 @@ import org.junit.Ignore;
 public abstract class ZonedDateTimeDoubleTimeSeriesTest extends DoubleTimeSeriesTest<ZonedDateTime> {
   
   public ZonedDateTime makeDate(int year, int month, int day) {
-    ZonedDateTime one = ZonedDateTime.from(LocalDateTime.midnight(year, month, day), TimeZone.UTC);//TimeZone.of(java.util.TimeZone.getDefault().getID()));
+    ZonedDateTime one = ZonedDateTime.of(LocalDateTime.ofMidnight(year, month, day), TimeZone.UTC);//TimeZone.of(java.util.TimeZone.getDefault().getID()));
     return one;
   }
   

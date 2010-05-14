@@ -101,7 +101,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
 
   @Override
   public ZonedDateTime convertFromLong(final long dateTime) {
-    return ZonedDateTime.fromInstant(Instant.millis(dateTime), _timeZone);
+    return ZonedDateTime.ofInstant(Instant.ofMillis(dateTime), _timeZone);
   }
 
   @Override
@@ -109,7 +109,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>(dateTimes.size());
     final LongIterator iterator = dateTimes.iterator();
     while (iterator.hasNext()) {
-      dates.add(ZonedDateTime.fromInstant(Instant.millis(iterator.nextLong()), _timeZone));
+      dates.add(ZonedDateTime.ofInstant(Instant.ofMillis(iterator.nextLong()), _timeZone));
     }
     return dates;
   }
@@ -118,7 +118,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   public ZonedDateTime[] convertFromLong(final long[] dateTimes) {
     final ZonedDateTime[] dates = new ZonedDateTime[dateTimes.length];
     for (int i = 0; i < dateTimes.length; i++) {
-      dates[i] = ZonedDateTime.fromInstant(Instant.millis(dateTimes[i]), _timeZone);
+      dates[i] = ZonedDateTime.ofInstant(Instant.ofMillis(dateTimes[i]), _timeZone);
     }
     return dates;
   }
@@ -160,7 +160,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     while (iterator.hasNext()) {
       final Entry<Long, Double> entry = iterator.next();
       
-      final ZonedDateTime date = ZonedDateTime.fromInstant(Instant.millis(entry.getKey()), _timeZone);
+      final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofMillis(entry.getKey()), _timeZone);
       dateTimes[i] = date;
       values[i] = entry.getValue();
       i++;

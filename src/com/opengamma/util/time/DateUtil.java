@@ -1,11 +1,10 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
 package com.opengamma.util.time;
 
-import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.TimeSource;
@@ -15,7 +14,6 @@ import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -105,7 +103,7 @@ public class DateUtil {
     if (startDate == null)
       throw new IllegalArgumentException("Date was null");
     final long nanos = Math.round(1e9 * SECONDS_PER_YEAR * yearFraction);
-    return startDate.toInstant().plus(Duration.nanos(nanos));
+    return startDate.toInstant().plusNanos(nanos);
   }
 
   /**
@@ -125,7 +123,7 @@ public class DateUtil {
       throw new IllegalArgumentException("Date was null");
     final Instant instant = startDate.toInstant();
     final InstantProvider offsetDate = getDateOffsetWithYearFraction(instant, yearFraction);
-    return ZonedDateTime.fromInstant(offsetDate, startDate.getZone());
+    return ZonedDateTime.ofInstant(offsetDate, startDate.getZone());
   }
 
   /**
@@ -145,7 +143,7 @@ public class DateUtil {
     if (startDate == null)
       throw new IllegalArgumentException("Date was null");
     final long nanos = Math.round(1e9 * SECONDS_PER_DAY * daysPerYear * yearFraction);
-    return startDate.toInstant().plus(Duration.nanos(nanos));
+    return startDate.toInstant().plusNanos(nanos);
   }
 
   /**
@@ -166,7 +164,7 @@ public class DateUtil {
       throw new IllegalArgumentException("Date was null");
     final Instant instant = startDate.toInstant();
     final InstantProvider offsetDate = getDateOffsetWithYearFraction(instant, yearFraction, daysPerYear);
-    return ZonedDateTime.fromInstant(offsetDate, startDate.getZone());
+    return ZonedDateTime.ofInstant(offsetDate, startDate.getZone());
   }
 
   /**
@@ -179,7 +177,7 @@ public class DateUtil {
    * @return
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day) {
-    return ZonedDateTime.from(LocalDateTime.midnight(year, month, day), TimeZone.UTC);
+    return ZonedDateTime.of(LocalDateTime.ofMidnight(year, month, day), TimeZone.UTC);
   }
 
   /**
@@ -193,7 +191,7 @@ public class DateUtil {
    * @return A UTC date.
    */
   public static ZonedDateTime getUTCDate(final int year, final int month, final int day, final int hour, final int minutes) {
-    return ZonedDateTime.from(LocalDate.of(year, month, day), LocalTime.of(hour, minutes), TimeZone.UTC);
+    return ZonedDateTime.of(LocalDateTime.of(year, month, day, hour, minutes), TimeZone.UTC);
   }
 
   /**
@@ -209,7 +207,7 @@ public class DateUtil {
    * @return A UTC date.
    */
   public static ZonedDateTime getDateInTimeZone(final int year, final int month, final int day, final int hour, final int minutes, final String timeZone) {
-    return ZonedDateTime.from(LocalDate.of(year, month, day), LocalTime.of(hour, minutes), TimeZone.of("London"));
+    return ZonedDateTime.of(LocalDateTime.of(year, month, day, hour, minutes), TimeZone.of("London"));
   }
 
   /**
@@ -366,7 +364,7 @@ public class DateUtil {
   // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing
   // in JSR-310.
   public static Clock epochFixedClockDefaultZone(long epochMilliseconds) {
-    Instant instant = Instant.millis(epochMilliseconds);
+    Instant instant = Instant.ofMillis(epochMilliseconds);
     TimeSource timeSource = TimeSource.fixed(instant);
     Clock clock = Clock.clockDefaultZone(timeSource);
     return clock;
@@ -375,7 +373,7 @@ public class DateUtil {
   // REVIEW kirk 2010-04-29 -- This is a candidate for inclusion as an easier thing
   // in JSR-310.
   public static Clock epochFixedClockUTC(long epochMilliseconds) {
-    Instant instant = Instant.millis(epochMilliseconds);
+    Instant instant = Instant.ofMillis(epochMilliseconds);
     TimeSource timeSource = TimeSource.fixed(instant);
     Clock clock = Clock.clock(timeSource, TimeZone.UTC);
     return clock;
