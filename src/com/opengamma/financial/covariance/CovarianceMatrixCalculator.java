@@ -5,15 +5,12 @@
  */
 package com.opengamma.financial.covariance;
 
-import cern.colt.matrix.DoubleFactory2D;
-import cern.colt.matrix.DoubleMatrix2D;
-
 import com.opengamma.math.function.Function;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class CovarianceMatrixCalculator implements Function<DoubleTimeSeries<?>, DoubleMatrix2D> {
   private final CovarianceCalculator _calculator;
@@ -35,6 +32,6 @@ public class CovarianceMatrixCalculator implements Function<DoubleTimeSeries<?>,
         covariance[j][i] = covariance[i][j];
       }
     }
-    return DoubleFactory2D.dense.make(covariance);
+    return new DoubleMatrix2D(covariance);
   }
 }

@@ -1,46 +1,30 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.riskfactor;
+package com.opengamma.financial.sensitivity;
 
-/**
- * @author emcleod
- * 
- */
-public class SingleRiskFactorResult implements RiskFactorResult<Double> {
+public class SingleValueGreekResult implements ValueGreekResult<Double> {
   private final Double _result;
 
-  public SingleRiskFactorResult(final Double result) {
+  public SingleValueGreekResult(final Double result) {
     if (result == null)
-      throw new IllegalArgumentException("Risk factor was null");
+      throw new IllegalArgumentException("Result was null");
     _result = result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.greeks.GreekResult#getResult()
-   */
   @Override
   public Double getResult() {
     return _result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.greeks.GreekResult#isMultiValued()
-   */
   @Override
   public boolean isMultiValued() {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -51,9 +35,7 @@ public class SingleRiskFactorResult implements RiskFactorResult<Double> {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -64,7 +46,7 @@ public class SingleRiskFactorResult implements RiskFactorResult<Double> {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final SingleRiskFactorResult other = (SingleRiskFactorResult) obj;
+    final SingleValueGreekResult other = (SingleValueGreekResult) obj;
     if (_result == null) {
       if (other._result != null)
         return false;
@@ -73,13 +55,9 @@ public class SingleRiskFactorResult implements RiskFactorResult<Double> {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
   @Override
   public String toString() {
-    return "SingleRiskFactorResult[" + getResult() + "]";
+    return _result.toString();
   }
+
 }

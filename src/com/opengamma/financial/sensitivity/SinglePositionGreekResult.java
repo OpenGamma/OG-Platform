@@ -1,15 +1,14 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.greeks;
+package com.opengamma.financial.sensitivity;
 
-
-public class SingleGreekResult implements GreekResult<Double> {
+public class SinglePositionGreekResult implements PositionGreekResult<Double> {
   private final Double _result;
 
-  public SingleGreekResult(final Double result) {
+  public SinglePositionGreekResult(final Double result) {
     if (result == null)
       throw new IllegalArgumentException("Result was null");
     _result = result;
@@ -23,11 +22,6 @@ public class SingleGreekResult implements GreekResult<Double> {
   @Override
   public boolean isMultiValued() {
     return false;
-  }
-
-  @Override
-  public String toString() {
-    return _result.toString();
   }
 
 }

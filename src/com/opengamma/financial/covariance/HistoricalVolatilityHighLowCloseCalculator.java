@@ -18,7 +18,6 @@ import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
- * @author emcleod
  */
 public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolatilityCalculator {
   private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityHighLowCloseCalculator.class);

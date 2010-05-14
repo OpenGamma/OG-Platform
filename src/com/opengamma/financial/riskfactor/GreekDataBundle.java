@@ -13,9 +13,9 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 
 public class GreekDataBundle {
   private final GreekResultCollection _greekValues;
-  private final Map<Greek, Map<Object, Double>> _underlyingData;
+  private final Map<Object, Double> _underlyingData;
 
-  public GreekDataBundle(final GreekResultCollection greekValues, final Map<Greek, Map<Object, Double>> underlyingData) {
+  public GreekDataBundle(final GreekResultCollection greekValues, final Map<Object, Double> underlyingData) {
     if (greekValues == null)
       throw new IllegalArgumentException("GreekResultCollection was null");
     if (greekValues.isEmpty())
@@ -28,31 +28,24 @@ public class GreekDataBundle {
     _underlyingData = underlyingData;
   }
 
-  public GreekResultCollection getAllGreekValues() {
+  public GreekResultCollection getGreekResults() {
     return _greekValues;
   }
 
-  public Map<Greek, Map<Object, Double>> getAllUnderlyingData() {
+  public Map<Object, Double> getUnderlyingData() {
     return _underlyingData;
   }
 
-  public GreekResult<?> getGreekValueForGreek(final Greek greek) {
+  public double getUnderlyingDataForObject(final Object o) {
+    if (_underlyingData.containsKey(o))
+      return _underlyingData.get(o);
+    throw new IllegalArgumentException("Underlying data map did not contain a value for " + o);
+  }
+
+  public GreekResult<?> getGreekResultForGreek(final Greek greek) {
     if (_greekValues.containsKey(greek))
       return _greekValues.get(greek);
     throw new IllegalArgumentException("Greek result collection did not contain a value for " + greek);
-  }
-
-  public Map<Object, Double> getAllUnderlyingDataForGreek(final Greek greek) {
-    if (_underlyingData.containsKey(greek))
-      return _underlyingData.get(greek);
-    throw new IllegalArgumentException("Underlying data map did not contain data for " + greek);
-  }
-
-  public Double getUnderlyingDataForGreek(final Greek greek, final Object requiredData) {
-    final Map<Object, Double> data = getAllUnderlyingDataForGreek(greek);
-    if (data.containsKey(requiredData))
-      return data.get(requiredData);
-    throw new IllegalArgumentException("Underlying data map did not contain " + requiredData + " data for " + greek);
   }
 
   /*

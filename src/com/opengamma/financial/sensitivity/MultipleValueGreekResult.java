@@ -1,50 +1,36 @@
 /**
  * Copyright (C) 2009 - 2010 by OpenGamma Inc.
- * 
+ *
  * Please see distribution for license.
  */
-package com.opengamma.financial.riskfactor;
+package com.opengamma.financial.sensitivity;
 
+import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author emcleod
- * 
- */
-public class MultipleRiskFactorResult implements RiskFactorResult<Map<Object, Double>> {
-  private final Map<Object, Double> _result;
+public class MultipleValueGreekResult implements ValueGreekResult<Map<String, Double>> {
+  private final Map<String, Double> _result;
 
-  public MultipleRiskFactorResult(final Map<Object, Double> result) {
+  public MultipleValueGreekResult(final Map<String, Double> result) {
     if (result == null)
       throw new IllegalArgumentException("Result map was null");
     if (result.isEmpty())
       throw new IllegalArgumentException("Result map was empty");
-    _result = result;
+    _result = new HashMap<String, Double>();
+    _result.putAll(result);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.riskfactor.RiskFactorResult#getResult()
-   */
   @Override
-  public Map<Object, Double> getResult() {
+  public Map<String, Double> getResult() {
     return _result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.riskfactor.RiskFactorResult#isMultiValued()
-   */
   @Override
   public boolean isMultiValued() {
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -55,9 +41,7 @@ public class MultipleRiskFactorResult implements RiskFactorResult<Map<Object, Do
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -68,7 +52,7 @@ public class MultipleRiskFactorResult implements RiskFactorResult<Map<Object, Do
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final MultipleRiskFactorResult other = (MultipleRiskFactorResult) obj;
+    final MultipleValueGreekResult other = (MultipleValueGreekResult) obj;
     if (_result == null) {
       if (other._result != null)
         return false;
@@ -77,13 +61,4 @@ public class MultipleRiskFactorResult implements RiskFactorResult<Map<Object, Do
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return "MultipleRiskFactorResult[" + _result + "]";
-  }
 }

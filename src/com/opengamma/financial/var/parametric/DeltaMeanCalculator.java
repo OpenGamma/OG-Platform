@@ -5,9 +5,6 @@
  */
 package com.opengamma.financial.var.parametric;
 
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.MatrixAlgebra;
@@ -17,7 +14,7 @@ import com.opengamma.math.matrix.MatrixAlgebra;
  */
 public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBundle, Double> {
   private final MatrixAlgebra _algebra;
-  private static final Sensitivity<Greek> VALUE_DELTA = new ValueGreek(Greek.DELTA);
+  private static final int FIRST_ORDER = 1;
 
   public DeltaMeanCalculator(final MatrixAlgebra algebra) {
     if (algebra == null)
@@ -34,11 +31,11 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
   public Double evaluate(final ParametricWithMeanVaRDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Data were null");
-    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(VALUE_DELTA);
+    final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(FIRST_ORDER);
     final int s1 = delta.getNumberOfElements();
     if (s1 == 0)
       throw new IllegalArgumentException("Value delta vector contained no data");
-    final DoubleMatrix1D mean = data.getMean(VALUE_DELTA);
+    final DoubleMatrix1D mean = data.getMean(FIRST_ORDER);
     final int s2 = mean.getNumberOfElements();
     if (s2 == 0)
       throw new IllegalArgumentException("Mean vector contained no data");

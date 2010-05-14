@@ -8,76 +8,55 @@ package com.opengamma.financial.riskfactor;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.greeks.FirstOrder;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.MixedSecondOrder;
 import com.opengamma.financial.greeks.MultipleGreekResult;
-import com.opengamma.financial.greeks.Order;
-import com.opengamma.financial.greeks.SecondOrder;
 import com.opengamma.financial.greeks.SingleGreekResult;
+import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.TradeData;
-import com.opengamma.financial.pnl.Underlying;
-import com.opengamma.financial.sensitivity.Sensitivity;
+import com.opengamma.financial.sensitivity.MultipleValueGreekResult;
+import com.opengamma.financial.sensitivity.SingleValueGreekResult;
 import com.opengamma.financial.sensitivity.ValueGreek;
+import com.opengamma.financial.sensitivity.ValueGreekResult;
 import com.opengamma.math.function.Function1D;
 
-public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<Sensitivity<Greek>, RiskFactorResult<?>>> {
+public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<ValueGreek, ValueGreekResult<?>>> {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
-  public Map<Sensitivity<Greek>, RiskFactorResult<?>> evaluate(final GreekDataBundle data) {
+  public Map<ValueGreek, ValueGreekResult<?>> evaluate(final GreekDataBundle data) {
     if (data == null)
-      throw new IllegalArgumentException("Risk factor data bundle was null");
-    final GreekResultCollection greeks = data.getAllGreekValues();
-    final Map<Sensitivity<Greek>, RiskFactorResult<?>> riskFactors = new HashMap<Sensitivity<Greek>, RiskFactorResult<?>>();
+      throw new IllegalArgumentException("Greek data bundle was null");
+    final GreekResultCollection greeks = data.getGreekResults();
+    final Map<ValueGreek, ValueGreekResult<?>> riskFactors = new HashMap<ValueGreek, ValueGreekResult<?>>();
     Map<String, Double> multipleGreekResult;
-    Map<Object, Double> riskFactorResultMap;
+    Map<String, Double> multipleValueGreekResult;
     Greek key;
     GreekResult<?> value;
+    final Map<Object, Double> underlyingData = data.getUnderlyingData();
     for (final Map.Entry<Greek, GreekResult<?>> entry : greeks.entrySet()) {
       key = entry.getKey();
       value = entry.getValue();
       if (entry.getValue() instanceof SingleGreekResult) {
-        riskFactors.put(new ValueGreek(key), new SingleRiskFactorResult(getValueGreek(key, data, (Double) value.getResult())));
+        riskFactors.put(new ValueGreek(key), new SingleValueGreekResult(getValueGreek(key, underlyingData, (Double) value.getResult())));
       } else if (entry.getValue() instanceof MultipleGreekResult) {
         multipleGreekResult = ((MultipleGreekResult) value).getResult();
-        riskFactorResultMap = new HashMap<Object, Double>();
+        multipleValueGreekResult = new HashMap<String, Double>();
         for (final Map.Entry<String, Double> e : multipleGreekResult.entrySet()) {
-          riskFactorResultMap.put(e.getKey(), getValueGreek(key, data, e.getValue()));
+          multipleValueGreekResult.put(e.getKey(), getValueGreek(key, underlyingData, e.getValue()));
         }
-        riskFactors.put(new ValueGreek(key), new MultipleRiskFactorResult(riskFactorResultMap));
+        riskFactors.put(new ValueGreek(key), new MultipleValueGreekResult(multipleValueGreekResult));
       } else {
-        throw new IllegalArgumentException("Can only handle SingleGreekResult and MultipleGreekResult");
+        throw new IllegalArgumentException("Can only handle SingleRiskFactorResult and MultipleRiskFactorResult");
       }
     }
     return riskFactors;
   }
 
   // TODO handle theta separately?
-  Double getValueGreek(final Greek greek, final GreekDataBundle data, final Double greekValue) {
-    final Order order = greek.getOrder();
-    final Map<Object, Double> underlyings = data.getAllUnderlyingDataForGreek(greek);
-    if (order instanceof FirstOrder) {
-      final Underlying underlying = ((FirstOrder) order).getVariable();
-      return greekValue * underlyings.get(underlying) * underlyings.get(TradeData.OPTION_POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
-    }
-    if (order instanceof SecondOrder) {
-      final Underlying underlying = ((SecondOrder) order).getVariable();
-      final double x = underlyings.get(underlying);
-      return greekValue * x * x * underlyings.get(TradeData.OPTION_POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
-    }
-    if (order instanceof MixedSecondOrder) {
-      final MixedSecondOrder mixedFirst = ((MixedSecondOrder) order);
-      return greekValue * underlyings.get(mixedFirst.getFirstVariable().getVariable()) * underlyings.get(mixedFirst.getSecondVariable().getVariable())
-          * underlyings.get(TradeData.OPTION_POINT_VALUE) * underlyings.get(TradeData.NUMBER_OF_CONTRACTS);
-    }
-    throw new IllegalArgumentException("Can currently only handle first-, mixed-second- and second-order greeks");// TODO
+  Double getValueGreek(final Greek greek, final Map<Object, Double> underlyings, final Double greekValue) {
+    final Underlying order = greek.getUnderlying();
+    return TaylorExpansionMultiplierCalculator.getMultiplier(underlyings, order) * greekValue * underlyings.get(TradeData.NUMBER_OF_CONTRACTS)
+        * underlyings.get(TradeData.POINT_VALUE) / TaylorExpansionMultiplierCalculator.getMultiplier(order);
   }
-
 }

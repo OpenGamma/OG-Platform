@@ -11,7 +11,6 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * @author emcleod
  */
 public class LogNormalVolatilityEstimateConfidenceIntervalCalculator {
   private ProbabilityDistribution<Double> _chiSquare;

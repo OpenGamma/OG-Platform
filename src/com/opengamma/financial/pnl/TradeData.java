@@ -6,8 +6,5 @@
 package com.opengamma.financial.pnl;
 
 public enum TradeData {
-  NUMBER_OF_CONTRACTS,
-
-  // Option-specific
-  OPTION_POINT_VALUE
+  NUMBER_OF_CONTRACTS, POINT_VALUE
 }

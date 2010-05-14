@@ -12,7 +12,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class HistoricalCovarianceCalculator extends CovarianceCalculator {
   private final TimeSeriesReturnCalculator _returnCalculator;

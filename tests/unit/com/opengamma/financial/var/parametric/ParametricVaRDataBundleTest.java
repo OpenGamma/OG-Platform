@@ -14,9 +14,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.Matrix;
@@ -25,11 +22,8 @@ import com.opengamma.math.matrix.Matrix;
  * 
  */
 public class ParametricVaRDataBundleTest {
-  private static final Sensitivity<Greek> VALUE_DELTA = new ValueGreek(Greek.DELTA);
-  private static final Sensitivity<Greek> VALUE_GAMMA = new ValueGreek(Greek.GAMMA);
-  private final Map<Sensitivity<?>, Matrix<?>> VECTOR = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_DELTA, new DoubleMatrix1D(new double[] { 4 }));
-  private final Map<Sensitivity<?>, DoubleMatrix2D> MATRIX = Collections.<Sensitivity<?>, DoubleMatrix2D> singletonMap(VALUE_DELTA, new DoubleMatrix2D(
-      new double[][] { new double[] { 2 } }));
+  private final Map<Integer, Matrix<?>> VECTOR = Collections.<Integer, Matrix<?>> singletonMap(1, new DoubleMatrix1D(new double[] { 4 }));
+  private final Map<Integer, DoubleMatrix2D> MATRIX = Collections.<Integer, DoubleMatrix2D> singletonMap(1, new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
   private final ParametricVaRDataBundle DATA = new ParametricVaRDataBundle(VECTOR, MATRIX);
 
   @Test(expected = IllegalArgumentException.class)
@@ -44,29 +38,27 @@ public class ParametricVaRDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMoreCovariances() {
-    final Map<Sensitivity<?>, DoubleMatrix2D> covariances = new HashMap<Sensitivity<?>, DoubleMatrix2D>();
-    covariances.put(VALUE_DELTA, new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
-    covariances.put(VALUE_GAMMA, new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
+    final Map<Integer, DoubleMatrix2D> covariances = new HashMap<Integer, DoubleMatrix2D>();
+    covariances.put(1, new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
+    covariances.put(2, new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
     new ParametricVaRDataBundle(VECTOR, covariances);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSensitivity() {
-    final Map<Sensitivity<?>, Matrix<?>> sensitivities = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_DELTA, null);
+    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>> singletonMap(1, null);
     new ParametricVaRDataBundle(sensitivities, MATRIX);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testBadFirstOrderSensitivity() {
-    final Map<Sensitivity<?>, Matrix<?>> sensitivities = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_DELTA,
-        new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
+    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>> singletonMap(1, new DoubleMatrix2D(new double[][] { new double[] { 2 } }));
     new ParametricVaRDataBundle(sensitivities, MATRIX);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonSquareSensitivityMatrix() {
-    final Map<Sensitivity<?>, Matrix<?>> sensitivities = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_GAMMA, new DoubleMatrix2D(
-        new double[][] { new double[] { 2, 1 } }));
+    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>> singletonMap(2, new DoubleMatrix2D(new double[][] { new double[] { 2, 1 } }));
     new ParametricVaRDataBundle(sensitivities, MATRIX);
   }
 
@@ -80,35 +72,34 @@ public class ParametricVaRDataBundleTest {
       }
 
     };
-    final Map<Sensitivity<?>, Matrix<?>> sensitivities = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_DELTA, m);
+    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>> singletonMap(1, m);
     new ParametricVaRDataBundle(sensitivities, MATRIX);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullCovarianceMatrix() {
-    final Map<Sensitivity<?>, Matrix<?>> sensitivities = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_DELTA, null);
+    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>> singletonMap(1, null);
     new ParametricVaRDataBundle(sensitivities, MATRIX);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonSquareCovarianceMatrix() {
-    final Map<Sensitivity<?>, DoubleMatrix2D> m = Collections.<Sensitivity<?>, DoubleMatrix2D> singletonMap(VALUE_DELTA, new DoubleMatrix2D(
-        new double[][] { new double[] { 1, 2 } }));
+    final Map<Integer, DoubleMatrix2D> m = Collections.<Integer, DoubleMatrix2D> singletonMap(1, new DoubleMatrix2D(new double[][] { new double[] { 1, 2 } }));
     new ParametricVaRDataBundle(VECTOR, m);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonMatchingSensitivityAndCovarianceMatrices() {
-    final Map<Sensitivity<?>, DoubleMatrix2D> m = Collections.<Sensitivity<?>, DoubleMatrix2D> singletonMap(VALUE_DELTA, new DoubleMatrix2D(new double[][] { new double[] { 1, 2 },
-        new double[] { 3, 4 } }));
+    final Map<Integer, DoubleMatrix2D> m = Collections.<Integer, DoubleMatrix2D> singletonMap(1,
+        new DoubleMatrix2D(new double[][] { new double[] { 1, 2 }, new double[] { 3, 4 } }));
     new ParametricVaRDataBundle(VECTOR, m);
   }
 
   @Test
   public void testConversionToMatrix() {
-    final Map<Sensitivity<?>, Matrix<?>> sensitivities = Collections.<Sensitivity<?>, Matrix<?>> singletonMap(VALUE_GAMMA, new DoubleMatrix1D(new double[] { 2, 1 }));
+    final Map<Integer, Matrix<?>> sensitivities = Collections.<Integer, Matrix<?>> singletonMap(2, new DoubleMatrix1D(new double[] { 2, 1 }));
     final ParametricVaRDataBundle data = new ParametricVaRDataBundle(sensitivities, MATRIX);
-    final Matrix<?> m = data.getSensitivityData(VALUE_GAMMA);
+    final Matrix<?> m = data.getSensitivityData(2);
     assertTrue(m instanceof DoubleMatrix2D);
     final double[][] diagonal = new double[][] { new double[] { 2, 0 }, new double[] { 0, 1 } };
     final double[][] converted = ((DoubleMatrix2D) m).getDataAsPrimitiveArray();
@@ -123,7 +114,7 @@ public class ParametricVaRDataBundleTest {
 
   @Test
   public void test() {
-    assertEquals(VECTOR.get(VALUE_DELTA), DATA.getSensitivityData(VALUE_DELTA));
-    assertEquals(MATRIX.get(VALUE_DELTA), DATA.getCovarianceMatrix(VALUE_DELTA));
+    assertEquals(VECTOR.get(1), DATA.getSensitivityData(1));
+    assertEquals(MATRIX.get(1), DATA.getCovarianceMatrix(1));
   }
 }

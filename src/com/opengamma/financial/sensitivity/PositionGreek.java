@@ -3,13 +3,10 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.riskfactor;
+package com.opengamma.financial.sensitivity;
 
 import com.opengamma.financial.greeks.Greek;
 
-/**
- *
- */
 public class PositionGreek {
   private final Greek _underlyingGreek;
 
@@ -48,7 +45,6 @@ public class PositionGreek {
 
   @Override
   public String toString() {
-    return "Position[" + _underlyingGreek + "]";
+    return "POSITION_" + _underlyingGreek.toString();
   }
-
 }
