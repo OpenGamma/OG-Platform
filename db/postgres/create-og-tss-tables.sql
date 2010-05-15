@@ -144,7 +144,7 @@ CREATE TABLE tss_time_series_data (
 	  constraint fk_tsd_time_series  REFERENCES tss_time_series_key (id),
 	ts_date date NOT NULL,
 	value DOUBLE PRECISION NOT NULL,
-	PRIMARY KEY (time_series_id)
+	PRIMARY KEY (time_series_id, ts_date)
 );
 
 CREATE UNIQUE INDEX idx_tsdata_id_date ON tss_time_series_data (time_series_id, ts_date);

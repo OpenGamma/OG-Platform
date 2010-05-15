@@ -80,7 +80,8 @@ CREATE TABLE time_series_data (
 	time_series_id INTEGER NOT NULL
 	  constraint fk_tsd_time_series  REFERENCES time_series_key (id),
 	ts_date date NOT NULL,
-	value DOUBLE NOT NULL
+	value DOUBLE NOT NULL,
+	PRIMARY KEY (time_series_id, ts_date)
 );
 
 CREATE UNIQUE INDEX idx_tsdata_id_date ON time_series_data (time_series_id, ts_date); 
