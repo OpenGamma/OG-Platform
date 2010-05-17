@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -23,8 +23,8 @@ import com.opengamma.transport.ByteArrayMessageSender;
  * @author kirk
  */
 public class JmsByteArrayMessageSender
-extends AbstractJmsByteArraySender
-implements ByteArrayMessageSender {
+    extends AbstractJmsByteArraySender
+    implements ByteArrayMessageSender {
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayMessageSender.class);
   
   public JmsByteArrayMessageSender(String destinationName, JmsTemplate jmsTemplate) {

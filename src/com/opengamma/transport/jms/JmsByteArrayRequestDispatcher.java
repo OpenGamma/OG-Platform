@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -44,7 +44,7 @@ public class JmsByteArrayRequestDispatcher implements
   @Override
   public void onMessage(Message message, Session session) throws JMSException {
     Destination replyTo = message.getJMSReplyTo();
-    if(replyTo == null) {
+    if (replyTo == null) {
       throw new IllegalArgumentException("No JMSReplyTo destination set.");
     }
     byte[] requestBytes = JmsByteArrayHelper.extractBytes(message);

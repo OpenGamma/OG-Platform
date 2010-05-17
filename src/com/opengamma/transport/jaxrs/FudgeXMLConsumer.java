@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -16,23 +16,23 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
- * <p>Register as a Jax-RS provider to support REST request payloads containing XML encoded messages.</p>
- * 
- * <p><b>This class isn't properly implemented as the Fudge library does not have an XML stream reader component yet.</b></p>
- * 
- * @author Andrew Griffin
+ * Register as a JAX-RS provider to support REST request payloads containing XML encoded messages.
+ * <p>
+ * <b>This class isn't properly implemented as the Fudge library does not have an XML stream reader component yet.</b>
  */
 @Consumes("application/xml")
 public class FudgeXMLConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
-  
-  public FudgeXMLConsumer () {
-    super ();
+
+  /**
+   * Creates the consumer.
+   */
+  public FudgeXMLConsumer() {
+    super();
   }
-  
+
   @Override
   public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
     // TODO 2010-04-24 Andrew -- implement this class properly when there is XML reading support in the Fudge library
@@ -40,9 +40,15 @@ public class FudgeXMLConsumer extends FudgeBase implements MessageBodyReader<Fud
   }
 
   @Override
-  public FudgeMsgEnvelope readFrom(Class<FudgeMsgEnvelope> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+  public FudgeMsgEnvelope readFrom(
+      Class<FudgeMsgEnvelope> type,
+      Type genericType,
+      Annotation[] annotations,
+      MediaType mediaType,
+      MultivaluedMap<String, String> httpHeaders,
+      InputStream entityStream) throws IOException, WebApplicationException {
     // TODO 2010-04-24 Andrew -- implement this class properly when there is XML reading support in the Fudge library
     return null;
   }
-  
+
 }

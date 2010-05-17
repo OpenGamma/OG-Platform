@@ -15,30 +15,36 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgWriter;
 import org.fudgemsg.xml.FudgeXMLStreamWriter;
 
 /**
- * Register as a Jax-RS provider to support REST responses that are XML encoded messages. 
- * 
- * @author Andrew Griffin
+ * Register as a JAX-RS provider to support REST responses that are XML encoded messages. 
  */
 @Produces("application/xml")
 public class FudgeXMLProducer extends FudgeProducer {
-  
-  public FudgeXMLProducer () {
-    super ();
+
+  /**
+   * Creates the producer.
+   */
+  public FudgeXMLProducer() {
+    super();
   }
-  
+
   @Override
-  public void writeTo(FudgeMsgEnvelope t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-    final FudgeMsgWriter writer = new FudgeMsgWriter (new FudgeXMLStreamWriter (getFudgeContext (), new OutputStreamWriter (entityStream)));
-    writer.writeMessageEnvelope (t, getFudgeTaxonomyId ());
-    writer.flush ();
+  public void writeTo(
+      FudgeMsgEnvelope t,
+      Class<?> type,
+      Type genericType,
+      Annotation[] annotations,
+      MediaType mediaType,
+      MultivaluedMap<String, Object> httpHeaders,
+      OutputStream entityStream) throws IOException, WebApplicationException {
+    final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), new OutputStreamWriter(entityStream)));
+    writer.writeMessageEnvelope(t, getFudgeTaxonomyId());
+    writer.flush();
   }
-  
+
 }

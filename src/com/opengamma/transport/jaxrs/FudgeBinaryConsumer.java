@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -19,25 +19,32 @@ import javax.ws.rs.ext.MessageBodyReader;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
- * Register as a Jax-RS provider to support REST request payloads containing Fudge encoded messages.
- * 
- * @author Andrew Griffin
+ * Register as a JAX-RS provider to support REST request payloads containing Fudge encoded messages.
  */
 @Consumes("application/vnd.fudgemsg")
 public class FudgeBinaryConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
-  
-  public FudgeBinaryConsumer () {
-    super ();
-  }
-  
-  @Override
-  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.isAssignableFrom (FudgeMsgEnvelope.class);
+
+  /**
+   * Creates the consumer.
+   */
+  public FudgeBinaryConsumer() {
+    super();
   }
 
   @Override
-  public FudgeMsgEnvelope readFrom(Class<FudgeMsgEnvelope> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
-    return getFudgeContext ().deserialize (entityStream);
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    return type.isAssignableFrom(FudgeMsgEnvelope.class);
   }
-  
+
+  @Override
+  public FudgeMsgEnvelope readFrom(
+      Class<FudgeMsgEnvelope> type,
+      Type genericType,
+      Annotation[] annotations,
+      MediaType mediaType,
+      MultivaluedMap<String, String> httpHeaders,
+      InputStream entityStream) throws IOException, WebApplicationException {
+    return getFudgeContext().deserialize(entityStream);
+  }
+
 }

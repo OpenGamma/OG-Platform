@@ -28,12 +28,15 @@ import org.apache.commons.lang.builder.CompareToBuilder;
  * @param <A> the first element type
  * @param <B> the second element type
  */
-public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B>>, Serializable {
+public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
 
   /**
    * Creates a pair of {@code Object}s inferring the types.
+   * @param <A> the first element type
+   * @param <B> the second element type
    * @param first  the first element, may be null
    * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
    */
   public static <A, B> ObjectsPair<A, B> of(A first, B second) {
     return new ObjectsPair<A, B>(first, second);
@@ -43,6 +46,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
    * Creates a pair of {@code Double}s.
    * @param first  the first element, may be null
    * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
    */
   public static ObjectsPair<Double, Double> of(Double first, double second) {
     return new ObjectsPair<Double, Double>(first, second);
@@ -52,6 +56,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
    * Creates a pair of {@code Double}s.
    * @param first  the first element, may be null
    * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
    */
   public static ObjectsPair<Double, Double> of(double first, Double second) {
     return new ObjectsPair<Double, Double>(first, second);
@@ -61,6 +66,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
    * Creates a pair of {@code double}s.
    * @param first  the first element, may be null
    * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
    */
   public static DoublesPair of(double first, double second) {
     return new DoublesPair(first, second);
@@ -70,6 +76,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
    * Creates a pair of {@code int} to {@code double}.
    * @param first  the first element, may be null
    * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
    */
   public static IntDoublePair of(int first, double second) {
     return new IntDoublePair(first, second);
@@ -79,6 +86,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
    * Creates a pair of {@code long} to {@code double}.
    * @param first  the first element, may be null
    * @param second  the second element, may be null
+   * @return a pair formed from the two parameters, not null
    */
   public static LongDoublePair of(long first, double second) {
     return new LongDoublePair(first, second);
@@ -142,6 +150,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
    * Gets the elements from this pair as a list.
    * This method supports auto-casting as they is no way in generics to provide
    * a more specific type.
+   * @param <T> an auto-cast list type
    * @return the elements as a list, never null
    */
   @SuppressWarnings("unchecked")
@@ -171,8 +180,8 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A,B
     if (this == obj) {
       return true;
     }
-    if (obj instanceof Pair<?,?>) {
-      Pair<?,?> other = (Pair<?,?>) obj;
+    if (obj instanceof Pair<?, ?>) {
+      Pair<?, ?> other = (Pair<?, ?>) obj;
       return ObjectUtils.equals(getFirst(), other.getFirst()) &&
               ObjectUtils.equals(getSecond(), other.getSecond());
     }

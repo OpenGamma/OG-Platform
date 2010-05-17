@@ -12,8 +12,6 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
  * <p>
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
- *
- * @author jim
  */
 public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
 
@@ -43,10 +41,18 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
     return _second;
   }
 
+  /**
+   * Gets the first element as a primitive {@code int}.
+   * @return the primitive
+   */
   public int getFirstInt() {
     return _first;
   }
 
+  /**
+   * Gets the second element as a primitive {@code double}.
+   * @return the primitive
+   */
   public double getSecondDouble() {
     return _second;
   }
