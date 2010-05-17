@@ -51,7 +51,7 @@ public class SocketFudgeRequestSender extends AbstractSocketProcess implements F
     s_logger.debug("Dispatching request with {} fields", request.getNumFields());
     _msgWriter.writeMessage(request);
     FudgeMsgEnvelope response = _msgReader.nextMessageEnvelope();
-    if(response != null) {
+    if (response != null) {
       s_logger.debug("Got response with {} fields", response.getMessage().getNumFields());
       responseReceiver.messageReceived(getFudgeContext(), response);
     }
