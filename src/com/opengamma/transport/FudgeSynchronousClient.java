@@ -152,8 +152,8 @@ public abstract class FudgeSynchronousClient implements FudgeMessageReceiver {
    * Data holder.
    */
   private static final class ClientRequestHolder {
-    public Object resultValue;
-    public final CountDownLatch latch = new CountDownLatch(1); 
+    public Object resultValue;  // CSIGNORE: simple holder object
+    public final CountDownLatch latch = new CountDownLatch(1);  // CSIGNORE: simple holder object
   }
 
 }
