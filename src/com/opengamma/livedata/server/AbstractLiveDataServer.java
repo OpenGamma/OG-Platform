@@ -37,7 +37,9 @@ import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.resolver.NaiveDistributionSpecificationResolver;
-import com.opengamma.livedata.server.datasender.MarketDataSender;
+import com.opengamma.livedata.server.distribution.EmptyMarketDataSenderFactory;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
+import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
 
@@ -51,7 +53,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractLiveDataServer.class);
   
-  private final Collection<MarketDataSender> _marketDataSenders = new CopyOnWriteArrayList<MarketDataSender>();
+  private volatile MarketDataSenderFactory _marketDataSenderFactory = new EmptyMarketDataSenderFactory();
   private final Collection<SubscriptionListener> _subscriptionListeners = new CopyOnWriteArrayList<SubscriptionListener>();
   
   /** Access controlled via _subscriptionLock */
@@ -89,21 +91,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     _distributionSpecificationResolver = distributionSpecificationResolver;
   }
   
-  public void addMarketDataSender(MarketDataSender fieldReceiver) {
-    ArgumentChecker.notNull(fieldReceiver, "Market Data Sender");
-    _marketDataSenders.add(fieldReceiver);
-  }
-
-  public void setMarketDataSenders(
-      Collection<MarketDataSender> marketDataSenders) {
-    _marketDataSenders.clear();
-    for (MarketDataSender sender : marketDataSenders) {
-      addMarketDataSender(sender);
-    }
+  public MarketDataSenderFactory getMarketDataSenderFactory() {
+    return _marketDataSenderFactory;
   }
   
-  public Collection<MarketDataSender> getMarketDataSenders() {
-    return Collections.unmodifiableCollection(_marketDataSenders);
+  public void setMarketDataSenderFactory(MarketDataSenderFactory marketDataSenderFactory) {
+    _marketDataSenderFactory = marketDataSenderFactory;
   }
 
   public void addSubscriptionListener(SubscriptionListener subscriptionListener) {
@@ -347,7 +340,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
             changePersistent(subscription, true);
           }
           
-          subscription.createDistribution(distributionSpec, getMarketDataSenders());
+          subscription.createDistribution(distributionSpec, getMarketDataSenderFactory());
           liveDataSpecFromClient2Result.put(specFromClient, new SubscriptionResult(specFromClient, 
               distributionSpec, 
               LiveDataSubscriptionResult.SUCCESS, 
@@ -363,7 +356,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           }
           
           subscription = new Subscription(securityUniqueId, persistent);
-          subscription.createDistribution(distributionSpec, getMarketDataSenders());
+          subscription.createDistribution(distributionSpec, getMarketDataSenderFactory());
           securityUniqueId2NewSubscription.put(subscription.getSecurityUniqueId(), subscription);
           securityUniqueId2SpecFromClient.put(subscription.getSecurityUniqueId(), specFromClient);
         }
@@ -480,9 +473,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       
       MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
       if (currentlyActiveDistributor != null 
-          && currentlyActiveDistributor.getLastKnownValue() != null) {
+          && currentlyActiveDistributor.getSnapshot() != null) {
         s_logger.info("Able to satisfy {} from existing LKV", liveDataSpecificationFromClient);
-        returnValue.put(liveDataSpecificationFromClient, currentlyActiveDistributor.getLastKnownValueUpdate());
+        returnValue.put(liveDataSpecificationFromClient, currentlyActiveDistributor.getSnapshot());
         continue;
       }
       

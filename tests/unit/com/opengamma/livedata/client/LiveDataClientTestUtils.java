@@ -11,9 +11,11 @@ import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
-import com.opengamma.livedata.server.datasender.MarketDataFudgeJmsSender;
-import com.opengamma.livedata.server.datasender.MarketDataFudgeSender;
-import com.opengamma.livedata.server.datasender.MarketDataSender;
+import com.opengamma.livedata.server.distribution.FudgeSenderFactory;
+import com.opengamma.livedata.server.distribution.JmsSender;
+import com.opengamma.livedata.server.distribution.FudgeSender;
+import com.opengamma.livedata.server.distribution.JmsSenderFactory;
+import com.opengamma.livedata.server.distribution.MarketDataSender;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.ByteArrayFudgeRequestSender;
@@ -36,11 +38,11 @@ public class LiveDataClientTestUtils {
                 new SubscriptionRequestReceiver(server))));
     DistributedLiveDataClient liveDataClient = new DistributedLiveDataClient(requestSender);
     
-    MarketDataSender marketDataSender = new MarketDataFudgeSender(
+    FudgeSenderFactory factory = new FudgeSenderFactory(
         new ByteArrayFudgeMessageSender(
             new DirectInvocationByteArrayMessageSender(
                 new ByteArrayFudgeMessageReceiver(liveDataClient))));
-    server.addMarketDataSender(marketDataSender);
+    server.setMarketDataSenderFactory(factory);
     
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());
     
@@ -61,9 +63,9 @@ public class LiveDataClientTestUtils {
     marketDataTemplate.setPubSubDomain(true);
     marketDataTemplate.setConnectionFactory(cf);
     
-    MarketDataFudgeJmsSender mdfjs = new MarketDataFudgeJmsSender();
-    mdfjs.setJmsTemplate(marketDataTemplate);
-    server.addMarketDataSender(mdfjs);
+    JmsSenderFactory factory = new JmsSenderFactory();
+    factory.setJmsTemplate(marketDataTemplate);
+    server.setMarketDataSenderFactory(factory);
     
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());
     

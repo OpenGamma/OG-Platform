@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server;
+package com.opengamma.livedata.server.distribution;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataValueUpdateBean;
-import com.opengamma.livedata.server.datasender.MarketDataSender;
+import com.opengamma.livedata.server.DistributionSpecification;
+import com.opengamma.livedata.server.FieldHistoryStore;
+import com.opengamma.livedata.server.Subscription;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -40,14 +42,19 @@ public class MarketDataDistributor {
   private final Collection<MarketDataSender> _marketDataSenders;
   
   /**
-   * The last (normalized) message that was sent to clients.
+   * Last known values of ALL fully normalized fields that were
+   * sent to clients. This is not the last message as such
+   * because the last message might not have included all the fields.
+   * Instead, because the last value of ALL fields is stored,
+   * this store provides a current snapshot of the entire state of the 
+   * market data line.   
    */
-  private volatile FudgeFieldContainer _lastKnownValue = null;
+  private FieldHistoryStore _lastKnownValues = null;
   
   /** 
    * A history store to be used by the FieldHistoryUpdater normalization rule.
-   * What fields exactly are stored in this history is dependent on 
-   * that rule.
+   * Fields stored in this history could either be completely unnormalized, 
+   * partially normalized, or fully normalized.   
    */
   private final FieldHistoryStore _history = new FieldHistoryStore();
   
@@ -66,35 +73,48 @@ public class MarketDataDistributor {
    */
   public MarketDataDistributor(DistributionSpecification distributionSpec,
       Subscription subscription,
-      Collection<MarketDataSender> marketDataSenders) {
+      MarketDataSenderFactory marketDataSenderFactory) {
     
     ArgumentChecker.notNull(distributionSpec, "Distribution spec");
     ArgumentChecker.notNull(subscription, "Subscription");
-    ArgumentChecker.notNull(marketDataSenders, "Market data senders");
+    ArgumentChecker.notNull(marketDataSenderFactory, "Market data sender factory");
     
     _distributionSpec = distributionSpec;
     _subscription = subscription;
-    _marketDataSenders = marketDataSenders;
+    _marketDataSenders = marketDataSenderFactory.create(this);
+    if (_marketDataSenders == null) {
+      throw new IllegalStateException("Null returned by " + marketDataSenderFactory);
+    }
   }
   
   public DistributionSpecification getDistributionSpec() {
     return _distributionSpec;
   }
 
-  public FudgeFieldContainer getLastKnownValue() {
-    return _lastKnownValue;
+  private synchronized FudgeFieldContainer getLastKnownValues() {
+    if (_lastKnownValues == null) {
+      return null;
+    }
+    return _lastKnownValues.getLastKnownValues();
   }
   
-  public LiveDataValueUpdateBean getLastKnownValueUpdate() {
+  private synchronized void updateLastKnownValues(FudgeFieldContainer lastKnownValue) {
+    if (_lastKnownValues == null) {
+      _lastKnownValues = new FieldHistoryStore();
+    }
+    _lastKnownValues.liveDataReceived(lastKnownValue);
+  }
+
+  public LiveDataValueUpdateBean getSnapshot() {
+    if (getLastKnownValues() == null) {
+      return null;
+    }
     return new LiveDataValueUpdateBean(
         getNumMessagesSent(), // 0-based as it should be 
         getDistributionSpec().getFullyQualifiedLiveDataSpecification(), 
-        getLastKnownValue());
+        getLastKnownValues());
   }
-
-  private void setLastKnownValue(FudgeFieldContainer lastKnownValue) {
-    _lastKnownValue = lastKnownValue;
-  }
+  
   
   public Collection<MarketDataSender> getMarketDataSenders() {
     return Collections.unmodifiableCollection(_marketDataSenders);
@@ -119,9 +139,6 @@ public class MarketDataDistributor {
    */
   private FudgeFieldContainer normalize(FudgeFieldContainer msg) {
     FudgeFieldContainer normalizedMsg = _distributionSpec.getNormalizedMessage(msg, _history);
-    if (normalizedMsg != null) {
-      setLastKnownValue(normalizedMsg);
-    }
     return normalizedMsg;
   }
   
@@ -131,7 +148,10 @@ public class MarketDataDistributor {
    * @param liveDataFields Unnormalized market data from underlying market data API.
    */
   public synchronized void updateFieldHistory(FudgeFieldContainer msg) {
-    normalize(msg);    
+    FudgeFieldContainer normalizedMsg = normalize(msg);
+    if (normalizedMsg != null) {
+      updateLastKnownValues(normalizedMsg);
+    }
   }
   
   /**
@@ -151,11 +171,16 @@ public class MarketDataDistributor {
     }
     
     if (normalizedMsg != null) {
-      setLastKnownValue(normalizedMsg);
+      updateLastKnownValues(normalizedMsg);
+      
+      LiveDataValueUpdateBean data = new LiveDataValueUpdateBean(
+          getNumMessagesSent(), // 0-based as it should be
+          getDistributionSpec().getFullyQualifiedLiveDataSpecification(),
+          normalizedMsg);
       
       for (MarketDataSender sender : _marketDataSenders) {
         try {
-          sender.sendMarketData(this, normalizedMsg);
+          sender.sendMarketData(data);
         } catch (RuntimeException e) {
           s_logger.error("MarketDataSender " + sender + " failed", e);
         }

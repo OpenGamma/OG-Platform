@@ -3,30 +3,26 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.server.datasender;
+package com.opengamma.livedata.server.distribution;
 
 import java.io.IOException;
 
 import org.apache.activemq.transport.TransportListener;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Disables sending JMS messages if ActiveMQ disconnection event is received.
  */
 public class ActiveMQTransportListener implements TransportListener {
   
-  private MarketDataFudgeJmsSender _sender;
+  private JmsSenderFactory _senderFactory;
   
-  public ActiveMQTransportListener() {
+  public ActiveMQTransportListener(JmsSenderFactory senderFactory) {
+    ArgumentChecker.notNull(senderFactory, "JMS Sender factory");
+    _senderFactory = senderFactory;
   }
   
-  public MarketDataFudgeJmsSender getSender() {
-    return _sender;
-  }
-
-  public void setSender(MarketDataFudgeJmsSender sender) {
-    _sender = sender;
-  }
-
   @Override
   public void onCommand(Object command) {
   }
@@ -37,12 +33,12 @@ public class ActiveMQTransportListener implements TransportListener {
 
   @Override
   public void transportInterupted() {
-    _sender.transportInterrupted();
+    _senderFactory.transportInterrupted();
   }
 
   @Override
   public void transportResumed() {
-    _sender.transportResumed();
+    _senderFactory.transportResumed();
   }
   
 }

@@ -16,7 +16,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.livedata.server.datasender.MarketDataSender;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
+import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -76,7 +77,7 @@ public class Subscription {
    * far, far in the future (Long.MAX_VALUE milliseconds from the epoch). You can use
    * {@link #setExpiry(Long)} to set a more sensible expiration date. 
    */
-  Subscription(
+  public Subscription(
       String securityUniqueId,
       boolean persistent) {
     ArgumentChecker.notNull(securityUniqueId, "Security unique ID");
@@ -124,9 +125,10 @@ public class Subscription {
    * Only creates a new distribution if it doesn't already exist.
    * 
    * @param spec The format
-   * @param marketDataSenders See {@link MarketDataDistributor#MarketDataDistributor(DistributionSpecification, Subscription, Collection)}
+   * @param marketDataSenderFactory Will be used to create market data senders
+   * to send data to clients
    */
-  synchronized void createDistribution(DistributionSpecification spec, Collection<MarketDataSender> marketDataSenders) {
+  synchronized void createDistribution(DistributionSpecification spec, MarketDataSenderFactory marketDataSenderFactory) {
     
     if (getDistributionSpecifications().contains(spec)) {
       s_logger.info("Added distribution spec {} to {} (no-op)", spec, this);
@@ -136,7 +138,7 @@ public class Subscription {
     MarketDataDistributor distributor = new MarketDataDistributor(
         spec,
         this,
-        marketDataSenders);
+        marketDataSenderFactory);
     
     _distributors.put(spec, distributor);  
     
