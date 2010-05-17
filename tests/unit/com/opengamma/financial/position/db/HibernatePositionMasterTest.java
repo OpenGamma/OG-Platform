@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import javax.time.TimeSource;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.junit.Before;
@@ -23,9 +25,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.HibernateTest;
@@ -197,6 +203,35 @@ public class HibernatePositionMasterTest extends HibernateTest {
   public void test_getPosition_invalidScheme() {
     createTestEquityOptionPortfolio();
     _posMaster.getPosition(UniqueIdentifier.of ("BAD SCHEME", "10"));
+  }
+  
+  //-------------------------------------------------------------------------
+  @Test
+  public void testPutPortfolio () {
+    final PortfolioImpl portfolio = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Test Equity Option Portfolio");
+    int count = 1;
+    PortfolioNodeImpl node = new PortfolioNodeImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), "Options on AAPL US Equity");
+    portfolio.getRootNode ().addChildNode (node);
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "AAPL US 01/21/12 C100 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "AAPL US 01/21/12 C105 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "AAPL US 01/21/12 C110 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "AAPL US 01/21/12 C115 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "AAPL US 01/21/12 C120 Equity")));
+    node = new PortfolioNodeImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), "Options on T US Equity");
+    portfolio.getRootNode ().addChildNode (node);
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C21 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C22 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C23 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C24 Equity")));
+    node.addPosition (new PositionImpl (UniqueIdentifier.of ("Test", Integer.toString (count++)), new BigDecimal (10), new Identifier (IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C25 Equity")));
+    _posMaster.putPortfolio (TimeSource.system().instant(), portfolio);
+    final Portfolio getPortfolio = _posMaster.getPortfolio (UniqueIdentifier.of ("Test", "1"));
+    assertNotNull (getPortfolio);
+    assertEquals ("Test Equity Option Portfolio", getPortfolio.getName ());
+    assertEquals (2, getPortfolio.getRootNode ().getChildNodes ().size ());
+    assertEquals (5, getPortfolio.getRootNode ().getChildNodes().get (0).getPositions ().size ());
+    assertEquals (5, getPortfolio.getRootNode ().getChildNodes().get (1).getPositions ().size ());
+    assertEquals ("AAPL US 01/21/12 C100 Equity", getPortfolio.getRootNode ().getChildNodes().get (0).getPositions ().get (0).getSecurityKey ().getIdentifier(IdentificationScheme.BLOOMBERG_TICKER));
   }
 
   // TODO test the PositionMaster with requests at different points in time

@@ -33,6 +33,7 @@ import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -204,6 +205,53 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
         }
         final PortfolioNodeImpl rootNode = loadPortfolioNode(positionMasterSession, now, dbPortfolio.getRoot());
         return new PortfolioImpl(identifier, dbPortfolio.getName(), rootNode);
+      }
+    });
+  }
+  
+  public void putPortfolio (final InstantProvider now, final Portfolio portfolio) {
+    getHibernateTemplate ().execute (new HibernateCallback () {
+      
+      private <T extends DateIdentifiableBean> T identifiedBean (final UniqueIdentifiable identifiable, final T bean) {
+        final UniqueIdentifier uniqueIdentifier = identifiable.getUniqueIdentifier ();
+        if (uniqueIdentifier != null) {
+          if (getIdentifierScheme ().equals (uniqueIdentifier.getScheme ())) {
+            bean.setIdentifier (uniqueIdentifier.getValue ());
+          }
+        }
+        return bean;
+      }
+      
+      private PortfolioNodeBean portfolioNodeToBean (final PositionMasterSession positionMasterSession, final PortfolioNodeBean ancestor, final PortfolioNode portfolioNode) {
+        final PortfolioNodeBean portfolioNodeBean = identifiedBean (portfolioNode, new PortfolioNodeBean ());
+        portfolioNodeBean.setAncestor(ancestor);
+        portfolioNodeBean.setName (portfolioNode.getName ());
+        for (PortfolioNode child : portfolioNode.getChildNodes ()) {
+          portfolioNodeToBean (positionMasterSession, portfolioNodeBean, child);
+        }
+        for (Position position : portfolioNode.getPositions ()) {
+          final PositionBean positionBean = identifiedBean (position, new PositionBean ());
+          positionBean.setQuantity (position.getQuantity ());
+          for (Identifier securityIdentifier : position.getSecurityKey ()) {
+            IdentifierAssociationBean securityAssociation = identifiedBean (position, new IdentifierAssociationBean ());
+            securityAssociation.setDomainSpecificIdentifier (securityIdentifier);
+            securityAssociation.setPosition (positionBean);
+            positionMasterSession.saveIdentifierAssociationBean (securityAssociation);
+          }
+          positionMasterSession.addPositionToPortfolioNode (positionBean, portfolioNodeBean);
+        }
+        return portfolioNodeBean;
+      }
+      
+      @Override
+      public Object doInHibernate (final Session session) throws HibernateException, SQLException {
+        final PositionMasterSession positionMasterSession = new PositionMasterSession (session);
+        s_logger.info ("write portfolio {}", portfolio);
+        final PortfolioBean portfolioBean = identifiedBean (portfolio, new PortfolioBean ());
+        portfolioBean.setName (portfolio.getName ());
+        portfolioBean.setRoot (portfolioNodeToBean (positionMasterSession, null, portfolio.getRootNode ()));
+        positionMasterSession.savePortfolioBean (portfolioBean);
+        return null;
       }
     });
   }
