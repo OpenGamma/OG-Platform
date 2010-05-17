@@ -17,11 +17,10 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * 
  * 
- * @author pietari
  */
-public class DerbyDialect extends AbstractDBDialect {
+public final class DerbyDialect extends AbstractDBDialect {
   
-  private final static DerbyDialect INSTANCE = new DerbyDialect(); 
+  private static final DerbyDialect INSTANCE = new DerbyDialect(); 
   
   private org.hibernate.dialect.DerbyDialect _hibernateDialect;
   
@@ -39,9 +38,7 @@ public class DerbyDialect extends AbstractDBDialect {
     try {
       DriverManager.getConnection("jdbc:derby:;shutdown=true");
     } catch (SQLException e) {
-      if (e.getErrorCode() == 50000 && "XJ015".equals(e.getSQLState())) {
-        // OK
-      } else {
+      if (e.getErrorCode() != 50000 || "XJ015".equals(e.getSQLState())) {
         throw new OpenGammaRuntimeException("Could not shutdown Derby", e);        
       }
     }
@@ -65,9 +62,9 @@ public class DerbyDialect extends AbstractDBDialect {
   @Override
   public String getAllForeignKeyConstraintsSQL(String catalog, String schema) {
     String sql = "SELECT constraintname AS name, " +
-    		"tablename AS table_name " +
-    		"FROM SYS.SYSCONSTRAINTS, SYS.SYSTABLES " +
-    		"WHERE SYS.SYSTABLES.tableid = SYS.SYSCONSTRAINTS.tableid AND type = 'F'";
+      "tablename AS table_name " +
+      "FROM SYS.SYSCONSTRAINTS, SYS.SYSTABLES " +
+      "WHERE SYS.SYSTABLES.tableid = SYS.SYSCONSTRAINTS.tableid AND type = 'F'";
     if (schema != null) {
       sql += " AND SYS.SYSCONSTRAINTS.schemaid = (SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname = '" + schema + "')";
     }
@@ -89,13 +86,13 @@ public class DerbyDialect extends AbstractDBDialect {
   }
   
   @Override
-  public String getAllColumnsSQL (String catalog, String schema, String table) {
-    StringBuilder sql = new StringBuilder ("SELECT c.columnname AS name,c.columndatatype AS datatype,'' AS allowsnull,c.columndefault AS defaultvalue FROM SYS.SYSCOLUMNS AS c INNER JOIN SYS.SYSTABLES AS t ON c.referenceid=t.tableid WHERE t.tablename='");
-    sql.append (table).append ("'");
+  public String getAllColumnsSQL(String catalog, String schema, String table) {
+    StringBuilder sql = new StringBuilder("SELECT c.columnname AS name,c.columndatatype AS datatype,'' AS allowsnull,c.columndefault AS defaultvalue FROM SYS.SYSCOLUMNS AS c INNER JOIN SYS.SYSTABLES AS t ON c.referenceid=t.tableid WHERE t.tablename='");
+    sql.append(table).append("'");
     if (schema != null) {
-      sql.append (" AND t.schemaid=(SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname='").append (schema).append ("')");
+      sql.append(" AND t.schemaid=(SELECT schemaid FROM SYS.SYSSCHEMAS WHERE schemaname='").append(schema).append("')");
     }
-    return sql.toString ();
+    return sql.toString();
   }
 
   @Override
@@ -144,28 +141,4 @@ public class DerbyDialect extends AbstractDBDialect {
     }
     
   }
-
-  /* private static void recursiveDelete(File file) {
-    if (file.isDirectory()) {
-      File[] list = file.listFiles();
-      for (File entry : list) {
-        if (entry.isDirectory()) {
-          recursiveDelete(entry);
-        }
-        if (!entry.delete()) {
-          s_logger.warn("Could not delete file:" + file.getAbsolutePath());
-          // throw new
-          // OpenGammaRuntimeException("Could not delete file:"+entry.getAbsolutePath());
-        } else {
-          System.err.println("Deleted " + entry.getAbsolutePath());
-        }
-      }
-    }
-    if (!file.delete()) {
-      s_logger.warn("Could not delete file:" + file.getAbsolutePath());
-    } else {
-      System.err.println("Deleted " + file.getAbsolutePath());
-    }
-  } */
-
 }

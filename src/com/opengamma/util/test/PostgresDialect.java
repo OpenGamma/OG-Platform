@@ -11,15 +11,16 @@ import org.hibernate.dialect.PostgreSQLDialect;
 /**
  * 
  *
- * @author pietari
  */
-public class PostgresDialect extends AbstractDBDialect {
-  
+public final class PostgresDialect extends AbstractDBDialect {
+  private static final String GET_ALL_COLUMNS_SQL =
+    "SELECT column_name AS name,data_type AS datatype,is_nullable AS allowsnull,column_default AS defaultvalue FROM information_schema.columns WHERE table_catalog='";
+
   private static final PostgresDialect INSTANCE = new PostgresDialect();
   
   private static final String POSTGRES_DEFAULT_SCHEMA = "public";
   
-  private PostgreSQLDialect _hibernateDialect = null;
+  private PostgreSQLDialect _hibernateDialect;
   
   private PostgresDialect() {
   }
@@ -74,14 +75,14 @@ public class PostgresDialect extends AbstractDBDialect {
   }
 
   @Override
-  public String getAllColumnsSQL (String catalog, String schema, String table) {
+  public String getAllColumnsSQL(String catalog, String schema, String table) {
     if (schema == null) {
       schema = POSTGRES_DEFAULT_SCHEMA;
     }
-    StringBuilder sql = new StringBuilder ("SELECT column_name AS name,data_type AS datatype,is_nullable AS allowsnull,column_default AS defaultvalue FROM information_schema.columns WHERE table_catalog='");
-    sql.append (catalog).append ("' AND table_schema='").append (schema).append ("' AND table_name='");
-    sql.append (table).append ("'");
-    return sql.toString ();
+    StringBuilder sql = new StringBuilder(GET_ALL_COLUMNS_SQL);
+    sql.append(catalog).append("' AND table_schema='").append(schema).append("' AND table_name='");
+    sql.append(table).append("'");
+    return sql.toString();
   }
 
   @Override
