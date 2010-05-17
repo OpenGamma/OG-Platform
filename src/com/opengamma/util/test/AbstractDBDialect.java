@@ -29,9 +29,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  *
- * @author pietari
  */
-abstract public class AbstractDBDialect implements DBDialect {
+public abstract class AbstractDBDialect implements DBDialect {
   
   private String _dbServerHost;
   private String _user;
@@ -44,7 +43,7 @@ abstract public class AbstractDBDialect implements DBDialect {
     _password = password;
     
     try {
-        getJDBCDriverClass().newInstance(); // load driver.
+      getJDBCDriverClass().newInstance(); // load driver.
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Cannot load JDBC driver", e);
     }
@@ -77,63 +76,73 @@ abstract public class AbstractDBDialect implements DBDialect {
     private final String _defaultValue;
     private final String _allowsNull;
     
-    protected ColumnDefinition (final String name, final String dataType, final String defaultValue, final String allowsNull) {
+    protected ColumnDefinition(final String name, final String dataType, final String defaultValue, final String allowsNull) {
       _name = name;
       _dataType = dataType;
       _defaultValue = defaultValue;
       _allowsNull = allowsNull;
     }
     
-    public String getName () {
+    public String getName() {
       return _name;
     }
     
-    public String getDataType () {
+    public String getDataType() {
       return _dataType;
     }
     
-    public String getDefaultValue () {
+    public String getDefaultValue() {
       return _defaultValue;
     }
     
-    public String getAllowsNull () {
+    public String getAllowsNull() {
       return _allowsNull;
     }
     
     @Override
-    public String toString () {
-      final StringBuilder sb = new StringBuilder ();
-      sb.append (getName ().toUpperCase ()).append ('=').append (getDataType ().toUpperCase ());
-      if (getAllowsNull () != null) sb.append (";NULL=").append (getAllowsNull ());
-      if (getDefaultValue () != null) sb.append (";DEFAULT=").append (getDefaultValue ());
-      return sb.toString (); 
+    public String toString() {
+      final StringBuilder sb = new StringBuilder();
+      sb.append(getName().toUpperCase()).append('=').append(getDataType().toUpperCase());
+      if (getAllowsNull() != null) {
+        sb.append(";NULL=").append(getAllowsNull());
+      }
+      if (getDefaultValue() != null) {
+        sb.append(";DEFAULT=").append(getDefaultValue());
+      }
+      return sb.toString(); 
     }
     
     @Override
-    public boolean equals (final Object o) {
-      if (o == this) return true;
-      if (o == null) return false;
-      if (!(o instanceof ColumnDefinition)) return false;
-      ColumnDefinition c = (ColumnDefinition)o;
-      return ObjectUtils.equals (getName (), c.getName ())
-          && ObjectUtils.equals (getDataType (), c.getDataType ())
-          && ObjectUtils.equals (getAllowsNull (), c.getAllowsNull ())
-          && ObjectUtils.equals (getDefaultValue (), c.getDefaultValue ());
+    public boolean equals(final Object o) {
+      if (o == this) {
+        return true;
+      }
+      if (o == null) {
+        return false;
+      }
+      if (!(o instanceof ColumnDefinition)) {
+        return false;
+      }
+      ColumnDefinition c = (ColumnDefinition) o;
+      return ObjectUtils.equals(getName(), c.getName())
+          && ObjectUtils.equals(getDataType(), c.getDataType())
+          && ObjectUtils.equals(getAllowsNull(), c.getAllowsNull())
+          && ObjectUtils.equals(getDefaultValue(), c.getDefaultValue());
     }
     
     @Override
-    public int hashCode () {
+    public int hashCode() {
       int hc = 1;
-      hc = hc * 17 + ObjectUtils.hashCode (getName ());
-      hc = hc * 17 + ObjectUtils.hashCode (getDataType ());
-      hc = hc * 17 + ObjectUtils.hashCode (getAllowsNull ());
-      hc = hc * 17 + ObjectUtils.hashCode (getDefaultValue ());
+      hc = hc * 17 + ObjectUtils.hashCode(getName());
+      hc = hc * 17 + ObjectUtils.hashCode(getDataType());
+      hc = hc * 17 + ObjectUtils.hashCode(getAllowsNull());
+      hc = hc * 17 + ObjectUtils.hashCode(getDefaultValue());
       return hc;
     }
     
     @Override
-    public int compareTo (final ColumnDefinition c) {
-      return getName ().compareTo (c.getName ());
+    public int compareTo(final ColumnDefinition c) {
+      return getName().compareTo(c.getName());
     }
     
   }
@@ -153,23 +162,23 @@ abstract public class AbstractDBDialect implements DBDialect {
     return conn;
   }
   
-  private List<String> getAllTables (String catalog, String schema, Statement statement) throws SQLException {
-    List<String> tables = new LinkedList<String> ();
+  private List<String> getAllTables(String catalog, String schema, Statement statement) throws SQLException {
+    List<String> tables = new LinkedList<String>();
     ResultSet rs = statement.executeQuery(getAllTablesSQL(catalog, schema));
     while (rs.next()) {
-      tables.add (rs.getString ("name"));
+      tables.add(rs.getString("name"));
     }
-    rs.close ();
+    rs.close();
     return tables;
   }
   
-  private List<ColumnDefinition> getAllColumns (String catalog, String schema, String table, Statement statement) throws SQLException {
-    List<ColumnDefinition> columns = new LinkedList<ColumnDefinition> ();
-    ResultSet rs = statement.executeQuery (getAllColumnsSQL (catalog, schema, table));
-    while (rs.next ()) {
-      columns.add (new ColumnDefinition (rs.getString ("name"), rs.getString ("datatype"), rs.getString ("defaultvalue"), rs.getString ("allowsnull")));
+  private List<ColumnDefinition> getAllColumns(String catalog, String schema, String table, Statement statement) throws SQLException {
+    List<ColumnDefinition> columns = new LinkedList<ColumnDefinition>();
+    ResultSet rs = statement.executeQuery(getAllColumnsSQL(catalog, schema, table));
+    while (rs.next()) {
+      columns.add(new ColumnDefinition(rs.getString("name"), rs.getString("datatype"), rs.getString("defaultvalue"), rs.getString("allowsnull")));
     }
-    rs.close ();
+    rs.close();
     return columns;
   }
   
@@ -187,7 +196,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       Statement statement = conn.createStatement();
       
       // Clear tables SQL
-      for (String name : getAllTables (catalog, schema, statement)) {
+      for (String name : getAllTables(catalog, schema, statement)) {
         Table table = new Table(name);
         script.add("DELETE FROM " + table.getQualifiedName(getHibernateDialect(), null, schema));
         
@@ -199,9 +208,9 @@ abstract public class AbstractDBDialect implements DBDialect {
       // Now execute it all. Constraints are taken into account by retrying the failed statement after all 
       // dependent tables have been cleared first.
       int i = 0;
-      int MAX_ATTEMPTS = script.size() * 3; // make sure the loop eventually terminates. Important if there's a cycle in the table dependency graph
+      int maxAttempts = script.size() * 3; // make sure the loop eventually terminates. Important if there's a cycle in the table dependency graph
       SQLException latestException = null;
-      while (i < MAX_ATTEMPTS && !script.isEmpty()) {
+      while (i < maxAttempts && !script.isEmpty()) {
         String sql = script.remove();
         try {
           statement.executeUpdate(sql);
@@ -215,7 +224,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       }
       statement.close();
       
-      if (i == MAX_ATTEMPTS && !script.isEmpty()) {
+      if (i == maxAttempts && !script.isEmpty()) {
         throw new OpenGammaRuntimeException("Failed to clear tables - is there a cycle in the table dependency graph?", latestException); 
       }
       
@@ -233,13 +242,13 @@ abstract public class AbstractDBDialect implements DBDialect {
     
   }
   
-  protected List<String> getAllSchemas (final String catalog, final Statement stmt) throws SQLException {
-    final List<String> schemas = new LinkedList<String> ();
-    ResultSet rs = stmt.executeQuery (getAllSchemasSQL (catalog));
-    while (rs.next ()) {
-      schemas.add (rs.getString ("name"));
+  protected List<String> getAllSchemas(final String catalog, final Statement stmt) throws SQLException {
+    final List<String> schemas = new LinkedList<String>();
+    ResultSet rs = stmt.executeQuery(getAllSchemasSQL(catalog));
+    while (rs.next()) {
+      schemas.add(rs.getString("name"));
     }
-    rs.close ();
+    rs.close();
     return schemas;
   }
   
@@ -254,8 +263,8 @@ abstract public class AbstractDBDialect implements DBDialect {
         conn = connect(catalog);
         Statement statement = conn.createStatement(); 
         
-        Collection<String> schemas = getAllSchemas (catalog, statement);
-        if (!schemas.contains (schema)) {
+        Collection<String> schemas = getAllSchemas(catalog, statement);
+        if (!schemas.contains(schema)) {
           String createSchemaSql = getCreateSchemaSQL(schema);
           statement.executeUpdate(createSchemaSql);
         }
@@ -276,28 +285,28 @@ abstract public class AbstractDBDialect implements DBDialect {
     
   }
   
-  protected List<String> getAllSequences (final String catalog, final String schema, final Statement stmt) throws SQLException {
-    final List<String> sequences = new LinkedList<String> ();
-    final String sql = getAllSequencesSQL (catalog, schema);
+  protected List<String> getAllSequences(final String catalog, final String schema, final Statement stmt) throws SQLException {
+    final List<String> sequences = new LinkedList<String>();
+    final String sql = getAllSequencesSQL(catalog, schema);
     if (sql != null) {
-      final ResultSet rs = stmt.executeQuery (sql);
-      while (rs.next ()) {
-        sequences.add (rs.getString ("name"));
+      final ResultSet rs = stmt.executeQuery(sql);
+      while (rs.next()) {
+        sequences.add(rs.getString("name"));
       }
-      rs.close ();
+      rs.close();
     }
     return sequences;
   }
 
-  protected List<Pair<String,String>> getAllForeignKeyConstraints (final String catalog, final String schema, final Statement stmt) throws SQLException {
-    final List<Pair<String,String>> sequences = new LinkedList<Pair<String,String>> ();
-    final String sql = getAllForeignKeyConstraintsSQL (catalog, schema);
+  protected List<Pair<String, String>> getAllForeignKeyConstraints(final String catalog, final String schema, final Statement stmt) throws SQLException {
+    final List<Pair<String, String>> sequences = new LinkedList<Pair<String, String>>();
+    final String sql = getAllForeignKeyConstraintsSQL(catalog, schema);
     if (sql != null) {
-      final ResultSet rs = stmt.executeQuery (sql);
-      while (rs.next ()) {
-        sequences.add (Pair.of (rs.getString ("name"), rs.getString ("table_name")));
+      final ResultSet rs = stmt.executeQuery(sql);
+      while (rs.next()) {
+        sequences.add(Pair.of(rs.getString("name"), rs.getString("table_name")));
       }
-      rs.close ();
+      rs.close();
     }
     return sequences;
   }
@@ -320,9 +329,9 @@ abstract public class AbstractDBDialect implements DBDialect {
       
       // Drop constraints SQL
       if (getHibernateDialect().dropConstraints()) {
-        for (Pair<String,String> constraint : getAllForeignKeyConstraints (catalog, schema, statement)) {
-          String name = constraint.getFirst ();
-          String table = constraint.getSecond ();
+        for (Pair<String, String> constraint : getAllForeignKeyConstraints(catalog, schema, statement)) {
+          String name = constraint.getFirst();
+          String table = constraint.getSecond();
           ForeignKey fk = new ForeignKey();
           fk.setName(name);
           fk.setTable(new Table(table));
@@ -333,7 +342,7 @@ abstract public class AbstractDBDialect implements DBDialect {
       }
       
       // Drop tables SQL
-      for (String name : getAllTables (catalog, schema, statement)) {
+      for (String name : getAllTables(catalog, schema, statement)) {
         Table table = new Table(name);
         String dropTableStr = table.sqlDropString(getHibernateDialect(), null, schema);
         script.add(dropTableStr);
@@ -427,51 +436,53 @@ abstract public class AbstractDBDialect implements DBDialect {
   }
   
   @Override
-  public String describeDatabase (final String catalog) {
-    final StringBuilder description = new StringBuilder ();
+  public String describeDatabase(final String catalog) {
+    final StringBuilder description = new StringBuilder();
     Connection conn = null;
     try {
-      conn = connect (catalog);
-      final Statement stmt = conn.createStatement ();
-      final List<String> schemas = getAllSchemas (catalog, stmt);
-      Collections.sort (schemas);
-      if (schemas.size () == 0) schemas.add (null);
+      conn = connect(catalog);
+      final Statement stmt = conn.createStatement();
+      final List<String> schemas = getAllSchemas(catalog, stmt);
+      Collections.sort(schemas);
+      if (schemas.size() == 0) {
+        schemas.add(null);
+      }
       for (String schema : schemas) {
-        description.append ("schema: ").append (schema).append ("\r\n");
-        final List<String> tables = getAllTables (catalog, schema, stmt);
-        Collections.sort (tables);
+        description.append("schema: ").append(schema).append("\r\n");
+        final List<String> tables = getAllTables(catalog, schema, stmt);
+        Collections.sort(tables);
         for (String table : tables) {
-          description.append ("table: ").append (table).append ("\r\n");
-          final List<ColumnDefinition> columns = getAllColumns (catalog, schema, table, stmt);
-          Collections.sort (columns);
+          description.append("table: ").append(table).append("\r\n");
+          final List<ColumnDefinition> columns = getAllColumns(catalog, schema, table, stmt);
+          Collections.sort(columns);
           for (ColumnDefinition column : columns) {
-            description.append ("column: ").append (column).append ("\r\n");
+            description.append("column: ").append(column).append("\r\n");
           }
         }
-        final List<String> sequences = getAllSequences (catalog, schema, stmt);
-        Collections.sort (sequences);
+        final List<String> sequences = getAllSequences(catalog, schema, stmt);
+        Collections.sort(sequences);
         for (String sequence : sequences) {
-          description.append ("sequence: ").append (sequence).append ("\r\n");
+          description.append("sequence: ").append(sequence).append("\r\n");
         }
-        final List<Pair<String,String>> foreignKeys = getAllForeignKeyConstraints (catalog, schema, stmt);
-        Collections.sort (foreignKeys, FirstThenSecondPairComparator.INSTANCE);
-        for (Pair<String,String> foreignKey : foreignKeys) {
-          description.append ("foreign key: ").append (foreignKey.getFirst ()).append ('.').append (foreignKey.getSecond ()).append ("\r\n");
+        final List<Pair<String, String>> foreignKeys = getAllForeignKeyConstraints(catalog, schema, stmt);
+        Collections.sort(foreignKeys, FirstThenSecondPairComparator.INSTANCE);
+        for (Pair<String, String> foreignKey : foreignKeys) {
+          description.append("foreign key: ").append(foreignKey.getFirst()).append('.').append(foreignKey.getSecond()).append("\r\n");
         }
       }
     } catch (SQLException e) {
-      e.printStackTrace ();
-      System.err.println ("e.getMessage: " + e.getMessage ());
-      throw new OpenGammaRuntimeException ("SQL exception", e);
+      e.printStackTrace();
+      System.err.println("e.getMessage: " + e.getMessage());
+      throw new OpenGammaRuntimeException("SQL exception", e);
     } finally {
       try {
         if (conn != null) {
-          conn.close ();
+          conn.close();
         }
       } catch (SQLException e) {
       }
     }
-    return description.toString ();
+    return description.toString();
   }
   
 }
