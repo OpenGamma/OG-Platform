@@ -3,13 +3,13 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.util.timeseries.fast.longint;
+package com.opengamma.util.timeseries.fast.longint.object;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.doubles.DoubleIterator;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongList;
@@ -25,49 +25,50 @@ import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.FastBackedDoubleTimeSeries;
+import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
+import com.opengamma.util.timeseries.TimeSeries;
+import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.tuple.LongDoublePair;
+import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
+import com.opengamma.util.tuple.LongObjectPair;
 
 /**
  * @author jim
  * 
  */
-public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
+public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObjectTimeSeries<T> {
   final LongArrayList _times;
-  final DoubleArrayList _values;
+  final ObjectArrayList<T> _values;
 
-  public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding) {
+  public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
     _times = new LongArrayList();
-    _values = new DoubleArrayList();
+    _values = new ObjectArrayList<T>();
   }
 
-  public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final long[] times, final double[] values) {
+  public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final long[] times, final T[] values) {
     super(encoding);
     _times = new LongArrayList(times);
-    _values = new DoubleArrayList(values);
+    _values = new ObjectArrayList<T>(values);
     ensureTimesSorted();
   }
 
-  public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<Double> values) {
+  public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final List<Long> times, final List<T> values) {
     super(encoding);
     _times = new LongArrayList(times);
-    _values = new DoubleArrayList(values);
+    _values = new ObjectArrayList<T>(values);
     ensureTimesSorted();
   }
 
-  public FastListLongDoubleTimeSeries(final FastLongDoubleTimeSeries dts) {
+  public FastListLongObjectTimeSeries(final FastLongObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     _times = new LongArrayList(dts.timesArrayFast());
-    _values = new DoubleArrayList(dts.valuesArrayFast());
+    _values = new ObjectArrayList<T>(dts.valuesArrayFast());
     // don't need to check here
   }
   
-  public FastListLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastLongDoubleTimeSeries dts) {
+  public FastListLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastLongObjectTimeSeries<T> dts) {
     super(encoding);
     long[] timesArrayFast = dts.timesArrayFast(); // NOTE: we can't do it this way if we change to returning the backing array.
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
@@ -75,21 +76,21 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
       timesArrayFast[i] = sourceEncoding.convertToLong(timesArrayFast[i], encoding);
     }
     _times = new LongArrayList(timesArrayFast);
-    _values = new DoubleArrayList(dts.valuesArrayFast());
+    _values = new ObjectArrayList<T>(dts.valuesArrayFast());
   }
   
-  public FastListLongDoubleTimeSeries(final FastIntDoubleTimeSeries dts) {
+  public FastListLongObjectTimeSeries(final FastIntObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     int[] timesArrayFast = dts.timesArrayFast();
     _times = new LongArrayList();
     for (int i=0; i<timesArrayFast.length; i++) {
       _times.add(getEncoding().convertToLong(timesArrayFast[i], getEncoding()));
     }
-    _values = new DoubleArrayList(dts.valuesArrayFast());
+    _values = new ObjectArrayList<T>(dts.valuesArrayFast());
     // don't need to check here
   }
   
-  public FastListLongDoubleTimeSeries(DateTimeNumericEncoding encoding, final FastIntDoubleTimeSeries dts) {
+  public FastListLongObjectTimeSeries(DateTimeNumericEncoding encoding, final FastIntObjectTimeSeries<T> dts) {
     super(dts.getEncoding());
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
     int[] timesArrayFast = dts.timesArrayFast();
@@ -97,15 +98,15 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     for (int i=0; i<timesArrayFast.length; i++) {
       _times.add(sourceEncoding.convertToLong(timesArrayFast[i], getEncoding()));
     }
-    _values = new DoubleArrayList(dts.valuesArrayFast());
+    _values = new ObjectArrayList<T>(dts.valuesArrayFast());
     // don't need to check here
   }
 
-  public FastListLongDoubleTimeSeries(final DateTimeNumericEncoding encoding, final SortedMap<Long, Double> initialMap) {
+  public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding, final SortedMap<Long, T> initialMap) {
     super(encoding);
     _times = new LongArrayList(initialMap.size());
-    _values = new DoubleArrayList(initialMap.size());
-    for (final Map.Entry<Long, Double> entry : initialMap.entrySet()) {
+    _values = new ObjectArrayList<T>(initialMap.size());
+    for (final Map.Entry<Long, T> entry : initialMap.entrySet()) {
       _times.add(entry.getKey());
       _values.add(entry.getValue());
     }
@@ -133,9 +134,9 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public double getEarliestValueFast() {
+  public T getEarliestValueFast() {
     if (_values.size() > 0) {
-      return _values.getDouble(0);
+      return _values.get(0);
     } else {
       throw new NoSuchElementException();
     }
@@ -151,9 +152,9 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public double getLatestValueFast() {
+  public T getLatestValueFast() {
     if (_values.size() > 0) {
-      return _values.getDouble(_times.size() - 1);
+      return _values.get(_times.size() - 1);
     } else {
       throw new NoSuchElementException();
     }
@@ -165,15 +166,15 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public double getValueAtFast(final int index) {
-    return _values.getDouble(index);
+  public T getValueAtFast(final int index) {
+    return _values.get(index);
   }
 
   @Override
-  public double getValueFast(final long time) {
+  public T getValueFast(final long time) {
     final int index = _times.indexOf(time);
     if (index >= 0) {
-      return _values.getDouble(index);
+      return _values.get(index);
     } else {
       throw new NoSuchElementException();
     }
@@ -190,7 +191,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public FastLongDoubleTimeSeries subSeriesFast(final long startTime, final long endTime) {
+  public FastLongObjectTimeSeries<T> subSeriesFast(final long startTime, final long endTime) {
     int startIndex = _times.indexOf(startTime);
     int endIndex = _times.indexOf(endTime);
     if (startIndex == -1) {
@@ -201,7 +202,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     }
     if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
     if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
-    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
+    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }
 
   @Override
@@ -219,28 +220,30 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     return new LongArrayList(_times);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public double[] valuesArrayFast() {
-    return _values.toDoubleArray();
+  public T[] valuesArrayFast() {
+    return (T[]) _values.toArray();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public DoubleIterator valuesIteratorFast() {
+  public ObjectIterator<T> valuesIteratorFast() {
     return _values.iterator();
   }
 
   @Override
-  public DoubleList valuesFast() {
-    return new DoubleArrayList(_values);
+  public ObjectList<T> valuesFast() {
+    return new ObjectArrayList<T>(_values);
   }
 
-  private class PrimitiveListLongDoubleTimeSeriesIterator implements ObjectIterator<Long2DoubleMap.Entry> {
+  private class PrimitiveListLongObjectTimeSeriesIterator implements ObjectIterator<Long2ObjectMap.Entry<T>> {
     LongIterator _longIter;
-    DoubleIterator _doubleIter;
+    ObjectIterator<T> _objectIter;
 
-    public PrimitiveListLongDoubleTimeSeriesIterator() {
+    public PrimitiveListLongObjectTimeSeriesIterator() {
       _longIter = _times.iterator();
-      _doubleIter = _values.iterator();
+      _objectIter = _values.iterator();
     }
 
     @Override
@@ -249,46 +252,46 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     }
 
     @Override
-    public Long2DoubleMap.Entry next() {
+    public Long2ObjectMap.Entry<T> next() {
       final long time = _longIter.nextLong();
-      final double value = _doubleIter.nextDouble();
-      return new LongDoublePair(time, value);
+      final T value = _objectIter.next();
+      return new LongObjectPair<T>(time, value);
     }
 
     @Override
     public void remove() {
       _longIter.remove();
-      _doubleIter.remove();
+      _objectIter.remove();
     }
 
     @Override
     public int skip(final int n) {
       _longIter.skip(n);
-      return _doubleIter.skip(n);
+      return _objectIter.skip(n);
     }
 
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public Iterator<Entry<Long, Double>> iterator() {
-    return (Iterator<Entry<Long, Double>>) (Iterator<? extends Entry<Long, Double>>) new PrimitiveListLongDoubleTimeSeriesIterator();
+  public Iterator<Entry<Long, T>> iterator() {
+    return (Iterator<Entry<Long, T>>) (Iterator<? extends Entry<Long, T>>) new PrimitiveListLongObjectTimeSeriesIterator();
   }
 
   @Override
-  public ObjectIterator<Long2DoubleMap.Entry> iteratorFast() {
-    return new PrimitiveListLongDoubleTimeSeriesIterator();
+  public ObjectIterator<Long2ObjectMap.Entry<T>> iteratorFast() {
+    return new PrimitiveListLongObjectTimeSeriesIterator();
   }
 
   // REVIEW: jim 15-Feb-2010 -- should these be here (head and tail)?
 
   @Override
-  public DoubleTimeSeries<Long> head(final int numItems) {
+  public ObjectTimeSeries<Long, T> head(final int numItems) {
     return headFast(numItems);
   }
 
   @Override
-  public DoubleTimeSeries<Long> tail(final int numItems) {
+  public ObjectTimeSeries<Long, T> tail(final int numItems) {
     return tailFast(numItems);
   }
 
@@ -299,7 +302,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public void primitivePutDataPoint(final long time, final double value) {
+  public void primitivePutDataPoint(final long time, final T value) {
     final int index = Arrays.binarySearch(_times.elements(), time);
     if (index >= 0) {
       _values.set(index, value);
@@ -319,21 +322,22 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public FastLongDoubleTimeSeries headFast(final int numItems) {
-    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(0, numItems), _values.subList(0, numItems));
+  public FastLongObjectTimeSeries<T> headFast(final int numItems) {
+    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(0, numItems), _values.subList(0, numItems));
   }
 
   @Override
-  public FastLongDoubleTimeSeries tailFast(final int numItems) {
+  public FastLongObjectTimeSeries<T> tailFast(final int numItems) {
     // note I used _times.size for the second part so it we didn't need two
     // method calls as the optimizer is unlikely to spot it.
-    return new FastListLongDoubleTimeSeries(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
+    return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
   }
 
   /**
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */
+  @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
     if (this == obj)
@@ -341,8 +345,8 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     if (obj == null)
       return false;
     if (getClass() != obj.getClass()) {
-      if (obj instanceof FastLongDoubleTimeSeries) {
-        final FastLongDoubleTimeSeries other = (FastLongDoubleTimeSeries) obj;
+      if (obj instanceof FastLongObjectTimeSeries<?>) {
+        final FastLongObjectTimeSeries<T> other = (FastLongObjectTimeSeries<T>) obj;
         if (!Arrays.equals(other.valuesArrayFast(), _values.elements())) {
           return false;
         }
@@ -361,8 +365,8 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
             }
           }
         }
-      } else if (obj instanceof FastIntDoubleTimeSeries) {
-        final FastIntDoubleTimeSeries other = (FastIntDoubleTimeSeries) obj;
+      } else if (obj instanceof FastIntObjectTimeSeries<?>) {
+        final FastIntObjectTimeSeries<T> other = (FastIntObjectTimeSeries<T>) obj;
         if (!Arrays.equals(other.valuesArrayFast(), _values.elements())) {
           return false;
         }
@@ -377,14 +381,14 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
             return false;
           }
         }
-      } else if (obj instanceof AbstractFastBackedDoubleTimeSeries<?>) {
-        final FastBackedDoubleTimeSeries<?> fastBackedDTS = (FastBackedDoubleTimeSeries<?>) obj;
+      } else if (obj instanceof AbstractFastBackedObjectTimeSeries<?, ?>) {
+        final FastBackedObjectTimeSeries<?, T> fastBackedDTS = (FastBackedObjectTimeSeries<?, T>) obj;
         return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }
     } else {
-      final FastListLongDoubleTimeSeries other = (FastListLongDoubleTimeSeries) obj;
+      final FastListLongObjectTimeSeries<T> other = (FastListLongObjectTimeSeries<T>) obj;
       // invariant: none of these can be null.
       if (size() != other.size()) {
         return false;
@@ -419,8 +423,8 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
   }
 
   @Override
-  public FastLongDoubleTimeSeries newInstanceFast(final long[] times, final double[] values) {
-    return new FastListLongDoubleTimeSeries(getEncoding(), times, values);
+  public FastLongObjectTimeSeries<T> newInstanceFast(final long[] times, final T[] values) {
+    return new FastListLongObjectTimeSeries<T>(getEncoding(), times, values);
   }
 
 }

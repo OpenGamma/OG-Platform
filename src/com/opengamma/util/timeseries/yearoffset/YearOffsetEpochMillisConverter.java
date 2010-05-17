@@ -26,8 +26,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -91,11 +94,22 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   public DoubleTimeSeries<Double> convertFromInt(final DoubleTimeSeries<Double> emptyMutableTS, final FastIntDoubleTimeSeries pidts) {
     throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
   }
+  
+  @Override
+  public <T> ObjectTimeSeries<Double, T> convertFromInt(ObjectTimeSeries<Double, T> templateTS, FastIntObjectTimeSeries<T> pidts) {
+    throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
+  }
 
   @Override
   public FastIntDoubleTimeSeries convertToInt(final FastIntDoubleTimeSeries emptyMutableTS, final DoubleTimeSeries<Double> dts) {
     throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
   }
+  
+  @Override
+  public <T> FastIntObjectTimeSeries<T> convertToInt(FastIntObjectTimeSeries<T> templateTS, ObjectTimeSeries<Double, T> dts) {
+    throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
+  }
+
 
   @Override
   public int convertToInt(final Double dateTime) {
@@ -189,6 +203,24 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
     }
     return (DoubleTimeSeries<Double>) templateTS.newInstance(dateTimes, values);
   }
+  
+  @Override
+  public <T> ObjectTimeSeries<Double, T> convertFromLong(ObjectTimeSeries<Double, T> templateTS, FastLongObjectTimeSeries<T> pldts) {
+    final Double[] dateTimes = new Double[pldts.size()];
+    @SuppressWarnings("unchecked")
+    final T[] values = (T[]) new Object[pldts.size()];
+    int i = 0;
+    final Iterator<Entry<Long, T>> iterator = pldts.iterator();
+    while (iterator.hasNext()) {
+      final Entry<Long, T> entry = iterator.next();
+      
+      final Double date = (double)((entry.getKey() - _offset)/MILLIS_PER_YEAR);
+      dateTimes[i] = date;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return (ObjectTimeSeries<Double, T>) templateTS.newInstance(dateTimes, values);
+  }
 
   /**
    * IMPORTANT: this may result in a loss of accuracy.
@@ -207,5 +239,29 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
       i++;
     }
     return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+
+  
+  @Override
+  public <T> FastLongObjectTimeSeries<T> convertToLong(FastLongObjectTimeSeries<T> templateTS, ObjectTimeSeries<Double, T> dts) {
+    final long[] dateTimes = new long[dts.size()];
+    @SuppressWarnings("unchecked")
+    final T[] values = (T[]) new Object[dts.size()];
+    int i = 0;
+    final Iterator<Entry<Double, T>> iterator = dts.iterator();
+    while (iterator.hasNext()) {
+      final Entry<Double, T> entry = iterator.next();
+      final long epochMillis = (long) ((entry.getKey() * MILLIS_PER_YEAR) + _offset);
+      dateTimes[i] = epochMillis;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+  @Override
+  public <T> Pair<Double, T> makePair(Double dateTime, T value) {
+    return Pair.of(dateTime, value);
   }
 }
