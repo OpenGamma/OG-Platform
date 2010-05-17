@@ -225,9 +225,12 @@ public class DateUtil {
    * 
    * @param dateProvider  the date to check, not null
    * @return true if the date is in a leap year
-   * @throws NullPointerException if the date is null
+   * @throws IllegalArgumentException if the date is null
    */
   public static boolean isLeapYear(final DateProvider dateProvider) {
+    if (dateProvider == null) {
+      throw new IllegalArgumentException("Date must not be null");
+    }
     LocalDate date = LocalDate.of(dateProvider);
     return ISOChronology.isLeapYear(date.getYear());
   }
