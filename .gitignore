@@ -12,3 +12,4 @@ build/
 lib/
 db/derby/test_*
 /.fudge-proto-gitignore
+MANIFEST.MF
