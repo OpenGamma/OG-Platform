@@ -35,6 +35,7 @@ import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PortfolioNodeTraverser;
@@ -65,9 +66,9 @@ import com.opengamma.util.monitor.OperationTimer;
 public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
   private static final boolean OUTOUT_DEPENDENCY_GRAPHS = false;
-  private final Portfolio _portfolio;
 
-  private PortfolioNode _populatedRootNode;
+  private Portfolio _portfolio;
+  
   // REVIEW kirk 2010-03-29 -- Use a sorted map here?
   private final Map<String, DependencyGraphModel> _graphModelsByConfiguration =
     new ConcurrentHashMap<String, DependencyGraphModel>();
@@ -77,7 +78,7 @@ public class PortfolioEvaluationModel {
   private final Set<Security> _securities = new HashSet<Security>();
   
   public PortfolioEvaluationModel(Portfolio portfolio) {
-    assert portfolio != null;
+    ArgumentChecker.notNull (portfolio, "Portfolio");
     _portfolio = portfolio;
   }
 
@@ -91,15 +92,8 @@ public class PortfolioEvaluationModel {
   /**
    * @param populatedRootNode the populatedRootNode to set
    */
-  public void setPopulatedRootNode(PortfolioNode populatedRootNode) {
-    _populatedRootNode = populatedRootNode;
-  }
-
-  /**
-   * @return the rootNode
-   */
-  public PortfolioNode getPopulatedRootNode() {
-    return _populatedRootNode;
+  public void setPopulatedRootNode(PortfolioNodeImpl populatedRootNode) {
+    _portfolio = new PortfolioImpl (_portfolio.getUniqueIdentifier (), _portfolio.getName (), populatedRootNode);
   }
 
   /**
@@ -142,7 +136,7 @@ public class PortfolioEvaluationModel {
       for (final Security security : getSecurities ()) {
         _securitiesByUID.put (security.getUniqueIdentifier (), security);
       }
-      populatePortfolioNodeByUID (getPopulatedRootNode ());
+      populatePortfolioNodeByUID (getPortfolio ().getRootNode ());
     }
     
     private void populatePortfolioNodeByUID (final PortfolioNode portfolioNode) {
@@ -189,7 +183,7 @@ public class PortfolioEvaluationModel {
     // Resolve all of the securities
     resolveSecurities(viewProcessingContext);
     
-    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio().getRootNode());
+    PortfolioNodeImpl populatedRootNode = getPopulatedPortfolioNode(getPortfolio().getRootNode());
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     
@@ -312,7 +306,7 @@ public class PortfolioEvaluationModel {
    * @param node
    * @return
    */
-  protected PortfolioNode getPopulatedPortfolioNode(
+  protected PortfolioNodeImpl getPopulatedPortfolioNode(
       PortfolioNode node) {
     if(node == null) {
       return null;
@@ -338,9 +332,8 @@ public class PortfolioEvaluationModel {
   
   public void loadPositions() {
     OperationTimer timer = new OperationTimer(s_logger, "Loading positions on {}", getPortfolio().getName());
-    PortfolioNode populatedRootNode = getPopulatedRootNode();
+    PortfolioNode populatedRootNode = getPortfolio ().getRootNode ();
     loadPositions(populatedRootNode);
-    setPopulatedRootNode(populatedRootNode);
     timer.finished();
     s_logger.debug("Operating on {} positions", getPopulatedPositions().size());
   }
@@ -397,7 +390,7 @@ public class PortfolioEvaluationModel {
         dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
       }
       PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, calcConfig);
-      new PortfolioNodeTraverser(compiler).traverse(getPopulatedRootNode());
+      new PortfolioNodeTraverser(compiler).traverse(getPortfolio ().getRootNode ());
       
       dependencyGraphModel.removeUnnecessaryOutputs();
       

@@ -57,7 +57,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
     // the constructor.
     result.setCalculationConfigurationNames(portfolioEvaluationModel.getAllCalculationConfigurationNames());
-    result.setPortfolio(portfolioEvaluationModel.getPortfolio(), portfolioEvaluationModel.getPopulatedRootNode());
+    result.setPortfolio(portfolioEvaluationModel.getPortfolio());
     
     SingleComputationCycle cycle = new SingleComputationCycle(
         getView().getDefinition().getName(),
