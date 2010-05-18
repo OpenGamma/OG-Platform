@@ -327,8 +327,7 @@ public class PortfolioEvaluationModel {
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      PositionImpl populatedPosition = new PositionImpl(
-          position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
+      PositionImpl populatedPosition = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
       populatedNode.addPosition(populatedPosition);
     }
     for (PortfolioNode child : node.getChildNodes()) {

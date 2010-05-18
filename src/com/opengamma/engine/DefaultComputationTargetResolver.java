@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
@@ -37,6 +39,14 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * The position master.
    */
   private final PositionMaster _positionMaster;
+  
+  /**
+   * Delegate {@code ComputationTargetResolver} for resolving the security for a position, and underlying
+   * nodes of multiple-positions. Defaults to this object, but can be changed to the {@code CachingComputationTargetResolver}
+   * to improve performance of the cache (e.g. make sure that all deep position and security nodes get cached
+   * when a node higher up in the tree is requested).
+   */
+  private ComputationTargetResolver _recursiveResolver = this;
 
   /**
    * Creates a resolver using a security and position master.
@@ -48,6 +58,17 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     ArgumentChecker.notNull(positionMaster, "Position master");
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
+  }
+  
+  //-------------------------------------------------------------------------
+  
+  public void setRecursiveResolver (final ComputationTargetResolver recursiveResolver) {
+    ArgumentChecker.notNull (recursiveResolver, "Computation Target Resolver");
+    _recursiveResolver = recursiveResolver;
+  }
+  
+  public ComputationTargetResolver getRecursiveResolver () {
+    return _recursiveResolver;
   }
 
   //-------------------------------------------------------------------------
@@ -88,25 +109,56 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       case POSITION: {
         Position position = getPositionMaster().getPosition(uid);
         s_logger.info("Resolved position ID {} to position {}", uid, position);
-        return (position == null ? null : new ComputationTarget(ComputationTargetType.POSITION, position));
+        if (position == null) return null;
+        if (position.getSecurity () == null) {
+          Security security = getSecurityMaster ().getSecurity (position.getSecurityKey ());
+          if (security == null) {
+            s_logger.warn ("Couldn't resolve security ID {} for position ID {}", position.getSecurityKey (), uid);
+            return null;
+          }
+          s_logger.info ("Resolved security ID {} to security {}", position.getSecurityKey (), security);
+          position = new PositionImpl (position.getUniqueIdentifier (), position.getQuantity (), position.getSecurityKey (), security);
+        }
+        return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case MULTIPLE_POSITIONS: {
-        Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", uid, portfolio);
+        final PortfolioNode node;
+        final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
+        s_logger.info("Resolved multiple position ID {} to portfolio {}", uid, portfolio);
         if (portfolio != null) {
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolio);
+          node = portfolio.getRootNode ();
+          if (node == null) {
+            s_logger.warn ("Root node for portfolio {} is null", portfolio);
+            return null;
+          }
+        } else {
+          node = getPositionMaster().getPortfolioNode(uid);
+          s_logger.info("Resolved multiple position ID {} to portfolio node {}", uid, node);
+          if (node == null) return null;
         }
-        PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", uid, node);
-        if (node != null) {
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, node);
+        final PortfolioNodeImpl newNode = new PortfolioNodeImpl (node.getUniqueIdentifier (), node.getName ());
+        for (PortfolioNode child : node.getChildNodes ()) {
+          final ComputationTarget resolvedChild = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier ()));
+          if (resolvedChild == null) {
+            s_logger.warn ("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier (), uid);
+          } else {
+            newNode.addChildNode (resolvedChild.getPortfolioNode ());
+          }
         }
-        return null;
+        for (Position position : node.getPositions ()) {
+          final ComputationTarget resolvedPosition = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.POSITION, position.getUniqueIdentifier ()));
+          if (resolvedPosition == null) {
+            s_logger.warn ("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier (), uid);
+          } else {
+            newNode.addPosition (resolvedPosition.getPosition ());
+          }
+        }
+        return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, newNode);
       }
       default: {
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
       }
     }
   }
-
+  
 }
