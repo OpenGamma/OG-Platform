@@ -8,7 +8,7 @@ package com.opengamma.livedata.normalization;
 import java.util.Collections;
 
 /**
- * 
+ * Normalization rules that are known to be part of the OpenGamma standard package.
  *
  * @author pietari
  */

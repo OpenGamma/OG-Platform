@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.server.distribution;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -41,7 +44,8 @@ public class JmsSender implements MarketDataSender {
   private final FieldHistoryStore _cumulativeDelta = new FieldHistoryStore();
   private long _lastSequenceNumber;
   
-  private boolean _interrupted = false;
+  private volatile boolean _interrupted = false;
+  private final Lock _lock = new ReentrantLock();
   
   public JmsSender(JmsTemplate jmsTemplate, MarketDataDistributor distributor) {
     ArgumentChecker.notNull(jmsTemplate, "JMS template");
@@ -58,16 +62,21 @@ public class JmsSender implements MarketDataSender {
   }
 
   @Override
-  public synchronized void sendMarketData(LiveDataValueUpdateBean data) {
-    _cumulativeDelta.liveDataReceived(data.getFields());
-    _lastSequenceNumber = data.getSequenceNumber(); 
-    
-    if (_interrupted) {
-      s_logger.debug("Interrupted - not sending message {}", data);
-      return;      
+  public void sendMarketData(LiveDataValueUpdateBean data) {
+    _lock.lock();
+    try {
+      _cumulativeDelta.liveDataReceived(data.getFields());
+      _lastSequenceNumber = data.getSequenceNumber(); 
+      
+      if (_interrupted) {
+        s_logger.debug("{}: Interrupted - not sending message", this);
+        return;      
+      }
+      
+      send();
+    } finally {
+      _lock.unlock();
     }
-    
-    send();
   }
   
   private void send() {
@@ -77,7 +86,7 @@ public class JmsSender implements MarketDataSender {
         _lastSequenceNumber, 
         _distributor.getDistributionSpec().getFullyQualifiedLiveDataSpecification(), 
         _cumulativeDelta.getLastKnownValues());
-    s_logger.debug("Sending Live Data update {}", liveDataValueUpdateBean);
+    s_logger.debug("{}: Sending Live Data update {}", this, liveDataValueUpdateBean);
     
     FudgeFieldContainer fudgeMsg = liveDataValueUpdateBean.toFudgeMsg(_fudgeContext);
     String destinationName = distributionSpec.getJmsTopic();
@@ -96,24 +105,42 @@ public class JmsSender implements MarketDataSender {
     _cumulativeDelta.clear();
   }
   
-  public synchronized boolean isInterrupted() {
+  public boolean isInterrupted() {
     return _interrupted;
   }
   
-  public synchronized void transportInterrupted() {
-    s_logger.error("Transport interrupted");
+  public void transportInterrupted() {
+    s_logger.error("Transport interrupted {}", this);
     _interrupted = true;
   }
 
-  public synchronized void transportResumed() {
-    s_logger.info("Transport resumed");
+  public void transportResumed() {
+    s_logger.info("Transport resumed {}", this);
     _interrupted = false;
     
-    try {
-      send();
-    } catch (RuntimeException e) {
-      s_logger.error("transportResumed() failed", e);
+    // tryLock() is used to avoid deadlock.
+    // When send() is called for the first time, a connection to JMS is created.
+    // This call may result in transportResumed() being called from a second thread
+    // (not the thread which called send()). Moreover, the thread that called send() waits
+    // for this second thread to complete. This is certainly what happens with ActiveMQ.
+    // If you just used lock() here, a deadlock arises in this situation.
+    boolean gotLock = _lock.tryLock();
+    if (gotLock) {
+      try {
+        if (!_cumulativeDelta.isEmpty()) {
+          send();
+        }
+      } catch (RuntimeException e) {
+        s_logger.error("transportResumed() failed", e);
+      } finally {
+        _lock.unlock();
+      }
     }
   }
-
+  
+  @Override
+  public String toString() {
+    return "JmsSender[" + _distributor.getDistributionSpec().toString() +  "]";    
+  }
+  
 }

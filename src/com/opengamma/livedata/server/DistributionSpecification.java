@@ -15,7 +15,7 @@ import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * How market data should be distributed to clients. This includes:
+ * Describes how market data should be distributed to clients. This includes:
  * <ul>
  * <li>The format of the data (normalization)
  * <li>The destination of the data (JMS topic name)

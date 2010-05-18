@@ -65,11 +65,9 @@ public class MarketDataDistributor {
   
   
   /**
-   * @param marketDataSenders It is recommended that a thread-safe collection 
-   * with iterators that do not throw <code>ConcurrentModificationException</code> is used,
-   * unless you are sure that this <code>DistributionSpecification</code> will 
-   * only be used within a single thread. No copy of the collection is made,
-   * so any subsequent changes to the collection will be reflected in this object.
+   * @parma distributionSpec What data should be distributed, how and where.
+   * @param subscription Which subscription this distributor belongs to.
+   * @param marketDataSenderFactory Used to create listener(s) that actually publish the data
    */
   public MarketDataDistributor(DistributionSpecification distributionSpec,
       Subscription subscription,
@@ -120,10 +118,6 @@ public class MarketDataDistributor {
     return Collections.unmodifiableCollection(_marketDataSenders);
   }
   
-  /**
-   * @return Could be null if this distribution spec is a "temporary" distribution specification,
-   * created for a snapshot request.
-   */
   public Subscription getSubscription() {
     return _subscription;
   }
@@ -178,19 +172,27 @@ public class MarketDataDistributor {
           getDistributionSpec().getFullyQualifiedLiveDataSpecification(),
           normalizedMsg);
       
+      s_logger.debug("{}: Sending Live Data update {}", this, data);
+      
       for (MarketDataSender sender : _marketDataSenders) {
         try {
           sender.sendMarketData(data);
         } catch (RuntimeException e) {
-          s_logger.error("MarketDataSender " + sender + " failed", e);
+          s_logger.error(sender + " failed", e);
         }
       }
       
       _numMessagesSent.incrementAndGet();
     
     } else {
-      s_logger.debug("Not sending Live Data update (empty message).");
+      s_logger.debug("{}: Not sending Live Data update (message extinguished).", this);
     }
   }
+  
+  @Override
+  public String toString() {
+    return "MarketDataDistributor[" + getDistributionSpec().toString() +  "]";    
+  }
+
   
 }

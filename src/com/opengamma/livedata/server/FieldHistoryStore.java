@@ -42,6 +42,10 @@ public class FieldHistoryStore {
     _lastKnownValues.clear();
   }
   
+  public boolean isEmpty() {
+    return _lastKnownValues.isEmpty();
+  }
+  
   public synchronized FudgeFieldContainer getLastKnownValues() {
     return _lastKnownValues;
   }

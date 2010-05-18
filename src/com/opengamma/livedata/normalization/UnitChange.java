@@ -11,7 +11,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Multiplies the value of a {@code Double} field by a constant.
  *
  * @author pietari
  */

@@ -9,7 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * 
+ * Use this {@code MarketDataSenderFactory} if no messages should be distributed to clients. 
+ * Useful in tests.
  *
  * @author pietari
  */

@@ -158,7 +158,7 @@ public class Subscription {
     return _history;
   }
   
-  public void initialSnapshotReceived(FudgeFieldContainer liveDataFields) {
+  void initialSnapshotReceived(FudgeFieldContainer liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
     for (MarketDataDistributor distributor : getDistributors()) {
@@ -166,7 +166,7 @@ public class Subscription {
     }
   }
 
-  public void liveDataReceived(FudgeFieldContainer liveDataFields) {
+  void liveDataReceived(FudgeFieldContainer liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
     for (MarketDataDistributor distributor : getDistributors()) {
@@ -217,8 +217,9 @@ public class Subscription {
     _expiry = expiry;
   }
   
+  @Override
   public String toString() {
-    return "Subscription " + _securityUniqueId;
+    return "Subscription[" + _securityUniqueId + "]";
   }
   
 }

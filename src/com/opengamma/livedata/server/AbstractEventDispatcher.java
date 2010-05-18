@@ -5,6 +5,9 @@
  */
 package com.opengamma.livedata.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 
@@ -14,6 +17,9 @@ import com.opengamma.util.TerminatableJob;
  * @author pietari
  */
 public abstract class AbstractEventDispatcher extends TerminatableJob {
+  
+  private static final Logger s_logger = LoggerFactory
+    .getLogger(AbstractEventDispatcher.class);
   
   private final long MAX_WAIT_MILLISECONDS = 1000;
   
@@ -33,7 +39,11 @@ public abstract class AbstractEventDispatcher extends TerminatableJob {
 
   @Override
   protected void runOneCycle() {
-    dispatch(MAX_WAIT_MILLISECONDS);
+    try {
+      dispatch(MAX_WAIT_MILLISECONDS);
+    } catch (RuntimeException e) {
+      s_logger.error("Failed to dispatch", e);      
+    }
   }
   
   protected void disconnected() {

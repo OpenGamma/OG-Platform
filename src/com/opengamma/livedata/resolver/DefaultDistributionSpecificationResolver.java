@@ -6,7 +6,6 @@
 package com.opengamma.livedata.resolver;
 
 import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.normalization.NormalizationRuleSet;
 import com.opengamma.livedata.server.DistributionSpecification;

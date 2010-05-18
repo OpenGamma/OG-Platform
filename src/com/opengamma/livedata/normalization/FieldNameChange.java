@@ -12,7 +12,7 @@ import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Changes the name of a field, leaving its value and all other fields unaffected.
  *
  * @author pietari
  */

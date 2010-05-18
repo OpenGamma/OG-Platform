@@ -787,7 +787,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       s_logger.warn("Got data for invalid security unique ID {}", securityUniqueId);
       return;
     }
-    
+      
     subscription.liveDataReceived(liveDataFields);
   }
 
