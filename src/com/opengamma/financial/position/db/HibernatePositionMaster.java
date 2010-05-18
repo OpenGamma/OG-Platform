@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.position.db;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
   /**
    * Hibernate position implementation.
    */
-  private static class PositionImpl implements Position {
+  private static class PositionImpl implements Position,Serializable {
     private final UniqueIdentifier _identityKey;
     private final BigDecimal _quantity;
     private final IdentifierBundle _securityKey;
