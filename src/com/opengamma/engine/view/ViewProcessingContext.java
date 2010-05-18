@@ -7,6 +7,8 @@ package com.opengamma.engine.view;
 
 import java.util.concurrent.ExecutorService;
 
+import com.opengamma.engine.CachingComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionRepository;
@@ -35,7 +37,7 @@ public class ViewProcessingContext {
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobRequestSender _computationJobRequestSender;
   private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private final DefaultComputationTargetResolver _computationTargetResolver;
+  private final ComputationTargetResolver _computationTargetResolver;
   private final FunctionCompilationContext _compilationContext;
   private final ExecutorService _executorService;
 
@@ -76,7 +78,7 @@ public class ViewProcessingContext {
     _compilationContext = compilationContext;
     _executorService = executorService;
     
-    _computationTargetResolver = new DefaultComputationTargetResolver(securityMaster, positionMaster);
+    _computationTargetResolver = new CachingComputationTargetResolver (new DefaultComputationTargetResolver(securityMaster, positionMaster));
   }
 
   /**
@@ -145,7 +147,7 @@ public class ViewProcessingContext {
   /**
    * @return the computationTargetResolver
    */
-  public DefaultComputationTargetResolver getComputationTargetResolver() {
+  public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
   }
 
