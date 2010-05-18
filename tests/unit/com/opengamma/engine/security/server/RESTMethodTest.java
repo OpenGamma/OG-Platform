@@ -37,7 +37,7 @@ public class RESTMethodTest {
   
   private final SecurityMasterService _securityMasterService = new SecurityMasterService();
   private UniqueIdentifier _uid1;
-  private UniqueIdentifier _uid2;
+  //private UniqueIdentifier _uid2;
   
   protected SecurityMasterService getSecurityMasterService () {
     return _securityMasterService;
@@ -58,7 +58,7 @@ public class RESTMethodTest {
     secMaster.addSecurity(sec2);
     getSecurityMasterService ().setSecurityMaster (secMaster);
     _uid1 = sec1.getUniqueIdentifier();
-    _uid2 = sec2.getUniqueIdentifier();
+    //_uid2 = sec2.getUniqueIdentifier();
   }
   
   @Test

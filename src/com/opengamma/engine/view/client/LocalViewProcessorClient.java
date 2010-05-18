@@ -16,24 +16,47 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * A simple in-memory implementation of the view processor client.
+ * <p>
+ * This client provides a simple wrapper around the underlying view processor.
  */
 public class LocalViewProcessorClient implements ViewProcessorClient {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(LocalViewProcessorClient.class);
+
+  /**
+   * The view processor that this is a client for.
+   */
   private final ViewProcessor _viewProcessor;
-  
+
+  /**
+   * Creates the client wrapping a processor.
+   * @param viewProcessor  the processor to wrap, not null
+   */
   public LocalViewProcessorClient(ViewProcessor viewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
     _viewProcessor = viewProcessor;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @return the viewProcessor
+   * Gets the view processor being wrapped.
+   * @return the view processor, not null
    */
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isLiveComputationSupported() {
+    return true;
+  }
+
+  @Override
+  public boolean isOneOffComputationSupported() {
+    return false;
   }
 
   @Override
@@ -51,43 +74,37 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
     View view = getOrInitializeView(viewName);
     return new LocalViewClient(view);
   }
-  
-  protected View getOrInitializeView(String viewName) {
-    View view = getViewProcessor().getView(viewName);
-    if(view == null) {
-      s_logger.debug("No view available with name {}, initializing.", viewName);
-      view = getViewProcessor().initializeView(viewName);
-    }
-    assert view != null : "View should not be null without an exception thrown.";
-    return view;
-  }
-
-  @Override
-  public boolean isLiveComputationSupported() {
-    return true;
-  }
-
-  @Override
-  public boolean isOneOffComputationSupported() {
-    return false;
-  }
-  
-  // TODO 2010-03-29 Andrew -- this is a hack; both ends should have a ViewDefinitionRepository they should be referring to (or share one)
-  public ViewDefinition getViewDefinition(String viewName) {
-    return getViewProcessor().getViewDefinitionRepository().getDefinition(viewName);
-  }
 
   @Override
   public void startLiveCalculation(String viewName) {
-    // Ignore the return value. Just want to make sure initialized.
-    getOrInitializeView(viewName);
+    getOrInitializeView(viewName);  // force initialization
     getViewProcessor().startProcessing(viewName);
   }
 
   @Override
   public void stopLiveCalculation(String viewName) {
-    getOrInitializeView(viewName);
+    getOrInitializeView(viewName);  // force initialization  // TODO 2010-05-18 SJC: seems a little odd
     getViewProcessor().stopProcessing(viewName);
+  }
+
+  // TODO 2010-03-29 Andrew -- this is a hack; both ends should have a ViewDefinitionRepository they should be referring to (or share one)
+  public ViewDefinition getViewDefinition(String viewName) {
+    return getViewProcessor().getViewDefinitionRepository().getDefinition(viewName);
+  }
+
+  /**
+   * Attempts to get a view by name, initializing it if necessary.
+   * @param viewName  the view name, not null
+   * @return the view, not null
+   */
+  protected View getOrInitializeView(String viewName) {
+    View view = getViewProcessor().getView(viewName);
+    if (view == null) {
+      s_logger.debug("No view available with name {}, initializing", viewName);
+      view = getViewProcessor().initializeView(viewName);
+    }
+    assert view != null : "View should not be null without an exception thrown";
+    return view;
   }
 
 }

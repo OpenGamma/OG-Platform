@@ -21,86 +21,163 @@ import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.LocalViewProcessorClient;
-import com.opengamma.engine.view.client.RemoteViewProcessorClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * RESTful service backend for {@link RemoteViewProcessorClient}.
- * 
- * @author Andrew Griffin
+ * RESTful resource publishing details of view processors.
+ * <p>
+ * Each view processor manages a collection of views.
+ * Both views and view processors are uniquely referenced by name.
  */
-@Path ("viewProcessor")
+@Path("viewProcessor")
 public class ViewProcessorService {
-  
-  private final ConcurrentMap<String,ViewProcessorResource> _viewProcessorMap = new ConcurrentHashMap<String,ViewProcessorResource> ();
-  private final JmsTemplate _jmsTemplate = new JmsTemplate ();
-  
+
+  /**
+   * Map of views keyed by view processor name.
+   */
+  private final ConcurrentMap<String, ViewProcessorResource> _viewProcessorMap = new ConcurrentHashMap<String, ViewProcessorResource>();
+  /**
+   * The spring JMS template.
+   */
+  private final JmsTemplate _jmsTemplate = new JmsTemplate();
+  /**
+   * The JMS topic prefix.
+   */
   private String _topicPrefix;
+  /**
+   * The Fudge context.
+   */
   private FudgeContext _fudgeContext;
-  
-  public ViewProcessorService () {
-    setTopicPrefix ("ViewProcessor");
-    final FudgeContext fudgeContext = new FudgeContext ();
-    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext (fudgeContext);
-    setFudgeContext (fudgeContext);
-    getJmsTemplate ().setPubSubDomain (true);
+
+  /**
+   * Creates an instance with default values.
+   */
+  public ViewProcessorService() {
+    setTopicPrefix("ViewProcessor");
+    final FudgeContext fudgeContext = new FudgeContext();
+    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
+    setFudgeContext(fudgeContext);
+    getJmsTemplate().setPubSubDomain(true);
   }
-  
-  public void setTopicPrefix (final String topicPrefix) {
-    _topicPrefix = topicPrefix;
-  }
-  
-  public String getTopicPrefix () {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the JMS topic prefix.
+   * @return the topic prefix.
+   */
+  public String getTopicPrefix() {
     return _topicPrefix;
   }
   
-  public FudgeContext getFudgeContext () {
+  /**
+   * Sets the topic prefix.
+   * @param topicPrefix  the topic prefix
+   */
+  public void setTopicPrefix(final String topicPrefix) {
+    _topicPrefix = topicPrefix;
+  }
+
+  /**
+   * Gets the Fudge context.
+   * @return the Fudge context
+   */
+  public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
-  public void setFudgeContext (final FudgeContext fudgeContext) {
-    if (fudgeContext == null) throw new NullPointerException ("fudgeContext cannot be null");
+
+  /**
+   * Sets the Fudge context.
+   * @param fudgeContext  the Fudge context, not null
+   */
+  public void setFudgeContext(final FudgeContext fudgeContext) {
+    ArgumentChecker.notNull(fudgeContext, "Fudge context");
     _fudgeContext = fudgeContext;
   }
-  
-  protected JmsTemplate getJmsTemplate () {
+
+  /**
+   * Gets the JMS template.
+   * @return the JMS template, not null
+   */
+  protected JmsTemplate getJmsTemplate() {
     return _jmsTemplate;
   }
-  
-  public void setConnectionFactory (final ConnectionFactory connectionFactory) {
-    getJmsTemplate ().setConnectionFactory (connectionFactory);
+
+  /**
+   * Sets the JMS connection factory.
+   * This alters the JMS template.
+   * @param connectionFactory  the factory
+   */
+  public void setConnectionFactory(final ConnectionFactory connectionFactory) {
+    getJmsTemplate().setConnectionFactory(connectionFactory);
   }
-  
-  protected ConcurrentMap<String,ViewProcessorResource> getViewProcessorMap () {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a view processor by name, exposed over REST.
+   * @param name  the view processor name from the URI, not null
+   * @return the resource representing the view processor, null if not found
+   */
+  @Path("{processorName}")
+  public ViewProcessorResource findViewProcessor(@PathParam("processorName") String name) {
+    return getViewProcessorMap().get(name);
+  }
+
+  /**
+   * Gets the map of view processors.
+   * @return the map, not null
+   */
+  protected ConcurrentMap<String, ViewProcessorResource> getViewProcessorMap() {
     return _viewProcessorMap;
   }
-  
-  @Path ("{processorName}")
-  public ViewProcessorResource findViewProcessor (@PathParam ("processorName") String processorName) {
-    return getViewProcessorMap ().get (processorName);
+
+  /**
+   * Adds a view processor to those published.
+   * @param name  the view name, not null
+   * @param viewProcessorResource  the view processor resource, not null
+   */
+  protected void addViewProcessor(final String name, final ViewProcessorResource viewProcessorResource) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(viewProcessorResource, "view processor resource");
+    getViewProcessorMap().put(name, viewProcessorResource);
   }
-  
-  protected void addViewProcessor (final String name, final ViewProcessorResource viewProcessorResource) {
-    getViewProcessorMap ().put (name, viewProcessorResource);
+
+  /**
+   * Adds a view processor to those published.
+   * @param name  the view name, not null
+   * @param viewProcessorClient  the view processor, not null
+   */
+  protected void addViewProcessor(final String name, final ViewProcessorClient viewProcessorClient) {
+    ViewProcessorResource res = new ViewProcessorResource(getJmsTemplate(), getTopicPrefix() + "-" + name, getFudgeContext(), viewProcessorClient);
+    addViewProcessor(name, res);
   }
-  
-  protected void addViewProcessor (final String name, final ViewProcessorClient viewProcessorClient) {
-    addViewProcessor (name, new ViewProcessorResource (getJmsTemplate (), getTopicPrefix () + "-" + name, getFudgeContext (), viewProcessorClient));
+
+  /**
+   * Adds a view processor to those published.
+   * @param name  the view name, not null
+   * @param viewProcessor  the view processor, not null
+   */
+  protected void addViewProcessor(final String name, final ViewProcessor viewProcessor) {
+    addViewProcessor(name, new LocalViewProcessorClient(viewProcessor));
   }
-  
-  protected void addViewProcessor (final String name, final ViewProcessor viewProcessor) {
-    addViewProcessor (name, new LocalViewProcessorClient (viewProcessor));
+
+  /**
+   * Sets the default view processor.
+   * @param viewProcessor  the view processor, not null
+   */
+  public void setViewProcessor(final ViewProcessor viewProcessor) {
+    addViewProcessor(DEFAULT_VIEWPROCESSOR_NAME, viewProcessor);
   }
-  
-  public void setViewProcessor (final ViewProcessor viewProcessor) {
-    addViewProcessor (DEFAULT_VIEWPROCESSOR_NAME, viewProcessor);
-  }
-  
-  public void setViewProcessorMap (Map<String,ViewProcessor> viewProcessors) {
-    final ConcurrentMap<String,ViewProcessorResource> map = getViewProcessorMap ();
-    map.clear ();
-    for (Map.Entry<String,ViewProcessor> entry : viewProcessors.entrySet ()) {
-      addViewProcessor (entry.getKey (), entry.getValue ());
+
+  /**
+   * Sets the entire map of view processors.
+   * @param viewProcessors  the map of view processors keyed by name, not null
+   */
+  public void setViewProcessorMap(Map<String, ViewProcessor> viewProcessors) {
+    final ConcurrentMap<String, ViewProcessorResource> map = getViewProcessorMap();
+    map.clear();
+    for (Map.Entry<String, ViewProcessor> entry : viewProcessors.entrySet()) {
+      addViewProcessor(entry.getKey(), entry.getValue());
     }
   }
 
