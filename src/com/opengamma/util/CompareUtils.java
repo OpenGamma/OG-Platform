@@ -11,19 +11,34 @@ package com.opengamma.util;
 public class CompareUtils {
 
   /**
-   * This is a bit stupid because any properly written version of compareTo would deal with this already.
-   * This implementation assumes that null should be at the 'bottom' of the natural order (null < any value).
+   * Compares two objects, either of which might be null, sorting nulls low.
    * @param <E> type of object we're comparing to.
-   * @param a item that compareTo is called on.
-   * @param b item that is being compared.
-   * @return natural ordering as an integer (-ve when a < b, 0 when a == b, +ve when a > b).
+   * @param a  item that compareTo is called on
+   * @param b item that is being compared
+   * @return natural ordering as an integer (-ve when a < b, 0 when a == b, +ve when a > b)
    */
   public static <E> int compareWithNull(Comparable<E> a, E b) {
     if (a == null) {
       return b == null ? 0 : -1;
     } else if (b == null) {
-      // we know a is not null as well.
-      return 1;
+      return 1;  // a not null
+    } else {
+      return a.compareTo((E) b);
+    }    
+  }
+
+  /**
+   * Compares two objects, either of which might be null, sorting nulls high.
+   * @param <E> type of object we're comparing to.
+   * @param a  item that compareTo is called on
+   * @param b  item that is being compared
+   * @return natural ordering as an integer (-ve when a < b, 0 when a == b, +ve when a > b)
+   */
+  public static <E> int compareWithNullHigh(Comparable<E> a, E b) {
+    if (a == null) {
+      return b == null ? 0 : 1;
+    } else if (b == null) {
+      return -1;  // a not null
     } else {
       return a.compareTo((E) b);
     }    
