@@ -251,9 +251,11 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
     ArgumentChecker.notNull(factory, "Fudge Context");
     MutableFudgeFieldContainer msg = factory.newMessage();
-    msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme());
-    msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
-    msg.add(VERSION_FUDGE_FIELD_NAME, null, StringFieldType.INSTANCE, getVersion());
+    msg.add(SCHEME_FUDGE_FIELD_NAME, _scheme);
+    msg.add(VALUE_FUDGE_FIELD_NAME, _value);
+    if (_version != null) {
+      msg.add(VERSION_FUDGE_FIELD_NAME, _version);
+    }
     return msg;
   }
 
