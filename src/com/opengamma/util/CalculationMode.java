@@ -6,10 +6,17 @@
 package com.opengamma.util;
 
 /**
- * 
- * @author emcleod
- * 
+ * Enumeration of strict versus lenient calculation.
  */
 public enum CalculationMode {
-  LENIENT, STRICT
+
+  /**
+   * Lenient calculation.
+   */
+  LENIENT,
+  /**
+   * Strict calculation.
+   */
+  STRICT,
+
 }

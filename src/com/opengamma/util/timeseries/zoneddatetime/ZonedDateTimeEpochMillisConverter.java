@@ -24,8 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -78,9 +81,19 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   public DoubleTimeSeries<ZonedDateTime> convertFromInt(final DoubleTimeSeries<ZonedDateTime> emptyMutableTS, final FastIntDoubleTimeSeries pidts) {
     throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
   }
+  
+  @Override
+  public <T> ObjectTimeSeries<ZonedDateTime, T> convertFromInt(ObjectTimeSeries<ZonedDateTime, T> templateTS, FastIntObjectTimeSeries<T> pidts) {
+    throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
+  }
 
   @Override
   public FastIntDoubleTimeSeries convertToInt(final FastIntDoubleTimeSeries emptyMutableTS, final DoubleTimeSeries<ZonedDateTime> dts) {
+    throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
+  }
+  
+  @Override
+  public <T> FastIntObjectTimeSeries<T> convertToInt(FastIntObjectTimeSeries<T> templateTS, ObjectTimeSeries<ZonedDateTime, T> dts) {
     throw new UnsupportedOperationException("Can't reduce epoch milliseconds into an integer field");
   }
 
@@ -167,6 +180,25 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     }
     return (DoubleTimeSeries<ZonedDateTime>) templateTS.newInstance(dateTimes, values);
   }
+  
+  @Override
+  public <T> ObjectTimeSeries<ZonedDateTime, T> convertFromLong(
+      ObjectTimeSeries<ZonedDateTime, T> templateTS,
+      FastLongObjectTimeSeries<T> pldts) {
+    final ZonedDateTime[] dateTimes = new ZonedDateTime[pldts.size()];
+    @SuppressWarnings("unchecked")
+    final T[] values = (T[]) new Object[pldts.size()];
+    int i = 0;
+    final Iterator<Entry<Long, T>> iterator = pldts.iterator();
+    while (iterator.hasNext()) {
+      final Entry<Long, T> entry = iterator.next();
+      
+      final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofMillis(entry.getKey()), _timeZone);
+      dateTimes[i] = date;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return (ObjectTimeSeries<ZonedDateTime, T>) templateTS.newInstance(dateTimes, values);  }
 
   @Override
   public FastLongDoubleTimeSeries convertToLong(final FastLongDoubleTimeSeries templateTS, final DoubleTimeSeries<ZonedDateTime> dts) {
@@ -182,5 +214,27 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
       i++;
     }
     return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+  @Override
+  public <T> FastLongObjectTimeSeries<T> convertToLong(FastLongObjectTimeSeries<T> templateTS, ObjectTimeSeries<ZonedDateTime, T> dts) {
+    final long[] dateTimes = new long[dts.size()];
+    @SuppressWarnings("unchecked")
+    final T[] values = (T[]) new Object[dts.size()];
+    int i = 0;
+    final Iterator<Entry<ZonedDateTime, T>> iterator = dts.iterator();
+    while (iterator.hasNext()) {
+      final Entry<ZonedDateTime, T> entry = iterator.next();
+      final long epochMillis = entry.getKey().toInstant().toEpochMillisLong();
+      dateTimes[i] = epochMillis;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+  @Override
+  public <T> Pair<ZonedDateTime, T> makePair(ZonedDateTime dateTime, T value) {
+    return Pair.of(dateTime, value);
   }
 }

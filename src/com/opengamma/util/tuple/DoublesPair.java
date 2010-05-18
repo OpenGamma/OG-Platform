@@ -17,8 +17,6 @@ import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
  * <p>
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
- *
- * @author scolebourne
  */
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
 
@@ -48,10 +46,18 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
     return _second;
   }
 
+  /**
+   * Gets the first element as a primitive {@code double}.
+   * @return the primitive
+   */
   public double getFirstDouble() {
     return _first;
   }
 
+  /**
+   * Gets the second element as a primitive {@code double}.
+   * @return the primitive
+   */
   public double getSecondDouble() {
     return _second;
   }
@@ -94,17 +100,28 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Serializes this pair to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
   public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
-    final MutableFudgeFieldContainer message = context.newMessage();
-    message.add(0, getClass().getName());
-    context.objectToFudgeMsg(message, "first", null, getFirst());
-    context.objectToFudgeMsg(message, "second", null, getSecond());
-    return message;
+    final MutableFudgeFieldContainer msg = context.newMessage();
+    msg.add(0, getClass().getName());
+    context.objectToFudgeMsg(msg, "first", null, getFirst());
+    context.objectToFudgeMsg(msg, "second", null, getSecond());
+    return msg;
   }
 
-  public static DoublesPair fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    double first = (Double) context.fieldValueToObject(message.getByName("first"));
-    double second = (Double) context.fieldValueToObject(message.getByName("second"));
+  /**
+   * Deserializes this pair from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static DoublesPair fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    double first = (Double) context.fieldValueToObject(msg.getByName("first"));
+    double second = (Double) context.fieldValueToObject(msg.getByName("second"));
     return DoublesPair.of(first, second);
   }
 

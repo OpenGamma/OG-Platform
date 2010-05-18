@@ -6,13 +6,11 @@
 package com.opengamma.util.timeseries;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * 
  *
- * @author jim MINE MINE MINE
  */
 public class BulkTimeSeriesOperations {
   @SuppressWarnings("unchecked")

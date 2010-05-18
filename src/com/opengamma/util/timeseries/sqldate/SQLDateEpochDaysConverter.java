@@ -25,8 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -107,6 +110,26 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     }
     return (DoubleTimeSeries<Date>) templateTS.newInstance(dates, values);
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ObjectTimeSeries<Date, T> convertFromInt(
+      ObjectTimeSeries<Date, T> templateTS, FastIntObjectTimeSeries<T> pidts) {
+    final Calendar cal = _calendar.get();
+    final Date[] dates = new Date[pidts.size()];
+    final T[] values = (T[]) new Object[pidts.size()];
+    final Iterator<Entry<Integer, T>> iterator = pidts.iterator();
+    int i = 0;
+    while (iterator.hasNext()) {
+      final Entry<Integer, T> entry = iterator.next();
+      cal.setTimeInMillis(entry.getKey() * MILLIS_PER_DAY);
+      final Date date = new Date(cal.getTimeInMillis());
+      dates[i] = date;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return (ObjectTimeSeries<Date, T>) templateTS.newInstance(dates, values);
+  }
 
   @Override
   public FastIntDoubleTimeSeries convertToInt(final FastIntDoubleTimeSeries templateTS, final DoubleTimeSeries<Date> dts) {
@@ -116,6 +139,29 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<Date, Double> entry = iterator.next();
+      final int epochDays = (int) (entry.getKey().getTime() / MILLIS_PER_DAY);
+      if (s_logger.isDebugEnabled()) {
+        if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
+          s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+        }
+      }
+      dates[i] = epochDays;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return templateTS.newInstanceFast(dates, values);
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> FastIntObjectTimeSeries<T> convertToInt(
+      FastIntObjectTimeSeries<T> templateTS, ObjectTimeSeries<Date, T> dts) {
+    final Iterator<Entry<Date, T>> iterator = dts.iterator();
+    final int[] dates = new int[dts.size()];
+    final T[] values = (T[]) new Object[dts.size()];
+    int i = 0;
+    while (iterator.hasNext()) {
+      final Entry<Date, T> entry = iterator.next();
       final int epochDays = (int) (entry.getKey().getTime() / MILLIS_PER_DAY);
       if (s_logger.isDebugEnabled()) {
         if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
@@ -257,6 +303,26 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     }
     return (DoubleTimeSeries<Date>) templateTS.newInstance(dateTimes, values);
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ObjectTimeSeries<Date, T> convertFromLong(
+      ObjectTimeSeries<Date, T> templateTS, FastLongObjectTimeSeries<T> pldts) {
+    final Calendar cal = _calendar.get();
+    final Date[] dateTimes = new Date[pldts.size()];
+    final T[] values = (T[]) new Object[pldts.size()];
+    int i = 0;
+    final Iterator<Entry<Long, T>> iterator = pldts.iterator();
+    while (iterator.hasNext()) {
+      final Entry<Long, T> entry = iterator.next();
+      cal.setTimeInMillis(entry.getKey() * MILLIS_PER_DAY);
+      final Date date = new Date(cal.getTimeInMillis());
+      dateTimes[i] = date;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return (ObjectTimeSeries<Date, T>) templateTS.newInstance(dateTimes, values);
+  }
 
   @Override
   public FastLongDoubleTimeSeries convertToLong(final FastLongDoubleTimeSeries templateTS, final DoubleTimeSeries<Date> dts) {
@@ -277,6 +343,32 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
       i++;
     }
     return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> FastLongObjectTimeSeries<T> convertToLong(FastLongObjectTimeSeries<T> templateTS, ObjectTimeSeries<Date, T> dts) {
+    final Iterator<Entry<Date, T>> iterator = dts.iterator();
+    final long[] dateTimes = new long[dts.size()];
+    final T[] values = (T[]) new Object[dts.size()];
+    int i = 0;
+    while (iterator.hasNext()) {
+      final Entry<Date, T> entry = iterator.next();
+      final long epochDays = entry.getKey().getTime() / MILLIS_PER_DAY;
+      if (s_logger.isDebugEnabled()) {
+        if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
+          s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+        }
+      }
+      dateTimes[i] = epochDays;
+      values[i] = entry.getValue();
+      i++;
+    }
+    return templateTS.newInstanceFast(dateTimes, values);  }
+
+  @Override
+  public <T> Pair<Date, T> makePair(Date dateTime, T value) {
+    return Pair.of(dateTime, value);
   }
 
 }

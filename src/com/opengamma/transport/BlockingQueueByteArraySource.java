@@ -46,7 +46,7 @@ public class BlockingQueueByteArraySource implements ByteArraySource {
     } catch (InterruptedException e) {
       Thread.interrupted();
     }
-    if(head != null) {
+    if (head != null) {
       result.add(head);
       getQueue().drainTo(result);
     }

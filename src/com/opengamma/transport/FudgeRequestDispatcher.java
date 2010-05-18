@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -15,8 +15,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Receives byte array messages and dispatches them to a {@link FudgeRequestReceiver}.
- *
- * @author kirk
  */
 public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
   private final FudgeRequestReceiver _underlying;
@@ -52,8 +50,8 @@ public class FudgeRequestDispatcher implements ByteArrayRequestReceiver {
     FudgeMsgEnvelope requestEnvelope = getFudgeContext().deserialize(message);
     FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(getFudgeContext()); 
     FudgeFieldContainer responseContainer = getUnderlying().requestReceived(deserializationContext, requestEnvelope);
-    if(!(responseContainer instanceof FudgeMsg)) {
-      throw new IllegalArgumentException("FudgeMsgRequestDispatcher can only currently handle FudgeMsg.");
+    if (!(responseContainer instanceof FudgeMsg)) {
+      throw new IllegalArgumentException("FudgeMsgRequestDispatcher can only currently handle FudgeMsg");
     }
     FudgeMsg responseMsg = (FudgeMsg) responseContainer;
     byte[] responseBytes = getFudgeContext().toByteArray(responseMsg);

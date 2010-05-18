@@ -29,7 +29,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
   private InetAddress _inetAddress;
   private int _portNumber;
   
-  private boolean _started = false;
+  private boolean _started;
   private Socket _socket;
 
   /**
@@ -65,7 +65,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
   }
   
   protected void startIfNecessary() {
-    if(!isRunning()) {
+    if (!isRunning()) {
       s_logger.debug("Starting implicitly as start() was not called before use.");
       start();
     }
@@ -95,7 +95,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
       os = _socket.getOutputStream();
       is = _socket.getInputStream();
     } catch (IOException ioe) {
-      throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() +":" + getPortNumber(), ioe);
+      throw new OpenGammaRuntimeException("Unable to open remote connection to " + getInetAddress() + ":" + getPortNumber(), ioe);
     }
     os = new BufferedOutputStream(os);
     socketOpened(_socket, os, is);
@@ -103,7 +103,7 @@ public abstract class AbstractSocketProcess implements Lifecycle {
 
   @Override
   public synchronized void stop() {
-    if(_socket.isConnected()) {
+    if (_socket.isConnected()) {
       try {
         _socket.close();
       } catch (IOException e) {

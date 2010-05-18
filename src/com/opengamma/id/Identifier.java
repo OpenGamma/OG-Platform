@@ -177,11 +177,11 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
-  public int compareTo(Identifier o) {
-    if (_scheme.compareTo(o._scheme) != 0) {
-      return _scheme.compareTo(o._scheme);
+  public int compareTo(Identifier other) {
+    if (_scheme.compareTo(other._scheme) != 0) {
+      return _scheme.compareTo(other._scheme);
     }
-    return _value.compareTo(o._value);
+    return _value.compareTo(other._value);
   }
 
   @Override
@@ -212,17 +212,27 @@ public final class Identifier implements Identifiable, Comparable<Identifier>, C
   }
 
   //-------------------------------------------------------------------------
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
-    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
+  /**
+   * Serializes this pair to a Fudge message.
+   * @param factory  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+    ArgumentChecker.notNull(factory, "Fudge Context");
+    MutableFudgeFieldContainer msg = factory.newMessage();
     msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme().getName());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
   }
 
-  public static Identifier fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
-    String scheme = fudgeMsg.getString(SCHEME_FUDGE_FIELD_NAME);
-    String value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
+  /**
+   * Deserializes this pair from a Fudge message.
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static Identifier fromFudgeMsg(FudgeFieldContainer msg) {
+    String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
+    String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     return Identifier.of(scheme, value);
   }
 

@@ -50,14 +50,14 @@ public class JmsByteArraySource implements ByteArraySource {
   public synchronized List<byte[]> batchReceive(long maxWaitInMilliseconds) {
     getJmsTemplate().setReceiveTimeout(maxWaitInMilliseconds);
     Message message = getJmsTemplate().receive();
-    if(message == null) {
+    if (message == null) {
       return Collections.emptyList();
     }
     _lastMessageBatch.clear();
     List<byte[]> byteBatch = new LinkedList<byte[]>();
     getJmsTemplate().setReceiveTimeout(JmsTemplate.RECEIVE_TIMEOUT_NO_WAIT);
     
-    while(message != null) {
+    while (message != null) {
       _lastMessageBatch.add(message);
       byte[] bytes = JmsByteArrayHelper.extractBytes(message);
       byteBatch.add(bytes);

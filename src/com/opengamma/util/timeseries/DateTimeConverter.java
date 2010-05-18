@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -30,10 +32,14 @@ public interface DateTimeConverter<DATE_TYPE> {
   long convertToLong(DATE_TYPE dateTime);
 
   FastLongDoubleTimeSeries convertToLong(FastLongDoubleTimeSeries templateTS, DoubleTimeSeries<DATE_TYPE> dts);
+  
+  <T> FastLongObjectTimeSeries<T> convertToLong(FastLongObjectTimeSeries<T> templateTS, ObjectTimeSeries<DATE_TYPE, T> dts);
 
   DATE_TYPE convertFromLong(long dateTime);
 
   DoubleTimeSeries<DATE_TYPE> convertFromLong(DoubleTimeSeries<DATE_TYPE> templateTS, FastLongDoubleTimeSeries pldts);
+  
+  <T> ObjectTimeSeries<DATE_TYPE, T> convertFromLong(ObjectTimeSeries<DATE_TYPE, T> templateTS, FastLongObjectTimeSeries<T> pldts);
 
   List<DATE_TYPE> convertFromLong(LongList dateTimes);
 
@@ -48,10 +54,14 @@ public interface DateTimeConverter<DATE_TYPE> {
   int convertToInt(DATE_TYPE dateTime);
 
   FastIntDoubleTimeSeries convertToInt(FastIntDoubleTimeSeries templateTS, DoubleTimeSeries<DATE_TYPE> dts);
+  
+  <T> FastIntObjectTimeSeries<T> convertToInt(FastIntObjectTimeSeries<T> templateTS, ObjectTimeSeries<DATE_TYPE, T> dts);
 
   DATE_TYPE convertFromInt(int dateTime);
 
   DoubleTimeSeries<DATE_TYPE> convertFromInt(DoubleTimeSeries<DATE_TYPE> templateTS, FastIntDoubleTimeSeries pidts);
+  
+  <T> ObjectTimeSeries<DATE_TYPE, T> convertFromInt(ObjectTimeSeries<DATE_TYPE, T> templateTS, FastIntObjectTimeSeries<T> pidts);
 
   List<DATE_TYPE> convertFromInt(IntList dateTimes);
 
@@ -64,4 +74,6 @@ public interface DateTimeConverter<DATE_TYPE> {
   // Other
 
   Pair<DATE_TYPE, Double> makePair(DATE_TYPE dateTime, Double value);
+  
+  <T> Pair<DATE_TYPE, T> makePair(DATE_TYPE dateTime, T value);
 }

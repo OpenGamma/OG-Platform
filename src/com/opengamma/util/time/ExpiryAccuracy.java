@@ -5,6 +5,22 @@
  */
 package com.opengamma.util.time;
 
+/**
+ * The accuracy of an {@code Expiry}.
+ */
 public enum ExpiryAccuracy {
-  DAY_MONTH_YEAR, MONTH_YEAR, YEAR
+
+  /**
+   * Accurate to a day.
+   */
+  DAY_MONTH_YEAR,
+  /**
+   * Accurate to a month.
+   */
+  MONTH_YEAR,
+  /**
+   * Accurate to a year.
+   */
+  YEAR,
+
 }

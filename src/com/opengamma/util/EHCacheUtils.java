@@ -14,31 +14,32 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * 
- *
- * @author kirk
+ * Utilities for working with EHCache.
  */
 public final class EHCacheUtils {
+
+  /**
+   * Restrictive constructor.
+   */
   private EHCacheUtils() {
   }
 
   /**
-   * @param manager
-   * @return
+   * Creates a cache manager.
+   * @return the cache manager, not null
    */
   public static CacheManager createCacheManager() {
-    CacheManager manager = null;
     try {
-      manager = CacheManager.create();
-    } catch (CacheException e) {
-      throw new OpenGammaRuntimeException("Unable to create CacheManager", e);
+      return CacheManager.create();
+    } catch (CacheException ex) {
+      throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }
-    return manager;
   }
 
   /**
-   * @param manager
-   * @param cache
+   * Adds a cache to the cache manager if necessary.
+   * @param manager  the cache manager, not null
+   * @param cache  the cache, not null
    */
   public static void addCache(CacheManager manager, Cache cache) {
     ArgumentChecker.notNull(manager, "CacheManager");
@@ -46,39 +47,41 @@ public final class EHCacheUtils {
     if (!manager.cacheExists(cache.getName())) {
       try {
         manager.addCache(cache);
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to add cache " + cache.getName(), e);
+      } catch (Exception ex) {
+        throw new OpenGammaRuntimeException("Unable to add cache " + cache.getName(), ex);
       }
     }
-
   }
 
   /**
-   * @param manager
+   * Adds a cache to the cache manager if necessary.
+   * @param manager  the cache manager, not null
+   * @param name  the cache name, not null
    */
   public static void addCache(final CacheManager manager, final String name) {
     if (!manager.cacheExists(name)) {
       try {
         manager.addCache(name);
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
+      } catch (Exception ex) {
+        throw new OpenGammaRuntimeException("Unable to create cache " + name, ex);
       }
     }
   }
 
   /**
-   * @param manager
-   * @param name
-   * @param maxElementsInMemory
-   * @param memoryStoreEvictionPolicy
-   * @param overflowToDisk
-   * @param diskStorePath
-   * @param eternal
-   * @param timeToLiveSeconds
-   * @param timeToIdleSeconds
-   * @param diskPersistent
-   * @param diskExpiryThreadIntervalSeconds
-   * @param registeredEventListeners
+   * Adds a cache to the cache manager if necessary.
+   * @param manager  the cache manager, not null
+   * @param name  the cache name, not null
+   * @param maxElementsInMemory  the maximum elements in memory
+   * @param memoryStoreEvictionPolicy  the eviction policy
+   * @param overflowToDisk  whether to overflow to disk
+   * @param diskStorePath  the path on disk
+   * @param eternal  eternal
+   * @param timeToLiveSeconds  the time to live in seconds
+   * @param timeToIdleSeconds  the time to idle in seconds
+   * @param diskPersistent  whether the disk is persistent
+   * @param diskExpiryThreadIntervalSeconds  the expiry interval in seconds
+   * @param registeredEventListeners  the listeners
    */
   public static void addCache(CacheManager manager, String name,
       int maxElementsInMemory,
@@ -95,26 +98,25 @@ public final class EHCacheUtils {
             memoryStoreEvictionPolicy, overflowToDisk, diskStorePath, eternal,
             timeToLiveSeconds, timeToIdleSeconds, diskPersistent,
             diskExpiryThreadIntervalSeconds, registeredEventListeners));
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Unable to create cache " + name, e);
+      } catch (Exception ex) {
+        throw new OpenGammaRuntimeException("Unable to create cache " + name, ex);
       }
     }
   }
 
   /**
-   * @param manager
-   * @param name
-   * @return
+   * Gets a cache from the manager.
+   * @param manager  the manager, not null
+   * @param name  the cache name, not null
+   * @return the cache, not null
    */
   public static Cache getCacheFromManager(CacheManager manager, String name) {
-    Cache cache = null;
     try {
-      cache = manager.getCache(name);
-    } catch (Exception e) {
+      return manager.getCache(name);
+    } catch (Exception ex) {
       throw new OpenGammaRuntimeException(
-          "Unable to retrieve from CacheManager, cache: " + name, e);
+          "Unable to retrieve from CacheManager, cache: " + name, ex);
     }
-    return cache;
   }
 
 }

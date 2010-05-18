@@ -110,7 +110,7 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
     @Override
     public Entry<DATE_TYPE, Double> next() {
       final Entry<Long, Double> next = _iterator.next();
-      return _converter.makePair(_converter.convertFromLong(next.getKey()), next.getValue());
+      return _converter.<Double>makePair(_converter.convertFromLong(next.getKey()), next.getValue());
     }
 
     @Override

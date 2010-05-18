@@ -17,84 +17,107 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.http.client.utils.URIUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Composes a {@link URL} with an optional Fudge taxonomy ID for the transport.
- * 
- * @author Andrew Griffin
  */
 public class RestTarget {
-  
+
   private final URI _uri;
   private final int _taxonomyId;
-  
-  public RestTarget (final URI uri) {
-    this (uri, 0);
+
+  public RestTarget(final URI uri) {
+    this(uri, 0);
   }
-  
-  private static URI createURI (final String uri) {
+
+  private static URI createURI(final String uri) {
     try {
-      return new URI (uri);
+      return new URI(uri);
     } catch (URISyntaxException e) {
-      throw new OpenGammaRuntimeException ("couldn't parse URI", e);
+      throw new OpenGammaRuntimeException("couldn't parse URI", e);
     }
   }
-  
-  public RestTarget (final String uri) {
-    this (createURI (uri));
+
+  public RestTarget(final String uri) {
+    this(createURI(uri));
   }
-  
-  public RestTarget (final URI uri, final int taxonomyId) {
-    if (uri == null) throw new NullPointerException ("uri cannot be null");
-    if ((taxonomyId < Short.MIN_VALUE) || (taxonomyId > Short.MAX_VALUE)) throw new IllegalArgumentException ("taxonomyId must be 16-bit signed integer");
+
+  public RestTarget(final String uri, final int taxonomyId) {
+    this(createURI(uri), taxonomyId);
+  }
+
+  public RestTarget(final URI uri, final int taxonomyId) {
+    ArgumentChecker.notNull(uri, "URI");
+    if (taxonomyId < Short.MIN_VALUE || taxonomyId > Short.MAX_VALUE) {
+      throw new IllegalArgumentException("taxonomyId must be 16-bit signed integer");
+    }
     _uri = uri;
     _taxonomyId = taxonomyId;
   }
-  
-  public RestTarget (final String uri, final int taxonomyId) {
-    this (createURI (uri), taxonomyId);
-  }
-  
-  public URI getURI () {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the target URI.
+   * @return the target URI, not null
+   */
+  public URI getURI() {
     return _uri;
   }
-  
-  public int getTaxonomyId () {
+
+  /**
+   * Gets the taxonomy id.
+   * @return the taxonomy id
+   */
+  public int getTaxonomyId() {
     return _taxonomyId;
   }
-  
-  protected String encodedSpec (final String spec) {
+
+  //-------------------------------------------------------------------------
+  protected String encodedSpec(final String spec) {
     try {
-      return URLEncoder.encode (spec, "UTF-8").replace ("+", "%20");
+      return URLEncoder.encode(spec, "UTF-8").replace("+", "%20");
     } catch (UnsupportedEncodingException e) {
-      throw new OpenGammaRuntimeException ("internal error", e);
+      throw new OpenGammaRuntimeException("internal error", e);
     }
   }
-  
-  protected RestTarget resolveInternal (final String encodedSpec) {
-    return new RestTarget (URIUtils.resolve (getURI (), encodedSpec), getTaxonomyId ());
+
+  protected RestTarget resolveInternal(final String encodedSpec) {
+    return new RestTarget(URIUtils.resolve(getURI(), encodedSpec), getTaxonomyId());
   }
-  
-  public RestTarget resolve (final String spec) {
-    return resolveInternal (encodedSpec (spec));
+
+  public RestTarget resolve(final String spec) {
+    return resolveInternal(encodedSpec(spec));
   }
-  
-  public RestTarget resolveBase (final String spec) {
-    return resolveInternal (encodedSpec (spec) + '/');
+
+  public RestTarget resolveBase(final String spec) {
+    return resolveInternal(encodedSpec(spec) + '/');
   }
-  
+
+  /**
+   * Returns a copy of this target with a query appended to the URI.
+   * @param key  the query key, not null
+   * @param values  the values associated with the key, not null
+   * @return a target based on this with the query updated, not null
+   */
   public RestTarget resolveQuery(String key, List<String> values) {
     URI uri = UriBuilder.fromUri(getURI()).queryParam(key, values.toArray()).build();
     return new RestTarget(uri, getTaxonomyId());
   }
-  
-  public RestTarget withTaxonomyId (final int taxonomyId) {
-    return new RestTarget (getURI (), taxonomyId);
+
+  /**
+   * Returns a copy of this target with a different taxonomy.
+   * @param taxonomyId  the new taxonomy
+   * @return a target based on this with the taxonomy changed, not null
+   */
+  public RestTarget withTaxonomyId(final int taxonomyId) {
+    return new RestTarget(getURI(), taxonomyId);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public String toString () {
-    return "{\"" + getURI () + "\", {Fudge taxonomy " + getTaxonomyId () + "}}";
+  public String toString() {
+    return "{\"" + getURI() + "\", {Fudge taxonomy " + getTaxonomyId() + "}}";
   }
 
 }

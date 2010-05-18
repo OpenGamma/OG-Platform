@@ -111,8 +111,13 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   public UniqueIdentifier getUniqueIdentifier() {
     return this;
   }
-  
+
+  /**
+   * Gets the scheme as an {@code IdentificationScheme}.
+   * @return the scheme, not null
+   */
   public IdentificationScheme getSchemeObject() {
+    // TODO: this is probably an invalid conversion
     return new IdentificationScheme(getScheme());
   }
 
@@ -158,17 +163,27 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
   }
 
   //-------------------------------------------------------------------------
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
-    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
+  /**
+   * Serializes this pair to a Fudge message.
+   * @param factory  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+    ArgumentChecker.notNull(factory, "Fudge Context");
+    MutableFudgeFieldContainer msg = factory.newMessage();
     msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
     return msg;
   }
 
-  public static UniqueIdentifier fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
-    String scheme = fudgeMsg.getString(SCHEME_FUDGE_FIELD_NAME);
-    String value = fudgeMsg.getString(VALUE_FUDGE_FIELD_NAME);
+  /**
+   * Deserializes this pair from a Fudge message.
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static UniqueIdentifier fromFudgeMsg(FudgeFieldContainer msg) {
+    String scheme = msg.getString(SCHEME_FUDGE_FIELD_NAME);
+    String value = msg.getString(VALUE_FUDGE_FIELD_NAME);
     return UniqueIdentifier.of(scheme, value);
   }
 

@@ -49,7 +49,7 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   /**
    * The cached hash code.
    */
-  private volatile transient int _hashCode;
+  private transient volatile int _hashCode;
 
   /**
    * Creates an empty bundle.
@@ -100,9 +100,17 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     _hashCode = calcHashCode();
   }
 
+  /**
+   * Recalculate the hash code on deserialization.
+   * @param in  the input stream
+   */
   private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
     _hashCode = calcHashCode();
+  }
+
+  private int calcHashCode() {
+    return 31 + _identifiers.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -221,10 +229,6 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     return false;
   }
 
-  protected int calcHashCode() {
-    return 31 + _identifiers.hashCode();
-  }
-
   @Override
   public int hashCode() {
     return _hashCode;
@@ -241,18 +245,28 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
   }
 
   //-------------------------------------------------------------------------
-  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
-    ArgumentChecker.notNull(fudgeMessageFactory, "Fudge Context");
-    MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
-    for (Identifier identifier: getIdentifiers()) {
-      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(fudgeMessageFactory));
+  /**
+   * Serializes this pair to a Fudge message.
+   * @param factory  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory factory) {
+    ArgumentChecker.notNull(factory, "Fudge Context");
+    MutableFudgeFieldContainer msg = factory.newMessage();
+    for (Identifier identifier : getIdentifiers()) {
+      msg.add(ID_FUDGE_FIELD_NAME, identifier.toFudgeMsg(factory));
     }
     return msg;
   }
 
-  public static IdentifierBundle fromFudgeMsg(FudgeFieldContainer fudgeMsg) {
+  /**
+   * Deserializes this pair from a Fudge message.
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static IdentifierBundle fromFudgeMsg(FudgeFieldContainer msg) {
     Set<Identifier> identifiers = new HashSet<Identifier>();
-    for (FudgeField field : fudgeMsg.getAllByName(ID_FUDGE_FIELD_NAME)) {
+    for (FudgeField field : msg.getAllByName(ID_FUDGE_FIELD_NAME)) {
       if (field.getValue() instanceof FudgeFieldContainer == false) {
         throw new IllegalArgumentException("Message provider has field named " + ID_FUDGE_FIELD_NAME + " which doesn't contain a sub-Message");
       }

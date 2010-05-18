@@ -36,7 +36,7 @@ import com.opengamma.util.tuple.LongDoublePair;
  * @author jim
  * 
  */
-public class FastListLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSeries implements FastMutableLongDoubleTimeSeries {
+public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTimeSeries {
   final LongArrayList _times;
   final DoubleArrayList _values;
 

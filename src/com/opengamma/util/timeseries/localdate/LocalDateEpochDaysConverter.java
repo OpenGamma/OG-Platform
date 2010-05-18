@@ -25,8 +25,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -98,6 +101,22 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     }
     return (DoubleTimeSeries<LocalDate>) templateTS.newInstance(dates, values);
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ObjectTimeSeries<LocalDate, T> convertFromInt(ObjectTimeSeries<LocalDate, T> templateTS, FastIntObjectTimeSeries<T> pidts) {
+    final LocalDate[] dates = new LocalDate[pidts.size()];
+    final T[] values = (T[]) new Object[pidts.size()];
+    final Iterator<Entry<Integer, T>> iterator = pidts.iterator();
+    int i = 0;
+    while (iterator.hasNext()) {
+      final Entry<Integer, T> entry = iterator.next();
+      dates[i] = LocalDate.ofEpochDays(entry.getKey());
+      values[i] = entry.getValue();
+      i++;
+    }
+    return (ObjectTimeSeries<LocalDate, T>) templateTS.newInstance(dates, values);
+  }
 
   @Override
   public FastIntDoubleTimeSeries convertToInt(final FastIntDoubleTimeSeries templateTS, final DoubleTimeSeries<LocalDate> dts) {
@@ -114,6 +133,22 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     return templateTS.newInstanceFast(dates, values);
   }
 
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> FastIntObjectTimeSeries<T> convertToInt(FastIntObjectTimeSeries<T> templateTS, ObjectTimeSeries<LocalDate, T> dts) {
+    final Iterator<Entry<LocalDate, T>> iterator = dts.iterator();
+    final int[] dates = new int[dts.size()];
+    final T[] values = (T[]) new Object[dts.size()];
+    int i = 0;
+    while (iterator.hasNext()) {
+      final Entry<LocalDate, T> entry = iterator.next();
+      dates[i] = (int) (entry.getKey().toEpochDays());
+      values[i] = entry.getValue();
+      i++;
+    }
+    return templateTS.newInstanceFast(dates, values);  }
+  
   @Override
   public int convertToInt(final LocalDate dateTime) {
     return (int) dateTime.toEpochDays();
@@ -203,6 +238,22 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     }
     return (DoubleTimeSeries<LocalDate>) templateTS.newInstance(dateTimes, values);
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> ObjectTimeSeries<LocalDate, T> convertFromLong(ObjectTimeSeries<LocalDate, T> templateTS, FastLongObjectTimeSeries<T> pldts) {
+    final LocalDate[] dateTimes = new LocalDate[pldts.size()];
+    final T[] values = (T[]) new Object[pldts.size()];
+    int i = 0;
+    final Iterator<Entry<Long, T>> iterator = pldts.iterator();
+    while (iterator.hasNext()) {
+      final Entry<Long, T> entry = iterator.next();
+      dateTimes[i] = LocalDate.ofEpochDays(entry.getKey());
+      values[i] = entry.getValue();
+      i++;
+    }
+    return (ObjectTimeSeries<LocalDate, T>) templateTS.newInstance(dateTimes, values);
+  }
 
   @Override
   public FastLongDoubleTimeSeries convertToLong(final FastLongDoubleTimeSeries templateTS, final DoubleTimeSeries<LocalDate> dts) {
@@ -217,6 +268,28 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
       i++;
     }
     return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> FastLongObjectTimeSeries<T> convertToLong(
+      FastLongObjectTimeSeries<T> templateTS, ObjectTimeSeries<LocalDate, T> dts) {
+    final Iterator<Entry<LocalDate, T>> iterator = dts.iterator();
+    final long[] dateTimes = new long[dts.size()];
+    final T[] values = (T[]) new Object[dts.size()];
+    int i = 0;
+    while (iterator.hasNext()) {
+      final Entry<LocalDate, T> entry = iterator.next(); 
+      dateTimes[i] = entry.getKey().toEpochDays();
+      values[i] = entry.getValue();
+      i++;
+    }
+    return templateTS.newInstanceFast(dateTimes, values);
+  }
+
+  @Override
+  public <T> Pair<LocalDate, T> makePair(LocalDate dateTime, T value) {
+    return Pair.of(dateTime, value);
   }
 
 }

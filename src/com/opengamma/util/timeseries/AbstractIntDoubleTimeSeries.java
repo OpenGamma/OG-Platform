@@ -111,7 +111,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
     @Override
     public Entry<DATE_TYPE, Double> next() {
       final Entry<Integer, Double> next = _iterator.next();
-      return _converter.makePair(_converter.convertFromInt(next.getKey()), next.getValue());
+      return _converter.<Double>makePair(_converter.convertFromInt(next.getKey()), next.getValue());
     }
 
     @Override
