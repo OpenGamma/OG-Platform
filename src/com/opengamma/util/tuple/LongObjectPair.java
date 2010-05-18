@@ -15,7 +15,7 @@ import org.apache.http.util.LangUtils;
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil longerface.
  *
- * @author jim
+ * @param <T> The entity type for the Second side of the underlying Pair.
  */
 public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.Entry<T> {
 

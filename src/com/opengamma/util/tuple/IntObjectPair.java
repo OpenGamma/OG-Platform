@@ -15,7 +15,7 @@ import org.apache.http.util.LangUtils;
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
  *
- * @author jim
+ * @param <T> The entity type for the Second side of the underlying Pair.
  */
 public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.Entry<T> {
 
