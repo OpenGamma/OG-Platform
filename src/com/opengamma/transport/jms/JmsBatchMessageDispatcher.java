@@ -46,12 +46,12 @@ public class JmsBatchMessageDispatcher extends AbstractBatchMessageDispatcher {
   protected void dispatchMessages(List<byte[]> messages) {
     super.dispatchMessages(messages);
     switch(getJmsSource().getJmsTemplate().getSessionAcknowledgeMode()) {
-    case Session.AUTO_ACKNOWLEDGE:
-    case Session.DUPS_OK_ACKNOWLEDGE:
-      // Do nothing.
-      return;
-    default:
-      acknowledgeMessageBatch();
+      case Session.AUTO_ACKNOWLEDGE:
+      case Session.DUPS_OK_ACKNOWLEDGE:
+        // Do nothing.
+        return;
+      default:
+        acknowledgeMessageBatch();
     }
   }
 
@@ -59,7 +59,7 @@ public class JmsBatchMessageDispatcher extends AbstractBatchMessageDispatcher {
    * 
    */
   private void acknowledgeMessageBatch() {
-    for(Message message : getJmsSource().getLastMessageBatch()) {
+    for (Message message : getJmsSource().getLastMessageBatch()) {
       try {
         message.acknowledge();
       } catch (JMSException e) {

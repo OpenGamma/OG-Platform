@@ -12,16 +12,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Holds a number of {@link TerminatableJob} instances, controls their threads,
  * and allows batch lifecycle operations.
- *
  */
 public class TerminatableJobContainer {
+
+  /**
+   * The queue of active jobs.
+   */
   private final Queue<TerminatableJob> _activeJobs = new LinkedBlockingQueue<TerminatableJob>();
-  
+
+  /**
+   * Adds a job to the queue.
+   * @param job  the job to add, not null
+   */
   public void addJob(TerminatableJob job) {
     ArgumentChecker.notNull(job, "Job");
     _activeJobs.add(job);
   }
-  
+
+  /**
+   * Adds a job to the queue and start a thread.
+   * @param job  the job to add, not null
+   * @param threadName  the thread name
+   */
   public void addJobAndStartThread(TerminatableJob job, String threadName) {
     ArgumentChecker.notNull(job, "Job");
     Thread t = new Thread(job, threadName);
@@ -29,17 +41,24 @@ public class TerminatableJobContainer {
     _activeJobs.add(job);
     t.start();
   }
-  
+
+  /**
+   * Cleans up all terminated instances.
+   * This removes the job from the queue.
+   */
   public void cleanupTerminatedInstances() {
     Iterator<TerminatableJob> jobIter = _activeJobs.iterator();
-    while(jobIter.hasNext()) {
+    while (jobIter.hasNext()) {
       TerminatableJob job = jobIter.next();
-      if(job.isTerminated()) {
+      if (job.isTerminated()) {
         jobIter.remove();
       }
     }
   }
-  
+
+  /**
+   * Terminates all instances that are active.
+   */
   public void terminateAll() {
     TerminatableJob job = _activeJobs.poll();
     while (job != null) {

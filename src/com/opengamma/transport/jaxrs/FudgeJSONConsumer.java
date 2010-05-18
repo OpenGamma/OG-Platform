@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -17,31 +17,38 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 
-import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.FudgeMsgReader;
 import org.fudgemsg.json.FudgeJSONStreamReader;
 
 /**
- * Register as a Jax-RS provider to support REST request payloads containing JSON encoded messages. 
- * 
- * @author Andrew Griffin
+ * Register as a JAX-RS provider to support REST request payloads containing JSON encoded messages. 
  */
 @Consumes("application/json")
 public class FudgeJSONConsumer extends FudgeBase implements MessageBodyReader<FudgeMsgEnvelope> {
-  
-  public FudgeJSONConsumer () {
-    super ();
-  }
-  
-  @Override
-  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.isAssignableFrom (FudgeMsgEnvelope.class);
+
+  /**
+   * Creates the consumer.
+   */
+  public FudgeJSONConsumer() {
+    super();
   }
 
   @Override
-  public FudgeMsgEnvelope readFrom(Class<FudgeMsgEnvelope> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
-    return (new FudgeMsgReader (new FudgeJSONStreamReader (getFudgeContext (), new InputStreamReader (entityStream)))).nextMessageEnvelope ();
+  public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    return type.isAssignableFrom(FudgeMsgEnvelope.class);
   }
-  
+
+  @Override
+  public FudgeMsgEnvelope readFrom(
+      Class<FudgeMsgEnvelope> type,
+      Type genericType,
+      Annotation[] annotations,
+      MediaType mediaType,
+      MultivaluedMap<String, String> httpHeaders,
+      InputStream entityStream) throws IOException, WebApplicationException {
+    FudgeMsgReader reader = new FudgeMsgReader(new FudgeJSONStreamReader(getFudgeContext(), new InputStreamReader(entityStream)));
+    return reader.nextMessageEnvelope();
+  }
+
 }

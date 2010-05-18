@@ -16,8 +16,9 @@ import java.util.Comparator;
  * <i>x<sub>1</sub> = x<sub>2</sub></i> and <i>y<sub>1</sub> < y<sub>2</sub></i><br>
  * <p>
  * This comparator does not support {@code null} elements in the pair.
- * 
- * @author emcleod
+ *
+ * @param <A> the first element type
+ * @param <B> the second element type
  */
 public final class FirstThenSecondPairComparator<A extends Comparable<A>, B extends Comparable<B>> implements Comparator<Pair<A, B>> {
 

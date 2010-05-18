@@ -13,3 +13,4 @@ derby.log
 db/
 !db/*/create-db.sql
 /.fudge-proto-gitignore
+MANIFEST.MF

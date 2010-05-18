@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -32,8 +32,8 @@ import com.opengamma.util.ArgumentChecker;
  * @author kirk
  */
 public class JmsByteArrayRequestSender
-extends AbstractJmsByteArraySender
-implements ByteArrayRequestSender {
+    extends AbstractJmsByteArraySender
+    implements ByteArrayRequestSender {
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayRequestSender.class);
   
   private final ExecutorService _executor;
@@ -74,7 +74,7 @@ implements ByteArrayRequestSender {
               MessageProducer producer = session.createProducer(requestDestination);
               producer.send(bytesMessage);
               Message response = consumer.receive(getJmsTemplate().getReceiveTimeout());
-              if(response == null) {
+              if (response == null) {
                 // TODO UTL-37.
                 s_logger.error("Timeout reached while waiting for a response to send to {}", responseReceiver);
                 return null;

@@ -14,17 +14,17 @@ import org.hibernate.dialect.Dialect;
  */
 public interface DBDialect {
   
-  public void initialise(String dbServerHost, String user, String password);
-  public void shutdown();
+  void initialise(String dbServerHost, String user, String password);
+  void shutdown();
   
-  public Dialect getHibernateDialect();
+  Dialect getHibernateDialect();
   
-  public Class<?> getJDBCDriverClass();
+  Class<?> getJDBCDriverClass();
   
   /**
    * @return Database name, all in lower case (derby, postgres, ...)
    */
-  public String getDatabaseName();
+  String getDatabaseName();
 
   
   /**
@@ -35,27 +35,27 @@ public interface DBDialect {
    * @param catalog Catalog (= database) name. Not null.
    * @param schema Schema name within database. May be null, in which case database default schema is used.
    */
-  public void createSchema(String catalog, String schema);
+  void createSchema(String catalog, String schema);
   
   /**
    * Drops all tables and sequences in the database. 
    * <p>
    * If the database does not exist, does nothing.
    * 
-   * @param Catalog name. Not null.
-   * @param Schema name. May be null, in which case database default schema is used.
+   * @param catalog name. Not null.
+   * @param schema name. May be null, in which case database default schema is used.
    */
-  public void dropSchema(String catalog, String schema);
+  void dropSchema(String catalog, String schema);
   
   /**
    * Clears all tables in the database. The tables will still exist after this operation.
    * <p>
    * If the database does not exist, does nothing.
    * 
-   * @param Catalog name. Not null.
-   * @param Schema name. May be null, in which case database default schema is used.
+   * @param catalog name. Not null.
+   * @param schema name. May be null, in which case database default schema is used.
    */
-  public void clearTables(String catalog, String schema);
+  void clearTables(String catalog, String schema);
   
   /**
    * Executes SQL against a database.
@@ -63,12 +63,15 @@ public interface DBDialect {
    * @param catalog Catalog (= database) name. Not null.
    * @param sql SQL to execute. Not null.
    */
-  public void executeSql(String catalog, String sql);
+  void executeSql(String catalog, String sql);
   
   /**
    * Returns a string describing the structure of the database. It may be a set of statements to construct it or
    * other representation. Comparison of the string must be the same as structural and content equality.
+   * 
+   * @param catalog Name of the catalog.
+   * @return A string describing the database, which is dialect specific.
    */
-  public String describeDatabase (String catalog);
+  String describeDatabase(String catalog);
 
 }

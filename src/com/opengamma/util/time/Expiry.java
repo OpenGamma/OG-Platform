@@ -11,28 +11,55 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 
+/**
+ * An indication of when something expires.
+ */
 public class Expiry implements InstantProvider {
 
+  /**
+   * The expiry date-time.
+   */
   private final ZonedDateTime _expiry;
+  /**
+   * The accuracy of the expiry.
+   */
   private final ExpiryAccuracy _accuracy;
 
+  /**
+   * Creates an expiry with no specific accuracy.
+   * @param expiry  the expiry date-time
+   */
   public Expiry(final ZonedDateTime expiry) {
     _expiry = expiry;
     _accuracy = null;
   }
 
+  /**
+   * Creates an expiry with an accuracy.
+   * @param expiry  the expiry date-time
+   * @param accuracy  the accuracy
+   */
   public Expiry(final ZonedDateTime expiry, final ExpiryAccuracy accuracy) {
     _expiry = expiry;
     _accuracy = accuracy;
   }
 
-  public ExpiryAccuracy getAccuracy() {
-    return _accuracy;
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the expiry date-time.
+   * @return the date-time
+   */
   // we probably don't need this.
   public ZonedDateTime getExpiry() {
     return _expiry;
+  }
+
+  /**
+   * Gets the accuracy of the expiry.
+   * @return the accuracy
+   */
+  public ExpiryAccuracy getAccuracy() {
+    return _accuracy;
   }
 
   @Override
@@ -40,12 +67,14 @@ public class Expiry implements InstantProvider {
     return _expiry.toInstant();
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals(final Object o) {
-    if (!(o instanceof Expiry))
-      return false;
-    final Expiry other = (Expiry) o;
-    return ObjectUtils.equals(other.getAccuracy(), getAccuracy()) && other.getExpiry().equals(getExpiry());
+  public boolean equals(final Object obj) {
+    if (obj instanceof Expiry) {
+      final Expiry other = (Expiry) obj;
+      return ObjectUtils.equals(other.getAccuracy(), getAccuracy()) && other.getExpiry().equals(getExpiry());
+    }
+    return false;
   }
 
   @Override
@@ -55,9 +84,11 @@ public class Expiry implements InstantProvider {
 
   @Override
   public String toString() {
-    if (_accuracy != null)
+    if (_accuracy != null) {
       return "Expiry[" + _expiry + " accuracy " + _accuracy + "]";
-    else
+    } else {
       return "Expiry[" + _expiry + "]";
+    }
   }
+
 }

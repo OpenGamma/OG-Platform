@@ -111,7 +111,7 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
     
     @Override
     protected void runOneCycle() {
-      if(_socket.isClosed()) {
+      if (_socket.isClosed()) {
         terminate();
         return;
       }
@@ -124,7 +124,7 @@ public class ServerSocketFudgeMessageReceiver extends AbstractServerSocketProces
         return;
       }
       
-      if(envelope == null) {
+      if (envelope == null) {
         s_logger.info("Nothing available on the stream. Returning and terminating.");
         terminate();
         return;

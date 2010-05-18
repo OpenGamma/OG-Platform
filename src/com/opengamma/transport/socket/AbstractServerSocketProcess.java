@@ -21,17 +21,16 @@ import com.opengamma.util.ThreadUtil;
 /**
  * 
  *
- * @author kirk
  */
 public abstract class AbstractServerSocketProcess implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractServerSocketProcess.class);
-  private int _portNumber = 0;
+  private int _portNumber;
   private InetAddress _bindAddress;
 
   private ServerSocket _serverSocket;
   private Thread _socketAcceptThread;
   private SocketAcceptJob _socketAcceptJob;
-  private boolean _started = false;
+  private boolean _started;
   
   /**
    * @return the portNumber
@@ -72,7 +71,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
     try {
       // NOTE kirk 2010-05-12 -- Backlog of 50 from ServerSocket.
       _serverSocket = new ServerSocket(getPortNumber(), 50, getBindAddress());
-      if(getPortNumber() == 0) {
+      if (getPortNumber() == 0) {
         s_logger.info("Received inbound port {}", _serverSocket.getLocalPort());
       }
       setPortNumber(_serverSocket.getLocalPort());
@@ -99,7 +98,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
       // Totally fine.
     }
 
-    ThreadUtil.safeJoin(_socketAcceptThread, 60*1000l);
+    ThreadUtil.safeJoin(_socketAcceptThread, 60 * 1000L);
     try {
       _serverSocket.close();
     } catch (IOException e) {
@@ -117,7 +116,7 @@ public abstract class AbstractServerSocketProcess implements Lifecycle {
         Socket socket = _serverSocket.accept();
         // Double-check here because we sometimes open sockets just to force
         // termination.
-        if(!isTerminated()) {
+        if (!isTerminated()) {
           socketOpened(socket);
         }
       } catch (IOException e) {

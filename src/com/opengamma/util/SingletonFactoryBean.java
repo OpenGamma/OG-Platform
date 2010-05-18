@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -10,17 +10,20 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Base class for building Spring factories for singleton objects.
- * 
- * @author Andrew Griffin
+ * @param <T> the type of the factory bean
  */
 public abstract class SingletonFactoryBean<T> implements FactoryBean, InitializingBean {
-  
-  private T _instance;
-  
+
   /**
-   * Override this to create the instance
+   * The singleton instance.
    */
-  protected abstract T createObject ();
+  private T _instance;
+
+  /**
+   * Override this to create the instance.
+   * @return the created object
+   */
+  protected abstract T createObject();
 
   @Override
   public final T getObject() {
@@ -30,11 +33,11 @@ public abstract class SingletonFactoryBean<T> implements FactoryBean, Initializi
 
   @Override
   public final Class<?> getObjectType() {
-    T obj = getObject ();
+    T obj = getObject();
     if (obj == null) {
       return null;
     } else {
-      return obj.getClass ();
+      return obj.getClass();
     }
   }
 
@@ -42,11 +45,11 @@ public abstract class SingletonFactoryBean<T> implements FactoryBean, Initializi
   public final boolean isSingleton() {
     return true;
   }
-  
+
   @Override
-  public void afterPropertiesSet () {
-    _instance = createObject ();
+  public void afterPropertiesSet() {
+    _instance = createObject();
     //System.out.println ("afterPropertiesSet called on " + getClass ());
   }
-  
+
 }

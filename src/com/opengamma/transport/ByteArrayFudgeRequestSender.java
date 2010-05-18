@@ -51,7 +51,7 @@ public class ByteArrayFudgeRequestSender implements FudgeRequestSender {
     if (!(request instanceof FudgeMsg)) {
       throw new OpenGammaRuntimeException("request not a FudgeMsg Type");
     }
-    FudgeMsg msg = (FudgeMsg)request;
+    FudgeMsg msg = (FudgeMsg) request;
     byte[] bytes = getFudgeContext().toByteArray(msg);
     
     ByteArrayMessageReceiver receiver = new ByteArrayFudgeMessageReceiver(responseReceiver, getFudgeContext());

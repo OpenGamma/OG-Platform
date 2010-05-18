@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * 
  *
- * @author jim MINE MINE MINE
  */
 public class BulkTimeSeriesOperations {
   @SuppressWarnings("unchecked")

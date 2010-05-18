@@ -10,16 +10,13 @@ import java.util.List;
 /**
  * An interface through which code can receive blocks of messages to operate
  * on them as one unit.
- *
- * @author kirk
  */
 public interface BatchByteArrayMessageReceiver {
-  
+
   /**
-   * Invoked when at least one message has been received.
+   * Receives and processes a list of byte array messages.
    * Messages are provided in the order originally received.
-   * 
-   * @param messages The messages received by the underlying transport handler.
+   * @param messages  the messages received by the underlying transport handler, not null
    */
   void messagesReceived(List<byte[]> messages);
 

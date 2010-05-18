@@ -12,8 +12,6 @@ import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
  * <p>
  * The class provides direct access to the primitive types and implements
  * the relevant fastutil interface.
- *
- * @author jim
  */
 public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap.Entry {
 
@@ -43,10 +41,18 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
     return _second;
   }
 
+  /**
+   * Gets the first element as a primitive {@code long}.
+   * @return the primitive
+   */
   public long getFirstLong() {
     return _first;
   }
 
+  /**
+   * Gets the second element as a primitive {@code double}.
+   * @return the primitive
+   */
   public double getSecondDouble() {
     return _second;
   }

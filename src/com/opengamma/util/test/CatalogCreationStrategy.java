@@ -8,17 +8,18 @@ package com.opengamma.util.test;
 /**
  * 
  *
- * @author pietari
  */
 public interface CatalogCreationStrategy {
   
-  public boolean catalogExists(String catalog);
+  boolean catalogExists(String catalog);
   
   /**
    * Creates a catalog.
    * <p>
    * If the catalog already exists, does nothing.
+   * 
+   * @param catalog Name of the catalog to create.
    */
-  public void create(String catalog);
+  void create(String catalog);
 
 }

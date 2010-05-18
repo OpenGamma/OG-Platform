@@ -21,7 +21,6 @@ import org.apache.commons.lang.builder.CompareToBuilder;
  * that may be stored. If mutable objects are stored in the triple, then the triple
  * itself effectively becomes mutable.
  *
- * @author emcleod
  * @param <A> the first element type
  * @param <B> the second element type
  * @param <C> the third element type
@@ -37,9 +36,13 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
 
   /**
    * Factory method creating a triple inferring the types.
+   * @param <A> the first element type
+   * @param <B> the second element type
+   * @param <C> the third element type
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @param third  the third element, may be null
+   * @return a triple formed from the three parameters, not null
    */
   public static <A, B, C> Triple<A, B, C> of(A first, B second, C third) {
     return new Triple<A, B, C>(first, second, third);
@@ -87,6 +90,7 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
    * Gets the elements from this triple as a list.
    * This method supports auto-casting as they is no way in generics to provide
    * a more specific type.
+   * @param <T> an auto-cast list type
    * @return the elements as a list, never null
    */
   @SuppressWarnings("unchecked")
@@ -121,9 +125,9 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
    * @return negative if this is less, zero if equal, positive if greater
    */
   @Override
-  public int compareTo(Triple<A, B, C> o) {
-    return new CompareToBuilder().append(_first, o._first)
-            .append(_second, o._second).append(_third, o._third).toComparison();
+  public int compareTo(Triple<A, B, C> other) {
+    return new CompareToBuilder().append(_first, other._first)
+            .append(_second, other._second).append(_third, other._third).toComparison();
   }
 
   @Override
@@ -131,8 +135,8 @@ public final class Triple<A, B, C> implements Comparable<Triple<A, B, C>>, Seria
     if (this == obj) {
       return true;
     }
-    if (obj instanceof Triple<?,?,?>) {
-      Triple<?,?,?> other = (Triple<?,?,?>) obj;
+    if (obj instanceof Triple<?, ?, ?>) {
+      Triple<?, ?, ?> other = (Triple<?, ?, ?>) obj;
       return ObjectUtils.equals(getFirst(), other.getFirst()) &&
               ObjectUtils.equals(getSecond(), other.getSecond()) &&
               ObjectUtils.equals(getThird(), other.getThird());

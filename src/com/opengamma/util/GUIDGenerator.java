@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -10,28 +10,37 @@ import java.net.UnknownHostException;
 import java.util.UUID;
 
 /**
- * 
- *
- * @author yomi
+ * A generator of GUID.
  */
-public class GUIDGenerator {
+public final class GUIDGenerator {
+
   /**
    * The last time value. Used to remove duplicate UUIDs.
    */
   private static long s_lastTime = Long.MIN_VALUE;
-  
   /**
    * The current clock and node value.
    */
   private static long s_clockSeqAndNode = 0x8000000000000000L;
-  
+
+  /**
+   * Restrictive constructor.
+   */
   private GUIDGenerator() {
   }
-  
+
+  /**
+   * Generate a UUID.
+   * @return the UUID, not null
+   */
   public static UUID generate() {
     return new UUID(newTime(), generateClockSeqAndNode(MacAddressLookUp.ADDRESS));
   }
-  
+
+  /**
+   * Generates the time part of the GUID.
+   * @return the time
+   */
   public static synchronized long newTime() {
     long time;
     // UTC time
@@ -49,12 +58,13 @@ public class GUIDGenerator {
     time |= 0x1000 | ((timeMillis >> 48) & 0x0FFF); // version 1
     return time;
   }
-  
+
   /**
-   * @param macAddress
-   * @return
+   * Generates part of the GUID.
+   * @param macAddress  the MAC address, null uses the local host address
+   * @return the clock sequence and node
    */
-  private synchronized static long generateClockSeqAndNode(String macAddress) {
+  private static synchronized long generateClockSeqAndNode(String macAddress) {
     if (macAddress != null) {
       s_clockSeqAndNode |= parseLong(macAddress);
     } else {
@@ -73,7 +83,12 @@ public class GUIDGenerator {
 //    s_clockSeqAndNode |= (long) (Math.random() * 0x3FFF) << 48;
     return s_clockSeqAndNode;
   }
-  
+
+  /**
+   * Parses a string to a long as required by GUID.
+   * @param s  the string, not null
+   * @return the long
+   */
   public static long parseLong(CharSequence s) {
     long out = 0;
     byte shifts = 0;

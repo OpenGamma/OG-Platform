@@ -19,8 +19,6 @@ import com.opengamma.util.NamedThreadPoolFactory;
 /**
  * Constructs a number of threads which each will dispatch byte array requests.
  * Can be used as a simple way of multithreading request receivers.
- *
- * @author kirk
  */
 public class InMemoryQueueByteArrayRequestConduit implements Lifecycle, ByteArrayRequestSender {
   private class DispatchJob implements Runnable {
@@ -62,7 +60,8 @@ public class InMemoryQueueByteArrayRequestConduit implements Lifecycle, ByteArra
   public InMemoryQueueByteArrayRequestConduit(int nWorkerThreads, ByteArrayRequestReceiver underlying) {
     _underlying = underlying;
     ThreadFactory tf = new NamedThreadPoolFactory("InMemoryQueueByteArrayRequestConduit", true);
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nWorkerThreads, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+        0, nWorkerThreads, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
     _executor = executor;
     _localExecutor = true;
   }
@@ -105,10 +104,10 @@ public class InMemoryQueueByteArrayRequestConduit implements Lifecycle, ByteArra
 
   @Override
   public synchronized void stop() {
-    if(!isRunning()) {
+    if (!isRunning()) {
       return;
     }
-    if(_localExecutor) {
+    if (_localExecutor) {
       getExecutor().shutdown();
       try {
         getExecutor().awaitTermination(60, TimeUnit.SECONDS);

@@ -18,20 +18,28 @@ import javax.ws.rs.core.MultivaluedMap;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
- * Register as a Jax-RS provider to support REST responses that are Fudge encoded messages. 
- * 
- * @author Andrew Griffin
+ * Register as a JAX-RS provider to support REST responses that are Fudge encoded messages. 
  */
 @Produces("application/vnd.fudgemsg")
 public class FudgeBinaryProducer extends FudgeProducer {
-  
-  public FudgeBinaryProducer () {
-    super ();
+
+  /**
+   * Creates the producer.
+   */
+  public FudgeBinaryProducer() {
+    super();
   }
-  
+
   @Override
-  public void writeTo(FudgeMsgEnvelope t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-    getFudgeContext ().createMessageWriter (entityStream).writeMessageEnvelope (t, getFudgeTaxonomyId ());
+  public void writeTo(
+      FudgeMsgEnvelope t,
+      Class<?> type,
+      Type genericType,
+      Annotation[] annotations,
+      MediaType mediaType,
+      MultivaluedMap<String, Object> httpHeaders,
+      OutputStream entityStream) throws IOException, WebApplicationException {
+    getFudgeContext().createMessageWriter(entityStream).writeMessageEnvelope(t, getFudgeTaxonomyId());
   }
-  
+
 }

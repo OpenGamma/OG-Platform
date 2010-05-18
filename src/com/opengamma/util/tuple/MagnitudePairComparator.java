@@ -16,8 +16,6 @@ import java.util.Comparator;
  * If the magnitude is equal then the {@link QuadrantPairComparator} is used.
  * <p>
  * This comparator does not support {@code null} elements in the pair.
- * 
- * @author emcleod
  */
 public final class MagnitudePairComparator implements Comparator<Pair<Double, Double>> {
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -9,23 +9,21 @@ import org.fudgemsg.FudgeContext;
 
 /**
  * Base class for the Fudge JAX-RS objects.
- * 
- * @author Andrew Griffin
  */
-/* package */ abstract class FudgeBase {
+/* package */abstract class FudgeBase {
 
   private FudgeContext _fudgeContext;
-  
-  protected FudgeBase () {
-    setFudgeContext (FudgeContext.GLOBAL_DEFAULT);
+
+  protected FudgeBase() {
+    setFudgeContext(FudgeContext.GLOBAL_DEFAULT);
   }
-  
-  public void setFudgeContext (final FudgeContext fudgeContext) {
+
+  public void setFudgeContext(final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
   }
-  
-  public FudgeContext getFudgeContext () {
+
+  public FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
-  
+
 }

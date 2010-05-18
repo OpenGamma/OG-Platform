@@ -11,12 +11,17 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 
 /**
- * An interface through which multiple fudge messages can be provided for
+ * An interface through which multiple Fudge messages can be provided for
  * batch operation.
- *
- * @author kirk
  */
 public interface BatchFudgeMessageReceiver {
 
-  void messagesReceived(FudgeContext fudgeContext, List<FudgeMsgEnvelope> msgEnvelope);
+  /**
+   * Receives and processes a list of byte array messages.
+   * Messages are provided in the order originally received.
+   * @param fudgeContext  the Fudge context, not null
+   * @param messages  the messages received by the underlying transport handler, not null
+   */
+  void messagesReceived(FudgeContext fudgeContext, List<FudgeMsgEnvelope> messages);
+
 }
