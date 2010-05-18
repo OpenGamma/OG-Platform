@@ -34,6 +34,6 @@ public class UnderlyingTypeToValueRequirementMapper {
           throw new NotImplementedException("Don't know how to get ValueRequirement for " + underlying);
       }
     }
-    throw new NotImplementedException("Can only get ValueRequirements for options");
+    throw new NotImplementedException("Can only get ValueRequirements for options (was " + security + ")");
   }
 }
