@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.securities;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 import com.opengamma.financial.GICSCode;
@@ -12,56 +16,87 @@ import com.opengamma.financial.GICSCode;
 /**
  * 
  *
- * @author Andrew
  */
 public class GICSCodeTest {
   
   @Test(expected=IllegalArgumentException.class)
-  public void testInvalid1 () {
-    GICSCode.getInstance (0);
+  public void testInvalid1() {
+    GICSCode.getInstance(0);
   }
   
   @Test(expected=IllegalArgumentException.class)
-  public void testInvalid2 () {
-    GICSCode.getInstance (100);
+  public void testInvalid2() {
+    GICSCode.getInstance(100);
   }
   
   @Test(expected=IllegalArgumentException.class)
-  public void testInvalid3 () {
-    GICSCode.getInstance (10100);
+  public void testInvalid3() {
+    GICSCode.getInstance(10100);
   }
   
   @Test(expected=IllegalArgumentException.class)
-  public void testInvalid4 () {
-    GICSCode.getInstance (1010100);
+  public void testInvalid4() {
+    GICSCode.getInstance(1010100);
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testInvalidString1() {
+    GICSCode.getInstance("Kirk Wylie");
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testInvalidString2() {
+    GICSCode.getInstance("-5");
   }
   
   @Test
-  public void testValid1 () {
+  public void testValid1() {
     for (int i = 1; i <= 99; i++) {
-      GICSCode.getInstance (i);
+      GICSCode.getInstance(i);
     }
   }
   
   @Test
-  public void testValid2 () {
+  public void testValid2() {
     for (int i = 1; i <= 99; i++) {
-      GICSCode.getInstance (100 + i);
+      GICSCode.getInstance(100 + i);
     }
   }
   
   @Test
-  public void testValid3 () {
+  public void testValid3() {
     for (int i = 1; i <= 99; i++) {
-      GICSCode.getInstance (10100 + i);
+      GICSCode.getInstance(10100 + i);
     }
   }
   
   @Test
-  public void testValid4 () {
+  public void testValid4() {
     for (int i = 1; i <= 99; i++) {
-      GICSCode.getInstance (1010100 + i);
+      GICSCode.getInstance(1010100 + i);
     }
+  }
+  
+  @Test
+  public void testValidString() {
+    GICSCode.getInstance("10101001");
+  }
+  
+  @Test
+  public void testEquals() {
+    GICSCode c1 = GICSCode.getInstance(1);
+    GICSCode c2 = GICSCode.getInstance(1);
+    GICSCode c3 = GICSCode.getInstance(10);
+    assertTrue(c1.equals(c1));
+    assertTrue(c1.equals(c2));
+    assertFalse(c1.equals(c3));
+    assertFalse(c1.equals("1"));
+  }
+  
+  @Test
+  public void testHashCode() {
+    GICSCode c1 = GICSCode.getInstance(1);
+    assertEquals(c1.getCode(), c1.hashCode());
   }
   
 }
