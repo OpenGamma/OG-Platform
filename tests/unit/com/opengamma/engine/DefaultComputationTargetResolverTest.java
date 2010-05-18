@@ -87,10 +87,14 @@ public class DefaultComputationTargetResolverTest {
     InMemoryPositionMaster posMaster = new InMemoryPositionMaster();
     PortfolioImpl p = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Name");
     p.getRootNode().addPosition(POSITION);
+    System.out.println ("position = " + POSITION);
     posMaster.addPortfolio(p);
+    System.out.println ("portfolio = " + p);
     DefaultComputationTargetResolver test = new DefaultComputationTargetResolver(secMaster, posMaster);
     ComputationTargetSpecification spec = new ComputationTargetSpecification(POSITION);
     ComputationTarget expected = new ComputationTarget(POSITION);
+    System.out.println ("spec = " + spec);
+    System.out.println ("expected = " + expected);
     assertEquals(expected, test.resolve(spec));
   }
 
