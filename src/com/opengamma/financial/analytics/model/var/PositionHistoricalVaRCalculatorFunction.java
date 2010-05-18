@@ -24,13 +24,10 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.financial.var.NormalLinearVaRCalculator;
 import com.opengamma.financial.var.NormalStatistics;
-import com.opengamma.financial.var.historical.HistoricalVaRDataBundle;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-
-import edu.emory.mathcs.backport.java.util.Collections;
 
 /**
  * 
