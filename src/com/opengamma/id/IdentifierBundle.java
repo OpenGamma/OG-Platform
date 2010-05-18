@@ -292,5 +292,5 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     }
     return 0;
   }
-
+  
 }
