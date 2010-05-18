@@ -30,6 +30,8 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -45,11 +47,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewProcessorResource {
   
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorResource.class);
+  
   private final JmsTemplate _jmsTemplate;
   private final String _jmsTopicPrefix;
   private final ViewProcessorClient _viewProcessorClient;
   private final FudgeContext _fudgeContext;
   
+  // view name -> listener
   private final ConcurrentMap<String,ResultListener> _listeners = new ConcurrentHashMap<String,ResultListener> ();
   
   public ViewProcessorResource (final JmsTemplate jmsTemplate, final String jmsTopicPrefix, final FudgeContext fudgeContext, final ViewProcessorClient viewProcessorClient) {
@@ -61,6 +66,7 @@ public class ViewProcessorResource {
     _jmsTopicPrefix = jmsTopicPrefix;
     _fudgeContext = fudgeContext;
     _viewProcessorClient = viewProcessorClient;
+    s_logger.debug ("created for {} with topicPrefix {}", viewProcessorClient, jmsTopicPrefix);
   }
   
   protected JmsTemplate getJmsTemplate () {

@@ -5,21 +5,18 @@
  */
 package com.opengamma.engine;
 
-import java.util.Collection;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -42,6 +39,14 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    * The position master.
    */
   private final PositionMaster _positionMaster;
+  
+  /**
+   * Delegate {@code ComputationTargetResolver} for resolving the security for a position, and underlying
+   * nodes of multiple-positions. Defaults to this object, but can be changed to the {@code CachingComputationTargetResolver}
+   * to improve performance of the cache (e.g. make sure that all deep position and security nodes get cached
+   * when a node higher up in the tree is requested).
+   */
+  private ComputationTargetResolver _recursiveResolver = this;
 
   /**
    * Creates a resolver using a security and position master.
@@ -53,6 +58,17 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     ArgumentChecker.notNull(positionMaster, "Position master");
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
+  }
+  
+  //-------------------------------------------------------------------------
+  
+  public void setRecursiveResolver (final ComputationTargetResolver recursiveResolver) {
+    ArgumentChecker.notNull (recursiveResolver, "Computation Target Resolver");
+    _recursiveResolver = recursiveResolver;
+  }
+  
+  public ComputationTargetResolver getRecursiveResolver () {
+    return _recursiveResolver;
   }
 
   //-------------------------------------------------------------------------
@@ -80,69 +96,69 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
    */
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    Identifier identifier = specification.getIdentifier();
+    UniqueIdentifier uid = specification.getUniqueIdentifier();
     switch (specification.getType()) {
       case PRIMITIVE: {
-        return new ComputationTarget(specification.getType(), identifier);
+        return new ComputationTarget(specification.getType(), uid);
       }
       case SECURITY: {
-        Security security = resolveSecurity(identifier);
-        s_logger.info("Resolved security ID {} to security {}", identifier, security);
-        if (security != null) {
-          return new ComputationTarget(ComputationTargetType.SECURITY, security);
-        }
-        break;
+        Security security = getSecurityMaster().getSecurity(uid);
+        s_logger.info("Resolved security ID {} to security {}", uid, security);
+        return (security == null ? null : new ComputationTarget(ComputationTargetType.SECURITY, security));
       }
       case POSITION: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
         Position position = getPositionMaster().getPosition(uid);
-        s_logger.info("Resolved position ID {} to position {}", identifier, position);
-        if (position != null) {
-          return new ComputationTarget(ComputationTargetType.POSITION, position);
+        s_logger.info("Resolved position ID {} to position {}", uid, position);
+        if (position == null) return null;
+        if (position.getSecurity () == null) {
+          Security security = getSecurityMaster ().getSecurity (position.getSecurityKey ());
+          if (security == null) {
+            s_logger.warn ("Couldn't resolve security ID {} for position ID {}", position.getSecurityKey (), uid);
+            return null;
+          }
+          s_logger.info ("Resolved security ID {} to security {}", position.getSecurityKey (), security);
+          position = new PositionImpl (position.getUniqueIdentifier (), position.getQuantity (), position.getSecurityKey (), security);
         }
-        break;
+        return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case MULTIPLE_POSITIONS: {
-        UniqueIdentifier uid = UniqueIdentifier.of(identifier.getScheme().getName(), identifier.getValue());
-        Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", identifier, portfolio);
+        final PortfolioNode node;
+        final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
+        s_logger.info("Resolved multiple position ID {} to portfolio {}", uid, portfolio);
         if (portfolio != null) {
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolio);
+          node = portfolio.getRootNode ();
+          if (node == null) {
+            s_logger.warn ("Root node for portfolio {} is null", portfolio);
+            return null;
+          }
+        } else {
+          node = getPositionMaster().getPortfolioNode(uid);
+          s_logger.info("Resolved multiple position ID {} to portfolio node {}", uid, node);
+          if (node == null) return null;
         }
-        PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
-        s_logger.info("Resolved portfolio node ID {} to portfolio node {}", identifier, node);
-        if (node != null) {
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, node);
+        final PortfolioNodeImpl newNode = new PortfolioNodeImpl (node.getUniqueIdentifier (), node.getName ());
+        for (PortfolioNode child : node.getChildNodes ()) {
+          final ComputationTarget resolvedChild = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier ()));
+          if (resolvedChild == null) {
+            s_logger.warn ("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier (), uid);
+          } else {
+            newNode.addChildNode (resolvedChild.getPortfolioNode ());
+          }
         }
-        break;
+        for (Position position : node.getPositions ()) {
+          final ComputationTarget resolvedPosition = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.POSITION, position.getUniqueIdentifier ()));
+          if (resolvedPosition == null) {
+            s_logger.warn ("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier (), uid);
+          } else {
+            newNode.addPosition (resolvedPosition.getPosition ());
+          }
+        }
+        return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, newNode);
       }
       default: {
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
       }
     }
-    return null;
   }
-
-  /**
-   * Resolves a security from the security master.
-   * @param identifier  the identifier to resolve.
-   * @return the security, not null
-   */
-  private Security resolveSecurity(Identifier identifier) {
-    if (ObjectUtils.equals(Security.SECURITY_IDENTITY_KEY_DOMAIN, identifier.getScheme())) {
-      return getSecurityMaster().getSecurity(identifier);
-    }
-    // must not be an "identity key", so try a regular identifier in the bundle
-    IdentifierBundle bundle = new IdentifierBundle(identifier);
-    Collection<Security> securities = getSecurityMaster().getSecurities(bundle);
-    if (securities.size() > 1) {
-      s_logger.warn("Got more than one result for {}:{}",identifier, securities);
-    }
-    if (securities.isEmpty()) {
-      return null;
-    } else {
-      return securities.iterator().next();
-    }
-  }
-
+  
 }

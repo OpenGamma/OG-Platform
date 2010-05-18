@@ -217,7 +217,6 @@ public class View implements Lifecycle {
     deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-
     for(ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(deltaModel, targetSpec, previousResult, result);
     }

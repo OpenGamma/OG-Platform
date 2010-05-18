@@ -30,8 +30,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.Identifier;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.transport.FudgeRequestSender;
 import com.opengamma.transport.InMemoryRequestConduit;
 
@@ -51,7 +50,7 @@ public class RemoteCacheRequestResponseTest {
     
     BitSet seenIds = new BitSet();
     for(int i = 0; i < 10; i++) {
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), "Value" + i))));
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value" + i))));
       long id = client.getValueSpecificationId(valueSpec);
       assertTrue(id <= Integer.MAX_VALUE);
       assertFalse(seenIds.get((int) id));
@@ -68,14 +67,14 @@ public class RemoteCacheRequestResponseTest {
     Map<String, Long> _idsByValueName = new HashMap<String, Long>();
     for(int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), valueName))));
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
       long id = client.getValueSpecificationId(valueSpec);
       _idsByValueName.put(valueName, id);
     }
 
     for(int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), valueName))));
+      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
       long id = client.getValueSpecificationId(valueSpec);
       assertEquals(_idsByValueName.get(valueName), new Long(id));
     }
@@ -99,7 +98,7 @@ public class RemoteCacheRequestResponseTest {
             for(int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), valueName))));
+              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
               long id = client.getValueSpecificationId(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if(previousValue != null) {
@@ -141,7 +140,8 @@ public class RemoteCacheRequestResponseTest {
             for(int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), valueName))));
+              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value",
+                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", valueName))));
               long id = client.getValueSpecificationId(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if(previousValue != null) {
@@ -171,7 +171,7 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheServer server = new RemoteCacheServer();
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), "Value"))));
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
     ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
     
     long timestamp = System.currentTimeMillis();
@@ -203,7 +203,7 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheServer server = new RemoteCacheServer();
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), "Value"))));
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
     ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
     
     long timestamp = System.currentTimeMillis();
@@ -222,7 +222,7 @@ public class RemoteCacheRequestResponseTest {
     RemoteCacheServer server = new RemoteCacheServer();
     FudgeRequestSender conduit = InMemoryRequestConduit.create(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit);
-    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, new Identifier(new IdentificationScheme("Kirk"), "Value"))));
+    ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Kirk", "Value"))));
     ComputedValue inputValue = new ComputedValue(valueSpec, 2.0);
     
     long timestamp = System.currentTimeMillis();

@@ -1,15 +1,20 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 
 package com.opengamma.engine.view.server;
 
+/**
+ * Names used in the view processor RESTful service.
+ */
 public class ViewProcessorServiceNames {
-  
+
+  /**
+   * The default name of the view processor.
+   */
   public static final String DEFAULT_VIEWPROCESSOR_NAME = "0";
-  
   public static final String VIEWPROCESSOR_LIVECOMPUTATIONSUPPORTED = "liveComputationSupported";
   public static final String VIEWPROCESSOR_ONEOFFCOMPUTATIONSUPPORTED = "oneOffComputationSupported";
   public static final String VIEWPROCESSOR_AVAILABLEVIEWNAMES = "availableViewNames";
@@ -33,11 +38,11 @@ public class ViewProcessorServiceNames {
   public static final String VIEW_PERFORMCOMPUTATION = "performComputation";
   public static final String VIEW_COMPUTATIONRESULT = "computationResult";
   public static final String VIEW_DELTARESULT = "deltaResult";
-  
+
   /**
-   * No instances
+   * Restricted constructor.
    */
   private ViewProcessorServiceNames () {
   }
-  
+
 }

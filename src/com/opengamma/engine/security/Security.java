@@ -1,57 +1,43 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.security;
 
-import java.util.Collection;
-
-import com.opengamma.id.Identifier;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
- * 
- *
- * @author kirk
+ * A security that it may be possible to hold a position in.
+ * <p>
+ * A security generically defined as anything that a position can be held in.
  */
-public interface Security extends Identifiable {
-  
-  public static final IdentificationScheme SECURITY_IDENTITY_KEY_DOMAIN = new IdentificationScheme("SecurityIdentityKey"); 
+public interface Security extends UniqueIdentifiable {
 
   /**
-   * Obtain all the security identifiers which are part of this
-   * {@code Security}'s description.
-   * 
-   * @return All identifiers for this security.
+   * Gets the unique identifier of the node.
+   * @return the identifier, not null
    */
-  Collection<Identifier> getIdentifiers();
-  
+  UniqueIdentifier getUniqueIdentifier();
+
   /**
-   * Returns a displayable name for the {@code Security} that is more user friently than the
-   * collection of identifiers.
-   * 
-   * @return a displayable name
+   * Gets the name of the security intended for display purposes.
+   * @return the name, not null
    */
-  String getDisplayName ();
-  
+  String getName();
+
   /**
-   * Obtain the dedicated market data definition for this security.
-   * This may combine a set of keys (for example, a Bloomberg Ticker and a
-   * Reuters RIC) in one analytic value definition.
-   * In the case where there is no specific market data definition for this security
-   * (for example, in the case of an instrument which isn't quoted or traded), this
-   * method should return {@code null}.
-   * 
-   * @return The market data definition for this {@code Security}, or {@code null}.
+   * Gets the bundle of identifiers that define the security.
+   * @return the identifiers defining the security, not null
    */
-  // TODO kirk 2009-12-31 -- Come up with new system for this.
-  //AnalyticValueDefinition<FudgeMsg> getMarketDataDefinition();
-  
+  IdentifierBundle getIdentifiers();
+
   /**
-   * Obtain the text-based type of this Security.
-   * @return The text-based type of this security.
+   * Gets the text-based type of this security.
+   * @return the text-based type of this security
    */
   String getSecurityType();
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -11,29 +11,41 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.fudgemsg.FudgeMessageFactory;
-import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A loose specification for a {@link Position} in a particular {@link Security},
- * identified by its Identity Key.
- *
- * @author kirk
+ * identified by a unique identifier.
  */
 public class PositionReference implements Serializable, Cloneable {
+
+  /**
+   * Fudge message key for the quantity.
+   */
   public static final String QUANTITY_FIELD_NAME = "quantity";
+  /**
+   * Fudge message key for the identifier.
+   */
   public static final String SECURITY_IDENTITY_KEY_FIELD_NAME = "securityIdentityKey";
+
+  /**
+   * The quantity of the security.
+   */
   private final BigDecimal _quantity;
-  private final Identifier _securityIdentityKey;
-  
-  public PositionReference(BigDecimal quantity, Identifier securityIdentityKey) {
+  /**
+   * The identifier of the security.
+   */
+  private final UniqueIdentifier _securityIdentityKey;
+
+  public PositionReference(BigDecimal quantity, UniqueIdentifier securityIdentityKey) {
     ArgumentChecker.notNull(quantity, "Quantity");
     ArgumentChecker.notNull(securityIdentityKey, "Security IdentityKey");
     _quantity = quantity;
@@ -43,12 +55,14 @@ public class PositionReference implements Serializable, Cloneable {
   public PositionReference(Position position) {
     ArgumentChecker.notNull(position, "Position");
     ArgumentChecker.notNull(position.getSecurity(), "Position's Security");
-    ArgumentChecker.notNull(position.getSecurity().getIdentityKey(), "Position's Security's IdentityKey");
+    ArgumentChecker.notNull(position.getSecurity().getUniqueIdentifier(), "Position's Security's UniqueIdentifier");
     _quantity = position.getQuantity();
-    _securityIdentityKey = position.getSecurity().getIdentityKey();
+    _securityIdentityKey = position.getSecurity().getUniqueIdentifier();
   }
 
+  //-------------------------------------------------------------------------
   /**
+   * Gets the quantity of the security.
    * @return the quantity
    */
   public BigDecimal getQuantity() {
@@ -56,12 +70,14 @@ public class PositionReference implements Serializable, Cloneable {
   }
 
   /**
-   * @return the securityIdentityKey
+   * Gets the identifier.
+   * @return the identifier
    */
-  public Identifier getSecurityIdentityKey() {
+  public UniqueIdentifier getSecurityIdentityKey() {
     return _securityIdentityKey;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -107,7 +123,8 @@ public class PositionReference implements Serializable, Cloneable {
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
-  
+
+  //-------------------------------------------------------------------------
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(QUANTITY_FIELD_NAME, getQuantity().toString());
@@ -120,7 +137,8 @@ public class PositionReference implements Serializable, Cloneable {
     FudgeFieldContainer msg = envelope.getMessage();
     BigDecimal quantity = new BigDecimal(msg.getString(QUANTITY_FIELD_NAME));
     FudgeFieldContainer identifierMsg = msg.getMessage(SECURITY_IDENTITY_KEY_FIELD_NAME);
-    Identifier identifier = Identifier.fromFudgeMsg(identifierMsg);
+    UniqueIdentifier identifier = UniqueIdentifier.fromFudgeMsg(identifierMsg);
     return new PositionReference(quantity, identifier);
   }
+
 }

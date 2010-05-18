@@ -14,6 +14,10 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 
 /**
  * 
+ * 
+ * NOTE: The result listeners must be maintained as a set. It should be possible to add the same listener multiple times but
+ * only have it receive one notification. After repeated calls to add, a single call to remove the listener should stop any
+ * further notifications.
  *
  * @author kirk
  */

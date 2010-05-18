@@ -9,7 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -120,7 +119,7 @@ public class PositionImplTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_construction_UniqueIdentifier_BigDecimal_Security() {
-    DefaultSecurity sec = new DefaultSecurity("A", Arrays.asList(Identifier.of("A", "B")));
+    DefaultSecurity sec = new DefaultSecurity("A", new IdentifierBundle(Identifier.of("A", "B")));
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, sec);
     assertEquals(UniqueIdentifier.of("B", "C"), test.getUniqueIdentifier());
     assertEquals(BigDecimal.ONE, test.getQuantity());

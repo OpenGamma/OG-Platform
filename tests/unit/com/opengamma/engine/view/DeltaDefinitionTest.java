@@ -14,7 +14,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Test DeltaDefinition. 
@@ -60,6 +60,6 @@ public class DeltaDefinitionTest {
   }
   
   private ValueSpecification createValueSpecification(String valueName) {
-    return new ValueSpecification (new ValueRequirement (valueName, ComputationTargetType.PRIMITIVE, new Identifier ("foo", "bar")));
+    return new ValueSpecification (new ValueRequirement (valueName, ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("foo", "bar")));
   }
 }

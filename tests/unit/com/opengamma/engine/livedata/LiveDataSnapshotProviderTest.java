@@ -19,22 +19,21 @@ import com.opengamma.engine.security.InMemorySecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.TestLiveDataClient;
 import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
- * 
- *
- * @author pietari
+ * Test LiveDataSnapshotProvider.
  */
 public class LiveDataSnapshotProviderTest {
-  
+
   UserPrincipal TEST_USER = new UserPrincipal("kirk", "127.0.0.1");
   UserPrincipal TEST_USER_2 = new UserPrincipal("alice", "127.0.0.1");
   
   protected ValueRequirement constructRequirement(String ticker) {
-    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.PRIMITIVE, new Identifier("testdomain", ticker));
+    return new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("testdomain", ticker));
   }
   
   @Test

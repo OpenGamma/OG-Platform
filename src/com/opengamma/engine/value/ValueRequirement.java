@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -8,82 +8,98 @@ package com.opengamma.engine.value;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.id.Identifier;
+import com.opengamma.engine.position.Position;
+import com.opengamma.engine.security.Security;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
+ * An immutable requirement to obtain a value needed to perform a calculation.
  */
-public class ValueRequirement implements Serializable {
+public final class ValueRequirement implements Serializable {
+
+  /**
+   * Fudge field name.
+   */
   public static final String VALUE_NAME_FIELD_NAME = "valueName";
-  
+
+  /**
+   * The value being requested.
+   */
   private final String _valueName;
+  /**
+   * The specification of the object that the value refers to.
+   */
   private final ComputationTargetSpecification _targetSpecification;
-  
-  public ValueRequirement(String valueName, ComputationTargetType targetType, Identifier targetKey) {
-    this(valueName, new ComputationTargetSpecification(targetType, targetKey));
+
+  /**
+   * Creates a requirement.
+   * @param valueName  the value to load, not null
+   * @param targetType  the target type, not null
+   * @param targetIdentifier  the target identifier, may be null
+   */
+  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetIdentifier) {
+    this(valueName, new ComputationTargetSpecification(targetType, targetIdentifier));
   }
-  
-  public ValueRequirement(String valueName, ComputationTargetType targetType, UniqueIdentifier targetKey) {
-    this(valueName, new ComputationTargetSpecification(targetType, targetKey));
+
+  /**
+   * Creates a requirement from an object.
+   * Example objects are {@link Position} and {@link Security}.
+   * @param valueName  the value to load, not null
+   * @param target  the target object, may be null
+   */
+  public ValueRequirement(String valueName, Object target) {
+    this(valueName, new ComputationTargetSpecification(target));
   }
-  
+
+  /**
+   * Creates a requirement.
+   * @param valueName  the value to load, not null
+   * @param targetSpecification  the target specification, not null
+   */
   public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification) {
     ArgumentChecker.notNull(valueName, "Value name");
     ArgumentChecker.notNull(targetSpecification, "Computation target specification");
     _valueName = valueName.intern();
     _targetSpecification = targetSpecification;
   }
-  
-  public ValueRequirement(String valueName, Object computationTarget) {
-    this(valueName, new ComputationTargetSpecification(computationTarget));
-  }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * @return the valueName
+   * Gets the name of the value to load.
+   * @return the valueName, not null
    */
   public String getValueName() {
     return _valueName;
   }
-  
+
   /**
-   * @return the targetSpecification
+   * Gets the specification of the target that is to be loaded.
+   * @return the target specification, not null
    */
   public ComputationTargetSpecification getTargetSpecification() {
     return _targetSpecification;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null) {
-      return false;
+    if (obj instanceof ValueRequirement) {
+      ValueRequirement other = (ValueRequirement) obj;
+      return _valueName == other._valueName &&  // values are interned
+        ObjectUtils.equals(_targetSpecification, other._targetSpecification);
     }
-    if(!(obj instanceof ValueRequirement)) {
-      return false;
-    }
-    ValueRequirement other = (ValueRequirement) obj;
-    // Note that we're interning, so we can do this.
-    if(_valueName != other._valueName) {
-      return false;
-    }
-    if(!ObjectUtils.equals(_targetSpecification, other._targetSpecification)) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
@@ -97,18 +113,25 @@ public class ValueRequirement implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new StrBuilder()
+      .append("ValueReq[")
+      .append(getValueName())
+      .append(", ")
+      .append(getTargetSpecification())
+      .append(']')
+      .toString();
   }
-  
+
+  //-------------------------------------------------------------------------
   public void toFudgeMsg (FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(VALUE_NAME_FIELD_NAME, _valueName);
     _targetSpecification.toFudgeMsg(fudgeContext, msg);
   }
-  
+
   public static ValueRequirement fromFudgeMsg(FudgeFieldContainer msg) {
     String valueName = msg.getString(VALUE_NAME_FIELD_NAME);
     ComputationTargetSpecification targetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg); 
     return new ValueRequirement(valueName, targetSpecification);
   }
-  
+
 }

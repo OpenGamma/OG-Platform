@@ -8,14 +8,11 @@ package com.opengamma.engine;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifiable;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -76,23 +73,6 @@ public class ComputationTarget implements Serializable {
   }
 
   /**
-   * Gets the unique identifier (old fashioned "identity key"), if one exists.
-   * @return the unique identifier, may be null
-   */
-  public Identifier getIdentityKey() {
-    // TODO: remove once Security is UniqueIdentifiable
-    Object value = getValue();
-    if (value instanceof Identifiable) {
-      return ((Identifiable) value).getIdentityKey();
-    }
-    if (value instanceof UniqueIdentifiable) {
-      UniqueIdentifier key = ((UniqueIdentifiable) value).getUniqueIdentifier();
-      return Identifier.of(key.getScheme(), key.getValue());
-    }
-    return null;
-  }
-
-  /**
    * Gets the unique identifier, if one exists.
    * @return the unique identifier, may be null
    */
@@ -100,10 +80,6 @@ public class ComputationTarget implements Serializable {
     Object value = getValue();
     if (value instanceof UniqueIdentifiable) {
       return ((UniqueIdentifiable) value).getUniqueIdentifier();
-    }
-    if (value instanceof Identifiable) {  // TODO: remove once Security is UniqueIdentifiable
-      Identifier key = ((Identifiable) value).getIdentityKey();
-      return UniqueIdentifier.of(key.getScheme().getName(), key.getValue());
     }
     return null;
   }
@@ -151,7 +127,7 @@ public class ComputationTarget implements Serializable {
    * @return the specification equivalent to this target, not null
    */
   public ComputationTargetSpecification toSpecification() {
-    return new ComputationTargetSpecification(_type, getIdentityKey());
+    return new ComputationTargetSpecification(_type, getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------
@@ -181,7 +157,13 @@ public class ComputationTarget implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    return new StrBuilder()
+      .append("CT[")
+      .append(getType())
+      .append(", ")
+      .append(getValue())
+      .append(']')
+      .toString();
   }
 
 }

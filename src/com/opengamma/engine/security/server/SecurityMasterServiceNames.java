@@ -5,21 +5,30 @@
  */
 package com.opengamma.engine.security.server;
 
+/**
+ * A class of names used in the RESTful security master.
+ */
 public class SecurityMasterServiceNames {
-  
+
   public static final String DEFAULT_SECURITYMASTER_NAME = "0";
-  
-  public static final String SECURITYMASTER_SECURITIES = "securities";
-  public static final String SECURITYMASTER_SECURITY = "security";
-  public static final String SECURITYMASTER_ALLSECURITYTYPES = "allSecurityTypes";
-  
-  public static final String PATH_VALUE = "V";
-  public static final String PATH_IDENTIFIER = "I";
-  
+
   /**
-   * No instances
+   * Fudge key for a list of securities.
    */
-  private SecurityMasterServiceNames () {
+  public static final String SECURITYMASTER_SECURITIES = "securities";
+  /**
+   * Fudge key for a security.
+   */
+  public static final String SECURITYMASTER_SECURITY = "security";
+  /**
+   * Fudge key for all security types.
+   */
+  public static final String SECURITYMASTER_ALLSECURITYTYPES = "allSecurityTypes";
+
+  /**
+   * No instances.
+   */
+  private SecurityMasterServiceNames() {
   }
-  
+
 }

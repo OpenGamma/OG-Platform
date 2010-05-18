@@ -27,6 +27,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeSerializationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.LocalViewClient;
@@ -38,6 +40,8 @@ import com.opengamma.engine.view.client.ViewClient;
  * @author Andrew Griffin
  */
 public class ViewResource {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewResource.class);
   
   private final ViewProcessorResource _viewProcessor;
   private final ViewClient _viewClient;
@@ -47,6 +51,7 @@ public class ViewResource {
     if (viewClient == null) throw new NullPointerException ("viewClient cannot be null");
     _viewProcessor = viewProcessor;
     _viewClient = viewClient;
+    s_logger.debug ("created for {} by {}", viewClient, viewProcessor);
   }
   
   protected ViewProcessorResource getViewProcessor () {

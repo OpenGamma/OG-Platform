@@ -10,7 +10,6 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.Identifier;
 
 /**
  * The type that computation will be base on.
@@ -47,8 +46,7 @@ public enum ComputationTargetType {
       case POSITION:
         return (target instanceof Position);
       case SECURITY:
-        return (target instanceof Security ||
-                (target instanceof Identifier && ((Identifier) target).isScheme(Security.SECURITY_IDENTITY_KEY_DOMAIN)));
+        return (target instanceof Security);
       case PRIMITIVE:
         return (target instanceof Portfolio == false &&
                 target instanceof PortfolioNode == false &&
@@ -76,9 +74,6 @@ public enum ComputationTargetType {
       return POSITION;
     }
     if (target instanceof Security) {
-      return SECURITY;
-    }
-    if (target instanceof Identifier && ((Identifier) target).isScheme(Security.SECURITY_IDENTITY_KEY_DOMAIN)) {
       return SECURITY;
     }
     return PRIMITIVE;  // anything else

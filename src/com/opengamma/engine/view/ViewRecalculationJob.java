@@ -57,7 +57,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
     // the constructor.
     result.setCalculationConfigurationNames(portfolioEvaluationModel.getAllCalculationConfigurationNames());
-    result.setPortfolio(portfolioEvaluationModel.getPortfolio(), portfolioEvaluationModel.getPopulatedRootNode());
+    result.setPortfolio(portfolioEvaluationModel.getPortfolio());
     
     SingleComputationCycle cycle = new SingleComputationCycle(
         getView().getDefinition().getName(),
@@ -75,7 +75,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     long delta = endTime - cycle.getStartTime();
     _totalTime += delta;
     _numExecutions += 1.0;
-    s_logger.warn("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
+    s_logger.info("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
     getView().recalculationPerformed(result);
     // Do this intentionally AFTER alerting the view. Because of the listener system,
     // we have to recompute the delta, because we have to factor in the dispatch time

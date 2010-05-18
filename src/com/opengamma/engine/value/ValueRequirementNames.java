@@ -1,18 +1,16 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.engine.value;
 
-
 /**
  * A collection of common/standard names for the Value Name property
  * for {@link ValueRequirement} instances.
- *
- * @author kirk
  */
 public interface ValueRequirementNames {
+
   // Market Data Names:
   public static final String MARKET_DATA_HEADER = "MarketDataHeader";
   
@@ -167,7 +165,12 @@ public interface ValueRequirementNames {
   public static final String SUM = "Sum";
   public static final String MEDIAN = "Median";
   
+  // History
+  public static final String PNL = "P&L";
+  public static final String PNL_SERIES = "P&L Series";
+  
   // Risk Aggregates:
+  public static final String HISTORICAL_VAR = "HistoricalVaR";
   public static final String ISOLATED_VAR = "IsolatedVaR";
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
 
