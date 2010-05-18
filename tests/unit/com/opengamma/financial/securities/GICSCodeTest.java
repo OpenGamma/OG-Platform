@@ -99,4 +99,13 @@ public class GICSCodeTest {
     assertEquals(c1.getCode(), c1.hashCode());
   }
   
+  @Test
+  public void codeDeconstruction() {
+    GICSCode c1 = GICSCode.getInstance(45103020);
+    assertEquals(45, c1.getSectorCode());
+    assertEquals(10, c1.getIndustryGroupCode());
+    assertEquals(30, c1.getIndustryCode());
+    assertEquals(20, c1.getSubIndustryCode());
+  }
+  
 }
