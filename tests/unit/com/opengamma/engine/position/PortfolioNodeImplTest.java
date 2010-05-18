@@ -86,15 +86,15 @@ public class PortfolioNodeImplTest {
   //-------------------------------------------------------------------------
   @Test(expected=UnsupportedOperationException.class)
   public void test_getChildNodes_immutable() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PortfolioNodeImpl child = new PortfolioNodeImpl();
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
+    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
     test.getChildNodes().add(child);
   }
 
   @Test
   public void test_addChildNode() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PortfolioNodeImpl child = new PortfolioNodeImpl();
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
+    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
     assertEquals(child, test.getChildNodes().get(0));
@@ -104,9 +104,9 @@ public class PortfolioNodeImplTest {
 
   @Test
   public void test_addChildNodes() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PortfolioNodeImpl child0 = new PortfolioNodeImpl();
-    PortfolioNodeImpl child1 = new PortfolioNodeImpl();
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
+    PortfolioNodeImpl child0 = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child0"), "child0");
+    PortfolioNodeImpl child1 = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child1"), "child1");
     test.addChildNodes(Arrays.asList(child0, child1));
     assertEquals(2, test.getChildNodes().size());
     assertEquals(child0, test.getChildNodes().get(0));
@@ -117,8 +117,8 @@ public class PortfolioNodeImplTest {
 
   @Test
   public void test_removeChildNode_match() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PortfolioNodeImpl child = new PortfolioNodeImpl();
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
+    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
     test.removeChildNode(child);
@@ -127,9 +127,9 @@ public class PortfolioNodeImplTest {
 
   @Test
   public void test_removeChildNode_noMatch() {
-    PortfolioNodeImpl test = new PortfolioNodeImpl();
-    PortfolioNodeImpl child = new PortfolioNodeImpl();
-    PortfolioNodeImpl removing = new PortfolioNodeImpl();
+    PortfolioNodeImpl test = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "test"), "test");
+    PortfolioNodeImpl child = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "child"), "child");
+    PortfolioNodeImpl removing = new PortfolioNodeImpl(UniqueIdentifier.of ("A", "removing"), "removing");
     test.addChildNode(child);
     assertEquals(1, test.getChildNodes().size());
     test.removeChildNode(removing);

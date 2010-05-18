@@ -7,6 +7,7 @@ package com.opengamma.engine.position;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.id.UniqueIdentifier;
@@ -148,6 +149,16 @@ public class PortfolioImpl implements Portfolio, Serializable {
       .append(getUniqueIdentifier())
       .append("]")
       .toString();
+  }
+  
+  @Override
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!(o instanceof PortfolioImpl)) return false;
+    final PortfolioImpl other = (PortfolioImpl)o;
+    return ObjectUtils.equals (getUniqueIdentifier (), other.getUniqueIdentifier ())
+        && ObjectUtils.equals (getName (), other.getName ())
+        && ObjectUtils.equals (getRootNode (), other.getRootNode ());
   }
 
 }

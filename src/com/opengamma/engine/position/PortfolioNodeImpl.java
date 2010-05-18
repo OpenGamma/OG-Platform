@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
@@ -235,6 +236,26 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
       .append(_positions.size())
       .append(" positions]")
       .toString();
+  }
+  
+  @Override
+  public boolean equals (final Object o) {
+    if (o == this) return true;
+    if (!(o instanceof PortfolioNodeImpl)) return false;
+    final PortfolioNodeImpl other = (PortfolioNodeImpl)o;
+    if (!ObjectUtils.equals (getUniqueIdentifier (), other.getUniqueIdentifier ())
+        || !ObjectUtils.equals (getName (), other.getName ())) return false;
+    final List<PortfolioNode> otherChildNodes = other.getChildNodes ();
+    final List<Position> otherPositions = other.getPositions ();
+    if (getChildNodes ().size () != otherChildNodes.size ()) return false;
+    if (getPositions ().size () != otherPositions.size ()) return false;
+    for (PortfolioNode node : getChildNodes ()) {
+      if (!otherChildNodes.contains (node)) return false;
+    }
+    for (Position position: getPositions ()) {
+      if (!otherPositions.contains (position)) return false;
+    }
+    return true;
   }
 
 }

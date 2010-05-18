@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
@@ -114,10 +115,10 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
           Security security = getSecurityMaster ().getSecurity (position.getSecurityKey ());
           if (security == null) {
             s_logger.warn ("Couldn't resolve security ID {} for position ID {}", position.getSecurityKey (), uid);
-            return null;
+          } else {
+            s_logger.info ("Resolved security ID {} to security {}", position.getSecurityKey (), security);
+            position = new PositionImpl (position.getUniqueIdentifier (), position.getQuantity (), position.getSecurityKey (), security);
           }
-          s_logger.info ("Resolved security ID {} to security {}", position.getSecurityKey (), security);
-          position = new PositionImpl (position.getUniqueIdentifier (), position.getQuantity (), position.getSecurityKey (), security);
         }
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
@@ -131,34 +132,39 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
             s_logger.warn ("Root node for portfolio {} is null", portfolio);
             return null;
           }
+          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl (portfolio.getUniqueIdentifier (), portfolio.getName (), resolvePortfolioNode (uid, node)));
         } else {
           node = getPositionMaster().getPortfolioNode(uid);
           s_logger.info("Resolved multiple position ID {} to portfolio node {}", uid, node);
           if (node == null) return null;
+          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode (uid, node));
         }
-        final PortfolioNodeImpl newNode = new PortfolioNodeImpl (node.getUniqueIdentifier (), node.getName ());
-        for (PortfolioNode child : node.getChildNodes ()) {
-          final ComputationTarget resolvedChild = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier ()));
-          if (resolvedChild == null) {
-            s_logger.warn ("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier (), uid);
-          } else {
-            newNode.addChildNode (resolvedChild.getPortfolioNode ());
-          }
-        }
-        for (Position position : node.getPositions ()) {
-          final ComputationTarget resolvedPosition = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.POSITION, position.getUniqueIdentifier ()));
-          if (resolvedPosition == null) {
-            s_logger.warn ("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier (), uid);
-          } else {
-            newNode.addPosition (resolvedPosition.getPosition ());
-          }
-        }
-        return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, newNode);
       }
       default: {
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
       }
     }
+  }
+  
+  private PortfolioNodeImpl resolvePortfolioNode (final UniqueIdentifier uid, final PortfolioNode node) {
+    final PortfolioNodeImpl newNode = new PortfolioNodeImpl (node.getUniqueIdentifier (), node.getName ());
+    for (PortfolioNode child : node.getChildNodes ()) {
+      final ComputationTarget resolvedChild = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier ()));
+      if (resolvedChild == null) {
+        s_logger.warn ("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier (), uid);
+      } else {
+        newNode.addChildNode (resolvedChild.getPortfolioNode ());
+      }
+    }
+    for (Position position : node.getPositions ()) {
+      final ComputationTarget resolvedPosition = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.POSITION, position.getUniqueIdentifier ()));
+      if (resolvedPosition == null) {
+        s_logger.warn ("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier (), uid);
+      } else {
+        newNode.addPosition (resolvedPosition.getPosition ());
+      }
+    }
+    return newNode;
   }
   
 }
