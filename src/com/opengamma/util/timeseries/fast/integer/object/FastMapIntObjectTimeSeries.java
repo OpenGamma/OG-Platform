@@ -30,7 +30,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 

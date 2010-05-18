@@ -5,14 +5,14 @@
  */
 package com.opengamma.util.timeseries.fast.longint.object;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -24,21 +24,18 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.ObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.tuple.LongObjectPair;
 
 public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTimeSeries<T> {
-  public static final FastLongObjectTimeSeries<Object> EMPTY_SERIES = new FastArrayLongObjectTimeSeries<Object>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-
   protected final long[] _times;
   protected final T[] _values;
 
   @SuppressWarnings("unchecked")
-  private FastArrayLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
+  public FastArrayLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
     _times = new long[0];
     _values = (T[]) new Object[0];

@@ -11,7 +11,6 @@ import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.FastObjectTimeSeries;
-import com.opengamma.util.timeseries.fast.FastTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
@@ -30,11 +29,11 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
   
   public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> operate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator);
   
-  public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> operate(final double other, final BinaryOperator<T> operator);
+  public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> operate(final T other, final BinaryOperator<T> operator);
   
   public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> operate(final UnaryOperator<T> operator);
   
-  public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> unionOperate(final FastTimeSeries<?> other, final BinaryOperator<T> operator);
+  public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> unionOperate(final FastObjectTimeSeries<?, T> other, final BinaryOperator<T> operator);
   
   public abstract FastBackedObjectTimeSeries<DATE_TYPE, T> unionOperate(final FastBackedObjectTimeSeries<?, T> other, final BinaryOperator<T> operator);
 
@@ -243,47 +242,47 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
 //    return new ListYearOffsetObjectTimeSeries(timeZone, zeroDate, toFastMutableLongMillisOTS());
 //  }
 //  
-//  @Override
-//  public FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries() {
-//    return getFastSeries().toFastIntObjectTimeSeries();
-//  }
-//
-//  @Override
-//  public FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries(
-//      DateTimeNumericEncoding encoding) {
-//    return getFastSeries().toFastIntObjectTimeSeries(encoding);
-//  }
-//
-//  @Override
-//  public FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries() {
-//    return getFastSeries().toFastLongObjectTimeSeries();
-//  }
-//
-//  @Override
-//  public FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries(
-//      DateTimeNumericEncoding encoding) {
-//    return getFastSeries().toFastLongObjectTimeSeries(encoding);
-//  }
-//
-//  @Override
-//  public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries() {
-//    return getFastSeries().toFastMutableIntObjectTimeSeries();
-//  }
-//
-//  @Override
-//  public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries(
-//      DateTimeNumericEncoding encoding) {
-//    return getFastSeries().toFastMutableIntObjectTimeSeries(encoding);
-//  }
-//
-//  @Override
-//  public FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries() {
-//    return getFastSeries().toFastMutableLongObjectTimeSeries();
-//  }
-//
-//  @Override
-//  public FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries(
-//      DateTimeNumericEncoding encoding) {
-//    return getFastSeries().toFastMutableLongObjectTimeSeries(encoding);
-//  }
+  @Override
+  public FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries() {
+    return getFastSeries().toFastIntObjectTimeSeries();
+  }
+
+  @Override
+  public FastIntObjectTimeSeries<T> toFastIntObjectTimeSeries(
+      DateTimeNumericEncoding encoding) {
+    return getFastSeries().toFastIntObjectTimeSeries(encoding);
+  }
+
+  @Override
+  public FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries() {
+    return getFastSeries().toFastLongObjectTimeSeries();
+  }
+
+  @Override
+  public FastLongObjectTimeSeries<T> toFastLongObjectTimeSeries(
+      DateTimeNumericEncoding encoding) {
+    return getFastSeries().toFastLongObjectTimeSeries(encoding);
+  }
+
+  @Override
+  public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries() {
+    return getFastSeries().toFastMutableIntObjectTimeSeries();
+  }
+
+  @Override
+  public FastMutableIntObjectTimeSeries<T> toFastMutableIntObjectTimeSeries(
+      DateTimeNumericEncoding encoding) {
+    return getFastSeries().toFastMutableIntObjectTimeSeries(encoding);
+  }
+
+  @Override
+  public FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries() {
+    return getFastSeries().toFastMutableLongObjectTimeSeries();
+  }
+
+  @Override
+  public FastMutableLongObjectTimeSeries<T> toFastMutableLongObjectTimeSeries(
+      DateTimeNumericEncoding encoding) {
+    return getFastSeries().toFastMutableLongObjectTimeSeries(encoding);
+  }
 }

@@ -5,15 +5,14 @@
  */
 package com.opengamma.util.timeseries.fast.longint.object;
 
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,9 +25,8 @@ import java.util.Map.Entry;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.AbstractFastBackedObjectTimeSeries;
-import com.opengamma.util.timeseries.ObjectTimeSeries;
-import com.opengamma.util.timeseries.TimeSeries;
 import com.opengamma.util.timeseries.FastBackedObjectTimeSeries;
+import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.tuple.LongObjectPair;
@@ -226,7 +224,6 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     return (T[]) _values.toArray();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ObjectIterator<T> valuesIteratorFast() {
     return _values.iterator();

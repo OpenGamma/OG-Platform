@@ -193,7 +193,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
     while (iterator.hasNext()) {
       final Entry<Long, T> entry = iterator.next();
       
-      final ZonedDateTime date = ZonedDateTime.fromInstant(Instant.millis(entry.getKey()), _timeZone);
+      final ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofMillis(entry.getKey()), _timeZone);
       dateTimes[i] = date;
       values[i] = entry.getValue();
       i++;

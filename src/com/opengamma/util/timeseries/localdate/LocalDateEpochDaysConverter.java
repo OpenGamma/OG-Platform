@@ -111,7 +111,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<Integer, T> entry = iterator.next();
-      dates[i] = LocalDate.fromEpochDays(entry.getKey());
+      dates[i] = LocalDate.ofEpochDays(entry.getKey());
       values[i] = entry.getValue();
       i++;
     }
@@ -248,7 +248,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     final Iterator<Entry<Long, T>> iterator = pldts.iterator();
     while (iterator.hasNext()) {
       final Entry<Long, T> entry = iterator.next();
-      dateTimes[i] = LocalDate.fromEpochDays(entry.getKey());
+      dateTimes[i] = LocalDate.ofEpochDays(entry.getKey());
       values[i] = entry.getValue();
       i++;
     }
