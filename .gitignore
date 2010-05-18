@@ -14,3 +14,4 @@ lib/
 derby.log
 db/derby/test_*
 db/derby/blank/
+MANIFEST.MF
