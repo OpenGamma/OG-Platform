@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @author kirk
  */
-public final class IdentifierBundle implements Iterable<Identifier>, Serializable {
+public final class IdentifierBundle implements Iterable<Identifier>, Serializable, Comparable<IdentifierBundle> {
 
   /**
    * Fudge message key for the identifier set.
@@ -259,6 +259,24 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
       identifiers.add(Identifier.fromFudgeMsg((FudgeFieldContainer) field.getValue()));
     }
     return new IdentifierBundle(identifiers);
+  }
+
+  //-------------------------------------------------------------------
+  @Override
+  public int compareTo(IdentifierBundle o) {
+    final Set<Identifier> mySet = getIdentifiers ();
+    final Set<Identifier> otherSet = o.getIdentifiers ();
+    if (mySet.size () < otherSet.size ()) return -1;
+    if (mySet.size () > otherSet.size ()) return 1;
+    final List<Identifier> myList = new ArrayList<Identifier> (mySet);
+    final List<Identifier> otherList = new ArrayList<Identifier> (otherSet);
+    Collections.sort (myList);
+    Collections.sort (otherList);
+    for (int i = 0; i < myList.size (); i++) {
+      int c = myList.get (i).compareTo (otherList.get (i));
+      if (c != 0) return c;
+    }
+    return 0;
   }
 
 }
