@@ -311,8 +311,7 @@ public class PortfolioEvaluationModel {
     if(node == null) {
       return null;
     }
-    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
-    populatedNode.setUniqueIdentifier(node.getUniqueIdentifier());
+    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(node.getUniqueIdentifier (), node.getName ());
     for(Position position : node.getPositions()) {
       Security security = position.getSecurity();
       if(position.getSecurity() == null) {
