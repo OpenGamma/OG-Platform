@@ -59,9 +59,10 @@ public class ViewComputationResultModelImpl implements
     }
   }
 
-  public void setPortfolio(Portfolio portfolio, PortfolioNode populatedRootNode) {
+  public void setPortfolio(Portfolio portfolio) {
+    final PortfolioNode rootNode = portfolio.getRootNode ();
     for(ViewCalculationResultModelImpl calcResultModel: _resultModels.values()) {
-      calcResultModel.recursiveAddPortfolio(populatedRootNode);
+      calcResultModel.recursiveAddPortfolio(rootNode);
     }
   }
   

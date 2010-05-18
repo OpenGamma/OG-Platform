@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetResolverAdapter;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphModel;
@@ -32,6 +35,7 @@ import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.PortfolioNodeTraverser;
@@ -41,6 +45,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -61,9 +66,9 @@ import com.opengamma.util.monitor.OperationTimer;
 public class PortfolioEvaluationModel {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioEvaluationModel.class);
   private static final boolean OUTOUT_DEPENDENCY_GRAPHS = false;
-  private final Portfolio _portfolio;
 
-  private PortfolioNode _populatedRootNode;
+  private Portfolio _portfolio;
+  
   // REVIEW kirk 2010-03-29 -- Use a sorted map here?
   private final Map<String, DependencyGraphModel> _graphModelsByConfiguration =
     new ConcurrentHashMap<String, DependencyGraphModel>();
@@ -73,7 +78,7 @@ public class PortfolioEvaluationModel {
   private final Set<Security> _securities = new HashSet<Security>();
   
   public PortfolioEvaluationModel(Portfolio portfolio) {
-    assert portfolio != null;
+    ArgumentChecker.notNull (portfolio, "Portfolio");
     _portfolio = portfolio;
   }
 
@@ -87,15 +92,8 @@ public class PortfolioEvaluationModel {
   /**
    * @param populatedRootNode the populatedRootNode to set
    */
-  public void setPopulatedRootNode(PortfolioNode populatedRootNode) {
-    _populatedRootNode = populatedRootNode;
-  }
-
-  /**
-   * @return the rootNode
-   */
-  public PortfolioNode getPopulatedRootNode() {
-    return _populatedRootNode;
+  public void setPopulatedRootNode(PortfolioNodeImpl populatedRootNode) {
+    _portfolio = new PortfolioImpl (_portfolio.getUniqueIdentifier (), _portfolio.getName (), populatedRootNode);
   }
 
   /**
@@ -123,6 +121,58 @@ public class PortfolioEvaluationModel {
   public DependencyGraphModel getDependencyGraphModel(String calcConfigName) {
     return _graphModelsByConfiguration.get(calcConfigName);
   }
+  
+  private class ResolvedSecurityComputationTargetResolver extends ComputationTargetResolverAdapter {
+    
+    private final Map<UniqueIdentifier,Position> _positionsByUID = new HashMap<UniqueIdentifier,Position>();
+    private final Map<UniqueIdentifier,Security> _securitiesByUID = new HashMap<UniqueIdentifier,Security>();
+    private final Map<UniqueIdentifier,PortfolioNode> _portfolioNodeByUID = new HashMap<UniqueIdentifier,PortfolioNode>();
+    
+    private ResolvedSecurityComputationTargetResolver (final ComputationTargetResolver defaultResolver) {
+      super (defaultResolver);
+      for (final Position position : getPopulatedPositions ()) {
+        _positionsByUID.put (position.getUniqueIdentifier (), position);
+      }
+      for (final Security security : getSecurities ()) {
+        _securitiesByUID.put (security.getUniqueIdentifier (), security);
+      }
+      populatePortfolioNodeByUID (getPortfolio ().getRootNode ());
+    }
+    
+    private void populatePortfolioNodeByUID (final PortfolioNode portfolioNode) {
+      _portfolioNodeByUID.put (portfolioNode.getUniqueIdentifier (), portfolioNode);
+      for (final PortfolioNode child : portfolioNode.getChildNodes ()) {
+        populatePortfolioNodeByUID (child);
+      }
+    }
+
+    @Override
+    public ComputationTarget resolve(ComputationTargetSpecification specification) {
+      UniqueIdentifier uid = specification.getUniqueIdentifier();
+      switch (specification.getType()) {
+        case SECURITY: {
+          Security security = _securitiesByUID.get (uid);
+          s_logger.debug ("Security ID {} requested, pre-resolved to {}", uid, security);
+          if (security == null) break;
+          return new ComputationTarget(ComputationTargetType.SECURITY, security);
+        }
+        case POSITION: {
+          Position position = _positionsByUID.get (uid);
+          s_logger.debug ("Position ID {} requested, pre-resolved to {}", uid, position);
+          if (position == null) break;
+          return new ComputationTarget(ComputationTargetType.POSITION, position);
+        }
+        case MULTIPLE_POSITIONS : {
+          PortfolioNode portfolioNode = _portfolioNodeByUID.get (uid);
+          s_logger.debug ("PortfolioNode ID {} requested, pre-resolved to {}", uid, portfolioNode);
+          if (portfolioNode == null) break;
+          return new ComputationTarget (ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode);
+        }
+      }
+      return super.resolve (specification);
+    }
+    
+  }
 
   public void init(
       ViewProcessingContext viewProcessingContext,
@@ -130,9 +180,10 @@ public class PortfolioEvaluationModel {
     ArgumentChecker.notNull(viewProcessingContext, "View Processing Context");
     ArgumentChecker.notNull(viewDefinition, "View Definition");
     
+    // Resolve all of the securities
     resolveSecurities(viewProcessingContext);
     
-    PortfolioNode populatedRootNode = getPopulatedPortfolioNode(getPortfolio().getRootNode(), viewProcessingContext.getSecurityMaster());
+    PortfolioNodeImpl populatedRootNode = getPopulatedPortfolioNode(getPortfolio().getRootNode());
     assert populatedRootNode != null;
     setPopulatedRootNode(populatedRootNode);
     
@@ -143,7 +194,7 @@ public class PortfolioEvaluationModel {
         viewProcessingContext.getFunctionResolver(),
         viewProcessingContext.getCompilationContext(),
         viewProcessingContext.getLiveDataAvailabilityProvider(),
-        viewProcessingContext.getComputationTargetResolver(),
+        new ResolvedSecurityComputationTargetResolver (viewProcessingContext.getComputationTargetResolver ()),
         viewDefinition);
     if(OUTOUT_DEPENDENCY_GRAPHS) {
       outputDependencyGraphs();
@@ -178,7 +229,7 @@ public class PortfolioEvaluationModel {
         failed = true;
         s_logger.warn("Had null security key in at least one position");
       } else {
-        completionService.submit(new SecurityResolutionJob(viewProcessingContext, secKey), secKey);
+        completionService.submit(new SecurityResolutionJob(viewProcessingContext.getSecurityMaster (), secKey), secKey);
       }
     }
     for(int i = 0; i < securityKeys.size(); i++) {
@@ -205,13 +256,13 @@ public class PortfolioEvaluationModel {
   }
   
   protected class SecurityResolutionJob implements Runnable {
-    private final ViewProcessingContext _viewProcessingContext;
+    private final SecurityMaster _securityMaster;
     private final IdentifierBundle _securityKey;
     
     public SecurityResolutionJob(
-        ViewProcessingContext viewProcessingContext,
+        SecurityMaster securityMaster,
         IdentifierBundle securityKey) {
-      _viewProcessingContext = viewProcessingContext;
+      _securityMaster = securityMaster;
       _securityKey = securityKey;
     }
     
@@ -219,7 +270,7 @@ public class PortfolioEvaluationModel {
     public void run() {
       Security security = null;
       try {
-        security = _viewProcessingContext.getSecurityMaster().getSecurity(_securityKey);
+        security = _securityMaster.getSecurity(_securityKey);
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Exception while resolving SecurityKey " + _securityKey, e);
       }
@@ -255,13 +306,12 @@ public class PortfolioEvaluationModel {
    * @param node
    * @return
    */
-  protected PortfolioNode getPopulatedPortfolioNode(
-      PortfolioNode node, SecurityMaster secMaster) {
+  protected PortfolioNodeImpl getPopulatedPortfolioNode(
+      PortfolioNode node) {
     if(node == null) {
       return null;
     }
-    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl();
-    populatedNode.setUniqueIdentifier(node.getUniqueIdentifier());
+    PortfolioNodeImpl populatedNode = new PortfolioNodeImpl(node.getUniqueIdentifier (), node.getName ());
     for(Position position : node.getPositions()) {
       Security security = position.getSecurity();
       if(position.getSecurity() == null) {
@@ -270,21 +320,19 @@ public class PortfolioEvaluationModel {
       if(security == null) {
         throw new OpenGammaRuntimeException("Unable to resolve security key " + position.getSecurityKey() + " for position " + position);
       }
-      PositionImpl populatedPosition = new PositionImpl(
-          position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);  // we could just reuse the existing object?
+      PositionImpl populatedPosition = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
       populatedNode.addPosition(populatedPosition);
     }
     for (PortfolioNode child : node.getChildNodes()) {
-      populatedNode.addChildNode(getPopulatedPortfolioNode(child, secMaster));
+      populatedNode.addChildNode(getPopulatedPortfolioNode(child));
     }
     return populatedNode;
   }
   
   public void loadPositions() {
     OperationTimer timer = new OperationTimer(s_logger, "Loading positions on {}", getPortfolio().getName());
-    PortfolioNode populatedRootNode = getPopulatedRootNode();
+    PortfolioNode populatedRootNode = getPortfolio ().getRootNode ();
     loadPositions(populatedRootNode);
-    setPopulatedRootNode(populatedRootNode);
     timer.finished();
     s_logger.debug("Operating on {} positions", getPopulatedPositions().size());
   }
@@ -341,7 +389,7 @@ public class PortfolioEvaluationModel {
         dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
       }
       PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, calcConfig);
-      new PortfolioNodeTraverser(compiler).traverse(getPopulatedRootNode());
+      new PortfolioNodeTraverser(compiler).traverse(getPortfolio ().getRootNode ());
       
       dependencyGraphModel.removeUnnecessaryOutputs();
       
