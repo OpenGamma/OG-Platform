@@ -145,6 +145,10 @@ public class ViewProcessingContext {
   }
 
   /**
+   * Returns a {@code ComputationTargetResolver} constructed from the position and security master. The
+   * target resolver is capable of returning fully constructed portfolio graphs with all security and
+   * internal references resolved.
+   * 
    * @return the computationTargetResolver
    */
   public ComputationTargetResolver getComputationTargetResolver() {
