@@ -38,8 +38,8 @@ public final class DerbyDialect extends AbstractDBDialect {
     try {
       DriverManager.getConnection("jdbc:derby:;shutdown=true");
     } catch (SQLException e) {
-      if (e.getErrorCode() != 50000 || "XJ015".equals(e.getSQLState())) {
-        throw new OpenGammaRuntimeException("Could not shutdown Derby", e);        
+      if (e.getErrorCode() != 50000 || !"XJ015".equals(e.getSQLState())) {
+        throw new OpenGammaRuntimeException("Could not shutdown Derby " + e.getErrorCode() + " - " + e.getSQLState() + " - " + e.getMessage(), e);        
       }
     }
   }
