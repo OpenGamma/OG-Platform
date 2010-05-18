@@ -7,8 +7,6 @@ package com.opengamma.financial;
 
 /**
  * Representation of a GICS code.
- * 
- * @author Andrew
  */
 public class GICSCode {
   
