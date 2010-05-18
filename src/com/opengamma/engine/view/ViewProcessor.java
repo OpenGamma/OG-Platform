@@ -248,7 +248,7 @@ public class ViewProcessor implements Lifecycle {
   }
   
   public void setViewProcessorConfigBean (final ViewProcessorConfigBean configBean) {
-    if (configBean == null) throw new NullPointerException ("configBean cannot be null");
+    ArgumentChecker.notNull (configBean, "configBean");
     configBean.visitCompilationContext (getCompilationContext ());
   }
 
