@@ -13,7 +13,6 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
