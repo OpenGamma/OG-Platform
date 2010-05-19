@@ -19,6 +19,7 @@ import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
+import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
@@ -38,12 +39,15 @@ public class AsymmetricPowerOptionModelTest {
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.1);
   private static final StandardOptionDataBundle BUNDLE = new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE);
+
   private static final AnalyticOptionModel<AsymmetricPowerOptionDefinition, StandardOptionDataBundle> MODEL = new AsymmetricPowerOptionModel();
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BS_MODEL = new BlackScholesMertonModel();
   private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
   private static final double EPS = 1e-4;
 
   @Test
   public void test() {
+    //Magic numbers are dirty 
     assertEquals(getPrice(1.9, true), 0.3102, EPS);
     assertEquals(getPrice(1.95, true), 1.9320, EPS);
     assertEquals(getPrice(2., true), 6.7862, EPS);
@@ -54,13 +58,39 @@ public class AsymmetricPowerOptionModelTest {
     assertEquals(getPrice(2., false), 4.3539, EPS);
     assertEquals(getPrice(2.05, false), 1.3089, EPS);
     assertEquals(getPrice(2.1, false), 0.2745, EPS);
+
+    for (int i = 0; i < 5; i++) {
+      final double power = 1.9 + 0.05 * i;
+      assertEquals(getPrice(power, true), getBSPrice(power, true), EPS);
+      assertEquals(getPrice(power, false), getBSPrice(power, false), EPS);
+    }
   }
 
   private double getPrice(final double power, final boolean isCall) {
-    return ((SingleGreekResult) MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE)).getResult();
+    return ((SingleGreekResult) MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(
+        Greek.FAIR_PRICE)).getResult();
+  }
+
+  private double getBSPrice(final double power, final boolean isCall) {
+    final StandardOptionDataBundle bs_bundle = getModifiedDataBundle(BUNDLE, power);
+    return ((SingleGreekResult) BS_MODEL.getGreeks(getDefinition(power, isCall), bs_bundle, REQUIRED_GREEKS).get(
+        Greek.FAIR_PRICE)).getResult();
   }
 
   private AsymmetricPowerOptionDefinition getDefinition(final double power, final boolean isCall) {
     return new AsymmetricPowerOptionDefinition(STRIKE, EXPIRY, power, isCall);
+  }
+
+  private StandardOptionDataBundle getModifiedDataBundle(final StandardOptionDataBundle data, final double p) {
+
+    final double t = DateUtil.getDifferenceInYears(DATE, EXPIRY);
+    final double spot = Math.pow(data.getSpot(), p);
+    double sigma = data.getVolatility(t, STRIKE);
+    final double b = p * (data.getCostOfCarry() + (p - 1) * sigma * sigma * 0.5);
+
+    sigma *= p;
+
+    return new StandardOptionDataBundle(CURVE, b, new ConstantVolatilitySurface(sigma), spot, DATE);
+
   }
 }

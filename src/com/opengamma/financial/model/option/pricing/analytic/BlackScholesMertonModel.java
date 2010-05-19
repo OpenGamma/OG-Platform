@@ -32,7 +32,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
   ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
   @Override
-  public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle vars,
+  public GreekVisitor<GreekResult<?>> getGreekVisitor(
+      final Function1D<StandardOptionDataBundle, Double> pricingFunction, final StandardOptionDataBundle vars,
       final OptionDefinition definition) {
     return new BlackScholesMertonGreekVisitor(vars, pricingFunction, definition);
   }
@@ -57,13 +58,15 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
         final double d1 = getD1(s, k, t, sigma, b);
         final double d2 = getD2(d1, sigma, t);
         final int sign = definition.isCall() ? 1 : -1;
-        return sign * Math.exp(-r * t) * (s * Math.exp(b * t) * _normal.getCDF(sign * d1) - k * _normal.getCDF(sign * d2));
+        return sign * Math.exp(-r * t)
+            * (s * Math.exp(b * t) * _normal.getCDF(sign * d1) - k * _normal.getCDF(sign * d2));
       }
     };
     return pricingFunction;
   }
 
-  protected class BlackScholesMertonGreekVisitor extends AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition> {
+  protected class BlackScholesMertonGreekVisitor extends
+      AnalyticOptionModelFiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition> {
     private final double _s;
     private final double _k;
     private final double _sigma;
@@ -76,7 +79,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
     private final double _d2;
     private final double _price;
 
-    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle vars, final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
+    public BlackScholesMertonGreekVisitor(final StandardOptionDataBundle vars,
+        final Function1D<StandardOptionDataBundle, Double> pricingFunction, final OptionDefinition definition) {
       super(pricingFunction, vars, definition);
       _s = vars.getSpot();
       _k = definition.getStrike();
@@ -107,7 +111,9 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
     @Override
     public GreekResult<Double> visitDeltaBleed() {
       final int sign = _isCall ? 1 : -1;
-      final double value = -_df * (_normal.getPDF(_d1) * (_b / (_sigma * Math.sqrt(_t)) - _d2 / (2 * _t)) + sign * (_b - _r) * _normal.getCDF(sign * _d1));
+      final double value = -_df
+          * (_normal.getPDF(_d1) * (_b / (_sigma * Math.sqrt(_t)) - _d2 / (2 * _t)) + sign * (_b - _r)
+              * _normal.getCDF(sign * _d1));
       return new SingleGreekResult(value);
     }
 
@@ -143,7 +149,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     @Override
     public GreekResult<Double> visitGammaBleed() {
-      final double value = visitGamma().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
+      final double value = visitGamma().getResult()
+          * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
       return new SingleGreekResult(value);
     }
 
@@ -154,7 +161,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     @Override
     public GreekResult<Double> visitGammaPBleed() {
-      final double value = visitGammaP().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
+      final double value = visitGammaP().getResult()
+          * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) + (1 - _d1 * _d2) / (2 * _t));
       return new SingleGreekResult(value);
     }
 
@@ -205,8 +213,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
     @Override
     public GreekResult<Double> visitTheta() {
       final int sign = _isCall ? 1 : -1;
-      final double value = -_s * _df * _normal.getPDF(_d1) * _sigma / (2 * Math.sqrt(_t)) - sign * (_b - _r) * _s * _df * _normal.getCDF(sign * _d1) - sign * _r * _k
-          * Math.exp(-_r * _t) * _normal.getCDF(sign * _d2);
+      final double value = -_s * _df * _normal.getPDF(_d1) * _sigma / (2 * Math.sqrt(_t)) - sign * (_b - _r) * _s * _df
+          * _normal.getCDF(sign * _d1) - sign * _r * _k * Math.exp(-_r * _t) * _normal.getCDF(sign * _d2);
       return new SingleGreekResult(value);
     }
 
@@ -218,7 +226,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     @Override
     public GreekResult<Double> visitVarianceUltima() {
-      final double value = _s * _df * Math.sqrt(_t) / (8 * Math.pow(_sigma, 5)) * _normal.getPDF(_d1) * ((_d1 * _d2 - 1) * (_d1 * _d2 - 3) - (_d1 * _d1 + _d2 * _d2));
+      final double value = _s * _df * Math.sqrt(_t) / (8 * Math.pow(_sigma, 5)) * _normal.getPDF(_d1)
+          * ((_d1 * _d2 - 1) * (_d1 * _d2 - 3) - (_d1 * _d1 + _d2 * _d2));
       return new SingleGreekResult(value);
     }
 
@@ -248,7 +257,8 @@ public class BlackScholesMertonModel extends AnalyticOptionModel<OptionDefinitio
 
     @Override
     public GreekResult<Double> visitVegaBleed() {
-      final double value = visitVega().getResult() * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) - (1 + _d1 * _d2) / (2 * _t));
+      final double value = visitVega().getResult()
+          * (_r - _b + _b * _d1 / (_sigma * Math.sqrt(_t)) - (1 + _d1 * _d2) / (2 * _t));
       return new SingleGreekResult(value);
     }
 

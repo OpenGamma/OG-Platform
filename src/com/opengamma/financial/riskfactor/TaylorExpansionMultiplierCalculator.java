@@ -1,5 +1,6 @@
 /**
- * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+
+ * 0Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -33,7 +34,8 @@ public class TaylorExpansionMultiplierCalculator {
       }
       return result;
     }
-    throw new IllegalArgumentException("Order was neither NthOrderUnderlying nor MixedOrderUnderlying: have " + underlying.getClass());
+    throw new IllegalArgumentException("Order was neither NthOrderUnderlying nor MixedOrderUnderlying: have "
+        + underlying.getClass());
   }
 
   public static double getMultiplier(final Map<Object, Double> underlyingData, final Underlying underlying) {
@@ -61,7 +63,8 @@ public class TaylorExpansionMultiplierCalculator {
       }
       return result;
     }
-    throw new IllegalArgumentException("Order was neither NthOrderUnderlying nor MixedOrderUnderlying: have " + underlying.getClass());
+    throw new IllegalArgumentException("Order was neither NthOrderUnderlying nor MixedOrderUnderlying: have "
+        + underlying.getClass());
   }
 
 }

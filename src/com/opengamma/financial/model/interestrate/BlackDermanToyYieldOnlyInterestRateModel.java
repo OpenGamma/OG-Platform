@@ -25,11 +25,14 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
   protected final int _j;
 
   public BlackDermanToyYieldOnlyInterestRateModel(final int n) {
+    if (n < 2)
+      throw new IllegalArgumentException("Must have more than one node");
     _n = n;
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
-  public Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(final ZonedDateTime time) {
+  public Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(
+      final ZonedDateTime time) {
     return new Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>>() {
 
       @SuppressWarnings("unchecked")
@@ -41,17 +44,19 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         final Double[] u = new Double[_n];
         final Double[] p = new Double[_n + 1];
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
-        final double dt = t / _n;
+        final double dt = t / (_n - 1);//yo this was wrong 
         final double dtSqrt = Math.sqrt(dt);
         final double r1 = data.getInterestRate(dt);
         final double sigma = data.getVolatility(dt);
-        for (int i = 0; i <= _n; i++) {
+        p[0] = 1.0;
+        for (int i = 1; i <= _n; i++) {
           p[i] = Math.pow(1. / (1 + data.getInterestRate(dt * i)), dt * i);
         }
         q[0][0] = 1.;
         u[0] = r1;
         r[0][0] = r1;
-        d[0][0] = 1. / (1 + r1 * dt);
+        // d[0][0] = 1. / (1 + r1 * dt);//this is inaccurate for large dt - should use 
+        d[0][0] = Math.pow(1 + r1, -dt);
         for (int i = 1; i < _n; i++) {
           q[i][0] = 0.5 * q[i - 1][0] * d[i - 1][0];
           q[i][i] = 0.5 * q[i - 1][i - 1] * d[i - 1][i - 1];
@@ -61,7 +66,8 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
           u[i] = _rootFinder.getRoot(getMedian(sigma, i, dt, q, p[i + 1]), 0., 1.);
           for (int j = -i, k = 0; j <= i; j += 2, k++) {
             r[i][k] = u[i] * Math.exp(sigma * j * dtSqrt);
-            d[i][k] = 1. / (1 + r[i][k] * dt);
+            // d[i][k] = 1. / (1 + r[i][k] * dt);
+            d[i][k] = Math.pow(1 + r[i][k], -dt);
           }
         }
         final Triple<Double, Double, Double>[][] result = new Triple[_n][_j];
@@ -76,14 +82,20 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
     };
   }
 
-  protected Function1D<Double, Double> getMedian(final Double sigma, final int i, final Double dt, final Double[][] q, final Double p) {
+  protected Function1D<Double, Double> getMedian(final Double sigma, final int i, final Double dt, final Double[][] q,
+      final Double p) {
     return new Function1D<Double, Double>() {
+
+      double dtSqrt = Math.sqrt(dt);
 
       @Override
       public Double evaluate(final Double u) {
         Double sum = 0.;
+
         for (int j = -i, k = 0; j <= i; j += 2, k++) {
-          sum += q[i][k] / (1 + u * Math.exp(sigma * j * dt) * dt);
+          // sum += q[i][k] / (1 + u * Math.exp(sigma * j * dt) * dt);
+          sum += q[i][k] * Math.pow(1 + u * Math.exp(sigma * j * dtSqrt), -dt);
+
         }
         return sum - p;
       }

@@ -37,7 +37,8 @@ public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final double R = 0.4;
   private static final double B = 0.1;
   private static final double S = 100;
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(R), B, new ConstantVolatilitySurface(0.), S, DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(
+      new ConstantInterestRateDiscountCurve(R), B, new ConstantVolatilitySurface(0.), S, DATE);
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
