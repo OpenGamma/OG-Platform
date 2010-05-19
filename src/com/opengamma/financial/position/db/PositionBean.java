@@ -10,26 +10,34 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.ObjectUtils;
 
 /**
- * 
- * @author Andrew Griffin
+ * A Hibernate bean for positions.
  */
 public class PositionBean extends DateIdentifiableBean {
-  
+
   private BigDecimal _quantity;
   private String _counterparty;
   private String _trader;
 
-  public PositionBean () {
-  }
-  
-  public PositionBean (final PositionBean other) {
-    super (other);
-    setQuantity (other.getQuantity ());
-    setCounterparty (other.getCounterparty ());
-    setTrader (other.getTrader ());
+  /**
+   * Creates an instance.
+   */
+  public PositionBean() {
   }
 
   /**
+   * Creates an instance based on another.
+   * @param other  the instance to copy, not null
+   */
+  public PositionBean(final PositionBean other) {
+    super(other);
+    setQuantity(other.getQuantity());
+    setCounterparty(other.getCounterparty());
+    setTrader(other.getTrader());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the quantity.
    * @return the quantity
    */
   public BigDecimal getQuantity() {
@@ -37,13 +45,15 @@ public class PositionBean extends DateIdentifiableBean {
   }
 
   /**
-   * @param quantity the quantity to set
+   * Sets the quantity.
+   * @param quantity  the quantity to set
    */
   public void setQuantity(BigDecimal quantity) {
     _quantity = quantity;
   }
 
   /**
+   * Gets the counter party.
    * @return the counterParty
    */
   public String getCounterparty() {
@@ -51,13 +61,15 @@ public class PositionBean extends DateIdentifiableBean {
   }
 
   /**
-   * @param counterparty the counterParty to set
+   * Sets the counter party.
+   * @param counterparty  the counterParty to set
    */
   public void setCounterparty(String counterparty) {
     _counterparty = counterparty;
   }
 
   /**
+   * Gets the trader.
    * @return the trader
    */
   public String getTrader() {
@@ -65,27 +77,35 @@ public class PositionBean extends DateIdentifiableBean {
   }
 
   /**
-   * @param trader the trader to set
+   * Sets the trader.
+   * @param trader  the trader to set
    */
   public void setTrader(String trader) {
     _trader = trader;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!super.equals (o)) return false;
-    final PositionBean other = (PositionBean)o;
-    return ObjectUtils.equals (getQuantity (), other.getQuantity ()) && ObjectUtils.equals (getCounterparty (), other.getCounterparty ()) && ObjectUtils.equals (getTrader (), other.getTrader ());
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (super.equals(obj)) {
+      final PositionBean other = (PositionBean) obj;
+      return ObjectUtils.equals(getQuantity(), other.getQuantity())
+          && ObjectUtils.equals(getCounterparty(), other.getCounterparty())
+          && ObjectUtils.equals(getTrader(), other.getTrader());
+    }
+    return false;
   }
-  
+
   @Override
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc = hc * 17 + ObjectUtils.hashCode (getQuantity ());
-    hc = hc * 17 + ObjectUtils.hashCode (getCounterparty ());
-    hc = hc * 17 + ObjectUtils.hashCode (getTrader ());
+  public int hashCode() {
+    int hc = super.hashCode();
+    hc = hc * 17 + ObjectUtils.hashCode(getQuantity());
+    hc = hc * 17 + ObjectUtils.hashCode(getCounterparty());
+    hc = hc * 17 + ObjectUtils.hashCode(getTrader());
     return hc;
   }
-  
+
 }

@@ -12,9 +12,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Base class for the beans that are identifiable. 
- * 
- * @author Andrew Griffin
+ * Base class for the Hibernate beans that have an identifier and date range.
+ * Subclasses include portfolio, portfolio node and position.
  */
 public abstract class DateIdentifiableBean {
 
@@ -22,17 +21,26 @@ public abstract class DateIdentifiableBean {
   private String _identifier;
   private Date _startDate;
   private Date _endDate;
-  
-  protected DateIdentifiableBean () {
-  }
-  
-  protected DateIdentifiableBean (final DateIdentifiableBean other) {
-    setIdentifier (other.getIdentifier ());
-    setStartDate (other.getStartDate ());
-    setEndDate (other.getEndDate ());
+
+  /**
+   * Creates an instance.
+   */
+  protected DateIdentifiableBean() {
   }
 
   /**
+   * Creates an instance.
+   * @param other  the bean to copy, not null
+   */
+  protected DateIdentifiableBean(final DateIdentifiableBean other) {
+    setIdentifier(other.getIdentifier());
+    setStartDate(other.getStartDate());
+    setEndDate(other.getEndDate());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the id.
    * @return the id
    */
   public Long getId() {
@@ -40,70 +48,89 @@ public abstract class DateIdentifiableBean {
   }
 
   /**
-   * @param id the id to set
+   * Sets the id.
+   * @param id  the id to set
    */
   public void setId(Long id) {
     _id = id;
   }
-  
-  public String getIdentifier () {
+
+  /**
+   * Gets the identifier.
+   * @return the start date
+   */
+  public String getIdentifier() {
     return _identifier;
   }
-  
-  public void setIdentifier (final String identifier) {
+
+  /**
+   * Sets the identifier.
+   * @param identifier  the identifier to set
+   */
+  public void setIdentifier(final String identifier) {
     _identifier = identifier;
   }
 
   /**
-   * @return the startDate
+   * Gets the start date.
+   * @return the start date
    */
   public Date getStartDate() {
     return _startDate;
   }
 
   /**
-   * @param startDate the startDate to set
+   * Sets the start date.
+   * @param startDate the start date to set
    */
   public void setStartDate(Date startDate) {
     _startDate = startDate;
   }
 
   /**
-   * @return the endDate
+   * Gets the end date.
+   * @return the end date
    */
   public Date getEndDate() {
     return _endDate;
   }
 
   /**
-   * @param endDate the endDate to set
+   * Sets the end date.
+   * @param endDate  the end date to set
    */
   public void setEndDate(Date endDate) {
     _endDate = endDate;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (getClass() == obj.getClass()) {
+      final DateIdentifiableBean other = (DateIdentifiableBean) obj;
+      return ObjectUtils.equals(getId(), other.getId()) && ObjectUtils.equals(getIdentifier(), other.getIdentifier())
+          && ObjectUtils.equals(getStartDate(), other.getStartDate())
+          && ObjectUtils.equals(getEndDate(), other.getEndDate());
+    }
+    return false;
   }
 
   @Override
-  public boolean equals (final Object o) {
-    if (o == null) return false;
-    if (o == this) return true;
-    if (!getClass ().isAssignableFrom (o.getClass ())) return false;
-    final DateIdentifiableBean other = (DateIdentifiableBean)o;
-    return ObjectUtils.equals (getId (), other.getId ()) && ObjectUtils.equals (getIdentifier (), other.getIdentifier ()) && ObjectUtils.equals (getStartDate (), other.getStartDate ()) && ObjectUtils.equals (getEndDate (), other.getEndDate ());
-  }
-  
-  @Override
-  public int hashCode () {
+  public int hashCode() {
     int hc = 1;
-    hc = hc * 17 + ObjectUtils.hashCode (getId ());
-    hc = hc * 17 + ObjectUtils.hashCode (getIdentifier ());
-    hc = hc * 17 + ObjectUtils.hashCode (getStartDate ());
-    hc = hc * 17 + ObjectUtils.hashCode (getEndDate ());
+    hc = hc * 17 + ObjectUtils.hashCode(getId());
+    hc = hc * 17 + ObjectUtils.hashCode(getIdentifier());
+    hc = hc * 17 + ObjectUtils.hashCode(getStartDate());
+    hc = hc * 17 + ObjectUtils.hashCode(getEndDate());
     return hc;
+  }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
 }

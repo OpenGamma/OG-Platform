@@ -10,24 +10,32 @@ import org.apache.commons.lang.ObjectUtils;
 import com.opengamma.id.Identifier;
 
 /**
- * 
- * @author Andrew Griffin
+ * A Hibernate bean for identifiers.
  */
 public class IdentifierAssociationBean extends DateIdentifiableBean {
-  
+
   private PositionBean _position;
   private String _scheme;
-  
-  public IdentifierAssociationBean () {
-  }
-  
-  public IdentifierAssociationBean (final IdentifierAssociationBean other) {
-    super (other);
-    setPosition (other.getPosition ());
-    setScheme (other.getScheme ());
+
+  /**
+   * Creates an instance.
+   */
+  public IdentifierAssociationBean() {
   }
 
   /**
+   * Creates an instance based on another.
+   * @param other  the instance to copy, not null
+   */
+  public IdentifierAssociationBean(final IdentifierAssociationBean other) {
+    super(other);
+    setPosition(other.getPosition());
+    setScheme(other.getScheme());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the position.
    * @return the position
    */
   public PositionBean getPosition() {
@@ -35,49 +43,66 @@ public class IdentifierAssociationBean extends DateIdentifiableBean {
   }
 
   /**
-   * @param position the position to set
+   * Sets the position.
+   * @param position  the position to set
    */
   public void setPosition(PositionBean position) {
     _position = position;
   }
 
   /**
-   * @return the domain
+   * Gets the scheme.
+   * @return the scheme
    */
   public String getScheme() {
     return _scheme;
   }
 
   /**
-   * @param scheme the domain to set
+   * Sets the scheme.
+   * @param scheme  the scheme to set
    */
   public void setScheme(String scheme) {
     _scheme = scheme;
   }
 
-  public Identifier getDomainSpecificIdentifier () {
-    return new Identifier (getScheme (), getIdentifier ());
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this to an {@code Identifier}.
+   * @return the identifier, not null
+   */
+  public Identifier getDomainSpecificIdentifier() {
+    return new Identifier(getScheme(), getIdentifier());
   }
-  
-  public void setDomainSpecificIdentifier (final Identifier identifier) {
-    setScheme (identifier.getScheme ().getName ());
-    setIdentifier (identifier.getValue ());
+
+  /**
+   * Sets the fields from an {@code Identifier}.
+   * @param identifier  the identifier, not null
+   */
+  public void setDomainSpecificIdentifier(final Identifier identifier) {
+    setScheme(identifier.getScheme().getName());
+    setIdentifier(identifier.getValue());
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!super.equals (o)) return false;
-    final IdentifierAssociationBean other = (IdentifierAssociationBean)o;
-    return ObjectUtils.equals (getPosition (), other.getPosition ()) && ObjectUtils.equals (getScheme (), other.getScheme ());
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (super.equals(obj)) {
+      final IdentifierAssociationBean other = (IdentifierAssociationBean) obj;
+      return ObjectUtils.equals(getPosition(), other.getPosition()) && ObjectUtils.equals(getScheme(), other.getScheme());
+    }
+    return false;
   }
-  
+
   @Override
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc = hc * 17 + ObjectUtils.hashCode (getPosition ());
-    hc = hc * 17 + ObjectUtils.hashCode (getScheme ());
+  public int hashCode() {
+    int hc = super.hashCode();
+    hc = hc * 17 + ObjectUtils.hashCode(getPosition());
+    hc = hc * 17 + ObjectUtils.hashCode(getScheme());
     return hc;
   }
-  
+
 }

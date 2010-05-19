@@ -8,8 +8,7 @@ package com.opengamma.financial.position.db;
 import org.apache.commons.lang.ObjectUtils;
 
 /**
- * 
- * @author Andrew Griffin
+ * A Hibernate bean for portfolio nodes.
  */
 public class PortfolioNodeBean extends DateIdentifiableBean {
 
@@ -22,17 +21,26 @@ public class PortfolioNodeBean extends DateIdentifiableBean {
    * database. The holding of a bean is to allow a graph of beans
    * to be created before any are written to the database.
    */
-  
-  public PortfolioNodeBean () {
-  }
-  
-  public PortfolioNodeBean (final PortfolioNodeBean other) {
-    super (other);
-    setName (other.getName ());
-    setAncestorId (other.getAncestorId ());
+
+  /**
+   * Creates an instance.
+   */
+  public PortfolioNodeBean() {
   }
 
   /**
+   * Creates an instance based on another.
+   * @param other  the instance to copy, not null
+   */
+  public PortfolioNodeBean(final PortfolioNodeBean other) {
+    super(other);
+    setName(other.getName());
+    setAncestorId(other.getAncestorId());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name.
    * @return the name
    */
   public String getName() {
@@ -40,13 +48,15 @@ public class PortfolioNodeBean extends DateIdentifiableBean {
   }
 
   /**
-   * @param name the name to set
+   * Sets the name.
+   * @param name  the name to set
    */
   public void setName(String name) {
     _name = name;
   }
 
   /**
+   * Gets the ancestor id.
    * @return the ancestor
    */
   public Long getAncestorId() {
@@ -54,44 +64,60 @@ public class PortfolioNodeBean extends DateIdentifiableBean {
       return _ancestorId;
     } else {
       if (_ancestor != null) {
-        return _ancestor.getId ();
+        return _ancestor.getId();
       } else {
         return null;
       }
     }
   }
-  
+
+  /**
+   * Sets the ancestor id.
+   * This sets the ancestor object to null.
+   * @param ancestorId  the ancestor to set
+   */
   public void setAncestorId(final Long ancestorId) {
     _ancestorId = ancestorId;
     _ancestor = null;
   }
-  
+
   /**
-   * @param ancestor the ancestor to set
+   * Gets the ancestor object.
+   * @return the ancestor
+   */
+  public PortfolioNodeBean getAncestor() {
+    return _ancestor;
+  }
+
+  /**
+   * Sets the ancestor object.
+   * This sets the id to null.
+   * @param ancestor  the ancestor to set
    */
   public void setAncestor(final PortfolioNodeBean ancestor) {
     _ancestor = ancestor;
     _ancestorId = null;
   }
-  
-  public PortfolioNodeBean getAncestor () {
-    return _ancestor;
-  }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!super.equals (o)) return false;
-    final PortfolioNodeBean other = (PortfolioNodeBean)o;
-    return ObjectUtils.equals (getName (), other.getName ()) && ObjectUtils.equals (getAncestorId (), other.getAncestorId ());
+  public boolean equals(final Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (super.equals(obj)) {
+      final PortfolioNodeBean other = (PortfolioNodeBean) obj;
+      return ObjectUtils.equals(getName(), other.getName()) && ObjectUtils.equals(getAncestorId(), other.getAncestorId());
+    }
+    return false;
   }
-  
+
   @Override
-  public int hashCode () {
-    int hc = super.hashCode ();
-    hc = hc * 17 + ObjectUtils.hashCode (getName ());
-    hc = hc * 17 + ObjectUtils.hashCode (getAncestorId ());
+  public int hashCode() {
+    int hc = super.hashCode();
+    hc = hc * 17 + ObjectUtils.hashCode(getName());
+    hc = hc * 17 + ObjectUtils.hashCode(getAncestorId());
     return hc;
   }
-  
+
 }
