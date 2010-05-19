@@ -137,9 +137,8 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     ArrayList<SubscriptionHandle> subscriptionHandles = new ArrayList<SubscriptionHandle>();   
     for (LiveDataSpecification requestedSpecification : requestedSpecifications) {
       SubscriptionHandle subHandle = new SubscriptionHandle(user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
-      if(addPendingSubscription(subHandle)) {
-        subscriptionHandles.add(subHandle);                      
-      }
+      subscriptionHandles.add(subHandle);                      
+      addPendingSubscription(subHandle);
     }
     
     if (!subscriptionHandles.isEmpty()) {
@@ -278,14 +277,10 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     }
   }
   
-  protected boolean addPendingSubscription(SubscriptionHandle subHandle) {
+  protected void addPendingSubscription(SubscriptionHandle subHandle) {
     _subscriptionLock.lock();
     try {
-      if(_pendingSubscriptions.contains(subHandle)) {
-        return false;
-      }
       _pendingSubscriptions.add(subHandle);
-      return true;
     } finally {
       _subscriptionLock.unlock();
     }

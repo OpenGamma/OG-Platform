@@ -6,7 +6,7 @@
 package com.opengamma.livedata.client;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.fudgemsg.FudgeContext;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class SubscriptionHandleTest {
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification,  listener);
-    assertTrue(handle1.equals(handle2));
+    assertFalse(handle1.equals(handle2));
   }
 
   @Test
@@ -48,7 +48,7 @@ public class SubscriptionHandleTest {
     CollectingLiveDataListener listener = new CollectingLiveDataListener();
     SubscriptionHandle handle1 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
     SubscriptionHandle handle2 = new SubscriptionHandle(_user, SubscriptionType.NON_PERSISTENT, requestedSpecification, listener);
-    assertEquals(handle1.hashCode(), handle2.hashCode());
+    assertFalse(handle1.hashCode() == handle2.hashCode());
   }
   
   @Test
