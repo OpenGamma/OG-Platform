@@ -307,8 +307,19 @@ public class UniqueIdentifierTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_fudgeEncoding() {
+  public void test_fudgeEncodingNoVersion() {
     UniqueIdentifier test = UniqueIdentifier.of("id1", "value1");
+    FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
+    assertNotNull(msg);
+    assertEquals(2, msg.getNumFields());
+    
+    UniqueIdentifier decoded = UniqueIdentifier.fromFudgeMsg(msg);
+    assertEquals(test, decoded);
+  }
+
+  @Test
+  public void test_fudgeEncodingWithVersion() {
+    UniqueIdentifier test = UniqueIdentifier.of("id1", "value1", "version1");
     FudgeFieldContainer msg = test.toFudgeMsg(new FudgeContext());
     assertNotNull(msg);
     assertEquals(3, msg.getNumFields());
