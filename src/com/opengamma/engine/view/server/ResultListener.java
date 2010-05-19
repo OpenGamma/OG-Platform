@@ -49,17 +49,22 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
     s_logger.info ("Write {} to JMS {}", resultModel, _computationResults);
-    _computationResults.send (getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (resultModel)));
+    final byte[] fudgeMsg = getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (resultModel));
+    s_logger.debug ("Writing {} bytes data", fudgeMsg.length);
+    _computationResults.send (fudgeMsg);
   }
 
   @Override
   public void deltaResultAvailable(ViewDeltaResultModel deltaModel) {
     s_logger.info ("Write {} to JMS {}", deltaModel, _deltaResults);
-    _deltaResults.send (getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (deltaModel)));
+    final byte[] fudgeMsg = getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (deltaModel));
+    s_logger.debug ("Writing {} bytes data", fudgeMsg.length);
+    _deltaResults.send (fudgeMsg);
   }
   
   protected String getTopicName (final ViewClient viewClient, final String suffix) {
-    return getViewProcessor ().getJmsTopicPrefix () + "-" + viewClient.getName () + "-" + suffix;
+    final String topicName = getViewProcessor ().getJmsTopicPrefix () + "-" + viewClient.getName () + "-" + suffix;
+    return topicName;
   }
   
   public synchronized String getComputationResultChannel (final ViewClient viewClient) {
