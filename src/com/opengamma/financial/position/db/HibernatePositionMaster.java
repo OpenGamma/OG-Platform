@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.position.db;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,8 +28,8 @@ import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.engine.position.PositionMaster;
-import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifiable;
@@ -109,39 +107,6 @@ public class HibernatePositionMaster implements PositionMaster, InitializingBean
    */
   protected HibernateTemplate getHibernateTemplate() {
     return _hibernateTemplate;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Hibernate position implementation.
-   */
-  private static class PositionImpl implements Position, Serializable {
-    private final UniqueIdentifier _uid;
-    private final BigDecimal _quantity;
-    private final IdentifierBundle _securityKey;
-
-    private PositionImpl(
-        final UniqueIdentifier uid, final BigDecimal quantity, final IdentifierBundle securityKey) {
-      _uid = uid;
-      _quantity = quantity;
-      _securityKey = securityKey;
-    }
-    @Override
-    public BigDecimal getQuantity() {
-      return _quantity;
-    }
-    @Override
-    public Security getSecurity() {
-      return null;
-    }
-    @Override
-    public IdentifierBundle getSecurityKey() {
-      return _securityKey;
-    }
-    @Override
-    public UniqueIdentifier getUniqueIdentifier() {
-      return _uid;
-    }
   }
 
   //-------------------------------------------------------------------------
