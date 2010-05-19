@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.livedata;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -14,8 +15,8 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,10 +39,19 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
    * @param acceptableSchemes  the acceptable schemes, not null
    */
   public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableSchemes) {
+    this (secMaster, Arrays.asList (acceptableSchemes));
+  }
+  
+  /**
+   * Creates a provider.
+   * @param secMaster the security master, not null
+   * @param acceptableSchemes the acceptable schemes, not null
+   */
+  public DomainLiveDataAvailabilityProvider (final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes) {
     ArgumentChecker.notNull(secMaster, "Security master");
-    ArgumentChecker.notNull(acceptableSchemes, "Available domains");
+    ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
     _securityMaster = secMaster;
-    _acceptableSchemes = Arrays.asList(acceptableSchemes);
+    _acceptableSchemes = new ArrayList<IdentificationScheme> (acceptableSchemes);
   }
 
   //-------------------------------------------------------------------------
