@@ -361,9 +361,19 @@ public class HibernateSecurityMasterSession {
   
   // Generic Securities
 
+  /* package */ SecurityBean getSecurityBean(final UniqueIdentifier uid) {
+    if (uid.isLatest()) {
+      return getSecurityBean(new Date(), uid);
+    }
+    Query query = getSession().getNamedQuery("SecurityBean.one.byUid");
+    query.setLong("securityUid", Long.valueOf(uid.getVersion()));
+    SecurityBean security = (SecurityBean) query.uniqueResult();
+    return security;
+  }
+
   /* package */ SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
-    Query query = getSession().getNamedQuery("SecurityBean.one.byDateIdentifier");
-    query.setLong("securityuid", Long.valueOf(uid.getValue()));
+    Query query = getSession().getNamedQuery("SecurityBean.one.byDateOid");
+    query.setLong("securityOid", Long.valueOf(uid.getValue()));
     query.setDate("now", now);
     SecurityBean security = (SecurityBean) query.uniqueResult();
     return security;

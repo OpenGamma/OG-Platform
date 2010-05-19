@@ -21,7 +21,6 @@ import com.opengamma.financial.security.BondSecurity;
 import com.opengamma.financial.security.CorporateBondSecurity;
 import com.opengamma.financial.security.GovernmentBondSecurity;
 import com.opengamma.financial.security.MunicipalBondSecurity;
-import com.opengamma.id.UniqueIdentifier;
 
 /* package */ class BondSecurityBeanOperation extends AbstractBeanOperation<BondSecurity,BondSecurityBean> {
   
@@ -32,7 +31,7 @@ import com.opengamma.id.UniqueIdentifier;
   }
   
   @Override
-  public BondSecurity createSecurity (final UniqueIdentifier uid, final BondSecurityBean bean) {
+  public BondSecurity createSecurity (final BondSecurityBean bean) {
     BondSecurity sec = bean.getBondType ().accept (new BondType.Visitor<BondSecurity> () {
 
       @Override
@@ -120,7 +119,6 @@ import com.opengamma.id.UniqueIdentifier;
       }
       
     });
-    sec.setUniqueIdentifier(uid != null ? uid : HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString()));
     return sec;
   }
 

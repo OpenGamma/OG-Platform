@@ -27,7 +27,19 @@
 	    <column name="first_version_id"/>
 	  </any>
   </class>
-  <query name="SecurityBean.one.byDateIdentifier">
+  <query name="SecurityBean.one.byUid">
+    select 
+      s
+    from 
+      SecurityBean as s,
+      IdentifierAssociationBean as a
+    where
+      a.security = s.firstVersion and
+      (a.validStartDate is null or a.validStartDate &lt;= s.effectiveDateTime) and
+      (a.validEndDate is null or a.validEndDate &gt; s.effectiveDateTime) and
+      s.id = :securityUid
+  </query>
+  <query name="SecurityBean.one.byDateOid">
     select 
       s
     from 
@@ -37,7 +49,7 @@
       a.security = s.firstVersion and
       (a.validStartDate is null or a.validStartDate &lt;= :now) and
       (a.validEndDate is null or a.validEndDate &gt; :now) and
-      s.id = :securityuid and
+      s.firstVersion.id = :securityOid and
       s.effectiveDateTime &lt;= :now and
       not exists (select 
                     latest.id

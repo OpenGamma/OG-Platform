@@ -24,7 +24,6 @@ import com.opengamma.financial.security.option.OTCOptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionSecurityVisitor;
 import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
-import com.opengamma.id.UniqueIdentifier;
 
 /* package */ class OptionSecurityBeanOperation extends AbstractBeanOperation<OptionSecurity,OptionSecurityBean> {
   
@@ -35,7 +34,7 @@ import com.opengamma.id.UniqueIdentifier;
   }
   
   @Override
-  public OptionSecurity createSecurity (final UniqueIdentifier uid, final OptionSecurityBean bean) {
+  public OptionSecurity createSecurity (final OptionSecurityBean bean) {
     OptionSecurity sec = bean.getOptionSecurityType ().accept (new OptionSecurityType.Visitor<OptionSecurity> () {
 
       @Override
@@ -117,7 +116,6 @@ import com.opengamma.id.UniqueIdentifier;
             currencyBeanToCurrency (bean.getCurrency3 ()));
       }
     });
-    sec.setUniqueIdentifier(uid != null ? uid : HibernateSecurityMaster.createUniqueIdentifier(bean.getId().toString()));
     return sec;
   }
 
