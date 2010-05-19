@@ -35,7 +35,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   private AtomicBoolean _running = new AtomicBoolean(false);
 
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory) {
-    this(subscriptionRequestSender, connectionFactory, new FudgeContext());
+    this(subscriptionRequestSender, connectionFactory, FudgeContext.GLOBAL_DEFAULT);
   }
 
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory, FudgeContext fudgeContext) {
