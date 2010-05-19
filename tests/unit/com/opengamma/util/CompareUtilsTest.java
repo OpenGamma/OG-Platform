@@ -9,6 +9,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+/**
+ * Test CompareUtils.
+ */
 public class CompareUtilsTest {
 
   @Test
@@ -19,4 +22,14 @@ public class CompareUtilsTest {
     assertTrue(CompareUtils.compareWithNull("Test", "Test") == 0);
     assertTrue(CompareUtils.compareWithNull("AAAA", "BBBB") == "AAAA".compareTo("BBBB"));
   }
+
+  @Test
+  public void testCompareWithNullHigh() {
+    assertTrue(CompareUtils.compareWithNullHigh(null, null) == 0);
+    assertTrue(CompareUtils.compareWithNullHigh(null, "Test") > 0);
+    assertTrue(CompareUtils.compareWithNullHigh("Test", null) < 0);
+    assertTrue(CompareUtils.compareWithNullHigh("Test", "Test") == 0);
+    assertTrue(CompareUtils.compareWithNullHigh("AAAA", "BBBB") == "AAAA".compareTo("BBBB"));
+  }
+
 }
