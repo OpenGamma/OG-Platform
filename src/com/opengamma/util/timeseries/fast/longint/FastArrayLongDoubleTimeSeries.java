@@ -23,6 +23,10 @@ import java.util.SortedMap;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMessageFactory;
+import org.fudgemsg.FudgeSize;
+import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.util.timeseries.AbstractFastBackedDoubleTimeSeries;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -531,6 +535,20 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   @Override
   public FastLongDoubleTimeSeries newInstanceFast(final long[] times, final double[] values) {
     return new FastArrayLongDoubleTimeSeries(getEncoding(), times, values);
+  }
+  
+  // Temporary hack to get the remote view client working
+  @Override
+  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory messageFactory) {
+    final MutableFudgeFieldContainer message = super.toFudgeMsg (messageFactory);
+    message.add ("times", _times);
+    message.add ("values", _values);
+    return message;
+  }
+  
+  // Temporary hack to get the remote view client working
+  public static FastArrayLongDoubleTimeSeries fromFudgeMsg (final FudgeFieldContainer message) {
+    return new FastArrayLongDoubleTimeSeries (message.getValue (DateTimeNumericEncoding.class, "encoding"), (long[])message.getValue ("times"), (double[])message.getValue ("values"));
   }
 
 }
