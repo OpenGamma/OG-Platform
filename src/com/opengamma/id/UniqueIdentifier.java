@@ -13,7 +13,6 @@ import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.fudgemsg.types.StringFieldType;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -253,7 +252,9 @@ public final class UniqueIdentifier implements Comparable<UniqueIdentifier>, Ser
     MutableFudgeFieldContainer msg = factory.newMessage();
     msg.add(SCHEME_FUDGE_FIELD_NAME, getScheme());
     msg.add(VALUE_FUDGE_FIELD_NAME, getValue());
-    msg.add(VERSION_FUDGE_FIELD_NAME, null, StringFieldType.INSTANCE, getVersion());
+    if (getVersion() != null) {
+      msg.add(VERSION_FUDGE_FIELD_NAME, getVersion());
+    }
     return msg;
   }
 
