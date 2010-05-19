@@ -24,7 +24,6 @@ import javax.sql.DataSource;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -646,22 +645,15 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", identifier.getValue())
       .addValue("domain", identifier.getScheme().getName(), Types.VARCHAR)
       .addValue("dataSource", dataSource, Types.VARCHAR)
-      .addValue("dataField", dataField, Types.VARCHAR);
+      .addValue("dataField", dataField, Types.VARCHAR)
+      .addValue("dataProvider", dataProvider, Types.VARCHAR)
+      .addValue("observationTime", observationTime, Types.VARCHAR);
       
-      List<Map<String, Object>> queryForList = _simpleJdbcTemplate.queryForList(sql, parameters);
-      if (!queryForList.isEmpty()) {
-        if (queryForList.size() == 1) {
-          Map<String, Object> row = queryForList.get(0);
-          result = (Integer)row.get("id");
-        } else {
-          for (Map<String, Object> row : queryForList) {
-            String rowDataProvider = (String)row.get("data_provider");
-            String rowObservationTime = (String)row.get("data_provider");
-            if (ObjectUtils.equals(rowDataProvider, dataProvider) || ObjectUtils.equals(rowObservationTime, observationTime)) {
-              result = (Integer)row.get("id");
-            }
-          }
-        }
+      List<Map<String, Object>> resultList = _simpleJdbcTemplate.queryForList(sql, parameters);
+      if (!resultList.isEmpty()) {
+        //get the 1st returned timeserieskey
+        Map<String, Object> firstRow = resultList.iterator().next();
+        result = (Integer)firstRow.get("id");
         if (result != INVALID_KEY) {
           s_logger.debug("timeSeriesKeyID = {}", result);
           return result;

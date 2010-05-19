@@ -422,24 +422,24 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
   public void getHistoricalTimeSeriesWithoutDataProvider() throws Exception {
     addRandonTimeSeriesToDB(2);
     String[] testDataProviders = new String[]{"DP1, DP2, DP3"};
-    Map<IdentifierBundle, List<LocalDateDoubleTimeSeries>> expectedTSMap = new HashMap<IdentifierBundle, List<LocalDateDoubleTimeSeries>>();
-    for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      IdentifierBundle identifiers = new IdentifierBundle(new Identifier("d" + i, "id" + i));
-      List<LocalDateDoubleTimeSeries> expectedTS = new ArrayList<LocalDateDoubleTimeSeries>(3);
-      expectedTSMap.put(identifiers, expectedTS);
-      for (String dataProvider : testDataProviders) {
-        LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
-        expectedTS.add(timeSeries);
-        _timeseriesDao.addTimeSeries(identifiers, BBG_DATA_SOURCE, dataProvider, CLOSE_DATA_FIELD,
-            LCLOSE_OBSERVATION_TIME, timeSeries);
-      }
+    Map<String, LocalDateDoubleTimeSeries> expectedTSMap = new HashMap<String, LocalDateDoubleTimeSeries>();
+    
+    IdentifierBundle bundle = new IdentifierBundle(Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "id1"));
+    for (String dataProvider : testDataProviders) {
+      LocalDateDoubleTimeSeries timeSeries = makeRandomTimeSeries();
+      expectedTSMap.put(dataProvider, timeSeries);
+      _timeseriesDao.addTimeSeries(bundle, BBG_DATA_SOURCE, dataProvider, CLOSE_DATA_FIELD,
+          LCLOSE_OBSERVATION_TIME, timeSeries);
     }
     
-    for (Entry<IdentifierBundle, List<LocalDateDoubleTimeSeries>> entry : expectedTSMap.entrySet()) {
-      IdentifierBundle bundle = entry.getKey();
-      List<LocalDateDoubleTimeSeries> listOfPossibleTS = entry.getValue();
-      DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, null, CLOSE_DATA_FIELD);
-      assertTrue(listOfPossibleTS.contains(actualTS));
+    DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, null, CLOSE_DATA_FIELD);
+    assertNotNull(actualTS);
+    assertTrue(expectedTSMap.values().contains(actualTS));
+    
+    //check you get expected timeseries with dataProvider specified
+    for (String dataProvider : testDataProviders) {
+      actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, dataProvider, CLOSE_DATA_FIELD);
+      assertEquals(expectedTSMap.get(dataProvider), actualTS);
     }
   }
   
