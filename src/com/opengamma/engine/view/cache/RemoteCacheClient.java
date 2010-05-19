@@ -22,7 +22,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author kirk
  */
 public class RemoteCacheClient extends FudgeSynchronousClient {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheClient.class);
