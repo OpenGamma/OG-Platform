@@ -32,7 +32,6 @@ import com.opengamma.transport.FudgeRequestReceiver;
 /**
  * 
  *
- * @author kirk
  */
 public class RemoteCacheServer implements FudgeRequestReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheServer.class);
