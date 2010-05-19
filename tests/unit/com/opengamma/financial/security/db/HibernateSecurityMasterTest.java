@@ -806,4 +806,32 @@ public class HibernateSecurityMasterTest extends HibernateTest {
     //    Assert.assertEquals(generalMotors2, shouldBeGM);
   }
 
+  @Test
+  public void testUpdate() {
+    Date date1 = new Date(System.currentTimeMillis() - 2000L);
+    Date date2 = new Date(date1.getTime() + 2000L);
+    
+    final EquitySecurity sec = new EquitySecurity();
+    sec.setCompanyName("General Motors");
+    sec.setName("General Motors");
+    sec.setCurrency(Currency.getInstance("USD"));
+    sec.setExchangeCode("NYSE");
+    sec.setExchange("NEW YORK STOCK EXCHANGE");
+    sec.setTicker("GM US Equity");
+    sec.setGICSCode(GICSCode.getInstance(25102010));
+    sec.setIdentifiers(new IdentifierBundle(Identifier.of("BLOOMBERG", "GM US Equity")));
+    UniqueIdentifier uid1 = _secMaster.putSecurity(date1, sec);
+    
+    sec.setCompanyName("Big Motors");
+    UniqueIdentifier uid2 = _secMaster.putSecurity(date2, sec);
+    
+    Assert.assertEquals(uid1.toLatest(), uid2.toLatest());
+    
+    EquitySecurity loaded1 = (EquitySecurity) _secMaster.getSecurity(uid1);
+    Assert.assertEquals("General Motors", loaded1.getCompanyName());
+    
+    EquitySecurity loaded2 = (EquitySecurity) _secMaster.getSecurity(uid2);
+    Assert.assertEquals("Big Motors", loaded2.getCompanyName());
+  }
+
 }

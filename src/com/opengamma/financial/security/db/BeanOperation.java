@@ -8,12 +8,9 @@ package com.opengamma.financial.security.db;
 import java.util.Date;
 
 import com.opengamma.engine.security.Security;
-import com.opengamma.id.UniqueIdentifier;
 
 /**
  * Operations to convert a real entity to/from a bean and hence to/from the Hibernate database.
- * 
- * @author Andrew Griffin
  */
 /* package */ interface BeanOperation<S extends Security, SBean extends SecurityBean> {
   
@@ -41,7 +38,7 @@ import com.opengamma.id.UniqueIdentifier;
   /**
    * Convert a bean representation to a security.
    */
-  public S createSecurity (UniqueIdentifier identifier, SBean bean);
+  public S createSecurity (SBean bean);
   
   /**
    * Test a bean and security representation for equality.
