@@ -6,9 +6,13 @@
 package com.opengamma.financial.greeks;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -51,8 +55,17 @@ public class GreekResultCollection {
 
   @Override
   public String toString() {
-    // TODO kirk 2010-05-20 -- Fix this.
-    return _backingMap.toString();
+    final StringBuilder sb = new StringBuilder();
+    sb.append("GreekResultCollection[");
+    final List<String> elements = new LinkedList<String>();
+    for (final Map.Entry<Greek, GreekResult<?>> entry : _backingMap.entrySet()) {
+      final StringBuilder elementSb = new StringBuilder();
+      sb.append(entry.getKey()).append("=").append(entry.getValue());
+      elements.add(elementSb.toString());
+    }
+    sb.append(StringUtils.join(elements, ", "));
+    sb.append("]");
+    return sb.toString();
   }
 
 }
