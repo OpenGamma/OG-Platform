@@ -191,7 +191,8 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
         BeanOperation<Security, SecurityBean> beanOperation = getBeanOperation(security);
         SecurityBean updatedDbBean;
-        if (security.getUniqueIdentifier() == null) {
+        if (security.getUniqueIdentifier() == null ||
+            security.getUniqueIdentifier().getScheme().equals(getIdentifierScheme()) == false) {
           // add security
           updatedDbBean = secMasterSession.createSecurityBean(beanOperation, now, false, now, null, null, security);
           for (Identifier identifier : security.getIdentifiers()) {
