@@ -5,13 +5,13 @@
  */
 package com.opengamma.financial.greeks;
 
+import com.opengamma.util.ArgumentChecker;
 
 public class SingleGreekResult implements GreekResult<Double> {
   private final Double _result;
 
   public SingleGreekResult(final Double result) {
-    if (result == null)
-      throw new IllegalArgumentException("Result was null");
+    ArgumentChecker.notNull(result, "result");
     _result = result;
   }
 

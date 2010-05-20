@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.opengamma.util.ArgumentChecker;
+
 public class GreekResultCollection {
   private final Map<Greek, GreekResult<?>> _backingMap = new TreeMap<Greek, GreekResult<?>>();
 
@@ -18,6 +20,8 @@ public class GreekResultCollection {
   }
 
   public void put(final Greek greek, final GreekResult<?> result) {
+    ArgumentChecker.notNull(greek, "Greek");
+    ArgumentChecker.notNull(result, "Greek result");
     _backingMap.put(greek, result);
   }
 
@@ -25,7 +29,7 @@ public class GreekResultCollection {
     return _backingMap.isEmpty();
   }
 
-  public boolean containsKey(final Greek greek) {
+  public boolean contains(final Greek greek) {
     return _backingMap.containsKey(greek);
   }
 

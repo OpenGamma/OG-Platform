@@ -101,7 +101,7 @@ public class VanillaOptionCrossModelPricingTest {
     while (iter.hasNext()) {
       final Greek greek = iter.next();
       final Double result = (Double) firstResult.get(greek).getResult();
-      assertTrue(secondResult.containsKey(greek));
+      assertTrue(secondResult.contains(greek));
       assertEquals(result, (Double) secondResult.get(greek).getResult(), EPS);
     }
   }

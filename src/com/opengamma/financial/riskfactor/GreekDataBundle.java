@@ -43,7 +43,7 @@ public class GreekDataBundle {
   }
 
   public GreekResult<?> getGreekResultForGreek(final Greek greek) {
-    if (_greekValues.containsKey(greek))
+    if (_greekValues.contains(greek))
       return _greekValues.get(greek);
     throw new IllegalArgumentException("Greek result collection did not contain a value for " + greek);
   }
