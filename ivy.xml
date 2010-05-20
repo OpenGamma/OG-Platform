@@ -10,10 +10,7 @@
     </publications>
     <dependencies>
         <dependency name="og-util" rev="latest.integration" conf="opengamma->*"/>
-        <dependency org="org.hibernate" name="hibernate" rev="3.3.2.GA" conf="*->default"/>
-        <dependency org="org.hibernate" name="hibernate-annotations" rev="3.4.0.GA"/>
-        <dependency org="org.hibernate" name="hibernate-tools" rev="3.2.4"/>
-        <dependency org="org.apache.derby" name="derby" rev="10.5+"/>
+        
         <dependency org="org.springframework" name="spring" rev="2.5.6" conf="*->orm"/>
         <dependency org="org.springframework" name="spring-security" rev="2.0.5"/>
         <dependency org="org.mongodb" name="java-driver" rev="1.0" conf="opengamma->*"/>
