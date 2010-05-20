@@ -34,6 +34,11 @@ public class IdentifierBundleTest {
   private final Identifier _id22 = Identifier.of(new IdentificationScheme("D2"), "V2");
 
   @Test
+  public void singleton_empty() {
+    assertEquals(0, IdentifierBundle.EMPTY.size());
+  }
+
+  @Test
   public void noIdentifiers() {
     IdentifierBundle dsi1 = new IdentifierBundle();
     IdentifierBundle dsi2 = new IdentifierBundle();
@@ -213,6 +218,29 @@ public class IdentifierBundleTest {
   public void test_toStringList_empty() {
     IdentifierBundle test = new IdentifierBundle();
     assertEquals(new ArrayList<String>(), test.toStringList());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_compareTo_differentSizes() {
+    IdentifierBundle a1 = new IdentifierBundle();
+    IdentifierBundle a2 = new IdentifierBundle(Identifier.of("A", "B"));
+    
+    assertEquals(true, a1.compareTo(a1) == 0);
+    assertEquals(true, a1.compareTo(a2) < 0);
+    assertEquals(true, a2.compareTo(a1) > 0);
+    assertEquals(true, a2.compareTo(a2) == 0);
+  }
+
+  @Test
+  public void test_compareTo_sameSizes() {
+    IdentifierBundle a1 = new IdentifierBundle(Identifier.of("A", "B"));
+    IdentifierBundle a2 = new IdentifierBundle(Identifier.of("A", "C"));
+    
+    assertEquals(true, a1.compareTo(a1) == 0);
+    assertEquals(true, a1.compareTo(a2) < 0);
+    assertEquals(true, a2.compareTo(a1) > 0);
+    assertEquals(true, a2.compareTo(a2) == 0);
   }
 
   //-------------------------------------------------------------------------

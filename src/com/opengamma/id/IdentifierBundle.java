@@ -28,15 +28,17 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A bundle of identifiers.
+ * An immutable bundle of identifiers.
  * <p>
  * Each identifier in the bundle will typically refer to the same physical item.
  * The identifiers represent different ways to represent the item, for example in multiple schemes.
- *
- * @author kirk
  */
 public final class IdentifierBundle implements Iterable<Identifier>, Serializable, Comparable<IdentifierBundle> {
 
+  /**
+   * Singleton empty bundle.
+   */
+  public static final IdentifierBundle EMPTY = new IdentifierBundle();
   /**
    * Fudge message key for the identifier set.
    */
@@ -216,7 +218,28 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     return list;
   }
 
-  //-------------------------------------------------------------------------
+  //-------------------------------------------------------------------
+  @Override
+  public int compareTo(IdentifierBundle other) {
+    final Set<Identifier> mySet = getIdentifiers();
+    final Set<Identifier> otherSet = other.getIdentifiers();
+    if (mySet.size() < otherSet.size()) {
+      return -1;
+    }
+    if (mySet.size() > otherSet.size()) {
+      return 1;
+    }
+    final List<Identifier> myList = new ArrayList<Identifier>(mySet);  // already sorted as TreeSet
+    final List<Identifier> otherList = new ArrayList<Identifier>(otherSet);  // already sorted as TreeSet
+    for (int i = 0; i < myList.size(); i++) {
+      int c = myList.get(i).compareTo(otherList.get(i));
+      if (c != 0) {
+        return c;
+      }
+    }
+    return 0;
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -275,22 +298,4 @@ public final class IdentifierBundle implements Iterable<Identifier>, Serializabl
     return new IdentifierBundle(identifiers);
   }
 
-  //-------------------------------------------------------------------
-  @Override
-  public int compareTo(IdentifierBundle o) {
-    final Set<Identifier> mySet = getIdentifiers ();
-    final Set<Identifier> otherSet = o.getIdentifiers ();
-    if (mySet.size () < otherSet.size ()) return -1;
-    if (mySet.size () > otherSet.size ()) return 1;
-    final List<Identifier> myList = new ArrayList<Identifier> (mySet);
-    final List<Identifier> otherList = new ArrayList<Identifier> (otherSet);
-    Collections.sort (myList);
-    Collections.sort (otherList);
-    for (int i = 0; i < myList.size (); i++) {
-      int c = myList.get (i).compareTo (otherList.get (i));
-      if (c != 0) return c;
-    }
-    return 0;
-  }
-  
 }
