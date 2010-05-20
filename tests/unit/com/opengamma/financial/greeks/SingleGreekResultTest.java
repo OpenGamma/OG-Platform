@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public class SingleGreekResultTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testConstructor() {
     new SingleGreekResult(null);
   }

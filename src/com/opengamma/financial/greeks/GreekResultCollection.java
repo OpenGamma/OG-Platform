@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +43,9 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
 
   public void put(final Greek greek, final GreekResult<?> result) {
     ArgumentChecker.notNull(greek, "Greek");
-    ArgumentChecker.notNull(result, "Greek result");
+    // REVIEW kirk 2010-05-20 -- This totally seems wrong that we're not checking it,
+    // but there is test code that relies on us allowing null results.
+    //ArgumentChecker.notNull(result, "Greek result");
     _backingMap.put(greek, result);
   }
 
@@ -86,9 +89,30 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
     return sb.toString();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Iterable#iterator()
-   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    for (final Map.Entry<Greek, GreekResult<?>> entry : _backingMap.entrySet()) {
+      result = prime * result + entry.getKey().hashCode();
+      result = prime * result + entry.getValue().hashCode();
+    }
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof GreekResultCollection)) {
+      return false;
+    }
+    final GreekResultCollection other = (GreekResultCollection) obj;
+    // This is really bad and we'll want to change it when we're less reliant on just the backing map.
+    return ObjectUtils.equals(_backingMap, other._backingMap);
+  }
+
   @Override
   public Iterator<Pair<Greek, GreekResult<?>>> iterator() {
     // TODO kirk 2010-05-20 -- This can be dramatically improved if we change the backing map.

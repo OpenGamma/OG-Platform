@@ -24,7 +24,6 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  *
  */
 public class FXForwardModelTest {
@@ -35,7 +34,8 @@ public class FXForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final ForwardModel<FXForwardDataBundle> MODEL = new FXForwardModel();
   private static final ForwardDefinition DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final FXForwardDataBundle DATA = new FXForwardDataBundle(new ConstantInterestRateDiscountCurve(R1), new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
+  private static final FXForwardDataBundle DATA = new FXForwardDataBundle(new ConstantInterestRateDiscountCurve(R1),
+      new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = IllegalArgumentException.class)
