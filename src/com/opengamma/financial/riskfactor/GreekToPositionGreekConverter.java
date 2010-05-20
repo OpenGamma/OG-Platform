@@ -19,11 +19,13 @@ import com.opengamma.financial.sensitivity.PositionGreek;
 import com.opengamma.financial.sensitivity.PositionGreekResult;
 import com.opengamma.financial.sensitivity.SinglePositionGreekResult;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, Map<PositionGreek, PositionGreekResult<?>>> {
+public class GreekToPositionGreekConverter extends
+    Function1D<GreekDataBundle, Map<PositionGreek, PositionGreekResult<?>>> {
 
   /*
    * (non-Javadoc)
@@ -39,15 +41,17 @@ public class GreekToPositionGreekConverter extends Function1D<GreekDataBundle, M
     Map<String, Double> multipleGreekResult;
     Map<String, Double> multiplePositionGreekResult;
     PositionGreek positionGreek;
-    for (final Map.Entry<Greek, GreekResult<?>> entry : greeks.entrySet()) {
+    for (final Pair<Greek, GreekResult<?>> entry : greeks) {
       positionGreek = new PositionGreek(entry.getKey());
       if (entry.getValue() instanceof SingleGreekResult) {
-        riskFactors.put(positionGreek, new SinglePositionGreekResult((Double) entry.getValue().getResult() * data.getUnderlyingDataForObject(TradeData.NUMBER_OF_CONTRACTS)));
+        riskFactors.put(positionGreek, new SinglePositionGreekResult((Double) entry.getValue().getResult()
+            * data.getUnderlyingDataForObject(TradeData.NUMBER_OF_CONTRACTS)));
       } else if (entry.getValue() instanceof MultipleGreekResult) {
         multipleGreekResult = ((MultipleGreekResult) entry.getValue()).getResult();
         multiplePositionGreekResult = new HashMap<String, Double>();
         for (final Map.Entry<String, Double> e : multipleGreekResult.entrySet()) {
-          multiplePositionGreekResult.put(e.getKey(), e.getValue() * data.getUnderlyingDataForObject(TradeData.NUMBER_OF_CONTRACTS));
+          multiplePositionGreekResult.put(e.getKey(), e.getValue()
+              * data.getUnderlyingDataForObject(TradeData.NUMBER_OF_CONTRACTS));
         }
         riskFactors.put(positionGreek, new MultiplePositionGreekResult(multiplePositionGreekResult));
       } else {

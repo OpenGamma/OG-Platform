@@ -6,6 +6,8 @@
 package com.opengamma.financial.greeks;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,11 +17,26 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
-public class GreekResultCollection {
+public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?>>> {
+  // REVIEW kirk 2010-05-20 -- Ideas for speeding up:
+  // - Just store SingleGreekResult instances as a double and convert on result
+  // - Change .put() to allow just providing a double, and avoiding constructing a SingleGreekResult
+  //   in the calling code.
+  // - For common cases, store SingleGreekResult in a double[], where the indices are ordinals
+  //   for the greek in the enumeration. Super-fast lookup and small objects, but wasted
+  //   space for the common case of one greek in a result collection.
+
+  // TODO kirk 2010-05-20 -- Needs a set of fudge converters.
+
+  // REVIEW kirk 2010-05-20 -- Is this the best backing map?
   private final Map<Greek, GreekResult<?>> _backingMap = new TreeMap<Greek, GreekResult<?>>();
 
   public GreekResult<?> get(final Greek greek) {
+    if (greek == null) {
+      return null;
+    }
     return _backingMap.get(greek);
   }
 
@@ -37,6 +54,7 @@ public class GreekResultCollection {
     return _backingMap.containsKey(greek);
   }
 
+  @Deprecated
   public Set<Map.Entry<Greek, GreekResult<?>>> entrySet() {
     return _backingMap.entrySet();
   }
@@ -50,7 +68,7 @@ public class GreekResultCollection {
   }
 
   public Collection<GreekResult<?>> values() {
-    return _backingMap.values();
+    return Collections.unmodifiableCollection(_backingMap.values());
   }
 
   @Override
@@ -66,6 +84,49 @@ public class GreekResultCollection {
     sb.append(StringUtils.join(elements, ", "));
     sb.append("]");
     return sb.toString();
+  }
+
+  /* (non-Javadoc)
+   * @see java.lang.Iterable#iterator()
+   */
+  @Override
+  public Iterator<Pair<Greek, GreekResult<?>>> iterator() {
+    // TODO kirk 2010-05-20 -- This can be dramatically improved if we change the backing map.
+    return new BackingMapGreekIterator(_backingMap.entrySet().iterator());
+  }
+
+  protected static class BackingMapGreekIterator implements Iterator<Pair<Greek, GreekResult<?>>> {
+    private final Iterator<Map.Entry<Greek, GreekResult<?>>> _backingIterator;
+
+    public BackingMapGreekIterator(final Iterator<Map.Entry<Greek, GreekResult<?>>> backingIterator) {
+      _backingIterator = backingIterator;
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Iterator#hasNext()
+     */
+    @Override
+    public boolean hasNext() {
+      return _backingIterator.hasNext();
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Iterator#next()
+     */
+    @Override
+    public Pair<Greek, GreekResult<?>> next() {
+      final Map.Entry<Greek, GreekResult<?>> nextEntry = _backingIterator.next();
+      return Pair.<Greek, GreekResult<?>> of(nextEntry.getKey(), nextEntry.getValue());
+    }
+
+    /* (non-Javadoc)
+     * @see java.util.Iterator#remove()
+     */
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Cannot remove from this iterator.");
+    }
+
   }
 
 }

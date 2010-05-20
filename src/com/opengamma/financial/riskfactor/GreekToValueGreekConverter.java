@@ -20,6 +20,7 @@ import com.opengamma.financial.sensitivity.SingleValueGreekResult;
 import com.opengamma.financial.sensitivity.ValueGreek;
 import com.opengamma.financial.sensitivity.ValueGreekResult;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.tuple.Pair;
 
 public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<ValueGreek, ValueGreekResult<?>>> {
 
@@ -34,11 +35,12 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
     Greek key;
     GreekResult<?> value;
     final Map<Object, Double> underlyingData = data.getUnderlyingData();
-    for (final Map.Entry<Greek, GreekResult<?>> entry : greeks.entrySet()) {
+    for (final Pair<Greek, GreekResult<?>> entry : greeks) {
       key = entry.getKey();
       value = entry.getValue();
       if (entry.getValue() instanceof SingleGreekResult) {
-        riskFactors.put(new ValueGreek(key), new SingleValueGreekResult(getValueGreek(key, underlyingData, (Double) value.getResult())));
+        riskFactors.put(new ValueGreek(key), new SingleValueGreekResult(getValueGreek(key, underlyingData,
+            (Double) value.getResult())));
       } else if (entry.getValue() instanceof MultipleGreekResult) {
         multipleGreekResult = ((MultipleGreekResult) value).getResult();
         multipleValueGreekResult = new HashMap<String, Double>();
@@ -56,7 +58,8 @@ public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<
   // TODO handle theta separately?
   Double getValueGreek(final Greek greek, final Map<Object, Double> underlyings, final Double greekValue) {
     final Underlying order = greek.getUnderlying();
-    return TaylorExpansionMultiplierCalculator.getMultiplier(underlyings, order) * greekValue * underlyings.get(TradeData.NUMBER_OF_CONTRACTS)
-        * underlyings.get(TradeData.POINT_VALUE) / TaylorExpansionMultiplierCalculator.getMultiplier(order);
+    return TaylorExpansionMultiplierCalculator.getMultiplier(underlyings, order) * greekValue
+        * underlyings.get(TradeData.NUMBER_OF_CONTRACTS) * underlyings.get(TradeData.POINT_VALUE)
+        / TaylorExpansionMultiplierCalculator.getMultiplier(order);
   }
 }
