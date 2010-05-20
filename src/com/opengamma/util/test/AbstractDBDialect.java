@@ -362,7 +362,7 @@ public abstract class AbstractDBDialect implements DBDialect {
       // Drop sequences SQL
       script.clear();
       for (String name : getAllSequences(catalog, schema, statement)) {
-        final SequenceStructure sequenceStructure = new SequenceStructure(getHibernateDialect(), name, 0, 1);
+        final SequenceStructure sequenceStructure = new SequenceStructure(getHibernateDialect(), name, 0, 1, Long.class);
         String[] dropSequenceStrings = sequenceStructure.sqlDropStrings(getHibernateDialect());
         script.addAll(Arrays.asList(dropSequenceStrings));
       }
