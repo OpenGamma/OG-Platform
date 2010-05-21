@@ -30,11 +30,11 @@ public class PositionImpl implements Position, Serializable {
   /**
    * The amount of the position.
    */
-  private final BigDecimal _quantity;
+  private BigDecimal _quantity;
   /**
    * The identifier specifying the security.
    */
-  private final IdentifierBundle _securityKey;
+  private IdentifierBundle _securityKey;
   /**
    * The security.
    */
@@ -150,11 +150,20 @@ public class PositionImpl implements Position, Serializable {
   //-------------------------------------------------------------------------
   /**
    * Gets the amount of the position held in terms of the security.
-   * @return the amount of the position
+   * @return the amount of the position, not null
    */
   @Override
   public BigDecimal getQuantity() {
     return _quantity;
+  }
+
+  /**
+   * Sets the amount of the position held in terms of the security.
+   * @param quantity  the amount of the position, not null
+   */
+  public void setQuantity(BigDecimal quantity) {
+    ArgumentChecker.notNull(quantity, "quantity");
+    _quantity = quantity;
   }
 
   /**
@@ -168,7 +177,14 @@ public class PositionImpl implements Position, Serializable {
     return _securityKey;
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Sets the key to the security being held.
+   * @param securityKey  the security key, may be null
+   */
+  public void setSecurityKey(IdentifierBundle securityKey) {
+    _securityKey = securityKey;
+  }
+
   /**
    * Gets the security being held, returning {@code null} if it has not been loaded.
    * <p>

@@ -159,6 +159,35 @@ public class PositionImplTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_setQuantity() {
+    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    test.setQuantity(BigDecimal.ZERO);
+    assertSame(BigDecimal.ZERO, test.getQuantity());
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void test_setQuantity_null() {
+    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    test.setQuantity(null);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_setSecurityKey() {
+    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    test.setSecurityKey(IdentifierBundle.EMPTY);
+    assertSame(IdentifierBundle.EMPTY, test.getSecurityKey());
+  }
+
+  @Test
+  public void test_setSecurityKey_nullAllowed() {
+    PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
+    test.setSecurityKey(null);
+    assertEquals(null, test.getSecurityKey());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_setSecurity() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     Security sec = new DefaultSecurity();
@@ -166,6 +195,7 @@ public class PositionImplTest {
     assertSame(sec, test.getSecurity());
   }
 
+  @Test
   public void test_setSecurity_nullAllowed() {
     PositionImpl test = new PositionImpl(UniqueIdentifier.of("B", "C"), BigDecimal.ONE, Identifier.of("A", "B"));
     test.setSecurity(null);
