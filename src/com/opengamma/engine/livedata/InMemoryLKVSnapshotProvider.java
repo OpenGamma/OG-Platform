@@ -51,11 +51,11 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, Li
   public synchronized Object querySnapshot(long snapshot, ValueRequirement requirement) {
     Map<ValueRequirement, ComputedValue> snapshotValues =
       _snapshots.get(snapshot);
-    if(snapshotValues == null) {
+    if (snapshotValues == null) {
       return null;
     }
     ComputedValue value = snapshotValues.get(requirement);
-    if(value == null) {
+    if (value == null) {
       return null;
     }
     return value.getValue();
@@ -71,6 +71,7 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, Li
   /**
    * This method can be called directly to populate a historical
    * snapshot.
+   * @param snapshotTime the time to set as the snapshot
    */
   public synchronized void snapshot(long snapshotTime) {
     Map<ValueRequirement, ComputedValue> snapshotValues =

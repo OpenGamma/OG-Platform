@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.livedata;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -39,7 +39,7 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
    * @param acceptableSchemes  the acceptable schemes, not null
    */
   public DomainLiveDataAvailabilityProvider(SecurityMaster secMaster, IdentificationScheme... acceptableSchemes) {
-    this (secMaster, Arrays.asList (acceptableSchemes));
+    this (secMaster, Arrays.asList(acceptableSchemes));
   }
   
   /**
@@ -47,11 +47,11 @@ public class DomainLiveDataAvailabilityProvider implements LiveDataAvailabilityP
    * @param secMaster the security master, not null
    * @param acceptableSchemes the acceptable schemes, not null
    */
-  public DomainLiveDataAvailabilityProvider (final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes) {
+  public DomainLiveDataAvailabilityProvider(final SecurityMaster secMaster, final Collection<IdentificationScheme> acceptableSchemes) {
     ArgumentChecker.notNull(secMaster, "Security master");
     ArgumentChecker.notNull(acceptableSchemes, "Acceptable schemes");
     _securityMaster = secMaster;
-    _acceptableSchemes = new ArrayList<IdentificationScheme> (acceptableSchemes);
+    _acceptableSchemes = new HashSet<IdentificationScheme>(acceptableSchemes);
   }
 
   //-------------------------------------------------------------------------
