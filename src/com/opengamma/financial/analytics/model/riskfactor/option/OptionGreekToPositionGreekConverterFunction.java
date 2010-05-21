@@ -27,13 +27,10 @@ import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailablePositionGreeks;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.MultipleGreekResult;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToPositionGreekConverter;
 import com.opengamma.financial.sensitivity.PositionGreek;
-import com.opengamma.financial.sensitivity.PositionGreekResult;
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -41,9 +38,8 @@ import com.opengamma.math.function.Function1D;
  */
 public class OptionGreekToPositionGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_Log = LoggerFactory.getLogger(OptionGreekToPositionGreekConverterFunction.class);
-  private final Function1D<GreekDataBundle, Map<PositionGreek, PositionGreekResult<?>>> _converter = new GreekToPositionGreekConverter();
+  private final Function1D<GreekDataBundle, Map<PositionGreek, Double>> _converter = new GreekToPositionGreekConverter();
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) {
@@ -54,33 +50,30 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
     // REVIEW: I have no idea if this will work
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
       greekResult = inputs.getValue(new ValueRequirement(valueName, target.getSecurity()));
+      if (!(greekResult instanceof Double)) {
+        throw new IllegalArgumentException("Can only handle Double greeks.");
+      }
       greek = AvailableGreeks.getGreekForValueRequirementName(valueName);
       if (greekResult == null) {
         s_Log.warn("Could not get value for " + valueName + ", continuing");
       } else {
-        if (greekResult instanceof Double) {
-          greekResultCollection.put(greek, new SingleGreekResult((Double) greekResult));
-        } else if (greekResult instanceof Map<?, ?>) {
-          greekResultCollection.put(greek, new MultipleGreekResult((Map<String, Double>) greekResult));
-        } else {
-          throw new IllegalArgumentException("Got a value for greek " + valueName + " that is neither a Double nor a Map<String, Double>: should never happen");
-        }
+        greekResultCollection.put(greek, (Double) greekResult);
       }
       underlyingData.put(TradeData.NUMBER_OF_CONTRACTS, target.getPosition().getQuantity().doubleValue());
     }
     final GreekDataBundle dataBundle = new GreekDataBundle(greekResultCollection, underlyingData);
-    final Map<PositionGreek, PositionGreekResult<?>> positionGreeks = _converter.evaluate(dataBundle);
+    final Map<PositionGreek, Double> positionGreeks = _converter.evaluate(dataBundle);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
     PositionGreek positionGreek;
-    PositionGreekResult<?> PositionGreekResult;
+    Double positionGreekResult;
     ValueSpecification resultSpecification;
     ComputedValue resultValue;
     for (final ValueRequirement dV : desiredValues) {
       // TODO probably need some checks here
       positionGreek = AvailablePositionGreeks.getPositionGreekForValueRequirementName(dV.getValueName());
-      PositionGreekResult = positionGreeks.get(positionGreek);
+      positionGreekResult = positionGreeks.get(positionGreek);
       resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getSecurity()));
-      resultValue = new ComputedValue(resultSpecification, PositionGreekResult.getResult());
+      resultValue = new ComputedValue(resultSpecification, positionGreekResult);
       results.add(resultValue);
     }
     return results;

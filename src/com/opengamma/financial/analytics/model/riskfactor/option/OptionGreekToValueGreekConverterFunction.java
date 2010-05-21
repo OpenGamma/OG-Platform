@@ -30,15 +30,12 @@ import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.MultipleGreekResult;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.riskfactor.GreekDataBundle;
 import com.opengamma.financial.riskfactor.GreekToValueGreekConverter;
 import com.opengamma.financial.sensitivity.ValueGreek;
-import com.opengamma.financial.sensitivity.ValueGreekResult;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
@@ -48,7 +45,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class OptionGreekToValueGreekConverterFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_Log = LoggerFactory.getLogger(OptionGreekToValueGreekConverterFunction.class);
-  private final Function1D<GreekDataBundle, Map<ValueGreek, ValueGreekResult<?>>> _converter = new GreekToValueGreekConverter();
+  private final Function1D<GreekDataBundle, Map<ValueGreek, Double>> _converter = new GreekToValueGreekConverter();
   private final String _requirementName;
   
   public OptionGreekToValueGreekConverterFunction(String requirementName) {
@@ -71,21 +68,14 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     final Security security = position.getSecurity();
     final GreekResultCollection greekResultCollection = new GreekResultCollection();
     final Map<Object, Double> underlyingData = new HashMap<Object, Double>();
-    Object greekResult;
     Greek greek;
     Underlying order;
     FudgeFieldContainer liveUnderlying;
     Set<UnderlyingType> underlyings;
     String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
-    greekResult = inputs.getValue(new ValueRequirement(underlyingGreekRequirementName, security));
+    Double greekResult = (Double) inputs.getValue(new ValueRequirement(underlyingGreekRequirementName, security));
     greek = AvailableGreeks.getGreekForValueRequirementName(underlyingGreekRequirementName);
-    if (greekResult instanceof Double) {
-      greekResultCollection.put(greek, new SingleGreekResult((Double) greekResult));
-    } else if (greekResult instanceof Map<?, ?>) {
-      greekResultCollection.put(greek, new MultipleGreekResult((Map<String, Double>) greekResult));
-    } else {
-      throw new IllegalArgumentException("Got a value for greek " + underlyingGreekRequirementName + " that is neither a Double nor a Map<String, Double>: should never happen " + greekResult);
-    }
+    greekResultCollection.put(greek, greekResult);
     
     //TODO check that there isn't already a value for the greek? can't see how it could happen but
     //overwriting silently in that situation would be bad
@@ -106,18 +96,18 @@ public class OptionGreekToValueGreekConverterFunction extends AbstractFunction i
     }
     
     final GreekDataBundle dataBundle = new GreekDataBundle(greekResultCollection, underlyingData);
-    final Map<ValueGreek, ValueGreekResult<?>> sensitivities = _converter.evaluate(dataBundle);
+    final Map<ValueGreek, Double> sensitivities = _converter.evaluate(dataBundle);
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
     ValueGreek valueGreek;
-    ValueGreekResult<?> ValueGreekResult;
+    Double valueGreekResult;
     ValueSpecification resultSpecification;
     ComputedValue resultValue;
     for (final ValueRequirement dV : desiredValues) {
       // TODO probably need some checks here
       valueGreek = AvailableValueGreeks.getValueGreekForValueRequirementName(dV.getValueName());
-      ValueGreekResult = sensitivities.get(valueGreek);
+      valueGreekResult = sensitivities.get(valueGreek);
       resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getPosition()));
-      resultValue = new ComputedValue(resultSpecification, ValueGreekResult.getResult());
+      resultValue = new ComputedValue(resultSpecification, valueGreekResult);
       results.add(resultValue);
     }
     return results;
