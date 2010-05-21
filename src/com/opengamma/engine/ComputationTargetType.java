@@ -35,8 +35,7 @@ public enum ComputationTargetType {
 
   /**
    * Checks if the type is compatible with the target.
-   * @param computationTargetType
-   * @param target
+   * @param target The target to check for compatibility
    * @return true if compatible
    */
   public boolean isCompatible(Object target) {
@@ -51,7 +50,7 @@ public enum ComputationTargetType {
         return (target instanceof Portfolio == false &&
                 target instanceof PortfolioNode == false &&
                 target instanceof Position == false &&
-                target instanceof Security == false );
+                target instanceof Security == false);
       default:
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + this);
     }

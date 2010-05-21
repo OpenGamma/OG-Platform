@@ -63,12 +63,12 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
   
   //-------------------------------------------------------------------------
   
-  public void setRecursiveResolver (final ComputationTargetResolver recursiveResolver) {
-    ArgumentChecker.notNull (recursiveResolver, "Computation Target Resolver");
+  public void setRecursiveResolver(final ComputationTargetResolver recursiveResolver) {
+    ArgumentChecker.notNull(recursiveResolver, "Computation Target Resolver");
     _recursiveResolver = recursiveResolver;
   }
   
-  public ComputationTargetResolver getRecursiveResolver () {
+  public ComputationTargetResolver getRecursiveResolver() {
     return _recursiveResolver;
   }
 
@@ -110,14 +110,16 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       case POSITION: {
         Position position = getPositionMaster().getPosition(uid);
         s_logger.info("Resolved position ID {} to position {}", uid, position);
-        if (position == null) return null;
-        if (position.getSecurity () == null) {
-          Security security = getSecurityMaster ().getSecurity (position.getSecurityKey ());
+        if (position == null) {
+          return null;
+        }
+        if (position.getSecurity() == null) {
+          Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
           if (security == null) {
-            s_logger.warn ("Couldn't resolve security ID {} for position ID {}", position.getSecurityKey (), uid);
+            s_logger.warn("Couldn't resolve security ID {} for position ID {}", position.getSecurityKey(), uid);
           } else {
-            s_logger.info ("Resolved security ID {} to security {}", position.getSecurityKey (), security);
-            position = new PositionImpl (position.getUniqueIdentifier (), position.getQuantity (), position.getSecurityKey (), security);
+            s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
+            position = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
           }
         }
         return new ComputationTarget(ComputationTargetType.POSITION, position);
@@ -127,17 +129,19 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
         s_logger.info("Resolved multiple position ID {} to portfolio {}", uid, portfolio);
         if (portfolio != null) {
-          node = portfolio.getRootNode ();
+          node = portfolio.getRootNode();
           if (node == null) {
-            s_logger.warn ("Root node for portfolio {} is null", portfolio);
+            s_logger.warn("Root node for portfolio {} is null", portfolio);
             return null;
           }
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl (portfolio.getUniqueIdentifier (), portfolio.getName (), resolvePortfolioNode (uid, node)));
+          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
         } else {
           node = getPositionMaster().getPortfolioNode(uid);
           s_logger.info("Resolved multiple position ID {} to portfolio node {}", uid, node);
-          if (node == null) return null;
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode (uid, node));
+          if (node == null) {
+            return null;
+          }
+          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
         }
       }
       default: {
@@ -146,22 +150,22 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
     }
   }
   
-  private PortfolioNodeImpl resolvePortfolioNode (final UniqueIdentifier uid, final PortfolioNode node) {
-    final PortfolioNodeImpl newNode = new PortfolioNodeImpl (node.getUniqueIdentifier (), node.getName ());
-    for (PortfolioNode child : node.getChildNodes ()) {
-      final ComputationTarget resolvedChild = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier ()));
+  private PortfolioNodeImpl resolvePortfolioNode(final UniqueIdentifier uid, final PortfolioNode node) {
+    final PortfolioNodeImpl newNode = new PortfolioNodeImpl(node.getUniqueIdentifier(), node.getName());
+    for (PortfolioNode child : node.getChildNodes()) {
+      final ComputationTarget resolvedChild = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.MULTIPLE_POSITIONS, child.getUniqueIdentifier()));
       if (resolvedChild == null) {
-        s_logger.warn ("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier (), uid);
+        s_logger.warn("Portfolio node ID {} couldn't be resolved for portfolio node ID {}", child.getUniqueIdentifier(), uid);
       } else {
-        newNode.addChildNode (resolvedChild.getPortfolioNode ());
+        newNode.addChildNode(resolvedChild.getPortfolioNode());
       }
     }
-    for (Position position : node.getPositions ()) {
-      final ComputationTarget resolvedPosition = getRecursiveResolver ().resolve (new ComputationTargetSpecification (ComputationTargetType.POSITION, position.getUniqueIdentifier ()));
+    for (Position position : node.getPositions()) {
+      final ComputationTarget resolvedPosition = getRecursiveResolver().resolve(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       if (resolvedPosition == null) {
-        s_logger.warn ("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier (), uid);
+        s_logger.warn("Position ID {} couldn't be resolved for portfolio node ID {}", position.getUniqueIdentifier(), uid);
       } else {
-        newNode.addPosition (resolvedPosition.getPosition ());
+        newNode.addPosition(resolvedPosition.getPosition());
       }
     }
     return newNode;
