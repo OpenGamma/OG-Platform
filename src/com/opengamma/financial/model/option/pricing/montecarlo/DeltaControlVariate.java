@@ -16,7 +16,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class DeltaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements ControlVariate<T, U> {
   protected final AnalyticOptionModel<T, U> _analyticModel;
@@ -38,7 +37,7 @@ public class DeltaControlVariate<T extends OptionDefinition, U extends StandardO
 
       @Override
       public Double evaluate(final Double x) {
-        final double delta = (Double) _analyticModel.getGreeks(definition, data, _greek).get(Greek.DELTA).getResult();
+        final double delta = _analyticModel.getGreeks(definition, data, _greek).get(Greek.DELTA);
         return _beta * delta * (x - s * df);
       }
 

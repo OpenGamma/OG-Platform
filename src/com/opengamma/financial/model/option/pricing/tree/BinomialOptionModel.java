@@ -8,10 +8,8 @@ package com.opengamma.financial.model.option.pricing.tree;
 import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionExerciseFunction;
@@ -23,8 +21,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- * @author emcleod
  * 
  */
 public class BinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
@@ -47,15 +43,15 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
   public GreekResultCollection getGreeks(final OptionDefinition definition, final T data, final Set<Greek> requiredGreeks) {
     final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction = getTreeGeneratingFunction(definition);
     final GreekResultCollection results = new GreekResultCollection();
-    final GreekVisitor<GreekResult<?>> visitor = getGreekVisitor(treeFunction, data, definition);
+    final GreekVisitor<Double> visitor = getGreekVisitor(treeFunction, data, definition);
     for (final Greek greek : requiredGreeks) {
-      final GreekResult<?> result = greek.accept(visitor);
+      final Double result = greek.accept(visitor);
       results.put(greek, result);
     }
     return results;
   }
 
-  public GreekVisitor<GreekResult<?>> getGreekVisitor(final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction, final T data,
+  public GreekVisitor<Double> getGreekVisitor(final Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> treeFunction, final T data,
       final OptionDefinition definition) {
     final Function1D<T, Double> function = new Function1D<T, Double>() {
 
@@ -119,29 +115,29 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
     }
 
     @Override
-    public GreekResult<?> visitDelta() {
+    public Double visitDelta() {
       final Pair<Double, Double> node11 = _tree.getNode(1, 1);
       final Pair<Double, Double> node10 = _tree.getNode(1, 0);
       final double delta = (node11.getSecond() - node10.getSecond()) / (node11.getFirst() - node10.getFirst());
-      return new SingleGreekResult(delta);
+      return delta;
     }
 
     @Override
-    public GreekResult<?> visitGamma() {
+    public Double visitGamma() {
       final Pair<Double, Double> node22 = _tree.getNode(2, 2);
       final Pair<Double, Double> node21 = _tree.getNode(2, 1);
       final Pair<Double, Double> node20 = _tree.getNode(2, 0);
       double gamma = (node22.getSecond() - node21.getSecond()) / (node22.getFirst() - node21.getFirst()) - (node21.getSecond() - node20.getSecond())
           / (node21.getFirst() - node20.getFirst());
       gamma /= 0.5 * (node22.getFirst() - node20.getFirst());
-      return new SingleGreekResult(gamma);
+      return gamma;
     }
 
     @Override
-    public GreekResult<?> visitTheta() {
+    public Double visitTheta() {
       final Pair<Double, Double> node21 = _tree.getNode(2, 1);
       final Pair<Double, Double> node00 = _tree.getNode(0, 0);
-      return new SingleGreekResult((node21.getSecond() - node00.getSecond()) / (2 * _dt));
+      return (node21.getSecond() - node00.getSecond()) / (2 * _dt);
     }
   }
 }

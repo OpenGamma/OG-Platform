@@ -15,35 +15,32 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.sensitivity.PositionGreek;
-import com.opengamma.financial.sensitivity.PositionGreekResult;
-import com.opengamma.financial.sensitivity.SinglePositionGreekResult;
 
 /**
  *
  */
 public class GreekAndPositionGreekDataBundleTest {
   private static final GreekResultCollection GREEKS = new GreekResultCollection();
-  private static final Map<PositionGreek, PositionGreekResult<?>> RISK_FACTOR = new HashMap<PositionGreek, PositionGreekResult<?>>();
+  private static final Map<PositionGreek, Double> RISK_FACTOR = new HashMap<PositionGreek, Double>();
   private static final Map<Object, Double> UNDERLYING = new HashMap<Object, Double>();
   private static final GreekDataBundle GREEKS_DATA;
   private static final PositionGreekDataBundle POSITION_GREEKS_DATA;
 
   static {
-    GREEKS.put(Greek.DELTA, new SingleGreekResult(0.12));
-    GREEKS.put(Greek.GAMMA, new SingleGreekResult(0.34));
-    RISK_FACTOR.put(new PositionGreek(Greek.DELTA), new SinglePositionGreekResult(12.));
-    RISK_FACTOR.put(new PositionGreek(Greek.GAMMA), new SinglePositionGreekResult(34.));
+    GREEKS.put(Greek.DELTA, 0.12);
+    GREEKS.put(Greek.GAMMA, 0.34);
+    RISK_FACTOR.put(new PositionGreek(Greek.DELTA), 12.);
+    RISK_FACTOR.put(new PositionGreek(Greek.GAMMA), 34.);
     UNDERLYING.put(TradeData.NUMBER_OF_CONTRACTS, 200.);
     UNDERLYING.put(UnderlyingType.SPOT_PRICE, 40.);
     GREEKS_DATA = new GreekDataBundle(GREEKS, UNDERLYING);
     POSITION_GREEKS_DATA = new PositionGreekDataBundle(RISK_FACTOR, UNDERLYING);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullGreeks() {
     new GreekDataBundle(null, UNDERLYING);
   }
@@ -53,7 +50,7 @@ public class GreekAndPositionGreekDataBundleTest {
     new GreekDataBundle(new GreekResultCollection(), UNDERLYING);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullData1() {
     new GreekDataBundle(GREEKS, null);
   }
@@ -68,17 +65,17 @@ public class GreekAndPositionGreekDataBundleTest {
     GREEKS_DATA.getGreekResultForGreek(Greek.CARRY_RHO);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullRiskFactors() {
     new PositionGreekDataBundle(null, UNDERLYING);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyRiskFactors() {
-    new PositionGreekDataBundle(Collections.<PositionGreek, PositionGreekResult<?>> emptyMap(), UNDERLYING);
+    new PositionGreekDataBundle(Collections.<PositionGreek, Double> emptyMap(), UNDERLYING);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullData2() {
     new PositionGreekDataBundle(RISK_FACTOR, null);
   }

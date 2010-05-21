@@ -9,48 +9,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.MultipleGreekResult;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.TradeData;
-import com.opengamma.financial.sensitivity.MultipleValueGreekResult;
-import com.opengamma.financial.sensitivity.SingleValueGreekResult;
 import com.opengamma.financial.sensitivity.ValueGreek;
-import com.opengamma.financial.sensitivity.ValueGreekResult;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.tuple.Pair;
 
-public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<ValueGreek, ValueGreekResult<?>>> {
+public class GreekToValueGreekConverter extends Function1D<GreekDataBundle, Map<ValueGreek, Double>> {
 
   @Override
-  public Map<ValueGreek, ValueGreekResult<?>> evaluate(final GreekDataBundle data) {
+  public Map<ValueGreek, Double> evaluate(final GreekDataBundle data) {
     if (data == null)
       throw new IllegalArgumentException("Greek data bundle was null");
     final GreekResultCollection greeks = data.getGreekResults();
-    final Map<ValueGreek, ValueGreekResult<?>> riskFactors = new HashMap<ValueGreek, ValueGreekResult<?>>();
-    Map<String, Double> multipleGreekResult;
-    Map<String, Double> multipleValueGreekResult;
-    Greek key;
-    GreekResult<?> value;
+    final Map<ValueGreek, Double> riskFactors = new HashMap<ValueGreek, Double>();
     final Map<Object, Double> underlyingData = data.getUnderlyingData();
-    for (final Pair<Greek, GreekResult<?>> entry : greeks) {
-      key = entry.getKey();
-      value = entry.getValue();
-      if (entry.getValue() instanceof SingleGreekResult) {
-        riskFactors.put(new ValueGreek(key), new SingleValueGreekResult(getValueGreek(key, underlyingData,
-            (Double) value.getResult())));
-      } else if (entry.getValue() instanceof MultipleGreekResult) {
-        multipleGreekResult = ((MultipleGreekResult) value).getResult();
-        multipleValueGreekResult = new HashMap<String, Double>();
-        for (final Map.Entry<String, Double> e : multipleGreekResult.entrySet()) {
-          multipleValueGreekResult.put(e.getKey(), getValueGreek(key, underlyingData, e.getValue()));
-        }
-        riskFactors.put(new ValueGreek(key), new MultipleValueGreekResult(multipleValueGreekResult));
-      } else {
-        throw new IllegalArgumentException("Can only handle SingleRiskFactorResult and MultipleRiskFactorResult");
-      }
+    for (final Pair<Greek, Double> entry : greeks) {
+      Greek key = entry.getKey();
+      Double value = entry.getValue();
+      riskFactors.put(new ValueGreek(key), getValueGreek(key, underlyingData, value));
     }
     return riskFactors;
   }

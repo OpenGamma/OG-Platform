@@ -9,8 +9,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -18,9 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -29,11 +25,8 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
-/**
- * 
- * @author emcleod
- */
 public class AnalyticOptionModelTest {
   protected static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> DUMMY_MODEL = new AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle>() {
@@ -71,14 +64,16 @@ public class AnalyticOptionModelTest {
 
   @Test
   public void testFiniteDifferenceAgainstBSM() {
-    final Set<Greek> greekTypes = EnumSet.of(Greek.FAIR_PRICE, Greek.ZETA, Greek.CARRY_RHO, Greek.DELTA,
+    final Set<Greek> greekTypes = EnumSet.of(Greek.FAIR_PRICE, Greek.CARRY_RHO, Greek.DELTA,
         Greek.DZETA_DVOL, Greek.ELASTICITY, Greek.PHI, Greek.RHO, Greek.THETA, Greek.VARIANCE_VEGA, Greek.VEGA,
-        Greek.VEGA_P, Greek.ZETA_BLEED, Greek.VARIANCE_VANNA, Greek.DELTA_BLEED, Greek.GAMMA, Greek.GAMMA_P,
+        Greek.VEGA_P, Greek.VARIANCE_VANNA, Greek.DELTA_BLEED, Greek.GAMMA, Greek.GAMMA_P,
         Greek.VANNA, Greek.VARIANCE_VOMMA, Greek.VEGA_BLEED, Greek.VOMMA, Greek.VOMMA_P, Greek.DVANNA_DVOL,
         Greek.GAMMA_BLEED, Greek.GAMMA_P_BLEED, Greek.SPEED, Greek.SPEED_P, Greek.ULTIMA, Greek.VARIANCE_ULTIMA,
         Greek.ZOMMA, Greek.ZOMMA_P);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);
     GreekResultCollection finiteDifference = DUMMY_MODEL.getGreeks(PUT, DATA, greekTypes);
+    System.out.println("BSM is " + bsm);
+    System.out.println("FiniteDifference is " + finiteDifference);
     testResults(finiteDifference, bsm);
     bsm = BSM.getGreeks(CALL, DATA, greekTypes);
     finiteDifference = DUMMY_MODEL.getGreeks(CALL, DATA, greekTypes);
@@ -87,18 +82,12 @@ public class AnalyticOptionModelTest {
 
   protected void testResults(final GreekResultCollection results, final GreekResultCollection expected) {
     assertEquals(results.size(), expected.size());
-    final Iterator<Map.Entry<Greek, GreekResult<?>>> iter = results.entrySet().iterator();
-    while (iter.hasNext()) {
-      final Map.Entry<Greek, GreekResult<?>> entry = iter.next();
-      final GreekResult<?> result2 = expected.get(entry.getKey());
-      if (entry.getValue() instanceof SingleGreekResult) {
-        final Double first = ((SingleGreekResult) entry.getValue()).getResult();
-        final Double second = ((SingleGreekResult) result2).getResult();
-        if (!(entry.getKey().equals(Greek.VARIANCE_ULTIMA))) {
-          assertEquals(first, second, EPS);
-        } else {
-          assertEquals(first / 1000, second / 1000, EPS);
-        }
+    for(Pair<Greek, Double> entry : results) {
+      final Double result2 = expected.get(entry.getKey());
+      if (!(entry.getKey().equals(Greek.VARIANCE_ULTIMA))) {
+        assertEquals(entry.getValue(), result2, EPS);
+      } else {
+        assertEquals(entry.getValue() / 1000, result2/ 1000, EPS);
       }
     }
   }

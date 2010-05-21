@@ -23,10 +23,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
 public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry NINE_MONTHS = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
@@ -129,7 +125,7 @@ public class AmericanAnalyticOptionModelTest extends AnalyticOptionModelTest {
   }
 
   private void testResult(final GreekResultCollection result, final double value, final double eps) {
-    assertEquals(((Double) result.get(Greek.FAIR_PRICE).getResult()), value, eps);
+    assertEquals(result.get(Greek.FAIR_PRICE), value, eps);
   }
 
 }

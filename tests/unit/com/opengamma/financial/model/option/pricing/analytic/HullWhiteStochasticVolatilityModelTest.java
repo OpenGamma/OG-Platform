@@ -23,10 +23,6 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
-/**
- * 
- * @author emcleod
- */
 public class HullWhiteStochasticVolatilityModelTest {
   private static final AnalyticOptionModel<OptionDefinition, HullWhiteStochasticVolatilityModelOptionDataBundle> MODEL = new HullWhiteStochasticVolatilityModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();

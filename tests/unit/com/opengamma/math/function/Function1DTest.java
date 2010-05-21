@@ -5,14 +5,8 @@
  */
 package com.opengamma.math.function;
 
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
-/**
- * 
- * @author emcleod
- */
 public class Function1DTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
@@ -22,26 +16,20 @@ public class Function1DTest {
     }
 
   };
-
-  @Test
-  public void test() {
-    try {
-      F.evaluate((Double[]) null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      F.evaluate(new Double[0]);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      F.evaluate(new Double[] { null });
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  
+  @Test(expected=NullPointerException.class)
+  public void testNullInputList() {
+    F.evaluate((Double[]) null);
   }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testEmptyInputList() {
+    F.evaluate(new Double[0]);
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void testInputListWithNulls() {
+    F.evaluate(new Double[] { null });
+  }
+
 }

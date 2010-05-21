@@ -15,7 +15,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
@@ -26,10 +25,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
 public class AsymmetricPowerOptionModelTest {
   private static final double B = 0.02;
   private static final double SPOT = 10;
@@ -67,14 +62,12 @@ public class AsymmetricPowerOptionModelTest {
   }
 
   private double getPrice(final double power, final boolean isCall) {
-    return ((SingleGreekResult) MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(
-        Greek.FAIR_PRICE)).getResult();
+    return MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE);
   }
 
   private double getBSPrice(final double power, final boolean isCall) {
     final StandardOptionDataBundle bs_bundle = getModifiedDataBundle(BUNDLE, power);
-    return ((SingleGreekResult) BS_MODEL.getGreeks(getDefinition(power, isCall), bs_bundle, REQUIRED_GREEKS).get(
-        Greek.FAIR_PRICE)).getResult();
+    return BS_MODEL.getGreeks(getDefinition(power, isCall), bs_bundle, REQUIRED_GREEKS).get(Greek.FAIR_PRICE);
   }
 
   private AsymmetricPowerOptionDefinition getDefinition(final double power, final boolean isCall) {

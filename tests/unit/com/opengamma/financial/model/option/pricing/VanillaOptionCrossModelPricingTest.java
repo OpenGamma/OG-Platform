@@ -37,10 +37,6 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
 public class VanillaOptionCrossModelPricingTest {
   private static final Double STRIKE = 9.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
@@ -100,9 +96,9 @@ public class VanillaOptionCrossModelPricingTest {
     final Iterator<Greek> iter = firstResult.keySet().iterator();
     while (iter.hasNext()) {
       final Greek greek = iter.next();
-      final Double result = (Double) firstResult.get(greek).getResult();
+      final Double result = firstResult.get(greek);
       assertTrue(secondResult.contains(greek));
-      assertEquals(result, (Double) secondResult.get(greek).getResult(), EPS);
+      assertEquals(result, secondResult.get(greek), EPS);
     }
   }
 }

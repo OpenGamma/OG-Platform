@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.LogOptionDefinition;
@@ -25,10 +24,6 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
 public class LogOptionModelTest {
   private static final AnalyticOptionModel<LogOptionDefinition, StandardOptionDataBundle> MODEL = new LogOptionModel();
   private static final Set<Greek> REQUIRED_GREEKS = Collections.singleton(Greek.FAIR_PRICE);
@@ -58,7 +53,7 @@ public class LogOptionModelTest {
   private void assertPriceEquals(final LogOptionDefinition definition, final double sigma, final double price) {
     final StandardOptionDataBundle bundle = getBundle(sigma);
     final GreekResultCollection actual = MODEL.getGreeks(definition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult) actual.get(Greek.FAIR_PRICE)).getResult(), price, EPS);
+    assertEquals(actual.get(Greek.FAIR_PRICE), price, EPS);
   }
 
   private StandardOptionDataBundle getBundle(final double sigma) {

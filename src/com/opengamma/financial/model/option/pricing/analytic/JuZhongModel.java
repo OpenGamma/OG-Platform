@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -22,7 +21,6 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * @author emcleod
  */
 public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
   protected final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
@@ -42,7 +40,7 @@ public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefin
         if (data == null)
           throw new IllegalArgumentException("Data bundle was null");
         final GreekResultCollection bsmResult = BSM.getGreeks(definition, data, PRICE);
-        final double bsmPrice = ((SingleGreekResult) bsmResult.get(Greek.FAIR_PRICE)).getResult();
+        final double bsmPrice = bsmResult.get(Greek.FAIR_PRICE);
         final double s = data.getSpot();
         final double k = definition.getStrike();
         final double t = definition.getTimeToExpiry(data.getDate());
@@ -59,7 +57,7 @@ public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefin
         final double sEstimate = FINDER.getRoot(function, 0., s * 2);
         if (phi * (sEstimate - s) <= 0)
           return phi * (s - k);
-        final double estimatePrice = ((SingleGreekResult) BSM.getGreeks(definition, data.withSpot(sEstimate), PRICE).get(Greek.FAIR_PRICE)).getResult();
+        final double estimatePrice = BSM.getGreeks(definition, data.withSpot(sEstimate), PRICE).get(Greek.FAIR_PRICE);
         final double hA = phi * (sEstimate - k) - estimatePrice;
         final double derivative = getDerivative(k, r, b, t, sigma, phi, sEstimate);
         final double c = getC(h, alpha, lambdaDash, lambda, beta);
@@ -117,7 +115,7 @@ public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefin
       @Override
       public Double evaluate(final Double x) {
         final GreekResultCollection bsmPrice = BSM.getGreeks(definition, data.withSpot(x), PRICE);
-        final double price = ((SingleGreekResult) bsmPrice.get(Greek.FAIR_PRICE)).getResult();
+        final double price = bsmPrice.get(Greek.FAIR_PRICE);
         return phi * (df * _normal.getCDF(phi * getD1(x, k, t, sigma, b)) + lambda * (phi * (x - k) - price) / x - 1);
       }
 

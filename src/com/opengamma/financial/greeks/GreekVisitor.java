@@ -7,7 +7,6 @@ package com.opengamma.financial.greeks;
 
 /**
  * 
- * @author emcleod
  */
 public interface GreekVisitor<T> {
 

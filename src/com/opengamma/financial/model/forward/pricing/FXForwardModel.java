@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.forward.definition.FXForwardDataBundle;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +41,7 @@ public class FXForwardModel implements ForwardModel<FXForwardDataBundle> {
     final double t = DateUtil.getDifferenceInYears(data.getDate(), definition.getExpiry().getExpiry());
     final double r = data.getDiscountCurve().getInterestRate(t);
     final double rf = data.getForeignCurve().getInterestRate(t);
-    result.put(Greek.FAIR_PRICE, new SingleGreekResult(data.getSpot() * Math.exp(t * (r - rf))));
+    result.put(Greek.FAIR_PRICE, data.getSpot() * Math.exp(t * (r - rf)));
     return result;
   }
 

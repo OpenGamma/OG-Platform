@@ -27,10 +27,6 @@ import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDisc
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * @author emcleod
- *
- */
 public class CostOfCarryFutureAsForwardModelTest {
   private static final double R = 0.05;
   private static final double D = 0.01;
@@ -78,7 +74,6 @@ public class CostOfCarryFutureAsForwardModelTest {
     assertEquals(futureResult.size(), 1);
     assertEquals(forwardResult.size(), futureResult.size());
     assertEquals(forwardResult.keySet().iterator().next(), futureResult.keySet().iterator().next());
-    assertEquals((Double) forwardResult.values().iterator().next().getResult(), (Double) futureResult.values()
-        .iterator().next().getResult(), 1e-12);
+    assertEquals(forwardResult.values().iterator().next(), futureResult.values().iterator().next(), 1e-12);
   }
 }

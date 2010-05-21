@@ -8,7 +8,6 @@ package com.opengamma.financial.model.option.pricing.tree;
 import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.GreekVisitor;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -23,9 +22,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
  */
-
 public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
   protected final int _n;
   protected final int _j;
@@ -55,9 +52,9 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
 
     };
     final GreekResultCollection results = new GreekResultCollection();
-    final GreekVisitor<GreekResult<?>> visitor = new FiniteDifferenceGreekVisitor<T, OptionDefinition>(function, data, definition);
+    final GreekVisitor<Double> visitor = new FiniteDifferenceGreekVisitor<T, OptionDefinition>(function, data, definition);
     for (final Greek greek : requiredGreeks) {
-      final GreekResult<?> result = greek.accept(visitor);
+      final Double result = greek.accept(visitor);
       results.put(greek, result);
     }
     return results;

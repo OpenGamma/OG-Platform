@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.forward.pricing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -62,8 +63,8 @@ public class FXForwardModelTest {
   @Test
   public void test() {
     final GreekResultCollection result = MODEL.getGreeks(DEFINITION, DATA, GREEKS);
-    assertEquals(result.size(), 1);
-    assertEquals(result.keySet().iterator().next(), Greek.FAIR_PRICE);
-    assertEquals((Double) result.entrySet().iterator().next().getValue().getResult(), SPOT * Math.exp(-0.01), 1e-9);
+    assertEquals(1, result.size());
+    assertTrue(result.contains(Greek.FAIR_PRICE));
+    assertEquals(SPOT * Math.exp(-0.01), result.get(Greek.FAIR_PRICE), 1e-9);
   }
 }

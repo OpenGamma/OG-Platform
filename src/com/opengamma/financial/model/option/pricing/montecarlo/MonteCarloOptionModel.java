@@ -9,7 +9,6 @@ import java.util.Set;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionModel;
@@ -18,8 +17,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.random.RandomNumberGenerator;
 
 /**
- * 
- * @author emcleod
  * 
  */
 public abstract class MonteCarloOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
@@ -50,7 +47,7 @@ public abstract class MonteCarloOptionModel<T extends OptionDefinition, U extend
   public GreekResultCollection getGreeks(final T definition, final U data, final Set<Greek> requiredGreeks) {
     final GreekResultCollection greeks = new GreekResultCollection();
     final Function1D<U, Double> price = getPrice(definition);
-    greeks.put(Greek.FAIR_PRICE, new SingleGreekResult(price.evaluate(data)));
+    greeks.put(Greek.FAIR_PRICE, price.evaluate(data));
     return greeks;
   }
 

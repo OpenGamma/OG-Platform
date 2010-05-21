@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
 import com.opengamma.financial.model.forward.definition.StandardForwardDataBundle;
 import com.opengamma.util.ArgumentChecker;
@@ -43,7 +42,7 @@ public class CostOfCarryForwardModel implements ForwardModel<StandardForwardData
     final double r = data.getDiscountCurve().getInterestRate(t);
     final double q = data.getYield();
     final double s = data.getStorageCost();
-    result.put(Greek.FAIR_PRICE, new SingleGreekResult((data.getSpot() + s) * Math.exp(t * (r - q))));
+    result.put(Greek.FAIR_PRICE, (data.getSpot() + s) * Math.exp(t * (r - q)));
     return result;
   }
 }

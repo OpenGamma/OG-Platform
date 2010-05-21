@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AsymmetricPowerOptionDefinition;
@@ -24,10 +23,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
+@SuppressWarnings("unused")
 public class CappedPowerOptionModelTest {
   private static final double B = 0.02;
   private static final double SPOT = 10;
@@ -68,11 +64,11 @@ public class CappedPowerOptionModelTest {
   }
 
   private double getCappedPrice(final double power, final double cap, final boolean isCall) {
-    return ((SingleGreekResult) CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE)).getResult();
+    return CAPPED_MODEL.getGreeks(getDefinition(power, cap, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE);
   }
 
   private double getUncappedPrice(final double power, final boolean isCall) {
-    return ((SingleGreekResult) UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE)).getResult();
+    return UNCAPPED_MODEL.getGreeks(getDefinition(power, isCall), BUNDLE, REQUIRED_GREEKS).get(Greek.FAIR_PRICE);
   }
 
   private CappedPowerOptionDefinition getDefinition(final double power, final double cap, final boolean isCall) {

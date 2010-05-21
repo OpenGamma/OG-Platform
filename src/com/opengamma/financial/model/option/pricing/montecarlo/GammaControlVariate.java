@@ -16,7 +16,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class GammaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements ControlVariate<T, U> {
   protected final AnalyticOptionModel<T, U> _analyticModel;
@@ -41,7 +40,7 @@ public class GammaControlVariate<T extends OptionDefinition, U extends StandardO
 
       @Override
       public Double evaluate(final Double x) {
-        final double gamma = (Double) _analyticModel.getGreeks(definition, data, _greek).get(Greek.GAMMA).getResult();
+        final double gamma = _analyticModel.getGreeks(definition, data, _greek).get(Greek.GAMMA);
         final double diff = x - s;
         return _beta * gamma * (diff * diff - s * s * df2);
       }

@@ -8,29 +8,25 @@ package com.opengamma.financial.riskfactor;
 import java.util.Map;
 
 import com.opengamma.financial.sensitivity.PositionGreek;
-import com.opengamma.financial.sensitivity.PositionGreekResult;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class PositionGreekDataBundle {
-  private final Map<PositionGreek, PositionGreekResult<?>> _riskFactors;
+  private final Map<PositionGreek, Double> _riskFactors;
   private final Map<Object, Double> _underlyingData;
 
-  public PositionGreekDataBundle(final Map<PositionGreek, PositionGreekResult<?>> riskFactors, final Map<Object, Double> underlyingData) {
-    if (riskFactors == null)
-      throw new IllegalArgumentException("RiskFactorResultCollection was null");
-    if (riskFactors.isEmpty())
-      throw new IllegalArgumentException("RiskFactorResultCollection was empty");
-    if (underlyingData == null)
-      throw new IllegalArgumentException("Underlying data map was null");
-    if (underlyingData.isEmpty())
-      throw new IllegalArgumentException("Underlying data map was empty");
+  public PositionGreekDataBundle(final Map<PositionGreek, Double> riskFactors, final Map<Object, Double> underlyingData) {
+    ArgumentChecker.notNull(riskFactors, "Risk factors");
+    ArgumentChecker.notNull(underlyingData, "Underlying data");
+    ArgumentChecker.notEmpty(riskFactors, "Risk factors)");
+    ArgumentChecker.notEmpty(underlyingData, "Underlying data");
     _riskFactors = riskFactors;
     _underlyingData = underlyingData;
   }
 
-  public Map<PositionGreek, PositionGreekResult<?>> getRiskFactorResults() {
+  public Map<PositionGreek, Double> getRiskFactorResults() {
     return _riskFactors;
   }
 
@@ -44,7 +40,7 @@ public class PositionGreekDataBundle {
     throw new IllegalArgumentException("Underlying data map did not contain a value for " + o);
   }
 
-  public PositionGreekResult<?> getRiskFactorValueForRiskFactor(final PositionGreek riskFactor) {
+  public Double getRiskFactorValueForRiskFactor(final PositionGreek riskFactor) {
     if (_riskFactors.containsKey(riskFactor))
       return _riskFactors.get(riskFactor);
     throw new IllegalArgumentException("Risk factor result collection did not contain a value for " + riskFactor);

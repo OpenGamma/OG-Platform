@@ -20,7 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
-public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?>>> {
+public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   // REVIEW kirk 2010-05-20 -- Ideas for speeding up:
   // - Just store SingleGreekResult instances as a double and convert on result
   // - Change .put() to allow just providing a double, and avoiding constructing a SingleGreekResult
@@ -32,18 +32,20 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
   // REVIEW kirk 2010-05-20 -- Does this need a set of fudge converters?
 
   // REVIEW kirk 2010-05-20 -- Is this the best backing map?
-  private final Map<Greek, GreekResult<?>> _backingMap = new TreeMap<Greek, GreekResult<?>>();
+  // We might not want to use a Map<> at all, but we can't use an EnumMap<>
+  // as Greek is going to be promoted to an Object from an Enum.
+  private final Map<Greek, Double> _backingMap = new TreeMap<Greek, Double>();
 
-  public GreekResult<?> get(final Greek greek) {
+  public Double get(final Greek greek) {
     if (greek == null) {
       return null;
     }
     return _backingMap.get(greek);
   }
 
-  public void put(final Greek greek, final GreekResult<?> result) {
+  public void put(final Greek greek, final Double result) {
     ArgumentChecker.notNull(greek, "Greek");
-    // NOTE kirk 2010-05-21 -- Per Elaine, a null GreekResult IS a legitimate result.
+    // NOTE kirk 2010-05-21 -- Per Elaine, a null result IS a legitimate result.
     // We still put it in the backing map, so that we can tell that a particular
     // greek WAS computed, but the result was also NULL.
     _backingMap.put(greek, result);
@@ -58,7 +60,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
   }
 
   @Deprecated
-  public Set<Map.Entry<Greek, GreekResult<?>>> entrySet() {
+  public Set<Map.Entry<Greek, Double>> entrySet() {
     return _backingMap.entrySet();
   }
 
@@ -70,7 +72,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
     return _backingMap.keySet();
   }
 
-  public Collection<GreekResult<?>> values() {
+  public Collection<Double> values() {
     return Collections.unmodifiableCollection(_backingMap.values());
   }
 
@@ -79,9 +81,9 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
     final StringBuilder sb = new StringBuilder();
     sb.append("GreekResultCollection[");
     final List<String> elements = new LinkedList<String>();
-    for (final Map.Entry<Greek, GreekResult<?>> entry : _backingMap.entrySet()) {
+    for (final Map.Entry<Greek, Double> entry : _backingMap.entrySet()) {
       final StringBuilder elementSb = new StringBuilder();
-      sb.append(entry.getKey()).append("=").append(entry.getValue());
+      elementSb.append(entry.getKey()).append("=").append(entry.getValue());
       elements.add(elementSb.toString());
     }
     sb.append(StringUtils.join(elements, ", "));
@@ -93,7 +95,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    for (final Map.Entry<Greek, GreekResult<?>> entry : _backingMap.entrySet()) {
+    for (final Map.Entry<Greek, Double> entry : _backingMap.entrySet()) {
       result = prime * result + entry.getKey().hashCode();
       result = prime * result + entry.getValue().hashCode();
     }
@@ -114,16 +116,16 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
   }
 
   @Override
-  public Iterator<Pair<Greek, GreekResult<?>>> iterator() {
+  public Iterator<Pair<Greek, Double>> iterator() {
     // TODO kirk 2010-05-20 -- This can be dramatically improved if we change the backing map
     // to not be a backing map at all.
     return new BackingMapGreekIterator(_backingMap.entrySet().iterator());
   }
 
-  protected static class BackingMapGreekIterator implements Iterator<Pair<Greek, GreekResult<?>>> {
-    private final Iterator<Map.Entry<Greek, GreekResult<?>>> _backingIterator;
+  protected static class BackingMapGreekIterator implements Iterator<Pair<Greek, Double>> {
+    private final Iterator<Map.Entry<Greek, Double>> _backingIterator;
 
-    public BackingMapGreekIterator(final Iterator<Map.Entry<Greek, GreekResult<?>>> backingIterator) {
+    public BackingMapGreekIterator(final Iterator<Map.Entry<Greek, Double>> backingIterator) {
       _backingIterator = backingIterator;
     }
 
@@ -133,9 +135,9 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
     }
 
     @Override
-    public Pair<Greek, GreekResult<?>> next() {
-      final Map.Entry<Greek, GreekResult<?>> nextEntry = _backingIterator.next();
-      return Pair.<Greek, GreekResult<?>> of(nextEntry.getKey(), nextEntry.getValue());
+    public Pair<Greek, Double> next() {
+      final Map.Entry<Greek, Double> nextEntry = _backingIterator.next();
+      return Pair.<Greek, Double> of(nextEntry.getKey(), nextEntry.getValue());
     }
 
     @Override

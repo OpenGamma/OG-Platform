@@ -8,22 +8,21 @@ package com.opengamma.financial.riskfactor;
 import java.util.Map;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
+import com.opengamma.util.ArgumentChecker;
 
 public class GreekDataBundle {
   private final GreekResultCollection _greekValues;
   private final Map<Object, Double> _underlyingData;
 
   public GreekDataBundle(final GreekResultCollection greekValues, final Map<Object, Double> underlyingData) {
-    if (greekValues == null)
-      throw new IllegalArgumentException("GreekResultCollection was null");
-    if (greekValues.isEmpty())
+    ArgumentChecker.notNull(greekValues, "GreekResultCollection");
+    ArgumentChecker.notNull(underlyingData, "Underlying data");
+    ArgumentChecker.notEmpty(underlyingData, "Underlying data");
+    if (greekValues.isEmpty()) {
       throw new IllegalArgumentException("GreekResultCollection was empty");
-    if (underlyingData == null)
-      throw new IllegalArgumentException("Underlying data map was null");
-    if (underlyingData.isEmpty())
-      throw new IllegalArgumentException("Underlying data map was empty");
+    }
+    
     _greekValues = greekValues;
     _underlyingData = underlyingData;
   }
@@ -42,7 +41,7 @@ public class GreekDataBundle {
     throw new IllegalArgumentException("Underlying data map did not contain a value for " + o);
   }
 
-  public GreekResult<?> getGreekResultForGreek(final Greek greek) {
+  public Double getGreekResultForGreek(final Greek greek) {
     if (_greekValues.contains(greek))
       return _greekValues.get(greek);
     throw new IllegalArgumentException("Greek result collection did not contain a value for " + greek);

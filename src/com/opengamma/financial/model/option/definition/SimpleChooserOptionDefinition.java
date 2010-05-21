@@ -11,7 +11,6 @@ import java.util.Set;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.util.time.Expiry;
@@ -36,8 +35,8 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
-      final double callPrice = ((SingleGreekResult) BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.FAIR_PRICE)).getResult();
-      final double putPrice = ((SingleGreekResult) BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.FAIR_PRICE)).getResult();
+      final double callPrice = BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
+      final double putPrice = BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
       return Math.max(callPrice, putPrice);
     }
   };
@@ -60,7 +59,8 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
    * @param underlyingExpiry
    * @param chooseDate
    */
-  public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry, final ZonedDateTime chooseDate) {
+  public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry,
+      final ZonedDateTime chooseDate) {
     super(strike, underlyingExpiry, null);
     if (chooseDate.toInstant().isAfter(underlyingExpiry.toInstant()))
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");

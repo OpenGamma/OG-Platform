@@ -24,14 +24,14 @@ public class GreekResultCollectionTest {
 
     assertTrue(grc1.hashCode() == grc2.hashCode());
 
-    grc1.put(Greek.DELTA, new SingleGreekResult(1.));
+    grc1.put(Greek.DELTA, 1.);
     assertFalse(grc1.hashCode() == grc2.hashCode());
 
-    grc2.put(Greek.DELTA, new SingleGreekResult(1.));
+    grc2.put(Greek.DELTA, 1.);
     assertTrue(grc1.hashCode() == grc2.hashCode());
 
-    grc1.put(Greek.GAMMA, new SingleGreekResult(1.));
-    grc1.put(Greek.GAMMA, new SingleGreekResult(2.));
+    grc1.put(Greek.GAMMA, 1.);
+    grc1.put(Greek.GAMMA, 2.);
 
     assertFalse(grc1.hashCode() == grc2.hashCode());
   }
@@ -39,7 +39,7 @@ public class GreekResultCollectionTest {
   @Test
   public void testToString() {
     final GreekResultCollection grc1 = new GreekResultCollection();
-    grc1.put(Greek.DELTA, new SingleGreekResult(1.));
+    grc1.put(Greek.DELTA, 1.);
 
     final String grcToString = grc1.toString();
     assertNotNull(grcToString);
@@ -57,14 +57,14 @@ public class GreekResultCollectionTest {
     final GreekResultCollection grc2 = new GreekResultCollection();
     assertTrue(grc1.equals(grc2));
 
-    grc1.put(Greek.DELTA, new SingleGreekResult(1.));
+    grc1.put(Greek.DELTA, 1.);
     assertFalse(grc1.equals(grc2));
 
-    grc2.put(Greek.DELTA, new SingleGreekResult(1.));
+    grc2.put(Greek.DELTA, 1.);
     assertTrue(grc1.equals(grc2));
 
-    grc1.put(Greek.GAMMA, new SingleGreekResult(3.));
-    grc2.put(Greek.GAMMA_BLEED, new SingleGreekResult(3.));
+    grc1.put(Greek.GAMMA, 3.);
+    grc2.put(Greek.GAMMA_BLEED, 3.);
     assertFalse(grc1.equals(grc2));
   }
 

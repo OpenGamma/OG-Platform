@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.forward.pricing;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -64,9 +65,8 @@ public class CostOfCarryForwardModelTest {
   @Test
   public void test() {
     final GreekResultCollection result = MODEL.getGreeks(DEFINITION, DATA, GREEKS);
-    assertEquals(result.size(), 1);
-    assertEquals(result.keySet().iterator().next(), Greek.FAIR_PRICE);
-    assertEquals((Double) result.entrySet().iterator().next().getValue().getResult(),
-        (SPOT + STORAGE) * Math.exp(0.03), 1e-9);
+    assertEquals(1, result.size());
+    assertTrue(result.contains(Greek.FAIR_PRICE));
+    assertEquals((SPOT + STORAGE) * Math.exp(0.03), result.get(Greek.FAIR_PRICE), 1e-9);
   }
 }

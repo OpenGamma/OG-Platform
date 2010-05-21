@@ -17,7 +17,6 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -29,10 +28,6 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
 public class PoweredOptionModelTest {
   private static final AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> POWERED_MODEL = new PoweredOptionModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
@@ -94,13 +89,13 @@ public class PoweredOptionModelTest {
     final StandardOptionDataBundle bundle = getBundle(sigma);
     final GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
     final GreekResultCollection expected = BSM.getGreeks(vanillaDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult) actual.get(Greek.FAIR_PRICE)).getResult(), ((SingleGreekResult) expected.get(Greek.FAIR_PRICE)).getResult(), SMALL_EPS);
+    assertEquals(expected.get(Greek.FAIR_PRICE), actual.get(Greek.FAIR_PRICE), SMALL_EPS);
   }
 
   private void assertPriceEquals(final PoweredOptionDefinition poweredDefinition, final double sigma, final double price) {
     final StandardOptionDataBundle bundle = getBundle(sigma);
     final GreekResultCollection actual = POWERED_MODEL.getGreeks(poweredDefinition, bundle, REQUIRED_GREEKS);
-    assertEquals(((SingleGreekResult) actual.get(Greek.FAIR_PRICE)).getResult(), price, BIG_EPS * price);
+    assertEquals(price, actual.get(Greek.FAIR_PRICE), BIG_EPS * price);
   }
 
   private StandardOptionDataBundle getBundle(final double sigma) {

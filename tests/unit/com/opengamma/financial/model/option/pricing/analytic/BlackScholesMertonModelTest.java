@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -25,10 +24,6 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
-/**
- * 
- * @author emcleod
- */
 public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry ONE_YEAR = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
@@ -90,7 +85,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
 
   private GreekResultCollection getCollection(final Greek greek, final double value) {
     final GreekResultCollection collection = new GreekResultCollection();
-    collection.put(greek, new SingleGreekResult(value));
+    collection.put(greek, value);
     return collection;
   }
 
@@ -118,8 +113,8 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
     final GreekResultCollection callResult = MODEL.getGreeks(call, data, greeks);
     final GreekResultCollection putResult = MODEL.getGreeks(put, data, greeks);
-    final Double c = ((SingleGreekResult) callResult.values().iterator().next()).getResult();
-    final Double p = ((SingleGreekResult) putResult.values().iterator().next()).getResult();
+    final Double c = callResult.values().iterator().next();
+    final Double p = putResult.values().iterator().next();
     final double t = call.getTimeToExpiry(DATE);
     assertEquals(c, p + spot * Math.exp(t * (b - r)) - strike * Math.exp(-r * t), EPS);
   }
