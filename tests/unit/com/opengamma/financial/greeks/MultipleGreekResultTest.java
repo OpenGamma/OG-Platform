@@ -61,6 +61,32 @@ public class MultipleGreekResultTest {
   }
 
   @Test
+  public void testEquals() {
+    final Map<String, Double> map1 = new HashMap<String, Double>();
+    map1.put("A", 1.);
+    map1.put("B", 2.);
+    final MultipleGreekResult result1 = new MultipleGreekResult(map1);
+    assertTrue(result1.equals(result1));
+    assertFalse(result1.equals(null));
+    assertFalse(result1.equals("foo"));
+
+    MultipleGreekResult result2 = new MultipleGreekResult(map1);
+    assertTrue(result1.equals(result2));
+
+    Map<String, Double> map2 = new HashMap<String, Double>();
+    map2.put("A", 2.);
+    map2.put("B", 2.);
+    result2 = new MultipleGreekResult(map2);
+    assertFalse(result1.equals(result2));
+
+    map2 = new HashMap<String, Double>();
+    map2.put("A", 1.);
+    map2.put("C", 2.);
+    result2 = new MultipleGreekResult(map2);
+    assertFalse(result1.equals(result2));
+  }
+
+  @Test
   public void testToString() {
     final Map<String, Double> map1 = new HashMap<String, Double>();
     map1.put("Apple", 1.);
