@@ -240,16 +240,19 @@
 		<property file="${classes.dir}/${ant.project.name}.properties" />
 	</target>
 
-	<target name="jar" depends="version, compile"
+	<target name="manifest" depends="version">
+		<manifest file="${basedir}/MANIFEST.MF" mode="update">
+			<attribute name="Built-By" value="${user.name}" />
+			<attribute name="Build-Version" value="${version}" />
+			<attribute name="Main-Class" value="${main.class.name}" />
+		</manifest>
+	</target>
+
+	<target name="jar" depends="manifest, compile"
 		description="--> make a jar file for this project">
-		<jar destfile="${jar.file}">
+		<jar destfile="${jar.file}" manifest="${basedir}/MANIFEST.MF">
 			<fileset dir="${classes.dir}" />
 			<fileset dir="${tests.classes.dir}" />
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Build-Version" value="${version}" />
-				<attribute name="Main-Class" value="${main.class.name}" />
-			</manifest>
 		</jar>
 	</target>
 
@@ -293,11 +296,14 @@
 		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${src.jar.file}" />
 		<copy todir="${dist.dir}/${dist.name}" file="${javadocs.jar.file}" />
-		<copy todir="${dist.dir}/${dist.name}/config">
-			 <fileset dir="${basedir}/config"/>
+		<copy todir="${dist.dir}/${dist.name}/config" failonerror="false">
+			<fileset dir="${basedir}/config"/>
 		</copy>
-		<copy todir="${dist.dir}/${dist.name}/scripts">
-			 <fileset dir="${basedir}/scripts"/>
+		<copy todir="${dist.dir}/${dist.name}/scripts" failonerror="false">
+			<fileset dir="${basedir}/scripts"/>
+		</copy>
+		<copy todir="${dist.dir}/${dist.name}/web" failonerror="false">
+			<fileset dir="${basedir}/web"/>
 		</copy>
 		<mkdir dir="${dist.dir}/${dist.name}/lib" />
 		<ivy:retrieve pattern="${dist.dir}/${dist.name}/lib/[type]-[organization]-[module]-[artifact]-[revision].[ext]" />
