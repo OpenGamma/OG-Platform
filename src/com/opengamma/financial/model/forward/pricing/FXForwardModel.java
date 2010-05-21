@@ -15,31 +15,29 @@ import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.SingleGreekResult;
 import com.opengamma.financial.model.forward.definition.FXForwardDataBundle;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
-/**
- * @author emcleod
- *
- */
 public class FXForwardModel implements ForwardModel<FXForwardDataBundle> {
-  private static final Logger s_Log = LoggerFactory.getLogger(FXForwardModel.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardModel.class);
 
   @Override
-  public GreekResultCollection getGreeks(final ForwardDefinition definition, final FXForwardDataBundle data, final Set<Greek> requiredGreeks) {
-    if (definition == null)
-      throw new IllegalArgumentException("Forward definition was null");
-    if (data == null)
-      throw new IllegalArgumentException("Data bundle was null");
-    if (requiredGreeks == null)
-      throw new IllegalArgumentException("Set of required greeks was null");
-    if (requiredGreeks.isEmpty())
-      return new GreekResultCollection();
-    if (!requiredGreeks.contains(Greek.FAIR_PRICE)) {
-      s_Log.warn("Currently only fair price is calculated for FX forwards");
+  public GreekResultCollection getGreeks(final ForwardDefinition definition, final FXForwardDataBundle data,
+      final Set<Greek> requiredGreeks) {
+    ArgumentChecker.notNull(definition, "Forward definition");
+    ArgumentChecker.notNull(data, "Data bundle");
+    ArgumentChecker.notNull(requiredGreeks, "Required greeks");
+
+    if (requiredGreeks.isEmpty()) {
       return new GreekResultCollection();
     }
-    if (requiredGreeks.size() > 1)
-      s_Log.warn("Currently only fair price is calculated for FX forwards");
+    if (!requiredGreeks.contains(Greek.FAIR_PRICE)) {
+      s_logger.warn("Currently only fair price is calculated for FX forwards");
+      return new GreekResultCollection();
+    }
+    if (requiredGreeks.size() > 1) {
+      s_logger.warn("Currently only fair price is calculated for FX forwards");
+    }
     final GreekResultCollection result = new GreekResultCollection();
     final double t = DateUtil.getDifferenceInYears(data.getDate(), definition.getExpiry().getExpiry());
     final double r = data.getDiscountCurve().getInterestRate(t);
