@@ -26,8 +26,6 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
- * 
- * @author jim (although this take serious chunks from EHCachingSecurityMaster)
  */
 public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(EHCachingHistoricalDataProvider.class);
@@ -82,10 +80,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   }
   
 
-  /**
-   * @param manager
-   * @return
-   */
   protected CacheManager createCacheManager() {
     CacheManager manager = null;
     try {
@@ -96,10 +90,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     return manager;
   }
 
-  /**
-   * @param manager
-   * @param cache
-   */
   protected void addCache(CacheManager manager, Cache cache) {
     ArgumentChecker.notNull(manager, "CacheManager");
     ArgumentChecker.notNull(cache, "Cache");
@@ -113,20 +103,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
 
   }
 
-  /**
-   * @param manager
-   * @param name
-   * @param maxElementsInMemory
-   * @param memoryStoreEvictionPolicy
-   * @param overflowToDisk
-   * @param diskStorePath
-   * @param eternal
-   * @param timeToLiveSeconds
-   * @param timeToIdleSeconds
-   * @param diskPersistent
-   * @param diskExpiryThreadIntervalSeconds
-   * @param registeredEventListeners
-   */
   protected void addCache(CacheManager manager, String name,
       int maxElementsInMemory,
       MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,
@@ -148,9 +124,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     }
   }
 
-  /**
-   * @param manager
-   */
   protected void addCache(final CacheManager manager, final String name) {
     if (!manager.cacheExists(name)) {
       try {
@@ -161,11 +134,6 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     }
   }
 
-  /**
-   * @param manager
-   * @param name
-   * @return
-   */
   protected Cache getCacheFromManager(CacheManager manager, String name) {
     Cache cache = null;
     try {
@@ -201,7 +169,7 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
     if (element != null) {
       Serializable value = element.getValue();
       if (value instanceof LocalDateDoubleTimeSeries) {
-        LocalDateDoubleTimeSeries ts = (LocalDateDoubleTimeSeries)value;
+        LocalDateDoubleTimeSeries ts = (LocalDateDoubleTimeSeries) value;
         s_logger.debug("retrieved time series: {} from cache", ts);
         return ts;
       } else {
@@ -228,10 +196,10 @@ public class EHCachingHistoricalDataProvider implements HistoricalDataProvider {
   }
 
   private class CacheKey implements Serializable {
-    private IdentifierBundle _dsids;
-    private String _dataSource;
-    private String _dataProvider;
-    private String _field;
+    private final IdentifierBundle _dsids;
+    private final String _dataSource;
+    private final String _dataProvider;
+    private final String _field;
     
     public CacheKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
       _dsids = dsids;

@@ -17,21 +17,21 @@ import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
+// REVIEW kirk 2010-05-21 -- This class should not exist and should be removed.
+
 /**
  * Caches whole time series for CACHE_LIFE_FIXED + RND(CACHE_LIFE_VARIABLE) minutes before refreshing from underlying data source.
  * This is to prevent the whole cache being flushed a fixed time after startup, rather the cache will be flushed gradually.
  * Uses a WeakHashMap to discard entries if memory gets low.  This is really meant to be a temporary solution until something
  * better is implemented.
- *
- * @author jim
  */
 public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalDataProvider {
-  private static final int CACHE_LIFE_FIXED = 60*12; // 12 hours
-  private static final int CACHE_LIFE_VARIABLE = 60*12; // 0-12 hours
+  private static final int CACHE_LIFE_FIXED = 60 * 12; // 12 hours
+  private static final int CACHE_LIFE_VARIABLE = 60 * 12; // 0-12 hours
   private static final boolean INCLUDE_LAST_DAY = true;
   
   // WeakHashMap entries get garbage collected if memory runs low.
-  Map<CacheKey, Pair<ZonedDateTime, LocalDateDoubleTimeSeries>> _timeSeriesCache = new WeakHashMap<CacheKey, Pair<ZonedDateTime, LocalDateDoubleTimeSeries>>();
+  private Map<CacheKey, Pair<ZonedDateTime, LocalDateDoubleTimeSeries>> _timeSeriesCache = new WeakHashMap<CacheKey, Pair<ZonedDateTime, LocalDateDoubleTimeSeries>>();
   private Clock _clock;
   private HistoricalDataProvider _underlyingDataProvider; 
   
@@ -54,7 +54,7 @@ public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalData
     if (entry != null) { // remember no point in using containsKey because might have been GC'd by the time we pull it out.
       ZonedDateTime entryDate = entry.getFirst();
       ZonedDateTime now = getClock().zonedDateTime();
-      if (entryDate.plusMinutes(CACHE_LIFE_FIXED + ((int)(Math.random() * CACHE_LIFE_VARIABLE))).isAfter(now)) { // is within a 12-24 hours (allows cache to slowly refresh rather than in big chunks).
+      if (entryDate.plusMinutes(CACHE_LIFE_FIXED + ((int) (Math.random() * CACHE_LIFE_VARIABLE))).isAfter(now)) { // is within a 12-24 hours (allows cache to slowly refresh rather than in big chunks).
         return entry.getSecond();
       }
     }
@@ -76,10 +76,10 @@ public class SimpleInMemoryHistoricalDataProviderCache implements HistoricalData
   }
   
   private class CacheKey {
-    private IdentifierBundle _dsids;
-    private String _dataSource;
-    private String _dataProvider;
-    private String _field;
+    private final IdentifierBundle _dsids;
+    private final String _dataSource;
+    private final String _dataProvider;
+    private final String _field;
     
     public CacheKey(IdentifierBundle dsids, String dataSource, String dataProvider, String field) {
       _dsids = dsids;
