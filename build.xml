@@ -109,6 +109,11 @@
 		<og-subant target="publish-local" buildpathref="build-path" />
 	</target>
 
+    <target name="resolve-all" depends="buildlist"
+        description="resolve all projects in the right order">
+        <og-subant target="resolve" buildpathref="build-path" />
+    </target>
+
 	<target name="compile" depends="buildlist"
 		description="compile all projects in the right order">
 		<og-subant target="compile" buildpathref="build-path" />
