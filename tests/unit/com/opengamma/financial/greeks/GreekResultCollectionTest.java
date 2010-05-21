@@ -6,6 +6,7 @@
 package com.opengamma.financial.greeks;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -33,6 +34,17 @@ public class GreekResultCollectionTest {
     grc1.put(Greek.GAMMA, new SingleGreekResult(2.));
 
     assertFalse(grc1.hashCode() == grc2.hashCode());
+  }
+
+  @Test
+  public void testToString() {
+    final GreekResultCollection grc1 = new GreekResultCollection();
+    grc1.put(Greek.DELTA, new SingleGreekResult(1.));
+
+    final String grcToString = grc1.toString();
+    assertNotNull(grcToString);
+    assertTrue(grcToString.indexOf("GreekResultCollection") != -1);
+    assertTrue(grcToString.indexOf(Greek.DELTA.toString()) != -1);
   }
 
 }
