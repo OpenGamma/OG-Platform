@@ -77,7 +77,7 @@ public class PortfolioHistoricalVaRCalculatorFunction extends AbstractFunction i
 
   @Override
   public String getShortName() {
-    return "PositionHistoricalVaRCalculatorFunction";
+    return "PortfolioHistoricalVaRCalculatorFunction";
   }
 
   @Override
