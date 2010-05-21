@@ -71,6 +71,7 @@ public class DefaultSecurity implements Security, Serializable {
 
   /**
    * Creates a new security.
+   * @param identifier the unique identifier for the security in the underlying store
    * @param securityType  the type, not null
    * @param identifierBundle  the identifiers, not null
    */
@@ -121,6 +122,8 @@ public class DefaultSecurity implements Security, Serializable {
   /**
    * Dynamically determines a 'default' display name if one hasn't been explicitly set.
    * This implementation constructs one from the identity key or identifiers.
+   * 
+   * @return a default display name
    */
   protected String buildDefaultDisplayName() {
     final UniqueIdentifier identifier = getUniqueIdentifier();  // assign for thread-safety

@@ -69,20 +69,6 @@ public class EHCachingSecurityMaster implements SecurityMaster {
     _manager = manager;
   }
 
-  /**
-   * Creates a cached security master.
-   * @param underlying  the underlying security master, not null
-   * @param maxElementsInMemory
-   * @param memoryStoreEvictionPolicy
-   * @param overflowToDisk
-   * @param diskStorePath
-   * @param eternal
-   * @param timeToLiveSeconds
-   * @param timeToIdleSeconds
-   * @param diskPersistent
-   * @param diskExpiryThreadIntervalSeconds
-   * @param registeredEventListeners
-   */
   public EHCachingSecurityMaster(SecurityMaster underlying,
       int maxElementsInMemory,
       MemoryStoreEvictionPolicy memoryStoreEvictionPolicy,

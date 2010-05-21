@@ -19,7 +19,8 @@ public interface WritableSecurityMaster extends SecurityMaster {
    * 
    * @param instant  the instant at which the security is to be stored, null if no historical storage
    * @param security  the security to store, not null
+   * @return The identifier for the newly stored security
    */
-  public UniqueIdentifier putSecurity(final Date instant, final Security security);
+  UniqueIdentifier putSecurity(final Date instant, final Security security);
 
 }
