@@ -99,6 +99,14 @@ public class LocalViewClient implements ViewClient {
     }
     getView().runOneCycle();
   }
+  
+  @Override
+  public void performComputation(long snapshotTime) {
+    if(getView().isRunning()) {
+      throw new IllegalStateException("View is currently doing live computation.");
+    }
+    getView().runOneCycle(snapshotTime);
+  }
 
   @Override
   public void removeComputationResultListener(ComputationResultListener listener) {

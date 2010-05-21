@@ -290,6 +290,11 @@ public class View implements Lifecycle {
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     recalcJob.runOneCycle();
   }
+  
+  public synchronized void runOneCycle(long snapshotTime) {
+    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+    recalcJob.runOneCycle(snapshotTime);
+  }
 
   @Override
   public synchronized void start() {

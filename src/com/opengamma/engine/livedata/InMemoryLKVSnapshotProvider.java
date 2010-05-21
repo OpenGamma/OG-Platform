@@ -64,10 +64,18 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, Li
   @Override
   public synchronized long snapshot() {
     long snapshotTime = System.currentTimeMillis();
+    snapshot(snapshotTime);
+    return snapshotTime;
+  }
+  
+  /**
+   * This method can be called directly to populate a historical
+   * snapshot.
+   */
+  public synchronized void snapshot(long snapshotTime) {
     Map<ValueRequirement, ComputedValue> snapshotValues =
       new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
     _snapshots.put(snapshotTime, snapshotValues);
-    return snapshotTime;
   }
 
   @Override

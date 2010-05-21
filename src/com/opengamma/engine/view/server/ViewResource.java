@@ -143,6 +143,12 @@ public class ViewResource {
   }
   
   @GET
+  @Path ("performComputation/{snapshotTime")
+  public void performComputation(@PathParam("snapshotTime") long snapshotTime) {
+    getViewClient ().performComputation (snapshotTime);
+  }
+  
+  @GET
   @Path ("computationResult")
   public FudgeMsgEnvelope getComputationResultChannel () {
     final MutableFudgeFieldContainer msg = getFudgeContext ().newMessage ();

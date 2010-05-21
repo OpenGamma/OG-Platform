@@ -53,6 +53,7 @@ public class SingleComputationCycle {
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   
   // State:
+  private final long _snapshotTime;
   private final long _startTime;
   private final AtomicLong _jobIdSource = new AtomicLong(0l);
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
@@ -63,7 +64,6 @@ public class SingleComputationCycle {
     new HashMap<String, ViewComputationCache>();
   
   // Outputs:
-  private long _snapshotTime;
   private final ViewComputationResultModelImpl _resultModel;
   
   public SingleComputationCycle(
@@ -71,7 +71,8 @@ public class SingleComputationCycle {
       ViewProcessingContext processingContext,
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition) {
+      ViewDefinition viewDefinition,
+      long snapshotTime) {
     ArgumentChecker.notNull(viewName, "View name");
     ArgumentChecker.notNull(processingContext, "View processing context");
     ArgumentChecker.notNull(portfolioEvaluationModel, "Portfolio evaluation model");
@@ -84,20 +85,14 @@ public class SingleComputationCycle {
     _resultModel = resultModel;
     _startTime = System.currentTimeMillis();
     _viewDefinition = viewDefinition;
+    _snapshotTime = snapshotTime;
   }
   
   /**
    * @return the snapshotTime
    */
-  public long getSnapshotTime() {
+  public Long getSnapshotTime() {
     return _snapshotTime;
-  }
-
-  /**
-   * @param snapshotTime the snapshotTime to set
-   */
-  public void setSnapshotTime(long snapshotTime) {
-    _snapshotTime = snapshotTime;
   }
 
   /**
@@ -145,10 +140,8 @@ public class SingleComputationCycle {
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;
   }
-
+  
   public void prepareInputs() {
-    long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-    setSnapshotTime(snapshotTime);
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     
     createAllCaches();

@@ -233,5 +233,10 @@ import com.opengamma.util.ArgumentChecker;
   public void performComputation() {
     getRestClient ().post (_targetPerformComputation);
   }
+  
+  @Override
+  public void performComputation(long snapshotTime) {
+    getRestClient().post(_targetPerformComputation.resolve(Long.toString(snapshotTime)));
+  }
 
 }
