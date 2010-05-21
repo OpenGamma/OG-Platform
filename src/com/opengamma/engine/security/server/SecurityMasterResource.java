@@ -46,7 +46,7 @@ public class SecurityMasterResource {
    * @param fudgeContext  the context, not null
    * @param securityMaster  the security master, not null
    */
-  public SecurityMasterResource (final FudgeContext fudgeContext, final SecurityMaster securityMaster) {
+  public SecurityMasterResource(final FudgeContext fudgeContext, final SecurityMaster securityMaster) {
     ArgumentChecker.notNull(fudgeContext, "fudge context");
     ArgumentChecker.notNull(securityMaster, "security master");
     _fudgeContext = fudgeContext;
@@ -58,7 +58,7 @@ public class SecurityMasterResource {
    * Gets the Fudge context.
    * @return the context, not null
    */
-  protected FudgeContext getFudgeContext () {
+  protected FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
@@ -66,7 +66,7 @@ public class SecurityMasterResource {
    * Gets the security master.
    * @return the security master, not null
    */
-  protected SecurityMaster getSecurityMaster () {
+  protected SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
 
