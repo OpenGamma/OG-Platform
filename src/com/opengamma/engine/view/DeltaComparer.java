@@ -9,7 +9,7 @@ package com.opengamma.engine.view;
  * Base interface for deciding whether an updated value should be treated as a delta. For example, we might only be
  * interested in changes up to the fourth decimal place for some type of {@link Number}.
  *
- * @author jonathan
+ * @param <T> The type for delta comparisons.
  */
 public interface DeltaComparer<T> {
   

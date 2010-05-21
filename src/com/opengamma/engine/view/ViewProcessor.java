@@ -45,8 +45,6 @@ import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
- *
- * @author kirk
  */
 public class ViewProcessor implements Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessor.class);
@@ -63,16 +61,16 @@ public class ViewProcessor implements Lifecycle {
   // State:
   private final ConcurrentMap<String, View> _viewsByName = new ConcurrentHashMap<String, View>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
-  private boolean _isStarted = false;
+  private boolean _isStarted /*= false*/;
   private final FunctionCompilationContext _compilationContext = new FunctionCompilationContext();
   private ExecutorService _executorService;
-  private boolean _localExecutorService = false;
+  private boolean _localExecutorService /*= false*/;
   
   public ViewProcessor() {
   }
   
   protected void assertNotStarted() {
-    if(_isStarted) {
+    if (_isStarted) {
       throw new IllegalStateException("Cannot change injected properties once this ViewProcessor has been started.");
     }
   }
@@ -209,9 +207,6 @@ public class ViewProcessor implements Lifecycle {
     return _viewProcessorQueryReceiver;
   }
   
-  /**
-   * @param calculationNodeQueryReceiver the calculation node query receiver to set
-   */
   public void setViewProcessorQueryReceiver(ViewProcessorQueryReceiver calcNodeQueryReceiver) {
     assertNotStarted();
     _viewProcessorQueryReceiver = calcNodeQueryReceiver;
@@ -247,9 +242,9 @@ public class ViewProcessor implements Lifecycle {
     _localExecutorService = localExecutorService;
   }
   
-  public void setViewProcessorConfigBean (final ViewProcessorConfigBean configBean) {
-    ArgumentChecker.notNull (configBean, "configBean");
-    configBean.visitCompilationContext (getCompilationContext ());
+  public void setViewProcessorConfigBean(final ViewProcessorConfigBean configBean) {
+    ArgumentChecker.notNull(configBean, "configBean");
+    configBean.visitCompilationContext(getCompilationContext());
   }
 
   /**
@@ -279,16 +274,18 @@ public class ViewProcessor implements Lifecycle {
   }
   
   /**
-   * 
+   *
+   * @param viewName the name of the view to initialize
+   * @return the initialized view
    * @throws NoSuchElementException if a view with the name is not available
    */
   public View initializeView(String viewName) {
     ArgumentChecker.notNull(viewName, "View name");
-    if(_viewsByName.containsKey(viewName)) {
+    if (_viewsByName.containsKey(viewName)) {
       return _viewsByName.get(viewName);
     }
     ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
-    if(viewDefinition == null) {
+    if (viewDefinition == null) {
       throw new NoSuchElementException("No view available with name \"" + viewName + "\"");
     }
     // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
@@ -304,25 +301,24 @@ public class ViewProcessor implements Lifecycle {
         getComputationJobRequestSender(),
         getViewProcessorQueryReceiver(),
         getCompilationContext(),
-        getExecutorService()
-        );
+        getExecutorService());
     View freshView = new View(viewDefinition, vpc);
     View actualView = _viewsByName.putIfAbsent(viewName, freshView);
-    if(actualView == null) {
+    if (actualView == null) {
       actualView = freshView;
     }
-    switch(actualView.getCalculationState()) {
-    case INITIALIZING:
-      // Do nothing, another thread is taking care of this.
-      s_logger.debug("Not initializing {} as another thread already doing it.", viewName);
-      break;
-    case NOT_INITIALIZED:
-      // We want to initialize it.
-      actualView.init();
-      break;
-    default:
-      // REVIEW kirk 2010-03-02 -- Is this the right thing to do?
-      s_logger.warn("Asked to initialize view {} but in state {}. Doing nothing.", viewName, actualView.getCalculationState());
+    switch (actualView.getCalculationState()) {
+      case INITIALIZING:
+        // Do nothing, another thread is taking care of this.
+        s_logger.debug("Not initializing {} as another thread already doing it.", viewName);
+        break;
+      case NOT_INITIALIZED:
+        // We want to initialize it.
+        actualView.init();
+        break;
+      default:
+        // REVIEW kirk 2010-03-02 -- Is this the right thing to do?
+        s_logger.warn("Asked to initialize view {} but in state {}. Doing nothing.", viewName, actualView.getCalculationState());
     }
     return actualView;
   }
@@ -330,51 +326,51 @@ public class ViewProcessor implements Lifecycle {
   public void startProcessing(String viewName) {
     View view = getViewInternal(viewName);
     switch(view.getCalculationState()) {
-    case NOT_INITIALIZED:
-      throw new IllegalStateException("View constructed but not yet initialized.");
-    case INITIALIZING:
-      throw new IllegalStateException("View still initializing.");
-    case TERMINATED:
-    case TERMINATING:
-      throw new IllegalStateException("Restarts of Views not supported right now.");
-    case NOT_STARTED:
-      s_logger.info("Starting view {}", viewName);
-      view.start();
-      break;
-    case RUNNING:
-    case STARTING:
-      s_logger.info("Requested start of {} but either running or starting. No action taken.", viewName);
+      case NOT_INITIALIZED:
+        throw new IllegalStateException("View constructed but not yet initialized.");
+      case INITIALIZING:
+        throw new IllegalStateException("View still initializing.");
+      case TERMINATED:
+      case TERMINATING:
+        throw new IllegalStateException("Restarts of Views not supported right now.");
+      case NOT_STARTED:
+        s_logger.info("Starting view {}", viewName);
+        view.start();
+        break;
+      case RUNNING:
+      case STARTING:
+        s_logger.info("Requested start of {} but either running or starting. No action taken.", viewName);
     }
   }
   
   public void stopProcessing(String viewName) {
     View view = getViewInternal(viewName);
     switch(view.getCalculationState()) {
-    case NOT_INITIALIZED:
-    case INITIALIZING:
-    case NOT_STARTED:
-      s_logger.info("View {} not started so not stopping.", viewName);
-      break;
-    case TERMINATED:
-    case TERMINATING:
-      s_logger.info("View {} requested termination, but already terminated or terminating", viewName);
-      break;
-    case STARTING:
-      throw new IllegalStateException("Attempted to terminate view \"" + viewName + "\" while starting.");
-    case RUNNING:
-      s_logger.info("Terminating view {}", viewName);
-      view.stop();
-      _viewsByName.remove(viewName);
+      case NOT_INITIALIZED:
+      case INITIALIZING:
+      case NOT_STARTED:
+        s_logger.info("View {} not started so not stopping.", viewName);
+        break;
+      case TERMINATED:
+      case TERMINATING:
+        s_logger.info("View {} requested termination, but already terminated or terminating", viewName);
+        break;
+      case STARTING:
+        throw new IllegalStateException("Attempted to terminate view \"" + viewName + "\" while starting.");
+      case RUNNING:
+        s_logger.info("Terminating view {}", viewName);
+        view.stop();
+        _viewsByName.remove(viewName);
     }
   }
   
   protected View getViewInternal(String viewName) {
     ArgumentChecker.notNull(viewName, "View name");
-    if(_viewsByName.containsKey(viewName)) {
+    if (_viewsByName.containsKey(viewName)) {
       return _viewsByName.get(viewName);
     }
     ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
-    if(viewDefinition == null) {
+    if (viewDefinition == null) {
       throw new IllegalArgumentException("No view available with name \"" + viewName + "\"");
     }
     throw new IllegalStateException("View \"" + viewName + "\" available, but not initialized. Must be initialized first.");
@@ -419,15 +415,15 @@ public class ViewProcessor implements Lifecycle {
     try {
       s_logger.info("Stopping on lifecycle call, terminating all running views.");
       Collection<View> views = _viewsByName.values();
-      for(View view : views) {
-        if(view.isRunning()) {
+      for (View view : views) {
+        if (view.isRunning()) {
           s_logger.info("Terminating view {} due to lifecycle call", view.getDefinition().getName());
           view.stop();
         }
       }
       _viewsByName.clear();
       s_logger.info("All views terminated.");
-      if(isLocalExecutorService()) {
+      if (isLocalExecutorService()) {
         s_logger.info("Shutting down local executor service.");
         getExecutorService().shutdown();
         try {
@@ -456,7 +452,7 @@ public class ViewProcessor implements Lifecycle {
     // TODO kirk 2010-03-07 -- Better error handling.
     ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
     int nFunctions = getFunctionRepository().getAllFunctions().size();
-    for(FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
+    for (FunctionDefinition definition : getFunctionRepository().getAllFunctions()) {
       final FunctionDefinition finalDefinition = definition;
       completionService.submit(new Runnable() {
         @Override
@@ -470,7 +466,7 @@ public class ViewProcessor implements Lifecycle {
         }
       }, definition);
     }
-    for(int i = 0; i < nFunctions; i++) {
+    for (int i = 0; i < nFunctions; i++) {
       Future<FunctionDefinition> future = null;
       try {
         future = completionService.take();
@@ -490,16 +486,16 @@ public class ViewProcessor implements Lifecycle {
   }
   
   protected void initializeExecutorService() {
-    if(getExecutorService() == null) {
+    if (getExecutorService() == null) {
       OperationTimer timer = new OperationTimer(s_logger, "Initializing View Processor");
       ThreadFactory tf = new NamedThreadPoolFactory("ViewProcessor", true);
       int nThreads = Runtime.getRuntime().availableProcessors() - 1;
-      if(nThreads == 0) {
+      if (nThreads == 0) {
         nThreads = 1;
       }
       s_logger.info("No injected executor service; starting one with {} max threads", nThreads);
       // REVIEW kirk 2010-03-07 -- Is this the right queue to use here?
-      ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nThreads, 5l, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
+      ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nThreads, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
       setExecutorService(executor);
       setLocalExecutorService(true);
       timer.finished();

@@ -26,9 +26,6 @@ public class ViewCalculationResultModelImpl implements Serializable,
   private final Map<ComputationTargetSpecification, Map<String, ComputedValue>> _values =
     new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
 
-  /**
-   * @param dependencyGraphModel
-   */
   public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
     _dependencyGraphModel = dependencyGraphModel;
   }
@@ -51,12 +48,12 @@ public class ViewCalculationResultModelImpl implements Serializable,
   protected void recursiveAddPortfolio(PortfolioNode node) {
     for (Position position : node.getPositions()) {
       ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(position);
-      if(!_values.containsKey(targetSpec)) {
+      if (!_values.containsKey(targetSpec)) {
         _values.put(targetSpec, new HashMap<String, ComputedValue>());
       }
     }
     ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(node);
-    if(!_values.containsKey(targetSpec)) {
+    if (!_values.containsKey(targetSpec)) {
       _values.put(targetSpec, new HashMap<String, ComputedValue>());
     }
     for (PortfolioNode child : node.getChildNodes()) {
@@ -66,7 +63,7 @@ public class ViewCalculationResultModelImpl implements Serializable,
 
   public void addValue(ComputedValue value) {
     ComputationTargetSpecification targetSpec = value.getSpecification().getRequirementSpecification().getTargetSpecification();
-    if(!(_values.containsKey(targetSpec))) {
+    if (!(_values.containsKey(targetSpec))) {
       throw new IllegalArgumentException("Target spec " + targetSpec + " not reachable from initialization in recursiveAddPortfolio");
     }
     _values.get(targetSpec).put(value.getSpecification().getRequirementSpecification().getValueName(), value);

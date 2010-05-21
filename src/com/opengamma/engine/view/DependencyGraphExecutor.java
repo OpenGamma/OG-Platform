@@ -35,8 +35,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Will walk through a particular {@link SecurityDependencyGraph} and execute
  * the required nodes.
- *
- * @author kirk
  */
 public class DependencyGraphExecutor implements JobResultReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphExecutor.class);
@@ -111,18 +109,18 @@ public class DependencyGraphExecutor implements JobResultReceiver {
   }
 
   public synchronized void executeGraph(long iterationTimestamp, AtomicLong jobIdSource) {
-    if(allNodesExecuted(getDependencyGraph().getDependencyNodes())) {
+    if (allNodesExecuted(getDependencyGraph().getDependencyNodes())) {
       return;
     }
     
     addAllNodesToExecute(getDependencyGraph().getDependencyNodes());
     markLiveDataSourcingFunctionsCompleted();
     
-    while(!_nodesToExecute.isEmpty()) {
+    while (!_nodesToExecute.isEmpty()) {
       /*boolean enqueued = */enqueueAllAvailableNodes(iterationTimestamp, jobIdSource);
       // REVIEW kirk 2010-04-01 -- This check is necessary to avoid a 1 second wait at the end
       // of computation where things are running. MASSIVE speed win.
-      if(_executingNodes.isEmpty()) {
+      if (_executingNodes.isEmpty()) {
         continue;
       }
       // Suck everything available off the retrieval source.
@@ -135,13 +133,13 @@ public class DependencyGraphExecutor implements JobResultReceiver {
         Thread.interrupted();
         // REVIEW kirk 2009-11-04 -- Anything else here to do?
       }
-      while(jobResult != null) {
+      while (jobResult != null) {
         DependencyNode completedNode = _executingSpecifications.remove(jobResult.getSpecification());
         assert completedNode != null : "Got result " + jobResult.getSpecification() + " for job we didn't enqueue. No node to remove.";
         _executingNodes.remove(completedNode);
         _executedNodes.add(completedNode);
         getCycleState().markExecuted(completedNode);
-        if(jobResult.getResult() != InvocationResult.SUCCESS) {
+        if (jobResult.getResult() != InvocationResult.SUCCESS) {
           markSubgraphAsFailed(completedNode);
         }
         jobResult = _pendingResults.poll();
@@ -156,12 +154,12 @@ public class DependencyGraphExecutor implements JobResultReceiver {
    * Doesn't have to walk down the graph from each node because if a node
    * has executed, we don't have to check the inputs.
    * 
-   * @param nodes
-   * @return
+   * @param nodes to check for execution
+   * @return {code true} iff all nodes provided have been executed
    */
   protected boolean allNodesExecuted(Collection<DependencyNode> nodes) {
-    for(DependencyNode node: nodes) {
-      if(!getCycleState().isExecuted(node)) {
+    for (DependencyNode node : nodes) {
+      if (!getCycleState().isExecuted(node)) {
         return false;
       }
     }
@@ -176,70 +174,61 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     }
   }
 
-  /**
-   * @param nodes
-   */
   protected void addAllNodesToExecute(Collection<DependencyNode> nodes) {
-    for(DependencyNode node : nodes) {
+    for (DependencyNode node : nodes) {
       addAllNodesToExecute(node);
     }
   }
   
   protected void addAllNodesToExecute(DependencyNode node) {
-    for(DependencyNode inputNode : node.getInputNodes()) {
+    for (DependencyNode inputNode : node.getInputNodes()) {
       addAllNodesToExecute(inputNode);
     }
-    if(getCycleState().isExecuted(node)) {
+    if (getCycleState().isExecuted(node)) {
       _executedNodes.add(node);
     } else {
       _nodesToExecute.add(node);
     }
   }
 
-  /**
-   * 
-   */
   protected void markLiveDataSourcingFunctionsCompleted() {
     Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
-    while(depNodeIter.hasNext()) {
+    while (depNodeIter.hasNext()) {
       DependencyNode depNode = depNodeIter.next();
-      if(depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
+      if (depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
         depNodeIter.remove();
         _executedNodes.add(depNode);
       }
     }
   }
   
-  /**
-   * @param completionService
-   */
   protected synchronized boolean enqueueAllAvailableNodes(
       long iterationTimestamp,
       AtomicLong jobIdSource) {
     boolean enqueued = false;
     Iterator<DependencyNode> depNodeIter = _nodesToExecute.iterator();
-    while(depNodeIter.hasNext()) {
+    while (depNodeIter.hasNext()) {
       DependencyNode depNode = depNodeIter.next();
-      if(getCycleState().isExecuted(depNode)) {
+      if (getCycleState().isExecuted(depNode)) {
         s_logger.debug("Skipping node as already executed, probably by another executor.");
         depNodeIter.remove();
         _executedNodes.add(depNode);
         continue;
       }
-      if(getCycleState().isFailed(depNode)) {
+      if (getCycleState().isFailed(depNode)) {
         s_logger.debug("Skipping node as it failed.");
         depNodeIter.remove();
         _executedNodes.add(depNode);
         continue;
       }
-      if(anyInputsFailed(depNode)) {
+      if (anyInputsFailed(depNode)) {
         s_logger.debug("Failing without executing as all inputs failed.");
         depNodeIter.remove();
         _executedNodes.add(depNode);
         getCycleState().markFailed(depNode);
         continue;
       }
-      if(canExecute(depNode)) {
+      if (canExecute(depNode)) {
         depNodeIter.remove();
         enqueued = true;
         _executingNodes.add(depNode);
@@ -249,13 +238,9 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     return enqueued;
   }
   
-  /**
-   * @param depNode
-   * @return
-   */
   private boolean anyInputsFailed(DependencyNode depNode) {
-    for(DependencyNode subNode : depNode.getInputNodes()) {
-      if(getCycleState().isFailed(subNode)) {
+    for (DependencyNode subNode : depNode.getInputNodes()) {
+      if (getCycleState().isFailed(subNode)) {
         return true;
       }
     }
@@ -272,8 +257,8 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     
     // Are all inputs done?
     boolean allInputsExecuted = true;
-    for(DependencyNode inputNode : node.getInputNodes()) {
-      if(!_executedNodes.contains(inputNode)) {
+    for (DependencyNode inputNode : node.getInputNodes()) {
+      if (!_executedNodes.contains(inputNode)) {
         allInputsExecuted = false;
         break;
       }
@@ -281,27 +266,24 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     return allInputsExecuted;
   }
 
-  /**
-   * @param depNode
-   */
   protected CalculationJobSpecification submitNodeInvocationJob(
       long iterationTimestamp,
       AtomicLong jobIdSource,
       DependencyNode depNode) {
     assert !(depNode.getFunctionDefinition() instanceof LiveDataSourcingFunction);
     
-    long jobId = jobIdSource.addAndGet(1l);
+    long jobId = jobIdSource.addAndGet(1L);
     CalculationJobSpecification jobSpec = new CalculationJobSpecification(getViewName(), getCalcConfigName(), iterationTimestamp, jobId);
     s_logger.info("Enqueuing job {} to invoke {} on {}",
         new Object[]{jobId, depNode.getFunctionDefinition().getShortName(), depNode.getComputationTarget()});
     
     // Have to package up the required data
     Set<ValueSpecification> resolvedInputs = new HashSet<ValueSpecification>();
-    for(ValueRequirement requirement : depNode.getInputRequirements()) {
+    for (ValueRequirement requirement : depNode.getInputRequirements()) {
       resolvedInputs.add(depNode.getMappedRequirement(requirement));
     }
     Set<ValueRequirement> desiredValues = new HashSet<ValueRequirement>();
-    for(ValueSpecification outputValue : depNode.getOutputValues()) {
+    for (ValueSpecification outputValue : depNode.getOutputValues()) {
       desiredValues.add(outputValue.getRequirementSpecification());
     }
 
