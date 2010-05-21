@@ -20,10 +20,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author kirk
  */
-public class LiveDataSourcingFunction extends AbstractFunction
-implements FunctionInvoker {
+public class LiveDataSourcingFunction extends AbstractFunction implements FunctionInvoker {
   private final ValueRequirement _requirement;
   private final ValueSpecification _result;
   

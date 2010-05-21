@@ -31,14 +31,14 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   }
   
   public FunctionInputsImpl(Collection<? extends ComputedValue> values) {
-    for(ComputedValue value : values) {
+    for (ComputedValue value : values) {
       addValue(value);
     }
   }
   
   public void addValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed Value");
-    if(value.getValue() instanceof ComputedValue) {
+    if (value.getValue() instanceof ComputedValue) {
       throw new IllegalArgumentException("Double-nested value");
     }
     _values.add(value);

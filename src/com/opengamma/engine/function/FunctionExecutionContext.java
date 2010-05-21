@@ -16,10 +16,25 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
  *
  */
 public class FunctionExecutionContext extends AbstractFunctionContext {
+  /**
+   * The name under which an instance of {@link HistoricalDataProvider} should be bound.
+   */
   public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
+  /**
+   * The name under which an instance of {@link SecurityMaster} should be bound.
+   */
   public static final String SECURITY_MASTER_NAME = "securityMaster";
+  /**
+   * The name under which an instance of {@link ViewProcessor} should be bound.
+   */
   public static final String VIEW_PROCESSOR_QUERY_NAME = "viewProcessorQuery";
+  /**
+   * The name under which the epoch time indicating the snapshot time will be bound.
+   */
   public static final String SNAPSHOT_EPOCH_TIME_NAME = "snapshotEpochTime";
+  /**
+   * The name under which a JSR-310 Clock providing the snapshot time will be bound.
+   */
   public static final String SNAPSHOT_CLOCK_NAME = "snapshotClock";
 
   public HistoricalDataProvider getHistoricalDataProvider() {
