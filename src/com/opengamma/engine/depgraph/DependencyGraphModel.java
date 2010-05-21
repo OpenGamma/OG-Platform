@@ -33,8 +33,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- *
- * @author kirk
  */
 public class DependencyGraphModel {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
@@ -95,8 +93,9 @@ public class DependencyGraphModel {
   public FunctionResolver getFunctionResolver() {
     return _functionResolver;
   }
+  
   /**
-   * @param functionReolver the functionResolver to set
+   * @param functionResolver the functionResolver to set
    */
   public void setFunctionResolver(FunctionResolver functionResolver) {
     _functionResolver = functionResolver;
@@ -146,7 +145,7 @@ public class DependencyGraphModel {
    * is bootstrapped.
    */
   public void removeUnnecessaryOutputs() {
-    for(DependencyGraph graph : _graphsByTarget.values()) {
+    for (DependencyGraph graph : _graphsByTarget.values()) {
       graph.removeUnnecessaryValues();
     }
   }
@@ -160,7 +159,7 @@ public class DependencyGraphModel {
     ArgumentChecker.notNull(requirements, "Value requirements");
     checkInjectedInputs();
     
-    for(ValueRequirement requirement : requirements) {
+    for (ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
       requirementPair.getFirst().addTerminalOutputValue(requirementPair.getSecond());
     }
@@ -170,14 +169,14 @@ public class DependencyGraphModel {
       ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
     Pair<DependencyNode, ValueSpecification> existingNode = resolveRequirement(target, requirement);
-    if(existingNode != null) {
+    if (existingNode != null) {
       s_logger.debug("Existing Node : {} on {}", requirement, target);
       return existingNode;
     }
     
     DependencyGraph depGraph = getDependencyGraph(target);
     
-    if(getLiveDataAvailabilityProvider().isAvailable(requirement)) {
+    if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       s_logger.debug("Live Data : {} on {}", requirement, target);
       _allRequiredLiveData.add(requirement);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
@@ -187,7 +186,7 @@ public class DependencyGraphModel {
     }
     
     Pair<FunctionDefinition, ValueSpecification> resolvedFunction = getFunctionResolver().resolveFunction(getCompilationContext(), target, requirement);
-    if(resolvedFunction == null) {
+    if (resolvedFunction == null) {
       // Couldn't resolve.
       // TODO kirk 2009-12-30 -- Gather up all the errors in some way.
       throw new UnsatisfiableDependencyGraphException("Could not satisfy requirement " + requirement + " for target " + target);
@@ -195,9 +194,9 @@ public class DependencyGraphModel {
     DependencyNode node = new DependencyNode(getCompilationContext(), resolvedFunction.getFirst(), target);
     depGraph.addDependencyNode(node);
     
-    for(ValueRequirement inputRequirement : node.getInputRequirements()) {
+    for (ValueRequirement inputRequirement : node.getInputRequirements()) {
       ComputationTarget inputTarget = getTargetResolver().resolve(inputRequirement.getTargetSpecification());
-      if(inputTarget == null) {
+      if (inputTarget == null) {
         throw new UnsatisfiableDependencyGraphException("Unable to resolve target for " + inputRequirement);
       }
       Pair<DependencyNode, ValueSpecification> resolvedInput = addTargetRequirement(inputTarget, inputRequirement);
@@ -210,7 +209,7 @@ public class DependencyGraphModel {
   
   protected DependencyGraph getDependencyGraph(ComputationTarget target) {
     DependencyGraph depGraph = _graphsByTarget.get(target);
-    if(depGraph == null) {
+    if (depGraph == null) {
       depGraph = new DependencyGraph(target);
       _graphsByTarget.put(target, depGraph);
     }
@@ -218,9 +217,9 @@ public class DependencyGraphModel {
   }
   
   protected Pair<DependencyNode, ValueSpecification> resolveRequirement(ComputationTarget target, ValueRequirement requirement) {
-    for(DependencyGraph depGraph : _graphsByTarget.values()) {
+    for (DependencyGraph depGraph : _graphsByTarget.values()) {
       Pair<DependencyNode, ValueSpecification> satisfiedRequirement = depGraph.getNodeProducing(requirement);
-      if(satisfiedRequirement != null) {
+      if (satisfiedRequirement != null) {
         return satisfiedRequirement;
       }
     }
@@ -233,8 +232,8 @@ public class DependencyGraphModel {
   
   public Collection<DependencyGraph> getDependencyGraphs(ComputationTargetType targetType) {
     List<DependencyGraph> graphs = new ArrayList<DependencyGraph>();
-    for(Map.Entry<ComputationTarget, DependencyGraph> entry : _graphsByTarget.entrySet()) {
-      if(entry.getKey().getType() == targetType) {
+    for (Map.Entry<ComputationTarget, DependencyGraph> entry : _graphsByTarget.entrySet()) {
+      if (entry.getKey().getType() == targetType) {
         graphs.add(entry.getValue());
       }
     }
