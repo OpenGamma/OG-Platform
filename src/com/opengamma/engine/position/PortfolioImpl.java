@@ -152,13 +152,33 @@ public class PortfolioImpl implements Portfolio, Serializable {
   }
   
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof PortfolioImpl)) return false;
-    final PortfolioImpl other = (PortfolioImpl)o;
-    return ObjectUtils.equals (getUniqueIdentifier (), other.getUniqueIdentifier ())
-        && ObjectUtils.equals (getName (), other.getName ())
-        && ObjectUtils.equals (getRootNode (), other.getRootNode ());
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (!(o instanceof PortfolioImpl)) {
+      return false;
+    }
+    final PortfolioImpl other = (PortfolioImpl) o;
+    return ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier())
+        && ObjectUtils.equals(getName(), other.getName())
+        && ObjectUtils.equals(getRootNode(), other.getRootNode());
   }
+
+  @Override
+  public int hashCode() {
+    int result = 0;
+    int prime = 31;
+    if (getUniqueIdentifier() != null) {
+      result = result * prime + getUniqueIdentifier().hashCode();
+    }
+    if (getName() != null) {
+      result = result * prime + getName().hashCode(); 
+    }
+    // Intentionally skip the root node; no need for it.
+    return result;
+  }
+  
+  
 
 }

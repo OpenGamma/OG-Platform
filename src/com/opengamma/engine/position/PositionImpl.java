@@ -68,6 +68,7 @@ public class PositionImpl implements Position, Serializable {
 
   /**
    * Creates a position from an amount of a security identified by key.
+   * @param identifier the unique identifier for the position in the underlying store
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
@@ -83,6 +84,7 @@ public class PositionImpl implements Position, Serializable {
 
   /**
    * Creates a position from an amount of a security identified by key.
+   * @param identifier the unique identifier for the position in the underlying store
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    */
@@ -98,6 +100,7 @@ public class PositionImpl implements Position, Serializable {
 
   /**
    * Creates a position from an amount of a security.
+   * @param identifier the unique identifier for the position in the underlying store
    * @param quantity  the amount of the position, not null
    * @param security  the security, not null
    */
@@ -113,6 +116,7 @@ public class PositionImpl implements Position, Serializable {
 
   /**
    * Creates a position from an amount of a security.
+   * @param identifier the unique identifier for the position in the underlying store
    * @param quantity  the amount of the position, not null
    * @param securityKey  the security identifier, not null
    * @param security  the security, not null

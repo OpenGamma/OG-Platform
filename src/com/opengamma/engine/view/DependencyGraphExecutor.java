@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -284,14 +281,6 @@ public class DependencyGraphExecutor implements JobResultReceiver {
     return allInputsExecuted;
   }
 
-  protected static Collection<PositionReference> convertToPositionReferences(Collection<Position> positions) {
-    Collection<PositionReference> resultReferences = new ArrayList<PositionReference>(positions.size());
-    for (Position position : positions) {
-      resultReferences.add(new PositionReference(position));
-    }
-    return resultReferences;
-  }
-  
   /**
    * @param depNode
    */
