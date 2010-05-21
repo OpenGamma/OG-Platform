@@ -11,6 +11,7 @@ package com.opengamma.engine.value;
  */
 public interface ValueRequirementNames {
 
+  // CSOFF: Because they're names that should be known by industry practitioners.
   // Market Data Names:
   public static final String MARKET_DATA_HEADER = "MarketDataHeader";
   
@@ -174,4 +175,5 @@ public interface ValueRequirementNames {
   public static final String ISOLATED_VAR = "IsolatedVaR";
   public static final String INCREMENTAL_VAR = "IncrementalVaR";
 
+  // CSON: Because they're names that should be known by industry practitioners.
 }
