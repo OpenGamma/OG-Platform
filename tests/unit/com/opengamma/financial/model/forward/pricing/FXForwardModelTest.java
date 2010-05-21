@@ -38,17 +38,17 @@ public class FXForwardModelTest {
       new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDefinition() {
     MODEL.getGreeks(null, DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullData() {
     MODEL.getGreeks(DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullGreekSet() {
     MODEL.getGreeks(DEFINITION, DATA, null);
   }

@@ -39,23 +39,25 @@ public class FXFutureAsForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
   private static final ForwardModel<FXForwardDataBundle> FORWARD_MODEL = new FXForwardModel();
   private static final ForwardDefinition FORWARD_DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final FXForwardDataBundle FORWARD_DATA = new FXForwardDataBundle(new ConstantInterestRateDiscountCurve(R1), new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
+  private static final FXForwardDataBundle FORWARD_DATA = new FXForwardDataBundle(
+      new ConstantInterestRateDiscountCurve(R1), new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
   private static final FutureModel<FXFutureDataBundle> MODEL = new FXFutureAsForwardModel();
   private static final FutureDefinition DEFINITION = new FutureDefinition(EXPIRY);
-  private static final FXFutureDataBundle DATA = new FXFutureDataBundle(new ConstantInterestRateDiscountCurve(R1), new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
+  private static final FXFutureDataBundle DATA = new FXFutureDataBundle(new ConstantInterestRateDiscountCurve(R1),
+      new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDefinition() {
     MODEL.getGreeks(null, DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullData() {
     MODEL.getGreeks(DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullGreekSet() {
     MODEL.getGreeks(DEFINITION, DATA, null);
   }
@@ -73,6 +75,7 @@ public class FXFutureAsForwardModelTest {
     assertEquals(futureResult.size(), 1);
     assertEquals(forwardResult.size(), futureResult.size());
     assertEquals(forwardResult.keySet().iterator().next(), futureResult.keySet().iterator().next());
-    assertEquals((Double) forwardResult.values().iterator().next().getResult(), (Double) futureResult.values().iterator().next().getResult(), 1e-12);
+    assertEquals((Double) forwardResult.values().iterator().next().getResult(), (Double) futureResult.values()
+        .iterator().next().getResult(), 1e-12);
   }
 }

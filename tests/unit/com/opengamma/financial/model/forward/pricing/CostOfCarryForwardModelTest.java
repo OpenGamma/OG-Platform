@@ -36,20 +36,21 @@ public class CostOfCarryForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final ForwardModel<StandardForwardDataBundle> MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(D, new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
+  private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(D,
+      new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDefinition() {
     MODEL.getGreeks(null, DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullData() {
     MODEL.getGreeks(DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullGreekSet() {
     MODEL.getGreeks(DEFINITION, DATA, null);
   }
@@ -65,6 +66,7 @@ public class CostOfCarryForwardModelTest {
     final GreekResultCollection result = MODEL.getGreeks(DEFINITION, DATA, GREEKS);
     assertEquals(result.size(), 1);
     assertEquals(result.keySet().iterator().next(), Greek.FAIR_PRICE);
-    assertEquals((Double) result.entrySet().iterator().next().getValue().getResult(), (SPOT + STORAGE) * Math.exp(0.03), 1e-9);
+    assertEquals((Double) result.entrySet().iterator().next().getValue().getResult(),
+        (SPOT + STORAGE) * Math.exp(0.03), 1e-9);
   }
 }

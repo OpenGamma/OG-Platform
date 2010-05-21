@@ -40,31 +40,35 @@ public class CostOfCarryFutureAsForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final ForwardModel<StandardForwardDataBundle> FORWARD_MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition FORWARD_DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D, new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
+  private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D,
+      new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
   private static final FutureModel<StandardFutureDataBundle> FUTURE_MODEL = new CostOfCarryFutureAsForwardModel();
   private static final FutureDefinition FUTURE_DEFINITION = new FutureDefinition(EXPIRY);
-  private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D, new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
+  private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D,
+      new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDefinition() {
     FUTURE_MODEL.getGreeks(null, FUTURE_DATA, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullData() {
     FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullGreekSet() {
     FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, null);
   }
 
   @Test
   public void testRequiredGreeks() {
-    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections.<Greek> emptySet()));
-    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, EnumSet.of(Greek.DELTA)));
+    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections
+        .<Greek> emptySet()));
+    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, EnumSet
+        .of(Greek.DELTA)));
   }
 
   @Test
@@ -74,6 +78,7 @@ public class CostOfCarryFutureAsForwardModelTest {
     assertEquals(futureResult.size(), 1);
     assertEquals(forwardResult.size(), futureResult.size());
     assertEquals(forwardResult.keySet().iterator().next(), futureResult.keySet().iterator().next());
-    assertEquals((Double) forwardResult.values().iterator().next().getResult(), (Double) futureResult.values().iterator().next().getResult(), 1e-12);
+    assertEquals((Double) forwardResult.values().iterator().next().getResult(), (Double) futureResult.values()
+        .iterator().next().getResult(), 1e-12);
   }
 }
