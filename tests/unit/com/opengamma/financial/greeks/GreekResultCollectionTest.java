@@ -47,4 +47,25 @@ public class GreekResultCollectionTest {
     assertTrue(grcToString.indexOf(Greek.DELTA.toString()) != -1);
   }
 
+  @Test
+  public void testEquals() {
+    final GreekResultCollection grc1 = new GreekResultCollection();
+    assertTrue(grc1.equals(grc1));
+    assertFalse(grc1.equals(null));
+    assertFalse(grc1.equals("foo"));
+
+    final GreekResultCollection grc2 = new GreekResultCollection();
+    assertTrue(grc1.equals(grc2));
+
+    grc1.put(Greek.DELTA, new SingleGreekResult(1.));
+    assertFalse(grc1.equals(grc2));
+
+    grc2.put(Greek.DELTA, new SingleGreekResult(1.));
+    assertTrue(grc1.equals(grc2));
+
+    grc1.put(Greek.GAMMA, new SingleGreekResult(3.));
+    grc2.put(Greek.GAMMA_BLEED, new SingleGreekResult(3.));
+    assertFalse(grc1.equals(grc2));
+  }
+
 }
