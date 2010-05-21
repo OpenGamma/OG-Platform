@@ -39,7 +39,7 @@ public class SingleGreekResult implements GreekResult<Double> {
       return false;
     }
     final SingleGreekResult other = (SingleGreekResult) obj;
-    return Math.abs(_result - other._result) > 0.0;
+    return Math.abs(_result - other._result) <= 0.0;
   }
 
   @Override
