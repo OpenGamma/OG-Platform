@@ -29,7 +29,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
   //   for the greek in the enumeration. Super-fast lookup and small objects, but wasted
   //   space for the common case of one greek in a result collection.
 
-  // TODO kirk 2010-05-20 -- Needs a set of fudge converters.
+  // REVIEW kirk 2010-05-20 -- Does this need a set of fudge converters?
 
   // REVIEW kirk 2010-05-20 -- Is this the best backing map?
   private final Map<Greek, GreekResult<?>> _backingMap = new TreeMap<Greek, GreekResult<?>>();
@@ -43,9 +43,9 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
 
   public void put(final Greek greek, final GreekResult<?> result) {
     ArgumentChecker.notNull(greek, "Greek");
-    // REVIEW kirk 2010-05-20 -- This totally seems wrong that we're not checking it,
-    // but there is test code that relies on us allowing null results.
-    //ArgumentChecker.notNull(result, "Greek result");
+    // NOTE kirk 2010-05-21 -- Per Elaine, a null GreekResult IS a legitimate result.
+    // We still put it in the backing map, so that we can tell that a particular
+    // greek WAS computed, but the result was also NULL.
     _backingMap.put(greek, result);
   }
 
@@ -115,7 +115,8 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
 
   @Override
   public Iterator<Pair<Greek, GreekResult<?>>> iterator() {
-    // TODO kirk 2010-05-20 -- This can be dramatically improved if we change the backing map.
+    // TODO kirk 2010-05-20 -- This can be dramatically improved if we change the backing map
+    // to not be a backing map at all.
     return new BackingMapGreekIterator(_backingMap.entrySet().iterator());
   }
 
@@ -126,26 +127,17 @@ public class GreekResultCollection implements Iterable<Pair<Greek, GreekResult<?
       _backingIterator = backingIterator;
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Iterator#hasNext()
-     */
     @Override
     public boolean hasNext() {
       return _backingIterator.hasNext();
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Iterator#next()
-     */
     @Override
     public Pair<Greek, GreekResult<?>> next() {
       final Map.Entry<Greek, GreekResult<?>> nextEntry = _backingIterator.next();
       return Pair.<Greek, GreekResult<?>> of(nextEntry.getKey(), nextEntry.getValue());
     }
 
-    /* (non-Javadoc)
-     * @see java.util.Iterator#remove()
-     */
     @Override
     public void remove() {
       throw new UnsupportedOperationException("Cannot remove from this iterator.");

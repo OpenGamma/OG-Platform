@@ -5,13 +5,10 @@
  */
 package com.opengamma.financial.greeks;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.util.ArgumentChecker;
 
 public class SingleGreekResult implements GreekResult<Double> {
-  // REVIEW kirk 2010-05-21 -- This should probably be a double rather than a Double.
-  private final Double _result;
+  private final double _result;
 
   public SingleGreekResult(final Double result) {
     ArgumentChecker.notNull(result, "result");
@@ -30,7 +27,7 @@ public class SingleGreekResult implements GreekResult<Double> {
 
   @Override
   public String toString() {
-    return _result.toString();
+    return Double.toString(_result);
   }
 
   @Override
@@ -42,12 +39,14 @@ public class SingleGreekResult implements GreekResult<Double> {
       return false;
     }
     final SingleGreekResult other = (SingleGreekResult) obj;
-    return ObjectUtils.equals(_result, other._result);
+    return Math.abs(_result - other._result) > 0.0;
   }
 
   @Override
   public int hashCode() {
-    return _result.hashCode();
+    // TODO kirk 2010-05-21 -- Extract this to a utility.
+    final long bits = Double.doubleToLongBits(_result);
+    return (int) (bits ^ (bits >>> 32));
   }
 
 }
