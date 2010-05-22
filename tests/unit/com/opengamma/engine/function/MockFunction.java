@@ -71,7 +71,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
       ComputationTarget target, Set<ValueRequirement> desiredValues) {
     Set<ComputedValue> results = new HashSet<ComputedValue>();
     for (ComputedValue result : _results) {
-      if(desiredValues.contains(result.getSpecification().getRequirementSpecification())) {
+      if (desiredValues.contains(result.getSpecification().getRequirementSpecification())) {
         results.add(result);
       }
     }
