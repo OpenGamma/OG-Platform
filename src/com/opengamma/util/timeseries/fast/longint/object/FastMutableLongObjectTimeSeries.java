@@ -6,9 +6,9 @@
 package com.opengamma.util.timeseries.fast.longint.object;
 
 public interface FastMutableLongObjectTimeSeries<T> extends FastLongObjectTimeSeries<T> {
-  public void primitivePutDataPoint(long time, T value);
+  void primitivePutDataPoint(long time, T value);
 
-  public void primitiveRemoveDataPoint(long time);
+  void primitiveRemoveDataPoint(long time);
 
-  public void clear();
+  void clear();
 }

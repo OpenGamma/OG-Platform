@@ -18,7 +18,6 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
 import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface MutableDateDoubleTimeSeries extends DateDoubleTimeSeries, MutableDoubleTimeSeries<Date> {

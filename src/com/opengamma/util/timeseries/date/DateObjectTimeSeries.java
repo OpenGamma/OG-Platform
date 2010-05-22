@@ -17,7 +17,6 @@ import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public interface DateObjectTimeSeries<T> extends ObjectTimeSeries<Date, T>, FastBackedObjectTimeSeries<Date, T> {

@@ -32,12 +32,11 @@ import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries
 import com.opengamma.util.tuple.LongObjectPair;
 
 /**
- * @author jim
  * 
  */
 public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObjectTimeSeries<T> {
-  final LongArrayList _times;
-  final ObjectArrayList<T> _values;
+  private final LongArrayList _times;
+  private final ObjectArrayList<T> _values;
 
   public FastListLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -70,7 +69,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     super(encoding);
     long[] timesArrayFast = dts.timesArrayFast(); // NOTE: we can't do it this way if we change to returning the backing array.
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       timesArrayFast[i] = sourceEncoding.convertToLong(timesArrayFast[i], encoding);
     }
     _times = new LongArrayList(timesArrayFast);
@@ -81,7 +80,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     super(dts.getEncoding());
     int[] timesArrayFast = dts.timesArrayFast();
     _times = new LongArrayList();
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times.add(getEncoding().convertToLong(timesArrayFast[i], getEncoding()));
     }
     _values = new ObjectArrayList<T>(dts.valuesArrayFast());
@@ -93,7 +92,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     DateTimeNumericEncoding sourceEncoding = dts.getEncoding();
     int[] timesArrayFast = dts.timesArrayFast();
     _times = new LongArrayList();
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times.add(sourceEncoding.convertToLong(timesArrayFast[i], getEncoding()));
     }
     _values = new ObjectArrayList<T>(dts.valuesArrayFast());
@@ -198,8 +197,12 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     if (endIndex == -1) {
       endIndex = -(Collections.binarySearch(_times, endTime) + 1);
     }
-    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
-    if (startIndex == -1 || endIndex == -1) throw new NoSuchElementException();
+    if (startIndex == -1 || endIndex == -1) {
+      throw new NoSuchElementException();
+    }
+    if (startIndex == -1 || endIndex == -1) {
+      throw new NoSuchElementException();
+    }
     return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(startIndex, endIndex), _values.subList(startIndex, endIndex));
   }
 
@@ -235,8 +238,8 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
   }
 
   private class PrimitiveListLongObjectTimeSeriesIterator implements ObjectIterator<Long2ObjectMap.Entry<T>> {
-    LongIterator _longIter;
-    ObjectIterator<T> _objectIter;
+    private final LongIterator _longIter;
+    private final ObjectIterator<T> _objectIter;
 
     public PrimitiveListLongObjectTimeSeriesIterator() {
       _longIter = _times.iterator();
@@ -330,17 +333,19 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
     return new FastListLongObjectTimeSeries<T>(getEncoding(), _times.subList(_times.size() - numItems, _times.size()), _values.subList(_times.size() - numItems, _times.size()));
   }
 
-  /**
+  /*
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastLongObjectTimeSeries<?>) {
         final FastLongObjectTimeSeries<T> other = (FastLongObjectTimeSeries<T>) obj;

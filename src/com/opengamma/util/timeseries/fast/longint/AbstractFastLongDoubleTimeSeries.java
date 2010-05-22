@@ -426,9 +426,9 @@ public abstract class AbstractFastLongDoubleTimeSeries extends AbstractFastTimeS
 
   // Temporary hack to get the remote view client working
   @Override
-  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = super.toFudgeMsg (messageFactory);
-    message.add ("encoding", _encoding.name ());
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
+    final MutableFudgeFieldContainer message = super.toFudgeMsg(messageFactory);
+    message.add("encoding", _encoding.name());
     return message;
   }
   

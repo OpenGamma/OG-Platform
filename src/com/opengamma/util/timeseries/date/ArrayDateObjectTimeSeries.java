@@ -17,8 +17,7 @@ import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries
 import com.opengamma.util.timeseries.fast.integer.object.FastListIntObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <T> Object type for the timeseries
  */
 public class ArrayDateObjectTimeSeries<T> extends DateObjectTimeSeries.Integer<T> {
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();

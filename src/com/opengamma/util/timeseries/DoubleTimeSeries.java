@@ -28,8 +28,12 @@ import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
-
+/**
+ * 
+ * @param <DATE_TYPE> The type of the date keys for the time series
+ */
 public interface DoubleTimeSeries<DATE_TYPE> extends TimeSeries<DATE_TYPE, Double> {
+  // CSOFF: Too much to do
   public DoubleTimeSeries<DATE_TYPE> add(DoubleTimeSeries<?> other);
   public DoubleTimeSeries<DATE_TYPE> add(FastBackedDoubleTimeSeries<?> other);
   public DoubleTimeSeries<DATE_TYPE> add(FastIntDoubleTimeSeries other);
@@ -192,4 +196,6 @@ public interface DoubleTimeSeries<DATE_TYPE> extends TimeSeries<DATE_TYPE, Doubl
   public abstract MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
   
   public abstract MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate);
+
+  // CSON: Too much to do
 }

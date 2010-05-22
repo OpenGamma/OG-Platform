@@ -18,8 +18,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 import com.opengamma.util.tuple.Pair;
 
 /**
- * @author jim
- * 
+ * @param <DATE_TYPE> The type of dates 
  */
 public interface DateTimeConverter<DATE_TYPE> {
 

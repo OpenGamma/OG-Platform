@@ -6,17 +6,20 @@
 package com.opengamma.util.timeseries;
 
 
+/**
+ * 
+ * 
+ */
 @SuppressWarnings("synthetic-access")
 public class DoubleTimeSeriesOperators {
   /**
-   * @author jim
-   *         Interface that should be satisfied by all binary operators. Public
-   *         so that it's possible
-   *         to provide custom operations to @method operate and @method
-   *         unionOperate
+   * Interface that should be satisfied by all binary operators. Public
+   * so that it's possible
+   * to provide custom operations to @method operate and @method
+   * unionOperate
    */
   public interface BinaryOperator {
-    public double operate(double a, double b);
+    double operate(double a, double b);
   }
 
   private static class AddOperator implements BinaryOperator {
@@ -119,6 +122,7 @@ public class DoubleTimeSeriesOperators {
     }
   }
 
+  // CSOFF: Self-Explainatory
   public static final AddOperator ADD_OPERATOR = new AddOperator();
   public static final SubtractOperator SUBTRACT_OPERATOR = new SubtractOperator();
   public static final MultiplyOperator MULTIPLY_OPERATOR = new MultiplyOperator();
@@ -134,4 +138,5 @@ public class DoubleTimeSeriesOperators {
   public static final LogOperator LOG_OPERATOR = new LogOperator();
   public static final Log10Operator LOG10_OPERATOR = new Log10Operator();
   public static final AbsOperator ABS_OPERATOR = new AbsOperator();
+  // CSON: Self-Explainatory
 }

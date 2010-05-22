@@ -23,7 +23,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFastBackedDoubleTimeSeries<DATE_TYPE> {
 
-  final DateTimeConverter<DATE_TYPE> _converter;
+  private final DateTimeConverter<DATE_TYPE> _converter;
   private final FastIntDoubleTimeSeries _timeSeries;
 
   public AbstractIntDoubleTimeSeries(final DateTimeConverter<DATE_TYPE> converter, final FastIntDoubleTimeSeries timeSeries) {
@@ -38,7 +38,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   public FastIntDoubleTimeSeries getFastSeries() {
     return _timeSeries;
   }
-
+  
   //
   // protected abstract MutableDoubleTimeSeries<DATE_TYPE>
   // makeMutableListTimeSeries();
@@ -222,9 +222,9 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastIntDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
-      intDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries) other, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      intDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries) other, operator);
     }
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, intDoubleTimeSeries);
   }
@@ -232,9 +232,9 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   public FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastIntDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
-      intDoubleTimeSeries = getFastSeries().unionOperate((FastIntDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().unionOperate((FastIntDoubleTimeSeries) other, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      intDoubleTimeSeries = getFastSeries().unionOperate((FastLongDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().unionOperate((FastLongDoubleTimeSeries) other, operator);
     }
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromInt(this, intDoubleTimeSeries);
   }

@@ -39,8 +39,8 @@ import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries
  */
 public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjectTimeSeries<T> {
 
-  Long2ObjectSortedMap<T> _map = new Long2ObjectAVLTreeMap<T>();
-  final T DEFAULT_RETURN_VALUE = _map.defaultReturnValue();
+  private Long2ObjectSortedMap<T> _map = new Long2ObjectAVLTreeMap<T>();
+  private final T _defaultReturnValue = _map.defaultReturnValue();
 
   public FastMapLongObjectTimeSeries(final DateTimeNumericEncoding encoding) {
     super(encoding);
@@ -134,7 +134,7 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
   @Override
   public T getValueFast(final long time) {
     T value = _map.get(time);
-    if (value == DEFAULT_RETURN_VALUE) {
+    if (value == _defaultReturnValue) {
       throw new NoSuchElementException();
     }
     return value; 
@@ -256,10 +256,12 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastLongObjectTimeSeries<?>) {
         final FastLongObjectTimeSeries<T> other = (FastLongObjectTimeSeries<T>) obj;

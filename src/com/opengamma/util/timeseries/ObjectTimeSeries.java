@@ -15,7 +15,8 @@ import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTi
 
 
 public interface ObjectTimeSeries<DATE_TYPE, T> extends TimeSeries<DATE_TYPE, T> {
- 
+
+  // CSOFF: Self-explainatory
   public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(ObjectTimeSeries<?, T> other);
   public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastBackedObjectTimeSeries<?, T> other);
   public ObjectTimeSeries<DATE_TYPE, T> intersectionFirstValue(FastIntObjectTimeSeries<T> other);
@@ -96,4 +97,6 @@ public interface ObjectTimeSeries<DATE_TYPE, T> extends TimeSeries<DATE_TYPE, T>
 //  public abstract MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate);
 //  
 //  public abstract MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate);
+
+  // CSON: Self-explainatory
 }

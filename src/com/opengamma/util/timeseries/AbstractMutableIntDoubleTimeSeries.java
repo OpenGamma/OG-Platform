@@ -27,12 +27,12 @@ public abstract class AbstractMutableIntDoubleTimeSeries<DATE_TYPE> extends Abst
 
   @Override
   public void putDataPoint(final DATE_TYPE time, final Double value) {
-    getFastSeries().primitivePutDataPoint(_converter.convertToInt(time), value);
+    getFastSeries().primitivePutDataPoint(getConverter().convertToInt(time), value);
   }
 
   @Override
   public void removeDataPoint(final DATE_TYPE time) {
-    getFastSeries().primitiveRemoveDataPoint(_converter.convertToInt(time));
+    getFastSeries().primitiveRemoveDataPoint(getConverter().convertToInt(time));
   }
 
   @Override

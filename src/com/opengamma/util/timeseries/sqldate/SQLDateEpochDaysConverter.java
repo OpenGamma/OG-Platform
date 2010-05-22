@@ -39,13 +39,13 @@ import com.opengamma.util.tuple.Pair;
 public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
   private static final Logger s_logger = LoggerFactory.getLogger(SQLDateEpochDaysConverter.class);
   public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
-  ThreadLocal<Calendar> _calendar = new ThreadLocal<Calendar>() {
+  private ThreadLocal<Calendar> _calendar = new ThreadLocal<Calendar>() {
     @Override
     protected Calendar initialValue() {
       return Calendar.getInstance(_timeZone);
     }
   };
-  final TimeZone _timeZone;
+  private final TimeZone _timeZone;
 
   public SQLDateEpochDaysConverter(final TimeZone timeZone) {
     _timeZone = timeZone;
@@ -364,7 +364,8 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
       values[i] = entry.getValue();
       i++;
     }
-    return templateTS.newInstanceFast(dateTimes, values);  }
+    return templateTS.newInstanceFast(dateTimes, values);
+  }
 
   @Override
   public <T> Pair<Date, T> makePair(Date dateTime, T value) {

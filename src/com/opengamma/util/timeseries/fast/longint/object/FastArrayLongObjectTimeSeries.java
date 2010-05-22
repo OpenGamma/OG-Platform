@@ -58,15 +58,17 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   }
 
   private void init(final long[] times, final T[] values) {
-    if (times.length != values.length)
+    if (times.length != values.length) {
       throw new IllegalArgumentException("Arrays are of different sizes: " + times.length + ", " + values.length);
+    }
     System.arraycopy(times, 0, _times, 0, times.length);
     System.arraycopy(values, 0, _values, 0, values.length);
     // check dates are ordered
     long maxTime = Long.MIN_VALUE;
     for (final long time : _times) {
-      if (time < maxTime)
+      if (time < maxTime) {
         throw new IllegalArgumentException("dates must be ordered");
+      }
       maxTime = time;
     }
   }
@@ -104,7 +106,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     super(dts.getEncoding());
     DateTimeNumericEncoding otherEncoding = dts.getEncoding();
     _times = dts.timesArrayFast();
-    for (int i=0; i<_times.length; i++) {
+    for (int i = 0; i < _times.length; i++) {
       _times[i] = otherEncoding.convertToLong(_times[i], encoding);
     }
     _values = dts.valuesArrayFast();
@@ -116,7 +118,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     int[] timesArrayFast = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
     _times = new long[timesArrayFast.length];
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times[i] = encoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
@@ -127,7 +129,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     int[] timesArrayFast = dts.timesArrayFast();
     _values = dts.valuesArrayFast();
     _times = new long[timesArrayFast.length];
-    for (int i=0; i<timesArrayFast.length; i++) {
+    for (int i = 0; i < timesArrayFast.length; i++) {
       _times[i] = otherEncoding.convertToLong(timesArrayFast[i], encoding);
     }
   }
@@ -151,8 +153,9 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   @SuppressWarnings("unchecked")
   @Override
   public FastLongObjectTimeSeries<T> subSeriesFast(final long startTime, final long endTime) {
-    if (isEmpty())
-      return new FastArrayLongObjectTimeSeries<T>(getEncoding(), new long[0], (T[])new Object[0]);
+    if (isEmpty()) {
+      return new FastArrayLongObjectTimeSeries<T>(getEncoding(), new long[0], (T[]) new Object[0]);
+    }
     // throw new NoSuchElementException("Series is empty")
     int startPos = Arrays.binarySearch(_times, startTime);
     int endPos = Arrays.binarySearch(_times, endTime);
@@ -181,18 +184,20 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
 
   @Override
   public long getEarliestTimeFast() {
-    if (_times.length > 0)
+    if (_times.length > 0) {
       return _times[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public T getEarliestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[0];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
@@ -200,20 +205,22 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     if (_times.length > 0) {
       final int index = _times.length - 1;
       return _times[index];
-    } else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   @Override
   public T getLatestValueFast() {
-    if (_values.length > 0)
+    if (_values.length > 0) {
       return _values[_values.length - 1];
-    else
+    } else {
       throw new NoSuchElementException("Series is empty");
+    }
   }
 
   /* package */class PrimitiveArrayObjectTimeSeriesIterator implements ObjectIterator<Long2ObjectMap.Entry<T>> {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -258,7 +265,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   }
 
   /* package */class PrimitiveArrayObjectTimeSeriesTimesIterator implements LongIterator {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -304,7 +311,7 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   }
 
   /* package */class PrimitiveArrayObjectTimeSeriesValuesIterator implements ObjectIterator<T> {
-    private int _current = 0;
+    private int _current;
 
     @Override
     public boolean hasNext() {
@@ -317,8 +324,9 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
         final T value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     public T nextT() {
@@ -326,8 +334,9 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
         final T value = _values[_current];
         _current++;
         return value;
-      } else
+      } else {
         throw new NoSuchElementException();
+      }
     }
 
     @Override
@@ -372,8 +381,9 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
       System.arraycopy(_times, _times.length - numItems, times, 0, numItems);
       System.arraycopy(_values, _values.length - numItems, values, 0, numItems);
       return new FastArrayLongObjectTimeSeries<T>(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   @Override
@@ -389,8 +399,9 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
       System.arraycopy(_times, 0, times, 0, numItems);
       System.arraycopy(_values, 0, values, 0, numItems);
       return new FastArrayLongObjectTimeSeries<T>(getEncoding(), times, values);
-    } else
+    } else {
       throw new NoSuchElementException("Not enough elements");
+    }
   }
 
   @Override
@@ -398,17 +409,19 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
     return head(numItems);
   }
 
-  /**
+  /*
    * Note that this is so complicated to try and provide optimal performance. A
    * much slower version would be quite short.
    */
   @SuppressWarnings("unchecked")
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
+    }
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastLongObjectTimeSeries<?>) {
         final FastLongObjectTimeSeries<T> other = (FastLongObjectTimeSeries<T>) obj;
@@ -502,10 +515,11 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
   @Override
   public T getValueFast(final long time) {
     final int binarySearch = Arrays.binarySearch(_times, time);
-    if (_times[binarySearch] == time)
+    if (_times[binarySearch] == time) {
       return _values[binarySearch];
-    else
+    } else {
       throw new NoSuchElementException();
+    }
   }
 
   @Override
