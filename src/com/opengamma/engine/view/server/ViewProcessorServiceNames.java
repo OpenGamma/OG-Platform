@@ -9,11 +9,12 @@ package com.opengamma.engine.view.server;
 /**
  * Names used in the view processor RESTful service.
  */
-public class ViewProcessorServiceNames {
+public final class ViewProcessorServiceNames {
 
   /**
    * The default name of the view processor.
    */
+  // CSOFF: Just a set of contants
   public static final String DEFAULT_VIEWPROCESSOR_NAME = "0";
   public static final String VIEWPROCESSOR_LIVECOMPUTATIONSUPPORTED = "liveComputationSupported";
   public static final String VIEWPROCESSOR_ONEOFFCOMPUTATIONSUPPORTED = "oneOffComputationSupported";
@@ -45,4 +46,5 @@ public class ViewProcessorServiceNames {
   private ViewProcessorServiceNames () {
   }
 
+  // CSON: Just a set of constants
 }

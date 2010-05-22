@@ -24,70 +24,72 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 
+/**
+ */
 public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewComputationResultModel> {
   
   private static final String FIELD_INPUTTS = "inputTS";
   private static final String FIELD_RESULTTS = "resultTS";
   private static final String FIELD_RESULTS = "results";
   
-  protected static MutableFudgeFieldContainer createMessage (final FudgeSerializationContext context, final ViewComputationResultModel resultModel) {
-    final MutableFudgeFieldContainer message = context.newMessage ();
-    message.add (FIELD_INPUTTS, resultModel.getInputDataTimestamp ());
-    message.add (FIELD_RESULTTS, resultModel.getResultTimestamp ());
-    final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames ();
-    final MutableFudgeFieldContainer resultMsg = context.newMessage ();
+  protected static MutableFudgeFieldContainer createMessage(final FudgeSerializationContext context, final ViewComputationResultModel resultModel) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    message.add(FIELD_INPUTTS, resultModel.getInputDataTimestamp());
+    message.add(FIELD_RESULTTS, resultModel.getResultTimestamp());
+    final Collection<String> calculationConfigurations = resultModel.getCalculationConfigurationNames();
+    final MutableFudgeFieldContainer resultMsg = context.newMessage();
     for (String calculationConfiguration : calculationConfigurations) {
-      resultMsg.add (null, 1, calculationConfiguration);
-      context.objectToFudgeMsg (resultMsg, null, 2, resultModel.getCalculationResult (calculationConfiguration));
+      resultMsg.add(null, 1, calculationConfiguration);
+      context.objectToFudgeMsg(resultMsg, null, 2, resultModel.getCalculationResult(calculationConfiguration));
     }
-    message.add (FIELD_RESULTS, resultMsg);
+    message.add(FIELD_RESULTS, resultMsg);
     return message;
   }
   
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, ViewComputationResultModel resultModel) {
-    return createMessage (context, resultModel);
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewComputationResultModel resultModel) {
+    return createMessage(context, resultModel);
   }
   
-  protected static ViewComputationResultModel createObject (final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final long inputDataTimestamp = message.getFieldValue (Long.class, message.getByName (FIELD_INPUTTS));
-    final long resultTimestamp = message.getFieldValue (Long.class, message.getByName (FIELD_RESULTTS));
-    final Map<String,ViewCalculationResultModel> map = new HashMap<String,ViewCalculationResultModel> ();
-    final Queue<String> keys = new LinkedList<String> ();
-    final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel> ();
-    for (FudgeField field : message.getFieldValue (FudgeFieldContainer.class, message.getByName (FIELD_RESULTS))) {
-      if (field.getOrdinal () == 1) {
-        final String key = context.fieldValueToObject (String.class, field);
-        if (values.isEmpty ()) {
-          keys.add (key);
+  protected static ViewComputationResultModel createObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+    final long inputDataTimestamp = message.getFieldValue(Long.class, message.getByName(FIELD_INPUTTS));
+    final long resultTimestamp = message.getFieldValue(Long.class, message.getByName(FIELD_RESULTTS));
+    final Map<String, ViewCalculationResultModel> map = new HashMap<String, ViewCalculationResultModel>();
+    final Queue<String> keys = new LinkedList<String>();
+    final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();
+    for (FudgeField field : message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_RESULTS))) {
+      if (field.getOrdinal() == 1) {
+        final String key = context.fieldValueToObject(String.class, field);
+        if (values.isEmpty()) {
+          keys.add(key);
         } else {
-          map.put (key, values.remove ());
+          map.put(key, values.remove());
         }
-      } else if (field.getOrdinal () == 2) {
-        final ViewCalculationResultModel value = context.fieldValueToObject (ViewCalculationResultModel.class, field);
-        if (keys.isEmpty ()) {
-          values.add (value);
+      } else if (field.getOrdinal() == 2) {
+        final ViewCalculationResultModel value = context.fieldValueToObject(ViewCalculationResultModel.class, field);
+        if (keys.isEmpty()) {
+          values.add(value);
         } else {
-          map.put (keys.remove (), value);
+          map.put(keys.remove(), value);
         }
       }
     }
-    return new ViewComputationResultModel () {
+    return new ViewComputationResultModel() {
       @Override
-      public Collection<ComputationTargetSpecification> getAllTargets () {
+      public Collection<ComputationTargetSpecification> getAllTargets() {
         Set<ComputationTargetSpecification> allTargetSpecs = new HashSet<ComputationTargetSpecification>();
-        for(ViewCalculationResultModel calcResultModel : map.values()) {
+        for (ViewCalculationResultModel calcResultModel : map.values()) {
           allTargetSpecs.addAll(calcResultModel.getAllTargets());
         }
         return allTargetSpecs;
       }
       @Override
-      public Collection<String> getCalculationConfigurationNames () {
-        return map.keySet ();
+      public Collection<String> getCalculationConfigurationNames() {
+        return map.keySet();
       }
       @Override
-      public ViewCalculationResultModel getCalculationResult (String calcConfigurationName) {
-        return map.get (calcConfigurationName);
+      public ViewCalculationResultModel getCalculationResult(String calcConfigurationName) {
+        return map.get(calcConfigurationName);
       }
       @Override
       public long getInputDataTimestamp() {
@@ -98,15 +100,15 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
         return resultTimestamp;
       }
       @Override
-      public String toString () {
-        return "ViewComputationResultModel, input timestamp=" + getInputDataTimestamp () + ", result timestamp=" + getResultTimestamp ();
+      public String toString() {
+        return "ViewComputationResultModel, input timestamp=" + getInputDataTimestamp() + ", result timestamp=" + getResultTimestamp();
       }
     };
   }
   
   @Override
-  public ViewComputationResultModel buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
-    return createObject (context, message);
+  public ViewComputationResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+    return createObject(context, message);
   }
  
 }

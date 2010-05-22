@@ -26,20 +26,20 @@ import com.opengamma.livedata.msg.UserPrincipal;
  */
 public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
 
-  public static final String FIELD_NAME = "name";
-  public static final String FIELD_IDENTIFIER = "identifier";
-  public static final String FIELD_USER = "user";
-  public static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
-  public static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
+  private static final String FIELD_NAME = "name";
+  private static final String FIELD_IDENTIFIER = "identifier";
+  private static final String FIELD_USER = "user";
+  private static final String FIELD_CALCULATIONCONFIGURATION = "calculationConfiguration";
+  private static final String FIELD_VALUEREQUIREMENTS = "valueRequirements";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDefinition viewDefinition) {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(FIELD_NAME, null, viewDefinition.getName());
-    context.objectToFudgeMsg (message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId ());
+    context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId());
     context.objectToFudgeMsg(message, FIELD_USER, null, viewDefinition.getUser());
-    Map<String,ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
-    for (ViewCalculationConfiguration calculationConfiguration: calculationConfigurations.values()) {
+    Map<String, ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
+    for (ViewCalculationConfiguration calculationConfiguration : calculationConfigurations.values()) {
       final MutableFudgeFieldContainer config = context.newMessage();
       config.add(FIELD_NAME, null, calculationConfiguration.getName());
       context.objectToFudgeMsg(config, FIELD_VALUEREQUIREMENTS, null, calculationConfiguration.getValueRequirementsBySecurityTypes());
@@ -51,17 +51,17 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
   @SuppressWarnings("unchecked")
   @Override
   public ViewDefinition buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final ViewDefinition viewDefinition = new ViewDefinition (
-        message.getFieldValue(String.class, message.getByName (FIELD_NAME)),
-        context.fieldValueToObject(UniqueIdentifier.class, message.getByName (FIELD_IDENTIFIER)),
+    final ViewDefinition viewDefinition = new ViewDefinition(
+        message.getFieldValue(String.class, message.getByName(FIELD_NAME)),
+        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER)),
         context.fieldValueToObject(UserPrincipal.class, message.getByName(FIELD_USER)));
     final List<FudgeField> calcConfigs = message.getAllByName(FIELD_CALCULATIONCONFIGURATION);
     for (FudgeField calcConfigField : calcConfigs) {
       final FudgeFieldContainer calcConfig = message.getFieldValue(FudgeFieldContainer.class, calcConfigField);
-      final ViewCalculationConfiguration viewCalculationConfiguration = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue (String.class, calcConfig.getByName (FIELD_NAME)));
-      final Map<String,Set<String>> data = context.fieldValueToObject(Map.class, calcConfig.getByName(FIELD_VALUEREQUIREMENTS));
-      for (Map.Entry<String,Set<String>> d : data.entrySet()) {
-        viewCalculationConfiguration.addValueRequirements(d.getKey (), d.getValue ());
+      final ViewCalculationConfiguration viewCalculationConfiguration = new ViewCalculationConfiguration(viewDefinition, message.getFieldValue(String.class, calcConfig.getByName(FIELD_NAME)));
+      final Map<String, Set<String>> data = context.fieldValueToObject(Map.class, calcConfig.getByName(FIELD_VALUEREQUIREMENTS));
+      for (Map.Entry<String, Set<String>> d : data.entrySet()) {
+        viewCalculationConfiguration.addValueRequirements(d.getKey(), d.getValue());
       }
       viewDefinition.addViewCalculationConfiguration(viewCalculationConfiguration);
     }

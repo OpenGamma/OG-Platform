@@ -18,21 +18,24 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 
 /**
  * Registers custom builders for Portfolio, PortfolioNode, and Position with a FudgeContext
- * 
- * @author Andrew Griffin
  */
 public class EngineFudgeContextConfiguration extends FudgeContextConfiguration {
   
-  public static final FudgeContextConfiguration INSTANCE = new EngineFudgeContextConfiguration ();
+  // REVIEW kirk 2010-05-22 -- Any reason this shouldn't be a pure singleton?
   
-  public void configureFudgeObjectDictionary (final FudgeObjectDictionary dictionary) {
-    dictionary.getDefaultBuilderFactory ().addGenericBuilder (Portfolio.class, new PortfolioBuilder ());
-    dictionary.getDefaultBuilderFactory ().addGenericBuilder (PortfolioNode.class, new PortfolioNodeBuilder ());
-    dictionary.getDefaultBuilderFactory ().addGenericBuilder (Position.class, new PositionBuilder ());
-    dictionary.addBuilder (ViewDefinition.class, new ViewDefinitionBuilder ());
-    dictionary.getDefaultBuilderFactory ().addGenericBuilder (ViewCalculationResultModel.class, new ViewCalculationResultModelBuilder ());
-    dictionary.getDefaultBuilderFactory ().addGenericBuilder (ViewComputationResultModel.class, new ViewComputationResultModelBuilder ());
-    dictionary.getDefaultBuilderFactory ().addGenericBuilder (ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder ());
+  /**
+   * The singleton Fudge context for a running Engine. 
+   */
+  public static final FudgeContextConfiguration INSTANCE = new EngineFudgeContextConfiguration();
+  
+  public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(Portfolio.class, new PortfolioBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(PortfolioNode.class, new PortfolioNodeBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(Position.class, new PositionBuilder());
+    dictionary.addBuilder(ViewDefinition.class, new ViewDefinitionBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewCalculationResultModel.class, new ViewCalculationResultModelBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewComputationResultModel.class, new ViewComputationResultModelBuilder());
+    dictionary.getDefaultBuilderFactory().addGenericBuilder(ViewDeltaResultModel.class, new ViewDeltaResultModelBuilder());
   }
   
 }

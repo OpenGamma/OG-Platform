@@ -42,8 +42,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * REST resource wrapper for a ViewProcessorClient. These are created by the service for the lifetime of the
  * underlying view processor.
- * 
- * @author Andrew Griffin
  */
 public class ViewProcessorResource {
   
@@ -55,121 +53,123 @@ public class ViewProcessorResource {
   private final FudgeContext _fudgeContext;
   
   // view name -> listener
-  private final ConcurrentMap<String,ResultListener> _listeners = new ConcurrentHashMap<String,ResultListener> ();
+  private final ConcurrentMap<String, ResultListener> _listeners = new ConcurrentHashMap<String, ResultListener>();
   
-  public ViewProcessorResource (final JmsTemplate jmsTemplate, final String jmsTopicPrefix, final FudgeContext fudgeContext, final ViewProcessorClient viewProcessorClient) {
-    ArgumentChecker.notNull (jmsTemplate, "JMS template");
-    ArgumentChecker.notNull (jmsTopicPrefix, "JMS topic prefix");
-    ArgumentChecker.notNull (fudgeContext, "Fudge context");
-    ArgumentChecker.notNull (viewProcessorClient, "view processor client");
+  public ViewProcessorResource(final JmsTemplate jmsTemplate, final String jmsTopicPrefix, final FudgeContext fudgeContext, final ViewProcessorClient viewProcessorClient) {
+    ArgumentChecker.notNull(jmsTemplate, "JMS template");
+    ArgumentChecker.notNull(jmsTopicPrefix, "JMS topic prefix");
+    ArgumentChecker.notNull(fudgeContext, "Fudge context");
+    ArgumentChecker.notNull(viewProcessorClient, "view processor client");
     _jmsTemplate = jmsTemplate;
     _jmsTopicPrefix = jmsTopicPrefix;
     _fudgeContext = fudgeContext;
     _viewProcessorClient = viewProcessorClient;
-    s_logger.debug ("created for {} with topicPrefix {}", viewProcessorClient, jmsTopicPrefix);
+    s_logger.debug("created for {} with topicPrefix {}", viewProcessorClient, jmsTopicPrefix);
   }
   
-  protected JmsTemplate getJmsTemplate () {
+  protected JmsTemplate getJmsTemplate() {
     return _jmsTemplate;
   }
   
-  protected String getJmsTopicPrefix () {
+  protected String getJmsTopicPrefix() {
     return _jmsTopicPrefix;
   }
   
-  protected ViewProcessorClient getViewProcessorClient () {
+  protected ViewProcessorClient getViewProcessorClient() {
     return _viewProcessorClient;
   }
   
-  protected FudgeContext getFudgeContext () {
+  protected FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
   
-  protected FudgeSerializationContext getFudgeSerializationContext () {
-    return new FudgeSerializationContext (getFudgeContext ());
+  protected FudgeSerializationContext getFudgeSerializationContext() {
+    return new FudgeSerializationContext(getFudgeContext());
   }
   
   @GET
   @Path ("supported")
   public FudgeMsgEnvelope getSupported() {
-    final MutableFudgeFieldContainer msg = getFudgeContext ().newMessage ();
-    msg.add (VIEWPROCESSOR_LIVECOMPUTATIONSUPPORTED, getViewProcessorClient ().isLiveComputationSupported ());
-    msg.add (VIEWPROCESSOR_ONEOFFCOMPUTATIONSUPPORTED, getViewProcessorClient ().isOneOffComputationSupported ());
-    return new FudgeMsgEnvelope (msg);
+    final MutableFudgeFieldContainer msg = getFudgeContext().newMessage();
+    msg.add(VIEWPROCESSOR_LIVECOMPUTATIONSUPPORTED, getViewProcessorClient().isLiveComputationSupported());
+    msg.add(VIEWPROCESSOR_ONEOFFCOMPUTATIONSUPPORTED, getViewProcessorClient().isOneOffComputationSupported());
+    return new FudgeMsgEnvelope(msg);
   }
   
   @GET
   @Path ("availableViewNames")
-  public FudgeMsgEnvelope getAvailableViewNames () {
-    final FudgeSerializationContext context = getFudgeSerializationContext ();
-    final MutableFudgeFieldContainer msg = context.newMessage ();
-    context.objectToFudgeMsg (msg, VIEWPROCESSOR_AVAILABLEVIEWNAMES, null, getViewProcessorClient ().getAvailableViewNames ());
-    return new FudgeMsgEnvelope (msg);
+  public FudgeMsgEnvelope getAvailableViewNames() {
+    final FudgeSerializationContext context = getFudgeSerializationContext();
+    final MutableFudgeFieldContainer msg = context.newMessage();
+    context.objectToFudgeMsg(msg, VIEWPROCESSOR_AVAILABLEVIEWNAMES, null, getViewProcessorClient().getAvailableViewNames());
+    return new FudgeMsgEnvelope(msg);
   }
   
   @GET
   @Path ("liveComputingViewNames")
   public FudgeMsgEnvelope getLiveComputingViewNames() {
-    final FudgeSerializationContext context = getFudgeSerializationContext ();
-    final MutableFudgeFieldContainer msg = context.newMessage ();
-    context.objectToFudgeMsg (msg, VIEWPROCESSOR_LIVECOMPUTINGVIEWNAMES, null, getViewProcessorClient ().getLiveComputingViewNames ());
-    return new FudgeMsgEnvelope (msg);
+    final FudgeSerializationContext context = getFudgeSerializationContext();
+    final MutableFudgeFieldContainer msg = context.newMessage();
+    context.objectToFudgeMsg(msg, VIEWPROCESSOR_LIVECOMPUTINGVIEWNAMES, null, getViewProcessorClient().getLiveComputingViewNames());
+    return new FudgeMsgEnvelope(msg);
   }
   
   @Path ("view/{viewName}")
-  public ViewResource getView (@PathParam ("viewName") String viewName) {
+  public ViewResource getView(@PathParam ("viewName") String viewName) {
     final ViewClient view;
     try {
-      view = getViewProcessorClient ().getView (viewName);
+      view = getViewProcessorClient().getView(viewName);
     } catch (NoSuchElementException e) {
       // cascade this as a 404
       return null;
     }
-    return new ViewResource (this, view);
+    return new ViewResource(this, view);
   }
   
   @PUT
   @Path ("liveCalculation/{viewName}")
-  public void putLiveCalculation (@PathParam ("viewName") String viewName, final FudgeMsgEnvelope envelope) {
+  public void putLiveCalculation(@PathParam ("viewName") String viewName, final FudgeMsgEnvelope envelope) {
     try {
-      final FudgeFieldContainer message = envelope.getMessage ();
-      final String action = message.getFieldValue (String.class, message.getByName (VIEWPROCESSOR_LIVECALCULATION_ACTION));
-      if (action.equals (VIEWPROCESSOR_LIVECALCULATION_ACTION_START)) {
-        getViewProcessorClient ().startLiveCalculation (viewName);
-      } else if (action.equals (VIEWPROCESSOR_LIVECALCULATION_ACTION_STOP)) {
-        getViewProcessorClient ().stopLiveCalculation (viewName);
+      final FudgeFieldContainer message = envelope.getMessage();
+      final String action = message.getFieldValue(String.class, message.getByName(VIEWPROCESSOR_LIVECALCULATION_ACTION));
+      if (action.equals(VIEWPROCESSOR_LIVECALCULATION_ACTION_START)) {
+        getViewProcessorClient().startLiveCalculation(viewName);
+      } else if (action.equals(VIEWPROCESSOR_LIVECALCULATION_ACTION_STOP)) {
+        getViewProcessorClient().stopLiveCalculation(viewName);
       } else {
-        throw new OpenGammaRuntimeException ("unexpected action '" + action + "'");
+        throw new OpenGammaRuntimeException("unexpected action '" + action + "'");
       }
     } catch (NoSuchElementException e) {
-      throw new WebApplicationException (Response.Status.NOT_FOUND);
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
   }
   
-  private ConcurrentMap<String,ResultListener> getListeners () {
+  private ConcurrentMap<String, ResultListener> getListeners() {
     return _listeners;
   }
   
-  private ResultListener getOrCreateResultListener (final String viewName) {
-    ResultListener resultListener = getListeners ().get (viewName);
+  private ResultListener getOrCreateResultListener(final String viewName) {
+    ResultListener resultListener = getListeners().get(viewName);
     if (resultListener == null) {
-      ResultListener newListener = new ResultListener (this);
-      resultListener = getListeners ().putIfAbsent (viewName, newListener);
-      if (resultListener == null) resultListener = newListener;
+      ResultListener newListener = new ResultListener(this);
+      resultListener = getListeners().putIfAbsent(viewName, newListener);
+      if (resultListener == null) {
+        resultListener = newListener;
+      }
     }
     return resultListener;
   }
   
-  protected String getComputationResultChannel (final ViewClient viewClient) {
-    final String viewName = viewClient.getName ();
-    ResultListener resultListener = getOrCreateResultListener (viewName);
-    return resultListener.getComputationResultChannel (viewClient);
+  protected String getComputationResultChannel(final ViewClient viewClient) {
+    final String viewName = viewClient.getName();
+    ResultListener resultListener = getOrCreateResultListener(viewName);
+    return resultListener.getComputationResultChannel(viewClient);
   }
   
-  protected String getDeltaResultChannel (final ViewClient viewClient) {
-    final String viewName = viewClient.getName ();
-    ResultListener resultListener = getOrCreateResultListener (viewName);
-    return resultListener.getDeltaResultChannel (viewClient);
+  protected String getDeltaResultChannel(final ViewClient viewClient) {
+    final String viewName = viewClient.getName();
+    ResultListener resultListener = getOrCreateResultListener(viewName);
+    return resultListener.getDeltaResultChannel(viewClient);
   }
   
 }

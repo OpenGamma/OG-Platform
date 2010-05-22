@@ -23,9 +23,9 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class PositionBuilder implements FudgeBuilder<Position> {
 
-  public static final String FIELD_QUANTITY = "quantity";
-  public static final String FIELD_SECURITYKEY = "securityKey";
-  public static final String FIELD_IDENTIFIER = "identifier";
+  private static final String FIELD_QUANTITY = "quantity";
+  private static final String FIELD_SECURITYKEY = "securityKey";
+  private static final String FIELD_IDENTIFIER = "identifier";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Position position) {
