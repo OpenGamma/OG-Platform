@@ -376,20 +376,26 @@ public class PortfolioEvaluationModel {
       dependencyGraphModel.setCompilationContext(compilationContext);
       dependencyGraphModel.setCalculationConfigurationName(configName);
 
+      // TODO kirk 2010-05-22 -- This will all have to change to support security and
+      // primitive-level calculations.
       Map<String, Set<String>> outputsBySecurityType = calcConfig.getValueRequirementsBySecurityTypes();
-      for (Position position : getPopulatedPositions()) {
-        // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
-        // operation. We could/should do them in parallel.
-        Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
-        Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-        for (String requirementName : requiredOutputValues) {
-          ValueRequirement requirement = new ValueRequirement(requirementName, position);
-          requirements.add(requirement);
+      if (viewDefinition.isComputePositionNodeCalculations()) {
+        for (Position position : getPopulatedPositions()) {
+          // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
+          // operation. We could/should do them in parallel.
+          Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
+          Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+          for (String requirementName : requiredOutputValues) {
+            ValueRequirement requirement = new ValueRequirement(requirementName, position);
+            requirements.add(requirement);
+          }
+          dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
         }
-        dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
       }
-      PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, calcConfig);
-      new PortfolioNodeTraverser(compiler).traverse(getPortfolio().getRootNode());
+      if (viewDefinition.isComputePortfolioNodeCalculations()) {
+        PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, calcConfig);
+        new PortfolioNodeTraverser(compiler).traverse(getPortfolio().getRootNode());
+      }
       
       dependencyGraphModel.removeUnnecessaryOutputs();
       

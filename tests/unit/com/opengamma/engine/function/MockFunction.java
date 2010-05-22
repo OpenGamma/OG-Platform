@@ -43,7 +43,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return ObjectUtils.equals(target, _target);
+    return ObjectUtils.equals(target.toSpecification(), _target.toSpecification());
   }
 
   @Override
