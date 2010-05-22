@@ -30,7 +30,6 @@ import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
 import com.opengamma.engine.position.AbstractPortfolioNodeTraversalCallback;
@@ -179,13 +178,13 @@ public class PortfolioEvaluationModel {
   }
 
   public void init(
-      ViewProcessingContext viewProcessingContext,
+      ViewCompilationServices viewCompilationServices,
       ViewDefinition viewDefinition) {
-    ArgumentChecker.notNull(viewProcessingContext, "View Processing Context");
+    ArgumentChecker.notNull(viewCompilationServices, "View Compilation Services");
     ArgumentChecker.notNull(viewDefinition, "View Definition");
     
     // Resolve all of the securities
-    resolveSecurities(viewProcessingContext);
+    resolveSecurities(viewCompilationServices);
     
     PortfolioNodeImpl populatedRootNode = getPopulatedPortfolioNode(getPortfolio().getRootNode());
     assert populatedRootNode != null;
@@ -194,16 +193,14 @@ public class PortfolioEvaluationModel {
     loadPositions();
     loadSecurities();
     buildDependencyGraphs(
-        viewProcessingContext.getFunctionRepository(),
-        viewProcessingContext.getFunctionResolver(),
-        viewProcessingContext.getCompilationContext(),
-        viewProcessingContext.getLiveDataAvailabilityProvider(),
-        new ResolvedSecurityComputationTargetResolver(viewProcessingContext.getComputationTargetResolver()),
+        viewCompilationServices.getFunctionResolver(),
+        viewCompilationServices.getCompilationContext(),
+        viewCompilationServices.getLiveDataAvailabilityProvider(),
+        new ResolvedSecurityComputationTargetResolver(viewCompilationServices.getComputationTargetResolver()),
         viewDefinition);
     if (OUTPUT_DEPENDENCY_GRAPHS) {
       outputDependencyGraphs();
     }
-    addLiveDataSubscriptions(viewProcessingContext, viewDefinition);
   }
   
   private void outputDependencyGraphs() {
@@ -221,11 +218,11 @@ public class PortfolioEvaluationModel {
     s_logger.warn("Dependency Graph Models -- \n{}", sb);
   }
   
-  protected void resolveSecurities(final ViewProcessingContext viewProcessingContext) {
+  protected void resolveSecurities(final ViewCompilationServices viewCompilationServices) {
     // TODO kirk 2010-03-07 -- Need to switch to OperationTimer for this.
     OperationTimer timer = new OperationTimer(s_logger, "Resolving all securities for {}", getPortfolio().getName());
     Set<IdentifierBundle> securityKeys = getSecurityKeysForResolution(getPortfolio().getRootNode());
-    ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(viewProcessingContext.getExecutorService());
+    ExecutorCompletionService<IdentifierBundle> completionService = new ExecutorCompletionService<IdentifierBundle>(viewCompilationServices.getExecutorService());
     
     boolean failed = false;
     for (IdentifierBundle secKey : securityKeys) {
@@ -233,7 +230,7 @@ public class PortfolioEvaluationModel {
         failed = true;
         s_logger.warn("Had null security key in at least one position");
       } else {
-        completionService.submit(new SecurityResolutionJob(viewProcessingContext.getSecurityMaster(), secKey), secKey);
+        completionService.submit(new SecurityResolutionJob(viewCompilationServices.getSecurityMaster(), secKey), secKey);
       }
     }
     for (int i = 0; i < securityKeys.size(); i++) {
@@ -359,7 +356,6 @@ public class PortfolioEvaluationModel {
   }
   
   public void buildDependencyGraphs(
-      FunctionRepository functionRepository,
       FunctionResolver functionResolver,
       FunctionCompilationContext compilationContext,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
@@ -374,7 +370,6 @@ public class PortfolioEvaluationModel {
       ViewCalculationConfiguration calcConfig = entry.getValue();
       
       DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
-      dependencyGraphModel.setFunctionRepository(functionRepository);
       dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
       dependencyGraphModel.setTargetResolver(computationTargetResolver);
       dependencyGraphModel.setFunctionResolver(functionResolver);
@@ -400,18 +395,6 @@ public class PortfolioEvaluationModel {
       
       _graphModelsByConfiguration.put(configName, dependencyGraphModel);
     }
-    timer.finished();
-  }
-  
-  public void addLiveDataSubscriptions(
-      final ViewProcessingContext viewProcessingContext,
-      final ViewDefinition viewDefinition) {
-    ArgumentChecker.notNull(viewProcessingContext, "view processing context");
-    
-    Set<ValueRequirement> liveDataRequirements = getAllLiveDataRequirements();
-    
-    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions", liveDataRequirements.size());
-    viewProcessingContext.getLiveDataSnapshotProvider().addSubscription(viewDefinition.getUser(), liveDataRequirements);
     timer.finished();
   }
   

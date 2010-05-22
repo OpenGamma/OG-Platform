@@ -22,7 +22,6 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.FunctionResolver;
 import com.opengamma.engine.function.LiveDataSourcingFunction;
 import com.opengamma.engine.livedata.LiveDataAvailabilityProvider;
@@ -39,7 +38,6 @@ public class DependencyGraphModel {
   // Injected Inputs:
   private String _calculationConfigurationName;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
-  private FunctionRepository _functionRepository;
   private ComputationTargetResolver _targetResolver;
   private FunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
@@ -72,19 +70,6 @@ public class DependencyGraphModel {
   public void setLiveDataAvailabilityProvider(
       LiveDataAvailabilityProvider liveDataAvailabilityProvider) {
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
-  }
-  /**
-   * @return the analyticFunctionRepository
-   */
-  public FunctionRepository getFunctionRepository() {
-    return _functionRepository;
-  }
-  /**
-   * @param functionRepository the analyticFunctionRepository to set
-   */
-  public void setFunctionRepository(
-      FunctionRepository functionRepository) {
-    _functionRepository = functionRepository;
   }
   
   /**
@@ -128,7 +113,6 @@ public class DependencyGraphModel {
   
   protected void checkInjectedInputs() {
     ArgumentChecker.notNullInjected(getLiveDataAvailabilityProvider(), "liveDataAvailabilityProvider");
-    ArgumentChecker.notNullInjected(getFunctionRepository(), "functionRepository");
     ArgumentChecker.notNullInjected(getFunctionResolver(), "functionResolver");
     ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
   }

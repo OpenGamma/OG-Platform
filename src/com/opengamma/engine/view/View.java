@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -138,7 +139,6 @@ public class View implements Lifecycle {
 
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-    checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 
     reloadPortfolio();
@@ -155,16 +155,21 @@ public class View implements Lifecycle {
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
-        getProcessingContext(),
+        getProcessingContext().asCompilationServices(),
         getDefinition());
     setPortfolioEvaluationModel(portfolioEvaluationModel);
+    addLiveDataSubscriptions();
     timer.finished();
   }
   
   /**
    * 
    */
-  private void checkInjectedDependencies() {
+  private void addLiveDataSubscriptions() {
+    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
+    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getUser(), liveDataRequirements);
+    timer.finished();
   }
 
   public synchronized ViewComputationResultModel getMostRecentResult() {

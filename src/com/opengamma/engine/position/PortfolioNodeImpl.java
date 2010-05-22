@@ -41,10 +41,18 @@ public class PortfolioNodeImpl implements PortfolioNode, Serializable {
   private final List<Position> _positions = new ArrayList<Position>();
 
   /**
-   * Creates a portfolio with an empty name.
+   * Creates a portfolio node with an empty name.
    */
   public PortfolioNodeImpl() {
     _name = "";
+  }
+  
+  /**
+   * Creates a portfolio node with a given name.
+   * @param name the name of the portfolio node.
+   */
+  public PortfolioNodeImpl(String name) {
+    _name = name;
   }
 
   /**
