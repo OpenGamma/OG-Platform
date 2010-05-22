@@ -34,7 +34,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
   public long getValueSpecificationId(ValueSpecification valueSpec) {
     ArgumentChecker.notNull(valueSpec, "Value Specification");
     Long result = _specificationIds.get(valueSpec);
-    if(result != null) {
+    if (result != null) {
       return result;
     }
     result = remoteLookupValueSpecificationId(valueSpec);
@@ -51,7 +51,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
     
     FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
     MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader (requestMsg, ValueSpecificationLookupRequest.class);
+    FudgeSerializationContext.addClassHeader(requestMsg, ValueSpecificationLookupRequest.class);
     
     //FudgeFieldContainer requestMsg = request.toFudgeMsg(new FudgeSerializationContext(getRequestSender().getFudgeContext()));
     Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
@@ -77,7 +77,7 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
     
     FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
     MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader (requestMsg, ValueLookupRequest.class);
+    FudgeSerializationContext.addClassHeader(requestMsg, ValueLookupRequest.class);
     
     Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
     assert resultValue instanceof ValueLookupResponse;
@@ -97,11 +97,11 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
     request.setCalculationConfigurationName(calcConfigName);
     request.setSnapshot(timestamp);
     request.setSpecificationId(specificationId);
-    request.setValue(value.getValue ());
+    request.setValue(value.getValue());
 
     FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
     MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader (requestMsg, ValuePutRequest.class);
+    FudgeSerializationContext.addClassHeader(requestMsg, ValuePutRequest.class);
     
     Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
     assert resultValue instanceof ValuePutResponse;
@@ -111,31 +111,31 @@ public class RemoteCacheClient extends FudgeSynchronousClient {
   public int purgeCache(String viewName, String calcConfigName, long timestamp) {
     long correlationId = getNextCorrelationId();
     s_logger.info("Submitting Purge {} {} {} - Correlation {}",
-        new Object[] {viewName, calcConfigName, timestamp, correlationId} );
+        new Object[] {viewName, calcConfigName, timestamp, correlationId});
     
     CachePurgeRequest request = new CachePurgeRequest();
     request.setCorrelationId(correlationId);
     request.setViewName(viewName);
-    if(calcConfigName != null) {
+    if (calcConfigName != null) {
       request.setCalculationConfigurationName(calcConfigName);
     }
     request.setSnapshot(timestamp);
 
     FudgeSerializationContext ctx = new FudgeSerializationContext(getRequestSender().getFudgeContext());
     MutableFudgeFieldContainer requestMsg = ctx.objectToFudgeMsg(request);
-    FudgeSerializationContext.addClassHeader (requestMsg, CachePurgeRequest.class);
+    FudgeSerializationContext.addClassHeader(requestMsg, CachePurgeRequest.class);
     
     Object resultValue = sendRequestAndWaitForResponse(requestMsg, correlationId);
     assert resultValue instanceof CachePurgeResponse;
     CachePurgeResponse purgeResponse = (CachePurgeResponse) resultValue;
     s_logger.info("Purge {} {} {} purged {} caches - Correlation {}",
-        new Object[] {viewName, calcConfigName, timestamp, purgeResponse.getNumPurged(), correlationId} );
+        new Object[] {viewName, calcConfigName, timestamp, purgeResponse.getNumPurged(), correlationId});
     return purgeResponse.getNumPurged();
   }
 
   @Override
   protected long getCorrelationIdFromReply(Object reply) {
-    if(!(reply instanceof RemoteCacheMessage)) {
+    if (!(reply instanceof RemoteCacheMessage)) {
       s_logger.error("Didn't get a RemoteCacheMessage reply, got a {}", reply);
       return Long.MIN_VALUE;
     }

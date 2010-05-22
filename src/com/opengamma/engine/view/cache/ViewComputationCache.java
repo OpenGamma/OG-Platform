@@ -11,8 +11,6 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * The shared cache through which various elements in view recalculation will
  * store and retrieve values.
- *
- * @author kirk
  */
 public interface ViewComputationCache {
 

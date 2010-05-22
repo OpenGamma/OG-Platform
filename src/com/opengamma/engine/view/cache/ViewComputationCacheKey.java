@@ -16,7 +16,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author kirk
  */
 /*package*/ class ViewComputationCacheKey implements Serializable {
   private final String _viewName;
@@ -69,23 +68,16 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (!(obj instanceof ViewComputationCacheKey)) {
       return false;
-    if (getClass() != obj.getClass())
-      return false;
+    }
     ViewComputationCacheKey other = (ViewComputationCacheKey) obj;
-    if (_snapshotTimestamp != other._snapshotTimestamp) {
-      return false;
-    }
-    if(!ObjectUtils.equals(_viewName, other._viewName)) {
-      return false;
-    }
-    if(!ObjectUtils.equals(_calculationConfigurationName, other._calculationConfigurationName)) {
-      return false;
-    }
-    return true;
+    return (_snapshotTimestamp == other._snapshotTimestamp)
+          && ObjectUtils.equals(_viewName, other._viewName)
+          && ObjectUtils.equals(_calculationConfigurationName, other._calculationConfigurationName);
   }
 
   @Override
