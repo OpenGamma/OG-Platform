@@ -18,10 +18,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.FudgeRequestSender;
+
 /**
  * 
- *
- * @author jim
  */
 public class ViewProcessorQuerySender implements FudgeMessageReceiver {
   private FudgeRequestSender _sender;
@@ -35,7 +34,7 @@ public class ViewProcessorQuerySender implements FudgeMessageReceiver {
       // REVIEW: jim 29-March-2010 -- Is it okay to create the serialization context in line like this?
       FudgeSerializationContext ctx = new FudgeSerializationContext(_sender.getFudgeContext());
       MutableFudgeFieldContainer msg = ctx.objectToFudgeMsg(new DependentValueSpecificationsRequest(jobSpec));
-      FudgeSerializationContext.addClassHeader (msg, DependentValueSpecificationsRequest.class);
+      FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsRequest.class);
       _sender.sendRequest(msg, this);
       DependentValueSpecificationsReply reply = _specsQueue.remove();
       assert reply.getJobSpec() == jobSpec;
@@ -49,7 +48,7 @@ public class ViewProcessorQuerySender implements FudgeMessageReceiver {
     Object reply = context.fromFudgeMsg(msgEnvelope.getMessage());
     if (reply instanceof DependentValueSpecificationsReply) {
       try {
-        _specsQueue.put((DependentValueSpecificationsReply)reply);
+        _specsQueue.put((DependentValueSpecificationsReply) reply);
       } catch (InterruptedException e) {
         throw new OpenGammaRuntimeException("Interrupted while queuing reply", e);
       }

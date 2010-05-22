@@ -11,8 +11,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
- *
- * @author jim
  */
 public class ViewProcessorQuery {
   private final ViewProcessorQuerySender _calcNodeQuerySender;
@@ -24,6 +22,6 @@ public class ViewProcessorQuery {
   }
   
   public Collection<ValueSpecification> getDependentValueSpecifications() {
-    return _calcNodeQuerySender.getDependentValueSpecifications(_jobSpec );
+    return _calcNodeQuerySender.getDependentValueSpecifications(_jobSpec);
   }
 }

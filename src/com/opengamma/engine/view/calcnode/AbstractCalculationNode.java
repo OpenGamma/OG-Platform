@@ -19,8 +19,6 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 
 /**
  * 
- *
- * @author kirk
  */
 public abstract class AbstractCalculationNode {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractCalculationNode.class);
@@ -90,13 +88,14 @@ public abstract class AbstractCalculationNode {
     assert spec != null;
     ViewComputationCache cache = getCacheSource().getCache(spec.getViewName(), spec.getCalcConfigName(), spec.getIterationTimestamp());
     ComputationTarget target = getTargetResolver().resolve(job.getComputationTargetSpecification());
-    if(target == null) {
+    if (target == null) {
       throw new OpenGammaRuntimeException("Unable to resolve specification " + job.getComputationTargetSpecification());
     }
     FunctionInvocationJob invocationJob = new FunctionInvocationJob(spec, job.getFunctionUniqueIdentifier(), job.getInputs(), cache,
                                                                     getFunctionRepository(), getFunctionExecutionContext(), 
                                                                     new ViewProcessorQuery(getViewProcessorQuerySender(), spec),
                                                                     target, job.getDesiredValues());
+    // TODO kirk 2010-05-22 -- Change to nanotime. ENG-105
     long startTS = System.currentTimeMillis();
     boolean wasException = false;
     try {
@@ -107,7 +106,7 @@ public abstract class AbstractCalculationNode {
       s_logger.info("Unable to invoke due to missing inputs invoking on {}: {}", target, e.getMessage());
       wasException = true;
     } catch (Exception e) {
-      s_logger.info("Invoking " + job.getFunctionUniqueIdentifier() + " on " + target + " throw exception.",e);
+      s_logger.info("Invoking " + job.getFunctionUniqueIdentifier() + " on " + target + " throw exception.", e);
       wasException = true;
     }
     long endTS = System.currentTimeMillis();

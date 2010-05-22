@@ -18,17 +18,16 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.calcnode.DependentValueSpecificationsRequest;
+import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.OpenGammaRuntimeException;
+
 /**
  * 
  *
- * @author jim
  */
 public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
   @SuppressWarnings("unused")
@@ -48,7 +47,7 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
       FudgeSerializationContext.addClassHeader(msg, DependentValueSpecificationsReply.class);
       return msg;
     } else {
-      throw new OpenGammaRuntimeException("Unrecognized message object "+message);
+      throw new OpenGammaRuntimeException("Unrecognized message object " + message);
     }
   }
   
@@ -64,9 +63,6 @@ public class ViewProcessorQueryReceiver implements FudgeRequestReceiver {
     return specsSoFar;
   }
 
-  /**
-   * @param executingSpecifications
-   */
   public void setJobToDepNodeMap(Map<CalculationJobSpecification, DependencyNode> executingSpecifications) {
     _jobToDepNodeMap = executingSpecifications;
   }

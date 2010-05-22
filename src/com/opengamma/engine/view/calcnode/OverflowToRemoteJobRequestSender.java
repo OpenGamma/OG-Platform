@@ -22,8 +22,6 @@ import com.opengamma.util.NamedThreadPoolFactory;
 /**
  * An implementation of {@link JobRequestSender} which will overflow to another
  * {@link JobRequestSender} when its internal pool of worker threads is exhausted.
- *
- * @author kirk
  */
 public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifecycle {
   private static final Logger s_logger = LoggerFactory.getLogger(OverflowToRemoteJobRequestSender.class);
@@ -45,7 +43,7 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
     
     ThreadFactory tf = new NamedThreadPoolFactory("InMemoryQueueByteArrayRequestConduit", true);
     _offerQueue = new SynchronousQueue<Runnable>();
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nLocalWorkers, 5l, TimeUnit.SECONDS, _offerQueue, tf);
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(0, nLocalWorkers, 5L, TimeUnit.SECONDS, _offerQueue, tf);
     _executorService = executor;
   }
 
@@ -69,7 +67,7 @@ public class OverflowToRemoteJobRequestSender implements JobRequestSender, Lifec
     ArgumentChecker.notNull(resultReceiver, "Job result receiver");
     
     Runnable runnable = new LocalDispatchRunnable(job, resultReceiver);
-    if(!_offerQueue.offer(runnable)) {
+    if (!_offerQueue.offer(runnable)) {
       // Overflow.
       s_logger.debug("Overflowing job {}-{} to overflow sender", job.getSpecification().getViewName(), job.getSpecification().getJobId());
       getOverflowSender().sendRequest(job, resultReceiver);
