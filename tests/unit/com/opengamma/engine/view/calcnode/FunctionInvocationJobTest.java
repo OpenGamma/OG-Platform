@@ -28,6 +28,20 @@ import com.opengamma.engine.view.cache.MapViewComputationCache;
  */
 public class FunctionInvocationJobTest {
   
+  @Test(expected=NullPointerException.class)
+  public void noSuchFunction() {
+    ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    long iterationTimestamp = System.currentTimeMillis();
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", "config", iterationTimestamp, 1L);
+    MapViewComputationCache cache = new MapViewComputationCache();
+    FunctionExecutionContext execContext = new FunctionExecutionContext();
+    ViewProcessorQuery viewProcessorQuery = new ViewProcessorQuery(null, null);
+    
+    FunctionInvocationJob job = new FunctionInvocationJob(jobSpec, "NO SUCH FUNCTION", Collections.<ValueSpecification>emptySet(), cache, functionRepo, execContext, viewProcessorQuery, target, Collections.<ValueRequirement>emptySet());
+    job.run();
+  }
+
   /**
    * Just test a basic no-op function invocation. Because there are no inputs
    * or outputs, this is really just here to make sure that the class itself
@@ -123,4 +137,28 @@ public class FunctionInvocationJobTest {
     assertEquals(0, cache.size());
   }
 
+  @Test(expected=MissingInputException.class)
+  public void mockFunctionInvocationOneInputMissing() {
+    ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+    ValueRequirement valueReq = new ValueRequirement("FOO", target.toSpecification());
+    ValueSpecification valueSpec = new ValueSpecification(valueReq);
+    ComputedValue value = new ComputedValue(valueSpec, "Nothing we care about");
+    MockFunction fn = new MockFunction(
+        target,
+        Sets.newHashSet(valueReq),
+        Sets.newHashSet(value));
+    
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    functionRepo.addFunction(fn, fn);
+    
+    long iterationTimestamp = System.currentTimeMillis();
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", "config", iterationTimestamp, 1L);
+    MapViewComputationCache cache = new MapViewComputationCache();
+    FunctionExecutionContext execContext = new FunctionExecutionContext();
+    ViewProcessorQuery viewProcessorQuery = new ViewProcessorQuery(null, null);
+    
+    FunctionInvocationJob job = new FunctionInvocationJob(jobSpec, fn.getUniqueIdentifier(), Sets.newHashSet(valueSpec), cache, functionRepo, execContext, viewProcessorQuery, target, Sets.newHashSet(valueReq));
+    
+    job.run();
+  }
 }
