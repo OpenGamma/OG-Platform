@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
@@ -46,6 +47,32 @@ public class CalculationJobTest {
     assertTrue(outputJob.getDesiredValues().isEmpty());
     assertEquals(targetSpec, outputJob.getComputationTargetSpecification());
     assertEquals("1", outputJob.getFunctionUniqueIdentifier());
+  }
+
+  @Test
+  public void fudgeEncodingOneInputOneOutput() {
+    FudgeContext context = FudgeContext.GLOBAL_DEFAULT;
+    CalculationJobSpecification spec = new CalculationJobSpecification("view", "config", 1L, 1L);
+    ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueIdentifier.of("Scheme", "Value"));
+    
+    ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value2"));
+    ValueSpecification inputSpec = new ValueSpecification(new ValueRequirement("Foo", ComputationTargetType.PRIMITIVE, UniqueIdentifier.of("Scheme", "Value3")));
+    
+    CalculationJob inputJob = new CalculationJob(spec, "1", targetSpec,
+        Sets.newHashSet(inputSpec),
+        Sets.newHashSet(desiredValue));
+    
+    FudgeFieldContainer msg = inputJob.toFudgeMsg(new FudgeSerializationContext(context));
+    msg = context.deserialize(context.toByteArray(msg)).getMessage();
+    CalculationJob outputJob = CalculationJob.fromFudgeMsg(new FudgeDeserializationContext(context), msg);
+    assertNotNull(outputJob);
+    assertEquals(inputJob.getSpecification(), outputJob.getSpecification());
+    
+    assertEquals(1, outputJob.getInputs().size());
+    assertTrue(outputJob.getInputs().contains(inputSpec));
+    
+    assertEquals(1, outputJob.getDesiredValues().size());
+    assertTrue(outputJob.getDesiredValues().contains(desiredValue));
   }
 
 }
