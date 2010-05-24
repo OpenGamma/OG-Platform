@@ -72,12 +72,10 @@ public class AnalyticOptionModelTest {
         Greek.ZOMMA, Greek.ZOMMA_P);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);
     GreekResultCollection finiteDifference = DUMMY_MODEL.getGreeks(PUT, DATA, greekTypes);
-    System.out.println("BSM is " + bsm);
-    System.out.println("FiniteDifference is " + finiteDifference);
     testResults(finiteDifference, bsm);
     bsm = BSM.getGreeks(CALL, DATA, greekTypes);
     finiteDifference = DUMMY_MODEL.getGreeks(CALL, DATA, greekTypes);
-    // testResults(finiteDifference, bsm);
+    testResults(finiteDifference, bsm);
   }
 
   protected void testResults(final GreekResultCollection results, final GreekResultCollection expected) {
