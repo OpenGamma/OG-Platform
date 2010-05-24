@@ -16,3 +16,4 @@ build/
 doc/
 /.fudge-proto-gitignore
 MANIFEST.MF
+.clover/
