@@ -102,7 +102,10 @@
 			verbose="${build.verbose}"
 			fudgeContext="${fudge.proto.fudgeContext}"
 			rebuildAll="${fudge.proto.rebuildall}"
-			gitIgnore="${fudge.proto.gitIgnore}" />
+			gitIgnore="${fudge.proto.gitIgnore}">
+			<fileHeader>///CLOVER:OFF</fileHeader>
+			<fileFooter>///CLOVER:ON</fileFooter>
+		</fudgeproto>
 	</target>
 
 	<target name="fudge-proto" depends="fudge-proto-compile" 
