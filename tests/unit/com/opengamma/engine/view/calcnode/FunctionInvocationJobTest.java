@@ -161,4 +161,35 @@ public class FunctionInvocationJobTest {
     
     job.run();
   }
+
+  @Test
+  public void mockFunctionInvocationOneInputOneOutput() {
+    ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+    ValueRequirement inputReq = new ValueRequirement("INPUT", target.toSpecification());
+    ValueSpecification inputSpec = new ValueSpecification(inputReq);
+    ComputedValue inputValue = new ComputedValue(inputSpec, "Just an input object");
+    ValueRequirement outputReq = new ValueRequirement("OUTPUT", target.toSpecification());
+    ValueSpecification outputSpec = new ValueSpecification(outputReq);
+    ComputedValue outputValue = new ComputedValue(outputSpec, "Nothing we care about");
+    MockFunction fn = new MockFunction(
+        target,
+        Sets.newHashSet(inputReq),
+        Sets.newHashSet(outputValue));
+    
+    InMemoryFunctionRepository functionRepo = new InMemoryFunctionRepository();
+    functionRepo.addFunction(fn, fn);
+    
+    long iterationTimestamp = System.currentTimeMillis();
+    CalculationJobSpecification jobSpec = new CalculationJobSpecification("view", "config", iterationTimestamp, 1L);
+    MapViewComputationCache cache = new MapViewComputationCache();
+    cache.putValue(inputValue);
+    FunctionExecutionContext execContext = new FunctionExecutionContext();
+    ViewProcessorQuery viewProcessorQuery = new ViewProcessorQuery(null, null);
+    
+    FunctionInvocationJob job = new FunctionInvocationJob(jobSpec, fn.getUniqueIdentifier(), Sets.newHashSet(inputSpec), cache, functionRepo, execContext, viewProcessorQuery, target, Sets.newHashSet(outputReq));
+    
+    job.run();
+    
+    assertEquals(2, cache.size());
+  }
 }
