@@ -35,9 +35,6 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- *
- * @author kirk
  */
 public class DiscountCurveFunction
 extends AbstractFunction 
@@ -144,6 +141,8 @@ implements FunctionInvoker {
     // that ultimately in OG-LiveData normalization and pull out the OGRate key rather than
     // the crazy IndicativeValue name.
     Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
+    // Always start with 0 at the 0 point for super-short-end expiry options.
+    timeInYearsToRates.put(0., 0.);
     for(FixedIncomeStrip strip : getDefinition().getStrips()) {
       ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);

@@ -26,7 +26,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.future.definition.FXFutureDataBundle;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
@@ -34,14 +33,8 @@ import com.opengamma.financial.model.future.pricing.FXFutureAsForwardModel;
 import com.opengamma.financial.model.future.pricing.FutureModel;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.security.FXFutureSecurity;
-import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifier;
 
-/**
- * 
- *
- * @author emcleod
- */
 public class FXFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
   private final FutureModel<FXFutureDataBundle> _model = new FXFutureAsForwardModel();
   private static final Map<String, Greek> AVAILABLE_GREEKS;
@@ -75,9 +68,9 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
     for (final ValueRequirement v : desiredValues) {
       greek = AVAILABLE_GREEKS.get(v.getValueName());
       assert greek != null : "Should have thrown IllegalArgumentException above.";
-      final GreekResult<?> greekResult = greeks.get(greek);
+      final Double greekResult = greeks.get(greek);
       final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()));
-      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
+      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
     return results;

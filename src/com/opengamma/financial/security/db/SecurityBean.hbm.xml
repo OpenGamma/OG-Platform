@@ -39,6 +39,8 @@
       (a.validEndDate is null or a.validEndDate &gt; s.effectiveDateTime) and
       s.id = :securityUid
   </query>
+    <!-- NOTE: jim 21-May-2010 - changed effective date tests from < to <= because using dates rather than date times,
+       and so it doens't allow you to save something and use it on the same day (!) -->
   <query name="SecurityBean.one.byDateOid">
     select 
       s
@@ -56,12 +58,14 @@
                   from 
                     SecurityBean as latest
                   where
-                    latest.effectiveDateTime &lt; :now and
+                    latest.effectiveDateTime &lt;= :now and
                     latest.effectiveDateTime &gt; s.effectiveDateTime and
                     latest.id &lt;&gt; s.id and
                     latest.firstVersion = s.firstVersion)
   </query>
   <!-- note the s, and the 'in (:identifiers)' part of the where -->
+  <!-- NOTE: jim 21-May-2010 - changed effective date tests from < to <= because using dates rather than date times,
+       and so it doens't allow you to save something and use it on the same day (!) -->
   <query name="SecurityBean.one.byDateIdentifiers"> 
     select 
       s
@@ -74,13 +78,13 @@
       (a.validEndDate is null or a.validEndDate &gt; :now) and
       a.identifier.scheme = :scheme and
       a.identifier.identifier in (:identifiers) and
-      s.effectiveDateTime &lt; :now and
+      s.effectiveDateTime &lt;= :now and
       not exists (select 
                     latest.id
                   from 
                     SecurityBean as latest
                   where
-                    latest.effectiveDateTime &lt; :now and
+                    latest.effectiveDateTime &lt;= :now and
                     latest.effectiveDateTime &gt; s.effectiveDateTime and
                     latest.id &lt;&gt; s.id and
                     latest.firstVersion = s.firstVersion)

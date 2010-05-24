@@ -23,7 +23,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -56,9 +55,9 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
     for (final ValueRequirement dV : desiredValues) {
       final Greek greek = AvailableGreeks.getGreekForValueRequirement(dV);
       assert greek != null : "Should have thrown IllegalArgumentException above.";
-      final GreekResult<?> greekResult = greeks.get(greek);
+      final Double greekResult = greeks.get(greek);
       final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), option));
-      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
+      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
     return results;

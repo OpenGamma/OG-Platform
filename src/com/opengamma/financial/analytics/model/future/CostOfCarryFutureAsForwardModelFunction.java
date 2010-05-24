@@ -28,7 +28,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResult;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.definition.StandardFutureDataBundle;
@@ -47,11 +46,6 @@ import com.opengamma.financial.security.StockFutureSecurity;
 import com.opengamma.id.Identifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 
-/**
- * 
- *
- * @author emcleod
- */
 public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
   private final FutureModel<StandardFutureDataBundle> _model = new CostOfCarryFutureAsForwardModel();
   private final FutureSecurityVisitor<Identifier> _visitor = new UnderlyingFutureSecurityVisitor();
@@ -95,9 +89,9 @@ public class CostOfCarryFutureAsForwardModelFunction extends AbstractFunction im
     for (final ValueRequirement v : desiredValues) {
       greek = AVAILABLE_GREEKS.get(v.getValueName());
       assert greek != null : "Should have thrown IllegalArgumentException above.";
-      final GreekResult<?> greekResult = greeks.get(greek);
+      final Double greekResult = greeks.get(greek);
       final ValueSpecification resultSpecification = new ValueSpecification(new ValueRequirement(v.getValueName(), ComputationTargetType.SECURITY, future.getUniqueIdentifier()));
-      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult.getResult());
+      final ComputedValue resultValue = new ComputedValue(resultSpecification, greekResult);
       results.add(resultValue);
     }
     return results;
