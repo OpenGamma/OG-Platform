@@ -30,72 +30,76 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   private JmsByteArrayMessageSender _computationResults;
   private JmsByteArrayMessageSender _deltaResults;
   
-  public ResultListener (final ViewProcessorResource viewProcessor) {
+  public ResultListener(final ViewProcessorResource viewProcessor) {
     _viewProcessor = viewProcessor;
   }
   
-  protected ViewProcessorResource getViewProcessor () {
+  protected ViewProcessorResource getViewProcessor() {
     return _viewProcessor;
   }
   
-  protected FudgeContext getFudgeContext () {
-    return getViewProcessor ().getFudgeContext ();
+  protected FudgeContext getFudgeContext() {
+    return getViewProcessor().getFudgeContext();
   }
   
-  protected FudgeSerializationContext getFudgeSerializationContext () {
-    return new FudgeSerializationContext (getFudgeContext ());
+  protected FudgeSerializationContext getFudgeSerializationContext() {
+    return new FudgeSerializationContext(getFudgeContext());
   }
   
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
-    s_logger.info ("Write {} to JMS {}", resultModel, _computationResults);
-    final byte[] fudgeMsg = getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (resultModel));
-    s_logger.debug ("Writing {} bytes data", fudgeMsg.length);
-    _computationResults.send (fudgeMsg);
+    s_logger.info("Write {} to JMS {}", resultModel, _computationResults);
+    final byte[] fudgeMsg = getFudgeContext().toByteArray(getFudgeSerializationContext().objectToFudgeMsg(resultModel));
+    s_logger.debug("Writing {} bytes data", fudgeMsg.length);
+    _computationResults.send(fudgeMsg);
   }
 
   @Override
   public void deltaResultAvailable(ViewDeltaResultModel deltaModel) {
-    s_logger.info ("Write {} to JMS {}", deltaModel, _deltaResults);
-    final byte[] fudgeMsg = getFudgeContext ().toByteArray (getFudgeSerializationContext ().objectToFudgeMsg (deltaModel));
-    s_logger.debug ("Writing {} bytes data", fudgeMsg.length);
-    _deltaResults.send (fudgeMsg);
+    s_logger.info("Write {} to JMS {}", deltaModel, _deltaResults);
+    final byte[] fudgeMsg = getFudgeContext().toByteArray(getFudgeSerializationContext().objectToFudgeMsg(deltaModel));
+    s_logger.debug("Writing {} bytes data", fudgeMsg.length);
+    _deltaResults.send(fudgeMsg);
   }
   
-  protected String getTopicName (final ViewClient viewClient, final String suffix) {
-    final String topicName = getViewProcessor ().getJmsTopicPrefix () + "-" + viewClient.getName () + "-" + suffix;
+  protected String getTopicName(final ViewClient viewClient, final String suffix) {
+    final String topicName = getViewProcessor().getJmsTopicPrefix() + "-" + viewClient.getName() + "-" + suffix;
     return topicName;
   }
   
-  public synchronized String getComputationResultChannel (final ViewClient viewClient) {
+  public synchronized String getComputationResultChannel(final ViewClient viewClient) {
     if (_computationResults == null) {
-      final String topic = getTopicName (viewClient, "computation");
-      s_logger.info ("Set up JMS {}", topic);
-      _computationResults = new JmsByteArrayMessageSender (topic, getViewProcessor ().getJmsTemplate ());
+      final String topic = getTopicName(viewClient, "computation");
+      s_logger.info("Set up JMS {}", topic);
+      _computationResults = new JmsByteArrayMessageSender(topic, getViewProcessor().getJmsTemplate());
     }
-    s_logger.debug ("Adding listener {} to view client {}'s computation result", this, viewClient);
-    viewClient.addComputationResultListener (this);
-    return _computationResults.getDestinationName ();
+    s_logger.debug("Adding listener {} to view client {}'s computation result", this, viewClient);
+    viewClient.addComputationResultListener(this);
+    return _computationResults.getDestinationName();
   }
   
-  public synchronized String getDeltaResultChannel (final ViewClient viewClient) {
+  public synchronized String getDeltaResultChannel(final ViewClient viewClient) {
     if (_deltaResults == null) {
-      final String topic = getTopicName (viewClient, "delta");
-      s_logger.info ("Set up JMS {}", topic);
-      _deltaResults = new JmsByteArrayMessageSender (topic, getViewProcessor ().getJmsTemplate ());
+      final String topic = getTopicName(viewClient, "delta");
+      s_logger.info("Set up JMS {}", topic);
+      _deltaResults = new JmsByteArrayMessageSender(topic, getViewProcessor().getJmsTemplate());
     }
-    s_logger.debug ("Adding listener {} to view client {}'s computation result", this, viewClient);
-    viewClient.addDeltaResultListener (this);
-    return _deltaResults.getDestinationName ();
+    s_logger.debug("Adding listener {} to view client {}'s computation result", this, viewClient);
+    viewClient.addDeltaResultListener(this);
+    return _deltaResults.getDestinationName();
   }
   
   @Override
-  public String toString () {
-    final StringBuilder sb = new StringBuilder ();
-    sb.append ("ResultListener");
-    if (_deltaResults != null) sb.append (" delta:").append (_deltaResults.getDestinationName ());
-    if (_computationResults != null) sb.append (" computation:").append (_computationResults.getDestinationName ());
-    return sb.toString ();
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("ResultListener");
+    if (_deltaResults != null) {
+      sb.append(" delta:").append(_deltaResults.getDestinationName());
+    }
+    if (_computationResults != null) {
+      sb.append(" computation:").append(_computationResults.getDestinationName());
+    }
+    return sb.toString();
   }
   
 }

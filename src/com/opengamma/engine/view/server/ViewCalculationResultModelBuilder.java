@@ -20,42 +20,45 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 
+/**
+ * 
+ */
 public class ViewCalculationResultModelBuilder implements FudgeBuilder<ViewCalculationResultModel> {
   
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, ViewCalculationResultModel resultModel) {
-    final MutableFudgeFieldContainer message = context.newMessage ();
-    final Collection<ComputationTargetSpecification> targets = resultModel.getAllTargets ();
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewCalculationResultModel resultModel) {
+    final MutableFudgeFieldContainer message = context.newMessage();
+    final Collection<ComputationTargetSpecification> targets = resultModel.getAllTargets();
     for (ComputationTargetSpecification target : targets) {
-      final Map<String, ComputedValue> values = resultModel.getValues (target);
-      for (Map.Entry<String, ComputedValue> value : values.entrySet ()) {
-        context.objectToFudgeMsg (message, null, null, value.getValue ());
+      final Map<String, ComputedValue> values = resultModel.getValues(target);
+      for (Map.Entry<String, ComputedValue> value : values.entrySet()) {
+        context.objectToFudgeMsg(message, null, null, value.getValue());
       }
     }
     return message;
   }
   
   @Override
-  public ViewCalculationResultModel buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final Map<ComputationTargetSpecification,Map<String,ComputedValue>> map = new HashMap<ComputationTargetSpecification,Map<String,ComputedValue>> ();
+  public ViewCalculationResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+    final Map<ComputationTargetSpecification, Map<String, ComputedValue>> map = new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
     for (FudgeField field : message) {
-      final ComputedValue value = context.fieldValueToObject (ComputedValue.class, field);
-      final ComputationTargetSpecification target = value.getSpecification ().getRequirementSpecification ().getTargetSpecification ();
-      if (!map.containsKey (target)) {
-        map.put (target, new HashMap<String,ComputedValue> ());
+      final ComputedValue value = context.fieldValueToObject(ComputedValue.class, field);
+      final ComputationTargetSpecification target = value.getSpecification().getRequirementSpecification().getTargetSpecification();
+      if (!map.containsKey(target)) {
+        map.put(target, new HashMap<String, ComputedValue>());
       }
-      map.get (target).put (value.getSpecification().getRequirementSpecification().getValueName(), value);
+      map.get(target).put(value.getSpecification().getRequirementSpecification().getValueName(), value);
     }
-    return new ViewCalculationResultModel () {
+    return new ViewCalculationResultModel() {
       
       @Override
       public Collection<ComputationTargetSpecification> getAllTargets() {
-        return map.keySet ();
+        return map.keySet();
       }
 
       @Override
       public Map<String, ComputedValue> getValues(ComputationTargetSpecification target) {
-        return map.get (target);
+        return map.get(target);
       }
       
     };

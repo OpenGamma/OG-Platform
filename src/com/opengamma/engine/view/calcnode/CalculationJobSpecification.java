@@ -17,14 +17,12 @@ import org.fudgemsg.MutableFudgeFieldContainer;
  * A description of a job that will be executed by a Calculation Node.
  * Providers of jobs pass over a full {@link CalculationJob}, and the
  * specification of that job is returned by the Calculation Node.
- *
- * @author kirk
  */
 public class CalculationJobSpecification implements Serializable {
-  public static final String VIEW_NAME_FIELD_NAME = "viewName";
-  public static final String CALCULATION_CONFIGURATION_FIELD_NAME = "calcConfig";
-  public static final String ITERATION_TIMESTAMP_FIELD_NAME = "iterationTimestamp";
-  public static final String JOB_ID_FIELD_NAME = "jobId";
+  private static final String VIEW_NAME_FIELD_NAME = "viewName";
+  private static final String CALCULATION_CONFIGURATION_FIELD_NAME = "calcConfig";
+  private static final String ITERATION_TIMESTAMP_FIELD_NAME = "iterationTimestamp";
+  private static final String JOB_ID_FIELD_NAME = "jobId";
   
   private final String _viewName;
   private final String _calcConfigName;
@@ -88,24 +86,14 @@ public class CalculationJobSpecification implements Serializable {
     if (this == obj) {
       return true;
     }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof CalculationJobSpecification)) {
       return false;
     }
     CalculationJobSpecification other = (CalculationJobSpecification) obj;
-    if (_iterationTimestamp != other._iterationTimestamp)
-      return false;
-    if (_jobId != other._jobId)
-      return false;
-    if(!ObjectUtils.equals(_viewName, other._viewName)) {
-      return false;
-    }
-    if(!ObjectUtils.equals(_calcConfigName, other._calcConfigName)) {
-      return false;
-    }
-    return true;
+    return (_iterationTimestamp == other._iterationTimestamp)
+           && (_jobId == other._jobId)
+           && ObjectUtils.equals(_viewName, other._viewName)
+           && ObjectUtils.equals(_calcConfigName, other._calcConfigName);
   }
 
   @Override

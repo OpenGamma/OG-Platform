@@ -33,8 +33,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- *
- * @author pietari
  */
 public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, LiveDataListener 
 {
@@ -96,7 +94,7 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       LiveDataSpecification liveDataSpec = constructRequirementLiveDataSpecification(requirement);
       liveDataSpecs.add(liveDataSpec);
       Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
-      if(requirementsForSpec == null) {
+      if (requirementsForSpec == null) {
         requirementsForSpec = new HashSet<ValueRequirement>();
         _liveDataSpec2ValueRequirements.put(liveDataSpec, requirementsForSpec);
       }
@@ -112,18 +110,18 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   private LiveDataSpecification constructRequirementLiveDataSpecification(
       ValueRequirement requirement) {
     switch(requirement.getTargetSpecification().getType()) {
-    case PRIMITIVE:
-      // Just use the identifier as given.
-      return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), requirement.getTargetSpecification().getIdentifier());
-    case SECURITY:
-      Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
-      if (security == null) {
-        throw new OpenGammaRuntimeException("Unknown security in configured security master: " + requirement.getTargetSpecification().getIdentifier());
-      }
-      // Package up the other identifiers
-      return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), security.getIdentifiers());
-    default:
-      throw new OpenGammaRuntimeException("Unhandled requirement type for live data client: " + requirement);
+      case PRIMITIVE:
+        // Just use the identifier as given.
+        return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), requirement.getTargetSpecification().getIdentifier());
+      case SECURITY:
+        Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
+        if (security == null) {
+          throw new OpenGammaRuntimeException("Unknown security in configured security master: " + requirement.getTargetSpecification().getIdentifier());
+        }
+        // Package up the other identifiers
+        return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), security.getIdentifiers());
+      default:
+        throw new OpenGammaRuntimeException("Unhandled requirement type for live data client: " + requirement);
     }
   }
 

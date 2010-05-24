@@ -32,7 +32,7 @@ public interface FunctionDefinition {
    * {@link FunctionCompilationContext} provided will only contain details that are generic
    * to the processor being initialized, rather than the {@link View} being compiled.
    * 
-   * @param context
+   * @param context The full compilation context to be provided during graph construction.
    */
   void init(FunctionCompilationContext context);
   /**
@@ -54,7 +54,7 @@ public interface FunctionDefinition {
    * While this can be determined by the subgraph, it is provided at this
    * level for ease of programming.
    *  
-   * @return
+   * @return The target type to which this instance can apply.
    */
   ComputationTargetType getTargetType();
  
@@ -65,9 +65,9 @@ public interface FunctionDefinition {
   /**
    * Should return the <b>maximal</b> set of potential outputs. <b>Actual</b> computed values
    * will be trimmed.
-   * @param context
-   * @param target
-   * @return
+   * @param context Key parameters useful during compilation.
+   * @param target The target to which the function should be applied.
+   * @return All results <b>possible</b> to be computed by this node for this target with these parameters.
    */
   Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target);
 }

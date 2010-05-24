@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ComputedValue;
 
 /**
  * A simple in-memory implementation of {@link ViewComputationResultModel}.
- * @author kirk
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
@@ -54,14 +53,14 @@ public class ViewComputationResultModelImpl implements
   }
   
   public void setCalculationConfigurationNames(Collection<String> calcConfigNames) {
-    for(String calcConfigName : calcConfigNames) {
+    for (String calcConfigName : calcConfigNames) {
       _resultModels.put(calcConfigName, new ViewCalculationResultModelImpl());
     }
   }
 
   public void setPortfolio(Portfolio portfolio) {
-    final PortfolioNode rootNode = portfolio.getRootNode ();
-    for(ViewCalculationResultModelImpl calcResultModel: _resultModels.values()) {
+    final PortfolioNode rootNode = portfolio.getRootNode();
+    for (ViewCalculationResultModelImpl calcResultModel : _resultModels.values()) {
       calcResultModel.recursiveAddPortfolio(rootNode);
     }
   }
@@ -69,7 +68,7 @@ public class ViewComputationResultModelImpl implements
   @Override
   public Collection<ComputationTargetSpecification> getAllTargets() {
     Set<ComputationTargetSpecification> allTargetSpecs = new HashSet<ComputationTargetSpecification>();
-    for(ViewCalculationResultModelImpl calcResultModel : _resultModels.values()) {
+    for (ViewCalculationResultModelImpl calcResultModel : _resultModels.values()) {
       allTargetSpecs.addAll(calcResultModel.getAllTargets());
     }
     return allTargetSpecs;

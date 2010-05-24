@@ -8,9 +8,9 @@ package com.opengamma.engine.security.server;
 /**
  * A class of names used in the RESTful security master.
  */
-public class SecurityMasterServiceNames {
+public final class SecurityMasterServiceNames {
 
-  public static final String DEFAULT_SECURITYMASTER_NAME = "0";
+  /*package*/ static final String DEFAULT_SECURITYMASTER_NAME = "0";
 
   /**
    * Fudge key for a list of securities.

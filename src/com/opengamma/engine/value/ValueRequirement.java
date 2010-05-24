@@ -123,7 +123,7 @@ public final class ValueRequirement implements Serializable {
   }
 
   //-------------------------------------------------------------------------
-  public void toFudgeMsg (FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
+  public void toFudgeMsg(FudgeMessageFactory fudgeContext, MutableFudgeFieldContainer msg) {
     msg.add(VALUE_NAME_FIELD_NAME, _valueName);
     _targetSpecification.toFudgeMsg(fudgeContext, msg);
   }

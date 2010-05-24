@@ -17,8 +17,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An implementation of {@link JobRequestSender} which uses an underlying
  * {@link FudgeRequestSender} to send Fudge-serialized requests and responses.
- *
- * @author kirk
  */
 public class FudgeJobRequestSender implements JobRequestSender {
   private final FudgeRequestSender _underlying;

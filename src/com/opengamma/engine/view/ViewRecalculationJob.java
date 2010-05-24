@@ -12,18 +12,16 @@ import com.opengamma.util.TerminatableJob;
 
 /**
  * The primary job which will recalculate a {@link View}'s output data.
- *
- * @author kirk
  */
 public class ViewRecalculationJob extends TerminatableJob {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRecalculationJob.class);
   private final View _view;
   private ViewComputationResultModelImpl _previousResult;
-  private double _numExecutions = 0.0;
-  private double _totalTime = 0.0;
+  private double _numExecutions;
+  private double _totalTime;
   
   public ViewRecalculationJob(View view) {
-    if(view == null) {
+    if (view == null) {
       throw new NullPointerException("Must provide a backing view.");
     }
     _view = view;
@@ -49,9 +47,19 @@ public class ViewRecalculationJob extends TerminatableJob {
   public View getView() {
     return _view;
   }
-
+  
   @Override
   protected void runOneCycle() {
+    long snapshotTime = getView().getProcessingContext().getLiveDataSnapshotProvider().snapshot();
+    runOneCycle(snapshotTime);
+  }
+
+  protected void runOneCycle(long snapshotTime) {
+    SingleComputationCycle cycle = createCycle(snapshotTime);
+    runCycle(cycle);
+  }
+  
+  private SingleComputationCycle createCycle(long snapshotTime) {
     PortfolioEvaluationModel portfolioEvaluationModel = getView().getPortfolioEvaluationModel();
     ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
     // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
@@ -63,20 +71,25 @@ public class ViewRecalculationJob extends TerminatableJob {
         getView().getDefinition().getName(),
         getView().getProcessingContext(),
         portfolioEvaluationModel,
-        result, getView().getDefinition());
-    
+        result, 
+        getView().getDefinition(),
+        snapshotTime);
+    return cycle;
+  }
+  
+  private void runCycle(SingleComputationCycle cycle) {
     cycle.prepareInputs();
     cycle.executePlans();
     cycle.populateResultModel();
     cycle.releaseResources();
     
     long endTime = System.currentTimeMillis();
-    result.setResultTimestamp(endTime);
+    cycle.getResultModel().setResultTimestamp(endTime);
     long delta = endTime - cycle.getStartTime();
     _totalTime += delta;
     _numExecutions += 1.0;
-    s_logger.info("Last latency was {}, Average latency is {}ms", delta, (_totalTime/_numExecutions));
-    getView().recalculationPerformed(result);
+    s_logger.info("Last latency was {}, Average latency is {}ms", delta, (_totalTime / _numExecutions));
+    getView().recalculationPerformed(cycle.getResultModel());
     // Do this intentionally AFTER alerting the view. Because of the listener system,
     // we have to recompute the delta, because we have to factor in the dispatch time
     // in recalculationPerformed().
@@ -88,13 +101,15 @@ public class ViewRecalculationJob extends TerminatableJob {
   /**
    * Enforce the delay imposed by the minimum recalculation period for a view definition.
    * This is primarily a method so that it's clear in stack traces what's going on.
+   * 
+   * @param cycleComputationTime The time it took to actually calculate the view iteration 
    */
   protected void delayOnMinimumRecalculationPeriod(long cycleComputationTime) {
-    if(getView().getDefinition().getMinimumRecalculationPeriod() == null) {
+    if (getView().getDefinition().getMinimumRecalculationPeriod() == null) {
       return;
     }
     long minimumRecalculationPeriod = getView().getDefinition().getMinimumRecalculationPeriod();
-    if(cycleComputationTime < minimumRecalculationPeriod) {
+    if (cycleComputationTime < minimumRecalculationPeriod) {
       long timeToWait = minimumRecalculationPeriod - cycleComputationTime;
       s_logger.debug("Waiting for {}ms as computed faster than minimum recalculation period", timeToWait);
       try {

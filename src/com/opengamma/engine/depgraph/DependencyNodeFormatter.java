@@ -12,10 +12,11 @@ import java.io.Writer;
 
 /**
  * 
- *
- * @author kirk
  */
 public class DependencyNodeFormatter {
+  /**
+   * The default width for each level of indentation in the output dependency graph.
+   */
   public static final int DEFAULT_INDENT_SIZE = 2;
   private final int _indentSize;
   private final String _indentText;
@@ -25,7 +26,7 @@ public class DependencyNodeFormatter {
   }
   
   public DependencyNodeFormatter(int indentSize) {
-    if(indentSize < 0) {
+    if (indentSize < 0) {
       throw new IllegalArgumentException("Indent size must not be negative.");
     }
     _indentSize = indentSize;
@@ -34,7 +35,7 @@ public class DependencyNodeFormatter {
 
   private static String constructIndentText(int indentSize) {
     StringBuilder sb = new StringBuilder();
-    for(int i = 0; i < indentSize; i++) {
+    for (int i = 0; i < indentSize; i++) {
       sb.append(' ');
     }
     return sb.toString();
@@ -69,14 +70,14 @@ public class DependencyNodeFormatter {
   }
   
   protected void format(PrintWriter pw, DependencyNode node, int indentLevel) {
-    if(node == null) {
+    if (node == null) {
       return;
     }
-    for(int i = 0; i < indentLevel; i++) {
+    for (int i = 0; i < indentLevel; i++) {
       pw.print(getIndentText());
     }
     pw.println(node.toString());
-    for(DependencyNode subNode : node.getInputNodes()) {
+    for (DependencyNode subNode : node.getInputNodes()) {
       format(pw, subNode, indentLevel + 1);
     }
   }

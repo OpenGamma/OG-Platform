@@ -17,8 +17,6 @@ import com.opengamma.util.EHCacheUtils;
 
 /**
  * 
- *
- * @author kirk
  */
 public class RemoteViewComputationCache implements ViewComputationCache {
   private final RemoteCacheClient _remoteClient;
@@ -68,9 +66,8 @@ public class RemoteViewComputationCache implements ViewComputationCache {
   @Override
   public Object getValue(ValueSpecification specification) {
     Element cacheElement = getLocalCache().get(specification);
-    if(cacheElement != null) {
+    if (cacheElement != null) {
       return cacheElement.getValue();
-      //return cacheElement.getValue();
     }
     Object value = getRemoteClient().getValue(getCacheKey().getViewName(), getCacheKey().getCalculationConfigurationName(), getCacheKey().getSnapshotTimestamp(), specification);
     getLocalCache().put(new Element(specification, value));

@@ -14,17 +14,17 @@ public abstract class ComputationTargetResolverAdapter implements ComputationTar
   
   private final ComputationTargetResolver _underlying;
   
-  public ComputationTargetResolverAdapter (final ComputationTargetResolver underlying) {
+  public ComputationTargetResolverAdapter(final ComputationTargetResolver underlying) {
     _underlying = underlying;
   }
   
-  protected ComputationTargetResolver getUnderlying () {
+  protected ComputationTargetResolver getUnderlying() {
     return _underlying;
   }
   
   @Override
   public ComputationTarget resolve(ComputationTargetSpecification specification) {
-    return getUnderlying ().resolve (specification);
+    return getUnderlying().resolve(specification);
   }
 
 }

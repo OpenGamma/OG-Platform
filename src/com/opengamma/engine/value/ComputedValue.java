@@ -87,7 +87,7 @@ public class ComputedValue implements Serializable {
     if (this == obj) {
       return true;
     }
-    if(obj instanceof ComputedValue) {
+    if (obj instanceof ComputedValue) {
       ComputedValue other = (ComputedValue) obj;
       return ObjectUtils.equals(_specification, other._specification) &&
         ObjectUtils.equals(_value, other._value);

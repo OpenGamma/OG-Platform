@@ -19,7 +19,6 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 /**
  * 
  *
- * @author kirk
  */
 public class RepositoryFactory {
   private static final Logger s_logger = LoggerFactory.getLogger(RepositoryFactory.class);
@@ -27,11 +26,11 @@ public class RepositoryFactory {
   public static InMemoryFunctionRepository constructRepository(RepositoryConfiguration configuration) {
     InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
     
-    for(FunctionConfiguration functionConfig : configuration.getFunctions()) {
-      if(functionConfig instanceof ParameterizedFunctionConfiguration) {
+    for (FunctionConfiguration functionConfig : configuration.getFunctions()) {
+      if (functionConfig instanceof ParameterizedFunctionConfiguration) {
         addParameterizedFunctionConfiguration(repository, (ParameterizedFunctionConfiguration) functionConfig);
-      } else if(functionConfig instanceof StaticFunctionConfiguration) {
-        addStaticFunctionConfiguration(repository, (StaticFunctionConfiguration)functionConfig);
+      } else if (functionConfig instanceof StaticFunctionConfiguration) {
+        addStaticFunctionConfiguration(repository, (StaticFunctionConfiguration) functionConfig);
       } else {
         s_logger.warn("Unhandled function configuration {}, ignoring", functionConfig);
       }
@@ -40,10 +39,6 @@ public class RepositoryFactory {
     return repository;
   }
 
-  /**
-   * @param repository
-   * @param functionConfig
-   */
   protected static void addParameterizedFunctionConfiguration(
       InMemoryFunctionRepository repository,
       ParameterizedFunctionConfiguration functionConfig) {
@@ -52,18 +47,18 @@ public class RepositoryFactory {
       Class<?> definitionClass = Class.forName(functionConfig.getDefinitionClassName());
       Object[] parameters = new Object[functionConfig.getParameter().size()];
       Class<?>[] parameterTypes = new Class<?>[functionConfig.getParameter().size()];
-      for(int i = 0; i < parameters.length; i++) {
+      for (int i = 0; i < parameters.length; i++) {
         parameters[i] = functionConfig.getParameter().get(i);
         parameterTypes[i] = String.class;
       }
       Constructor<?> constructor = definitionClass.getConstructor(parameterTypes);
       AbstractFunction functionDefinition = (AbstractFunction) constructor.newInstance(parameters);
       FunctionInvoker invoker = null;
-      if(functionDefinition instanceof FunctionInvoker) {
+      if (functionDefinition instanceof FunctionInvoker) {
         invoker = (FunctionInvoker) functionDefinition;
-      } else if(functionConfig.getInvokerClassName() != null) {
+      } else if (functionConfig.getInvokerClassName() != null) {
         Class<?> invokerClass = Class.forName(functionConfig.getInvokerClassName());
-        invoker = (FunctionInvoker)invokerClass.newInstance();
+        invoker = (FunctionInvoker) invokerClass.newInstance();
       } else {
         throw new IllegalArgumentException("Function definition doesn't invoke, but no invoker class name provided.");
       }
@@ -85,23 +80,19 @@ public class RepositoryFactory {
     }
   }
 
-  /**
-   * @param repository
-   * @param functionConfig
-   */
   protected static void addStaticFunctionConfiguration(
       InMemoryFunctionRepository repository,
       StaticFunctionConfiguration functionConfig) {
     // TODO kirk 2010-02-17 -- This method needs to be WAY more robust.
     try {
       Class<?> definitionClass = Class.forName(functionConfig.getDefinitionClassName());
-      AbstractFunction functionDefinition = (AbstractFunction)definitionClass.newInstance();
+      AbstractFunction functionDefinition = (AbstractFunction) definitionClass.newInstance();
       FunctionInvoker invoker = null;
-      if(functionDefinition instanceof FunctionInvoker) {
+      if (functionDefinition instanceof FunctionInvoker) {
         invoker = (FunctionInvoker) functionDefinition;
-      } else if(functionConfig.getInvokerClassName() != null) {
+      } else if (functionConfig.getInvokerClassName() != null) {
         Class<?> invokerClass = Class.forName(functionConfig.getInvokerClassName());
-        invoker = (FunctionInvoker)invokerClass.newInstance();
+        invoker = (FunctionInvoker) invokerClass.newInstance();
       } else {
         throw new IllegalArgumentException("Function definition doesn't invoke, but no invoker class name provided.");
       }

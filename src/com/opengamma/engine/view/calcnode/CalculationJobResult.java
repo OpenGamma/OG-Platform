@@ -14,11 +14,10 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 /**
  * The response that a Calculation Node will return to invokers.
  *
- * @author kirk
  */
 public class CalculationJobResult implements Serializable {
-  public static final String INVOCATION_RESULT_FIELD_NAME = "result";
-  public static final String DURATION_FIELD_NAME = "duration";
+  private static final String INVOCATION_RESULT_FIELD_NAME = "result";
+  private static final String DURATION_FIELD_NAME = "duration";
   
   private final CalculationJobSpecification _specification;
   private final InvocationResult _result;

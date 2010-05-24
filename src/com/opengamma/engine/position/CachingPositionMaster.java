@@ -31,13 +31,13 @@ public class CachingPositionMaster implements PositionMaster {
   private final Cache _portfolioNode;
   private final Cache _position;
   
-  public CachingPositionMaster (final PositionMaster underlying) {
-    this (underlying, EHCacheUtils.createCacheManager ());
+  public CachingPositionMaster(final PositionMaster underlying) {
+    this (underlying, EHCacheUtils.createCacheManager());
   }
   
-  public CachingPositionMaster (final PositionMaster underlying, final CacheManager cacheManager) {
-    ArgumentChecker.notNull (underlying, "underlying Position Master");
-    ArgumentChecker.notNull (cacheManager, "EH cache manager");
+  public CachingPositionMaster(final PositionMaster underlying, final CacheManager cacheManager) {
+    ArgumentChecker.notNull(underlying, "underlying Position Master");
+    ArgumentChecker.notNull(cacheManager, "EH cache manager");
     _underlying = underlying;
     _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, PORTFOLIO_CACHE);
@@ -48,23 +48,23 @@ public class CachingPositionMaster implements PositionMaster {
     _position = EHCacheUtils.getCacheFromManager(cacheManager, POSITION_CACHE);
   }
   
-  public PositionMaster getUnderlying () {
+  public PositionMaster getUnderlying() {
     return _underlying;
   }
   
-  protected CacheManager getCacheManager () {
+  protected CacheManager getCacheManager() {
     return _cacheManager;
   }
 
   @Override
   public Portfolio getPortfolio(UniqueIdentifier identifier) {
-    Element e = _portfolio.get (identifier);
+    Element e = _portfolio.get(identifier);
     if (e != null) {
-      return (Portfolio)e.getValue ();
+      return (Portfolio) e.getValue();
     } else {
-      Portfolio p = getUnderlying ().getPortfolio (identifier);
+      Portfolio p = getUnderlying().getPortfolio(identifier);
       if (p != null) {
-        _portfolio.put(new Element (identifier, p));
+        _portfolio.put(new Element(identifier, p));
       }
       return p;
     }
@@ -72,18 +72,18 @@ public class CachingPositionMaster implements PositionMaster {
 
   @Override
   public Set<UniqueIdentifier> getPortfolioIds() {
-    return getUnderlying ().getPortfolioIds ();
+    return getUnderlying().getPortfolioIds();
   }
 
   @Override
   public PortfolioNode getPortfolioNode(UniqueIdentifier identifier) {
-    Element e = _portfolioNode.get (identifier);
+    Element e = _portfolioNode.get(identifier);
     if (e != null) {
-      return (PortfolioNode)e.getValue ();
+      return (PortfolioNode) e.getValue();
     } else {
-      PortfolioNode pn = getUnderlying ().getPortfolioNode (identifier);
+      PortfolioNode pn = getUnderlying().getPortfolioNode(identifier);
       if (pn != null) {
-        _portfolioNode.put (new Element (identifier, pn));
+        _portfolioNode.put(new Element(identifier, pn));
       }
       return pn;
     }
@@ -91,13 +91,13 @@ public class CachingPositionMaster implements PositionMaster {
 
   @Override
   public Position getPosition(UniqueIdentifier identifier) {
-    Element e = _position.get (identifier);
+    Element e = _position.get(identifier);
     if (e != null) {
-      return (Position)e.getValue ();
+      return (Position) e.getValue();
     } else {
-      Position p = getUnderlying ().getPosition (identifier);
+      Position p = getUnderlying().getPosition(identifier);
       if (p != null) {
-        _position.put (new Element (identifier, p));
+        _position.put(new Element(identifier, p));
       }
       return p;
     }

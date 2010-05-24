@@ -55,7 +55,6 @@ public class DependencyGraphModelTest {
     functionRepo.addFunction(fn1, fn1);
 
     DependencyGraphModel model = new DependencyGraphModel();
-    model.setFunctionRepository(functionRepo);
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
@@ -118,7 +117,6 @@ public class DependencyGraphModelTest {
     functionRepo.addFunction(fn1, fn1);
 
     DependencyGraphModel model = new DependencyGraphModel();
-    model.setFunctionRepository(functionRepo);
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
@@ -162,7 +160,6 @@ public class DependencyGraphModelTest {
     functionRepo.addFunction(fn1, fn1);
 
     DependencyGraphModel model = new DependencyGraphModel();
-    model.setFunctionRepository(functionRepo);
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
@@ -197,7 +194,6 @@ public class DependencyGraphModelTest {
     targetResolver.addTarget(target);
 
     DependencyGraphModel model = new DependencyGraphModel();
-    model.setFunctionRepository(functionRepo);
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(targetResolver);
@@ -257,7 +253,6 @@ public class DependencyGraphModelTest {
     ldap.addRequirement(req2);
 
     DependencyGraphModel model = new DependencyGraphModel();
-    model.setFunctionRepository(functionRepo);
     model.setLiveDataAvailabilityProvider(ldap);
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(targetResolver);

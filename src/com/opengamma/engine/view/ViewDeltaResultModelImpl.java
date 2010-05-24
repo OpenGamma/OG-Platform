@@ -8,12 +8,8 @@ package com.opengamma.engine.view;
 
 /**
  * 
- *
- * @author kirk
  */
-public class ViewDeltaResultModelImpl
-extends ViewComputationResultModelImpl
-implements ViewDeltaResultModel {
+public class ViewDeltaResultModelImpl extends ViewComputationResultModelImpl implements ViewDeltaResultModel {
   private long _previousResultTimestamp;
 
   /**

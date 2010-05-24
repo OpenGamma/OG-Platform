@@ -79,7 +79,7 @@ public final class ComputationTargetSpecification implements Serializable {
 
   /**
    * Creates a lightweight specification of a computation target.
-   * @param type  the type of the target, not null
+   * @param targetType the type of the target, not null
    * @param uid  the target identifier, may be null
    */
   public ComputationTargetSpecification(ComputationTargetType targetType, UniqueIdentifier uid) {

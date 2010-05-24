@@ -18,6 +18,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -39,10 +40,10 @@ public class View implements Lifecycle {
   private final Set<DeltaComputationResultListener> _deltaListeners = new HashSet<DeltaComputationResultListener>();
 
   public View(ViewDefinition definition, ViewProcessingContext processingContext) {
-    if(definition == null) {
+    if (definition == null) {
       throw new NullPointerException("Must provide a definition.");
     }
-    if(processingContext == null) {
+    if (processingContext == null) {
       throw new NullPointerException("Must provide a processing context.");
     }
     _definition = definition;
@@ -138,7 +139,6 @@ public class View implements Lifecycle {
 
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
-    checkInjectedDependencies();
     setCalculationState(ViewCalculationState.INITIALIZING);
 
     reloadPortfolio();
@@ -150,21 +150,26 @@ public class View implements Lifecycle {
   public void reloadPortfolio() {
     OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
     Portfolio portfolio = getProcessingContext().getPositionMaster().getPortfolio(getDefinition().getPortfolioId());
-    if(portfolio == null) {
+    if (portfolio == null) {
       throw new OpenGammaRuntimeException("Unable to resolve portfolio: " + getDefinition().getPortfolioId());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
-        getProcessingContext(),
+        getProcessingContext().asCompilationServices(),
         getDefinition());
     setPortfolioEvaluationModel(portfolioEvaluationModel);
+    addLiveDataSubscriptions();
     timer.finished();
   }
   
   /**
    * 
    */
-  private void checkInjectedDependencies() {
+  private void addLiveDataSubscriptions() {
+    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
+    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getUser(), liveDataRequirements);
+    timer.finished();
   }
 
   public synchronized ViewComputationResultModel getMostRecentResult() {
@@ -194,12 +199,12 @@ public class View implements Lifecycle {
     // We swap these first so that in the callback the view is consistent.
     ViewComputationResultModelImpl previousResult = _mostRecentResult;
     _mostRecentResult = result;
-    for(ComputationResultListener resultListener : _resultListeners) {
+    for (ComputationResultListener resultListener : _resultListeners) {
       resultListener.computationResultAvailable(result);
     }
-    if(!_deltaListeners.isEmpty() && (previousResult != null)) {
+    if (!_deltaListeners.isEmpty() && (previousResult != null)) {
       ViewDeltaResultModel deltaModel = computeDeltaModel(previousResult, result);
-      for(DeltaComputationResultListener deltaListener : _deltaListeners) {
+      for (DeltaComputationResultListener deltaListener : _deltaListeners) {
         deltaListener.deltaResultAvailable(deltaModel);
       }
     }
@@ -217,7 +222,7 @@ public class View implements Lifecycle {
     deltaModel.setInputDataTimestamp(result.getInputDataTimestamp());
     deltaModel.setResultTimestamp(result.getResultTimestamp());
     deltaModel.setPreviousResultTimestamp(previousResult.getResultTimestamp());
-    for(ComputationTargetSpecification targetSpec : result.getAllTargets()) {
+    for (ComputationTargetSpecification targetSpec : result.getAllTargets()) {
       computeDeltaModel(deltaModel, targetSpec, previousResult, result);
     }
     
@@ -229,7 +234,7 @@ public class View implements Lifecycle {
       ComputationTargetSpecification targetSpec,
       ViewComputationResultModelImpl previousResult,
       ViewComputationResultModelImpl result) {
-    for(String calcConfigName : result.getCalculationConfigurationNames()) {
+    for (String calcConfigName : result.getCalculationConfigurationNames()) {
       ViewCalculationResultModel resultCalcModel = result.getCalculationResult(calcConfigName);
       ViewCalculationResultModel previousCalcModel = previousResult.getCalculationResult(calcConfigName);
       
@@ -243,25 +248,25 @@ public class View implements Lifecycle {
       String calcConfigName,
       ViewCalculationResultModel previousCalcModel,
       ViewCalculationResultModel resultCalcModel) {
-    if(previousCalcModel == null) {
+    if (previousCalcModel == null) {
       // Everything is new/delta because this is a new calculation context.
       Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
-      for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+      for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
         deltaModel.addValue(calcConfigName, resultEntry.getValue());
       }
     } else {
       Map<String, ComputedValue> resultValues = resultCalcModel.getValues(targetSpec);
       Map<String, ComputedValue> previousValues = previousCalcModel.getValues(targetSpec);
       
-      if(previousValues == null) {
+      if (previousValues == null) {
         // Everything is new/delta because this is a new target.
-        for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
           deltaModel.addValue(calcConfigName, resultEntry.getValue());
         }
       } else {
         // Have to individual delta.
         DeltaDefinition deltaDefinition = getDefinition().getCalculationConfiguration(calcConfigName).getDeltaDefinition();
-        for(Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
+        for (Map.Entry<String, ComputedValue> resultEntry : resultValues.entrySet()) {
           ComputedValue resultValue = resultEntry.getValue();
           ComputedValue previousValue = previousValues.get(resultEntry.getKey());
           // REVIEW jonathan 2010-05-07 -- The previous value that we're comparing with is the value from the last
@@ -270,7 +275,7 @@ public class View implements Lifecycle {
           // values after truncation to the required decimal place, rather than testing whether the difference of the
           // full values is greater than some threshold; this way, there will always be a point beyond which a change
           // is detected, even in the event of gradual creep.
-          if(deltaDefinition.isDelta(previousValue, resultValue)) {
+          if (deltaDefinition.isDelta(previousValue, resultValue)) {
             deltaModel.addValue(calcConfigName, resultEntry.getValue());
           }
         }
@@ -290,30 +295,35 @@ public class View implements Lifecycle {
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     recalcJob.runOneCycle();
   }
+  
+  public synchronized void runOneCycle(long snapshotTime) {
+    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
+    recalcJob.runOneCycle(snapshotTime);
+  }
 
   @Override
   public synchronized void start() {
     s_logger.info("Starting...");
     switch(getCalculationState()) {
-    case NOT_STARTED:
-    case TERMINATED:
-      // Normal state of play. Continue as normal.
-      break;
-    case TERMINATING:
-      // In the middle of termination. This is really bad, as we're now holding the lock
-      // that will allow termination to complete successfully. Therefore, we have to throw
-      // an exception rather than just waiting or something.
-      throw new IllegalStateException("Instructed to start while still terminating.");
-    case INITIALIZING:
-      // Must have thrown an exception in initialization. Can't start.
-      throw new IllegalStateException("Initialization didn't completely successfully. Can't start.");
-    case NOT_INITIALIZED:
-      throw new IllegalStateException("Must call init() before starting.");
-    case STARTING:
-      // Must have thrown an exception when start() called previously.
-      throw new IllegalStateException("start() already called, but failed to start. Cannot start again.");
-    case RUNNING:
-      throw new IllegalStateException("Already running.");
+      case NOT_STARTED:
+      case TERMINATED:
+        // Normal state of play. Continue as normal.
+        break;
+      case TERMINATING:
+        // In the middle of termination. This is really bad, as we're now holding the lock
+        // that will allow termination to complete successfully. Therefore, we have to throw
+        // an exception rather than just waiting or something.
+        throw new IllegalStateException("Instructed to start while still terminating.");
+      case INITIALIZING:
+        // Must have thrown an exception in initialization. Can't start.
+        throw new IllegalStateException("Initialization didn't completely successfully. Can't start.");
+      case NOT_INITIALIZED:
+        throw new IllegalStateException("Must call init() before starting.");
+      case STARTING:
+        // Must have thrown an exception when start() called previously.
+        throw new IllegalStateException("start() already called, but failed to start. Cannot start again.");
+      case RUNNING:
+        throw new IllegalStateException("Already running.");
     }
     
     setCalculationState(ViewCalculationState.STARTING);
@@ -330,25 +340,25 @@ public class View implements Lifecycle {
   @Override
   public void stop() {
     s_logger.info("Stopping.....");
-    synchronized(this) {
+    synchronized (this) {
       switch(getCalculationState()) {
-      case STARTING:
-        // Something went horribly wrong during start, and it must have thrown an exception.
-        s_logger.warn("Instructed to stop the ViewImpl, but still starting. Starting must have failed. Doing nothing.");
-        break;
-      case RUNNING:
-        // This is the normal state of play. Do nothing.
-        break;
-      default:
-        throw new IllegalStateException("Cannot stop a ViewImpl that isn't running. State: " + getCalculationState());
+        case STARTING:
+          // Something went horribly wrong during start, and it must have thrown an exception.
+          s_logger.warn("Instructed to stop the ViewImpl, but still starting. Starting must have failed. Doing nothing.");
+          break;
+        case RUNNING:
+          // This is the normal state of play. Do nothing.
+          break;
+        default:
+          throw new IllegalStateException("Cannot stop a ViewImpl that isn't running. State: " + getCalculationState());
       }
     }
     
     assert getRecalcJob() != null;
     assert getRecalculationThread() != null;
     
-    synchronized(this) {
-      if((getCalculationState() == ViewCalculationState.TERMINATED)
+    synchronized (this) {
+      if ((getCalculationState() == ViewCalculationState.TERMINATED)
           || (getCalculationState() == ViewCalculationState.TERMINATING)) {
         s_logger.info("Multiple requests to stop() made, this invocation will do nothing.");
         return;
@@ -357,20 +367,20 @@ public class View implements Lifecycle {
     }
     
     getRecalcJob().terminate();
-    if(getRecalculationThread().getState() == Thread.State.TIMED_WAITING) {
+    if (getRecalculationThread().getState() == Thread.State.TIMED_WAITING) {
       // In this case it might be waiting on a recalculation pass. Interrupt it.
       getRecalculationThread().interrupt();
     }
     
     // TODO kirk 2009-09-11 -- Have a heuristic on when to set the timeout based on
     // how long the job is currently taking to cycle.
-    long timeout = 100 * 1000l;
+    long timeout = 100 * 1000L;
     boolean successful = ThreadUtil.safeJoin(getRecalculationThread(), timeout);
-    if(!successful) {
+    if (!successful) {
       s_logger.warn("Unable to shut down recalc thread in {}ms", timeout);
     }
     
-    synchronized(this) {
+    synchronized (this) {
       setCalculationState(ViewCalculationState.TERMINATED);
       
       setRecalcJob(null);

@@ -18,9 +18,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * An implementation of {@link FunctionInputs} that stores all inputs in internal maps.
  *
- * @author kirk
  */
 public class FunctionInputsImpl implements FunctionInputs, Serializable {
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
@@ -30,15 +29,19 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   public FunctionInputsImpl() {
   }
   
+  public FunctionInputsImpl(ComputedValue value) {
+    this(Collections.singleton(value));
+  }
+  
   public FunctionInputsImpl(Collection<? extends ComputedValue> values) {
-    for(ComputedValue value : values) {
+    for (ComputedValue value : values) {
       addValue(value);
     }
   }
   
   public void addValue(ComputedValue value) {
     ArgumentChecker.notNull(value, "Computed Value");
-    if(value.getValue() instanceof ComputedValue) {
+    if (value.getValue() instanceof ComputedValue) {
       throw new IllegalArgumentException("Double-nested value");
     }
     _values.add(value);

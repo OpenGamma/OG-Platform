@@ -17,9 +17,8 @@ import com.opengamma.engine.view.View;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * An implementation of {@link ViewClient} that just wraps a local instance.
  * 
- *
- * @author kirk
  */
 public class LocalViewClient implements ViewClient {
   private final View _view;
@@ -56,7 +55,7 @@ public class LocalViewClient implements ViewClient {
     // REVIEW kirk 2010-03-02 -- What if this is called before resolution? Is that feasible/possible?
     // REVIEW kirk 2010-03-02 -- Cache this? Push down to the PEM?
     Set<String> securityTypes = new TreeSet<String>();
-    for(Security security : getView().getPortfolioEvaluationModel().getSecurities()) {
+    for (Security security : getView().getPortfolioEvaluationModel().getSecurities()) {
       securityTypes.add(security.getSecurityType());
     }
     return securityTypes;
@@ -94,10 +93,18 @@ public class LocalViewClient implements ViewClient {
 
   @Override
   public void performComputation() {
-    if(getView().isRunning()) {
+    if (getView().isRunning()) {
       throw new IllegalStateException("View is currently doing live computation.");
     }
     getView().runOneCycle();
+  }
+  
+  @Override
+  public void performComputation(long snapshotTime) {
+    if (getView().isRunning()) {
+      throw new IllegalStateException("View is currently doing live computation.");
+    }
+    getView().runOneCycle(snapshotTime);
   }
 
   @Override

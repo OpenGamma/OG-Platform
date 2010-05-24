@@ -16,8 +16,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- *
- * @author jim
  */
 public class DefaultFunctionResolver implements FunctionResolver {
   
@@ -34,15 +32,15 @@ public class DefaultFunctionResolver implements FunctionResolver {
   @Override
   public Pair<FunctionDefinition, ValueSpecification> resolveFunction(
       FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement) {
-    for(FunctionDefinition function : getFunctionRepository().getAllFunctions()) {
-      if(function instanceof FunctionDefinition) {
+    for (FunctionDefinition function : getFunctionRepository().getAllFunctions()) {
+      if (function instanceof FunctionDefinition) {
         FunctionDefinition newFunction = (FunctionDefinition) function;
-        if(!newFunction.canApplyTo(context, target)) {
+        if (!newFunction.canApplyTo(context, target)) {
           continue;
         }
         Set<ValueSpecification> resultSpecs = newFunction.getResults(context, target);
-        for(ValueSpecification resultSpec : resultSpecs) {
-          if(ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
+        for (ValueSpecification resultSpec : resultSpecs) {
+          if (ObjectUtils.equals(resultSpec.getRequirementSpecification(), requirement)) {
             return Pair.of(newFunction, resultSpec);
           }
         }

@@ -53,8 +53,9 @@ public class SingleComputationCycle {
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   
   // State:
+  private final long _snapshotTime;
   private final long _startTime;
-  private final AtomicLong _jobIdSource = new AtomicLong(0l);
+  private final AtomicLong _jobIdSource = new AtomicLong(0L);
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
   private final ViewDefinition _viewDefinition;
   private final Set<DependencyNode> _executedNodes = new HashSet<DependencyNode>();
@@ -63,7 +64,6 @@ public class SingleComputationCycle {
     new HashMap<String, ViewComputationCache>();
   
   // Outputs:
-  private long _snapshotTime;
   private final ViewComputationResultModelImpl _resultModel;
   
   public SingleComputationCycle(
@@ -71,7 +71,8 @@ public class SingleComputationCycle {
       ViewProcessingContext processingContext,
       PortfolioEvaluationModel portfolioEvaluationModel,
       ViewComputationResultModelImpl resultModel,
-      ViewDefinition viewDefinition) {
+      ViewDefinition viewDefinition,
+      long snapshotTime) {
     ArgumentChecker.notNull(viewName, "View name");
     ArgumentChecker.notNull(processingContext, "View processing context");
     ArgumentChecker.notNull(portfolioEvaluationModel, "Portfolio evaluation model");
@@ -84,20 +85,14 @@ public class SingleComputationCycle {
     _resultModel = resultModel;
     _startTime = System.currentTimeMillis();
     _viewDefinition = viewDefinition;
+    _snapshotTime = snapshotTime;
   }
   
   /**
    * @return the snapshotTime
    */
-  public long getSnapshotTime() {
+  public Long getSnapshotTime() {
     return _snapshotTime;
-  }
-
-  /**
-   * @param snapshotTime the snapshotTime to set
-   */
-  public void setSnapshotTime(long snapshotTime) {
-    _snapshotTime = snapshotTime;
   }
 
   /**
@@ -145,10 +140,8 @@ public class SingleComputationCycle {
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;
   }
-
+  
   public void prepareInputs() {
-    long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
-    setSnapshotTime(snapshotTime);
     getResultModel().setInputDataTimestamp(getSnapshotTime());
     
     createAllCaches();
@@ -157,9 +150,9 @@ public class SingleComputationCycle {
     s_logger.debug("Populating {} market data items for snapshot {}", allLiveDataRequirements.size(), getSnapshotTime());
     
     Set<ValueRequirement> missingLiveData = new HashSet<ValueRequirement>();
-    for(ValueRequirement liveDataRequirement : allLiveDataRequirements) {
+    for (ValueRequirement liveDataRequirement : allLiveDataRequirements) {
       Object data = getProcessingContext().getLiveDataSnapshotProvider().querySnapshot(getSnapshotTime(), liveDataRequirement);
-      if(data == null) {
+      if (data == null) {
         s_logger.debug("Unable to load live data value for {} at snapshot {}.", liveDataRequirement, getSnapshotTime());
         missingLiveData.add(liveDataRequirement);
       } else {
@@ -168,17 +161,17 @@ public class SingleComputationCycle {
         addToAllCaches(dataAsValue);
       }
     }
-    if(!missingLiveData.isEmpty()) {
+    if (!missingLiveData.isEmpty()) {
       s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
     }
   }
   
   protected static String formatMissingLiveData(Set<ValueRequirement> missingLiveData) {
     StringBuilder sb = new StringBuilder();
-    for(ValueRequirement req : missingLiveData) {
+    for (ValueRequirement req : missingLiveData) {
       sb.append("[").append(req.getValueName()).append(" on ");
       sb.append(req.getTargetSpecification().getType());
-      if(req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+      if (req.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
         sb.append("-").append(req.getTargetSpecification().getIdentifier().getScheme().getName());
       }
       sb.append(":").append(req.getTargetSpecification().getIdentifier().getValue()).append("] ");
@@ -190,7 +183,7 @@ public class SingleComputationCycle {
    * 
    */
   private void createAllCaches() {
-    for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
+    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
       ViewComputationCache cache =  getProcessingContext().getComputationCacheSource().getCache(getViewName(), depGraphModel.getCalculationConfigurationName(), getSnapshotTime());
       _cachesByCalculationConfiguration.put(depGraphModel.getCalculationConfigurationName(), cache);
     }
@@ -200,14 +193,14 @@ public class SingleComputationCycle {
    * @param dataAsValue
    */
   private void addToAllCaches(ComputedValue dataAsValue) {
-    for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
+    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
       getComputationCache(depGraphModel.getCalculationConfigurationName()).putValue(dataAsValue);
     }
   }
 
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {
-    for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
+    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
       s_logger.info("Executing plans for calculation configuration {}", depGraphModel.getCalculationConfigurationName());
       // NOTE kirk 2010-04-01 -- Yes, this is correct. Yes, it's counterintuitive that we do things from
       // larger to smaller graphs.
@@ -226,33 +219,30 @@ public class SingleComputationCycle {
       // and the additional overhead of thread management slows us down, so I've hard coded it to the sequential
       // form. This should ultimately change if we discover that as graphs get bigger we want to have them
       // running in parallel.
-      if(getViewDefinition().isComputePortfolioNodeCalculations()) {
+      if (getViewDefinition().isComputePortfolioNodeCalculations()) {
         executePlansSequential(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
         //executePlansParallel(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
       }
-      if(getViewDefinition().isComputePositionNodeCalculations()) {
+      if (getViewDefinition().isComputePositionNodeCalculations()) {
         executePlansSequential(depGraphModel, ComputationTargetType.POSITION);
         //executePlansParallel(depGraphModel, ComputationTargetType.POSITION);
       }
-      if(getViewDefinition().isComputeSecurityNodeCalculations()) {
+      if (getViewDefinition().isComputeSecurityNodeCalculations()) {
         executePlansSequential(depGraphModel, ComputationTargetType.SECURITY);
         //executePlansParallel(depGraphModel, ComputationTargetType.SECURITY);
       }
-      if(getViewDefinition().isComputePrimitiveNodeCalculations()) {
+      if (getViewDefinition().isComputePrimitiveNodeCalculations()) {
         executePlansSequential(depGraphModel, ComputationTargetType.PRIMITIVE);
         //executePlansParallel(depGraphModel, ComputationTargetType.PRIMITIVE);
       }
     }
   }
   
-  /**
-   * @param primitive
-   */
   protected void executePlansParallel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
     ExecutorCompletionService<Object> completionService = new ExecutorCompletionService<Object>(getProcessingContext().getExecutorService());
     int nSubmitted = 0;
     Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
-    for(DependencyGraph depGraph : depGraphs) {
+    for (DependencyGraph depGraph : depGraphs) {
       s_logger.info("{} - Submitting dependency graph for {} for execution", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
       final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
@@ -268,7 +258,7 @@ public class SingleComputationCycle {
       }, depGraphExecutor);
       nSubmitted++;
     }
-    for(int i = 0; i < nSubmitted; i++) {
+    for (int i = 0; i < nSubmitted; i++) {
       Future<Object> result = null;
       try {
         result = completionService.take();
@@ -284,12 +274,9 @@ public class SingleComputationCycle {
     }
   }
 
-  /**
-   * @param primitive
-   */
   protected void executePlansSequential(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
     Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
-    for(DependencyGraph depGraph : depGraphs) {
+    for (DependencyGraph depGraph : depGraphs) {
       s_logger.info("{} - Submitting dependency graph for {} for execution", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
       final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
@@ -303,7 +290,7 @@ public class SingleComputationCycle {
 
   
   public void populateResultModel() {
-    for(DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
+    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
       populateResultModel(depGraphModel, ComputationTargetType.POSITION);
       populateResultModel(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
     }
@@ -312,11 +299,11 @@ public class SingleComputationCycle {
   protected void populateResultModel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
     ViewComputationCache computationCache = getComputationCache(depGraphModel.getCalculationConfigurationName());
     Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
-    for(DependencyGraph depGraph : depGraphs) {
-      for(ValueSpecification outputSpec : depGraph.getOutputValues()) {
+    for (DependencyGraph depGraph : depGraphs) {
+      for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
         Object value = computationCache.getValue(outputSpec);
-        if(value != null) {
-          getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), new ComputedValue (outputSpec, value));
+        if (value != null) {
+          getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), new ComputedValue(outputSpec, value));
         }
       }
     }
@@ -330,7 +317,7 @@ public class SingleComputationCycle {
   // Dependency Node Maintenance:
   // REVIEW kirk 2010-04-30 -- Is this good locking? I'm not entirely sure.
   public boolean isExecuted(DependencyNode node) {
-    if(node == null) {
+    if (node == null) {
       return true;
     }
     _nodeExecutionLock.readLock().lock();
@@ -342,7 +329,7 @@ public class SingleComputationCycle {
   }
   
   public void markExecuted(DependencyNode node) {
-    if(node == null) {
+    if (node == null) {
       return;
     }
     _nodeExecutionLock.writeLock().lock();
@@ -354,7 +341,7 @@ public class SingleComputationCycle {
   }
 
   public boolean isFailed(DependencyNode node) {
-    if(node == null) {
+    if (node == null) {
       return true;
     }
     _nodeExecutionLock.readLock().lock();
@@ -366,7 +353,7 @@ public class SingleComputationCycle {
   }
   
   public void markFailed(DependencyNode node) {
-    if(node == null) {
+    if (node == null) {
       return;
     }
     _nodeExecutionLock.writeLock().lock();

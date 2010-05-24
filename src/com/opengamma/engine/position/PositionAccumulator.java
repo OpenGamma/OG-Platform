@@ -19,7 +19,7 @@ public class PositionAccumulator {
   /**
    * Gets all the positions beneath the starting node.
    * @param startNode  the starting node, not null
-   * @return
+   * @return All positions accumulated during execution
    */
   public static Set<Position> getAccumulatedPositions(PortfolioNode startNode) {
     return new PositionAccumulator(startNode).getPositions();

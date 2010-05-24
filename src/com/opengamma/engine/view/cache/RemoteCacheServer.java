@@ -35,7 +35,7 @@ import com.opengamma.transport.FudgeRequestReceiver;
  */
 public class RemoteCacheServer implements FudgeRequestReceiver {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteCacheServer.class);
-  private final AtomicLong _nextValueSpecificationId = new AtomicLong(1l);
+  private final AtomicLong _nextValueSpecificationId = new AtomicLong(1L);
   private final ConcurrentMap<ValueSpecification, Long> _valueSpecificationIds =
     new ConcurrentHashMap<ValueSpecification, Long>();
   private final ConcurrentMap<ViewComputationCacheKey, Map<Long, Object>> _values =
@@ -48,23 +48,23 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     s_logger.debug("Got request {}", requestEnvelope.getMessage());
     Object request = context.fudgeMsgToObject(requestEnvelope.getMessage());
     Object response = null;
-    if(request instanceof ValueSpecificationLookupRequest) {
+    if (request instanceof ValueSpecificationLookupRequest) {
       response = handleValueSpecificationLookupRequest(context.getFudgeContext(), (ValueSpecificationLookupRequest) request);
-    } else if(request instanceof ValueLookupRequest) {
+    } else if (request instanceof ValueLookupRequest) {
       response = handleValueLookupRequest(context.getFudgeContext(), (ValueLookupRequest) request);
-    } else if(request instanceof ValuePutRequest) {
+    } else if (request instanceof ValuePutRequest) {
       response = handleValuePutRequest(context.getFudgeContext(), (ValuePutRequest) request);
-    } else if(request instanceof CachePurgeRequest) {
+    } else if (request instanceof CachePurgeRequest) {
       response = handleCachePurgeRequest(context.getFudgeContext(), (CachePurgeRequest) request);
     } else {
       s_logger.warn("Got an unhandled request type: {}", request);
     }
-    if(response == null) {
+    if (response == null) {
       return context.getFudgeContext().newMessage();
     } else {
       FudgeSerializationContext ctx = new FudgeSerializationContext(context.getFudgeContext());
       MutableFudgeFieldContainer responseMsg = ctx.objectToFudgeMsg(response);
-      FudgeSerializationContext.addClassHeader (responseMsg, response.getClass());
+      FudgeSerializationContext.addClassHeader(responseMsg, response.getClass());
       return responseMsg;
     }
   }
@@ -77,10 +77,10 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
       FudgeContext context,
       ValueSpecificationLookupRequest request) {
     Long currentValue = _valueSpecificationIds.get(request.getRequest());
-    if(currentValue == null) {
+    if (currentValue == null) {
       Long newValue = _nextValueSpecificationId.getAndIncrement();
       currentValue = _valueSpecificationIds.putIfAbsent(request.getRequest(), newValue);
-      if(currentValue == null) {
+      if (currentValue == null) {
         s_logger.info("Allocated new ValueSpecification ID {} for {}", newValue, request.getRequest());
         currentValue = newValue;
       }
@@ -99,7 +99,7 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
     Map<Long, Object> cacheMap = _values.get(cacheKey);
     Object computedValue = null;
-    if(cacheMap != null) {
+    if (cacheMap != null) {
       computedValue = cacheMap.get(request.getSpecificationId());
     }
     ValueLookupResponse lookupResponse = new ValueLookupResponse(request.getCorrelationId(), computedValue);
@@ -115,10 +115,10 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
       ValuePutRequest request) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(request.getViewName(), request.getCalculationConfigurationName(), request.getSnapshot());
     Map<Long, Object> cacheMap = _values.get(cacheKey);
-    if(cacheMap == null) {
+    if (cacheMap == null) {
       Map<Long, Object> freshMap = new ConcurrentHashMap<Long, Object>();
       cacheMap = _values.putIfAbsent(cacheKey, freshMap);
-      if(cacheMap == null) {
+      if (cacheMap == null) {
         cacheMap = freshMap;
       }
     }
@@ -139,17 +139,17 @@ public class RemoteCacheServer implements FudgeRequestReceiver {
     _purgeLock.lock();
     try {
       Iterator<Map.Entry<ViewComputationCacheKey, Map<Long, Object>>> entryIter = _values.entrySet().iterator();
-      while(entryIter.hasNext()) {
+      while (entryIter.hasNext()) {
         Map.Entry<ViewComputationCacheKey, Map<Long, Object>> entry = entryIter.next();
         ViewComputationCacheKey cacheKey = entry.getKey();
-        if(!ObjectUtils.equals(request.getViewName(), cacheKey.getViewName())) {
+        if (!ObjectUtils.equals(request.getViewName(), cacheKey.getViewName())) {
           continue;
         }
-        if(cacheKey.getSnapshotTimestamp() != request.getSnapshot()) {
+        if (cacheKey.getSnapshotTimestamp() != request.getSnapshot()) {
           continue;
         }
-        if(request.getCalculationConfigurationName() != null) {
-          if(!ObjectUtils.equals(request.getCalculationConfigurationName(), cacheKey.getCalculationConfigurationName())) {
+        if (request.getCalculationConfigurationName() != null) {
+          if (!ObjectUtils.equals(request.getCalculationConfigurationName(), cacheKey.getCalculationConfigurationName())) {
             continue;
           }
         }
