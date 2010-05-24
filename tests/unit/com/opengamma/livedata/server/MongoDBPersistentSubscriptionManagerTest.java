@@ -12,24 +12,16 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.opengamma.id.IdentificationScheme;
-import com.opengamma.util.test.HibernateTest;
+import com.opengamma.util.MongoDBConnectionSettings;
+import com.opengamma.util.test.MongoDBTestUtils;
 
 /**
  * 
  *
  * @author pietari
  */
-public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
+public class MongoDBPersistentSubscriptionManagerTest {
   
-  public HibernatePersistentSubscriptionManagerTest(String databaseType, final String databaseVersion) {
-    super(databaseType, databaseVersion);
-  }
-  
-  @Override
-  public Class<?>[] getHibernateMappingClasses() {
-    return HibernatePersistentSubscriptionManager.getHibernateMappingClasses();
-  }
-
   @Test
   public void persistentSubscriptionManagement() {
     
@@ -37,8 +29,9 @@ public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
     
     MockLiveDataServer server = new MockLiveDataServer(identificationDomain);
     server.connect();
-    HibernatePersistentSubscriptionManager manager = new HibernatePersistentSubscriptionManager(server);
-    manager.setSessionFactory(getSessionFactory());
+    
+    MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);
+    MongoDBPersistentSubscriptionManager manager = new MongoDBPersistentSubscriptionManager(server, settings);
     
     assertTrue(manager.getPersistentSubscriptions().isEmpty());
 
@@ -55,21 +48,22 @@ public class HibernatePersistentSubscriptionManagerTest extends HibernateTest {
     
     manager.save();
     assertEquals(2, manager.getPersistentSubscriptions().size());
-    assertTrue(server.getSubscription("testsub1").isPersistent());
+    assertTrue(server.getMarketDataDistributor("testsub1").isPersistent());
 
     manager.refresh();
     assertEquals(2, manager.getPersistentSubscriptions().size());
-    assertTrue(server.getSubscription("testsub1").isPersistent());
+    assertTrue(server.getMarketDataDistributor("testsub1").isPersistent());
     
     boolean removed = manager.removePersistentSubscription("testsub1");
     assertTrue(removed);
     assertEquals(1, manager.getPersistentSubscriptions().size());
-    assertFalse(server.getSubscription("testsub1").isPersistent());
+    assertFalse(server.getMarketDataDistributor("testsub1").isPersistent());
     
     assertFalse(manager.removePersistentSubscription("nonexistentsub"));
     
     manager.addPersistentSubscription("testsub6");
     assertEquals(2, manager.getPersistentSubscriptions().size());
-    assertTrue(server.getSubscription("testsub6").isPersistent());
+    assertTrue(server.getMarketDataDistributor("testsub6").isPersistent());
   }
+
 }

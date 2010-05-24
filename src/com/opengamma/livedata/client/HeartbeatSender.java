@@ -5,7 +5,6 @@
  */
 package com.opengamma.livedata.client;
 
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -80,11 +79,7 @@ public class HeartbeatSender {
         return;
       }
       s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
-      ArrayList<LiveDataSpecification> liveDataSpecImpls = new ArrayList<LiveDataSpecification>();
-      for (LiveDataSpecification spec : liveDataSpecs) {
-        liveDataSpecImpls.add(new LiveDataSpecification(spec));               
-      }
-      Heartbeat heartbeat = new Heartbeat(liveDataSpecImpls);
+      Heartbeat heartbeat = new Heartbeat(liveDataSpecs);
       FudgeFieldContainer heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
       byte[] bytes = getFudgeContext ().toByteArray (heartbeatMsg);
       getMessageSender().send(bytes);

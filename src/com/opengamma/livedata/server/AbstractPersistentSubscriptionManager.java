@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -112,12 +114,11 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
    */
   private void updateServer(boolean catchExceptions) {
     for (PersistentSubscription sub : _persistentSubscriptions) {
-
-      Subscription existingSub = _server.getSubscription(sub.getId());
-      if (existingSub == null || !existingSub.isPersistent()) {
-        s_logger.info("Creating a persistent subscription on server for " + sub);
+      MarketDataDistributor existingDistributor = _server.getMarketDataDistributor(sub.getFullyQualifiedSpec());
+      if (existingDistributor == null || !existingDistributor.isPersistent()) {
+        s_logger.info("Creating {}", sub);
         try {
-          _server.subscribe(sub.getId(), true);
+          _server.subscribe(sub.getFullyQualifiedSpec(), true);
         } catch (RuntimeException e) {
           if (catchExceptions) {
             s_logger.error("Creating a persistent subscription failed for " + sub, e);
@@ -156,28 +157,35 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
 
     HashSet<String> returnValue = new HashSet<String>();
     for (PersistentSubscription ps : _persistentSubscriptions) {
-      returnValue.add(ps.getId());
+      returnValue.add(ps.getFullyQualifiedSpec().toString());
     }
 
     return returnValue;
   }
 
   public synchronized void addPersistentSubscription(String securityUniqueId) {
-    addPersistentSubscription(new PersistentSubscription(securityUniqueId));
+    LiveDataSpecification spec = getFullyQualifiedLiveDataSpec(securityUniqueId);
+    addPersistentSubscription(new PersistentSubscription(spec));
     updateServer(false);
   }
 
   public synchronized boolean removePersistentSubscription(
       String securityUniqueId) {
-    PersistentSubscription ps = new PersistentSubscription(securityUniqueId);
+    LiveDataSpecification spec = getFullyQualifiedLiveDataSpec(securityUniqueId);
+    PersistentSubscription ps = new PersistentSubscription(spec);
     boolean removed = _persistentSubscriptions.remove(ps);
 
-    Subscription sub = _server.getSubscription(securityUniqueId);
-    if (sub != null && sub.isPersistent()) {
-      _server.changePersistent(sub, false);
+    MarketDataDistributor distributor = _server.getMarketDataDistributor(spec);
+    if (distributor != null) {
+      distributor.setPersistent(false);
     }
 
     return removed;
+  }
+  
+  public LiveDataSpecification getFullyQualifiedLiveDataSpec(String securityUniqueId) {
+    LiveDataSpecification spec = new LiveDataSpecification(securityUniqueId);
+    return spec;
   }
 
   private void clear() {
@@ -193,9 +201,11 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
    */
   private void readFromServer() {
     for (Subscription sub : _server.getSubscriptions()) {
-      if (sub.isPersistent()) {
-        addPersistentSubscription(new PersistentSubscription(sub
-            .getSecurityUniqueId()));
+      for (MarketDataDistributor distributor : sub.getDistributors()) {
+        if (distributor.isPersistent()) {
+          addPersistentSubscription(
+              new PersistentSubscription(distributor.getFullyQualifiedLiveDataSpecification()));
+        }
       }
     }
   }

@@ -31,6 +31,10 @@ public class FieldHistoryStore {
     _lastKnownValues = CONTEXT.newMessage(history);   
   }
   
+  public FieldHistoryStore(FieldHistoryStore original) {
+    _lastKnownValues = CONTEXT.newMessage(original._lastKnownValues);   
+  }
+  
   public synchronized void liveDataReceived(FudgeFieldContainer msg) {
     for (FudgeField field : msg.getAllFields()) {
       _lastKnownValues.remove(field.getName());

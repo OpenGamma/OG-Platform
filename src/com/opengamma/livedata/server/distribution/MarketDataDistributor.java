@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.livedata.server.FieldHistoryStore;
@@ -63,6 +64,25 @@ public class MarketDataDistributor {
    */
   private final AtomicLong _numMessagesSent = new AtomicLong(0);
   
+  /**
+   * Whether this distributor is persistent. 
+   * <p>
+   * True = a persistent distributor, should survive a server restart.
+   * False = a non-persistent distributor. Will die if the server is
+   * restarted.
+   */
+  private boolean _persistent = false;
+  
+  /** 
+   * When this distributor should stop distributing
+   * data if no heartbeats are received from clients.
+   * <p>
+   * Stored as milliseconds from UTC epoch.
+   * <p>
+   * Null means the distributor should not expire.
+   */
+  private Long _expiry = null;
+  
   
   /**
    * @parma distributionSpec What data should be distributed, how and where.
@@ -71,7 +91,8 @@ public class MarketDataDistributor {
    */
   public MarketDataDistributor(DistributionSpecification distributionSpec,
       Subscription subscription,
-      MarketDataSenderFactory marketDataSenderFactory) {
+      MarketDataSenderFactory marketDataSenderFactory,
+      boolean persistent) {
     
     ArgumentChecker.notNull(distributionSpec, "Distribution spec");
     ArgumentChecker.notNull(subscription, "Subscription");
@@ -83,6 +104,7 @@ public class MarketDataDistributor {
     if (_marketDataSenders == null) {
       throw new IllegalStateException("Null returned by " + marketDataSenderFactory);
     }
+    setPersistent(persistent);
   }
   
   public DistributionSpecification getDistributionSpec() {
@@ -187,6 +209,48 @@ public class MarketDataDistributor {
     } else {
       s_logger.debug("{}: Not sending Live Data update (message extinguished).", this);
     }
+  }
+  
+  /**
+   * @return Milliseconds from UTC epoch, or null if 
+   * the distributor never expires.
+   */
+  public synchronized Long getExpiry() {
+    return _expiry;
+  }
+  
+  /**
+   * @param expiry Milliseconds from UTC epoch, or null if 
+   * the distributor never expires.
+   */
+  public synchronized void setExpiry(Long expiry) {
+    _expiry = expiry;
+  }
+  
+  public synchronized void extendExpiry(long timeoutExtensionMillis) {
+    setExpiry(System.currentTimeMillis() + timeoutExtensionMillis);
+  }
+  
+  public synchronized void setPersistent(boolean persistent) {
+    _persistent = persistent;
+  }
+
+  public synchronized boolean isPersistent() {
+    return _persistent;
+  }
+  
+  public synchronized boolean hasExpired() {
+    if (isPersistent()) {
+      return false;      
+    }
+    if (getExpiry() == null) {
+      return false;
+    }
+    return getExpiry() < System.currentTimeMillis();
+  }
+  
+  public LiveDataSpecification getFullyQualifiedLiveDataSpecification() {
+    return getDistributionSpec().getFullyQualifiedLiveDataSpecification();
   }
   
   @Override

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.HeartbeatSender;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -66,32 +67,22 @@ public class ExpirationManager implements SubscriptionListener {
   
   @Override
   public void subscribed(Subscription subscription) {
-    extendPublicationTimeout(subscription);
+    for (MarketDataDistributor distributor : subscription.getDistributors()) {
+      distributor.extendExpiry(getTimeoutExtension());
+    }
   }
   
-  @Override
-  public void persistentChanged(Subscription subscription) {
-  }
-
   @Override
   public void unsubscribed(Subscription subscription) {
   }
 
-  public void extendPublicationTimeout(LiveDataSpecification spec) {
-    Subscription subscription = _dataServer.getSubscription(spec);
-    if (subscription != null) {
-      extendPublicationTimeout(subscription);
+  public void extendPublicationTimeout(LiveDataSpecification fullyQualifiedSpec) {
+    MarketDataDistributor distributor = _dataServer.getMarketDataDistributor(fullyQualifiedSpec);
+    if (distributor != null) {
+      distributor.extendExpiry(getTimeoutExtension());
     }
   }
 
-  private void extendPublicationTimeout(Subscription subscription) {
-    synchronized (subscription) {
-      if (!subscription.isPersistent()) {
-        subscription.setExpiry(System.currentTimeMillis() + getTimeoutExtension());
-      }
-    }
-  }
-  
   public class ExpirationCheckTimerTask extends TimerTask {
     @Override
     public void run() {
@@ -106,15 +97,10 @@ public class ExpirationManager implements SubscriptionListener {
   private void expirationCheck() {
     s_logger.debug("Checking for data specifications to time out");
     int nExpired = 0;
-    long startTime = System.currentTimeMillis();
     for (Subscription subscription : _dataServer.getSubscriptions()) {
-      // TODO Move this logic to Subscription.hasExpired()
-      if (!subscription.isPersistent()) {
-        if (subscription.getExpiry() < startTime) {
-          boolean removed = getDataServer().unsubscribe(subscription);
-          if (removed) {
-            nExpired++;
-          }
+      for (MarketDataDistributor distributor : subscription.getDistributors()) {
+        if (distributor.hasExpired()) {
+          _dataServer.stopDistributor(distributor);
         }
       }
     }

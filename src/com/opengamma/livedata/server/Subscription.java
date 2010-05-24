@@ -5,17 +5,19 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.livedata.server.distribution.MarketDataSenderFactory;
 import com.opengamma.util.ArgumentChecker;
@@ -29,17 +31,19 @@ public class Subscription {
   
   private static final Logger s_logger = LoggerFactory.getLogger(Subscription.class);
   
-  // Note how all mutator methods are package-private, whereas all getters are public.
-  // The only class that should create/modify/delete Subscriptions is AbstractLiveDataServer.
-  
   /** What was subscribed to. Bloomberg/Reuters/{your market data provider of choice} unique ID for a security. **/
   private final String _securityUniqueId;
   
+  /** Controls how the data from this subscription will be sent */
+  private final MarketDataSenderFactory _marketDataSenderFactory;
+  
   /** 
    * The data from this subscription can be distributed to clients in multiple formats,
-   * therefore we need multiple market data distributors. 
+   * therefore we need multiple market data distributors.
+   * <p>
+   * Since an ordinary HashMap is used, access to the map must be via synchronized methods. 
    */
-  private final Map<DistributionSpecification, MarketDataDistributor> _distributors = new ConcurrentHashMap<DistributionSpecification, MarketDataDistributor>();
+  private final Map<DistributionSpecification, MarketDataDistributor> _distributors = new HashMap<DistributionSpecification, MarketDataDistributor>();
   
   /** 
    * Handle to underlying (e.g., Bloomberg/Reuters) subscription.
@@ -52,44 +56,23 @@ public class Subscription {
    */
   private final FieldHistoryStore _history = new FieldHistoryStore();
   
-  /**
-   * Whether this subscription should expire automatically if
-   * no heartbeats are received from clients.
-   * True = a persistent subscription, should never expire.
-   * False = a non-persistent subscription, should expire.
-   */
-  private boolean _persistent;
-  
-  /** 
-   * When this subscription should expire (milliseconds from UTC epoch).
-   * Null means it does not expire (is persistent).
-   */
-  private Long _expiry = null;
-  
   private final Date _creationTime;
   
   /**
    * 
    * @param securityUniqueId
-   * @param handle
-   * @param distributionSpecification
-   * @param persistent If false, creates a subscription that will expire, but only
-   * far, far in the future (Long.MAX_VALUE milliseconds from the epoch). You can use
-   * {@link #setExpiry(Long)} to set a more sensible expiration date. 
    */
-  public Subscription(
-      String securityUniqueId,
-      boolean persistent) {
+  public Subscription(String securityUniqueId, MarketDataSenderFactory marketDataSenderFactory) {
     ArgumentChecker.notNull(securityUniqueId, "Security unique ID");
+    ArgumentChecker.notNull(marketDataSenderFactory, "Market data sender factory");
     
     _securityUniqueId = securityUniqueId;
-    setPersistent(persistent);
-    
+    _marketDataSenderFactory = marketDataSenderFactory;
     _creationTime = new Date();
   }
   
   
-  void setHandle(Object handle) {
+  public void setHandle(Object handle) {
     _handle = handle;
   }
 
@@ -108,16 +91,29 @@ public class Subscription {
     return _securityUniqueId;
   }
   
-  public Set<DistributionSpecification> getDistributionSpecifications() {
-    return Collections.unmodifiableSet(_distributors.keySet());
+  public MarketDataSenderFactory getMarketDataSenderFactory() {
+    return _marketDataSenderFactory;
   }
   
-  public Collection<MarketDataDistributor> getDistributors() {
-    return Collections.unmodifiableCollection(_distributors.values());
+  public synchronized Set<DistributionSpecification> getDistributionSpecifications() {
+    return new HashSet<DistributionSpecification>(_distributors.keySet());
   }
   
-  public MarketDataDistributor getMarketDataDistributor(DistributionSpecification distributionSpec) {
+  public synchronized Collection<MarketDataDistributor> getDistributors() {
+    return new ArrayList<MarketDataDistributor>(_distributors.values());
+  }
+  
+  public synchronized MarketDataDistributor getMarketDataDistributor(DistributionSpecification distributionSpec) {
     return _distributors.get(distributionSpec);
+  }
+  
+  public MarketDataDistributor getMarketDataDistributor(LiveDataSpecification fullyQualifiedSpec) {
+    for (MarketDataDistributor distributor : getDistributors()) {
+      if (distributor.getDistributionSpec().getFullyQualifiedLiveDataSpecification().equals(fullyQualifiedSpec)) {
+        return distributor;
+      }
+    }
+    return null;
   }
   
   /**
@@ -125,40 +121,54 @@ public class Subscription {
    * Only creates a new distribution if it doesn't already exist.
    * 
    * @param spec The format
-   * @param marketDataSenderFactory Will be used to create market data senders
-   * to send data to clients
+   * @param persistent Whether the distributor should be persistent (i.e., survive
+   * a server restart)
+   * @return The created/modified {@code MarketDataDistributor}
    */
-  synchronized void createDistribution(DistributionSpecification spec, MarketDataSenderFactory marketDataSenderFactory) {
+  /*package*/ synchronized MarketDataDistributor createDistributor(DistributionSpecification spec, 
+      boolean persistent) {
     
-    if (getDistributionSpecifications().contains(spec)) {
-      s_logger.info("Added distribution spec {} to {} (no-op)", spec, this);
-      return;
+    MarketDataDistributor distributor = getMarketDataDistributor(spec);
+    if (distributor == null) {
+      distributor = new MarketDataDistributor(
+          spec,
+          this,
+          getMarketDataSenderFactory(),
+          persistent);
+
+      _distributors.put(spec, distributor);
+      s_logger.info("Added {} to {}", distributor, this);
     }
     
-    MarketDataDistributor distributor = new MarketDataDistributor(
-        spec,
-        this,
-        marketDataSenderFactory);
+    // Might be necessary to make the distributor persistent. We
+    // never turn it back from persistent to non-persistent, however.
+    if (!distributor.isPersistent() && persistent) {
+      distributor.setPersistent(persistent);
+      s_logger.info("Made {} persistent", distributor);
+    }
     
-    _distributors.put(spec, distributor);  
-    
-    s_logger.info("Added distribution spec {} to {}", spec, this);
+    return distributor;
   }
   
-  synchronized void removeDistribution(DistributionSpecification spec) {
+  /*package*/ synchronized void removeDistributor(MarketDataDistributor distributor) {
+    removeDistributor(distributor.getDistributionSpec());
+  }
+  
+  /*package*/ synchronized void removeDistributor(DistributionSpecification spec) {
     MarketDataDistributor removed = _distributors.remove(spec);
     if (removed != null) {
-      s_logger.info("Removed distribution spec {} from {}", spec, this);      
+      s_logger.info("Removed {} from {}", removed, this);      
     } else {
       s_logger.info("Removed distribution spec {} from {} (no-op)", spec, this);
     }
   }
   
-  FieldHistoryStore getLiveDataHistory() {
-    return _history;
+  /*package*/ synchronized void removeAllDistributors() {
+    s_logger.info("Removed {} from {}", _distributors, this);
+    _distributors.clear();
   }
   
-  void initialSnapshotReceived(FudgeFieldContainer liveDataFields) {
+  /*package*/ synchronized void initialSnapshotReceived(FudgeFieldContainer liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
     for (MarketDataDistributor distributor : getDistributors()) {
@@ -166,7 +176,7 @@ public class Subscription {
     }
   }
 
-  void liveDataReceived(FudgeFieldContainer liveDataFields) {
+  /*package*/ synchronized void liveDataReceived(FudgeFieldContainer liveDataFields) {
     _history.liveDataReceived(liveDataFields);
     
     for (MarketDataDistributor distributor : getDistributors()) {
@@ -174,47 +184,12 @@ public class Subscription {
     }
   }
   
-  public synchronized boolean isPersistent() {
-    return _persistent;
+  public synchronized FieldHistoryStore getLiveDataHistory() {
+    return new FieldHistoryStore(_history);
   }
   
   public boolean isActive() {
     return getHandle() != null;
-  }
-  
-  /**
-   * 
-   * @param persistent If false, the subscription will expire, but only
-   * far, far in the future (Long.MAX_VALUE milliseconds from the epoch). You can use
-   * {@link #setExpiry(Long)} to set a more sensible expiration date.
-   */
-  synchronized void setPersistent(boolean persistent) {
-    _persistent = persistent;
-    if (_persistent) {
-      _expiry = null;
-    } else {
-      _expiry = Long.MAX_VALUE;
-    }
-  }
-
-  public synchronized Long getExpiry() {
-    return _expiry;
-  }
-
-  /**
-   * @param expiry If this subscription is persistent, you can only supply a null expiry.
-   * If this subscription is non-persistent, you must supply a non-null expiry. 
-   * @throws IllegalStateException If the above rules for expiry are violated.
-   */
-  synchronized void setExpiry(Long expiry) {
-    if (isPersistent() && expiry != null) {
-      throw new IllegalStateException("A persistent subscription cannot expire");      
-    }
-    if (!isPersistent() && expiry == null) {
-      throw new IllegalStateException("A non-persistent subscription must expire");
-    }
-    
-    _expiry = expiry;
   }
   
   @Override

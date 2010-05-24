@@ -60,9 +60,9 @@ public class HeartbeatReceiver implements ByteArrayMessageReceiver {
   
   public void messageReceived(FudgeFieldContainer msg) {
     Heartbeat heartbeat = Heartbeat.fromFudgeMsg(new FudgeDeserializationContext(_fudgeContext), msg);
-    for (LiveDataSpecification liveDataSpec : heartbeat.getLiveDataSpecifications()) {
-      s_logger.debug("Heartbeat received on live data specification {}", liveDataSpec);
-      getActiveSecurityPublicationManager().extendPublicationTimeout(liveDataSpec);
+    for (LiveDataSpecification fullyQualifiedLiveDataSpec : heartbeat.getLiveDataSpecifications()) {
+      s_logger.debug("Heartbeat received on live data specification {}", fullyQualifiedLiveDataSpec);
+      getActiveSecurityPublicationManager().extendPublicationTimeout(fullyQualifiedLiveDataSpec);
     }
   }
 

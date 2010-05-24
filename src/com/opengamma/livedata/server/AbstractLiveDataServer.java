@@ -63,7 +63,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   private final Map<String, Subscription> _securityUniqueId2Subscription = new HashMap<String, Subscription>();
   
   /** Access controlled via _subscriptionLock */
-  private final Map<LiveDataSpecification, Subscription> _fullyQualifiedSpec2Subscription = new HashMap<LiveDataSpecification, Subscription>();
+  private final Map<LiveDataSpecification, MarketDataDistributor> _fullyQualifiedSpec2Distributor = new HashMap<LiveDataSpecification, MarketDataDistributor>();
 
   private final AtomicLong _numMarketDataUpdatesReceived = new AtomicLong(0);
   private final PerformanceCounter _performanceCounter = new PerformanceCounter(60);
@@ -270,10 +270,25 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     setConnectionStatus(ConnectionStatus.NOT_CONNECTED);
   }
 
+  /**
+   * Subscribes to the market data and creates a default distributor.
+   *
+   * @param securityUniqueId
+   * @return
+   * @see #getDefaultNormalizationRuleSetId()
+   */
   public SubscriptionResult subscribe(String securityUniqueId) {
     return subscribe(securityUniqueId, false);
   }
   
+  /**
+   * Subscribes to the market data and creates a default distributor.
+   *
+   * @param securityUniqueId
+   * @param persistent
+   * @return
+   * @see #getDefaultNormalizationRuleSetId()
+   */
   public SubscriptionResult subscribe(String securityUniqueId, boolean persistent) {
     LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
         getDefaultNormalizationRuleSetId(),
@@ -328,19 +343,12 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         
         LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
       
-        Subscription subscription;
-        
-        if (isSubscribedTo(fullyQualifiedSpec)) {
+        Subscription subscription = getSubscription(fullyQualifiedSpec);
+        if (subscription != null) {
           s_logger.info("Already subscribed to {}", fullyQualifiedSpec);
-    
-          // Might be necessary to turn the subscription into a persistent one. We
-          // never turn it back from persistent to non-persistent, however.
-          subscription = getSubscription(fullyQualifiedSpec);
-          if (!subscription.isPersistent() && persistent) {
-            changePersistent(subscription, true);
-          }
           
-          subscription.createDistribution(distributionSpec, getMarketDataSenderFactory());
+          subscription.createDistributor(distributionSpec, persistent);
+    
           liveDataSpecFromClient2Result.put(specFromClient, new SubscriptionResult(specFromClient, 
               distributionSpec, 
               LiveDataSubscriptionResult.SUCCESS, 
@@ -355,8 +363,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
                 + getUniqueIdDomain());
           }
           
-          subscription = new Subscription(securityUniqueId, persistent);
-          subscription.createDistribution(distributionSpec, getMarketDataSenderFactory());
+          subscription = new Subscription(securityUniqueId, getMarketDataSenderFactory());
+          subscription.createDistributor(distributionSpec, persistent);
           securityUniqueId2NewSubscription.put(subscription.getSecurityUniqueId(), subscription);
           securityUniqueId2SpecFromClient.put(subscription.getSecurityUniqueId(), specFromClient);
         }
@@ -411,11 +419,14 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
           throw new RuntimeException("The subscription should only have 1 distribution specification at the moment: " + subscription);
         }
         
-        for (DistributionSpecification spec : subscription.getDistributionSpecifications()) {
-          _fullyQualifiedSpec2Subscription.put(spec.getFullyQualifiedLiveDataSpecification(),
-              subscription);
+        for (MarketDataDistributor distributor : subscription.getDistributors()) {
+          _fullyQualifiedSpec2Distributor.put(distributor.getFullyQualifiedLiveDataSpecification(),
+              distributor);
           
-          SubscriptionResult result = new SubscriptionResult(specFromClient, spec, LiveDataSubscriptionResult.SUCCESS, null);
+          SubscriptionResult result = new SubscriptionResult(specFromClient, 
+              distributor.getDistributionSpec(), 
+              LiveDataSubscriptionResult.SUCCESS, 
+              null);
           liveDataSpecFromClient2Result.put(specFromClient, result);
         }
         
@@ -429,8 +440,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       for (Subscription subscription : securityUniqueId2NewSubscription.values()) {
         _securityUniqueId2Subscription.remove(subscription.getSecurityUniqueId());
         
-        for (DistributionSpecification spec : subscription.getDistributionSpecifications()) {
-          _fullyQualifiedSpec2Subscription.remove(spec.getFullyQualifiedLiveDataSpecification());
+        for (MarketDataDistributor distributor : subscription.getDistributors()) {
+          _fullyQualifiedSpec2Distributor.remove(distributor.getFullyQualifiedLiveDataSpecification());
         }
       }
       _currentlyActiveSubscriptions.removeAll(securityUniqueId2NewSubscription.values());
@@ -645,29 +656,28 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
   
   /**
-   * Unsubscribes from market data.
-   * Works even if the subscription is persistent.
+   * Unsubscribes from market data. All distributors related to that
+   * subscription will be stopped.
    * 
    * @return true if a market data subscription was actually removed. false
    *         otherwise.
    */
-  boolean unsubscribe(String securityUniqueId) {
+  public boolean unsubscribe(String securityUniqueId) {
     Subscription sub = getSubscription(securityUniqueId);
     if (sub == null) {
       return false;
     }
-    changePersistent(sub, false); // make sure it will actually be deleted
     return unsubscribe(sub);
   }
 
   /**
-   * Unsubscribes from market data.
-   * If the subscription is persistent, this method is a no-op.
+   * Unsubscribes from market data. All distributors related to that
+   * subscription will be stopped.
    * 
    * @return true if a market data subscription was actually removed. false
    *         otherwise.
    */
-  boolean unsubscribe(Subscription subscription) {
+  public boolean unsubscribe(Subscription subscription) {
     ArgumentChecker.notNull(subscription, "Subscription");
     verifyConnectionOk();
 
@@ -675,7 +685,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
     _subscriptionLock.lock();
     try {
-      if (isSubscribedTo(subscription) && !subscription.isPersistent()) {
+      if (isSubscribedTo(subscription)) {
 
         s_logger.info("Unsubscribing from {}", subscription);
 
@@ -690,9 +700,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         _securityUniqueId2Subscription.remove(subscription
             .getSecurityUniqueId());
         
-        for (DistributionSpecification distributionSpec : subscription.getDistributionSpecifications()) {
-          _fullyQualifiedSpec2Subscription.remove(distributionSpec.getFullyQualifiedLiveDataSpecification());
+        for (MarketDataDistributor distributor : subscription.getDistributors()) {
+          _fullyQualifiedSpec2Distributor.remove(distributor.getFullyQualifiedLiveDataSpecification());
         }
+        subscription.removeAllDistributors();
 
         for (SubscriptionListener listener : _subscriptionListeners) {
           try {
@@ -707,7 +718,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       } else {
         s_logger
             .warn(
-                "Received unsubscription request for non-active/persistent subscription: {}",
+                "Received unsubscription request for non-active subscription: {}",
                 subscription);
       }
 
@@ -717,42 +728,41 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
 
     return actuallyUnsubscribed;
   }
-
-  boolean changePersistent(Subscription subscription, boolean persistent) {
-
-    boolean actuallyChanged = false;
-
+  
+  /**
+   * Stops a market data distributor. If the distributor is
+   * persistent, this call will be a no-op. If you want
+   * to stop a persistent distributor, make it non-persistent first.  
+   * <p>
+   * If the subscription to which the distributor belongs no longer 
+   * has any active distributors after this, that subscription will be deleted.
+   * 
+   * @return true if a distributor was actually stopped. false
+   *         otherwise.
+   */
+  public boolean stopDistributor(MarketDataDistributor distributor) {
+    ArgumentChecker.notNull(distributor, "Distributor");
+    
     _subscriptionLock.lock();
     try {
-      if (isSubscribedTo(subscription)
-          && persistent != subscription.isPersistent()) {
-
-        s_logger.info("Changing subscription {} persistence status to {}",
-            subscription, persistent);
-
-        subscription.setPersistent(persistent);
-        actuallyChanged = true;
-
-        for (SubscriptionListener listener : _subscriptionListeners) {
-          try {
-            listener.persistentChanged(subscription);
-          } catch (RuntimeException e) {
-            s_logger.error("Listener persistentChanged failed", e);
-          }
-        }
-
-      } else {
-        s_logger.warn("No-op changePersistent() received: {} {}", subscription,
-            persistent);
+      MarketDataDistributor realDistributor = getMarketDataDistributor(distributor.getDistributionSpec());
+      if (realDistributor != distributor) {
+        return false;                        
       }
-
+      
+      distributor.getSubscription().removeDistributor(distributor);
+      
+      if (distributor.getSubscription().getDistributors().isEmpty()) {
+        unsubscribe(distributor.getSubscription());                
+      }
+      
     } finally {
       _subscriptionLock.unlock();
     }
 
-    return actuallyChanged;
+    return true;
   }
-  
+
   public boolean isSubscribedTo(String securityUniqueId) {
     _subscriptionLock.lock();
     try {
@@ -765,7 +775,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   public boolean isSubscribedTo(LiveDataSpecification fullyQualifiedSpec) {
     _subscriptionLock.lock();
     try {
-      return _fullyQualifiedSpec2Subscription.containsKey(fullyQualifiedSpec);
+      return _fullyQualifiedSpec2Distributor.containsKey(fullyQualifiedSpec);
     } finally {
       _subscriptionLock.unlock();
     }
@@ -831,12 +841,11 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
 
   public Subscription getSubscription(LiveDataSpecification fullyQualifiedSpec) {
-    _subscriptionLock.lock();
-    try {
-      return _fullyQualifiedSpec2Subscription.get(fullyQualifiedSpec);
-    } finally {
-      _subscriptionLock.unlock();
+    MarketDataDistributor distributor = getMarketDataDistributor(fullyQualifiedSpec);
+    if (distributor == null) {
+      return null;
     }
+    return distributor.getSubscription();
   }
 
   public Subscription getSubscription(String securityUniqueId) {
@@ -854,6 +863,36 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       return null;
     }
     return subscription.getMarketDataDistributor(distributionSpec);
+  }
+  
+  public MarketDataDistributor getMarketDataDistributor(LiveDataSpecification fullyQualifiedSpec) {
+    _subscriptionLock.lock();
+    try {
+      return _fullyQualifiedSpec2Distributor.get(fullyQualifiedSpec);
+    } finally {
+      _subscriptionLock.unlock();
+    }
+  }
+  
+  /**
+   * This method is mainly useful in tests.
+   * 
+   * @return The only market data distributor associated with the 
+   * security unique ID. 
+   * @throws OpenGammaRuntimeException If there is no distributor
+   * associated with the given {@code securityUniqueId}, or
+   * if there is more than 1 such distributor.  
+   */
+  public MarketDataDistributor getMarketDataDistributor(String securityUniqueId) {
+    Subscription sub = getSubscription(securityUniqueId);
+    if (sub == null) {
+      throw new OpenGammaRuntimeException("Subscription " + securityUniqueId + " not found");
+    }
+    Collection<MarketDataDistributor> distributors = sub.getDistributors();
+    if (distributors.size() != 1) {
+      throw new OpenGammaRuntimeException(distributors.size() + " distributors found for subscription " + securityUniqueId);
+    }
+    return distributors.iterator().next();
   }
   
 }

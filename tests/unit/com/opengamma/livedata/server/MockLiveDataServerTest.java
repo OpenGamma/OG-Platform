@@ -26,6 +26,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.msg.SubscriptionType;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.livedata.normalization.StandardRules;
+import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 
 /**
  * 
@@ -45,30 +46,67 @@ public class MockLiveDataServerTest {
   }
   
   @Test
-  public void getSubscription() {
-    _server.subscribe("nonpersistent", false);
-    _server.subscribe("persistent", true);
+  public void persistentSubscription() {
+    getMethods("persistent", true);
+  }
+  
+  @Test
+  public void nonpersistentSubscription() {
+    getMethods("nonpersistent", false);
+  }
+  
+  private LiveDataSpecification getSpec(String uniqueId) {
+    LiveDataSpecification spec = new LiveDataSpecification(
+        _server.getDefaultNormalizationRuleSetId(),
+        new Identifier(_server.getUniqueIdDomain(), uniqueId));
+    return spec;
+  }
+  
+  private void getMethods(String uniqueId, boolean persistent) {
+    LiveDataSpecification spec = getSpec(uniqueId);    
     
-    Subscription nonpersistent = _server.getSubscription("nonpersistent"); 
-    Subscription persistent = _server.getSubscription("persistent");
+    SubscriptionResult result = _server.subscribe(uniqueId, persistent);
+
+    assertNotNull(result);
+    assertTrue(result.getResult() == LiveDataSubscriptionResult.SUCCESS);
     
-    assertNotNull(nonpersistent);
-    assertNotNull(persistent);
+    DistributionSpecification distributionSpec = result.getDistributionSpecification();
+    assertNotNull(distributionSpec);
     
-    assertFalse(nonpersistent.isPersistent());
-    assertTrue(persistent.isPersistent());
     
-    assertNotNull(nonpersistent.getExpiry());
-    assertNull(persistent.getExpiry());
+    Subscription subscription = _server.getSubscription(uniqueId); 
     
-    assertEquals("nonpersistent", nonpersistent.getSecurityUniqueId());
-    assertEquals("persistent", persistent.getSecurityUniqueId());
+    assertNotNull(subscription);
+    assertEquals(uniqueId, subscription.getSecurityUniqueId());
+    assertEquals(1, subscription.getDistributors().size());
+    assertSame(subscription, _server.getSubscription(spec));
     
-    Subscription nonpersistentB = _server.getSubscription("nonpersistent"); 
-    Subscription persistentB = _server.getSubscription("persistent");
+    assertTrue(_server.isSubscribedTo(subscription));
+    assertFalse(_server.isSubscribedTo(new Subscription("foo", _server.getMarketDataSenderFactory())));
+    assertTrue(_server.isSubscribedTo(uniqueId));
+    assertFalse(_server.isSubscribedTo("foo"));
+    assertTrue(_server.isSubscribedTo(spec));
+    assertFalse(_server.isSubscribedTo(getSpec("foo")));
     
-    assertSame(nonpersistent, nonpersistentB);
-    assertSame(persistent, persistentB);
+    assertEquals(1, _server.getSubscriptions().size());
+    assertEquals(1, _server.getNumActiveSubscriptions());
+    assertSame(subscription, _server.getSubscriptions().iterator().next());
+    assertEquals(1, _server.getActiveSubscriptionIds().size());
+    assertEquals(uniqueId, _server.getActiveSubscriptionIds().iterator().next());
+    
+    assertEquals(0, _server.getNumLiveDataUpdatesSentPerSecondOverLastMinute(), 0.0001);
+    assertEquals(0, _server.getNumMarketDataUpdatesReceived());
+    
+    MarketDataDistributor distributor = subscription.getDistributors().iterator().next();
+        
+    assertSame(distributor, subscription.getMarketDataDistributor(spec));
+    assertSame(distributor, subscription.getMarketDataDistributor(distributionSpec));
+    
+    assertSame(distributor, _server.getMarketDataDistributor(spec));
+    assertSame(distributor, _server.getMarketDataDistributor(distributionSpec));
+    
+    assertTrue(distributor.isPersistent() == persistent);
+    assertNull(distributor.getExpiry());
   }
 
   @Test
@@ -115,6 +153,29 @@ public class MockLiveDataServerTest {
     checkResponse(user, requestedSpec, response);
     
     assertTrue(_server.unsubscribe("testsub"));
+  }
+  
+  @Test
+  public void subscribeThenStopDistributor() {
+    _server.subscribe("mysub", true);
+    _server.subscribe("mysub", true);
+    _server.subscribe("mysub", true);
+    
+    assertEquals(1, _server.getNumActiveSubscriptions());
+    
+    LiveDataSpecification spec = getSpec("mysub");
+    Subscription sub = _server.getSubscription("mysyb");
+    assertEquals(1, sub.getDistributors().size());
+
+    MarketDataDistributor distributor = _server.getMarketDataDistributor(spec);
+    assertNotNull(distributor);
+
+    assertTrue(_server.stopDistributor(distributor));
+    assertTrue(sub.getDistributors().isEmpty());
+    assertFalse(_server.isSubscribedTo("mysyb"));
+    assertEquals(0, _server.getNumActiveSubscriptions());
+    
+    assertFalse(_server.stopDistributor(distributor));
   }
 
   private void checkResponse(UserPrincipal user, LiveDataSpecification requestedSpec,
