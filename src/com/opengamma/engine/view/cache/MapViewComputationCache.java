@@ -61,5 +61,9 @@ public class MapViewComputationCache implements ViewComputationCache {
       s_logger.info("{} => {}", entry.getKey(), entry.getValue());
     }
   }
+  
+  public int size() {
+    return _values.size();
+  }
 
 }
