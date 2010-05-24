@@ -32,6 +32,7 @@ public class MongoDBPersistentSubscriptionManagerTest {
     
     MongoDBConnectionSettings settings = MongoDBTestUtils.makeTestSettings(MongoDBPersistentSubscriptionManagerTest.class.getSimpleName(), true);
     MongoDBPersistentSubscriptionManager manager = new MongoDBPersistentSubscriptionManager(server, settings);
+    manager.clean();
     
     assertTrue(manager.getPersistentSubscriptions().isEmpty());
 

@@ -25,7 +25,7 @@ import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
  *
  * @author pietari
  */
-public class ActiveSecurityPublicationManagerTest {
+public class ExpirationManagerTest {
   
   @Test
   public void expirationWithHeartbeatSendingClient() throws InterruptedException {

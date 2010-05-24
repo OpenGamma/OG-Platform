@@ -127,7 +127,7 @@ public class MockLiveDataServerTest {
     Subscription persistent = _server.getSubscription("persistent");
     
     assertTrue(_server.unsubscribe(nonpersistent));
-    assertFalse(_server.unsubscribe(persistent)); // this version of unsubscribe will not do anything to persistent subscriptions 
+    assertTrue(_server.unsubscribe(persistent));  
   }
   
   @Test
@@ -157,22 +157,24 @@ public class MockLiveDataServerTest {
   
   @Test
   public void subscribeThenStopDistributor() {
-    _server.subscribe("mysub", true);
-    _server.subscribe("mysub", true);
+    _server.subscribe("mysub", false);
+    _server.subscribe("mysub", false);
     _server.subscribe("mysub", true);
     
     assertEquals(1, _server.getNumActiveSubscriptions());
     
-    LiveDataSpecification spec = getSpec("mysub");
-    Subscription sub = _server.getSubscription("mysyb");
+    Subscription sub = _server.getSubscription("mysub");
     assertEquals(1, sub.getDistributors().size());
 
+    LiveDataSpecification spec = getSpec("mysub");
     MarketDataDistributor distributor = _server.getMarketDataDistributor(spec);
     assertNotNull(distributor);
 
+    assertFalse(_server.stopDistributor(distributor));
+    distributor.setPersistent(false);
     assertTrue(_server.stopDistributor(distributor));
     assertTrue(sub.getDistributors().isEmpty());
-    assertFalse(_server.isSubscribedTo("mysyb"));
+    assertFalse(_server.isSubscribedTo("mysub"));
     assertEquals(0, _server.getNumActiveSubscriptions());
     
     assertFalse(_server.stopDistributor(distributor));

@@ -16,6 +16,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 
 import com.opengamma.id.IdentificationScheme;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -120,6 +121,11 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
 
   public int getNumDisconnections() {
     return _numDisconnections;
+  }
+  
+  @Override
+  public String getDefaultNormalizationRuleSetId() {
+    return StandardRules.getNoNormalization().getId();
   }
 
 }

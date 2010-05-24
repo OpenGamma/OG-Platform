@@ -17,6 +17,7 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -57,8 +58,9 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
     
     DBCursor cursor = dbCollection.find();
     while (cursor.hasNext()) {
-      DBObject object = cursor.next();
-      MutableFudgeFieldContainer msg = fsc.objectToFudgeMsg(object);
+      DBObject mainObject = cursor.next();
+      DBObject fieldData = (DBObject) mainObject.get("fieldData");
+      MutableFudgeFieldContainer msg = fsc.objectToFudgeMsg(fieldData);
       LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(msg);
       addPersistentSubscription(new PersistentSubscription(spec));
     }
@@ -67,17 +69,25 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
 
   @Override
   public void saveToStorage(Set<PersistentSubscription> newState) {
+    clean();
+    
     FudgeDeserializationContext context = new FudgeDeserializationContext(FudgeContext.GLOBAL_DEFAULT);
     DBCollection dbCollection = _mongoDB.getCollection(MONGO_COLLECTION);
-    dbCollection.drop();
     
     List<DBObject> objects = new ArrayList<DBObject>();
     for (PersistentSubscription sub : newState) {
       FudgeFieldContainer msg = sub.getFullyQualifiedSpec().toFudgeMsg(FudgeContext.GLOBAL_DEFAULT);
       DBObject fieldData = context.fudgeMsgToObject(DBObject.class, msg);
-      objects.add(fieldData);
+      BasicDBObject mainObject = new BasicDBObject();
+      mainObject.append("fieldData", fieldData);
+      objects.add(mainObject);
     }
     dbCollection.insert(objects);
+  }
+  
+  void clean() {
+    DBCollection dbCollection = _mongoDB.getCollection(MONGO_COLLECTION);
+    dbCollection.drop();
   }
   
 }

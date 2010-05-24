@@ -171,21 +171,23 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
 
   public synchronized boolean removePersistentSubscription(
       String securityUniqueId) {
-    LiveDataSpecification spec = getFullyQualifiedLiveDataSpec(securityUniqueId);
-    PersistentSubscription ps = new PersistentSubscription(spec);
-    boolean removed = _persistentSubscriptions.remove(ps);
-
-    MarketDataDistributor distributor = _server.getMarketDataDistributor(spec);
-    if (distributor != null) {
+    Subscription sub = _server.getSubscription(securityUniqueId);
+    if (sub == null) {
+      return false;
+    }
+    
+    boolean removed = false;
+    for (MarketDataDistributor distributor : sub.getDistributors()) {
+      removed = true;
       distributor.setPersistent(false);
     }
 
+    save();
     return removed;
   }
   
   public LiveDataSpecification getFullyQualifiedLiveDataSpec(String securityUniqueId) {
-    LiveDataSpecification spec = new LiveDataSpecification(securityUniqueId);
-    return spec;
+    return _server.getLiveDataSpecification(securityUniqueId);
   }
 
   private void clear() {
@@ -203,8 +205,9 @@ abstract public class AbstractPersistentSubscriptionManager implements Lifecycle
     for (Subscription sub : _server.getSubscriptions()) {
       for (MarketDataDistributor distributor : sub.getDistributors()) {
         if (distributor.isPersistent()) {
-          addPersistentSubscription(
-              new PersistentSubscription(distributor.getFullyQualifiedLiveDataSpecification()));
+          PersistentSubscription ps = new PersistentSubscription(
+              distributor.getFullyQualifiedLiveDataSpecification());
+          addPersistentSubscription(ps);
         }
       }
     }

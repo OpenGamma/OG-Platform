@@ -269,6 +269,17 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     doDisconnect();
     setConnectionStatus(ConnectionStatus.NOT_CONNECTED);
   }
+  
+  /**
+   * @return A {@code LiveDataSpecification} with default normalization
+   * rule used.
+   */
+  public LiveDataSpecification getLiveDataSpecification(String securityUniqueId) {
+    LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
+        getDefaultNormalizationRuleSetId(),
+        new Identifier(getUniqueIdDomain(), securityUniqueId));
+    return liveDataSpecification;
+  }
 
   /**
    * Subscribes to the market data and creates a default distributor.
@@ -290,10 +301,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * @see #getDefaultNormalizationRuleSetId()
    */
   public SubscriptionResult subscribe(String securityUniqueId, boolean persistent) {
-    LiveDataSpecification liveDataSpecification = new LiveDataSpecification(
-        getDefaultNormalizationRuleSetId(),
-        new Identifier(getUniqueIdDomain(), securityUniqueId));
-    
+    LiveDataSpecification liveDataSpecification = getLiveDataSpecification(securityUniqueId);
     return subscribe(liveDataSpecification, persistent);
   }
   
@@ -748,6 +756,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       MarketDataDistributor realDistributor = getMarketDataDistributor(distributor.getDistributionSpec());
       if (realDistributor != distributor) {
         return false;                        
+      }
+      
+      if (distributor.isPersistent()) {
+        return false;
       }
       
       distributor.getSubscription().removeDistributor(distributor);

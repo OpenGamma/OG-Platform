@@ -100,7 +100,10 @@ public class ExpirationManager implements SubscriptionListener {
     for (Subscription subscription : _dataServer.getSubscriptions()) {
       for (MarketDataDistributor distributor : subscription.getDistributors()) {
         if (distributor.hasExpired()) {
-          _dataServer.stopDistributor(distributor);
+          boolean stopped = _dataServer.stopDistributor(distributor);
+          if (stopped) {
+            nExpired++;
+          }
         }
       }
     }
