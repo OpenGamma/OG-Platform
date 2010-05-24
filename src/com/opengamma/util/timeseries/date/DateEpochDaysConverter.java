@@ -33,19 +33,22 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 import com.opengamma.util.tuple.Pair;
 
 /**
- * @author jim
  * 
  */
 public class DateEpochDaysConverter implements DateTimeConverter<Date> {
   private static final Logger s_logger = LoggerFactory.getLogger(DateEpochDaysConverter.class);
-  public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
-  ThreadLocal<Calendar> _calendar = new ThreadLocal<Calendar>() {
+  /**
+   * Number of milliseconds in one day.
+   */
+  public static final long MILLIS_PER_DAY = 1000L * 3600L * 24L;
+  
+  private ThreadLocal<Calendar> _calendar = new ThreadLocal<Calendar>() {
     @Override
     protected Calendar initialValue() {
       return Calendar.getInstance(_timeZone);
     }
   };
-  final TimeZone _timeZone;
+  private final TimeZone _timeZone;
 
   public DateEpochDaysConverter(final TimeZone timeZone) {
     _timeZone = timeZone;
@@ -366,11 +369,6 @@ public class DateEpochDaysConverter implements DateTimeConverter<Date> {
     }
     return templateTS.newInstanceFast(dateTimes, values);
   }
-
-
-
-
-
 
   @Override
   public <T> Pair<Date, T> makePair(Date dateTime, T value) {

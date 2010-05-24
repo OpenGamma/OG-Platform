@@ -52,11 +52,11 @@ public class ArrayZonedDateTimeObjectTimeSeries<T> extends ZonedDateTimeObjectTi
   }
   @SuppressWarnings("unchecked")
   public ArrayZonedDateTimeObjectTimeSeries(final ZonedDateTimeObjectTimeSeries<T> dts) {
-    super(s_converter, s_converter.convertToLong((FastListLongObjectTimeSeries<T>)DEFAULT_SERIES_TEMPLATE, dts));
+    super(s_converter, s_converter.convertToLong((FastListLongObjectTimeSeries<T>) DEFAULT_SERIES_TEMPLATE, dts));
   }
   @SuppressWarnings("unchecked")
   public ArrayZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<ZonedDateTime, T> dts) {
-    super(new ZonedDateTimeEpochMillisConverter(timeZone), new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong((FastListLongObjectTimeSeries<T>)DEFAULT_SERIES_TEMPLATE, dts));
+    super(new ZonedDateTimeEpochMillisConverter(timeZone), new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong((FastListLongObjectTimeSeries<T>) DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   public ArrayZonedDateTimeObjectTimeSeries(final FastLongObjectTimeSeries<T> pidts) {

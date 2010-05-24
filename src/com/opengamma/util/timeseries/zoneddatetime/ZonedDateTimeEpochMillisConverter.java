@@ -40,7 +40,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   private static final Logger s_logger = LoggerFactory.getLogger(ZonedDateTimeEpochMillisConverter.class);
   public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
 
-  final TimeZone _timeZone;
+  private final TimeZone _timeZone;
 
   public ZonedDateTimeEpochMillisConverter(final TimeZone timeZone) {
     _timeZone = timeZone;
@@ -51,7 +51,7 @@ public class ZonedDateTimeEpochMillisConverter implements DateTimeConverter<Zone
   }
 
   public ZonedDateTimeEpochMillisConverter() {
-    _timeZone = TimeZone.UTC;//TimeZone.of(java.util.TimeZone.getDefault().getID()); 
+    _timeZone = TimeZone.UTC; //TimeZone.of(java.util.TimeZone.getDefault().getID()) 
   }
 
   public java.util.TimeZone getTimeZone() {

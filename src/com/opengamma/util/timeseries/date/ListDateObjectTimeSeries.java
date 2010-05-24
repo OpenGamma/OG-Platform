@@ -17,11 +17,10 @@ import com.opengamma.util.timeseries.fast.integer.object.FastListIntObjectTimeSe
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class ListDateObjectTimeSeries<T> extends MutableDateObjectTimeSeries.Integer<T> {
-  public static final FastIntObjectTimeSeries<Object> TIMESERIES_TEMPLATE = new FastListIntObjectTimeSeries<Object>(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  private static final FastIntObjectTimeSeries<Object> TIMESERIES_TEMPLATE = new FastListIntObjectTimeSeries<Object>(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
   protected ListDateObjectTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntObjectTimeSeries<T> fastTS) {
@@ -52,12 +51,12 @@ public class ListDateObjectTimeSeries<T> extends MutableDateObjectTimeSeries.Int
 
   @SuppressWarnings("unchecked")
   public ListDateObjectTimeSeries(final ObjectTimeSeries<Date, T> dts) {
-    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt((FastIntObjectTimeSeries<T>)TIMESERIES_TEMPLATE, dts));
+    super(s_converter, (FastMutableIntObjectTimeSeries<T>) s_converter.convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   @SuppressWarnings("unchecked")
   public ListDateObjectTimeSeries(final TimeZone timeZone, final DateObjectTimeSeries<T> dts) {
-    super(new DateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new DateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>)TIMESERIES_TEMPLATE, dts));
+    super(new DateEpochDaysConverter(timeZone), (FastMutableIntObjectTimeSeries<T>) new DateEpochDaysConverter(timeZone).convertToInt((FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
   }
 
   public ListDateObjectTimeSeries(final FastMutableIntObjectTimeSeries<T> pmidts) {

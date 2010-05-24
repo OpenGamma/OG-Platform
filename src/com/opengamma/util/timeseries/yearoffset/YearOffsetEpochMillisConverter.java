@@ -43,8 +43,8 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
   public static final long MILLIS_PER_YEAR = (long) (MILLIS_PER_DAY * 365.25);
 
-  final TimeZone _timeZone;
-  final long _offset;
+  private final TimeZone _timeZone;
+  private final long _offset;
 
   public YearOffsetEpochMillisConverter(final ZonedDateTime zonedDateTime) {
     _timeZone = zonedDateTime.getZone();
@@ -128,7 +128,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
 
   @Override
   public Double convertFromLong(final long dateTime) {
-    return (double)(dateTime - _offset)/MILLIS_PER_YEAR;
+    return (double) (dateTime - _offset) / MILLIS_PER_YEAR;
   }
 
   @Override
@@ -136,7 +136,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
     final List<Double> dates = new ArrayList<Double>(dateTimes.size());
     final LongIterator iterator = dateTimes.iterator();
     while (iterator.hasNext()) {
-      dates.add((double)(iterator.nextLong() - _offset)/MILLIS_PER_YEAR);
+      dates.add((double) (iterator.nextLong() - _offset) / MILLIS_PER_YEAR);
     }
     return dates;
   }
@@ -145,7 +145,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   public Double[] convertFromLong(final long[] dateTimes) {
     final Double[] dates = new Double[dateTimes.length];
     for (int i = 0; i < dateTimes.length; i++) {
-      dates[i] = (double)((dateTimes[i] - _offset)/MILLIS_PER_YEAR);
+      dates[i] = (double) ((dateTimes[i] - _offset) / MILLIS_PER_YEAR);
     }
     return dates;
   }
@@ -196,7 +196,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
     while (iterator.hasNext()) {
       final Entry<Long, Double> entry = iterator.next();
       
-      final Double date = (double)((entry.getKey() - _offset)/MILLIS_PER_YEAR);
+      final Double date = (double) ((entry.getKey() - _offset)/MILLIS_PER_YEAR);
       dateTimes[i] = date;
       values[i] = entry.getValue();
       i++;
@@ -214,7 +214,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
     while (iterator.hasNext()) {
       final Entry<Long, T> entry = iterator.next();
       
-      final Double date = (double)((entry.getKey() - _offset)/MILLIS_PER_YEAR);
+      final Double date = (double) ((entry.getKey() - _offset)/MILLIS_PER_YEAR);
       dateTimes[i] = date;
       values[i] = entry.getValue();
       i++;

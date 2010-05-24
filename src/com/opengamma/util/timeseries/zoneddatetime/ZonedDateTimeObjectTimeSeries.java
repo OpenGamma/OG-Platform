@@ -20,7 +20,7 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
  * @author jim
  * 
  */
-public interface ZonedDateTimeObjectTimeSeries<T> extends ObjectTimeSeries<ZonedDateTime, T>, FastBackedObjectTimeSeries<ZonedDateTime,T> {
+public interface ZonedDateTimeObjectTimeSeries<T> extends ObjectTimeSeries<ZonedDateTime, T>, FastBackedObjectTimeSeries<ZonedDateTime, T> {
 
   public abstract static class Integer<T> extends AbstractIntObjectTimeSeries<ZonedDateTime, T> implements ZonedDateTimeObjectTimeSeries<T> {
     public Integer(final DateTimeConverter<ZonedDateTime> converter, final FastIntObjectTimeSeries<T> timeSeries) {

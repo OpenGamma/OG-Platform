@@ -27,7 +27,7 @@ public class ArrayDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSeries.L
 
   @SuppressWarnings("unchecked")
   public ArrayDateTimeObjectTimeSeries() { 
-    super(new DateEpochMillisConverter(), (FastLongObjectTimeSeries<T>) EMPTY_FAST_SERIES);// ;
+    super(new DateEpochMillisConverter(), (FastLongObjectTimeSeries<T>) EMPTY_FAST_SERIES);
   }
 
   @SuppressWarnings("unchecked")
@@ -51,12 +51,12 @@ public class ArrayDateTimeObjectTimeSeries<T> extends DateTimeObjectTimeSeries.L
 
   @SuppressWarnings("unchecked")
   public ArrayDateTimeObjectTimeSeries(final ObjectTimeSeries<Date, T> dts) {
-    super(s_converter, s_converter.convertToLong((FastLongObjectTimeSeries<T>)DEFAULT_SERIES_TEMPLATE, dts));
+    super(s_converter, s_converter.convertToLong((FastLongObjectTimeSeries<T>) DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   @SuppressWarnings("unchecked")
   public ArrayDateTimeObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<Date, T> dts) {
-    super(new DateEpochMillisConverter(timeZone), new DateEpochMillisConverter(timeZone).convertToLong((FastLongObjectTimeSeries<T>)DEFAULT_SERIES_TEMPLATE, dts));
+    super(new DateEpochMillisConverter(timeZone), new DateEpochMillisConverter(timeZone).convertToLong((FastLongObjectTimeSeries<T>) DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   public ArrayDateTimeObjectTimeSeries(final FastLongObjectTimeSeries<T> pidts) {

@@ -17,17 +17,17 @@ public class BulkTimeSeriesOperations {
   public static <E> DoubleTimeSeries<E>[] intersection(DoubleTimeSeries<E>[] inputs) {
     DoubleTimeSeries<E>[] results = new DoubleTimeSeries[inputs.length];
     if (inputs.length < 2) {
-      for (int i=0; i<inputs.length; i++) {
+      for (int i = 0; i < inputs.length; i++) {
         results[i] = (DoubleTimeSeries<E>) inputs[i].newInstance(inputs[i].timesArray(), inputs[i].valuesArray());
       }
       return results;
     }
    
     DoubleTimeSeries<E> intersection = inputs[0];
-    for (int i=1; i<inputs.length; i++) {
+    for (int i = 1; i < inputs.length; i++) {
       intersection = intersection.intersectionFirstValue(inputs[i]);
     }
-    for (int i=0; i<inputs.length; i++) {
+    for (int i = 0; i < inputs.length; i++) {
       results[i] = inputs[i].intersectionFirstValue(intersection);
     }
     return results;

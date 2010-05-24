@@ -593,7 +593,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   
   @Override
   public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
-    return new ArrayZonedDateTimeDoubleTimeSeries(timeZone,toFastLongMillisDTS());
+    return new ArrayZonedDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
   }
 
   @Override
@@ -647,9 +647,9 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
 
   // Temporary hack to get the remote view client working
-  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = messageFactory.newMessage ();
-    message.add (null, 0, getClass ().getName ());
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
+    final MutableFudgeFieldContainer message = messageFactory.newMessage();
+    message.add(null, 0, getClass().getName());
     return message;
   }
 

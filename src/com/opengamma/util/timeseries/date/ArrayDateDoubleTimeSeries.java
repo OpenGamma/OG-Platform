@@ -21,7 +21,8 @@ import com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries;
  * 
  */
 public class ArrayDateDoubleTimeSeries extends DateDoubleTimeSeries.Integer {
-  public static final ArrayDateDoubleTimeSeries EMPTY_SERIES = new ArrayDateDoubleTimeSeries();
+  @SuppressWarnings("unused")
+  private static final ArrayDateDoubleTimeSeries EMPTY_SERIES = new ArrayDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
   public ArrayDateDoubleTimeSeries() {

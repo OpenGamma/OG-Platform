@@ -17,11 +17,13 @@ import com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Integer {
-  public static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  private static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
+  /**
+   * An empty instance of this type.
+   */
   public static final ListDateDoubleTimeSeries EMPTY_SERIES = new ListDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 

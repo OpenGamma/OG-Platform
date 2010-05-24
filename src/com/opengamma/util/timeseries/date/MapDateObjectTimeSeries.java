@@ -16,11 +16,11 @@ import com.opengamma.util.timeseries.fast.integer.object.FastMapIntObjectTimeSer
 import com.opengamma.util.timeseries.fast.integer.object.FastMutableIntObjectTimeSeries;
 
 /**
- * @author jim
  * 
  */
 public class MapDateObjectTimeSeries<T> extends MutableDateObjectTimeSeries.Integer<T> {
-  public static final MapDateObjectTimeSeries<?> EMPTY_SERIES = new MapDateObjectTimeSeries<Object>();
+  @SuppressWarnings("unused")
+  private static final MapDateObjectTimeSeries<?> EMPTY_SERIES = new MapDateObjectTimeSeries<Object>();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
   public MapDateObjectTimeSeries() {
