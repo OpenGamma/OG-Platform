@@ -12,7 +12,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public abstract class RealSingleRootFinderTestCase {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {

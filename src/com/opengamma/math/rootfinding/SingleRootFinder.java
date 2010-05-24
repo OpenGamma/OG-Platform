@@ -9,9 +9,8 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
-public interface SingleRootFinder<S, T, U> {
+public interface SingleRootFinder<S, T> {
 
-  public U getRoot(Function1D<S, T> function, T x1, T x2);
+  public T getRoot(Function1D<S, T> function, S x1, S x2);
 }
