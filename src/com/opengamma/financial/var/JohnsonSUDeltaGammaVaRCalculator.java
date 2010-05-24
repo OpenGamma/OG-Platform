@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.var;
 
-import com.opengamma.math.ComplexMath;
+import com.opengamma.math.TrigonometricFunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.RealSingleRootFinder;
@@ -13,7 +13,6 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosisStatistics<?>> {
@@ -65,7 +64,7 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
     final double sign = Math.signum(t);
     final double u = Math.sqrt(Math.log(w));
     final double v = Math.sqrt((w + 1) * (w - 1 - m) / (2 * w * m));
-    final double omega = -sign * ComplexMath.asinh(v).doubleValue();
+    final double omega = -sign * TrigonometricFunctionUtils.asinh(v).doubleValue();
     final double delta = 1. / u;
     final double gamma = omega / u;
     final double lambda = sigma / (w - 1) * Math.sqrt(2 * m / (w + 1));

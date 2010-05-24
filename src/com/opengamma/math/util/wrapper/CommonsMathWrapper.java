@@ -5,8 +5,8 @@
  */
 package com.opengamma.math.util.wrapper;
 
-import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.ArrayRealVector;
 import org.apache.commons.math.linear.RealMatrix;
@@ -15,6 +15,7 @@ import org.apache.commons.math.linear.RealVector;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 
@@ -30,7 +31,7 @@ public class CommonsMathWrapper {
     return new UnivariateRealFunction() {
 
       @Override
-      public double value(final double x) throws FunctionEvaluationException {
+      public double value(final double x) {
         return f.evaluate(x);
       }
     };
@@ -50,5 +51,9 @@ public class CommonsMathWrapper {
 
   public static DoubleMatrix1D wrap(final RealVector x) {
     return new DoubleMatrix1D(x.getData());
+  }
+
+  public static Complex wrap(final ComplexNumber z) {
+    return new Complex(z.getReal(), z.getImaginary());
   }
 }
