@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.time;
 
+import java.sql.Timestamp;
+
 import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.TimeSource;
@@ -410,4 +412,36 @@ public class DateUtil {
 
 
   // TODO useful to have methods such as # weeks between.
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a time-stamp from an instant.
+   * @param instant  the instant to convert, not null
+   * @return the time-stamp, not null
+   */
+  @SuppressWarnings("deprecation")
+  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 1, 23, 59, 59, 999999999);
+
+  /**
+   * Creates a time-stamp from an instant.
+   * @param instant  the instant to convert, not null
+   * @return the time-stamp, not null
+   */
+  public static Timestamp toSqlTimestamp(Instant instant) {
+    Timestamp timestamp = new Timestamp(instant.getEpochSeconds() * 1000);
+    timestamp.setNanos(instant.getNanoOfSecond());
+    return timestamp;
+  }
+
+  /**
+   * Creates an instant from a time-stamp.
+   * @param timestamp  the time-stamp to convert, not null
+   * @return the instant, not null
+   */
+  public static Instant fromSqlTimestamp(Timestamp timestamp) {
+    long seconds = timestamp.getTime() / 1000;
+    int nanos = timestamp.getNanos();
+    return Instant.ofSeconds(seconds, nanos);
+  }
+
 }

@@ -10,6 +10,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.sql.Timestamp;
+
+import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
@@ -213,13 +216,30 @@ public class DateUtilTest {
     assertEquals(mon, DateUtil.previousWeekDay(tue));
     assertEquals(lastFri, DateUtil.previousWeekDay(mon));
   }
-  
+
   @Test
   public void testToLocalDate() {
     LocalDate D20100328 = LocalDate.of(2010, MonthOfYear.MARCH, 28);
     LocalDate localDate = DateUtil.toLocalDate(20100328);
     assertEquals(D20100328, localDate);
   }
-  
-  
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void testToSqlTimestamp() {
+    Instant instant = Instant.nowSystemClock();
+    Timestamp ts = DateUtil.toSqlTimestamp(instant);
+    assertEquals(instant.toEpochMillisLong(), ts.getTime());
+    assertEquals(instant.getNanoOfSecond(), ts.getNanos());
+  }
+
+  @Test
+  public void testFromSqlTimestamp() {
+    Timestamp ts = new Timestamp(123456789L);
+    ts.setNanos(789654321);
+    Instant instant = DateUtil.fromSqlTimestamp(ts);
+    assertEquals(ts.getTime(), instant.toEpochMillisLong());
+    assertEquals(ts.getNanos(), instant.getNanoOfSecond());
+  }
+
 }
