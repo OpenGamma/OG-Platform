@@ -21,7 +21,7 @@ public class MapViewComputationCacheSource implements ViewComputationCacheSource
     new HashMap<String, Map<Pair<String, Long>, MapViewComputationCache>>();
 
   @Override
-  public synchronized ViewComputationCache getCache(String viewName, String calcConfigName, long timestamp) {
+  public synchronized MapViewComputationCache getCache(String viewName, String calcConfigName, long timestamp) {
     Map<Pair<String, Long>, MapViewComputationCache> viewCaches = _currentCaches.get(viewName);
     if (viewCaches == null) {
       viewCaches = new HashMap<Pair<String, Long>, MapViewComputationCache>();
@@ -36,7 +36,7 @@ public class MapViewComputationCacheSource implements ViewComputationCacheSource
     return cache;
   }
   
-  public synchronized ViewComputationCache cloneCache(String viewName, String calcConfigName, long timestamp) {
+  public synchronized MapViewComputationCache cloneCache(String viewName, String calcConfigName, long timestamp) {
     MapViewComputationCache cache = (MapViewComputationCache) getCache(viewName, calcConfigName, timestamp); 
     return cache.clone();
   }

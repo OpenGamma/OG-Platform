@@ -26,6 +26,8 @@ public class ViewProcessorQuerySender implements FudgeMessageReceiver {
   private FudgeRequestSender _sender;
   private BlockingQueue<DependentValueSpecificationsReply> _specsQueue = new LinkedBlockingQueue<DependentValueSpecificationsReply>();
   public ViewProcessorQuerySender(FudgeRequestSender sender) {
+    // REVIEW kirk 2010-05-24 -- Any reason why this isn't null-checked?
+    // Again, I'm not displeased about it for unit testing, but it strikes me that it SHOULD.
     _sender = sender;
   }
   
