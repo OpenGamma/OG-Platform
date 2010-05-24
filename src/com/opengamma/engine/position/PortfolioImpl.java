@@ -10,13 +10,14 @@ import java.io.Serializable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A simple mutable implementation of {@code Portfolio}.
  */
-public class PortfolioImpl implements Portfolio, Serializable {
+public class PortfolioImpl implements Portfolio, MutableUniqueIdentifiable, Serializable {
 
   /**
    * The identifier.

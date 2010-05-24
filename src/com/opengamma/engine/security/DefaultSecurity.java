@@ -12,13 +12,14 @@ import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A simple mutable implementation of {@code Security}.
  */
-public class DefaultSecurity implements Security, Serializable {
+public class DefaultSecurity implements Security, MutableUniqueIdentifiable, Serializable {
 
   /**
    * The unique identifier.

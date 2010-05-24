@@ -15,13 +15,14 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A simple mutable implementation of {@code PortfolioNode}.
  */
-public class PortfolioNodeImpl implements PortfolioNode, Serializable {
+public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiable, Serializable {
 
   /**
    * The identifier of the node.

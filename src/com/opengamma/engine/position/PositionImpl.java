@@ -14,6 +14,7 @@ import org.apache.commons.lang.text.StrBuilder;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
@@ -21,7 +22,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * A simple mutable implementation of {@code Position}.
  */
-public class PositionImpl implements Position, Serializable {
+public class PositionImpl implements Position, MutableUniqueIdentifiable, Serializable {
 
   /**
    * The identifier of the whole position.
