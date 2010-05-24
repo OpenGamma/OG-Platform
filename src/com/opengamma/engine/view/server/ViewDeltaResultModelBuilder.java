@@ -18,22 +18,25 @@ import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 
+/**
+ * 
+ */
 public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResultModel> {
   
   private static final String FIELD_PREVIOUSTS = "previousTS";
   
   @Override
-  public MutableFudgeFieldContainer buildMessage (FudgeSerializationContext context, ViewDeltaResultModel deltaModel) {
-    final MutableFudgeFieldContainer message = ViewComputationResultModelBuilder.createMessage (context, deltaModel);
-    message.add (FIELD_PREVIOUSTS, deltaModel.getPreviousResultTimestamp ());
+  public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, ViewDeltaResultModel deltaModel) {
+    final MutableFudgeFieldContainer message = ViewComputationResultModelBuilder.createMessage(context, deltaModel);
+    message.add(FIELD_PREVIOUSTS, deltaModel.getPreviousResultTimestamp());
     return message;
   }
   
   @Override
-  public ViewDeltaResultModel buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final ViewComputationResultModel parent = ViewComputationResultModelBuilder.createObject (context, message);
-    final long parentResultTimestamp = message.getFieldValue (Long.class, message.getByName (FIELD_PREVIOUSTS));
-    return new ViewDeltaResultModel () {
+  public ViewDeltaResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
+    final ViewComputationResultModel parent = ViewComputationResultModelBuilder.createObject(context, message);
+    final long parentResultTimestamp = message.getFieldValue(Long.class, message.getByName(FIELD_PREVIOUSTS));
+    return new ViewDeltaResultModel() {
 
       @Override
       public long getPreviousResultTimestamp() {
@@ -42,28 +45,28 @@ public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResult
 
       @Override
       public Collection<ComputationTargetSpecification> getAllTargets() {
-        return parent.getAllTargets ();
+        return parent.getAllTargets();
       }
 
       @Override
       public Collection<String> getCalculationConfigurationNames() {
-        return parent.getCalculationConfigurationNames ();
+        return parent.getCalculationConfigurationNames();
       }
 
       @Override
       public ViewCalculationResultModel getCalculationResult(
           String calcConfigurationName) {
-        return parent.getCalculationResult (calcConfigurationName);
+        return parent.getCalculationResult(calcConfigurationName);
       }
 
       @Override
       public long getInputDataTimestamp() {
-        return parent.getInputDataTimestamp ();
+        return parent.getInputDataTimestamp();
       }
 
       @Override
       public long getResultTimestamp() {
-        return parent.getResultTimestamp ();
+        return parent.getResultTimestamp();
       }
     };
   }

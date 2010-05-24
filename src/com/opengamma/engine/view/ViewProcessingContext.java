@@ -24,8 +24,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * A collection for everything relating to processing a particular view.
- *
- * @author kirk
  */
 public class ViewProcessingContext {
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
@@ -52,8 +50,7 @@ public class ViewProcessingContext {
       JobRequestSender computationJobRequestSender,
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
-      ExecutorService executorService
-      ) {
+      ExecutorService executorService) {
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
     ArgumentChecker.notNull(functionRepository, "FunctionRepository");
@@ -78,7 +75,8 @@ public class ViewProcessingContext {
     _compilationContext = compilationContext;
     _executorService = executorService;
     
-    _computationTargetResolver = new CachingComputationTargetResolver (new DefaultComputationTargetResolver(securityMaster, positionMaster));
+    // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
+    _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securityMaster, positionMaster));
   }
 
   /**
@@ -167,6 +165,17 @@ public class ViewProcessingContext {
    */
   public ExecutorService getExecutorService() {
     return _executorService;
+  }
+  
+  public ViewCompilationServices asCompilationServices() {
+    return new ViewCompilationServices(
+        getLiveDataAvailabilityProvider(),
+        getFunctionResolver(),
+        getPositionMaster(),
+        getSecurityMaster(),
+        getCompilationContext(),
+        getComputationTargetResolver(),
+        getExecutorService());
   }
 
 }

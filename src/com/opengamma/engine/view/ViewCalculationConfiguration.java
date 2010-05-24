@@ -16,8 +16,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * The configuration for one set of calculations on a particular view.
- *
- * @author kirk
  */
 public class ViewCalculationConfiguration implements Serializable {
   private final ViewDefinition _definition;
@@ -66,7 +64,7 @@ public class ViewCalculationConfiguration implements Serializable {
   public void addValueRequirements(String securityType, Set<String> definitions) {
     assert securityType != null;
     Set<String> secTypeRequirements = _requirementsBySecurityType.get(securityType);
-    if(secTypeRequirements == null) {
+    if (secTypeRequirements == null) {
       secTypeRequirements = new TreeSet<String>();
       _requirementsBySecurityType.put(securityType, secTypeRequirements);
     }
@@ -79,7 +77,7 @@ public class ViewCalculationConfiguration implements Serializable {
 
   public Set<String> getAllValueRequirements() {
     Set<String> requirements = new TreeSet<String>();
-    for(Set<String> secTypeDefinitions : _requirementsBySecurityType.values()) {
+    for (Set<String> secTypeDefinitions : _requirementsBySecurityType.values()) {
       requirements.addAll(secTypeDefinitions);
     }
     return requirements;

@@ -14,9 +14,8 @@ import com.opengamma.util.tuple.Pair;
  * The function resolver is responsible for matching the requirements of a particular computation target and value requirement
  * to a given function.  It is separated from the FunctionRepository so different implementations can be plugged in and used to
  * match functions given different criteria e.g. Optimized for speed.
- * @author jim
  */
 public interface FunctionResolver {
-  public Pair<FunctionDefinition, ValueSpecification> resolveFunction(
+  Pair<FunctionDefinition, ValueSpecification> resolveFunction(
       FunctionCompilationContext context, ComputationTarget target, ValueRequirement requirement);
 }

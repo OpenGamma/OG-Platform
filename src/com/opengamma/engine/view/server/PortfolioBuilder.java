@@ -22,16 +22,16 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class PortfolioBuilder implements FudgeBuilder<Portfolio> {
 
-  public static final String FIELD_IDENTIFIER = "identifier";
-  public static final String FIELD_NAME = "name";
-  public static final String FIELD_ROOT = "root";
+  private static final String FIELD_IDENTIFIER = "identifier";
+  private static final String FIELD_NAME = "name";
+  private static final String FIELD_ROOT = "root";
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, Portfolio portfolio) {
-    final MutableFudgeFieldContainer message = context.newMessage ();
+    final MutableFudgeFieldContainer message = context.newMessage();
     context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, portfolio.getUniqueIdentifier());
     message.add(FIELD_NAME, portfolio.getName());
-    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getRootNode ());
+    context.objectToFudgeMsg(message, FIELD_ROOT, null, portfolio.getRootNode());
     return message;
   }
 

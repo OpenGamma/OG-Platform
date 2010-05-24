@@ -23,8 +23,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- *
- * @author kirk
  */
 public class DependencyGraph {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraph.class);
@@ -53,9 +51,9 @@ public class DependencyGraph {
   }
   
   public Pair<DependencyNode, ValueSpecification> getNodeProducing(ValueRequirement requirement) {
-    for(DependencyNode depNode : _dependencyNodes) {
+    for (DependencyNode depNode : _dependencyNodes) {
       ValueSpecification satisfyingSpec = depNode.satisfiesRequirement(requirement);
-      if(satisfyingSpec != null) {
+      if (satisfyingSpec != null) {
         return Pair.of(depNode, satisfyingSpec);
       }
     }
@@ -68,9 +66,9 @@ public class DependencyGraph {
   }
   
   public void removeUnnecessaryValues() {
-    for(DependencyNode node : _dependencyNodes) {
+    for (DependencyNode node : _dependencyNodes) {
       Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
-      if(!unnecessaryValues.isEmpty()) {
+      if (!unnecessaryValues.isEmpty()) {
         s_logger.info("Graph for {} removed {} unnecessary potential results", getComputationTarget(), unnecessaryValues.size());
         _outputValues.removeAll(unnecessaryValues);
       }

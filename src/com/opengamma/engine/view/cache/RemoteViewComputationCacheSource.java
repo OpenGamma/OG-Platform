@@ -20,13 +20,11 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- *
- * @author kirk
  */
 public class RemoteViewComputationCacheSource implements
     ViewComputationCacheSource {
   private static final Logger s_logger = LoggerFactory.getLogger(RemoteViewComputationCacheSource.class);
-  public static final int DEFAULT_MAX_LOCAL_CACHED_ELEMENTS = 100000;
+  private static final int DEFAULT_MAX_LOCAL_CACHED_ELEMENTS = 100000;
   private final RemoteCacheClient _remoteClient;
   private final int _maxLocalCachedElements;
   private final Lock _cacheCreationLock = new ReentrantLock();
@@ -68,11 +66,11 @@ public class RemoteViewComputationCacheSource implements
       String calculationConfigurationName, long timestamp) {
     ViewComputationCacheKey cacheKey = new ViewComputationCacheKey(viewName, calculationConfigurationName, timestamp);
     RemoteViewComputationCache remoteCache = _cachesByKey.get(cacheKey);
-    if(remoteCache == null) {
+    if (remoteCache == null) {
       _cacheCreationLock.lock();
       try {
         remoteCache = _cachesByKey.get(cacheKey);
-        if(remoteCache == null) {
+        if (remoteCache == null) {
           remoteCache = new RemoteViewComputationCache(getRemoteClient(), cacheKey, getMaxLocalCachedElements());
           _cachesByKey.put(cacheKey, remoteCache);
         }
@@ -89,13 +87,13 @@ public class RemoteViewComputationCacheSource implements
     _cacheCreationLock.lock();
     try {
       Iterator<Map.Entry<ViewComputationCacheKey, RemoteViewComputationCache>> entryIter = _cachesByKey.entrySet().iterator();
-      while(entryIter.hasNext()) {
+      while (entryIter.hasNext()) {
         Map.Entry<ViewComputationCacheKey, RemoteViewComputationCache> entry = entryIter.next();
         ViewComputationCacheKey cacheKey = entry.getKey();
-        if(!ObjectUtils.equals(cacheKey.getViewName(), viewName)) {
+        if (!ObjectUtils.equals(cacheKey.getViewName(), viewName)) {
           continue;
         }
-        if(cacheKey.getSnapshotTimestamp() != timestamp) {
+        if (cacheKey.getSnapshotTimestamp() != timestamp) {
           continue;
         }
         entry.getValue().getLocalCache().dispose();
@@ -111,7 +109,7 @@ public class RemoteViewComputationCacheSource implements
     s_logger.info("Releasing all local caches.");
     _cacheCreationLock.lock();
     try {
-      for(RemoteViewComputationCache cache : _cachesByKey.values()) {
+      for (RemoteViewComputationCache cache : _cachesByKey.values()) {
         cache.getLocalCache().dispose();
       }
       _cachesByKey.clear();

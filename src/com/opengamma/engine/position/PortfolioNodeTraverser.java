@@ -92,7 +92,7 @@ public class PortfolioNodeTraverser {
   protected void traverse(PortfolioNode portfolioNode, boolean firstPass) {
     if (firstPass) {
       getCallback().preOrderOperation(portfolioNode);
-      for(Position position : portfolioNode.getPositions()) {
+      for (Position position : portfolioNode.getPositions()) {
         getCallback().preOrderOperation(position);
       }
     }

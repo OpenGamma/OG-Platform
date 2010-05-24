@@ -9,12 +9,10 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 
 /**
  * Callback object to allow Spring based injection to deep state in the ViewProcessor (e.g. the CompilationContext)
- * 
- * @author Andrew Griffin
  */
 public abstract class ViewProcessorConfigBean {
   
-  protected void visitCompilationContext (FunctionCompilationContext context) {
+  protected void visitCompilationContext(FunctionCompilationContext context) {
   }
   
 }

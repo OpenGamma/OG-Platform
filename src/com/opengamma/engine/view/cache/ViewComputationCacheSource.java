@@ -31,6 +31,7 @@ public interface ViewComputationCacheSource {
    * @param viewName The name of the view.
    * @param calculationConfigurationName The name of the calculation configuration within that view. 
    * @param timestamp The timestamp for the computation cache
+   * @return The closed cache
    */
   ViewComputationCache cloneCache(String viewName, String calculationConfigurationName, long timestamp);
   

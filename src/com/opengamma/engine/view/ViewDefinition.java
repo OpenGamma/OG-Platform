@@ -32,8 +32,8 @@ public class ViewDefinition implements Serializable {
   private Long _minimumRecalculationPeriod;
   private boolean _computePortfolioNodeCalculations = true;
   private boolean _computePositionNodeCalculations = true;
-  private boolean _computeSecurityNodeCalculations = false;
-  private boolean _computePrimitiveNodeCalculations = false;
+  private boolean _computeSecurityNodeCalculations /*= false*/;
+  private boolean _computePrimitiveNodeCalculations /*= false*/;
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
@@ -64,7 +64,7 @@ public class ViewDefinition implements Serializable {
   
   public Set<String> getAllValueRequirements() {
     Set<String> requirements = new TreeSet<String>();
-    for(ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
+    for (ViewCalculationConfiguration calcConfig : _calculationConfigurationsByName.values()) {
       requirements.addAll(calcConfig.getAllValueRequirements());
     }
     return requirements;
@@ -105,7 +105,7 @@ public class ViewDefinition implements Serializable {
   
   public void addValueDefinition(String calculationConfigurationName, String securityType, String requirementName) {
     ViewCalculationConfiguration calcConfig = _calculationConfigurationsByName.get(calculationConfigurationName);
-    if(calcConfig == null) {
+    if (calcConfig == null) {
       calcConfig = new ViewCalculationConfiguration(this, calculationConfigurationName);
       _calculationConfigurationsByName.put(calculationConfigurationName, calcConfig);
     }

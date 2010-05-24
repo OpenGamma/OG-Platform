@@ -42,7 +42,6 @@ import com.opengamma.util.ArgumentChecker;
  * Implementation of a ViewClient for working with a remote engine. The RemoteViewProcessorClient will only create
  * a single instance of RemoteViewClient for each remote View.
  *
- * @author Andrew Griffin
  */
 /* package */ class RemoteViewClient implements ViewClient {
 
@@ -62,99 +61,100 @@ import com.opengamma.util.ArgumentChecker;
   private final RestTarget _targetComputationResult;
   private final RestTarget _targetDeltaResult;
   
-  private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener> ();
-  private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener> ();
+  private final Set<ComputationResultListener> _resultListeners = new CopyOnWriteArraySet<ComputationResultListener>();
+  private final Set<DeltaComputationResultListener> _deltaListeners = new CopyOnWriteArraySet<DeltaComputationResultListener>();
   
   private DefaultMessageListenerContainer _resultListenerContainer;
   private DefaultMessageListenerContainer _deltaListenerContainer;
   
-  protected RemoteViewClient (final RemoteViewProcessorClient viewProcessorClient, final String name, final RestTarget target) {
+  protected RemoteViewClient(final RemoteViewProcessorClient viewProcessorClient, final String name, final RestTarget target) {
     _viewProcessorClient = viewProcessorClient;
     _name = name;
-    _targetAllSecurityTypes = target.resolve (VIEW_ALLSECURITYTYPES);
-    _targetAllValueNames = target.resolve (VIEW_ALLVALUENAMES);
-    _targetMostRecentResult = target.resolve (VIEW_MOSTRECENTRESULT);
-    _targetPortfolio = target.resolve (VIEW_PORTFOLIO);
-    _targetRequirementNames = target.resolve (VIEW_REQUIREMENTNAMES);
+    _targetAllSecurityTypes = target.resolve(VIEW_ALLSECURITYTYPES);
+    _targetAllValueNames = target.resolve(VIEW_ALLVALUENAMES);
+    _targetMostRecentResult = target.resolve(VIEW_MOSTRECENTRESULT);
+    _targetPortfolio = target.resolve(VIEW_PORTFOLIO);
+    _targetRequirementNames = target.resolve(VIEW_REQUIREMENTNAMES);
     _targetStatus = target.resolve(VIEW_STATUS);
-    _targetPerformComputation = target.resolve (VIEW_PERFORMCOMPUTATION);
-    _targetComputationResult = target.resolve (VIEW_COMPUTATIONRESULT);
-    _targetDeltaResult = target.resolve (VIEW_DELTARESULT);
+    _targetPerformComputation = target.resolve(VIEW_PERFORMCOMPUTATION);
+    _targetComputationResult = target.resolve(VIEW_COMPUTATIONRESULT);
+    _targetDeltaResult = target.resolve(VIEW_DELTARESULT);
   }
   
-  protected RemoteViewProcessorClient getViewProcessorClient () {
+  protected RemoteViewProcessorClient getViewProcessorClient() {
     return _viewProcessorClient;
   }
   
-  protected FudgeContext getFudgeContext () {
-    return getViewProcessorClient ().getFudgeContext ();
+  protected FudgeContext getFudgeContext() {
+    return getViewProcessorClient().getFudgeContext();
   }
   
-  protected RestClient getRestClient () {
-    return getViewProcessorClient ().getRestClient ();
+  protected RestClient getRestClient() {
+    return getViewProcessorClient().getRestClient();
   }
   
-  // TODO 2010-03-30 Andrew -- needs to detect failure of the server (e.g. a lack of messages for a timeout) and reconnect by re-requesting the URL. Failure of the MOM and/or the other server can be recovered from that way. 
+  // TODO 2010-03-30 Andrew -- needs to detect failure of the server (e.g. a lack of messages for a timeout) and reconnect by re-requesting the URL.
+  // Failure of the MOM and/or the other server can be recovered from that way. 
   
   @Override
   public void addComputationResultListener(ComputationResultListener listener) {
-    ArgumentChecker.notNull (listener, "listener");
+    ArgumentChecker.notNull(listener, "listener");
     synchronized (_resultListeners) {
-      if (_resultListeners.isEmpty ()) {
-        final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
-        s_logger.info ("Set up JMS subscription to {}", topicName);
-        _resultListenerContainer = new DefaultMessageListenerContainer ();
-        _resultListenerContainer.setConnectionFactory (getViewProcessorClient ().getJmsTemplate ().getConnectionFactory ());
-        _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher (new ByteArrayFudgeMessageReceiver (new FudgeMessageReceiver () {
+      if (_resultListeners.isEmpty()) {
+        final String topicName = getRestClient().getSingleValueNotNull(String.class, _targetComputationResult, VIEW_COMPUTATIONRESULT);
+        s_logger.info("Set up JMS subscription to {}", topicName);
+        _resultListenerContainer = new DefaultMessageListenerContainer();
+        _resultListenerContainer.setConnectionFactory(getViewProcessorClient().getJmsTemplate().getConnectionFactory());
+        _resultListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
           @Override
-          public void messageReceived (FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-            s_logger.debug ("Message received on {}", topicName);
-            dispatchComputationResult (fudgeContext.fromFudgeMsg (ViewComputationResultModel.class, msgEnvelope.getMessage ()));
+          public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+            s_logger.debug("Message received on {}", topicName);
+            dispatchComputationResult(fudgeContext.fromFudgeMsg(ViewComputationResultModel.class, msgEnvelope.getMessage()));
           }
-        }, getFudgeContext ())));
+        }, getFudgeContext())));
         _resultListenerContainer.setDestinationName(topicName);
         _resultListenerContainer.setPubSubDomain(true);
         _resultListenerContainer.afterPropertiesSet();
         _resultListenerContainer.start();
       }
-      _resultListeners.add (listener);
+      _resultListeners.add(listener);
     }
   }
 
   @Override
   public void addDeltaResultListener(DeltaComputationResultListener listener) {
-    ArgumentChecker.notNull (listener, "listener");
+    ArgumentChecker.notNull(listener, "listener");
     synchronized (_deltaListeners) {
-      if (_deltaListeners.isEmpty ()) {
-        final String topicName = getRestClient ().getSingleValueNotNull (String.class, _targetDeltaResult, VIEW_DELTARESULT);
-        s_logger.info ("Set up JMS subscription to {}", topicName);
-        _deltaListenerContainer = new DefaultMessageListenerContainer ();
-        _deltaListenerContainer.setConnectionFactory (getViewProcessorClient ().getJmsTemplate ().getConnectionFactory ());
-        _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher (new ByteArrayFudgeMessageReceiver (new FudgeMessageReceiver () {
+      if (_deltaListeners.isEmpty()) {
+        final String topicName = getRestClient().getSingleValueNotNull(String.class, _targetDeltaResult, VIEW_DELTARESULT);
+        s_logger.info("Set up JMS subscription to {}", topicName);
+        _deltaListenerContainer = new DefaultMessageListenerContainer();
+        _deltaListenerContainer.setConnectionFactory(getViewProcessorClient().getJmsTemplate().getConnectionFactory());
+        _deltaListenerContainer.setMessageListener(new JmsByteArrayMessageDispatcher(new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
           @Override
-          public void messageReceived (FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
-            s_logger.debug ("Message received on {}", topicName);
-            dispatchDeltaResult (fudgeContext.fromFudgeMsg (ViewDeltaResultModel.class, msgEnvelope.getMessage ()));
+          public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope msgEnvelope) {
+            s_logger.debug("Message received on {}", topicName);
+            dispatchDeltaResult(fudgeContext.fromFudgeMsg(ViewDeltaResultModel.class, msgEnvelope.getMessage()));
           }
-        }, getFudgeContext ())));
+        }, getFudgeContext())));
         _deltaListenerContainer.setDestinationName(topicName);
         _deltaListenerContainer.setPubSubDomain(true);
         _deltaListenerContainer.afterPropertiesSet();
         _deltaListenerContainer.start();
       }
-      _deltaListeners.add (listener);
+      _deltaListeners.add(listener);
     }
   }
 
   @Override
   public void removeComputationResultListener(ComputationResultListener listener) {
-    ArgumentChecker.notNull (listener, "listener");
+    ArgumentChecker.notNull(listener, "listener");
     synchronized (_resultListeners) {
-      _resultListeners.remove (listener);
-      if (_resultListeners.isEmpty ()) {
-        s_logger.info ("Stopping JMS subscription");
-        _resultListenerContainer.stop ();
-        _resultListenerContainer.destroy ();
+      _resultListeners.remove(listener);
+      if (_resultListeners.isEmpty()) {
+        s_logger.info("Stopping JMS subscription");
+        _resultListenerContainer.stop();
+        _resultListenerContainer.destroy();
         _resultListenerContainer = null;
       }
     }
@@ -162,45 +162,45 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void removeDeltaResultListener(DeltaComputationResultListener listener) {
-    ArgumentChecker.notNull (listener, "listener");
+    ArgumentChecker.notNull(listener, "listener");
     synchronized (_deltaListeners) {
-      _deltaListeners.remove (listener);
-      if (_deltaListeners.isEmpty ()) {
-        s_logger.info ("Stopping JMS subscription");
-        _deltaListenerContainer.stop ();
-        _deltaListenerContainer.destroy ();
+      _deltaListeners.remove(listener);
+      if (_deltaListeners.isEmpty()) {
+        s_logger.info("Stopping JMS subscription");
+        _deltaListenerContainer.stop();
+        _deltaListenerContainer.destroy();
         _deltaListenerContainer = null;
       }
     }
   }
   
-  protected void dispatchComputationResult (ViewComputationResultModel resultModel) {
+  protected void dispatchComputationResult(ViewComputationResultModel resultModel) {
     for (ComputationResultListener listener : _resultListeners) {
-      listener.computationResultAvailable (resultModel);
+      listener.computationResultAvailable(resultModel);
     }
   }
   
-  protected void dispatchDeltaResult (ViewDeltaResultModel deltaModel) {
+  protected void dispatchDeltaResult(ViewDeltaResultModel deltaModel) {
     for (DeltaComputationResultListener listener : _deltaListeners) {
-      listener.deltaResultAvailable (deltaModel);
+      listener.deltaResultAvailable(deltaModel);
     }
   }
   
   @SuppressWarnings("unchecked")
   @Override
   public Set<String> getAllSecurityTypes() {
-    return getRestClient ().getSingleValueNotNull (Set.class, _targetAllSecurityTypes, VIEW_ALLSECURITYTYPES);
+    return getRestClient().getSingleValueNotNull(Set.class, _targetAllSecurityTypes, VIEW_ALLSECURITYTYPES);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Set<String> getAllValueNames() {
-    return getRestClient ().getSingleValueNotNull (Set.class, _targetAllValueNames, VIEW_ALLVALUENAMES);
+    return getRestClient().getSingleValueNotNull(Set.class, _targetAllValueNames, VIEW_ALLVALUENAMES);
   }
 
   @Override
   public ViewComputationResultModel getMostRecentResult() {
-    return getRestClient ().getSingleValue (ViewComputationResultModel.class, _targetMostRecentResult, VIEW_MOSTRECENTRESULT);
+    return getRestClient().getSingleValue(ViewComputationResultModel.class, _targetMostRecentResult, VIEW_MOSTRECENTRESULT);
   }
   
   @Override
@@ -210,28 +210,33 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public Portfolio getPortfolio() {
-    return getRestClient ().getSingleValueNotNull (Portfolio.class, _targetPortfolio, VIEW_PORTFOLIO);
+    return getRestClient().getSingleValueNotNull(Portfolio.class, _targetPortfolio, VIEW_PORTFOLIO);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Set<String> getRequirementNames(String securityType) {
-    return getRestClient ().getSingleValueNotNull (Set.class, _targetRequirementNames.resolve (securityType), VIEW_REQUIREMENTNAMES);
+    return getRestClient().getSingleValueNotNull(Set.class, _targetRequirementNames.resolve(securityType), VIEW_REQUIREMENTNAMES);
   }
 
   @Override
   public boolean isLiveComputationRunning() {
-    return getRestClient ().getSingleValueNotNull (Boolean.class, _targetStatus, VIEW_LIVECOMPUTATIONRUNNING);
+    return getRestClient().getSingleValueNotNull(Boolean.class, _targetStatus, VIEW_LIVECOMPUTATIONRUNNING);
   }
 
   @Override
   public boolean isResultAvailable() {
-    return getRestClient ().getSingleValueNotNull (Boolean.class, _targetStatus, VIEW_RESULTAVAILABLE);
+    return getRestClient().getSingleValueNotNull(Boolean.class, _targetStatus, VIEW_RESULTAVAILABLE);
   }
 
   @Override
   public void performComputation() {
-    getRestClient ().post (_targetPerformComputation);
+    getRestClient().post(_targetPerformComputation);
+  }
+  
+  @Override
+  public void performComputation(long snapshotTime) {
+    getRestClient().post(_targetPerformComputation.resolve(Long.toString(snapshotTime)));
   }
 
 }

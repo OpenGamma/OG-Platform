@@ -8,12 +8,19 @@ package com.opengamma.engine.view.calcnode;
 /**
  * Specifies the outcome of attempting to invoke an analytic function
  * by a Calculation Node.
- *
- * @author kirk
  */
 public enum InvocationResult {
+  /**
+   * The invocation was completely successful.
+   */
   SUCCESS,
+  /**
+   * The invocation was attempted, but took too long without a successful response.
+   */
   TIMED_OUT,
+  /**
+   * There was an error in processing the request.
+   */
   ERROR;
 
 }

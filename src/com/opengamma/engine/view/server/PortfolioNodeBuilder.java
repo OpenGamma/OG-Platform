@@ -24,31 +24,31 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
-  public static final String FIELD_POSITIONS = "positions";
-  public static final String FIELD_SUBNODES = "subNodes";
-  public static final String FIELD_NAME = "name";
-  public static final String FIELD_IDENTIFIER = "identifier";
+  private static final String FIELD_POSITIONS = "positions";
+  private static final String FIELD_SUBNODES = "subNodes";
+  private static final String FIELD_NAME = "name";
+  private static final String FIELD_IDENTIFIER = "identifier";
 
   //-------------------------------------------------------------------------
-  private static FudgeFieldContainer encodePositions (FudgeSerializationContext context, Collection<Position> collection) {
-    final MutableFudgeFieldContainer msg = context.newMessage ();
+  private static FudgeFieldContainer encodePositions(FudgeSerializationContext context, Collection<Position> collection) {
+    final MutableFudgeFieldContainer msg = context.newMessage();
     for (Position position : collection) {
-      context.objectToFudgeMsg (msg, null, null, position);
+      context.objectToFudgeMsg(msg, null, null, position);
     }
     return msg;
   }
 
-  private static FudgeFieldContainer encodeSubNodes (FudgeSerializationContext context, Collection<PortfolioNode> collection) {
-    final MutableFudgeFieldContainer msg = context.newMessage ();
+  private static FudgeFieldContainer encodeSubNodes(FudgeSerializationContext context, Collection<PortfolioNode> collection) {
+    final MutableFudgeFieldContainer msg = context.newMessage();
     for (PortfolioNode node : collection) {
-      context.objectToFudgeMsg (msg, null, null, node);
+      context.objectToFudgeMsg(msg, null, null, node);
     }
     return msg;
   }
 
   @Override
   public MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, PortfolioNode node) {
-    final MutableFudgeFieldContainer message = context.newMessage ();
+    final MutableFudgeFieldContainer message = context.newMessage();
     context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, node.getUniqueIdentifier());
     message.add(FIELD_NAME, node.getName());
     message.add(FIELD_POSITIONS, encodePositions(context, node.getPositions()));
@@ -70,7 +70,7 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
   }
 
   @Override
-  public PortfolioNode buildObject (FudgeDeserializationContext context, FudgeFieldContainer message) {
+  public PortfolioNode buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     final UniqueIdentifier id = context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER));
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
     final PortfolioNodeImpl node = new PortfolioNodeImpl(id, name);

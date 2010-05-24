@@ -46,7 +46,7 @@ public class DependencyNode {
       ComputationTarget target) {
     ArgumentChecker.notNull(functionDefinition, "Function Definition");
     ArgumentChecker.notNull(target, "Computation Target");
-    if(functionDefinition.getTargetType() != target.getType()) {
+    if (functionDefinition.getTargetType() != target.getType()) {
       throw new IllegalArgumentException(
           "Provided function of type " + functionDefinition.getTargetType()
           + " but target of type " + target.getType());
@@ -111,8 +111,8 @@ public class DependencyNode {
   }
   
   protected boolean inputNodeProduces(ValueSpecification value) {
-    for(DependencyNode inputNode : _inputNodes) {
-      if(inputNode.getOutputValues().contains(value)) {
+    for (DependencyNode inputNode : _inputNodes) {
+      if (inputNode.getOutputValues().contains(value)) {
         return true;
       }
     }
@@ -120,14 +120,14 @@ public class DependencyNode {
   }
   
   public ValueSpecification satisfiesRequirement(ValueRequirement requirement) {
-    if(requirement.getTargetSpecification().getType() != getComputationTarget().getType()) {
+    if (requirement.getTargetSpecification().getType() != getComputationTarget().getType()) {
       return null;
     }
-    if(!ObjectUtils.equals(requirement.getTargetSpecification().getUniqueIdentifier(), getComputationTarget().getUniqueIdentifier())) {
+    if (!ObjectUtils.equals(requirement.getTargetSpecification().getUniqueIdentifier(), getComputationTarget().getUniqueIdentifier())) {
       return null;
     }
-    for(ValueSpecification outputSpec : _outputValues) {
-      if(ObjectUtils.equals(outputSpec.getRequirementSpecification(), requirement)) {
+    for (ValueSpecification outputSpec : _outputValues) {
+      if (ObjectUtils.equals(outputSpec.getRequirementSpecification(), requirement)) {
         return outputSpec;
       }
     }
@@ -136,18 +136,18 @@ public class DependencyNode {
   
   public Set<ValueSpecification> removeUnnecessaryOutputs() {
     Set<ValueSpecification> unnecessaryOutputs = new HashSet<ValueSpecification>();
-    for(ValueSpecification outputSpec : _outputValues) {
-      if(_terminalOutputValues.contains(outputSpec)) {
+    for (ValueSpecification outputSpec : _outputValues) {
+      if (_terminalOutputValues.contains(outputSpec)) {
         continue;
       }
       boolean isUsed = false;
-      for(DependencyNode dependantNode : _dependentNodes) {
-        if(dependantNode.getInputRequirements().contains(outputSpec.getRequirementSpecification())) {
+      for (DependencyNode dependantNode : _dependentNodes) {
+        if (dependantNode.getInputRequirements().contains(outputSpec.getRequirementSpecification())) {
           isUsed = true;
           break;
         }
       }
-      if(!isUsed) {
+      if (!isUsed) {
         unnecessaryOutputs.add(outputSpec);
       }
     }

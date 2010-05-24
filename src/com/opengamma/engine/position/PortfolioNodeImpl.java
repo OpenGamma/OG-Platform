@@ -42,10 +42,18 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   private final List<Position> _positions = new ArrayList<Position>();
 
   /**
-   * Creates a portfolio with an empty name.
+   * Creates a portfolio node with an empty name.
    */
   public PortfolioNodeImpl() {
     _name = "";
+  }
+  
+  /**
+   * Creates a portfolio node with a given name.
+   * @param name the name of the portfolio node.
+   */
+  public PortfolioNodeImpl(String name) {
+    _name = name;
   }
 
   /**
@@ -128,7 +136,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
 
   /**
    * Adds a collection of nodes to the list of immediate children.
-   * @param childNode  the child nodes to add, not null
+   * @param childNodes the child nodes to add, not null
    */
   public void addChildNodes(Collection<? extends PortfolioNode> childNodes) {
     ArgumentChecker.noNulls(childNodes, "child node");
@@ -164,7 +172,7 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
 
   /**
    * Adds a collection of nodes to the list of immediate children.
-   * @param childNode  the positions to add, not null
+   * @param positions the positions to add, not null
    */
   public void addPositions(Collection<? extends Position> positions) {
     ArgumentChecker.noNulls(positions, "position");
@@ -240,23 +248,53 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   }
   
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (!(o instanceof PortfolioNodeImpl)) return false;
-    final PortfolioNodeImpl other = (PortfolioNodeImpl)o;
-    if (!ObjectUtils.equals (getUniqueIdentifier (), other.getUniqueIdentifier ())
-        || !ObjectUtils.equals (getName (), other.getName ())) return false;
-    final List<PortfolioNode> otherChildNodes = other.getChildNodes ();
-    final List<Position> otherPositions = other.getPositions ();
-    if (getChildNodes ().size () != otherChildNodes.size ()) return false;
-    if (getPositions ().size () != otherPositions.size ()) return false;
-    for (PortfolioNode node : getChildNodes ()) {
-      if (!otherChildNodes.contains (node)) return false;
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
     }
-    for (Position position: getPositions ()) {
-      if (!otherPositions.contains (position)) return false;
+    if (!(o instanceof PortfolioNodeImpl)) {
+      return false;
+    }
+    final PortfolioNodeImpl other = (PortfolioNodeImpl) o;
+    if (!ObjectUtils.equals(getUniqueIdentifier(), other.getUniqueIdentifier())
+        || !ObjectUtils.equals(getName(), other.getName())) {
+      return false;
+    }
+    final List<PortfolioNode> otherChildNodes = other.getChildNodes();
+    final List<Position> otherPositions = other.getPositions();
+    if (getChildNodes().size() != otherChildNodes.size()) {
+      return false;
+    }
+    if (getPositions().size() != otherPositions.size()) {
+      return false;
+    }
+    for (PortfolioNode node : getChildNodes()) {
+      if (!otherChildNodes.contains(node)) {
+        return false;
+      }
+    }
+    for (Position position : getPositions()) {
+      if (!otherPositions.contains(position)) {
+        return false;
+      }
     }
     return true;
   }
+
+  @Override
+  public int hashCode() {
+    int result = 0;
+    int prime = 31;
+    if (getUniqueIdentifier() != null) {
+      result = result * prime + getUniqueIdentifier().hashCode();
+    }
+    if (getName() != null) {
+      result = result * prime + getName().hashCode(); 
+    }
+    // Intentionally skip the contained children and positions
+    return result;
+  }
+  
+  
 
 }

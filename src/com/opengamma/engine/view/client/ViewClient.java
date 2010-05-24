@@ -39,6 +39,8 @@ public interface ViewClient {
   
   void performComputation();
   
+  void performComputation(long snapshotTime);
+  
   ViewComputationResultModel getMostRecentResult();
   
   void addComputationResultListener(ComputationResultListener listener);

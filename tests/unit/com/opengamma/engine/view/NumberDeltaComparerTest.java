@@ -20,6 +20,19 @@ import org.junit.Test;
 public class NumberDeltaComparerTest {
   
   @Test
+  public void bothNulls() {
+    NumberDeltaComparer ndc = new NumberDeltaComparer(4);
+    assertFalse(ndc.isDelta(null, null));
+  }
+  
+  @Test
+  public void oneNulls() {
+    NumberDeltaComparer ndc = new NumberDeltaComparer(4);
+    assertTrue(ndc.isDelta(null, 1.5));
+    assertTrue(ndc.isDelta(1.5, null));
+  }
+  
+  @Test
   public void testDoubleFourDecimalPlaces() {
     NumberDeltaComparer ndc = new NumberDeltaComparer(4);
     

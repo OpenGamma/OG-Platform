@@ -34,7 +34,7 @@ public interface ViewDeltaResultModel extends ViewComputationResultModel {
    * delta, or {@link ViewComputationResultModel#getResultTimestamp()} on the
    * previous full result model.
    * 
-   * @return
+   * @return the timestamp for the previous result in the delta chain
    */
   long getPreviousResultTimestamp();
   

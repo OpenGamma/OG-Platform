@@ -43,7 +43,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return ObjectUtils.equals(target, _target);
+    return ObjectUtils.equals(target.toSpecification(), _target.toSpecification());
   }
 
   @Override
@@ -71,7 +71,7 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
       ComputationTarget target, Set<ValueRequirement> desiredValues) {
     Set<ComputedValue> results = new HashSet<ComputedValue>();
     for (ComputedValue result : _results) {
-      if(desiredValues.contains(result.getSpecification().getRequirementSpecification())) {
+      if (desiredValues.contains(result.getSpecification().getRequirementSpecification())) {
         results.add(result);
       }
     }

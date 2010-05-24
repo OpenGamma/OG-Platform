@@ -22,20 +22,9 @@ import com.opengamma.transport.FudgeRequestReceiver;
  * Receives messages corresponding to {@link CalculationJob}, invokes them,
  * and then responds with messages corresponding to {@link CalculationJobResult}.
  *
- * @author kirk
  */
-public class CalculationNodeRequestReceiver
-extends AbstractCalculationNode
-implements FudgeRequestReceiver, JobRequestSender {
+public class CalculationNodeRequestReceiver extends AbstractCalculationNode implements FudgeRequestReceiver, JobRequestSender {
 
-  /**
-   * @param cacheSource
-   * @param functionRepository
-   * @param calcNodeQuerySender 
-   * @param securityMaster
-   * @param jobSource
-   * @param completionNotifier
-   */
   public CalculationNodeRequestReceiver(
       ViewComputationCacheSource cacheSource,
       FunctionRepository functionRepository,
@@ -49,7 +38,7 @@ implements FudgeRequestReceiver, JobRequestSender {
   public FudgeFieldContainer requestReceived(
       FudgeDeserializationContext context,
       FudgeMsgEnvelope requestEnvelope) {
-    CalculationJob job = CalculationJob.fromFudgeMsg(context, requestEnvelope.getMessage ());
+    CalculationJob job = CalculationJob.fromFudgeMsg(context, requestEnvelope.getMessage());
     CalculationJobResult jobResult = executeJob(job);
     return jobResult.toFudgeMsg(context.getFudgeContext());
   }

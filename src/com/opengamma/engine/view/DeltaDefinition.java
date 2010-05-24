@@ -14,7 +14,6 @@ import com.opengamma.engine.value.ComputedValue;
  * be treated as a delta (in the context of a change). In the absence of a specific comparer, the implementation will
  * fall back onto {@link ObjectUtils.#equals(Object)}.
  *
- * @author jonathan
  */
 public class DeltaDefinition {
   private DeltaComparer<Number> _numberComparer;

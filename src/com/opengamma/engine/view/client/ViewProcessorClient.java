@@ -42,6 +42,7 @@ public interface ViewProcessorClient {
 
   /**
    * Gets a single view by name.
+   * @param viewName the name of the view to load
    * @return the view, null if not found
    */
   ViewClient getView(String viewName);

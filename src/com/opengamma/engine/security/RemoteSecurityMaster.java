@@ -33,7 +33,7 @@ public class RemoteSecurityMaster implements SecurityMaster {
     _targetBase = baseTarget;
   }
 
-  protected RestClient getRestClient () {
+  protected RestClient getRestClient() {
     return _restClient;
   }
 

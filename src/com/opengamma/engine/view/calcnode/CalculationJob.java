@@ -29,13 +29,11 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * The definition of a particular job that must be performed by
  * a Calculation Node.
- *
- * @author kirk
  */
 public class CalculationJob implements Serializable {
-  public static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
-  public static final String INPUT_FIELD_NAME = "valueInput";
-  public static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
+  private static final String FUNCTION_UNIQUE_ID_FIELD_NAME = "functionUniqueIdentifier";
+  private static final String INPUT_FIELD_NAME = "valueInput";
+  private static final String DESIRED_VALUE_FIELD_NAME = "desiredValue";
   
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationJob.class);
@@ -46,11 +44,6 @@ public class CalculationJob implements Serializable {
   private final Set<ValueSpecification> _inputs = new HashSet<ValueSpecification>();
   private final Set<ValueRequirement> _desiredValues = new HashSet<ValueRequirement>();
   
-  /**
-   * @param viewName
-   * @param iterationTimestamp
-   * @param jobId
-   */
   public CalculationJob(
       String viewName,
       String calcConfigName,
@@ -126,10 +119,10 @@ public class CalculationJob implements Serializable {
     getComputationTargetSpecification().toFudgeMsg(fudgeContext, msg);
     msg.add(FUNCTION_UNIQUE_ID_FIELD_NAME, getFunctionUniqueIdentifier());
     
-    for(ValueSpecification inputSpecification : getInputs()) {
+    for (ValueSpecification inputSpecification : getInputs()) {
       msg.add(INPUT_FIELD_NAME, inputSpecification.toFudgeMsg(fudgeContext));
     }
-    for(ValueRequirement desiredValue : getDesiredValues()) {
+    for (ValueRequirement desiredValue : getDesiredValues()) {
       MutableFudgeFieldContainer valueMsg = fudgeContext.newMessage();
       desiredValue.toFudgeMsg(fudgeContext, valueMsg);
       msg.add(DESIRED_VALUE_FIELD_NAME, valueMsg);
@@ -139,28 +132,25 @@ public class CalculationJob implements Serializable {
   }
 
   //public static CalculationJob fromFudgeMsg(FudgeMsgEnvelope envelope) {
-  public static CalculationJob fromFudgeMsg (FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
-    String viewName = msg.getString(CalculationJobSpecification.VIEW_NAME_FIELD_NAME);
-    String calcConfigName = msg.getString(CalculationJobSpecification.CALCULATION_CONFIGURATION_FIELD_NAME);
-    long iterationTimestamp = msg.getLong(CalculationJobSpecification.ITERATION_TIMESTAMP_FIELD_NAME);
-    long jobId = msg.getLong(CalculationJobSpecification.JOB_ID_FIELD_NAME);
+  public static CalculationJob fromFudgeMsg(FudgeDeserializationContext fudgeContext, FudgeFieldContainer msg) {
+    CalculationJobSpecification jobSpec = CalculationJobSpecification.fromFudgeMsg(msg);
     String functionUniqueId = msg.getString(FUNCTION_UNIQUE_ID_FIELD_NAME);
     
     ComputationTargetSpecification computationTargetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg);
     
     List<ValueSpecification> inputs = new ArrayList<ValueSpecification>();
-    for(FudgeField field : msg.getAllByName(INPUT_FIELD_NAME)) {
-      ValueSpecification inputSpecification = ValueSpecification.fromFudgeMsg(fudgeContext, (FudgeFieldContainer)field.getValue());
+    for (FudgeField field : msg.getAllByName(INPUT_FIELD_NAME)) {
+      ValueSpecification inputSpecification = ValueSpecification.fromFudgeMsg(fudgeContext, (FudgeFieldContainer) field.getValue());
       inputs.add(inputSpecification);
     }
     
     List<ValueRequirement> desiredValues = new ArrayList<ValueRequirement>();
-    for(FudgeField field : msg.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
-      FudgeFieldContainer valueMsg = (FudgeFieldContainer)field.getValue();
+    for (FudgeField field : msg.getAllByName(DESIRED_VALUE_FIELD_NAME)) {
+      FudgeFieldContainer valueMsg = (FudgeFieldContainer) field.getValue();
       ValueRequirement desiredValue = ValueRequirement.fromFudgeMsg(valueMsg);
       desiredValues.add(desiredValue);
     }
     
-    return new CalculationJob(viewName, calcConfigName, iterationTimestamp, jobId, functionUniqueId, computationTargetSpecification, inputs, desiredValues);
+    return new CalculationJob(jobSpec, functionUniqueId, computationTargetSpecification, inputs, desiredValues);
   }
 }

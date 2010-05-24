@@ -19,7 +19,6 @@ import com.opengamma.util.ArgumentChecker;
  * This can either be used as-is through a factory which scans available functions,
  * or it can be used as a cache on top of a more costly function repository. 
  *
- * @author kirk
  */
 public class InMemoryFunctionRepository implements FunctionRepository {
   private final Map<String, FunctionInvoker> _invokersByUniqueIdentifier =
@@ -51,7 +50,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
    * This method is primarily useful for testing, as otherwise it will be
    * done explicitly by the {@link ViewProcessor} on startup.
    * 
-   * @param compilationContext
+   * @param compilationContext The context to provide to each function.
    */
   public void initFunctions(FunctionCompilationContext compilationContext) {
     for (FunctionDefinition function : _functions) {

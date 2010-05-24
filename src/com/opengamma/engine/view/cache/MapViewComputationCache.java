@@ -18,7 +18,6 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * An implementation of {@link ViewComputationCache} backed by a {@link ConcurrentHashMap}.
  *
- * @author kirk
  */
 public class MapViewComputationCache implements ViewComputationCache {
   private static final Logger s_logger = LoggerFactory.getLogger(MapViewComputationCache.class);
@@ -28,11 +27,11 @@ public class MapViewComputationCache implements ViewComputationCache {
 
   @Override
   public Object getValue(ValueSpecification specification) {
-    if(specification == null) {
+    if (specification == null) {
       return null;
     }
     ComputedValue computedValue = _values.get(specification);
-    if(computedValue != null) {
+    if (computedValue != null) {
       return computedValue.getValue();
     }
     return null;
@@ -40,10 +39,10 @@ public class MapViewComputationCache implements ViewComputationCache {
 
   @Override
   public void putValue(ComputedValue value) {
-    if(value == null) {
+    if (value == null) {
       throw new NullPointerException("Must provide a value to store.");
     }
-    if(value.getSpecification() == null) {
+    if (value.getSpecification() == null) {
       throw new NullPointerException("Value provided must have a specification.");
     }
     _values.put(value.getSpecification(), value);
@@ -58,9 +57,13 @@ public class MapViewComputationCache implements ViewComputationCache {
   
   // for debugging.
   public void dump() {
-    for(Map.Entry<ValueSpecification, ComputedValue> entry : _values.entrySet()) {
+    for (Map.Entry<ValueSpecification, ComputedValue> entry : _values.entrySet()) {
       s_logger.info("{} => {}", entry.getKey(), entry.getValue());
     }
+  }
+  
+  public int size() {
+    return _values.size();
   }
 
 }

@@ -177,7 +177,9 @@ public class CSVPositionMaster implements PositionMaster {
 
   private Portfolio loadPortfolio(UniqueIdentifier portfolioId, InputStream inStream) throws IOException {
     PortfolioImpl portfolio = new PortfolioImpl(portfolioId, portfolioId.getValue());
-    _nodes.put(portfolio.getRootNode().getUniqueIdentifier(), portfolio.getRootNode());
+    UniqueIdentifier rootNodeId = UniqueIdentifier.of(portfolioId.getScheme(), "0");
+    portfolio.getRootNode().setUniqueIdentifier(rootNodeId);
+    _nodes.put(rootNodeId, portfolio.getRootNode());
     
     CSVReader csvReader = new CSVReader(new InputStreamReader(inStream));
     String[] tokens = null;

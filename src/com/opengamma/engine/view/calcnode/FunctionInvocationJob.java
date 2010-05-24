@@ -29,8 +29,6 @@ import com.opengamma.util.time.DateUtil;
 /**
  * The job that will actually invoke a {@link FunctionDefinition} as part
  * of dependency graph execution.
- *
- * @author kirk
  */
 public class FunctionInvocationJob implements Runnable {
   private static final Logger s_logger = LoggerFactory.getLogger(FunctionInvocationJob.class);
@@ -142,7 +140,7 @@ public class FunctionInvocationJob implements Runnable {
   public void run() {
     s_logger.debug("Invoking {} on target {}", getFunctionUniqueIdentifier(), getTarget());
     FunctionInvoker invoker = getFunctionRepository().getInvoker(getFunctionUniqueIdentifier());
-    if(invoker == null) {
+    if (invoker == null) {
       throw new NullPointerException("Unable to locate " + getFunctionUniqueIdentifier() + " in function repository.");
     }
     
@@ -154,24 +152,21 @@ public class FunctionInvocationJob implements Runnable {
     cacheResults(results);
   }
 
-  /**
-   * @param results
-   */
   protected void cacheResults(Set<ComputedValue> results) {
-    for(ComputedValue resultValue : results) {
+    for (ComputedValue resultValue : results) {
       getComputationCache().putValue(resultValue);
     }
   }
   
   protected FunctionInputs assembleInputs() {
     Collection<ComputedValue> inputs = new HashSet<ComputedValue>();
-    for(ValueSpecification inputSpec : getResolvedInputs()) {
+    for (ValueSpecification inputSpec : getResolvedInputs()) {
       Object input = getComputationCache().getValue(inputSpec);
-      if(input == null) {
+      if (input == null) {
         s_logger.info("Not able to execute as missing input {}", inputSpec);
         throw new MissingInputException(inputSpec, getFunctionUniqueIdentifier());
       }
-      inputs.add(new ComputedValue (inputSpec, input));
+      inputs.add(new ComputedValue(inputSpec, input));
     }
     FunctionInputs functionInputs = new FunctionInputsImpl(inputs);
     return functionInputs;

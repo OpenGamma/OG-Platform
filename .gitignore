@@ -12,3 +12,4 @@ build/
 lib/
 /.fudge-proto-gitignore
 /MANIFEST.MF
+.clover/
