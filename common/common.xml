@@ -103,8 +103,10 @@
 			fudgeContext="${fudge.proto.fudgeContext}"
 			rebuildAll="${fudge.proto.rebuildall}"
 			gitIgnore="${fudge.proto.gitIgnore}">
-			<fileHeader>///CLOVER:OFF</fileHeader>
-			<fileFooter>///CLOVER:ON</fileFooter>
+			<fileHeader>///CLOVER:OFF
+                        // CSOFF: Generated File</fileHeader>
+			<fileFooter>///CLOVER:ON
+                        // CSON: Generated File</fileFooter>
 		</fudgeproto>
 	</target>
 
