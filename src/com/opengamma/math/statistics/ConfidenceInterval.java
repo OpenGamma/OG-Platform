@@ -7,7 +7,6 @@ package com.opengamma.math.statistics;
 
 /**
  * 
- * @author emcleod
  */
 public class ConfidenceInterval {
   private final double _lower;
@@ -18,6 +17,8 @@ public class ConfidenceInterval {
   public ConfidenceInterval(final double value, final double lower, final double upper, final double confidenceLevel) {
     if (confidenceLevel < 0 || confidenceLevel > 1)
       throw new IllegalArgumentException("Confidence level must be in the range 0 <= x <= 1");
+    if (lower >= upper)
+      throw new IllegalArgumentException("Lower bound must be less than upper bound");
     if (value < lower)
       throw new IllegalArgumentException("Lower bound must be less than the value");
     if (value > upper)
