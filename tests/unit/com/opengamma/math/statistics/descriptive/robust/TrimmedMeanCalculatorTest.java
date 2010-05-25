@@ -15,7 +15,6 @@ import com.opengamma.math.statistics.descriptive.MeanCalculator;
 
 /**
  * 
- * @author emcleod
  */
 public class TrimmedMeanCalculatorTest {
   private static final int N = 100;
