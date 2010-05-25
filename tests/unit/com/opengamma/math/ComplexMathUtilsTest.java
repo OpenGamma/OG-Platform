@@ -185,6 +185,7 @@ public class ComplexMathUtilsTest {
     assertComplexEquals(ComplexMathUtils.multiply(ComplexMathUtils.divide(Z1, Z2), Z2), Z1);
     assertComplexEquals(ComplexMathUtils.multiply(ComplexMathUtils.divide(Z1, X), X), Z1);
     assertComplexEquals(ComplexMathUtils.multiply(ComplexMathUtils.divide(X, Z1), Z1), X_C);
+    assertComplexEquals(ComplexMathUtils.multiply(X, Z1), ComplexMathUtils.multiply(Z1, X));
   }
 
   @Test
