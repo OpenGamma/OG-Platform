@@ -18,7 +18,7 @@ public interface Sensitivity<T> {
 
   public int getOrder();
 
-  public Set<UnderlyingType> getUnderlyings();
+  public Set<UnderlyingType> getUnderlyingTypes();
 
   public Underlying getUnderlying();
 }

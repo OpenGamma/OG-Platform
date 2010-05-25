@@ -9,12 +9,15 @@ import java.util.Set;
 
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
+import com.opengamma.util.ArgumentChecker;
 
 public class ValueGreekSensitivity implements Sensitivity<ValueGreek> {
   private final ValueGreek _valueGreek;
   private final String _identifier;
 
   public ValueGreekSensitivity(final ValueGreek valueGreek, final String identifier) {
+    ArgumentChecker.notNull(valueGreek, "ValueGreek");
+    ArgumentChecker.notNull(identifier, "identifier");
     _valueGreek = valueGreek;
     _identifier = identifier;
   }
@@ -29,14 +32,17 @@ public class ValueGreekSensitivity implements Sensitivity<ValueGreek> {
     return _valueGreek;
   }
 
+  @Override
   public int getOrder() {
     return _valueGreek.getUnderlyingGreek().getUnderlying().getOrder();
   }
 
-  public Set<UnderlyingType> getUnderlyings() {
+  @Override
+  public Set<UnderlyingType> getUnderlyingTypes() {
     return _valueGreek.getUnderlyingGreek().getUnderlying().getUnderlyings();
   }
 
+  @Override
   public Underlying getUnderlying() {
     return _valueGreek.getUnderlyingGreek().getUnderlying();
   }
@@ -45,4 +51,6 @@ public class ValueGreekSensitivity implements Sensitivity<ValueGreek> {
   public String toString() {
     return "[" + _valueGreek.toString() + ", " + _identifier + "]";
   }
+
+  // hashCode() and equals() deliberately not overridden
 }
