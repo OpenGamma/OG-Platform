@@ -12,25 +12,24 @@ package com.opengamma.security.user;
  * change the name of the group. You then call {@link #updateUser}.
  * <p>
  * In this case, the user's password and their group membership would be changed. However, to update the
- * name of the group, you would need to call {@link #updateUserGroup} separately.     
- *
- * @author pietari
+ * name of the group, you would need to call {@link #updateUserGroup} separately.
+ *      
  */
 public interface UserManager {
-  
-  public User getUser(final String username);
-  public void addUser(User user);
-  public void deleteUser(User user);
-  public void updateUser(User user);
 
-  public UserGroup getUserGroup(final String name);
-  public void addUserGroup(UserGroup group);
-  public void deleteUserGroup(UserGroup group);
-  public void updateUserGroup(UserGroup group);
+  User getUser(final String username);
+  void addUser(User user);
+  void deleteUser(User user);
+  void updateUser(User user);
 
-  public Authority getAuthority(final String authority);
-  public void addAuthority(Authority authority);
-  public void deleteAuthority(Authority authority);
-  public void updateAuthority(Authority authority);
+  UserGroup getUserGroup(final String name);
+  void addUserGroup(UserGroup group);
+  void deleteUserGroup(UserGroup group);
+  void updateUserGroup(UserGroup group);
+
+  Authority getAuthority(final String authority);
+  void addAuthority(Authority authority);
+  void deleteAuthority(Authority authority);
+  void updateAuthority(Authority authority);
 
 }

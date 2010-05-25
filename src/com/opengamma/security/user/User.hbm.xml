@@ -9,7 +9,7 @@
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
     </id>
     <property name="username" not-null="true" unique="true"/>
-    <property name="password" not-null="true"/>
+    <property name="passwordHash" column="password" not-null="true"/>
     <set name="userGroups" table="user_to_user_group">
     	<key column="user_id"/>
     	<many-to-many column="user_group_id" class="UserGroup"/>

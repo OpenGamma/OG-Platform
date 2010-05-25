@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 @Transactional
 public class HibernateUserManager implements UserManager, UserDetailsService {
 
-  private HibernateTemplate _hibernateTemplate = null;
+  private HibernateTemplate _hibernateTemplate;
 
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
@@ -36,7 +36,7 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   
   @Override
   public UserDetails loadUserByUsername(String username)
-      throws UsernameNotFoundException {
+    throws UsernameNotFoundException {
     User user = getUser(username);
     if (user == null) {
       throw new UsernameNotFoundException(username);
@@ -144,6 +144,9 @@ public class HibernateUserManager implements UserManager, UserDetailsService {
   }
   
   public static Class<?>[] getHibernateMappingClasses() {
-    return new Class[] { User.class, UserGroup.class, Authority.class };
+    return new Class[] {
+      User.class, 
+      UserGroup.class, 
+      Authority.class };
   }
 }

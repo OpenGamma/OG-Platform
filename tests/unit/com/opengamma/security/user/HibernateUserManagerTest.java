@@ -92,7 +92,7 @@ public class HibernateUserManagerTest extends HibernateTest {
     _userManager.updateUser(user);
     user = _userManager.getUser("testuser"); 
     Assert.assertNotNull(user);
-    Assert.assertTrue(user.getPassword().equals("modifiedtestpw"));
+    Assert.assertTrue(user.checkPassword("modifiedtestpw"));
     
     // Delete
     _userManager.deleteUser(user);
@@ -104,7 +104,7 @@ public class HibernateUserManagerTest extends HibernateTest {
     User user;
     user = new User();
     user.setUsername("testuser");
-    user.setPassword("testpw");
+    user.setPasswordHash("testpw");
     user.setLastLogin(new Date());
     return user;
   }

@@ -11,31 +11,29 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 
+import com.opengamma.util.security.BCrypt;
+
 /**
- * 
- * 
- * @author pietari
+ * User of the OpenGamma system.
  */
 public class User implements UserDetails {
 
   private Long _id;
   private String _username;
-  private String _password;
+  private String _passwordHash;
   private Set<UserGroup> _userGroups = new HashSet<UserGroup>();
   private Date _lastLogin;
-  
-  public User(Long id,
-      String username,
-      String password,
-      Set<UserGroup> userGroups,
-      Date lastLogin) {
+
+  public User(Long id, String username, String password, Set<UserGroup> userGroups, Date lastLogin) {
     _id = id;
     _username = username;
-    _password = password;
+    setPassword(password);
     _userGroups = userGroups;
     _lastLogin = lastLogin;
   }
@@ -59,12 +57,29 @@ public class User implements UserDetails {
     this._username = username;
   }
 
+  @Override
   public String getPassword() {
-    return _password;
+    throw new UnsupportedOperationException("For security reasons, " + "we don't store the password itself");
   }
 
   public void setPassword(String password) {
-    this._password = password;
+    // we don't store the actual password
+    _passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
+  }
+
+  /**
+   * @return true if the password is OK, false otherwise
+   */
+  public boolean checkPassword(String password) {
+    return BCrypt.checkpw(password, _passwordHash);
+  }
+
+  public String getPasswordHash() {
+    return _passwordHash;
+  }
+
+  public void setPasswordHash(String passwordHash) {
+    this._passwordHash = passwordHash;
   }
 
   public Set<UserGroup> getUserGroups() {
@@ -82,16 +97,16 @@ public class User implements UserDetails {
   public void setLastLogin(Date lastLogin) {
     this._lastLogin = lastLogin;
   }
-  
+
   @Override
   public GrantedAuthority[] getAuthorities() {
     Collection<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
     for (Authority authority : getAuthoritySet()) {
-        authorities.add(new GrantedAuthorityImpl(authority.getRegex()));        
+      authorities.add(new GrantedAuthorityImpl(authority.getRegex()));
     }
     return authorities.toArray(new GrantedAuthority[0]);
   }
-  
+
   @Override
   public boolean isAccountNonExpired() {
     return true;
@@ -111,7 +126,7 @@ public class User implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
-  
+
   public Set<Authority> getAuthoritySet() {
     Set<Authority> authorities = new HashSet<Authority>();
     for (UserGroup group : _userGroups) {
@@ -119,7 +134,7 @@ public class User implements UserDetails {
     }
     return authorities;
   }
-  
+
   /**
    * Returns whether this <code>User</code> has the given permission.
    * This will be the case if and only if the permission matches at least one of this user's <code>Authorities</code>.
@@ -136,30 +151,25 @@ public class User implements UserDetails {
     }
     return false;
   }
-  
+
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((_id == null) ? 0 : _id.hashCode());
-    return result;
+    return new HashCodeBuilder().append(_id).toHashCode();
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (obj == null) {
+      return false;
+    }
+    if (obj == this) {
       return true;
-    if (obj == null)
+    }
+    if (obj.getClass() != getClass()) {
       return false;
-    if (getClass() != obj.getClass())
-      return false;
-    User other = (User) obj;
-    if (_id == null) {
-      if (other._id != null)
-        return false;
-    } else if (!_id.equals(other._id))
-      return false;
-    return true;
+    }
+    User rhs = (User) obj;
+    return new EqualsBuilder().append(_id, rhs._id).isEquals();
   }
 
   @Override

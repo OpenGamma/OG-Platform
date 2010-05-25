@@ -5,6 +5,10 @@
  */
 package com.opengamma.security.user;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,6 +41,21 @@ public class UserTest {
     Assert.assertTrue(user.hasPermission("/Portfolio/7890/Read"));
     Assert.assertFalse(user.hasPermission("/Portfolio/7890/Write"));
     Assert.assertFalse(user.hasPermission("/Portfolio/Foo/Read"));
+  }
+  
+  @Test
+  public void password() {
+    String password = "crpty&@ö9,3 % (4/10)";
+    User user = new User();
+    user.setPassword(password);
+    try {
+      user.getPassword();
+      fail();
+    } catch (UnsupportedOperationException e) {
+    }
+    assertFalse(password.equals(user.getPasswordHash()));
+    assertTrue(user.checkPassword(password));
+    assertFalse(user.checkPassword("goog"));
   }
   
 
