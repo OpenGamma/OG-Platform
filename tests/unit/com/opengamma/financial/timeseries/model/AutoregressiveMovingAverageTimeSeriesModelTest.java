@@ -19,7 +19,6 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
@@ -62,6 +61,51 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
     MA = MA_MODEL.getSeries(theta1, Q, DATES);
     AR = AR_MODEL.getSeries(PHI, P, DATES);
     LIMIT /= Math.sqrt(n);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testNull() {
+    new AutoregressiveMovingAverageTimeSeriesModel(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullPhi() {
+    MODEL.getSeries(null, P, THETA, Q, DATES);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeP() {
+    MODEL.getSeries(PHI, -P, THETA, Q, DATES);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongP() {
+    MODEL.getSeries(PHI, 2 * P, THETA, Q, DATES);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullTheta() {
+    MODEL.getSeries(PHI, P, null, Q, DATES);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeQ() {
+    MODEL.getSeries(PHI, P, THETA, -Q, DATES);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testWrongQ() {
+    MODEL.getSeries(PHI, P, THETA, 2 * Q, DATES);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testNullDates() {
+    MODEL.getSeries(PHI, P, THETA, Q, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptyDates() {
+    MODEL.getSeries(PHI, P, THETA, Q, new long[0]);
   }
 
   @Test
