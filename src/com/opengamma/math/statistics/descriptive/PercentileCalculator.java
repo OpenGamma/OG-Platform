@@ -8,10 +8,10 @@ package com.opengamma.math.statistics.descriptive;
 import java.util.Arrays;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- * @author emcleod
  */
 public class PercentileCalculator extends Function1D<Double[], Double> {
   private double _percentile;
@@ -30,10 +30,8 @@ public class PercentileCalculator extends Function1D<Double[], Double> {
 
   @Override
   public Double evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length == 0)
-      throw new IllegalArgumentException("Array was empty");
+    ArgumentChecker.notNull(x, "x");
+    ArgumentChecker.notEmpty(x, "x");
     final int length = x.length;
     final Double[] copy = Arrays.copyOf(x, length);
     Arrays.sort(copy);

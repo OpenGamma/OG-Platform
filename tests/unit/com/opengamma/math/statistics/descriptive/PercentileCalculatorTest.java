@@ -16,11 +16,18 @@ import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
- * @author emcleod
  */
 public class PercentileCalculatorTest {
   private static final PercentileCalculator CALCULATOR = new PercentileCalculator(0.1);
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
+  private static final int N = 100;
+  private static final Double[] X = new Double[N];
+
+  static {
+    for (int i = 0; i < N; i++) {
+      X[i] = RANDOM.nextDouble();
+    }
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighPercentile() {
@@ -42,7 +49,7 @@ public class PercentileCalculatorTest {
     CALCULATOR.setPercentile(0);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((Double[]) null);
   }
@@ -53,24 +60,30 @@ public class PercentileCalculatorTest {
   }
 
   @Test
-  public void test() {
-    final int n = 100;
-    final Double[] x = new Double[n];
-    for (int i = 0; i < n; i++) {
-      x[i] = RANDOM.nextDouble();
-    }
-    testResult(x, 10, n);
-    testResult(x, 99, n);
-    testResult(x, 50, n);
+  public void testExtremes() {
+    final Double[] y = Arrays.copyOf(X, X.length);
+    Arrays.sort(y);
+    CALCULATOR.setPercentile(1e-15);
+    assertEquals(CALCULATOR.evaluate(X), y[0], 0);
+    CALCULATOR.setPercentile(1 - 1e-15);
+    assertEquals(CALCULATOR.evaluate(X), y[N - 1], 0);
   }
 
-  private void testResult(final Double[] x, final int percentile, final int n) {
-    final Double[] copy = Arrays.copyOf(x, n);
+  @Test
+  public void test() {
+    testResult(X, 10);
+    testResult(X, 99);
+    testResult(X, 50);
+  }
+
+  private void testResult(final Double[] x, final int percentile) {
+    final Double[] copy = Arrays.copyOf(x, N);
     Arrays.sort(copy);
     int count = 0;
-    CALCULATOR.setPercentile(((double) percentile) / n);
+    CALCULATOR.setPercentile(((double) percentile) / N);
     final double value = CALCULATOR.evaluate(x);
     while (copy[count++] < value) {
+      //intended
     }
     assertEquals(count - 1, percentile);
   }

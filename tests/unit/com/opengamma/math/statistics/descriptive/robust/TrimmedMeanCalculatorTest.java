@@ -24,12 +24,12 @@ public class TrimmedMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testLowGamma() {
-    new WinsorizedMeanCalculator(0);
+    new WinsorizedMeanCalculator(-0.3);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighGamma() {
-    new WinsorizedMeanCalculator(1);
+    new WinsorizedMeanCalculator(1.3);
   }
 
   @Test(expected = NullPointerException.class)
