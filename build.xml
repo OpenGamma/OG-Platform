@@ -5,17 +5,15 @@
 
 	<available property="dbscript.create" value="${basedir}/create" file="${basedir}/create-db-common.sql" />
 	<target name="dbscript-create-db-sql" if="dbscript.create">
-		<subant target="create-db-sql-impl-2">
-			<property name="dbscript.prefix" value="create" />
-			<fileset file="${parent.dir}/build.xml" />
-		</subant>
+	    <antcall target="create-db-sql-impl-2">
+            <param name="dbscript.prefix" value="create" />
+	    </antcall>
 	</target>
 	<available property="dbscript.upgrade" value="${basedir}/upgrade" file="${basedir}/upgrade-db-common.sql" />
 	<target name="dbscript-upgrade-db-sql" if="dbscript.upgrade">
-		<subant target="create-db-sql-impl-2">
-			<property name="dbscript.prefix" value="upgrade" />
-			<fileset file="${parent.dir}/build.xml" />
-		</subant>
+        <antcall target="create-db-sql-impl-2">
+            <param name="dbscript.prefix" value="upgrade" />
+        </antcall>
 	</target>
 	<target name="create-db-sql-impl" depends="dbscript-create-db-sql,dbscript-upgrade-db-sql" />
 	<target name="create-db-sql-impl-2" if="dbscript.prefix">
@@ -40,7 +38,7 @@
 		<subant target="create-db-sql-impl" genericantfile="${basedir}/build.xml">
 			<property name="parent.dir" value="${basedir}" />
 			<property name="common.dir" value="${common.dir}" />
-			<dirset dir="${basedir}/db" includes="*/scripts_*" />
+			<dirset dir="." includes="db/**/scripts_*" />
 		</subant>
 	</target>
 	
