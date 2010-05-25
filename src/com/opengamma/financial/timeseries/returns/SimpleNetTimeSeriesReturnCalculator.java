@@ -8,6 +8,7 @@ package com.opengamma.financial.timeseries.returns;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
@@ -50,8 +51,7 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
    */
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-    if (x == null)
-      throw new TimeSeriesException("Time series array was null");
+    ArgumentChecker.notNull(x, "x");
     if (x.length == 0)
       throw new TimeSeriesException("Need at least one time series");
     if (x[0] == null)

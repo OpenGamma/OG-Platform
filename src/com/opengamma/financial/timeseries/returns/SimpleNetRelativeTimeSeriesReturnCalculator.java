@@ -29,15 +29,10 @@ public class SimpleNetRelativeTimeSeriesReturnCalculator extends RelativeTimeSer
 
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-    if (x == null)
-      throw new TimeSeriesException("Time series array was null");
+    testInputData(x);
     if (x.length > 2) {
       s_Log.info("Have more than two time series in array; only using first two");
     }
-    if (x[0] == null)
-      throw new TimeSeriesException("First time series was null");
-    if (x[1] == null)
-      throw new TimeSeriesException("Second time series was null");
     final FastLongDoubleTimeSeries ts1 = x[0].toFastLongDoubleTimeSeries();
     final FastLongDoubleTimeSeries ts2 = x[1].toFastLongDoubleTimeSeries();
     final int n = ts1.size();

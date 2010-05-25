@@ -8,6 +8,7 @@ package com.opengamma.financial.timeseries.returns;
 import java.util.Arrays;
 
 import com.opengamma.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
@@ -35,6 +36,8 @@ public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnC
    *          series (can be null but it must be the second element), the
    *          reference price series and the reference dividend series. Any
    *          further elements will be ignored.
+   * @throws NullPointerException
+   *           If the array is null
    * @throws TimeSeriesException
    *           Throws an exception if: the array is null; the array has less
    *           than two elements; the calculation mode is strict and the price
@@ -43,8 +46,8 @@ public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnC
    */
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-    if (x == null)
-      throw new TimeSeriesException("Time series array was null");
+    ArgumentChecker.notNull(x, "x");
+    System.out.println(x.length + " " + (x.length < 4));
     if (x.length < 4)
       throw new TimeSeriesException("Time series array must contain at least four elements");
     if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size())

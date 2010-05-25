@@ -60,9 +60,12 @@ public class ConfidenceIntervalTest {
     final ConfidenceInterval interval4 = new ConfidenceInterval(VALUE, LOWER, UPPER + 1, CONFIDENCE_LEVEL);
     final ConfidenceInterval interval5 = new ConfidenceInterval(VALUE, LOWER, UPPER, CONFIDENCE_LEVEL + 0.01);
     final ConfidenceInterval interval6 = new ConfidenceInterval(VALUE, LOWER, UPPER, CONFIDENCE_LEVEL);
+    assertEquals(interval1, interval1);
     assertEquals(interval1, interval6);
     assertEquals(interval1.hashCode(), interval6.hashCode());
     assertFalse(interval1.equals(interval2));
+    assertFalse(interval1.equals(null));
+    assertFalse(interval1.equals(2));
     assertFalse(interval1.equals(interval3));
     assertFalse(interval1.equals(interval4));
     assertFalse(interval1.equals(interval5));

@@ -8,6 +8,7 @@ package com.opengamma.financial.timeseries.returns;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
@@ -41,8 +42,10 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    *          treated as if the dividend was zero), and the dividend data points
    *          do not have to correspond to any of the dates in the price series
    *          (in which case, the result is the continuously-compounded return).
+   * @throws NullPointerException
+   *           If the array is null
    * @throws TimeSeriesException
-   *           Throws an exception if: the array is null; it has no elements;
+   *           Throws an exception if: it has no elements;
    *           the time series has less than two entries; if the calculation
    *           mode is strict and there are zeroes in the price series.
    * @return A DoubleTimeSeries containing the return series. This will always
@@ -50,8 +53,7 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    */
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-    if (x == null)
-      throw new TimeSeriesException("Time series array was null");
+    ArgumentChecker.notNull(x, "x");
     if (x.length == 0)
       throw new TimeSeriesException("Need at least one time series");
     if (x[0] == null)
