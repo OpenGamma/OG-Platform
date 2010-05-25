@@ -67,7 +67,7 @@ public class DbPositionMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_posMaster);
-    assertEquals(_posMaster.getIdentifierScheme(), "Db.Derby.PosMaster");
+    assertEquals(true, _posMaster.getIdentifierScheme().matches("Db[.][A-Za-z]+[.]PosMaster"));
     assertNotNull(_posMaster.getTemplate());
     assertNotNull(_posMaster.getTimeSource());
   }
@@ -206,7 +206,7 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   private PortfolioImpl buildPortfolio() {
-    final PortfolioImpl base = new PortfolioImpl(UniqueIdentifier.of("Test", "1"), "Test Equity Option Portfolio");
+    final PortfolioImpl base = new PortfolioImpl("Test Equity Option Portfolio");
     base.getRootNode().setName("Test Equity Option Portfolio Node");
     PortfolioNodeImpl node = new PortfolioNodeImpl();
     node.setName("Options on AAPL US Equity");

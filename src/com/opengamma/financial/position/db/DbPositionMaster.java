@@ -140,7 +140,7 @@ public class DbPositionMaster implements PositionMaster {
     ArgumentChecker.notNull(uid, "UniqueIdentifier");
     if (uid.getScheme().equals(getIdentifierScheme()) == false) {
       s_logger.debug("invalid UniqueIdentifier scheme: {}", uid.getScheme());
-      throw new IllegalArgumentException("Invalid identifier for HibernatePositionMaster: " + uid);
+      throw new IllegalArgumentException("Invalid identifier for DbPositionMaster: " + uid);
     }
   }
 
