@@ -15,7 +15,6 @@ import com.opengamma.math.interpolation.Interpolator1D;
 
 /**
  * 
- * @author emcleod
  */
 public class InterpolatedVolatilityCurve extends VolatilityCurve {
   private final SortedMap<Double, Double> _volatilityData;
