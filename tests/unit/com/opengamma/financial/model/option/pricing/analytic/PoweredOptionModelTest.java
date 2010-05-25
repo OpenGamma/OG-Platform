@@ -44,7 +44,7 @@ public class PoweredOptionModelTest {
   @Test
   public void testNonIntegerPower() {
     try {
-      POWERED_MODEL.getGreeks(new PoweredOptionDefinition(100, EXPIRY, 1.3, true), null, REQUIRED_GREEKS);
+      POWERED_MODEL.getGreeks(new PoweredOptionDefinition(100, EXPIRY, 1.3, true), getBundle(0.), REQUIRED_GREEKS);
       fail();
     } catch (final OptionPricingException e) {
       // Expected
