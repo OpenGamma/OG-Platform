@@ -73,6 +73,8 @@ public class TimeSeriesReturnCalculatorFactory {
     s_instanceStrictNames.put(SIMPLE_GROSS_STRICT_CALCULATOR.getClass(), SIMPLE_GROSS_STRICT);
     s_staticLenientInstances.put(SIMPLE_NET_LENIENT, SIMPLE_NET_LENIENT_CALCULATOR);
     s_instanceStrictNames.put(SIMPLE_NET_LENIENT_CALCULATOR.getClass(), SIMPLE_NET_LENIENT);
+    s_staticLenientInstances.put(SIMPLE_NET_STRICT, SIMPLE_NET_STRICT_CALCULATOR);
+    s_instanceStrictNames.put(SIMPLE_NET_STRICT_CALCULATOR.getClass(), SIMPLE_NET_STRICT);
     s_staticLenientInstances.put(SIMPLE_NET_RELATIVE_LENIENT, SIMPLE_NET_RELATIVE_LENIENT_CALCULATOR);
     s_instanceLenientNames.put(SIMPLE_NET_RELATIVE_LENIENT_CALCULATOR.getClass(), SIMPLE_NET_RELATIVE_LENIENT);
     s_staticStrictInstances.put(SIMPLE_NET_RELATIVE_STRICT, SIMPLE_NET_RELATIVE_STRICT_CALCULATOR);
