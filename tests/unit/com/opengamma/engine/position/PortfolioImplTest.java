@@ -22,22 +22,17 @@ public class PortfolioImplTest {
 
   @Test
   public void test_construction_String() {
-    PortfolioImpl test = new PortfolioImpl("Basic::Id");
-    assertEquals(id("Basic", "Id"), test.getUniqueIdentifier());
-    assertEquals("Basic::Id", test.getName());
+    PortfolioImpl test = new PortfolioImpl("Name");
+    assertEquals(null, test.getUniqueIdentifier());
+    assertEquals("Name", test.getName());
     assertEquals(true, test.getRootNode() instanceof PortfolioNodeImpl);
     assertEquals(0, test.getRootNode().size());
-    assertEquals("Portfolio[Basic::Id]", test.toString());
+    assertEquals("Portfolio[]", test.toString());
   }
 
   @Test(expected=NullPointerException.class)
   public void test_construction_String_null() {
     new PortfolioImpl(null);
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void test_construction_String_empty() {
-    new PortfolioImpl("");
   }
 
   //-------------------------------------------------------------------------
