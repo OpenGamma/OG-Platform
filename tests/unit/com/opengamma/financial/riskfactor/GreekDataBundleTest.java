@@ -15,81 +15,80 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
+import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.greeks.NthOrderUnderlying;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.pnl.UnderlyingType;
-import com.opengamma.financial.sensitivity.PositionGreek;
 
 /**
  * 
  */
-public class PositionGreekDataBundleTest {
-  private static final PositionGreek DELTA = new PositionGreek(Greek.DELTA);
+public class GreekDataBundleTest {
   private static final double DELTA_VALUE = 120;
   private static final Object UNDERLYING = new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE);
   private static final double SPOT_VALUE = 10;
-  private static final Map<PositionGreek, Double> RISK_FACTORS = new HashMap<PositionGreek, Double>();
+  private static final GreekResultCollection GREEK_RESULTS = new GreekResultCollection();
   private static final Map<Object, Double> UNDERLYING_DATA = new HashMap<Object, Double>();
-  private static final PositionGreekDataBundle DATA;
+  private static final GreekDataBundle DATA;
 
   static {
-    RISK_FACTORS.put(DELTA, DELTA_VALUE);
+    GREEK_RESULTS.put(Greek.DELTA, DELTA_VALUE);
     UNDERLYING_DATA.put(UNDERLYING, SPOT_VALUE);
-    DATA = new PositionGreekDataBundle(RISK_FACTORS, UNDERLYING_DATA);
+    DATA = new GreekDataBundle(GREEK_RESULTS, UNDERLYING_DATA);
   }
 
   @Test(expected = NullPointerException.class)
   public void testNullRiskFactors() {
-    new PositionGreekDataBundle(null, UNDERLYING_DATA);
+    new GreekDataBundle(null, UNDERLYING_DATA);
   }
 
   @Test(expected = NullPointerException.class)
   public void testNullUnderlyingData() {
-    new PositionGreekDataBundle(RISK_FACTORS, null);
+    new GreekDataBundle(GREEK_RESULTS, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyRiskFactors() {
-    new PositionGreekDataBundle(Collections.<PositionGreek, Double> emptyMap(), UNDERLYING_DATA);
+    new GreekDataBundle(new GreekResultCollection(), UNDERLYING_DATA);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyUnderlyingData() {
-    new PositionGreekDataBundle(RISK_FACTORS, Collections.<Object, Double> emptyMap());
+    new GreekDataBundle(GREEK_RESULTS, Collections.<Object, Double> emptyMap());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetRiskFactorResults() {
-    DATA.getRiskFactorValueForRiskFactor(new PositionGreek(Greek.GAMMA));
+    DATA.getGreekResultForGreek(Greek.GAMMA);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetUnderlyingData() {
-    DATA.getUnderlyingDataForObject(DELTA);
+    DATA.getUnderlyingDataForObject(Greek.DELTA);
   }
 
   @Test
   public void testGetters() {
-    assertEquals(DATA.getRiskFactorResults(), RISK_FACTORS);
+    assertEquals(DATA.getGreekResults(), GREEK_RESULTS);
     assertEquals(DATA.getUnderlyingData(), UNDERLYING_DATA);
-    assertEquals(DATA.getRiskFactorValueForRiskFactor(DELTA), DELTA_VALUE, 0);
+    assertEquals(DATA.getGreekResultForGreek(Greek.DELTA), DELTA_VALUE, 0);
     assertEquals(DATA.getUnderlyingDataForObject(UNDERLYING), SPOT_VALUE, 0);
 
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    final PositionGreekDataBundle data1 = new PositionGreekDataBundle(RISK_FACTORS, UNDERLYING_DATA);
+    final GreekDataBundle data1 = new GreekDataBundle(GREEK_RESULTS, UNDERLYING_DATA);
     final Map<Object, Double> underlyingData = new HashMap<Object, Double>();
     underlyingData.putAll(UNDERLYING_DATA);
     underlyingData.put(TradeData.NUMBER_OF_CONTRACTS, 100.);
-    final PositionGreekDataBundle data2 = new PositionGreekDataBundle(RISK_FACTORS, underlyingData);
+    final GreekDataBundle data2 = new GreekDataBundle(GREEK_RESULTS, underlyingData);
     assertEquals(DATA, data1);
     assertEquals(DATA.hashCode(), data1.hashCode());
     assertFalse(DATA.equals(data2));
     assertFalse(DATA.hashCode() == data2.hashCode());
     assertEquals(DATA, DATA);
     assertFalse(DATA.equals(null));
-    assertFalse(DATA.equals(RISK_FACTORS));
+    assertFalse(DATA.equals(GREEK_RESULTS));
   }
 }
