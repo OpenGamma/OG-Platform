@@ -178,7 +178,7 @@
 	</target>
 
 	<target name="clone-or-pull" description="clone or pull all projects from git">
-		<mkdir dir="projects" />
+		<mkdir dir="projec:ts" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Java.git" dest="projects/Fudge-Java" />
 		<git-clone-pull repository="git@github.com:OpenGamma/Fudge-Proto.git" dest="projects/Fudge-Proto" />
 		<git-clone-pull repository="git@github.com:OpenGamma/OG-Analytics.git" dest="projects/OG-Analytics" />
@@ -194,6 +194,7 @@
 	</target>
 
 	<target name="pull" description="pull origin master all projects from git">
+		<git-pull dest="." />
 		<git-pull dest="projects/Fudge-Java" />
 		<git-pull dest="projects/Fudge-Proto" />
 		<git-pull dest="projects/OG-Analytics" />
