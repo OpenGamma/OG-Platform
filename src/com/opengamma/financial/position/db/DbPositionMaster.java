@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -32,7 +33,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.util.Assert;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
@@ -150,7 +153,7 @@ public class DbPositionMaster implements PositionMaster {
    * @param version  the version
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createPortfolioUniqueIdentifier(long portfolioOid, long version) {
+  protected UniqueIdentifier createPortfolioUniqueIdentifier(final long portfolioOid, final long version) {
     return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(portfolioOid), Long.toString(version));
   }
 
@@ -161,35 +164,56 @@ public class DbPositionMaster implements PositionMaster {
    * @param version  the version
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(long portfolioOid, long oid, long version) {
+  protected UniqueIdentifier createUniqueIdentifier(final long portfolioOid, final long oid, final long version) {
     String value = new StringBuilder().append(portfolioOid).append('-').append(oid).toString();
     return UniqueIdentifier.of(getIdentifierScheme(), value, Long.toString(version));
   }
 
   /**
+   * Sets the unique identifier on an object.
+   * @param obj  the object to set on, null ignored
+   * @param uid  the unique identifier to set, not null
+   */
+  protected void setUniqueIdentifier(final Object obj, final UniqueIdentifier uid) {
+    if (obj instanceof MutableUniqueIdentifiable) {
+      ((MutableUniqueIdentifiable) obj).setUniqueIdentifier(uid);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Extracts a portfolio object identifier from a unique identifier.
    * @param uid  the unique identifier, not null
-   * @return the portfolio object identifier, not null
+   * @return the portfolio object identifier
    */
-  protected Long extractPortfolioOid(final UniqueIdentifier uid) {
+  protected long extractPortfolioOid(final UniqueIdentifier uid) {
     int pos = uid.getValue().indexOf('-');
     if (pos < 0) {
-      return new Long(uid.getValue());
+      return Long.parseLong(uid.getValue());
     }
-    return new Long(uid.getValue().substring(0, pos));
+    return Long.parseLong(uid.getValue().substring(0, pos));
   }
 
   /**
    * Extracts the non-portfolio object identifier from a unique identifier.
    * @param uid  the unique identifier, not null
-   * @return the non-portfolio object identifier, not null
+   * @return the non-portfolio object identifier
    */
-  protected Long extractOtherOid(final UniqueIdentifier uid) {
+  protected long extractOtherOid(final UniqueIdentifier uid) {
     int pos = uid.getValue().indexOf('-');
     if (pos < 0) {
       throw new IllegalArgumentException("Unique identifier is invalid: " + uid);
     }
-    return new Long(uid.getValue().substring(pos + 1));
+    return Long.parseLong(uid.getValue().substring(pos + 1));
+  }
+
+  /**
+   * Extracts the version from a unique identifier.
+   * @param uid  the unique identifier, not null
+   * @return the version
+   */
+  protected long extractVersion(final UniqueIdentifier uid) {
+    return Long.parseLong(uid.getVersion());
   }
 
   //-------------------------------------------------------------------------
@@ -197,12 +221,13 @@ public class DbPositionMaster implements PositionMaster {
    * Gets a portfolio by unique identifier.
    * @param uid  the unique identifier, not null
    * @return the portfolio, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
     checkIdentifierScheme(uid);
     if (uid.isVersioned()) {
-      return selectPortfolio(extractPortfolioOid(uid), new Long(uid.getVersion()));
+      return selectPortfolio(extractPortfolioOid(uid), extractVersion(uid));
     }
     return getPortfolio(uid, Instant.now(getTimeSource()));
   }
@@ -213,6 +238,7 @@ public class DbPositionMaster implements PositionMaster {
    * @param uid  the unique identifier, not null
    * @param instantProvider  the instant to query at, not null
    * @return the portfolio, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
   public Portfolio getPortfolio(final UniqueIdentifier uid, final InstantProvider instantProvider) {
     try {
@@ -221,7 +247,7 @@ public class DbPositionMaster implements PositionMaster {
       long portfolioOid = extractPortfolioOid(uid);
       long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
       return selectPortfolio(portfolioOid, version);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (DataNotFoundException ex) {
       return null;
     }
   }
@@ -232,12 +258,17 @@ public class DbPositionMaster implements PositionMaster {
    * @param portfolioOid  the portfolio object identifier
    * @param instant  the instant to query at, not null
    * @return the version number applicable at the instant
+   * @throws DataNotFoundException if the portfolio is not found
    */
   protected long selectVersionByPortfolioOidInstant(final long portfolioOid, final Instant instant) {
     MapSqlParameterSource map = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("instant", DateUtil.toSqlTimestamp(instant));
-    return getTemplate().queryForLong(sqlVersionByPortfolioOidInstant(), map);
+    try {
+      return getTemplate().queryForLong(sqlVersionByPortfolioOidInstant(), map);
+    } catch (EmptyResultDataAccessException ex) {
+      throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant, ex);
+    }
   }
 
   /**
@@ -325,12 +356,13 @@ public class DbPositionMaster implements PositionMaster {
    * Gets a portfolio node by unique identifier.
    * @param uid  the unique identifier, not null
    * @return the node, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
   @Override
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid) {
     checkIdentifierScheme(uid);
     if (uid.isVersioned()) {
-      return selectPortfolioNodeTree(extractPortfolioOid(uid), extractOtherOid(uid), new Long(uid.getVersion()));
+      return selectPortfolioNodeTree(extractPortfolioOid(uid), extractOtherOid(uid), extractVersion(uid));
     }
     return getPortfolioNode(uid, Instant.now(getTimeSource()));
   }
@@ -340,15 +372,16 @@ public class DbPositionMaster implements PositionMaster {
    * @param uid  the unique identifier, not null
    * @param instantProvider  the instant to query at, not null
    * @return the node, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid, final InstantProvider instantProvider) {
     try {
       checkIdentifierScheme(uid);
       Instant instant = Instant.of(instantProvider);
-      Long portfolioOid = extractPortfolioOid(uid);
-      Long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
+      long portfolioOid = extractPortfolioOid(uid);
+      long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
       return selectPortfolioNodeTree(portfolioOid, extractOtherOid(uid), version);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (DataNotFoundException ex) {
       return null;
     }
   }
@@ -469,12 +502,13 @@ public class DbPositionMaster implements PositionMaster {
    * Gets a position by unique identifier.
    * @param uid  the unique identifier, not null
    * @return the position, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
   @Override
   public Position getPosition(final UniqueIdentifier uid) {
     checkIdentifierScheme(uid);
     if (uid.isVersioned()) {
-      return selectPosition(extractPortfolioOid(uid), extractOtherOid(uid), new Long(uid.getVersion()));
+      return selectPosition(extractPortfolioOid(uid), extractOtherOid(uid), extractVersion(uid));
     }
     return getPosition(uid, Instant.now(getTimeSource()));
   }
@@ -484,15 +518,16 @@ public class DbPositionMaster implements PositionMaster {
    * @param uid  the unique identifier, not null
    * @param instantProvider  the instant to query at, not null
    * @return the position, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
   public Position getPosition(final UniqueIdentifier uid, final InstantProvider instantProvider) {
     try {
       checkIdentifierScheme(uid);
       Instant instant = Instant.of(instantProvider);
-      Long portfolioOid = extractPortfolioOid(uid);
+      long portfolioOid = extractPortfolioOid(uid);
       long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
       return selectPosition(portfolioOid, extractOtherOid(uid), version);
-    } catch (EmptyResultDataAccessException ex) {
+    } catch (DataNotFoundException ex) {
       return null;
     }
   }
@@ -626,6 +661,8 @@ public class DbPositionMaster implements PositionMaster {
   //-------------------------------------------------------------------------
   /**
    * Stores a portfolio.
+   * The portfolio may originate from another position master, but it will have
+   * its unique identifiers changed by calling this method.
    * @param portfolio  the portfolio to store, not null
    * @return the updated unique identifier of the portfolio, not null
    */
@@ -641,27 +678,49 @@ public class DbPositionMaster implements PositionMaster {
   }
 
   /**
-   * Removes a portfolio by end-dating the row.
+   * Updates a portfolio without updating the rest of the tree or positions.
    * This ignores the version in the object passed in.
    * @param portfolio  the portfolio to remove, not null
    * @return the unique identifier of the portfolio version that indicates removal, null if no row removed
+   * @throws IllegalArgumentException if the portfolio is not from this position master
+   * @throws DataNotFoundException if the portfolio is not found
    */
-  public UniqueIdentifier removePortfolio(final Portfolio portfolio) {
-    try {
-      ArgumentChecker.notNull(portfolio, "portfolio");
-      Instant instant = Instant.now(getTimeSource());
-      UniqueIdentifier oldUid = portfolio.getUniqueIdentifier();
-      checkIdentifierScheme(oldUid);
-      Long portfolioOid = extractPortfolioOid(oldUid);
-      long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);  // find latest version
-      UniqueIdentifier uid = updatePortfolioSetEndInstant(portfolioOid, version, instant);  // end-date it
-      if (portfolio instanceof MutableUniqueIdentifiable) {
-        ((MutableUniqueIdentifiable) portfolio).setUniqueIdentifier(uid);
-      }
-      return uid;
-    } catch (EmptyResultDataAccessException ex) {
-      return null;
+  public UniqueIdentifier updatePortfolioOnly(final Portfolio portfolio) {
+    Assert.notNull(portfolio, "portfolio");
+    Instant instant = Instant.now(getTimeSource());
+    UniqueIdentifier oldUid = portfolio.getUniqueIdentifier();
+    checkIdentifierScheme(oldUid);
+    long portfolioOid = extractPortfolioOid(oldUid);
+    long oldVersion = extractVersion(oldUid);
+    long latestVersion = selectVersionByPortfolioOidInstant(portfolioOid, instant);  // find latest version
+    if (oldVersion != latestVersion) {
+      throw new DataIntegrityViolationException("Unable to update Portfolio as version is not the latest version");
     }
+    updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old version
+    UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant);  // insert new version
+    setUniqueIdentifier(portfolio, uid);
+    return uid;
+  }
+
+  /**
+   * Removes a portfolio by end-dating the row.
+   * This ignores the version in the object passed in.
+   * @param portfolioUid  the portfolio unique identifier to remove, not null
+   * @return the unique identifier of the portfolio version that indicates removal, null if no row removed
+   * @throws IllegalArgumentException if the portfolio is not from this position master
+   * @throws DataNotFoundException if the portfolio is not found
+   */
+  public UniqueIdentifier removePortfolio(final UniqueIdentifier portfolioUid) {
+    ArgumentChecker.notNull(portfolioUid, "portfolio unique identifier");
+    Instant instant = Instant.now(getTimeSource());
+    checkIdentifierScheme(portfolioUid);
+    long portfolioOid = extractPortfolioOid(portfolioUid);
+    long oldVersion = extractVersion(portfolioUid);
+    long latestVersion = selectVersionByPortfolioOidInstant(portfolioOid, instant);  // find latest version
+    if (oldVersion != latestVersion) {
+      throw new DataIntegrityViolationException("Unable to update Portfolio as version is not the latest version");
+    }
+    return updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date it
   }
 
   //-------------------------------------------------------------------------
@@ -670,6 +729,7 @@ public class DbPositionMaster implements PositionMaster {
    * @param node  the node to add to, not null
    * @param positions  the positions to add, not null
    * @return the updated unique identifier of the node, not null
+   * @throws IllegalArgumentException if the node is not from this position master
    */
   public UniqueIdentifier addPositions(final PortfolioNode node, final List<Position> positions) {
     // TODO
@@ -685,6 +745,7 @@ public class DbPositionMaster implements PositionMaster {
    * Adds a position to the specified node.
    * @param position  the position to update, not null
    * @return the updated unique identifier of the position, not null
+   * @throws IllegalArgumentException if the node is not from this position master
    */
   public UniqueIdentifier updatePosition(final Position position) {
     // TODO
@@ -793,9 +854,7 @@ public class DbPositionMaster implements PositionMaster {
       .addValue("name", portfolio.getName());
     getTemplate().update(sqlInsertPortfolio(), args);
     UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
-    if (portfolio instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) portfolio).setUniqueIdentifier(uid);
-    }
+    setUniqueIdentifier(portfolio, uid);
     return uid;
   }
 
@@ -866,9 +925,7 @@ public class DbPositionMaster implements PositionMaster {
     treeList.add(treeArgs);
     // set the uid
     UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, nodeOid, version);
-    if (node instanceof MutableUniqueIdentifiable) {
-      ((MutableUniqueIdentifiable) node).setUniqueIdentifier(uid);
-    }
+    setUniqueIdentifier(node, uid);
   }
 
   /**
@@ -949,9 +1006,7 @@ public class DbPositionMaster implements PositionMaster {
       }
       // set the uid
       UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, positionOid, version);
-      if (position instanceof MutableUniqueIdentifiable) {
-        ((MutableUniqueIdentifiable) position).setUniqueIdentifier(uid);
-      }
+      setUniqueIdentifier(position, uid);
     }
   }
 

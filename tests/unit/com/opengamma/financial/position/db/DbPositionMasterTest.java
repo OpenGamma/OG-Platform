@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
@@ -188,7 +189,7 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_putPortfolio_getPortfolioIds_remove_getPortfoloIds() {
+  public void test_putPortfolio_getPortfolioIds() {
     final PortfolioImpl base = buildPortfolio();
     UniqueIdentifier uid = _posMaster.putPortfolio(base);
     
@@ -196,12 +197,64 @@ public class DbPositionMasterTest extends DBTest {
     assertNotNull(test1);
     assertEquals(1, test1.size());
     assertEquals(true, test1.contains(uid));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_putPortfolio_updatePortfolioOnly() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid1 = _posMaster.putPortfolio(base);
     
-    _posMaster.removePortfolio(base);
+    base.setName("New name");
+    UniqueIdentifier uid2 = _posMaster.updatePortfolioOnly(base);
     
+    final Portfolio test1 = _posMaster.getPortfolio(uid1);
+    assertNotNull(test1);
+    assertEquals("Test Equity Option Portfolio", test1.getName());
+    
+    final Portfolio test2 = _posMaster.getPortfolio(uid2);
+    assertNotNull(test2);
+    assertEquals("New name", test2.getName());
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_putPortfolio_updatePortfolioOnly_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.putPortfolio(base);
+    
+    final PortfolioImpl updated = new PortfolioImpl("New name");
+    updated.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "123456", "1"));  // invalid id
+    _posMaster.updatePortfolioOnly(updated);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_putPortfolio_removePortfolio() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.putPortfolio(base);
+    
+    _posMaster.removePortfolio(uid);
+    
+    // not returned in list of ids
     final Set<UniqueIdentifier> test2 = _posMaster.getPortfolioIds();
     assertNotNull(test2);
     assertEquals(0, test2.size());
+    
+    // still able to retrieve original
+    final Portfolio test3 = _posMaster.getPortfolio(uid);
+    assertNotNull(test3);
+    
+    // retrieving latest doesn't find it
+    final Portfolio test4 = _posMaster.getPortfolio(uid.toLatest());
+    assertEquals(null, test4);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_putPortfolio_removePortfolio_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.putPortfolio(base);
+    
+    _posMaster.removePortfolio(UniqueIdentifier.of(uid.getScheme(), "123456", "1"));  // invalid id
   }
 
   //-------------------------------------------------------------------------
