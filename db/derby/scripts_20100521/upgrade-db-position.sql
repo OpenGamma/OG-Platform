@@ -1,8 +1,6 @@
 
 -- upgrade-db-position.sql: Position Master
 
--- drop index pos_ix_nodehierarchy;
--- drop index pos_ix_nodeinclusion;
 drop table pos_nodeinclusion;
 drop table pos_nodehierarchy;
 drop table pos_identifierassociation;
@@ -27,7 +25,6 @@ create table pos_node (
     name varchar(255),
     primary key (oid, start_version)
 );
---    constraint pos_fk_node2portfolio foreign key (portfolio_oid) references pos_portfolio (oid)
 
 create table pos_nodetree (
     node_oid bigint not null,
@@ -37,7 +34,6 @@ create table pos_nodetree (
     right_id bigint not null,
     primary key (node_oid, start_version)
 );
---    constraint pos_fk_tree2node foreign key (node_oid) references pos_node (oid)
 
 create table pos_position (
     node_oid bigint not null,
@@ -47,7 +43,6 @@ create table pos_position (
     quantity decimal not null,
     primary key (oid, start_version)
 );
---    constraint pos_fk_position2node foreign key (node_oid) references pos_node (oid)
 
 create table pos_securitykey (
     position_oid bigint not null,
@@ -57,4 +52,3 @@ create table pos_securitykey (
     id_value varchar(255) not null,
     primary key (position_oid, start_version)
 );
---    constraint pos_fk_securitykey2position foreign key (position_oid) references pos_position (oid)
