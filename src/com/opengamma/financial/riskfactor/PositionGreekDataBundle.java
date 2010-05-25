@@ -20,7 +20,7 @@ public class PositionGreekDataBundle {
   public PositionGreekDataBundle(final Map<PositionGreek, Double> riskFactors, final Map<Object, Double> underlyingData) {
     ArgumentChecker.notNull(riskFactors, "Risk factors");
     ArgumentChecker.notNull(underlyingData, "Underlying data");
-    ArgumentChecker.notEmpty(riskFactors, "Risk factors)");
+    ArgumentChecker.notEmpty(riskFactors, "Risk factors");
     ArgumentChecker.notEmpty(underlyingData, "Underlying data");
     _riskFactors = riskFactors;
     _underlyingData = underlyingData;
@@ -46,11 +46,6 @@ public class PositionGreekDataBundle {
     throw new IllegalArgumentException("Risk factor result collection did not contain a value for " + riskFactor);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -60,11 +55,6 @@ public class PositionGreekDataBundle {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj)
