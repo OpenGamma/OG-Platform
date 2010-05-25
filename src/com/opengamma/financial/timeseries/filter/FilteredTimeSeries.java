@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class FilteredTimeSeries {
   private final DoubleTimeSeries<?> _filteredTS;
   private final DoubleTimeSeries<?> _rejectedTS;
 
   public FilteredTimeSeries(final DoubleTimeSeries<?> filteredTS, final DoubleTimeSeries<?> rejectedTS) {
+    ArgumentChecker.notNull(filteredTS, "filteredTS");
+    ArgumentChecker.notNull(rejectedTS, "rejectedTS");
     _filteredTS = filteredTS;
     _rejectedTS = rejectedTS;
   }

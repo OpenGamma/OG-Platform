@@ -6,7 +6,6 @@
 package com.opengamma.financial.timeseries.filter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,6 @@ import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
@@ -42,7 +40,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     VALUE_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullTS2() {
     RETURN_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
@@ -52,41 +50,71 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     new ExtremeValueDoubleTimeSeriesFilter(MAX, MIN);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullCalculator() {
     new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSetMax() {
+  public void testSetMaxValue() {
     VALUE_FILTER.setMaximumValue(MIN - 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSetMaxEqualsMin() {
+  public void testSetMaxReturn() {
+    RETURN_FILTER.setMaximumValue(MIN - 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetMaxEqualsMinValue() {
     VALUE_FILTER.setMaximumValue(MIN);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSetMin() {
+  public void testSetMaxEqualsMinReturn() {
+    RETURN_FILTER.setMaximumValue(MIN);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetMinValue() {
     VALUE_FILTER.setMinimumValue(MAX + 1);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testSetMinEqualsMax() {
+  public void testSetMinReturn() {
+    RETURN_FILTER.setMinimumValue(MAX + 1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetMinEqualsMaxValue() {
     VALUE_FILTER.setMinimumValue(MAX);
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testSetMinEqualsMaxReturn() {
+    RETURN_FILTER.setMinimumValue(MAX);
+  }
+
+  @Test(expected = NullPointerException.class)
   public void testSetCalculator() {
     RETURN_FILTER.setReturnCalculator(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetRangeValue() {
+    VALUE_FILTER.setRange(MAX, MIN);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetRangeReturn() {
+    RETURN_FILTER.setRange(MAX, MIN);
   }
 
   @Test
   public void testEmptyTS() {
     final FilteredTimeSeries filtered = VALUE_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-    assertNull(filtered.getRejectedTS());
+    assertEquals(filtered.getRejectedTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test
@@ -132,10 +160,9 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
       }
     }
     FilteredTimeSeries result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(ENCODING, rejectedDates,
-        rejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(ENCODING, rejectedDates, rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData), new FastListLongDoubleTimeSeries(ENCODING,
-        returnRejectedDates, returnRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData), new FastListLongDoubleTimeSeries(ENCODING, returnRejectedDates,
+        returnRejectedData)));
   }
 }
