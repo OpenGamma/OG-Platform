@@ -71,7 +71,7 @@ public class JmsSenderTest {
     _mdd.distributeLiveData(msg);
     _mdd.distributeLiveData(FudgeContext.EMPTY_MESSAGE); // empty message not sent
     
-    Thread.sleep(300); // allow data to flow through
+    Thread.sleep(500); // allow data to flow through
     
     assertEquals(1, _collectingReceiver.getMessages().size());
     
@@ -104,7 +104,7 @@ public class JmsSenderTest {
     _factory.transportResumed();
     _mdd.distributeLiveData(msg4);
     
-    Thread.sleep(300); // allow data to flow through
+    Thread.sleep(500); // allow data to flow through
 
     assertEquals(3, _collectingReceiver.getMessages().size());
     LiveDataValueUpdateBean[] updates = new LiveDataValueUpdateBean[3]; 
