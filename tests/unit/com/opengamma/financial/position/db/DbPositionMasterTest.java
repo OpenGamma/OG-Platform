@@ -33,6 +33,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.test.DBTest;
 
@@ -276,7 +277,11 @@ public class DbPositionMasterTest extends DBTest {
     node.addPosition(new PositionImpl(new BigDecimal(12), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C22 Equity")));
     node.addPosition(new PositionImpl(new BigDecimal(14), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C23 Equity")));
     node.addPosition(new PositionImpl(new BigDecimal(16), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C24 Equity")));
-    node.addPosition(new PositionImpl(new BigDecimal(18), Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C25 Equity")));
+    IdentifierBundle bundle = new IdentifierBundle(
+        Identifier.of(IdentificationScheme.BLOOMBERG_TICKER, "T US 05/22/10 C25 Equity"),
+        Identifier.of(IdentificationScheme.BLOOMBERG_BUID, "3456789"));
+    PositionImpl position = new PositionImpl(new BigDecimal(18), bundle);
+    node.addPosition(position);
     return base;
   }
 

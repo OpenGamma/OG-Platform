@@ -782,10 +782,8 @@ public class DbPositionMaster implements PositionMaster {
   protected UniqueIdentifier createPortfolio(final Portfolio portfolio, final Instant instant) {
     long portfolioOid = selectNextPortfolioOid();
     UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, 1, instant);
-    long nodeOid = selectNextNodeOid();
-    insertNodes(portfolio.getRootNode(), portfolioOid, nodeOid, 1);
-    long positionOid = selectNextPositionOid();
-    insertPositions(portfolio.getRootNode(), portfolioOid, positionOid, 1);
+    insertTreeNodes(portfolio.getRootNode(), portfolioOid, 1);
+    insertTreePositions(portfolio.getRootNode(), portfolioOid, 1);
     return uid;
   }
 
@@ -823,6 +821,14 @@ public class DbPositionMaster implements PositionMaster {
    */
   protected long selectNextPositionOid() {
     return getTemplate().queryForLong(sqlMaxOid("pos_position")) + 1;
+  }
+
+  /**
+   * Selects the next security key object identifier.
+   * @return the next object identifier, not null
+   */
+  protected long selectNextSecurityKeyOid() {
+    return getTemplate().queryForLong(sqlMaxOid("pos_securitykey")) + 1;
   }
 
   /**
@@ -874,15 +880,15 @@ public class DbPositionMaster implements PositionMaster {
    * Inserts a row into the portfolio table.
    * @param rootNode  the root node, not null
    * @param portfolioOid  the portfolio oid, not null
-   * @param nodeOid  the node oid, not null
    * @param version  the version, not null
    * @return the root node object identifier, not null
    */
-  protected UniqueIdentifier insertNodes(
-      final PortfolioNode rootNode, final long portfolioOid, final long nodeOid, final long version) {
-    List<MapSqlParameterSource> nodeList = new ArrayList<MapSqlParameterSource>();
-    List<MapSqlParameterSource> treeList = new ArrayList<MapSqlParameterSource>();
-    insertNodesBuildArgs(rootNode, portfolioOid, new long[] {nodeOid, 1}, version, nodeList, treeList);
+  protected UniqueIdentifier insertTreeNodes(
+      final PortfolioNode rootNode, final long portfolioOid, final long version) {
+    final long nodeOid = selectNextNodeOid();
+    final List<MapSqlParameterSource> nodeList = new ArrayList<MapSqlParameterSource>();
+    final List<MapSqlParameterSource> treeList = new ArrayList<MapSqlParameterSource>();
+    insertTreeNodesBuildArgs(rootNode, portfolioOid, new long[] {nodeOid, 1}, version, nodeList, treeList);
     getTemplate().batchUpdate(sqlInsertNode(), (MapSqlParameterSource[]) nodeList.toArray(new MapSqlParameterSource[nodeList.size()]));
     getTemplate().batchUpdate(sqlInsertTree(), (MapSqlParameterSource[]) treeList.toArray(new MapSqlParameterSource[treeList.size()]));
     return createUniqueIdentifier(portfolioOid, nodeOid, version);
@@ -897,13 +903,13 @@ public class DbPositionMaster implements PositionMaster {
    * @param nodeList  the list of node arguments to build, not null
    * @param treeList  the list of tree arguments to build, not null
    */
-  protected void insertNodesBuildArgs(
+  protected void insertTreeNodesBuildArgs(
       final PortfolioNode node, final Long portfolioOid, long[] counter, final Long version,
       List<MapSqlParameterSource> nodeList, List<MapSqlParameterSource> treeList) {
     // depth first, storing the left/right before/after the loop
     final long left = counter[1]++;
     for (PortfolioNode childNode : node.getChildNodes()) {
-      insertNodesBuildArgs(childNode, portfolioOid, counter, version, nodeList, treeList);
+      insertTreeNodesBuildArgs(childNode, portfolioOid, counter, version, nodeList, treeList);
     }
     final long right = counter[1]++;
     final long nodeOid = counter[0]++;
@@ -955,14 +961,15 @@ public class DbPositionMaster implements PositionMaster {
    * Inserts a row into the portfolio table.
    * @param rootNode  the root node, not null
    * @param portfolioOid  the portfolio object identifier, not null
-   * @param positionOid  the position object identifier, not null
    * @param version  the version, not null
    */
-  protected void insertPositions(
-      final PortfolioNode rootNode, final long portfolioOid, final long positionOid, final long version) {
-    List<MapSqlParameterSource> positionList = new ArrayList<MapSqlParameterSource>();
-    List<MapSqlParameterSource> secKeyList = new ArrayList<MapSqlParameterSource>();
-    insertPositionsBuildArgs(rootNode, portfolioOid, new long[] {positionOid}, version, positionList, secKeyList);
+  protected void insertTreePositions(
+      final PortfolioNode rootNode, final long portfolioOid, final long version) {
+    final long positionOid = selectNextPositionOid();
+    final long secKeyOid = selectNextSecurityKeyOid();
+    final List<MapSqlParameterSource> positionList = new ArrayList<MapSqlParameterSource>();
+    final List<MapSqlParameterSource> secKeyList = new ArrayList<MapSqlParameterSource>();
+    insertTreePositionsBuildArgs(rootNode, portfolioOid, new long[] {positionOid, secKeyOid}, version, positionList, secKeyList);
     getTemplate().batchUpdate(sqlInsertPosition(), (MapSqlParameterSource[]) positionList.toArray(new MapSqlParameterSource[positionList.size()]));
     getTemplate().batchUpdate(sqlInsertSecurityKey(), (MapSqlParameterSource[]) secKeyList.toArray(new MapSqlParameterSource[secKeyList.size()]));
   }
@@ -976,12 +983,12 @@ public class DbPositionMaster implements PositionMaster {
    * @param positionList  the list of position arguments to build, not null
    * @param secKeyList  the list of security-key arguments to build, not null
    */
-  protected void insertPositionsBuildArgs(
+  protected void insertTreePositionsBuildArgs(
       final PortfolioNode node, final Long portfolioOid, long[] counter, final Long version,
       List<MapSqlParameterSource> positionList, List<MapSqlParameterSource> secKeyList) {
     // depth first
     for (PortfolioNode childNode : node.getChildNodes()) {
-      insertPositionsBuildArgs(childNode, portfolioOid, counter, version, positionList, secKeyList);
+      insertTreePositionsBuildArgs(childNode, portfolioOid, counter, version, positionList, secKeyList);
     }
     final Long nodeOid = extractOtherOid(node.getUniqueIdentifier());
     for (Position position : node.getPositions()) {
@@ -996,8 +1003,10 @@ public class DbPositionMaster implements PositionMaster {
       positionList.add(positionArgs);
       // the arguments for inserting into the seckey table
       for (Identifier id : position.getSecurityKey()) {
+        final long secKeyOid = counter[1]++;
         MapSqlParameterSource treeArgs = new MapSqlParameterSource()
           .addValue("position_oid", positionOid)
+          .addValue("seckey_oid", secKeyOid)
           .addValue("start_version", version)
           .addValue("end_version", Long.MAX_VALUE)
           .addValue("id_scheme", id.getScheme().getName())
@@ -1027,9 +1036,9 @@ public class DbPositionMaster implements PositionMaster {
    */
   protected String sqlInsertSecurityKey() {
     return "INSERT INTO pos_securitykey " +
-              "(position_oid, start_version, end_version, id_scheme, id_value)" +
+              "(position_oid, oid, start_version, end_version, id_scheme, id_value)" +
             "VALUES " +
-              "(:position_oid, :start_version, :end_version, :id_scheme, :id_value)";
+              "(:position_oid, :seckey_oid, :start_version, :end_version, :id_scheme, :id_value)";
   }
 
   //-------------------------------------------------------------------------

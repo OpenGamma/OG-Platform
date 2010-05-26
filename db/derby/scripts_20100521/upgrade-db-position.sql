@@ -46,9 +46,10 @@ create table pos_position (
 
 create table pos_securitykey (
     position_oid bigint not null,
+    oid bigint not null,
     start_version bigint not null,
     end_version bigint not null,
     id_scheme varchar(255) not null,
     id_value varchar(255) not null,
-    primary key (position_oid, start_version)
+    primary key (oid, start_version)
 );
