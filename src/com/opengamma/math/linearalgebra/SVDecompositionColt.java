@@ -10,7 +10,7 @@ import cern.colt.matrix.linalg.SingularValueDecomposition;
 import com.opengamma.math.util.wrapper.ColtWrapper;
 
 /**
- * 
+ * Wrapper for Colt implementation of SVD
  */
 public class SVDecompositionColt extends SVDecomposition {
 
@@ -21,8 +21,9 @@ public class SVDecompositionColt extends SVDecomposition {
    */
   @Override
   public SVDecompositionResult evaluate(final com.opengamma.math.matrix.DoubleMatrix2D x) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("Passed a null to SingularValueDecomposition.evaluate");
+    }
     final cern.colt.matrix.DoubleMatrix2D temp = ColtWrapper.wrap(x);
 
     final cern.colt.matrix.linalg.SingularValueDecomposition svd = new SingularValueDecomposition(temp);

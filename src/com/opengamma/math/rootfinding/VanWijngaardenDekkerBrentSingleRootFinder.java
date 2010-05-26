@@ -7,10 +7,6 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- * @author emcleod
- */
 public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFinder {
   private final double _accuracy;
   private static final int MAX_ITER = 100;
@@ -30,8 +26,9 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
     double a = x1, b = x2, c = x2, d = 0, e = 0;
     double fa = function.evaluate(a);
     double fb = function.evaluate(b);
-    if (fa > 0 && fb > 0 || fa < 0 && fb < 0)
+    if (fa > 0 && fb > 0 || fa < 0 && fb < 0) {
       throw new RootNotFoundException("Root was not bracketed by " + x1 + " and " + x2);
+    }
     double fc = fb;
     double p, q, r, s, eps, xMid, min1, min2;
     for (int i = 0; i < MAX_ITER; i++) {
@@ -51,8 +48,9 @@ public class VanWijngaardenDekkerBrentSingleRootFinder extends RealSingleRootFin
       }
       eps = 2 * ZERO * Math.abs(b) + 0.5 * _accuracy;
       xMid = 0.5 * (c - b);
-      if (Math.abs(xMid) <= eps || Math.abs(fb) <= ZERO)
+      if (Math.abs(xMid) <= eps || Math.abs(fb) <= ZERO) {
         return b;
+      }
       if (Math.abs(e) >= eps && Math.abs(fa) > Math.abs(fb)) {
         s = fb / fa;
         if (Math.abs(a - c) < ZERO) {

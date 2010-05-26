@@ -19,7 +19,7 @@ import org.apache.commons.math.linear.SingularValueDecompositionImpl;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Provided matrix algebra by calling the Commons-math library 
  */
 public class CommonsMatrixAlgebra extends MatrixAlgebra {
 
@@ -150,7 +150,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       // TODO find if commons implements this anywhere, so we are not doing it
       // by hand
       double max = 0.0;
-      for (int row = temp.getRowDimension(); --row >= 0; ) {
+      for (int row = temp.getRowDimension(); --row >= 0;) {
         max = Math.max(max, temp.getRowVector(row).getL1Norm());
       }
       return max;

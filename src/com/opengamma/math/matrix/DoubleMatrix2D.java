@@ -7,6 +7,9 @@ package com.opengamma.math.matrix;
 
 import java.util.Arrays;
 
+/**
+ * A minimal implementation of a matrix of doubles class 
+ */
 public class DoubleMatrix2D implements Matrix<Double> {
   private final double[][] _data;
   private final int _rows;
@@ -14,8 +17,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
   private final int _elements;
 
   public DoubleMatrix2D(final double[][] primitives) {
-    if (primitives == null)
+    if (primitives == null) {
       throw new IllegalArgumentException("Cannot initialize matrix with null data");
+    }
     if (primitives.length == 0) {
       _data = new double[0][0];
       _elements = 0;
@@ -26,8 +30,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = primitives[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        if (primitives[i].length != _columns)
+        if (primitives[i].length != _columns) {
           throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
+        }
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = primitives[i][j];
         }
@@ -37,8 +42,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
   }
 
   public DoubleMatrix2D(final Double[][] data) {
-    if (data == null)
+    if (data == null) {
       throw new IllegalArgumentException("Cannot initialize matrix with null data");
+    }
     if (data.length == 0) {
       _data = new double[0][0];
       _elements = 0;
@@ -49,8 +55,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        if (data[i].length != _columns)
+        if (data[i].length != _columns) {
           throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
+        }
         for (int j = 0; j < _columns; j++) {
           _data[i][j] = data[i][j];
         }
@@ -92,11 +99,13 @@ public class DoubleMatrix2D implements Matrix<Double> {
    * @return new matrix c
    */
   public static DoubleMatrix2D multiply(final DoubleMatrix2D a, final DoubleMatrix2D b) {
-    if (a == null || b == null)
+    if (a == null || b == null) {
       throw new IllegalArgumentException("Passed in a null");
+    }
     final int p = b._rows;
-    if (a._columns != p)
+    if (a._columns != p) {
       throw new IllegalArgumentException("Matrix size mismatch");
+    }
     final int m = a._rows;
     final int n = b._columns;
     double sum;
@@ -105,8 +114,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
     for (i = 0; i < m; i++) {
       for (j = 0; j < n; j++) {
         sum = 0.0;
-        for (k = 0; k < p; k++)
+        for (k = 0; k < p; k++) {
           sum += a._data[i][k] * b._data[k][j];
+        }
         res[i][j] = sum;
       }
     }
@@ -129,11 +139,13 @@ public class DoubleMatrix2D implements Matrix<Double> {
    * @return A new vector c
    */
   public static DoubleMatrix1D multiply(final DoubleMatrix2D a, final DoubleMatrix1D b) {
-    if (a == null || b == null)
+    if (a == null || b == null) {
       throw new IllegalArgumentException("Passed in a null");
+    }
     final int p = b.getNumberOfElements();
-    if (a._columns != p)
+    if (a._columns != p) {
       throw new IllegalArgumentException("Matrix/Vector size mismatch");
+    }
     final int m = a._rows;
     double sum;
     final double[] res = new double[m];
@@ -155,10 +167,11 @@ public class DoubleMatrix2D implements Matrix<Double> {
   public DoubleMatrix2D getTranspose() {
 
     final double[][] primitives = new double[_columns][_rows];
-    for (int i = 0; i < _rows; i++)
+    for (int i = 0; i < _rows; i++) {
       for (int j = 0; j < _columns; j++) {
         primitives[i][j] = _data[j][i];
       }
+    }
 
     return new DoubleMatrix2D(primitives);
   }
@@ -182,21 +195,28 @@ public class DoubleMatrix2D implements Matrix<Double> {
    */
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     DoubleMatrix2D other = (DoubleMatrix2D) obj;
-    if (_columns != other._columns)
+    if (_columns != other._columns) {
       return false;
-    if (_elements != other._elements)
+    }
+    if (_elements != other._elements) {
       return false;
-    if (!Arrays.equals(_data, other._data))
+    }
+    if (!Arrays.equals(_data, other._data)) {
       return false;
-    if (_rows != other._rows)
+    }
+    if (_rows != other._rows) {
       return false;
+    }
     return true;
   }
 

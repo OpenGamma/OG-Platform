@@ -12,7 +12,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Wrapper for Commons implementation of QR Decomposition
  */
 public class QRDecompositionCommons extends QRDecomposition {
 
@@ -21,8 +21,9 @@ public class QRDecompositionCommons extends QRDecomposition {
    */
   @Override
   public QRDecompositionResult evaluate(DoubleMatrix2D x) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("Passed a null to QRDecomposer.evaluate");
+    }
     final RealMatrix temp = CommonsMathWrapper.wrap(x);
     final org.apache.commons.math.linear.QRDecomposition qr = new QRDecompositionImpl(temp);
 

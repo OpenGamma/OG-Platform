@@ -8,7 +8,7 @@ package com.opengamma.math.linearalgebra;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * interface for holders of LU Decomposition Results
  */
 public interface LUDecompositionResult extends DecompositionResult {
   /**

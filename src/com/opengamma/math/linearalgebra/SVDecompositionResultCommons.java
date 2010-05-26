@@ -10,7 +10,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Wrapper for results of Commons implementation of SVD
  */
 public class SVDecompositionResultCommons implements SVDecompositionResult {
 
@@ -129,7 +129,7 @@ public class SVDecompositionResultCommons implements SVDecompositionResult {
    */
   @Override
   public DoubleMatrix1D solve(DoubleMatrix1D b) {
-    return CommonsMathWrapper.wrap(_svd.getSolver().solve( CommonsMathWrapper.wrap(b)));    
+    return CommonsMathWrapper.wrap(_svd.getSolver().solve(CommonsMathWrapper.wrap(b)));
   }
 
   /* (non-Javadoc)
@@ -137,7 +137,7 @@ public class SVDecompositionResultCommons implements SVDecompositionResult {
    */
   @Override
   public double[] solve(double[] b) {
-   return _svd.getSolver().solve(b);
+    return _svd.getSolver().solve(b);
   }
 
   /* (non-Javadoc)
@@ -145,7 +145,7 @@ public class SVDecompositionResultCommons implements SVDecompositionResult {
    */
   @Override
   public DoubleMatrix2D solve(DoubleMatrix2D b) {
-    return CommonsMathWrapper.wrap(_svd.getSolver().solve( CommonsMathWrapper.wrap(b)));    
+    return CommonsMathWrapper.wrap(_svd.getSolver().solve(CommonsMathWrapper.wrap(b)));
   }
 
 }

@@ -11,6 +11,9 @@ import cern.colt.matrix.DoubleFactory1D;
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.linalg.Algebra;
 
+/**
+ * Provided matrix algebra by calling the Colt library 
+ */
 public class ColtMatrixAlgebra extends MatrixAlgebra {
   private final Algebra _algebra = new Algebra();
 
@@ -33,8 +36,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.inverse(
-          DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData())).toArray());
+      return new DoubleMatrix2D(_algebra.inverse(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData())).toArray());
     }
     throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());
   }
@@ -42,16 +44,17 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      return _algebra.mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()),
-          DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getData()));
+      return _algebra.mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()), DoubleFactory1D.dense
+          .make(((DoubleMatrix1D) m2).getData()));
     }
     throw new IllegalArgumentException("Cannot find the inner product of a " + m1.getClass() + " and " + m2.getClass());
   }
 
   @Override
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
-    if (m1 instanceof DoubleMatrix1D)
+    if (m1 instanceof DoubleMatrix1D) {
       throw new IllegalArgumentException("Cannot have 1D matrix as first argument");
+    }
     if (m1 instanceof DoubleMatrix2D) {
       final DoubleMatrix2D x = (DoubleMatrix2D) m1;
       if (m2 instanceof DoubleMatrix1D) {
@@ -70,8 +73,8 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
       final cern.colt.matrix.DoubleMatrix2D x = DoubleFactory2D.dense.make(m1.getNumberOfElements(), m2
           .getNumberOfElements());
-      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()),
-          DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getData()), x);
+      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()), DoubleFactory1D.dense
+          .make(((DoubleMatrix1D) m2).getData()), x);
       return new DoubleMatrix2D(x.toArray());
     }
     throw new IllegalArgumentException("Cannot find the outer product of a " + m1.getClass() + " and " + m2.getClass());
@@ -110,8 +113,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.pow(
-          DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()), p).toArray());
+      return new DoubleMatrix2D(_algebra.pow(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()), p).toArray());
     }
     throw new NotImplementedException();
   }
@@ -127,8 +129,8 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.transpose(
-          DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData())).toArray());
+      return new DoubleMatrix2D(_algebra.transpose(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()))
+          .toArray());
     }
     throw new NotImplementedException();
   }

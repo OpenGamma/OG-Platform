@@ -24,12 +24,15 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
   public Double getRoot(final Function1D<Double, Double> function, final Double x1, final Double x2) {
     final double y1 = function.evaluate(x1);
     double y = function.evaluate(x2);
-    if (Math.abs(y) < _accuracy)
+    if (Math.abs(y) < _accuracy) {
       return x2;
-    if (Math.abs(y1) < _accuracy)
+    }
+    if (Math.abs(y1) < _accuracy) {
       return x1;
-    if (y1 * y >= 0)
+    }
+    if (y1 * y >= 0) {
       throw new RootNotFoundException(x1 + " and " + x2 + " do not bracket a root");
+    }
     double dx, xRoot, xMid;
     if (y1 < 0) {
       dx = x2 - x1;
@@ -45,8 +48,9 @@ public class BisectionSingleRootFinder extends RealSingleRootFinder {
       if (y <= 0) {
         xRoot = xMid;
       }
-      if (Math.abs(dx) < _accuracy || Math.abs(y) < ZERO)
+      if (Math.abs(dx) < _accuracy || Math.abs(y) < ZERO) {
         return xRoot;
+      }
     }
     throw new RootNotFoundException("Could not find root in " + MAX_ITER + " attempts");
   }

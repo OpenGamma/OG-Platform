@@ -12,7 +12,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Wrapper for Commons implementation of SVD
  */
 public class SVDecompositionCommons extends SVDecomposition {
 
@@ -24,8 +24,9 @@ public class SVDecompositionCommons extends SVDecomposition {
 
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("Passed a null to SingularValueDecomposition.evaluate");
+    }
     final RealMatrix temp = CommonsMathWrapper.wrap(x);
     final org.apache.commons.math.linear.SingularValueDecomposition svd = new SingularValueDecompositionImpl(temp);
 

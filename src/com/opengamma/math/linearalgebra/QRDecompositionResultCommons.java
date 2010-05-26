@@ -5,16 +5,15 @@
  */
 package com.opengamma.math.linearalgebra;
 
-
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Wrapper for results of Commons implementation of QR Decomposition
  */
 public class QRDecompositionResultCommons implements QRDecompositionResult {
-  
+
   private final org.apache.commons.math.linear.QRDecomposition _qr;
 
   public QRDecompositionResultCommons(final org.apache.commons.math.linear.QRDecomposition qr) {
@@ -26,7 +25,7 @@ public class QRDecompositionResultCommons implements QRDecompositionResult {
    */
   @Override
   public DoubleMatrix2D getH() {
-    return  CommonsMathWrapper.wrap(_qr.getH());
+    return CommonsMathWrapper.wrap(_qr.getH());
   }
 
   /* (non-Javadoc)
@@ -34,7 +33,7 @@ public class QRDecompositionResultCommons implements QRDecompositionResult {
    */
   @Override
   public DoubleMatrix2D getQ() {
-    return  CommonsMathWrapper.wrap(_qr.getQ());
+    return CommonsMathWrapper.wrap(_qr.getQ());
   }
 
   /* (non-Javadoc)
@@ -42,7 +41,7 @@ public class QRDecompositionResultCommons implements QRDecompositionResult {
    */
   @Override
   public DoubleMatrix2D getQT() {
-  return  CommonsMathWrapper.wrap(_qr.getQT());
+    return CommonsMathWrapper.wrap(_qr.getQT());
   }
 
   /* (non-Javadoc)
@@ -50,7 +49,7 @@ public class QRDecompositionResultCommons implements QRDecompositionResult {
    */
   @Override
   public DoubleMatrix2D getR() {
-    return  CommonsMathWrapper.wrap(_qr.getR());
+    return CommonsMathWrapper.wrap(_qr.getR());
   }
 
   /* (non-Javadoc)
@@ -76,5 +75,5 @@ public class QRDecompositionResultCommons implements QRDecompositionResult {
   public DoubleMatrix2D solve(DoubleMatrix2D b) {
     return CommonsMathWrapper.wrap(_qr.getSolver().solve(CommonsMathWrapper.wrap(b)));
   }
- 
+
 }

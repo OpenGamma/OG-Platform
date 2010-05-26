@@ -29,14 +29,16 @@ public class MatrixAlgebraFactory {
   }
 
   public static MatrixAlgebra getMatrixAlgebra(final String algebraName) {
-    if (s_staticInstances.containsKey(algebraName))
+    if (s_staticInstances.containsKey(algebraName)) {
       return s_staticInstances.get(algebraName);
+    }
     throw new IllegalArgumentException("Matrix algebra " + algebraName + " not found");
   }
 
   public static String getMatrixAlgebraName(final MatrixAlgebra algebra) {
-    if (s_instanceNames.containsKey(algebra.getClass()))
+    if (s_instanceNames.containsKey(algebra.getClass())) {
       return s_instanceNames.get(algebra.getClass());
+    }
     return null;
   }
 }

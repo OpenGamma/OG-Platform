@@ -7,10 +7,6 @@ package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.NotImplementedException;
 
-/**
- * @author emcleod
- * 
- */
 public abstract class MatrixAlgebra {
 
   public Matrix<?> add(final Matrix<?> m1, final Matrix<?> m2) {
@@ -18,8 +14,9 @@ public abstract class MatrixAlgebra {
       final double[] x1 = ((DoubleMatrix1D) m1).getData();
       final double[] x2 = ((DoubleMatrix1D) m2).getData();
       final int n = x1.length;
-      if (n != x2.length)
+      if (n != x2.length) {
         throw new IllegalArgumentException("Can only add matrices of the same shape");
+      }
       final double[] sum = new double[n];
       for (int i = 0; i < n; i++) {
         sum[i] = x1[i] + x2[i];
@@ -30,12 +27,14 @@ public abstract class MatrixAlgebra {
       final double[][] x2 = ((DoubleMatrix2D) m2).getData();
       final int n = x1.length;
       final int m = x1[0].length;
-      if (n != x2.length)
+      if (n != x2.length) {
         throw new IllegalArgumentException("Can only add matrices of the same shape");
+      }
       final double[][] sum = new double[n][x1[0].length];
       for (int i = 0; i < n; i++) {
-        if (x2[i].length != m)
+        if (x2[i].length != m) {
           throw new IllegalArgumentException("Can only add matrices of the same shape");
+        }
         for (int j = 0; j < m; j++) {
           sum[i][j] = x1[i][j] + x2[i][j];
         }
@@ -46,10 +45,12 @@ public abstract class MatrixAlgebra {
   }
 
   public Matrix<?> divide(final Matrix<?> m1, final Matrix<?> m2) {
-    if (!(m1 instanceof DoubleMatrix2D))
+    if (!(m1 instanceof DoubleMatrix2D)) {
       throw new IllegalArgumentException("Can only divide a 2D matrix");
-    if (!(m2 instanceof DoubleMatrix2D))
+    }
+    if (!(m2 instanceof DoubleMatrix2D)) {
       throw new IllegalArgumentException("Can only perform division with a 2D matrix");
+    }
     return multiply(m1, getInverse(m2));
   }
 
@@ -83,8 +84,9 @@ public abstract class MatrixAlgebra {
       final double[] x1 = ((DoubleMatrix1D) m1).getData();
       final double[] x2 = ((DoubleMatrix1D) m2).getData();
       final int n = x1.length;
-      if (n != x2.length)
+      if (n != x2.length) {
         throw new IllegalArgumentException("Can only subtract matrices of the same shape");
+      }
       final double[] subtract = new double[n];
       for (int i = 0; i < n; i++) {
         subtract[i] = x1[i] - x2[i];
@@ -95,12 +97,14 @@ public abstract class MatrixAlgebra {
       final double[][] x2 = ((DoubleMatrix2D) m2).getData();
       final int n = x1.length;
       final int m = x1[0].length;
-      if (n != x2.length)
+      if (n != x2.length) {
         throw new IllegalArgumentException("Can only subtract matrices of the same shape");
+      }
       final double[][] subtract = new double[n][x1[0].length];
       for (int i = 0; i < n; i++) {
-        if (x2[i].length != m)
+        if (x2[i].length != m) {
           throw new IllegalArgumentException("Can only subtract matrices of the same shape");
+        }
         for (int j = 0; j < m; j++) {
           subtract[i][j] = x1[i][j] - x2[i][j];
         }

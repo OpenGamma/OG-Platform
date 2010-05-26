@@ -7,10 +7,6 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.PolynomialFunction1D;
 
-/**
- * 
- * @author emcleod
- */
 public class LaguerrePolynomialRootFinder implements Polynomial1DRootFinder<Double> {
 
   @Override

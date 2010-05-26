@@ -6,6 +6,7 @@
 package com.opengamma.math.matrix;
 
 public interface Matrix<T> {
-  public int getNumberOfElements();
-  public T getEntry(int... indices);
+  int getNumberOfElements();
+
+  T getEntry(int... indices);
 }

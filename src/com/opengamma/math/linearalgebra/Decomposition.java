@@ -9,9 +9,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * Base class for a bunch of matrix decomposition (e.g. SVD, LU etc)
  */
-
 public abstract class Decomposition extends Function1D<DoubleMatrix2D, DecompositionResult> {
 
 }

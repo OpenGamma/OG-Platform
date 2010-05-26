@@ -8,10 +8,10 @@ package com.opengamma.math.linearalgebra;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * interface for holders of QR Decomposition Results
  */
 public interface QRDecompositionResult extends DecompositionResult {
-  
+
   /**
    * Returns the matrix R of the decomposition.
    * <p>R is an upper-triangular matrix</p>

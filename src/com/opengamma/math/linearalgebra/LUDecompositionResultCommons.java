@@ -10,7 +10,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * 
+ * Wrapper for results of Commons implementation of LU Decomposition
  */
 public class LUDecompositionResultCommons implements LUDecompositionResult {
 
@@ -19,13 +19,13 @@ public class LUDecompositionResultCommons implements LUDecompositionResult {
   public LUDecompositionResultCommons(final org.apache.commons.math.linear.LUDecomposition lu) {
     _lu = lu;
   }
-  
+
   /* (non-Javadoc)
    * @see com.opengamma.math.linearalgebra.LowerUpperDecompositionResult#getDeterminant()
    */
   @Override
   public double getDeterminant() {
-   return _lu.getDeterminant();
+    return _lu.getDeterminant();
   }
 
   /* (non-Javadoc)
@@ -49,7 +49,7 @@ public class LUDecompositionResultCommons implements LUDecompositionResult {
    */
   @Override
   public int[] getPivot() {
-  
+
     return _lu.getPivot();
   }
 

@@ -5,15 +5,12 @@
  */
 package com.opengamma.math.linearalgebra;
 
-
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * interface for holders of SVD Results
  */
-public interface SVDecompositionResult extends DecompositionResult{
-
-  
+public interface SVDecompositionResult extends DecompositionResult {
 
   /**
    * Returns the matrix U of the decomposition.
@@ -62,7 +59,6 @@ public interface SVDecompositionResult extends DecompositionResult{
    */
   DoubleMatrix2D getVT();
 
-  
   /**
    * Returns the L<sub>2</sub> norm of the matrix.
    * <p>The L<sub>2</sub> norm is max(|A &times; u|<sub>2</sub> /
@@ -87,7 +83,5 @@ public interface SVDecompositionResult extends DecompositionResult{
    * @return effective numerical matrix rank
    */
   int getRank();
-  
- 
 
 }

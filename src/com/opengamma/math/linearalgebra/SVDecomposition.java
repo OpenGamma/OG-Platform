@@ -8,7 +8,7 @@ package com.opengamma.math.linearalgebra;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * Base of any concrete implementation of SVD
  */
 public abstract class SVDecomposition extends Decomposition {
 

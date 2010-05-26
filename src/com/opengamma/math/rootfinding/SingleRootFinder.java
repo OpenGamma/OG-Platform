@@ -7,10 +7,7 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.Function1D;
 
-/**
- * 
- */
 public interface SingleRootFinder<S, T, U, V> {
 
-  public V getRoot(Function1D<S, T> function, U x1, U x2);
+  V getRoot(Function1D<S, T> function, U x1, U x2);
 }
