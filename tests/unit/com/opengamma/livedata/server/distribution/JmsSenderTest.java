@@ -108,7 +108,7 @@ public class JmsSenderTest {
     _mdd.distributeLiveData(msg4);
     
     // allow data to flow through
-    while (_collectingReceiver.getMessages().isEmpty()) {
+    while (_collectingReceiver.getMessages().size() < 3) {
       Thread.sleep(100);
     }
     Thread.sleep(100);
