@@ -6,11 +6,11 @@
 package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.linearalgebra.Decomposer;
+import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
-import com.opengamma.math.linearalgebra.SingularValueDecomposition;
-import com.opengamma.math.linearalgebra.SingularValueDecompositionColt;
-import com.opengamma.math.linearalgebra.SingularValueDecompositionResult;
+import com.opengamma.math.linearalgebra.SVDecompositionCommons;
+import com.opengamma.math.linearalgebra.SVDecompositionColt;
+import com.opengamma.math.linearalgebra.SVDecompositionResult;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
@@ -25,14 +25,14 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   private static final double EPS = 1e-8;
   private final double _relTol, _absTol;
   private final int _maxSteps;
-  private final Decomposer _decon;
+  private final Decomposition _decon;
 
   public NewtonVectorRootFinder(final double atol, final double rtol, final int maxSteps) {
     _absTol = atol;
     _relTol = rtol;
     _maxSteps = maxSteps;
    // _decon = new SingularValueDecomposition();
- _decon = new SingularValueDecompositionColt();
+ _decon = new SVDecompositionColt();
   }
 
   public NewtonVectorRootFinder(final double atol, final double rtol) {
@@ -122,7 +122,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
       final DoubleMatrix2D h = _jacobian.evaluate(x);
       
       final DecompositionResult deconResult = _decon.evaluate(h);
-      DoubleMatrix1D p = deconResult.Solve(_y);
+      DoubleMatrix1D p = deconResult.solve(_y);
       _pos = x.subtract(p);
       _y= _function.evaluate(_pos);
       _g1 = _y.dotProduct(_y);

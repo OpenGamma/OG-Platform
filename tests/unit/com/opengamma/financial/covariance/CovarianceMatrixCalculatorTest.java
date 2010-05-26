@@ -54,9 +54,9 @@ public class CovarianceMatrixCalculatorTest {
     final DoubleMatrix2D matrix = CALCULATOR.evaluate(TS1, TS2);
     assertEquals(matrix.getNumberOfRows(), 2);
     assertEquals(matrix.getNumberOfColumns(), 2);
-    assertEquals(matrix.getElement(0, 0), 4. / 3, EPS);
-    assertEquals(matrix.getElement(1, 0), -4. / 3, EPS);
-    assertEquals(matrix.getElement(0, 1), -4. / 3, EPS);
-    assertEquals(matrix.getElement(1, 1), 4. / 3, EPS);
+    assertEquals(matrix.getEntry(0, 0), 4. / 3, EPS);
+    assertEquals(matrix.getEntry(1, 0), -4. / 3, EPS);
+    assertEquals(matrix.getEntry(0, 1), -4. / 3, EPS);
+    assertEquals(matrix.getEntry(1, 1), 4. / 3, EPS);
   }
 }
