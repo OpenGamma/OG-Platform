@@ -6,26 +6,24 @@
 package com.opengamma.financial.timeseries.model;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class AutoregressiveTimeSeriesModel {
   private final ProbabilityDistribution<Double> _random;
 
   public AutoregressiveTimeSeriesModel(final ProbabilityDistribution<Double> random) {
-    if (random == null)
-      throw new IllegalArgumentException("Probability distribution was null");
+    ArgumentChecker.notNull(random, "random");
     _random = random;
   }
 
   public DoubleTimeSeries<Long> getSeries(final double[] phi, final int p, final long[] dates) {
-    if (phi == null)
-      throw new IllegalArgumentException("Coefficient array was null");
+    ArgumentChecker.notNull(phi, "phi");
     if (p < 1)
       throw new IllegalArgumentException("Order must be greater than zero");
     if (phi.length < p + 1)

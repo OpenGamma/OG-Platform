@@ -17,7 +17,6 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class InterquartileRangeCalculatorTest {
@@ -37,7 +36,7 @@ public class InterquartileRangeCalculatorTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNull() {
     IQR.evaluate((Double[]) null);
   }

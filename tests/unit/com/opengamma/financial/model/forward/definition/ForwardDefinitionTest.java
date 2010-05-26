@@ -14,12 +14,11 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  *
  */
 public class ForwardDefinitionTest {
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNull() {
     new ForwardDefinition(null);
   }

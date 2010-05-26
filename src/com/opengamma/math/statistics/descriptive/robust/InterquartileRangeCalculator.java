@@ -9,28 +9,20 @@ import java.util.Arrays;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @author emcleod
  * 
  */
 public class InterquartileRangeCalculator extends Function1D<Double[], Double> {
   private final Function1D<Double[], Double> _median = new MedianCalculator();
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public Double evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length < 3)
-      throw new IllegalArgumentException("Need at least three points to calculate IQR");
+    ArgumentChecker.notNull(x, "x");
+    if (x.length < 4)
+      throw new IllegalArgumentException("Need at least four points to calculate IQR");
     final int n = x.length;
-    if (n == 3)
-      return (x[2] - 2 * x[1] + x[0]) / 2.;
     final Double[] copy = Arrays.copyOf(x, n);
     Arrays.sort(copy);
     Double[] lower, upper;

@@ -24,7 +24,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 
 public class SimpleGrossTimeSeriesReturnCalculatorTest {
@@ -32,7 +31,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
   private static final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> CALCULATOR = new SimpleGrossTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
 
-  @Test(expected = TimeSeriesException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((DoubleTimeSeries[]) null);
   }

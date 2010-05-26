@@ -5,18 +5,17 @@
  */
 package com.opengamma.financial.model.forward.definition;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  *
  */
 public class ForwardDefinition {
   private final Expiry _expiry;
 
   public ForwardDefinition(final Expiry expiry) {
-    if (expiry == null)
-      throw new IllegalArgumentException("Expiry was null");
+    ArgumentChecker.notNull(expiry, "expiry");
     _expiry = expiry;
   }
 
@@ -24,9 +23,7 @@ public class ForwardDefinition {
     return _expiry;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -37,9 +34,7 @@ public class ForwardDefinition {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
+  /* (non-Javadoc)
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override

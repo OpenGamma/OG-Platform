@@ -19,13 +19,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class AutoregressiveTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.25;
-  private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(MEAN, STD, new MersenneTwister64(
-      MersenneTwister64.DEFAULT_SEED)));
+  private static final AutoregressiveTimeSeriesModel MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(MEAN, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
   private static final int ORDER = 2;
   private static final DoubleTimeSeries<Long> MA;
   private static final double[] PHI;
@@ -45,18 +43,18 @@ public class AutoregressiveTimeSeriesModelTest {
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testBadConstructor() {
-    new MovingAverageTimeSeriesModel(null);
+    new AutoregressiveTimeSeriesModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullThetas() {
+  @Test(expected = NullPointerException.class)
+  public void testNullPhis() {
     MODEL.getSeries(null, 2, new long[] { 1 });
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testEmptyThetas() {
+  public void testEmptyPhis() {
     MODEL.getSeries(new double[0], 2, new long[] { 1 });
   }
 
@@ -66,18 +64,18 @@ public class AutoregressiveTimeSeriesModelTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testInsufficientThetas() {
+  public void testInsufficientPhis() {
     MODEL.getSeries(new double[] { 0.2 }, 4, new long[] { 1 });
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDates() {
-    MODEL.getSeries(new double[] { 0.3 }, 1, null);
+    MODEL.getSeries(new double[] { 0.3, 0.4 }, 1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDates() {
-    MODEL.getSeries(new double[] { 0.3 }, 1, new long[0]);
+    MODEL.getSeries(new double[] { 0.3, 0.4 }, 1, new long[0]);
   }
 
   @Test

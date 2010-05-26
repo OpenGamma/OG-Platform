@@ -21,13 +21,11 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class MovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.25;
-  private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(MEAN, STD,
-      new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
+  private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(MEAN, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
   private static final int ORDER = 2;
   private static final DoubleTimeSeries<Long> MA;
   private static final double[] THETA;
@@ -48,12 +46,12 @@ public class MovingAverageTimeSeriesModelTest {
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testBadConstructor() {
     new MovingAverageTimeSeriesModel(null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullThetas() {
     MODEL.getSeries(null, 2, new long[] { 1 });
   }
@@ -73,7 +71,7 @@ public class MovingAverageTimeSeriesModelTest {
     MODEL.getSeries(new double[] { 0.2 }, 4, new long[] { 1 });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullDates() {
     MODEL.getSeries(new double[] { 0.3 }, 1, null);
   }

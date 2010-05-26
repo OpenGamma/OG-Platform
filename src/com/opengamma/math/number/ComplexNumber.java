@@ -9,7 +9,6 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * 
- * @author emcleod
  * 
  */
 

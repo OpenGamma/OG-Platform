@@ -6,19 +6,18 @@
 package com.opengamma.financial.timeseries.model;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class AutoregressiveMovingAverageTimeSeriesModel {
   private final AutoregressiveTimeSeriesModel _arModel;
   private final MovingAverageTimeSeriesModel _maModel;
 
   public AutoregressiveMovingAverageTimeSeriesModel(final ProbabilityDistribution<Double> random) {
-    if (random == null)
-      throw new IllegalArgumentException("Probability distribution was null");
+    ArgumentChecker.notNull(random, "random");
     _maModel = new MovingAverageTimeSeriesModel(random);
     _arModel = new AutoregressiveTimeSeriesModel(random);
   }
@@ -36,8 +35,7 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
       throw new IllegalArgumentException("q must be positive");
     if (theta != null && theta.length < q)
       throw new IllegalArgumentException("MA coefficient array must contain at least " + q + " elements");
-    if (dates == null)
-      throw new IllegalArgumentException("Dates array was null");
+    ArgumentChecker.notNull(dates, "dates");
     if (dates.length == 0)
       throw new IllegalArgumentException("Dates array was empty");
     final double[] theta1 = theta == null ? null : new double[theta.length + 1];

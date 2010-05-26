@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class StandardDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_Log = LoggerFactory.getLogger(StandardDeviationDoubleTimeSeriesFilter.class);
@@ -44,11 +44,10 @@ public class StandardDeviationDoubleTimeSeriesFilter extends TimeSeriesFilter {
 
   @Override
   public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
-    if (ts == null)
-      throw new IllegalArgumentException("Time series was null");
+    ArgumentChecker.notNull(ts, "ts");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
     final double mean = _meanCalculator.evaluate(x);

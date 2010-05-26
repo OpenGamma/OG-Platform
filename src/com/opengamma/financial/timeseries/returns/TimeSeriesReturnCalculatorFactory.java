@@ -28,8 +28,7 @@ public class TimeSeriesReturnCalculatorFactory {
   public static final ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator CONTINUOUS_RELATIVE_STRICT_CALCULATOR = new ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator(
       CalculationMode.STRICT);
   public static final ContinuouslyCompoundedTimeSeriesReturnCalculator CONTINUOUS_STRICT_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.STRICT);
-  public static final ExcessContinuouslyCompoundedTimeSeriesReturnCalculator EXCESS_CONTINUOUS_STRICT_CALCULATOR = new ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(
-      CalculationMode.STRICT);
+  public static final ExcessContinuouslyCompoundedTimeSeriesReturnCalculator EXCESS_CONTINUOUS_STRICT_CALCULATOR = new ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.STRICT);
   public static final ExcessSimpleNetTimeSeriesReturnCalculator EXCESS_SIMPLE_NET_STRICT_CALCULATOR = new ExcessSimpleNetTimeSeriesReturnCalculator(CalculationMode.STRICT);
   public static final SimpleGrossTimeSeriesReturnCalculator SIMPLE_GROSS_STRICT_CALCULATOR = new SimpleGrossTimeSeriesReturnCalculator(CalculationMode.STRICT);
   public static final SimpleNetTimeSeriesReturnCalculator SIMPLE_NET_STRICT_CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.STRICT);
@@ -37,8 +36,7 @@ public class TimeSeriesReturnCalculatorFactory {
   public static final ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator CONTINUOUS_RELATIVE_LENIENT_CALCULATOR = new ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator(
       CalculationMode.LENIENT);
   public static final ContinuouslyCompoundedTimeSeriesReturnCalculator CONTINUOUS_LENIENT_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
-  public static final ExcessContinuouslyCompoundedTimeSeriesReturnCalculator EXCESS_CONTINUOUS_LENIENT_CALCULATOR = new ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(
-      CalculationMode.LENIENT);
+  public static final ExcessContinuouslyCompoundedTimeSeriesReturnCalculator EXCESS_CONTINUOUS_LENIENT_CALCULATOR = new ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   public static final ExcessSimpleNetTimeSeriesReturnCalculator EXCESS_SIMPLE_NET_LENIENT_CALCULATOR = new ExcessSimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   public static final SimpleGrossTimeSeriesReturnCalculator SIMPLE_GROSS_LENIENT_CALCULATOR = new SimpleGrossTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   public static final SimpleNetTimeSeriesReturnCalculator SIMPLE_NET_LENIENT_CALCULATOR = new SimpleNetTimeSeriesReturnCalculator(CalculationMode.LENIENT);
@@ -75,13 +73,15 @@ public class TimeSeriesReturnCalculatorFactory {
     s_instanceStrictNames.put(SIMPLE_GROSS_STRICT_CALCULATOR.getClass(), SIMPLE_GROSS_STRICT);
     s_staticLenientInstances.put(SIMPLE_NET_LENIENT, SIMPLE_NET_LENIENT_CALCULATOR);
     s_instanceStrictNames.put(SIMPLE_NET_LENIENT_CALCULATOR.getClass(), SIMPLE_NET_LENIENT);
+    s_staticLenientInstances.put(SIMPLE_NET_STRICT, SIMPLE_NET_STRICT_CALCULATOR);
+    s_instanceStrictNames.put(SIMPLE_NET_STRICT_CALCULATOR.getClass(), SIMPLE_NET_STRICT);
     s_staticLenientInstances.put(SIMPLE_NET_RELATIVE_LENIENT, SIMPLE_NET_RELATIVE_LENIENT_CALCULATOR);
     s_instanceLenientNames.put(SIMPLE_NET_RELATIVE_LENIENT_CALCULATOR.getClass(), SIMPLE_NET_RELATIVE_LENIENT);
     s_staticStrictInstances.put(SIMPLE_NET_RELATIVE_STRICT, SIMPLE_NET_RELATIVE_STRICT_CALCULATOR);
     s_instanceStrictNames.put(SIMPLE_NET_RELATIVE_STRICT_CALCULATOR.getClass(), SIMPLE_NET_RELATIVE_STRICT);
   }
 
-  public String getReturnCalculatorName(final TimeSeriesReturnCalculator calculator) {
+  public static String getReturnCalculatorName(final TimeSeriesReturnCalculator calculator) {
     if (calculator == null)
       return null;
     final CalculationMode mode = calculator.getMode();
@@ -94,7 +94,7 @@ public class TimeSeriesReturnCalculatorFactory {
     }
   }
 
-  public String getReturnCalculatorName(final TimeSeriesReturnCalculator calculator, final CalculationMode mode) {
+  public static String getReturnCalculatorName(final TimeSeriesReturnCalculator calculator, final CalculationMode mode) {
     if (calculator == null)
       return null;
     switch (mode) {
@@ -107,7 +107,7 @@ public class TimeSeriesReturnCalculatorFactory {
     }
   }
 
-  public TimeSeriesReturnCalculator getReturnCalculator(final String calculatorName) {
+  public static TimeSeriesReturnCalculator getReturnCalculator(final String calculatorName) {
     if (s_staticLenientInstances.containsKey(calculatorName)) {
       return s_staticLenientInstances.get(calculatorName);
     }
@@ -117,7 +117,7 @@ public class TimeSeriesReturnCalculatorFactory {
     throw new IllegalArgumentException("Do not have calculator for " + calculatorName);
   }
 
-  public TimeSeriesReturnCalculator getReturnCalculator(final String calculatorName, final CalculationMode mode) {
+  public static TimeSeriesReturnCalculator getReturnCalculator(final String calculatorName, final CalculationMode mode) {
     TimeSeriesReturnCalculator calculator;
     switch (mode) {
       case STRICT:

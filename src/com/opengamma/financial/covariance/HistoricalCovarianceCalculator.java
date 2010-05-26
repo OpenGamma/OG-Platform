@@ -8,6 +8,7 @@ package com.opengamma.financial.covariance;
 import java.util.Iterator;
 
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -17,6 +18,7 @@ public class HistoricalCovarianceCalculator extends CovarianceCalculator {
   private final TimeSeriesReturnCalculator _returnCalculator;
 
   public HistoricalCovarianceCalculator(final TimeSeriesReturnCalculator returnCalculator) {
+    ArgumentChecker.notNull(returnCalculator, "return calculator");
     _returnCalculator = returnCalculator;
   }
 

@@ -9,19 +9,18 @@ import java.util.Arrays;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class AutocovarianceFunctionCalculator extends Function1D<DoubleTimeSeries<?>, Double[]> {
   private final Function1D<DoubleTimeSeries<?>, Double> _meanCalculator = new DoubleTimeSeriesStatisticsCalculator(new MeanCalculator());
 
   @Override
   public Double[] evaluate(final DoubleTimeSeries<?> x) {
-    if (x == null)
-      throw new IllegalArgumentException("Time series was null");
+    ArgumentChecker.notNull(x, "x");
     if (x.isEmpty())
       throw new IllegalArgumentException("Time series was empty");
     final int h = x.size() - 1;

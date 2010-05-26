@@ -24,7 +24,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {

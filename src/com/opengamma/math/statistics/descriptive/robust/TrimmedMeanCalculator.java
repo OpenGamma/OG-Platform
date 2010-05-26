@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- * @author emcleod
  */
 public class TrimmedMeanCalculator extends Function1D<Double[], Double> {
   private final double _gamma;
@@ -26,8 +26,7 @@ public class TrimmedMeanCalculator extends Function1D<Double[], Double> {
 
   @Override
   public Double evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
+    ArgumentChecker.notNull(x, "x");
     if (x.length == 0)
       throw new IllegalArgumentException("Array was empty");
     final int length = x.length;

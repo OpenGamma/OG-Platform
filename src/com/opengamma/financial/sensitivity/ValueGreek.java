@@ -6,11 +6,13 @@
 package com.opengamma.financial.sensitivity;
 
 import com.opengamma.financial.greeks.Greek;
+import com.opengamma.util.ArgumentChecker;
 
 public class ValueGreek {
   private final Greek _underlyingGreek;
 
   public ValueGreek(final Greek underlyingGreek) {
+    ArgumentChecker.notNull(underlyingGreek, "underlying greek");
     _underlyingGreek = underlyingGreek;
   }
 

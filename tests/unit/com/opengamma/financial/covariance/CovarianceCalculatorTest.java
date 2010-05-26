@@ -26,12 +26,12 @@ public class CovarianceCalculatorTest {
   private static final DoubleTimeSeries<?> TS3 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] { 4, 5 }, new double[] { 1, 2 });
   private static final DoubleTimeSeries<?> TS4 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] { 4, 5, 6 }, new double[] { 1, 2, 3 });
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullTS1() {
     CALCULATOR.testTimeSeries(null, TS1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullTS2() {
     CALCULATOR.testTimeSeries(TS2, null);
   }

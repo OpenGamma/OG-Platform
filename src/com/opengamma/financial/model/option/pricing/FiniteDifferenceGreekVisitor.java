@@ -15,20 +15,23 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
 /**
  * 
  */
 @SuppressWarnings("unchecked")
-public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements
-    GreekVisitor<Double> {
+public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements GreekVisitor<Double> {
   private static final double EPS = 1e-4;
   private final Function1D<S, Double> _pricingFunction;
   private final S _data;
   private final T _definition;
 
   public FiniteDifferenceGreekVisitor(final Function1D<S, Double> pricingFunction, final S data, final T definition) {
+    ArgumentChecker.notNull(pricingFunction, "pricing function");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.notNull(definition, "definition");
     _pricingFunction = pricingFunction;
     _data = data;
     _definition = definition;
@@ -370,28 +373,19 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
   }
 
   private double getSecondDerivative(final S dataUp, final S dataDown, final S data) {
-    return (_pricingFunction.evaluate(dataUp) + _pricingFunction.evaluate(dataDown) - 2 * _pricingFunction
-        .evaluate(data))
-        / (EPS * EPS);
+    return (_pricingFunction.evaluate(dataUp) + _pricingFunction.evaluate(dataDown) - 2 * _pricingFunction.evaluate(data)) / (EPS * EPS);
   }
 
-  private double getMixedSecondDerivative(final S dataUp1Up2, final S dataUp1Down2, final S dataDown1Up2,
-      final S dataDown1Down2) {
-    return (_pricingFunction.evaluate(dataUp1Up2) - _pricingFunction.evaluate(dataUp1Down2)
-        - _pricingFunction.evaluate(dataDown1Up2) + _pricingFunction.evaluate(dataDown1Down2))
-        / (4 * EPS * EPS);
+  private double getMixedSecondDerivative(final S dataUp1Up2, final S dataUp1Down2, final S dataDown1Up2, final S dataDown1Down2) {
+    return (_pricingFunction.evaluate(dataUp1Up2) - _pricingFunction.evaluate(dataUp1Down2) - _pricingFunction.evaluate(dataDown1Up2) + _pricingFunction.evaluate(dataDown1Down2)) / (4 * EPS * EPS);
   }
 
   private double getThirdDerivative(final S dataUpUp, final S dataUp, final S data, final S dataDown) {
-    return (_pricingFunction.evaluate(dataUpUp) + 3 * _pricingFunction.evaluate(data) - 3
-        * _pricingFunction.evaluate(dataUp) - _pricingFunction.evaluate(dataDown))
-        / (EPS * EPS * EPS);
+    return (_pricingFunction.evaluate(dataUpUp) + 3 * _pricingFunction.evaluate(data) - 3 * _pricingFunction.evaluate(dataUp) - _pricingFunction.evaluate(dataDown)) / (EPS * EPS * EPS);
   }
 
-  private double getMixedThirdDerivative(final S dataUp1Up1, final S dataUp2, final S dataDown1Up2,
-      final S dataUp1Down2, final S dataDown2, final S dataDown1Down2) {
-    return (_pricingFunction.evaluate(dataUp1Up1) - 2 * _pricingFunction.evaluate(dataUp2)
-        + _pricingFunction.evaluate(dataDown1Up2) - _pricingFunction.evaluate(dataUp1Down2) + 2
+  private double getMixedThirdDerivative(final S dataUp1Up1, final S dataUp2, final S dataDown1Up2, final S dataUp1Down2, final S dataDown2, final S dataDown1Down2) {
+    return (_pricingFunction.evaluate(dataUp1Up1) - 2 * _pricingFunction.evaluate(dataUp2) + _pricingFunction.evaluate(dataDown1Up2) - _pricingFunction.evaluate(dataUp1Down2) + 2
         * _pricingFunction.evaluate(dataDown2) - _pricingFunction.evaluate(dataDown1Down2))
         / (2 * EPS * EPS * EPS);
   }

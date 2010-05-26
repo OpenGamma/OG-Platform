@@ -8,6 +8,7 @@ package com.opengamma.financial.timeseries.returns;
 import cern.colt.Arrays;
 
 import com.opengamma.math.function.Function;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -27,6 +28,7 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
   private final CalculationMode _mode;
 
   public TimeSeriesReturnCalculator(final CalculationMode mode) {
+    ArgumentChecker.notNull(mode, "mode");
     _mode = mode;
   }
 

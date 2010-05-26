@@ -17,7 +17,6 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class ExtremeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_Log = LoggerFactory.getLogger(ExtremeValueDoubleTimeSeriesFilter.class);
@@ -56,7 +55,7 @@ public class ExtremeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
       throw new IllegalArgumentException("Time series was null");
     if (ts.isEmpty()) {
       s_Log.info("Time series was empty");
-      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
     final int n = x.size();

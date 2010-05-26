@@ -6,7 +6,6 @@
 package com.opengamma.financial.timeseries.filter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import java.util.Arrays;
 
@@ -21,14 +20,13 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class NegativeValueDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final TimeSeriesFilter FILTER = new NegativeValueDoubleTimeSeriesFilter();
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = NullPointerException.class)
   public void testNullTS() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
@@ -37,7 +35,7 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
   public void testEmptyTS() {
     final FilteredTimeSeries filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-    assertNull(filtered.getRejectedTS());
+    assertEquals(filtered.getRejectedTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
   @Test
@@ -65,7 +63,7 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
       }
     }
     final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, dates, data));
-    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)),
-        new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
+    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)), new FastArrayLongDoubleTimeSeries(
+        ENCODING, Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
   }
 }

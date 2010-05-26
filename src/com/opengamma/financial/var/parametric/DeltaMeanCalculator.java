@@ -8,6 +8,7 @@ package com.opengamma.financial.var.parametric;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.MatrixAlgebra;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -17,20 +18,13 @@ public class DeltaMeanCalculator extends Function1D<ParametricWithMeanVaRDataBun
   private static final int FIRST_ORDER = 1;
 
   public DeltaMeanCalculator(final MatrixAlgebra algebra) {
-    if (algebra == null)
-      throw new IllegalArgumentException("Matrix algebra calculator was null");
+    ArgumentChecker.notNull(algebra, "algebra");
     _algebra = algebra;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public Double evaluate(final ParametricWithMeanVaRDataBundle data) {
-    if (data == null)
-      throw new IllegalArgumentException("Data were null");
+    ArgumentChecker.notNull(data, "data");
     final DoubleMatrix1D delta = (DoubleMatrix1D) data.getSensitivityData(FIRST_ORDER);
     final int s1 = delta.getNumberOfElements();
     if (s1 == 0)
