@@ -5,17 +5,18 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.util.wrapper.ColtWrapper;
+import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
  * 
  */
-public class SingularValueDecompositionColtResultHolder implements SingularValueDecompositionResult {
+public class SVDecompositionResultCommons implements SVDecompositionResult {
 
-  private final cern.colt.matrix.linalg.SingularValueDecomposition _svd;
+  private final org.apache.commons.math.linear.SingularValueDecomposition _svd;
 
-  public SingularValueDecompositionColtResultHolder(final cern.colt.matrix.linalg.SingularValueDecomposition svd) {
+  public SVDecompositionResultCommons(final org.apache.commons.math.linear.SingularValueDecomposition svd) {
     _svd = svd;
   }
 
@@ -27,7 +28,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
    */
   @Override
   public double getConditionNumber() {
-    return _svd.cond();
+    return _svd.getConditionNumber();
   }
 
   /*
@@ -38,7 +39,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
    */
   @Override
   public double getNorm() {
-    return _svd.norm2();
+    return _svd.getNorm();
   }
 
   /*
@@ -49,7 +50,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
    */
   @Override
   public int getRank() {
-    return _svd.rank();
+    return _svd.getRank();
   }
 
   /*
@@ -61,7 +62,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
   @Override
   public DoubleMatrix2D getS() {
 
-    return ColtWrapper.wrap(_svd.getS());
+    return CommonsMathWrapper.wrap(_svd.getS());
   }
 
   /*
@@ -84,7 +85,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
   @Override
   public DoubleMatrix2D getU() {
 
-    return ColtWrapper.wrap(_svd.getU());
+    return CommonsMathWrapper.wrap(_svd.getU());
   }
 
   /*
@@ -96,7 +97,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
   @Override
   public DoubleMatrix2D getUT() {
 
-    return ColtWrapper.wrap(_svd.getU()).getTranspose();
+    return CommonsMathWrapper.wrap(_svd.getUT());
   }
 
   /*
@@ -108,7 +109,7 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
   @Override
   public DoubleMatrix2D getV() {
 
-    return ColtWrapper.wrap(_svd.getV());
+    return CommonsMathWrapper.wrap(_svd.getV());
   }
 
   /*
@@ -120,7 +121,31 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
   @Override
   public DoubleMatrix2D getVT() {
 
-    return ColtWrapper.wrap(_svd.getV()).getTranspose();
+    return CommonsMathWrapper.wrap(_svd.getVT());
+  }
+
+  /* (non-Javadoc)
+   * @see com.opengamma.math.linearalgebra.SingularValueDecompositionResult#Solve(com.opengamma.math.matrix.DoubleMatrix1D)
+   */
+  @Override
+  public DoubleMatrix1D solve(DoubleMatrix1D b) {
+    return CommonsMathWrapper.wrap(_svd.getSolver().solve( CommonsMathWrapper.wrap(b)));    
+  }
+
+  /* (non-Javadoc)
+   * @see com.opengamma.math.linearalgebra.DecompositionResult#solve(double[])
+   */
+  @Override
+  public double[] solve(double[] b) {
+   return _svd.getSolver().solve(b);
+  }
+
+  /* (non-Javadoc)
+   * @see com.opengamma.math.linearalgebra.DecompositionResult#solve(com.opengamma.math.matrix.DoubleMatrix2D)
+   */
+  @Override
+  public DoubleMatrix2D solve(DoubleMatrix2D b) {
+    return CommonsMathWrapper.wrap(_svd.getSolver().solve( CommonsMathWrapper.wrap(b)));    
   }
 
 }

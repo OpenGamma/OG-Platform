@@ -38,7 +38,7 @@ public class CommonsMathWrapper {
   }
 
   public static RealMatrix wrap(final DoubleMatrix2D x) {
-    return new Array2DRowRealMatrix(x.getDataAsPrimitiveArray());
+    return new Array2DRowRealMatrix(x.getData());
   }
 
   public static DoubleMatrix2D wrap(final RealMatrix x) {
@@ -46,7 +46,7 @@ public class CommonsMathWrapper {
   }
 
   public static RealVector wrap(final DoubleMatrix1D x) {
-    return new ArrayRealVector(x.getDataAsPrimitiveArray());
+    return new ArrayRealVector(x.getData());
   }
 
   public static DoubleMatrix1D wrap(final RealVector x) {

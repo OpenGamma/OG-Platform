@@ -14,7 +14,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * 
  */
-public class SingularValueDecomposition extends Decomposer {
+public class SVDecompositionCommons extends SVDecomposition {
 
   /*
    * (non-Javadoc)
@@ -23,13 +23,13 @@ public class SingularValueDecomposition extends Decomposer {
    */
 
   @Override
-  public DecompositionResult evaluate(final DoubleMatrix2D x) {
+  public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
     if (x == null)
       throw new IllegalArgumentException("Passed a null to SingularValueDecomposition.evaluate");
     final RealMatrix temp = CommonsMathWrapper.wrap(x);
     final org.apache.commons.math.linear.SingularValueDecomposition svd = new SingularValueDecompositionImpl(temp);
 
-    return new SingularValueDecompositionResultHolder(svd);
+    return new SVDecompositionResultCommons(svd);
   }
 
 }

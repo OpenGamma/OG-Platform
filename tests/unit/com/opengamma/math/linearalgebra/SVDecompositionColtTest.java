@@ -17,13 +17,13 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 /**
  * 
  */
-public class SingularValueDecompositionColtTest {
+public class SVDecompositionColtTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
   private static final double EPS = 1e-10;
 
   private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { new double[] { 1, 2, 3 },
       new double[] { -3.4, -1, 4 }, new double[] { 1, 6, 1 } });
-  private static final Decomposer SVD = new SingularValueDecompositionColt();
+  private static final SVDecomposition SVD = new SVDecompositionColt();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullObjectMatrix() {
@@ -34,8 +34,8 @@ public class SingularValueDecompositionColtTest {
   public void testRecoverOrginal() {
 
     final DecompositionResult result = SVD.evaluate(A);
-    assertTrue(result instanceof SingularValueDecompositionResult);
-    final SingularValueDecompositionResult svd_result = (SingularValueDecompositionResult) result;
+    assertTrue(result instanceof SVDecompositionResult);
+    final SVDecompositionResult svd_result = (SVDecompositionResult) result;
 
     final DoubleMatrix2D u = svd_result.getU();
     final double[] sv = svd_result.getSingularValues();
@@ -49,14 +49,13 @@ public class SingularValueDecompositionColtTest {
   @Test
   public void testInvert() {
 
-    final DecompositionResult result = SVD.evaluate(A);
-    assertTrue(result instanceof SingularValueDecompositionResult);
-    final SingularValueDecompositionResult svd_result = (SingularValueDecompositionResult) result;
+    final SVDecompositionResult result = SVD.evaluate(A);
+    
 
-    final DoubleMatrix2D ut = svd_result.getUT();
-    final DoubleMatrix2D v = svd_result.getV();
+    final DoubleMatrix2D ut = result.getUT();
+    final DoubleMatrix2D v = result.getV();
 
-    final double[] sv = svd_result.getSingularValues();
+    final double[] sv = result.getSingularValues();
     final int n = sv.length;
     final double[] svinv = new double[n];
     for (int i = 0; i < n; i++) {
@@ -99,7 +98,7 @@ public class SingularValueDecompositionColtTest {
     }
     for (int i = 0; i < n; i++)
       for (int j = 0; j < m; j++) {
-        assertEquals(x.getElement(i, j), y.getElement(i, j), EPS);
+        assertEquals(x.getEntry(i, j), y.getEntry(i, j), EPS);
       }
   }
 
@@ -117,9 +116,9 @@ public class SingularValueDecompositionColtTest {
     for (int i = 0; i < n; i++)
       for (int j = 0; j < n; j++) {
         if (i == j)
-          assertEquals(1.0, x.getElement(i, i), EPS);
+          assertEquals(1.0, x.getEntry(i, i), EPS);
         else
-          assertEquals(0.0, x.getElement(i, j), EPS);
+          assertEquals(0.0, x.getEntry(i, j), EPS);
 
       }
 

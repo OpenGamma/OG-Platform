@@ -150,8 +150,9 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       // TODO find if commons implements this anywhere, so we are not doing it
       // by hand
       double max = 0.0;
-      for (int row = temp.getRowDimension(); --row >= 0;)
+      for (int row = temp.getRowDimension(); --row >= 0; ) {
         max = Math.max(max, temp.getRowVector(row).getL1Norm());
+      }
       return max;
     }
     throw new NotImplementedException();
@@ -207,8 +208,9 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final double[][] d = new double[n][n];
       for (int i = n; --i >= 0;) {
         d[i][i] = Math.pow(rEigenValues[i], p);
-        if (iEigenValues[i] != 0.0)
+        if (iEigenValues[i] != 0.0) {
           throw new NotImplementedException("Cannot handle complex eigenvalues in getPower");
+        }
       }
       final RealMatrix res = eigen.getV().multiply((new Array2DRowRealMatrix(d)).multiply(eigen.getVT()));
       return CommonsMathWrapper.wrap(res);

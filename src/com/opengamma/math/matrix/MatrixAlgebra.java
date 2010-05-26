@@ -15,8 +15,8 @@ public abstract class MatrixAlgebra {
 
   public Matrix<?> add(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      final double[] x1 = ((DoubleMatrix1D) m1).getDataAsPrimitiveArray();
-      final double[] x2 = ((DoubleMatrix1D) m2).getDataAsPrimitiveArray();
+      final double[] x1 = ((DoubleMatrix1D) m1).getData();
+      final double[] x2 = ((DoubleMatrix1D) m2).getData();
       final int n = x1.length;
       if (n != x2.length)
         throw new IllegalArgumentException("Can only add matrices of the same shape");
@@ -26,8 +26,8 @@ public abstract class MatrixAlgebra {
       }
       return new DoubleMatrix1D(sum);
     } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      final double[][] x1 = ((DoubleMatrix2D) m1).getDataAsPrimitiveArray();
-      final double[][] x2 = ((DoubleMatrix2D) m2).getDataAsPrimitiveArray();
+      final double[][] x1 = ((DoubleMatrix2D) m1).getData();
+      final double[][] x2 = ((DoubleMatrix2D) m2).getData();
       final int n = x1.length;
       final int m = x1[0].length;
       if (n != x2.length)
@@ -57,7 +57,7 @@ public abstract class MatrixAlgebra {
 
   public Matrix<?> scale(final Matrix<?> m, final double scale) {
     if (m instanceof DoubleMatrix1D) {
-      final double[] x = ((DoubleMatrix1D) m).getDataAsPrimitiveArray();
+      final double[] x = ((DoubleMatrix1D) m).getData();
       final int n = x.length;
       final double[] scaled = new double[n];
       for (int i = 0; i < n; i++) {
@@ -65,7 +65,7 @@ public abstract class MatrixAlgebra {
       }
       return new DoubleMatrix1D(scaled);
     } else if (m instanceof DoubleMatrix2D) {
-      final double[][] x = ((DoubleMatrix2D) m).getDataAsPrimitiveArray();
+      final double[][] x = ((DoubleMatrix2D) m).getData();
       final int n = x.length;
       final double[][] scaled = new double[n][x[0].length];
       for (int i = 0; i < n; i++) {
@@ -80,8 +80,8 @@ public abstract class MatrixAlgebra {
 
   public Matrix<?> subtract(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      final double[] x1 = ((DoubleMatrix1D) m1).getDataAsPrimitiveArray();
-      final double[] x2 = ((DoubleMatrix1D) m2).getDataAsPrimitiveArray();
+      final double[] x1 = ((DoubleMatrix1D) m1).getData();
+      final double[] x2 = ((DoubleMatrix1D) m2).getData();
       final int n = x1.length;
       if (n != x2.length)
         throw new IllegalArgumentException("Can only subtract matrices of the same shape");
@@ -91,8 +91,8 @@ public abstract class MatrixAlgebra {
       }
       return new DoubleMatrix1D(subtract);
     } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      final double[][] x1 = ((DoubleMatrix2D) m1).getDataAsPrimitiveArray();
-      final double[][] x2 = ((DoubleMatrix2D) m2).getDataAsPrimitiveArray();
+      final double[][] x1 = ((DoubleMatrix2D) m1).getData();
+      final double[][] x2 = ((DoubleMatrix2D) m2).getData();
       final int n = x1.length;
       final int m = x1[0].length;
       if (n != x2.length)

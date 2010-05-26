@@ -20,7 +20,7 @@ public class ColtWrapper {
   }
 
   public static cern.colt.matrix.DoubleMatrix2D wrap(final DoubleMatrix2D x) {
-    return cern.colt.matrix.DoubleFactory2D.dense.make(x.getDataAsPrimitiveArray());
+    return cern.colt.matrix.DoubleFactory2D.dense.make(x.getData());
 
   }
 }

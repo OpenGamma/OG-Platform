@@ -27,7 +27,7 @@ public class DoubleMatrix1DTest {
   @Test
   public void testEmptyArray() {
     final DoubleMatrix1D d = new DoubleMatrix1D(new double[0]);
-    assertTrue(Arrays.equals(new double[0], d.getDataAsPrimitiveArray()));
+    assertTrue(Arrays.equals(new double[0], d.getData()));
   }
 
   @Test
@@ -39,7 +39,7 @@ public class DoubleMatrix1DTest {
     }
     DoubleMatrix1D d = new DoubleMatrix1D(x);
     assertEquals(d.getNumberOfElements(), n);
-    final double[] y = d.getDataAsPrimitiveArray();
+    final double[] y = d.getData();
     for (int i = 0; i < n; i++) {
       assertEquals(x[i], y[i], 1e-15);
     }
@@ -47,9 +47,19 @@ public class DoubleMatrix1DTest {
       y[i] = Double.valueOf(i);
     }
     d = new DoubleMatrix1D(y);
-    x = d.getDataAsPrimitiveArray();
+    x = d.getData();
     for (int i = 0; i < n; i++) {
       assertEquals(x[i], y[i], 1e-15);
     }
+  }
+
+  @Test
+  public void testDotProduct() {
+    final DoubleMatrix1D A = new DoubleMatrix1D(new double[] { -1, 2, 3 });
+    final DoubleMatrix1D B = new DoubleMatrix1D(new double[] { 2, -2, 1 });
+    double res = DoubleMatrix1D.dotProduct(A, B);
+    assertEquals(-3.0, res, 1e-15);
+    res = A.dotProduct(A);
+    assertEquals(14.0, res, 1e-15);
   }
 }

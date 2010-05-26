@@ -5,12 +5,13 @@
  */
 package com.opengamma.math.linearalgebra;
 
+
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * 
  */
-public interface SingularValueDecompositionResult extends DecompositionResult{
+public interface SVDecompositionResult extends DecompositionResult{
 
   
 
@@ -86,6 +87,7 @@ public interface SingularValueDecompositionResult extends DecompositionResult{
    * @return effective numerical matrix rank
    */
   int getRank();
-
+  
+ 
 
 }
