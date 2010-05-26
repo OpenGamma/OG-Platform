@@ -41,7 +41,7 @@ public class StandardOptionDataBundle {
     _date = data.getDate();
   }
 
-  public Double getInterestRate(final double t) {
+  public Double getInterestRate(final Double t) {
     return getDiscountCurve().getInterestRate(t);
   }
 
@@ -49,7 +49,7 @@ public class StandardOptionDataBundle {
     return _b;
   }
 
-  public Double getVolatility(final double timeToExpiry, final double strike) {
+  public Double getVolatility(final Double timeToExpiry, final Double strike) {
     return getVolatilitySurface().getVolatility(Pair.of(timeToExpiry, strike));
   }
 

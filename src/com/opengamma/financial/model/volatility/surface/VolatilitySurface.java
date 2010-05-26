@@ -13,7 +13,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
  */
 public abstract class VolatilitySurface implements VolatilityModel<Pair<Double, Double>> {
 
