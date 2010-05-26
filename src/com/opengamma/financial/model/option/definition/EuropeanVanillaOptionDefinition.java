@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -14,13 +16,13 @@ import com.opengamma.util.time.Expiry;
  * When the spot price is <i>S</i>, an option with strike <i>K</i> has payoff
  * <i>max(0, S - K)</i> for a call and <i>max(0, K - S)</i> for a put.
  * 
- * @author emcleod
  */
 public class EuropeanVanillaOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
       final double spot = data.getSpot();
       return isCall() ? Math.max(0, spot - getStrike()) : Math.max(0, getStrike() - spot);
     }
@@ -51,4 +53,28 @@ public class EuropeanVanillaOptionDefinition extends OptionDefinition {
   public String toString() {
     return "Vanilla European" + (isCall() ? " call " : " put ") + "[K = " + getStrike() + ", " + getExpiry() + "]";
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _exerciseFunction.hashCode();
+    result = prime * result + _payoffFunction.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
 }

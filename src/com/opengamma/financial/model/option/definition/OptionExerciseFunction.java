@@ -7,8 +7,10 @@ package com.opengamma.financial.model.option.definition;
 
 /**
  * 
+ * @param <S> The type of the data bundle
+ * 
  */
 public interface OptionExerciseFunction<S extends StandardOptionDataBundle> {
 
-  public Boolean shouldExercise(S data, Double optionPrice);
+  Boolean shouldExercise(S data, Double optionPrice);
 }
