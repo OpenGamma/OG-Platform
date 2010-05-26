@@ -22,17 +22,24 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public abstract class OptionDefinition {
-  private final double _strike;
+  private final Double _strike;
   private final Expiry _expiry;
-  private final boolean _isCall;
+  private final Boolean _isCall;
 
   /**
    * 
-   * @param strike
-   * @param expiry
-   * @param isCall
+   * @param strike The strike
+   * @param expiry The expiry
+   * @param isCall Is the option a put or call
+   * @throws IllegalArgumentException
+   *          If the strike is null
+   * @throws IllegalArgumentException
+   *          If the strike is negative
+   * @throws IllegalArgumentException
+   *          If the expiry is null                   
    */
-  public OptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
+  public OptionDefinition(final Double strike, final Expiry expiry, final Boolean isCall) {
+    Validate.notNull(strike);
     ArgumentChecker.notNegative(strike, "strike");
     Validate.notNull(expiry);
     _strike = strike;
@@ -44,7 +51,7 @@ public abstract class OptionDefinition {
    * 
    * @return Returns the strike.
    */
-  public double getStrike() {
+  public Double getStrike() {
     return _strike;
   }
 
@@ -58,8 +65,8 @@ public abstract class OptionDefinition {
 
   /**
    * 
-   * @param date
-   * @return The time to expiry in years, where a year is defined as 365.25
+   * @param date The date
+   * @return The time to expiry in years, where a year is defined as having 365.25 days
    */
   public double getTimeToExpiry(final ZonedDateTime date) {
     if (date.isAfter(getExpiry().getExpiry())) {
@@ -72,18 +79,18 @@ public abstract class OptionDefinition {
    * 
    * @return Returns true if the option is a call.
    */
-  public boolean isCall() {
+  public Boolean isCall() {
     return _isCall;
   }
 
   /**
-   * 
+   * @param <T> The data bundle type
    * @return The exercise function.
    */
   public abstract <T extends StandardOptionDataBundle> OptionExerciseFunction<T> getExerciseFunction();
 
-  /**
-   * 
+  /**  
+   * @param <T> The data bundle type
    * @return The payoff function.
    */
   public abstract <T extends StandardOptionDataBundle> OptionPayoffFunction<T> getPayoffFunction();
@@ -96,10 +103,8 @@ public abstract class OptionDefinition {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_expiry == null) ? 0 : _expiry.hashCode());
-    result = prime * result + (_isCall ? 1231 : 1237);
-    long temp;
-    temp = Double.doubleToLongBits(_strike);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_isCall == null) ? 0 : _isCall.hashCode());
+    result = prime * result + ((_strike == null) ? 0 : _strike.hashCode());
     return result;
   }
 
@@ -108,22 +113,37 @@ public abstract class OptionDefinition {
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final OptionDefinition other = (OptionDefinition) obj;
     if (_expiry == null) {
-      if (other._expiry != null)
+      if (other._expiry != null) {
         return false;
-    } else if (!_expiry.equals(other._expiry))
+      }
+    } else if (!_expiry.equals(other._expiry)) {
       return false;
-    if (_isCall != other._isCall)
+    }
+    if (_isCall == null) {
+      if (other._isCall != null) {
+        return false;
+      }
+    } else if (!_isCall.equals(other._isCall)) {
       return false;
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike))
+    }
+    if (_strike == null) {
+      if (other._strike != null) {
+        return false;
+      }
+    } else if (!_strike.equals(other._strike)) {
       return false;
+    }
     return true;
   }
 }
