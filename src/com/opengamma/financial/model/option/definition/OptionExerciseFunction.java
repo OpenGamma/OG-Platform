@@ -7,7 +7,6 @@ package com.opengamma.financial.model.option.definition;
 
 /**
  * 
- * @author emcleod
  */
 public interface OptionExerciseFunction<S extends StandardOptionDataBundle> {
 
