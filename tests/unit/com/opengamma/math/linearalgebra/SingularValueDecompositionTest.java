@@ -100,7 +100,7 @@ public class SingularValueDecompositionTest {
     }
     for (int i = 0; i < n; i++)
       for (int j = 0; j < m; j++) {
-        assertEquals(x.getElement(i, j), y.getElement(i, j), EPS);
+        assertEquals(x.getEntry(i, j), y.getEntry(i, j), EPS);
       }
   }
 
@@ -118,9 +118,9 @@ public class SingularValueDecompositionTest {
     for (int i = 0; i < n; i++)
       for (int j = 0; j < n; j++) {
         if (i == j)
-          assertEquals(1.0, x.getElement(i, i), EPS);
+          assertEquals(1.0, x.getEntry(i, i), EPS);
         else
-          assertEquals(0.0, x.getElement(i, j), EPS);
+          assertEquals(0.0, x.getEntry(i, j), EPS);
 
       }
 

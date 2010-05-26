@@ -79,7 +79,7 @@ public class ParametricVaRDataBundle {
   }
 
   private DoubleMatrix2D getDiagonalMatrix(final DoubleMatrix1D secondOrder) {
-    final double[] data = secondOrder.getDataAsPrimitiveArray();
+    final double[] data = secondOrder.getData();
     final int n = data.length;
     final double[][] matrix = new double[n][n];
     for (int i = 0; i < n; i++) {

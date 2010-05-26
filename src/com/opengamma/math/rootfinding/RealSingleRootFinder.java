@@ -10,7 +10,7 @@ import com.opengamma.math.function.Function1D;
 /**
  * 
  */
-public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double> {
+public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double, Double, Double> {
 
   protected void checkInputs(final Function1D<Double, Double> function, final Double x1, final Double x2) {
     if (function == null)

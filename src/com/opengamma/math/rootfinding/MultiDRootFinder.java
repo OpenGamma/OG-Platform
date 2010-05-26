@@ -11,6 +11,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public interface MultiDRootFinder<S, T, U> {
-  public U getRoot(Function1D<S, T> function, T x);
+  public S getRoot(Function1D<S, T> function, S x);
 
+  public S getRoot(Function1D<S, T> function, Function1D<S, U> jacobian, S x);
 }

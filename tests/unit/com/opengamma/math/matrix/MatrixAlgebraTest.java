@@ -12,7 +12,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Test;
 
 /**
- * @author emcleod
  * 
  */
 public class MatrixAlgebraTest {
@@ -40,13 +39,13 @@ public class MatrixAlgebraTest {
   public void testAdd() {
     final Matrix<?> m5 = ALGEBRA.add(M1, M2);
     assertTrue(m5 instanceof DoubleMatrix1D);
-    final double[] sum1 = ((DoubleMatrix1D) m5).getDataAsPrimitiveArray();
+    final double[] sum1 = ((DoubleMatrix1D) m5).getData();
     assertEquals(sum1.length, 2);
     assertEquals(sum1[0], 4, EPS);
     assertEquals(sum1[1], 6, EPS);
     final Matrix<?> m6 = ALGEBRA.add(M3, M4);
     assertTrue(m6 instanceof DoubleMatrix2D);
-    final double[][] sum2 = ((DoubleMatrix2D) m6).getDataAsPrimitiveArray();
+    final double[][] sum2 = ((DoubleMatrix2D) m6).getData();
     assertEquals(sum2.length, 2);
     assertEquals(sum2[0].length, 2);
     assertEquals(sum2[0][0], 6, EPS);
@@ -64,13 +63,13 @@ public class MatrixAlgebraTest {
   public void testSubtract() {
     final Matrix<?> m5 = ALGEBRA.subtract(M1, M2);
     assertTrue(m5 instanceof DoubleMatrix1D);
-    final double[] r1 = ((DoubleMatrix1D) m5).getDataAsPrimitiveArray();
+    final double[] r1 = ((DoubleMatrix1D) m5).getData();
     assertEquals(r1.length, 2);
     assertEquals(r1[0], -2, EPS);
     assertEquals(r1[1], -2, EPS);
     final Matrix<?> m6 = ALGEBRA.subtract(M3, M4);
     assertTrue(m6 instanceof DoubleMatrix2D);
-    final double[][] r2 = ((DoubleMatrix2D) m6).getDataAsPrimitiveArray();
+    final double[][] r2 = ((DoubleMatrix2D) m6).getData();
     assertEquals(r2.length, 2);
     assertEquals(r2[0].length, 2);
     assertEquals(r2[0][0], -4, EPS);
@@ -83,13 +82,13 @@ public class MatrixAlgebraTest {
   public void testScale() {
     final Matrix<?> m5 = ALGEBRA.scale(M1, 10);
     assertTrue(m5 instanceof DoubleMatrix1D);
-    final double[] r1 = ((DoubleMatrix1D) m5).getDataAsPrimitiveArray();
+    final double[] r1 = ((DoubleMatrix1D) m5).getData();
     assertEquals(r1.length, 2);
     assertEquals(r1[0], 10, EPS);
     assertEquals(r1[1], 20, EPS);
     final Matrix<?> m6 = ALGEBRA.scale(M3, 10);
     assertTrue(m6 instanceof DoubleMatrix2D);
-    final double[][] r2 = ((DoubleMatrix2D) m6).getDataAsPrimitiveArray();
+    final double[][] r2 = ((DoubleMatrix2D) m6).getData();
     assertEquals(r2.length, 2);
     assertEquals(r2[0].length, 2);
     assertEquals(r2[0][0], 10, EPS);
@@ -232,7 +231,7 @@ public class MatrixAlgebraTest {
     int i, j;
     for (i = 0; i < rows; i++)
       for (j = 0; j < rows; j++)
-        if (Math.abs(m1.getElement(i, j) - m2.getElement(i, j)) > tol)
+        if (Math.abs(m1.getEntry(i, j) - m2.getEntry(i, j)) > tol)
           return false;
     return true;
   }

@@ -64,11 +64,16 @@ public class ParametricVaRDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void test3DMatrix() {
-    final Matrix<?> m = new Matrix<double[][][]>() {
+    final Matrix<?> m = new Matrix<Double>() {
 
       @Override
       public int getNumberOfElements() {
         return 0;
+      }
+
+      @Override
+      public Double getEntry(int... indices) {
+        return 0.;
       }
 
     };
@@ -102,7 +107,7 @@ public class ParametricVaRDataBundleTest {
     final Matrix<?> m = data.getSensitivityData(2);
     assertTrue(m instanceof DoubleMatrix2D);
     final double[][] diagonal = new double[][] { new double[] { 2, 0 }, new double[] { 0, 1 } };
-    final double[][] converted = ((DoubleMatrix2D) m).getDataAsPrimitiveArray();
+    final double[][] converted = ((DoubleMatrix2D) m).getData();
     assertTrue(converted.length == 2);
     assertTrue(converted[0].length == 2);
     final double eps = 1e-15;

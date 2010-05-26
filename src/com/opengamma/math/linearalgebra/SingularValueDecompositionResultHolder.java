@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
@@ -121,6 +122,14 @@ public class SingularValueDecompositionResultHolder implements SingularValueDeco
   public DoubleMatrix2D getVT() {
 
     return CommonsMathWrapper.wrap(_svd.getVT());
+  }
+
+  /* (non-Javadoc)
+   * @see com.opengamma.math.linearalgebra.SingularValueDecompositionResult#Solve(com.opengamma.math.matrix.DoubleMatrix1D)
+   */
+  @Override
+  public DoubleMatrix1D Solve(DoubleMatrix1D b) {
+    return CommonsMathWrapper.wrap(_svd.getSolver().solve( CommonsMathWrapper.wrap(b)));    
   }
 
 }

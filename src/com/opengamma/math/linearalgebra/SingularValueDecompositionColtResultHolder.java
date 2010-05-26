@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.ColtWrapper;
 
@@ -123,4 +124,39 @@ public class SingularValueDecompositionColtResultHolder implements SingularValue
     return ColtWrapper.wrap(_svd.getV()).getTranspose();
   }
 
+  /* (non-Javadoc)
+   * @see com.opengamma.math.linearalgebra.SingularValueDecompositionResult#Solve(com.opengamma.math.matrix.DoubleMatrix1D)
+   */
+  @Override
+  public DoubleMatrix1D Solve(DoubleMatrix1D b) {
+    double[][] u = _svd.getU().toArray();
+    double[][] v = _svd.getV().toArray();
+    double[]w = _svd.getSingularValues();
+    
+    final int m = u.length;
+    final int n = u[0].length;
+    int i, j;
+    
+   final double[] temp = new double[n];
+   double sum;
+   for (j = 0; j < n; j++) {
+     sum = 0.0;
+     // TODO chance this to some threshold
+     if (w[j] > 0.0) {
+       for (i = 0; i < m; i++)
+         sum += u[i][j] * b.getEntry(i);
+       sum /= w[j];
+     }
+     temp[j] = sum;
+   }
+
+   final double[] res = new double[n];
+   for (i = 0; i < n; i++) {
+     sum = 0.0;
+     for (j = 0; j < n; j++)
+       sum += v[i][j] * temp[j];
+     res[i] = sum;
+  }
+   return new DoubleMatrix1D(res);
+  }
 }
