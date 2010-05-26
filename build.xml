@@ -194,6 +194,7 @@
 	</target>
 
 	<target name="pull" description="pull origin master all projects from git">
+		<git-pull dest="." />
 		<git-pull dest="projects/Fudge-Java" />
 		<git-pull dest="projects/Fudge-Proto" />
 		<git-pull dest="projects/OG-Analytics" />
