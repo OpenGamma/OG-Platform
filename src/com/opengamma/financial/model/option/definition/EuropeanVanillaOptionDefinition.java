@@ -74,7 +74,7 @@ public class EuropeanVanillaOptionDefinition extends OptionDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    return true;
+    return false;
   }
 
 }

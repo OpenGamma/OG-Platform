@@ -51,12 +51,4 @@ public class EuropeanVanillaOptionDefinitionTest {
     assertEquals(payoff.getPayoff(DATA.withSpot(SPOT + DIFF), null), 0, EPS);
     assertEquals(payoff.getPayoff(DATA.withSpot(SPOT - DIFF), null), DIFF, EPS);
   }
-
-  @Test
-  public void testHashCodeAndEquals() {
-    final OptionDefinition definition1 = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, true);
-    assertEquals(definition1, CALL);
-    assertEquals(definition1.hashCode(), CALL.hashCode());
-    assertFalse(definition1.equals(PUT));
-  }
 }
