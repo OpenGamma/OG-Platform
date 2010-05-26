@@ -44,7 +44,7 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         final Double[] u = new Double[_n];
         final Double[] p = new Double[_n + 1];
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
-        final double dt = t / (_n - 1);//yo this was wrong 
+        final double dt = t / (_n - 1); //yo this was wrong 
         final double dtSqrt = Math.sqrt(dt);
         final double r1 = data.getInterestRate(dt);
         final double sigma = data.getVolatility(dt);
