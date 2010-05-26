@@ -13,11 +13,11 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.mindrot.BCrypt;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.GrantedAuthorityImpl;
 import org.springframework.security.userdetails.UserDetails;
 
-import com.opengamma.util.security.BCrypt;
 
 /**
  * User of the OpenGamma system.
