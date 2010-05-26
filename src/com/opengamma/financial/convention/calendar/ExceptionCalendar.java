@@ -13,23 +13,22 @@ import javax.time.calendar.LocalDate;
 /**
  * Simple implementation of a calendar using sets of dates for exceptions.
  * 
- * @author Andrew Griffin
  */
 public abstract class ExceptionCalendar extends CalendarBase {
   
-  private final ConcurrentMap<LocalDate,Boolean> _workingDays = new ConcurrentHashMap<LocalDate,Boolean> ();
+  private final ConcurrentMap<LocalDate, Boolean> _workingDays = new ConcurrentHashMap<LocalDate, Boolean>();
   
-  protected ExceptionCalendar (final String name) {
-    super (name);
+  protected ExceptionCalendar(final String name) {
+    super(name);
   }
   
-  protected ConcurrentMap<LocalDate,Boolean> getWorkingDays () {
+  protected ConcurrentMap<LocalDate, Boolean> getWorkingDays() {
     return _workingDays;
   }
   
   @Override
-  protected boolean isWorkingDayException (final LocalDate date) {
-    final Boolean workingDay = getWorkingDays ().get (date);
+  protected boolean isWorkingDayException(final LocalDate date) {
+    final Boolean workingDay = getWorkingDays().get(date);
     if (workingDay == null) {
       // no exception
       return false;
@@ -43,8 +42,8 @@ public abstract class ExceptionCalendar extends CalendarBase {
   }
   
   @Override
-  protected boolean isNonWorkingDayException (final LocalDate date) {
-    final Boolean workingDay = getWorkingDays ().get (date);
+  protected boolean isNonWorkingDayException(final LocalDate date) {
+    final Boolean workingDay = getWorkingDays().get(date);
     if (workingDay == null) {
       // no exception
       return false;
@@ -60,15 +59,15 @@ public abstract class ExceptionCalendar extends CalendarBase {
   /**
    * Mark a day as an exception - it is a working day.
    */
-  protected void addWorkingDay (final LocalDate date) {
-    getWorkingDays ().put (date, true);
+  protected void addWorkingDay(final LocalDate date) {
+    getWorkingDays().put(date, true);
   }
   
   /**
    * Mark a day as an exception - it is a non-working day.
    */
-  protected void addNonWorkingDay (final LocalDate date) {
-    getWorkingDays ().put (date, false);
+  protected void addNonWorkingDay(final LocalDate date) {
+    getWorkingDays().put(date, false);
   }
 
 }

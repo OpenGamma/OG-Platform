@@ -29,12 +29,15 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
+/**
+ * 
+ */
 public class HibernateSecurityMaster implements WritableSecurityMaster {
 
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMaster.class);
   private static final Set<String> SUPPORTED_SECURITY_TYPES = new HashSet<String>();
-  private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
-  private static final ConcurrentMap<Class<?>,BeanOperation<?,?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>,BeanOperation<?,?>> ();
+  private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_SECURITY = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
+  private static final ConcurrentMap<Class<?>, BeanOperation<?, ?>> BEAN_OPERATIONS_BY_BEAN = new ConcurrentHashMap<Class<?>, BeanOperation<?, ?>>();
   public static final String IDENTIFIER_SCHEME_DEFAULT = "HibernateSecurityMaster";
   protected static final String MODIFIED_BY = "";
 
@@ -50,53 +53,61 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
     return UniqueIdentifier.of(IDENTIFIER_SCHEME_DEFAULT, id);
   }
 
-  private static void loadBeanOperation (final BeanOperation<?,?> beanOperation) {
-    SUPPORTED_SECURITY_TYPES.add (beanOperation.getSecurityType ());
-    BEAN_OPERATIONS_BY_SECURITY.put (beanOperation.getSecurityClass (), beanOperation);
-    BEAN_OPERATIONS_BY_BEAN.put (beanOperation.getBeanClass (), beanOperation);
+  private static void loadBeanOperation(final BeanOperation<?, ?> beanOperation) {
+    SUPPORTED_SECURITY_TYPES.add(beanOperation.getSecurityType());
+    BEAN_OPERATIONS_BY_SECURITY.put(beanOperation.getSecurityClass(), beanOperation);
+    BEAN_OPERATIONS_BY_BEAN.put(beanOperation.getBeanClass(), beanOperation);
   }
   
-  private static BeanOperation<?,?> getBeanOperation (final ConcurrentMap<Class<?>,BeanOperation<?,?>> map, final Class<?> clazz) {
-    BeanOperation<?,?> beanOperation = map.get (clazz);
-    if (beanOperation != null) return beanOperation;
-    if (clazz.getSuperclass () == null) return null;
-    beanOperation = getBeanOperation (map, clazz.getSuperclass ());
+  private static BeanOperation<?, ?> getBeanOperation(final ConcurrentMap<Class<?>, BeanOperation<?, ?>> map, final Class<?> clazz) {
+    BeanOperation<?, ?> beanOperation = map.get(clazz);
     if (beanOperation != null) {
-      map.put (clazz, beanOperation);
+      return beanOperation;
+    }
+    if (clazz.getSuperclass() == null) {
+      return null;
+    }
+    beanOperation = getBeanOperation(map, clazz.getSuperclass());
+    if (beanOperation != null) {
+      map.put(clazz, beanOperation);
     }
     return beanOperation;
   }
   
   @SuppressWarnings("unchecked")
-  private static <T extends Security> BeanOperation<T,SecurityBean> getBeanOperation (final T security) {
-    final BeanOperation<?,?> beanOperation = getBeanOperation (BEAN_OPERATIONS_BY_SECURITY, security.getClass ());
-    if (beanOperation == null) throw new OpenGammaRuntimeException ("can't find BeanOperation for " + security);
-    return (BeanOperation<T,SecurityBean>)beanOperation;
+  private static <T extends Security> BeanOperation<T, SecurityBean> getBeanOperation(final T security) {
+    final BeanOperation<?, ?> beanOperation = getBeanOperation(BEAN_OPERATIONS_BY_SECURITY, security.getClass());
+    if (beanOperation == null) {
+      throw new OpenGammaRuntimeException("can't find BeanOperation for " + security);
+    }
+    return (BeanOperation<T, SecurityBean>) beanOperation;
   }
   
   @SuppressWarnings("unchecked")
-  private static <T extends SecurityBean> BeanOperation<Security,T> getBeanOperation (final T bean) {
-    final BeanOperation<?,?> beanOperation = getBeanOperation (BEAN_OPERATIONS_BY_BEAN, bean.getClass ());
-    if (beanOperation == null) throw new OpenGammaRuntimeException ("can't find BeanOperation for " + bean);
-    return (BeanOperation<Security,T>)beanOperation;
+  private static <T extends SecurityBean> BeanOperation<Security, T> getBeanOperation(final T bean) {
+    final BeanOperation<?, ?> beanOperation = getBeanOperation(BEAN_OPERATIONS_BY_BEAN, bean.getClass());
+    if (beanOperation == null) {
+      throw new OpenGammaRuntimeException("can't find BeanOperation for " + bean);
+    }
+    return (BeanOperation<Security, T>) beanOperation;
   }
 
   static {
-    loadBeanOperation (BondSecurityBeanOperation.INSTANCE);
-    loadBeanOperation (EquitySecurityBeanOperation.INSTANCE);
-    loadBeanOperation (OptionSecurityBeanOperation.INSTANCE);
-    loadBeanOperation (FutureSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(BondSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(EquitySecurityBeanOperation.INSTANCE);
+    loadBeanOperation(OptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(FutureSecurityBeanOperation.INSTANCE);
   }
   
   public void setSessionFactory(SessionFactory sessionFactory) {
     _hibernateTemplate = new HibernateTemplate(sessionFactory);
   }
 
-  public String getIdentifierScheme () {
+  public String getIdentifierScheme() {
     return _identifierScheme;
   }
   
-  public void setIdentifierScheme (final String identifierScheme) {
+  public void setIdentifierScheme(final String identifierScheme) {
     _identifierScheme = identifierScheme;
   }
 
@@ -121,7 +132,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
       s_logger.debug("rejecting invalid identity key domain '{}'", uid.getScheme());
       throw new IllegalArgumentException("Invalid identifier for HibernateSecurityMaster: " + uid);
     }
-    return (Security)_hibernateTemplate.execute(new HibernateCallback() {
+    return (Security) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
@@ -153,7 +164,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
   
   @SuppressWarnings("unchecked")
   public Security getSecurity(final Date now, final IdentifierBundle bundle, final boolean populateWithOtherIdentifiers) {
-    return (Security)_hibernateTemplate.execute(new HibernateCallback() {
+    return (Security) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
@@ -270,7 +281,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
       s_logger.debug("rejecting invalid identity key domain '{}'", uid.getScheme());
       throw new IllegalArgumentException("Invalid identifier for HibernateSecurityMaster: " + uid);
     }
-    return (Security)_hibernateTemplate.execute(new HibernateCallback() {
+    return (Security) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
         HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);

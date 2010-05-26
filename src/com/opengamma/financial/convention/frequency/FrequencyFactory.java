@@ -10,28 +10,29 @@ import java.util.Map;
 
 /**
  * 
- *
- * @author Andrew
  */
 public class FrequencyFactory {
   
-  public static final FrequencyFactory INSTANCE = new FrequencyFactory ();
+  /**
+   * Singleton instance.
+   */
+  public static final FrequencyFactory INSTANCE = new FrequencyFactory();
   
-  private final Map<String,Frequency> _conventionMap = new HashMap<String,Frequency> ();
+  private final Map<String, Frequency> _conventionMap = new HashMap<String, Frequency>();
   
-  private FrequencyFactory () {
-    store (SimpleFrequency.MONTHLY);
-    store (SimpleFrequency.ANNUAL);
-    store (SimpleFrequency.SEMI_ANNUAL);
-    store (SimpleFrequency.QUARTERLY);
+  private FrequencyFactory() {
+    store(SimpleFrequency.MONTHLY);
+    store(SimpleFrequency.ANNUAL);
+    store(SimpleFrequency.SEMI_ANNUAL);
+    store(SimpleFrequency.QUARTERLY);
   }
   
-  private void store (final Frequency freq) {
-    _conventionMap.put (freq.getConventionName ().toLowerCase (), freq);
+  private void store(final Frequency freq) {
+    _conventionMap.put(freq.getConventionName().toLowerCase(), freq);
   }
   
-  public Frequency getFrequency (final String name) {
-    return _conventionMap.get (name.toLowerCase ());
+  public Frequency getFrequency(final String name) {
+    return _conventionMap.get(name.toLowerCase());
   }
   
 }

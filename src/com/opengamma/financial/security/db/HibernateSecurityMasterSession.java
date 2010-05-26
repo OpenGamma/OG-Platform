@@ -9,14 +9,22 @@ import java.util.Set;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.monitor.OperationTimer;
 
+/**
+ * 
+ * 
+ */
 public class HibernateSecurityMasterSession {
+  private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterSession.class);
   private Session _session;
 
   protected Session getSession() {
@@ -49,10 +57,10 @@ public class HibernateSecurityMasterSession {
     return values;
   }
   
-  private <T extends EnumBean> T persistBean (T bean) {
-    Long id = (Long)getSession ().save (bean);
-    getSession ().flush ();
-    bean.setId (id);
+  private <T extends EnumBean> T persistBean(T bean) {
+    Long id = (Long) getSession().save(bean);
+    getSession().flush();
+    bean.setId(id);
     return bean;
   }
   
@@ -65,13 +73,13 @@ public class HibernateSecurityMasterSession {
     query.setString("name", name);
     ExchangeBean exchange = (ExchangeBean) query.uniqueResult();
     if (exchange == null) {
-      exchange = persistBean (new ExchangeBean(name, description));
+      exchange = persistBean(new ExchangeBean(name, description));
     } else {
       if (description != null) {
-        if (exchange.getDescription () == null) {
-          exchange.setDescription (description);
-          getSession ().saveOrUpdate (exchange);
-          getSession ().flush ();
+        if (exchange.getDescription() == null) {
+          exchange.setDescription(description);
+          getSession().saveOrUpdate(exchange);
+          getSession().flush();
         }
       }
     }
@@ -90,7 +98,7 @@ public class HibernateSecurityMasterSession {
     query.setString("name", name);
     CurrencyBean currency = (CurrencyBean) query.uniqueResult();
     if (currency == null) {
-      currency = persistBean (new CurrencyBean(name));
+      currency = persistBean(new CurrencyBean(name));
     }
     return currency;
   }
@@ -139,9 +147,9 @@ public class HibernateSecurityMasterSession {
   }
   
   @SuppressWarnings ("unchecked")
-  /* package */ List<DayCountBean> getDayCountBeans () {
-    final Query query = getSession ().getNamedQuery ("DayCountBean.all");
-    return query.list ();
+  /* package */ List<DayCountBean> getDayCountBeans() {
+    final Query query = getSession().getNamedQuery("DayCountBean.all");
+    return query.list();
   }
   
   // Business day conventions
@@ -156,9 +164,9 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings ("unchecked")
-  /* package */ List<BusinessDayConventionBean> getBusinessDayConventionBeans () {
-    final Query query = getSession ().getNamedQuery ("BusinessDayConventionBean.all");
-    return query.list ();
+  /* package */ List<BusinessDayConventionBean> getBusinessDayConventionBeans() {
+    final Query query = getSession().getNamedQuery("BusinessDayConventionBean.all");
+    return query.list();
   }
 
   // Frequencies
@@ -240,34 +248,34 @@ public class HibernateSecurityMasterSession {
   
   // MarketBean
   
-  /* package */ MarketBean getOrCreateMarketBean (final String market) {
-    final Query query = getSession ().getNamedQuery ("MarketBean.one");
-    query.setString ("name", market);
-    MarketBean bean = (MarketBean)query.uniqueResult ();
+  /* package */ MarketBean getOrCreateMarketBean(final String market) {
+    final Query query = getSession().getNamedQuery("MarketBean.one");
+    query.setString("name", market);
+    MarketBean bean = (MarketBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new MarketBean (market));
+      bean = persistBean(new MarketBean(market));
     }
     return bean;
   }
   
   // YieldConventionBean
   
-  /* package */ YieldConventionBean getOrCreateYieldConventionBean (final String convention) {
-    final Query query = getSession ().getNamedQuery ("YieldConventionBean.one");
-    query.setString ("name", convention);
-    YieldConventionBean bean = (YieldConventionBean)query.uniqueResult ();
+  /* package */ YieldConventionBean getOrCreateYieldConventionBean(final String convention) {
+    final Query query = getSession().getNamedQuery("YieldConventionBean.one");
+    query.setString("name", convention);
+    YieldConventionBean bean = (YieldConventionBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new YieldConventionBean (convention));
+      bean = persistBean(new YieldConventionBean(convention));
     }
     return bean;
   }
   
   // GuaranteeTypeBean
   
-  /* package */ GuaranteeTypeBean getOrCreateGuaranteeTypeBean (final String type) {
-    final Query query = getSession ().getNamedQuery ("GuaranteeTypeBean.one");
-    query.setString ("name", type);
-    GuaranteeTypeBean bean = (GuaranteeTypeBean)query.uniqueResult ();
+  /* package */ GuaranteeTypeBean getOrCreateGuaranteeTypeBean(final String type) {
+    final Query query = getSession().getNamedQuery("GuaranteeTypeBean.one");
+    query.setString("name", type);
+    GuaranteeTypeBean bean = (GuaranteeTypeBean) query.uniqueResult();
     if (bean == null) {
       bean = persistBean (new GuaranteeTypeBean (type));
     }
@@ -288,33 +296,33 @@ public class HibernateSecurityMasterSession {
   
   // Identifiers
   
-  private IdentifierAssociationBean createIdentifierAssociationBean (Date now, String scheme, String identifier, SecurityBean security) {
-    final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new IdentifierBean (scheme, identifier));
-    final Transaction transaction = getSession ().beginTransaction ();
+  private IdentifierAssociationBean createIdentifierAssociationBean(Date now, String scheme, String identifier, SecurityBean security) {
+    final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new IdentifierBean(scheme, identifier));
+    final Transaction transaction = getSession().beginTransaction();
     try {
-      transaction.begin ();
-      Query query = getSession ().getNamedQuery ("IdentifierAssociationBean.one.previousAssociation");
-      query.setString ("scheme", scheme);
-      query.setString ("identifier", identifier);
-      query.setDate ("now", now);
-      IdentifierAssociationBean other = (IdentifierAssociationBean)query.uniqueResult ();
+      transaction.begin();
+      Query query = getSession().getNamedQuery("IdentifierAssociationBean.one.previousAssociation");
+      query.setString("scheme", scheme);
+      query.setString("identifier", identifier);
+      query.setDate("now", now);
+      IdentifierAssociationBean other = (IdentifierAssociationBean) query.uniqueResult();
       if (other != null) {
-        association.setValidStartDate (other.getValidEndDate ());
+        association.setValidStartDate(other.getValidEndDate());
       }
-      query = getSession ().getNamedQuery ("IdentifierAssociationBean.one.nextAssociation");
-      query.setString ("scheme", scheme);
-      query.setString ("identifier", identifier);
-      query.setDate ("now", now);
-      other = (IdentifierAssociationBean)query.uniqueResult ();
+      query = getSession().getNamedQuery("IdentifierAssociationBean.one.nextAssociation");
+      query.setString("scheme", scheme);
+      query.setString("identifier", identifier);
+      query.setDate("now", now);
+      other = (IdentifierAssociationBean) query.uniqueResult();
       if (other != null) {
-        association.setValidEndDate (other.getValidEndDate ());
+        association.setValidEndDate(other.getValidEndDate());
       }
       Long id = (Long) getSession().save(association);
       association.setId(id);
-      transaction.commit ();
+      transaction.commit();
     } catch (Exception e) {
-      transaction.rollback ();
-      throw new OpenGammaRuntimeException ("transaction rolled back", e);
+      transaction.rollback();
+      throw new OpenGammaRuntimeException("transaction rolled back", e);
     }
     getSession().flush();
     return association;
@@ -329,16 +337,16 @@ public class HibernateSecurityMasterSession {
     query.setDate("now", now);
     IdentifierAssociationBean association = (IdentifierAssociationBean) query.uniqueResult();
     if (association == null) {
-      association = createIdentifierAssociationBean (now, scheme, identifier, security);
+      association = createIdentifierAssociationBean(now, scheme, identifier, security);
     } else {
       if (association.getSecurity().getId().equals(security.getId())) {
         // we're okay, it's already there
       } else {
         // terminate the previous record, and create a new one
-        association.setValidEndDate (now);
-        getSession ().update (association);
-        getSession ().flush ();
-        association = createIdentifierAssociationBean (now, scheme, identifier, security);
+        association.setValidEndDate(now);
+        getSession().update(association);
+        getSession().flush();
+        association = createIdentifierAssociationBean(now, scheme, identifier, security);
       }
     }
     return association;
@@ -388,7 +396,7 @@ public class HibernateSecurityMasterSession {
       query.setString("scheme", scheme);
       query.setParameterList("identifiers", ids);
       query.setDate("now", now);
-      SecurityBean security = (SecurityBean)query.uniqueResult();
+      SecurityBean security = (SecurityBean) query.uniqueResult();
       if (security != null) {
         return security;
       }
@@ -398,41 +406,55 @@ public class HibernateSecurityMasterSession {
   
   // Specific securities through BeanOperation
   
-  /* package */ <S extends Security,SBean extends SecurityBean> SBean createSecurityBean (final BeanOperation<S,SBean> beanOperation, final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SBean firstVersion, final S security) {
-    final SBean bean = beanOperation.createBean (this, security);
-    persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getName (), bean);
-    beanOperation.postPersistBean (this, effectiveDateTime, bean);
+  /* package */ <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
+      final BeanOperation<S, SBean> beanOperation,
+      final Date effectiveDateTime,
+      final boolean deleted,
+      final Date lastModified,
+      final String modifiedBy,
+      final SBean firstVersion,
+      final S security) {
+    final SBean bean = beanOperation.createBean(this, security);
+    persistSecurityBean(effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getName(), bean);
+    beanOperation.postPersistBean(this, effectiveDateTime, bean);
     return bean;
   }
   
-  /* package */ void persistSecurityBean (final Date effectiveDateTime, final boolean deleted, final Date lastModified, final String modifiedBy, final SecurityBean firstVersion, final String displayName, final SecurityBean bean) {
+  /* package */ void persistSecurityBean(
+      final Date effectiveDateTime,
+      final boolean deleted,
+      final Date lastModified,
+      final String modifiedBy,
+      final SecurityBean firstVersion,
+      final String displayName,
+      final SecurityBean bean) {
     // base properties
-    bean.setEffectiveDateTime (effectiveDateTime);
-    bean.setDeleted (deleted);
-    bean.setLastModifiedDateTime (lastModified);
-    bean.setLastModifiedBy (modifiedBy);
-    bean.setDisplayName (displayName);
+    bean.setEffectiveDateTime(effectiveDateTime);
+    bean.setDeleted(deleted);
+    bean.setLastModifiedDateTime(lastModified);
+    bean.setLastModifiedBy(modifiedBy);
+    bean.setDisplayName(displayName);
     // first version
-    bean.setFirstVersion (firstVersion);
+    bean.setFirstVersion(firstVersion);
     if (firstVersion == null) {
       // link to itself as a parent
-      final Transaction transaction = getSession ().beginTransaction ();
+      final Transaction transaction = getSession().beginTransaction();
       try {
-        transaction.begin ();
-        final Long id = (Long)getSession ().save (bean);
-        bean.setId (id);
-        bean.setFirstVersion (bean);
-        getSession ().update (bean);
-        transaction.commit ();
+        transaction.begin();
+        final Long id = (Long) getSession().save(bean);
+        bean.setId(id);
+        bean.setFirstVersion(bean);
+        getSession().update(bean);
+        transaction.commit();
       } catch (Exception e) {
-        transaction.rollback ();
-        throw new OpenGammaRuntimeException ("transaction rolled back", e);
+        transaction.rollback();
+        throw new OpenGammaRuntimeException("transaction rolled back", e);
       }
     } else {
-      final Long id = (Long)getSession ().save (bean);
-      bean.setId (id);
+      final Long id = (Long) getSession().save(bean);
+      bean.setId(id);
     }    
-    getSession ().flush ();
+    getSession().flush();
   }
 
   // Equities
@@ -504,102 +526,102 @@ public class HibernateSecurityMasterSession {
   // Futures
   
   /* package */ @SuppressWarnings("unchecked")
-  List<FutureBundleBean> getFutureBundleBeans (Date now, FutureSecurityBean future) {
+  List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future) {
     Query query;
     if (now != null) {
-      query = getSession ().getNamedQuery ("FutureBundleBean.many.byDateFuture");
-      query.setDate ("now", now);
+      query = getSession().getNamedQuery("FutureBundleBean.many.byDateFuture");
+      query.setDate("now", now);
     } else {
-      query = getSession ().getNamedQuery ("FutureBundleBean.many.byFuture");
+      query = getSession().getNamedQuery("FutureBundleBean.many.byFuture");
     }
-    query.setParameter ("future", future);
-    return query.list ();
+    query.setParameter("future", future);
+    return query.list();
   }
   
-  /* package */ FutureBundleBean nextFutureBundleBean (Date now, FutureSecurityBean future) {
-    Query query = getSession ().getNamedQuery ("FutureBundleBean.one.nextBundle");
-    query.setDate ("now", now);
-    query.setParameter ("future", future);
-    return (FutureBundleBean)query.uniqueResult ();
+  /* package */ FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future) {
+    Query query = getSession().getNamedQuery("FutureBundleBean.one.nextBundle");
+    query.setDate("now", now);
+    query.setParameter("future", future);
+    return (FutureBundleBean) query.uniqueResult();
   }
   
-  /* package */ void persistFutureBundleBeans (final Date now, final FutureSecurityBean future) {
-    System.out.println ("################### begin persistFutureBundleBeans");
-    final Set<FutureBundleBean> beanBasket = future.getBasket ();
-    final List<FutureBundleBean> dbBasket = getFutureBundleBeans (now, future);
+  /* package */ void persistFutureBundleBeans(final Date now, final FutureSecurityBean future) {
+    OperationTimer timer = new OperationTimer(s_logger, "persistFutureBundleBeans");
+    final Set<FutureBundleBean> beanBasket = future.getBasket();
+    final List<FutureBundleBean> dbBasket = getFutureBundleBeans(now, future);
     if (now != null) {
       // anything in the database (at this timestamp), but not in the basket must be "terminated" at this timestamp
       boolean beansUpdated = false;
       for (FutureBundleBean dbBundle : dbBasket) {
-        if (!beanBasket.contains (dbBundle)) {
-          dbBundle.setEndDate (now);
-          getSession ().update (dbBundle);
+        if (!beanBasket.contains(dbBundle)) {
+          dbBundle.setEndDate(now);
+          getSession().update(dbBundle);
           beansUpdated = true;
         }
       }
       if (beansUpdated) {
-        getSession ().flush ();
+        getSession().flush();
         beansUpdated = false;
       }
       // anything not in the database (at this timestamp), but in the basket must be added:
       for (FutureBundleBean beanBundle : beanBasket) {
-        if (!dbBasket.contains (beanBundle)) {
-          final FutureBundleBean next = nextFutureBundleBean (now, future);
+        if (!dbBasket.contains(beanBundle)) {
+          final FutureBundleBean next = nextFutureBundleBean(now, future);
           if (next != null) {
-            beanBundle.setId (next.getId ());
-            beanBundle.setEndDate (next.getEndDate ());
-            next.setStartDate (now);
-            getSession ().update (next);
+            beanBundle.setId(next.getId());
+            beanBundle.setEndDate(next.getEndDate());
+            next.setStartDate(now);
+            getSession().update(next);
           } else {
-            beanBundle.setStartDate (now);
-            beanBundle.setEndDate (null);
-            if (beanBundle.getId () != null) {
-              getSession ().update (beanBundle);
+            beanBundle.setStartDate(now);
+            beanBundle.setEndDate(null);
+            if (beanBundle.getId() != null) {
+              getSession().update(beanBundle);
             } else {
-              Long id = (Long)getSession ().save (beanBundle);
-              beanBundle.setId (id);
+              Long id = (Long) getSession().save(beanBundle);
+              beanBundle.setId(id);
             }
           }
           beansUpdated = true;
         }
       }
       if (beansUpdated) {
-        getSession ().flush ();
+        getSession().flush();
       }
     } else {
       // anything in the database with any timestamp that isn't null/null must be deleted
       // anything in the database, but not in the basket, must be deleted
       boolean beansUpdated = false;
       for (FutureBundleBean dbBundle : dbBasket) {
-        if (!beanBasket.contains (dbBundle)) {
-          getSession ().delete (dbBundle);
+        if (!beanBasket.contains(dbBundle)) {
+          getSession().delete(dbBundle);
           beansUpdated = true;
-        } else if ((dbBundle.getStartDate () != null) || (dbBundle.getEndDate () != null)) {
-          dbBundle.setStartDate (null);
-          dbBundle.setEndDate (null);
-          getSession ().update (dbBundle);
+        } else if ((dbBundle.getStartDate() != null) || (dbBundle.getEndDate() != null)) {
+          dbBundle.setStartDate(null);
+          dbBundle.setEndDate(null);
+          getSession().update(dbBundle);
           beansUpdated = true;
         }
       }
       // anything not in the database, but in the basket, must be added (null/null)
       for (FutureBundleBean beanBundle : beanBasket) {
-        if (!dbBasket.contains (beanBundle)) {
-          beanBundle.setStartDate (null);
-          beanBundle.setEndDate (null);
-          if (beanBundle.getId () != null) {
-            getSession ().update (beanBundle);
+        if (!dbBasket.contains(beanBundle)) {
+          beanBundle.setStartDate(null);
+          beanBundle.setEndDate(null);
+          if (beanBundle.getId() != null) {
+            getSession().update(beanBundle);
           } else {
-            Long id = (Long)getSession ().save (beanBundle);
-            beanBundle.setId (id);
+            Long id = (Long) getSession().save(beanBundle);
+            beanBundle.setId(id);
           }
           beansUpdated = true;
         }
       }
       if (beansUpdated) {
-        getSession ().flush ();
+        getSession().flush();
       }
     }
-    System.out.println ("################### end persistFutureBundleBeans");
+    timer.finished();
   }
   
 }

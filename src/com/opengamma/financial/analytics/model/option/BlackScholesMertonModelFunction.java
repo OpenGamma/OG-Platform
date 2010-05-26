@@ -95,7 +95,7 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO
+    final double b = discountCurve.getInterestRate(t); // TODO
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
 

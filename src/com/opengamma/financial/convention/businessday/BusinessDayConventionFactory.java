@@ -14,41 +14,46 @@ import com.opengamma.OpenGammaRuntimeException;
 /**
  * Factory for obtaining instances of a particular convention. Convention names are read from a
  * "BusinessDayConvention" resource.
- * 
- * @author Andrew
  */
-public class BusinessDayConventionFactory {
+public final class BusinessDayConventionFactory {
   
-  public static final BusinessDayConventionFactory INSTANCE = new BusinessDayConventionFactory ();
+  /**
+   * Singleton instance of {@code BusinessDayConventionFactory}.
+   */
+  public static final BusinessDayConventionFactory INSTANCE = new BusinessDayConventionFactory();
   
-  private final Map<String,BusinessDayConvention> _conventionMap = new HashMap<String,BusinessDayConvention> ();
+  private final Map<String, BusinessDayConvention> _conventionMap = new HashMap<String, BusinessDayConvention>();
   
-  private BusinessDayConventionFactory () {
-    final ResourceBundle conventions = ResourceBundle.getBundle (BusinessDayConvention.class.getName ());
-    final Map<String,BusinessDayConvention> instances = new HashMap<String,BusinessDayConvention> ();
-    for (final String convention : conventions.keySet ()) {
-      final String clazz = conventions.getString (convention);
-      BusinessDayConvention instance = instances.get (clazz);
+  private BusinessDayConventionFactory() {
+    final ResourceBundle conventions = ResourceBundle.getBundle(BusinessDayConvention.class.getName());
+    final Map<String, BusinessDayConvention> instances = new HashMap<String, BusinessDayConvention>();
+    for (final String convention : conventions.keySet()) {
+      final String clazz = conventions.getString(convention);
+      BusinessDayConvention instance = instances.get(clazz);
       if (instance == null) {
         try {
-          instances.put (clazz, instance = (BusinessDayConvention)Class.forName (clazz).newInstance ());
+          instance = (BusinessDayConvention) Class.forName(clazz).newInstance();
+          instances.put(clazz, instance);
         } catch (InstantiationException e) {
-          throw new OpenGammaRuntimeException ("Error initialising BusinessDay conventions", e);
+          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", e);
         } catch (IllegalAccessException e) {
-          throw new OpenGammaRuntimeException ("Error initialising BusinessDay conventions", e);
+          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", e);
         } catch (ClassNotFoundException e) {
-          throw new OpenGammaRuntimeException ("Error initialising BusinessDay conventions", e);
+          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", e);
         }
       }
-      _conventionMap.put (convention.toLowerCase (), instance);
+      _conventionMap.put(convention.toLowerCase(), instance);
     }
   }
   
   /**
    * Retrieves a named BusinessDayConvention. Note that the lookup is not case sensitive.
+   * 
+   * @param name name of the convention to load.
+   * @return convention with the specified name.
    */
-  public BusinessDayConvention getBusinessDayConvention (final String name) {
-    return _conventionMap.get (name.toLowerCase ());
+  public BusinessDayConvention getBusinessDayConvention(final String name) {
+    return _conventionMap.get(name.toLowerCase());
   }
   
 }

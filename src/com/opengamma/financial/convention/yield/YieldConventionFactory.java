@@ -10,25 +10,23 @@ import java.util.Map;
 
 /**
  * 
- *
- * @author Andrew
  */
-public class YieldConventionFactory {
+public final class YieldConventionFactory {
   
   public static final YieldConventionFactory INSTANCE = new YieldConventionFactory ();
   
-  private final Map<String,YieldConvention> _conventionMap = new HashMap<String,YieldConvention> ();
+  private final Map<String, YieldConvention> _conventionMap = new HashMap<String, YieldConvention>();
   
-  private YieldConventionFactory () {
-    store (SimpleYieldConvention.US_STREET);
+  private YieldConventionFactory() {
+    store(SimpleYieldConvention.US_STREET);
   }
   
-  private void store (final YieldConvention yieldConvention) {
-    _conventionMap.put (yieldConvention.getConventionName ().toLowerCase (), yieldConvention);
+  private void store(final YieldConvention yieldConvention) {
+    _conventionMap.put(yieldConvention.getConventionName().toLowerCase(), yieldConvention);
   }
   
-  public YieldConvention getYieldConvention (final String name) {
-    return _conventionMap.get (name.toLowerCase ());
+  public YieldConvention getYieldConvention(final String name) {
+    return _conventionMap.get(name.toLowerCase());
   }
   
 }

@@ -50,7 +50,7 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO
+    final double b = discountCurve.getInterestRate(t); // TODO
     return new StandardOptionDataBundle(discountCurve, b, volatilitySurface, spot, now);
   }
 
@@ -66,10 +66,12 @@ public class BjerksundStenslandModelFunction extends AnalyticOptionModelFunction
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption)
+    }
+    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption) {
       return true;
+    }
     return false;
   }
 

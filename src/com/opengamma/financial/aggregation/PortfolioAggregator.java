@@ -53,11 +53,6 @@ public class PortfolioAggregator {
     }
   }
   
-  /**
-   * @param inputNode
-   * @param flattenedPortfolio
-   * @return
-   */
   protected void aggregate(PortfolioNodeImpl inputNode, List<Position> flattenedPortfolio, Queue<AggregationFunction<?>> functionList) {
     AggregationFunction<?> nextFunction = functionList.remove();
     Map<String, List<Position>> buckets = new TreeMap<String, List<Position>>();
@@ -96,7 +91,7 @@ public class PortfolioAggregator {
       aggregatedPortfolioName.append(", ");
     }
     if (_aggregationFunctions.size() > 0) {
-      aggregatedPortfolioName.delete(aggregatedPortfolioName.length()-2, aggregatedPortfolioName.length()); // remember it's end index _exclusive_
+      aggregatedPortfolioName.delete(aggregatedPortfolioName.length() - 2, aggregatedPortfolioName.length()); // remember it's end index _exclusive_
     }
     return aggregatedPortfolioName.toString();
   }
