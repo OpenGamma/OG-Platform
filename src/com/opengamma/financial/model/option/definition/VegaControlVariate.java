@@ -14,6 +14,9 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
+ * @param <T> The option definition type
+ * @param <U> The option data bundle type
+ * 
  */
 public class VegaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> {
   protected final AnalyticOptionModel<T, U> _analyticModel;
