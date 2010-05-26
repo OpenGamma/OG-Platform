@@ -135,5 +135,10 @@ public final class ArgumentChecker {
       }
     }
   }
-
+  
+  public static void notNegative(double parameter, String name) throws IllegalArgumentException {
+    if(parameter < 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+    }
+  }
 }

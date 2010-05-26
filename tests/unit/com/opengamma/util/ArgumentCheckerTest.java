@@ -6,6 +6,7 @@
 package com.opengamma.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -239,4 +240,14 @@ public class ArgumentCheckerTest {
     }
   }
 
+  @Test(expected = IllegalArgumentException.class) 
+  public void testNotNegative() {
+    double parameter = -4;
+    try {
+      ArgumentChecker.notNegative(parameter, "name");
+    } catch(IllegalArgumentException iae) {
+      assertTrue(iae.getMessage().contains("'name'"));
+      throw iae;
+    }
+  }
 }
