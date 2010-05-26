@@ -63,7 +63,7 @@ public class JmsSenderTest {
     _container.destroy();
   }
   
-  @Test
+  @Test(timeout=10000)
   public void simpleScenario() throws Exception {
     MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("name", "ruby");
@@ -71,8 +71,11 @@ public class JmsSenderTest {
     _mdd.distributeLiveData(msg);
     _mdd.distributeLiveData(FudgeContext.EMPTY_MESSAGE); // empty message not sent
     
-    Thread.sleep(500); // allow data to flow through
-    
+    // allow data to flow through
+    while (_collectingReceiver.getMessages().isEmpty()) {
+      Thread.sleep(100);
+    }
+    Thread.sleep(100);
     assertEquals(1, _collectingReceiver.getMessages().size());
     
     for (byte[] byteArray : _collectingReceiver.getMessages()) {
@@ -82,7 +85,7 @@ public class JmsSenderTest {
     }
   }
   
-  @Test
+  @Test(timeout=10000)
   public void reconnectionScenario() throws Exception {
     MutableFudgeFieldContainer msg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg1.add("name", "olivia");
@@ -104,8 +107,11 @@ public class JmsSenderTest {
     _factory.transportResumed();
     _mdd.distributeLiveData(msg4);
     
-    Thread.sleep(500); // allow data to flow through
-
+    // allow data to flow through
+    while (_collectingReceiver.getMessages().isEmpty()) {
+      Thread.sleep(100);
+    }
+    Thread.sleep(100);
     assertEquals(3, _collectingReceiver.getMessages().size());
     LiveDataValueUpdateBean[] updates = new LiveDataValueUpdateBean[3]; 
     
