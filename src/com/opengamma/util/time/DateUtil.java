@@ -420,7 +420,7 @@ public class DateUtil {
    * @return the time-stamp, not null
    */
   @SuppressWarnings("deprecation")
-  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 1, 23, 59, 59, 999999999);
+  public static final Timestamp MAX_SQL_TIMESTAMP = new Timestamp(9999 - 1900, 11, 31, 23, 59, 59, 999999999);
 
   /**
    * Creates a time-stamp from an instant.
