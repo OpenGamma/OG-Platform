@@ -59,7 +59,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   public String classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
-      FinancialSecurity finSec = (FinancialSecurity)security;
+      FinancialSecurity finSec = (FinancialSecurity) security;
       return finSec.accept(new FinancialSecurityVisitor<String>() {
         @Override
         public String visitAmericanVanillaEquityOptionSecurity(

@@ -48,18 +48,18 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   public String classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
-      FinancialSecurity finSec = (FinancialSecurity)security;
+      FinancialSecurity finSec = (FinancialSecurity) security;
       return finSec.accept(new FinancialSecurityVisitor<String>() {
         
         private String visitOption(OptionSecurity security) {
           return OPTIONS;
         }
         
-        private String visitBond (BondSecurity security) {
+        private String visitBond(BondSecurity security) {
           return BONDS;
         }
         
-        private String visitFuture (FutureSecurity security) {
+        private String visitFuture(FutureSecurity security) {
           return FUTURES;
         }
         
@@ -87,45 +87,45 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
         @Override
         public String visitBondFutureSecurity(BondFutureSecurity security) {
-          return visitFuture (security);
+          return visitFuture(security);
         }
         @Override
         public String visitCorporateBondSecurity(CorporateBondSecurity security) {
-          return visitBond (security);
+          return visitBond(security);
         }
         @Override
         public String visitFXFutureSecurity(FXFutureSecurity security) {
-          return visitFuture (security);
+          return visitFuture(security);
         }
         @Override
         public String visitGovernmentBondSecurity(GovernmentBondSecurity security) {
-          return visitBond (security);
+          return visitBond(security);
         }
         @Override
         public String visitMunicipalBondSecurity(MunicipalBondSecurity security) {
-          return visitBond (security);
+          return visitBond(security);
         }
 
         @Override
         public String visitInterestRateFutureSecurity(
             InterestRateFutureSecurity security) {
-          return visitFuture (security);
+          return visitFuture(security);
         }
 
         @Override
         public String visitAgricultureFutureSecurity(
             AgricultureFutureSecurity security) {
-          return visitFuture (security);
+          return visitFuture(security);
         }
 
         @Override
         public String visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-          return visitFuture (security);
+          return visitFuture(security);
         }
 
         @Override
         public String visitMetalFutureSecurity(MetalFutureSecurity security) {
-          return visitFuture (security);
+          return visitFuture(security);
         }
 
         @Override
@@ -141,18 +141,18 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitAmericanVanillaFutureOptionSecurity(
             AmericanVanillaFutureOptionSecurity security) {
-          return visitOption (security);
+          return visitOption(security);
         }
 
         @Override
         public String visitEuropeanVanillaFutureOptionSecurity(
             EuropeanVanillaFutureOptionSecurity security) {
-          return visitOption (security);
+          return visitOption(security);
         }
 
         @Override
         public String visitFXOptionSecurity(FXOptionSecurity security) {
-          return visitOption (security);
+          return visitOption(security);
         }
       });
     } else {

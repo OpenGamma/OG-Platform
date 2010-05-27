@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A currency.
  */
-public class Currency implements UniqueIdentifiable {
+public final class Currency implements UniqueIdentifiable {
 
   /**
    * A scheme for the unique identifier.
@@ -31,7 +31,7 @@ public class Currency implements UniqueIdentifiable {
   /**
    * A cache of instances.
    */
-  public static ConcurrentMap<String, Currency> s_instanceMap = new ConcurrentHashMap<String, Currency>();
+  private static ConcurrentMap<String, Currency> s_instanceMap = new ConcurrentHashMap<String, Currency>();
 
   /**
    * The identifier.

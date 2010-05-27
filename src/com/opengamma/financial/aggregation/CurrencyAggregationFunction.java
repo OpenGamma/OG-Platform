@@ -32,15 +32,15 @@ import com.opengamma.financial.security.option.PoweredEquityOptionSecurity;
 /**
  * Function to classify positions by Currency.
  *
- * @author jim
  */
 public class CurrencyAggregationFunction implements AggregationFunction<Currency> {
-  public static final String NAME="Currency";
+  private static final String NAME = "Currency";
+  
   @Override
   public Currency classifyPosition(Position position) {
     Security security = position.getSecurity();
     if (security instanceof FinancialSecurity) {
-      FinancialSecurity finSec = (FinancialSecurity)security;
+      FinancialSecurity finSec = (FinancialSecurity) security;
       return finSec.accept(new FinancialSecurityVisitor<Currency>() {
 
         @Override
@@ -68,80 +68,80 @@ public class CurrencyAggregationFunction implements AggregationFunction<Currency
 
         @Override
         public Currency visitBondFutureSecurity(BondFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitCorporateBondSecurity(
             CorporateBondSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitFXFutureSecurity(
             FXFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitGovernmentBondSecurity(
             GovernmentBondSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitMunicipalBondSecurity(
             MunicipalBondSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitInterestRateFutureSecurity(
             InterestRateFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitAgricultureFutureSecurity(
             AgricultureFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitEnergyFutureSecurity(EnergyFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitMetalFutureSecurity(MetalFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitIndexFutureSecurity(IndexFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitStockFutureSecurity(StockFutureSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitAmericanVanillaFutureOptionSecurity(
             AmericanVanillaFutureOptionSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitEuropeanVanillaFutureOptionSecurity(
             EuropeanVanillaFutureOptionSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }
 
         @Override
         public Currency visitFXOptionSecurity(FXOptionSecurity security) {
-          return security.getCurrency ();
+          return security.getCurrency();
         }  
       });
     } else {

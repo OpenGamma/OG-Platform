@@ -24,12 +24,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
- *
- * @author kirk
  */
-public class PositionScalingFunction
-extends AbstractFunction
-implements FunctionInvoker {
+public class PositionScalingFunction extends AbstractFunction implements FunctionInvoker {
   private final String _requirementName;
   
   public PositionScalingFunction(String requirementName) {
@@ -77,7 +73,7 @@ implements FunctionInvoker {
     ValueRequirement requirement = new ValueRequirement(_requirementName, target.toSpecification());
     ValueSpecification specification = new ValueSpecification(requirement);
     ComputedValue scaledValue = null;
-    if(value instanceof Double) {
+    if (value instanceof Double) {
       Double doubleValue = (Double) value;
       double quantity = target.getPosition().getQuantity().doubleValue();
       doubleValue *= quantity;

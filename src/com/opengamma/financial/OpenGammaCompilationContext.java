@@ -14,6 +14,10 @@ import com.opengamma.financial.analytics.ircurve.DiscountCurveSource;
  * @author kirk
  */
 public final class OpenGammaCompilationContext {
+  /**
+   * Name under which an instance of {@link DiscountCurveSource} will be bound
+   * at runtime.
+   */
   public static final String DISCOUNT_CURVE_SOURCE_NAME = "discountCurveSource"; 
 
   private OpenGammaCompilationContext() {
