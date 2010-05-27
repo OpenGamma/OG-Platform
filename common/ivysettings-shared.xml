@@ -24,12 +24,16 @@
 	<property name="ivy.shared.roundup.sources.artifact.pattern" value="[organization]/[module]/[revision]/sources/[artifact]-[revision].[ext]" />
 	<property name="ivy.shared.roundup.javadocs.artifact.pattern" value="[organization]/[module]/[revision]/javadocs/[artifact]-[revision].[ext]" />
 	<property name="ivy.shared.default.ivy.pattern"      value="[organization]/[module]/[revision]/ivy.xml" />
-	<property name="ivy.shared.default.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
+	<property name="ivy.shared.default.jars.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-[revision].[ext]" />
+	<property name="ivy.shared.default.sources.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-src-[revision].[ext]" />
+	<property name="ivy.shared.default.javadocs.artifact.pattern" value="[organization]/[module]/[revision]/[artifact]-javadoc-[revision].[ext]" />
 	<resolvers>
             <chain name="shared-chain" returnFirst="true">
 		<filesystem name="shared">
 		  <ivy pattern="${ivy.shared.default.root}/${ivy.shared.default.ivy.pattern}" />
-		  <artifact pattern="${ivy.shared.default.root}/${ivy.shared.default.artifact.pattern}" />
+		  <artifact pattern="${ivy.shared.default.root}/${ivy.shared.default.jars.artifact.pattern}" />
+		  <artifact pattern="${ivy.shared.default.root}/${ivy.shared.default.sources.artifact.pattern}" />
+		  <artifact pattern="${ivy.shared.default.root}/${ivy.shared.default.javadocs.artifact.pattern}" />
 		</filesystem>
 		<filesystem name="roundup">
 		  <ivy pattern="${ivy.shared.roundup.root}/${ivy.shared.default.ivy.pattern}" />
