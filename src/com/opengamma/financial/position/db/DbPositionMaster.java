@@ -226,6 +226,9 @@ public class DbPositionMaster implements PositionMaster {
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
     checkIdentifierScheme(uid);
+    if (uid.getValue().contains("-")) {
+      return null;  // TODO: better solution/exception
+    }
     if (uid.isVersioned()) {
       return selectPortfolioByOidVersion(extractPortfolioOid(uid), extractVersion(uid), true);
     }
@@ -242,6 +245,9 @@ public class DbPositionMaster implements PositionMaster {
    */
   public Portfolio getPortfolio(final UniqueIdentifier uid, final InstantProvider instantProvider) {
     checkIdentifierScheme(uid);
+    if (uid.getValue().contains("-")) {
+      return null;  // TODO: better solution/exception
+    }
     Instant instant = Instant.of(instantProvider);
     long portfolioOid = extractPortfolioOid(uid);
     return selectPortfolioByOidInstant(portfolioOid, instant);
