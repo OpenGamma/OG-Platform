@@ -146,12 +146,16 @@ public class View implements Lifecycle {
     setCalculationState(ViewCalculationState.NOT_STARTED);
     timer.finished();
   }
-  
+
+  /**
+   * Reloads the portfolio, typically from a database.
+   */
   public void reloadPortfolio() {
     OperationTimer timer = new OperationTimer(s_logger, "Reloading portfolio {}", getDefinition().getPortfolioId());
     Portfolio portfolio = getProcessingContext().getPositionMaster().getPortfolio(getDefinition().getPortfolioId());
     if (portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio: " + getDefinition().getPortfolioId());
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio " + getDefinition().getPortfolioId() +
+          " in position master " + getProcessingContext().getPositionMaster());
     }
     PortfolioEvaluationModel portfolioEvaluationModel = new PortfolioEvaluationModel(portfolio);
     portfolioEvaluationModel.init(
@@ -161,9 +165,9 @@ public class View implements Lifecycle {
     addLiveDataSubscriptions();
     timer.finished();
   }
-  
+
   /**
-   * 
+   * Adds live data subscriptions to the view.
    */
   private void addLiveDataSubscriptions() {
     Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
