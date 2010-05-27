@@ -39,9 +39,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * In addition, it is an excellent demonstration of how to write portfolio-node-specific
  * functions.
  */
-public class SummingFunction
-extends AbstractFunction
-implements FunctionInvoker {
+public class SummingFunction extends AbstractFunction implements FunctionInvoker {
   private final String _requirementName;
   
   public SummingFunction(String requirementName) {
@@ -63,7 +61,7 @@ implements FunctionInvoker {
     PortfolioNode node = target.getPortfolioNode();
     Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Object currentSum = null;
-    for(Position position : allPositions) {
+    for (Position position : allPositions) {
       Object positionValue = inputs.getValue(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
       currentSum = addValue(currentSum, positionValue);
     }
@@ -75,19 +73,19 @@ implements FunctionInvoker {
   }
   
   protected Object addValue(Object previousSum, Object currentValue) {
-    if(previousSum == null) {
+    if (previousSum == null) {
       return currentValue;
     }
-    if(previousSum.getClass() != currentValue.getClass()) {
+    if (previousSum.getClass() != currentValue.getClass()) {
       throw new IllegalArgumentException("Inputs have different value types for requirement " + _requirementName);
     }
-    if(currentValue instanceof Double) {
+    if (currentValue instanceof Double) {
       Double previousDouble = (Double) previousSum;
       return previousDouble + (Double) currentValue;
-    } else if(currentValue instanceof BigDecimal) {
+    } else if (currentValue instanceof BigDecimal) {
       BigDecimal previousDecimal = (BigDecimal) previousSum;
       return previousDecimal.add((BigDecimal) currentValue);
-    } else if(currentValue instanceof DoubleTimeSeries<?>) {
+    } else if (currentValue instanceof DoubleTimeSeries<?>) {
       DoubleTimeSeries<?> previousTS = (DoubleTimeSeries<?>) previousSum;
       return previousTS.add((DoubleTimeSeries<?>) currentValue);
     }
@@ -106,7 +104,7 @@ implements FunctionInvoker {
     PortfolioNode node = target.getPortfolioNode();
     Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
     Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for(Position position : allPositions) {
+    for (Position position : allPositions) {
       requirements.add(new ValueRequirement(_requirementName, ComputationTargetType.POSITION, position.getUniqueIdentifier()));
     }
     return requirements;

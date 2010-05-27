@@ -48,8 +48,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- *
- * @author jim
  */
 public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends AbstractFunction implements FunctionInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceFunction.class);
@@ -116,10 +114,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final FudgeFieldContainer underlyingMarketData = (FudgeFieldContainer) inputs.getValue(underlyingMarketDataReq);
     final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveReq);
     // TODO cost-of-carry model
-    if(optionMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
+    if (optionMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
       s_logger.warn("No indicative value for option price, have {}", optionMarketData);
     }
-    if(underlyingMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
+    if (underlyingMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
       s_logger.warn("No indicative value for underlying price, have {}", underlyingMarketData);
     }
     final double optionPrice = optionMarketData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
@@ -128,7 +126,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     // Perform the calculation:
     final Expiry expiry = optionSec.getExpiry();
     final double years = DateUtil.getDifferenceInYears(today, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(years);// TODO
+    final double b = discountCurve.getInterestRate(years); // TODO
     final OptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(optionSec.getStrike(), expiry, (optionSec.getOptionType() == OptionType.CALL));
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
     prices.put(europeanVanillaOptionDefinition, optionPrice);

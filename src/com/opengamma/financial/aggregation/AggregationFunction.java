@@ -8,11 +8,11 @@ package com.opengamma.financial.aggregation;
 import com.opengamma.engine.position.Position;
 
 /**
- * 
- * Funciton to classify which bucket to put the position into.  It's generic in case we want to use it for something else.
- * @author jim
+ * Function to classify which bucket to put the position into.  It's generic in case we want to use it for something else.
+ *
+ * @param <T> type of bucket.
  */
 public interface AggregationFunction<T> {
-  public T classifyPosition(Position position);
-  public String getName();
+  T classifyPosition(Position position);
+  String getName();
 }
