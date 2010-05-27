@@ -7,6 +7,8 @@ package com.opengamma.math.matrix;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * A minimal implementation of a matrix of doubles class 
  */
@@ -16,25 +18,24 @@ public class DoubleMatrix2D implements Matrix<Double> {
   private final int _columns;
   private final int _elements;
 
-  public DoubleMatrix2D(final double[][] primitives) {
-    if (primitives == null) {
-      throw new IllegalArgumentException("Cannot initialize matrix with null data");
-    }
-    if (primitives.length == 0) {
+  //REVEIW could do with a constructor that does NOT copy the data 
+  public DoubleMatrix2D(final double[][] data) {
+    Validate.notNull(data);
+    if (data.length == 0) {
       _data = new double[0][0];
       _elements = 0;
       _rows = 0;
       _columns = 0;
     } else {
-      _rows = primitives.length;
-      _columns = primitives[0].length;
+      _rows = data.length;
+      _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        if (primitives[i].length != _columns) {
+        if (data[i].length != _columns) {
           throw new IllegalArgumentException("Number of columns in row " + i + " did not match that in first row");
         }
         for (int j = 0; j < _columns; j++) {
-          _data[i][j] = primitives[i][j];
+          _data[i][j] = data[i][j];
         }
       }
       _elements = _rows * _columns;
@@ -86,78 +87,6 @@ public class DoubleMatrix2D implements Matrix<Double> {
 
   public int getNumberOfColumns() {
     return _columns;
-  }
-
-  public DoubleMatrix2D multiply(final DoubleMatrix2D other) {
-    return DoubleMatrix2D.multiply(this, other);
-  }
-
-  /**
-   * Multiply two matrices together, i.e. c = a*b
-   * @param a first matrix
-   * @param b second matrix
-   * @return new matrix c
-   */
-  public static DoubleMatrix2D multiply(final DoubleMatrix2D a, final DoubleMatrix2D b) {
-    if (a == null || b == null) {
-      throw new IllegalArgumentException("Passed in a null");
-    }
-    final int p = b._rows;
-    if (a._columns != p) {
-      throw new IllegalArgumentException("Matrix size mismatch");
-    }
-    final int m = a._rows;
-    final int n = b._columns;
-    double sum;
-    final double[][] res = new double[m][n];
-    int i, j, k;
-    for (i = 0; i < m; i++) {
-      for (j = 0; j < n; j++) {
-        sum = 0.0;
-        for (k = 0; k < p; k++) {
-          sum += a._data[i][k] * b._data[k][j];
-        }
-        res[i][j] = sum;
-      }
-    }
-    return new DoubleMatrix2D(res);
-  }
-
-  /**
-   * Multiply this matrix by a vector 
-   * @param vector
-   * @return a new vector 
-   */
-  public DoubleMatrix1D multiply(final DoubleMatrix1D vector) {
-    return multiply(this, vector);
-  }
-
-  /**
-   * Multiply a matrix by a vector, i.e c = a*b
-   * @param a matrix 
-   * @param b vector
-   * @return A new vector c
-   */
-  public static DoubleMatrix1D multiply(final DoubleMatrix2D a, final DoubleMatrix1D b) {
-    if (a == null || b == null) {
-      throw new IllegalArgumentException("Passed in a null");
-    }
-    final int p = b.getNumberOfElements();
-    if (a._columns != p) {
-      throw new IllegalArgumentException("Matrix/Vector size mismatch");
-    }
-    final int m = a._rows;
-    double sum;
-    final double[] res = new double[m];
-    int i, j;
-    for (i = 0; i < m; i++) {
-      sum = 0.0;
-      for (j = 0; j < p; j++) {
-        sum += a._data[i][j] * b.getEntry(j);
-        res[i] = sum;
-      }
-    }
-    return new DoubleMatrix1D(res);
   }
 
   /**

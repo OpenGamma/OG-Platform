@@ -7,6 +7,12 @@ package com.opengamma.math.matrix;
 
 import org.apache.commons.lang.NotImplementedException;
 
+/**
+ * Abstract class for Matrix Algebra. Basic stuff (add, subtract, scale) is implemented here, everything else should be overridden in concrete sub classes.
+ * @see CommonsMatrixAlgebra
+ * @see ColtMatrixAlgebra
+ * @see OGMatrixAlgebra
+ */
 public abstract class MatrixAlgebra {
 
   public Matrix<?> add(final Matrix<?> m1, final Matrix<?> m2) {
@@ -44,6 +50,12 @@ public abstract class MatrixAlgebra {
     throw new NotImplementedException();
   }
 
+  /**
+   * Returns the division of two matrices C = A/B = A*B<sup>-1</sup> where B<sup>-1</sup> is the pseudo inverse of B , i.e. B*B<sup>-1</sup> = <b>1</b>
+   * @param m1 Matrix A
+   * @param m2 Matrix B
+   * @return The matrix result 
+   */
   public Matrix<?> divide(final Matrix<?> m1, final Matrix<?> m2) {
     if (!(m1 instanceof DoubleMatrix2D)) {
       throw new IllegalArgumentException("Can only divide a 2D matrix");
@@ -56,6 +68,12 @@ public abstract class MatrixAlgebra {
 
   public abstract Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2);
 
+  /**
+   * Scale a vector or matrix by a give amount, i.e. each element is multiplied by the scale 
+   * @param m Some vector or matrix
+   * @param scale 
+   * @return the scaled vector or matrix 
+   */
   public Matrix<?> scale(final Matrix<?> m, final double scale) {
     if (m instanceof DoubleMatrix1D) {
       final double[] x = ((DoubleMatrix1D) m).getData();
@@ -114,25 +132,90 @@ public abstract class MatrixAlgebra {
     throw new NotImplementedException();
   }
 
+  /**
+   * Return the condition number of the matrix.
+   * @param m A matrix 
+   * @return condition number of the matrix
+   */
   public abstract double getCondition(final Matrix<?> m);
 
+  /**
+   * Return the determinant of the matrix
+   * @param m A matrix 
+   * @return determinant of the matrix
+   */
   public abstract double getDeterminant(final Matrix<?> m);
 
+  /** Get the inverse (or pseudo-inverse) of the decomposed matrix.
+   * @param m A matrix
+   * @return inverse matrix
+   */
   public abstract DoubleMatrix2D getInverse(final Matrix<?> m);
 
+  /**
+   * Compute the inner (or dot) product.
+   * @param m1 vector
+   * @param m2 vector
+   * @return the scalar dot product between m1 & m2
+   * @exception IllegalArgumentException vectors not the same size
+   */
   public abstract double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2);
 
+  /**
+   * Compute the outer product.
+   * @param m1 vector
+   * @param m2 vector
+   * @return the matrix return of the outer product 
+   * @exception IllegalArgumentException vectors not the same size
+   */
   public abstract DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2);
 
+  /**
+   * For a vector returns the <a href = "http://mathworld.wolfram.com/L1-Norm.html"> L<sub>1</sub> norm</a> (also known as Taxicab norm or Manhattan norm), i.e. sum(abs(x<sub>i</sub>)).
+   * <p>For a matrix returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteColumnSumNorm.html">
+     * Maximum Absolute Column Sum Norm</a> of the matrix.</p>
+     *
+   * @param m vector or matrix
+   * @return the norm
+   */
   public abstract double getNorm1(final Matrix<?> m);
 
+  /**
+   * For a vector returns <a href="http://mathworld.wolfram.com/L2-Norm.html"> L2-Norm or Euclidean Norm</a>
+   * <p>For a matrix returns the <a href="http://mathworld.wolfram.com/SpectralNorm.html"> spectral norm</a></p>
+   * @param m vector or matrix
+   * @return the norm
+   */
   public abstract double getNorm2(final Matrix<?> m);
 
+  /**
+   * For a vector returns the <a href="http://mathworld.wolfram.com/L-Infinity-Norm.html"> L<sub>&infin;</sub> norm</a>.
+     * The L<sub>&infin;</sub> norm is the max of the absolute values of elements.
+     * <p>For a matrix returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteRowSumNorm.html"> Maximum Absolute Row Sum Norm</a></p>
+   * @param m a vector or a matrix
+   * @return the norm
+   */
   public abstract double getNormInfinity(final Matrix<?> m);
 
+  /**
+   * Returns a matrix raised to some integer power, e.g. A<sup>3</sup> = A*A*A
+   * @param m Some square Matrix
+   * @param p An integer power
+   * @return The matrix result 
+   */
   public abstract DoubleMatrix2D getPower(final Matrix<?> m, final int p);
 
+  /**
+   * Returns the trace (i.e. sum of diagonal elements) of a matrix
+   * @param m Some square matrix
+   * @return The trace 
+   */
   public abstract double getTrace(final Matrix<?> m);
 
+  /**
+   * Resturns the transpose of a matrix
+   * @param m Some matrix
+   * @return The transpose
+   */
   public abstract DoubleMatrix2D getTranspose(final Matrix<?> m);
 }

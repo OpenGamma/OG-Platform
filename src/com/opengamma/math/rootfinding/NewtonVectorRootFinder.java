@@ -5,9 +5,15 @@
  */
 package com.opengamma.math.rootfinding;
 
+import static com.opengamma.math.UtilFunctions.square;
+import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
+
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
+import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -23,13 +29,13 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
   private static final double EPS = 1e-8;
   private final double _relTol, _absTol;
   private final int _maxSteps;
-  private final Decomposition _decon;
+  private Decomposition _decon;
 
   public NewtonVectorRootFinder(final double atol, final double rtol, final int maxSteps) {
     _absTol = atol;
     _relTol = rtol;
     _maxSteps = maxSteps;
-    _decon = new SVDecompositionCommons();
+    _decon = new LUDecompositionCommons();
     //_decon = new SVDecompositionColt();
   }
 
@@ -51,6 +57,18 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
 
   public NewtonVectorRootFinder() {
     this(DEF_TOL, DEF_TOL, MAX_STEPS);
+  }
+
+  /**
+   * By default this uses {@link LUDecompositionCommons} to solve for the Newton step. This can be a problem if the Jacobian
+   * is singular near the solution, in which case SVD is preferred, i.e {@link SVDecompositionCommons}
+   * @param decompMethod The method used to solve for the Newton step
+   * @throws IllegalArgumentException If the Decomposition is null 
+   */
+  public void setDecompositionMethod(Decomposition decompMethod) {
+    Validate.notNull(decompMethod);
+
+    _decon = decompMethod;
   }
 
   /**
@@ -100,7 +118,7 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     public DoubleMatrix1D getRoot(DoubleMatrix1D x) {
 
       _y = _function.evaluate(x);
-      _g0 = _y.dotProduct(_y);
+      _g0 = square(OG_ALGEBRA.getNorm2(_y));
 
       DoubleMatrix1D x1 = x;
       getNextPosition(x1);
@@ -125,16 +143,15 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
 
       final DecompositionResult deconResult = _decon.evaluate(h);
       DoubleMatrix1D p = deconResult.solve(_y);
-      _pos = x.subtract(p);
-      _y = _function.evaluate(_pos);
-      _g1 = _y.dotProduct(_y);
+
+      _lambda1 = 1.0;
+      updatePosition(x, p);
 
       if (_g1 < _g0) {
         _g0 = _g1;
         return;
       }
 
-      _lambda1 = 1.0;
       if (Double.isInfinite(_g1)) {
         bisectBacktrack(x, p);
       }
@@ -150,20 +167,15 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
     private void bisectBacktrack(final DoubleMatrix1D x, final DoubleMatrix1D p) {
       do {
         _lambda1 *= 0.1;
-        _pos = x.subtract(p.multiply(_lambda1));
-        _y = _function.evaluate(_pos);
-        _g1 = _y.dotProduct(_y);
-      } while (Double.isInfinite(_g1));
+        updatePosition(x, p);
+      } while (Double.isInfinite(_g1) || Double.isInfinite(_g2));
     }
 
     private void quadraticBacktrack(final DoubleMatrix1D x, final DoubleMatrix1D p) {
       double lambda = _g0 * _lambda1 * _lambda1 / (_g1 + _g0 * (2 * _lambda1 - 1));
       _lambda2 = _lambda1;
       _lambda1 = Math.max(_lambda1 * 0.01, lambda); //don't make the linear guess too small
-      _pos = x.subtract(p.multiply(_lambda1));
-      _y = _function.evaluate(_pos);
-      _g2 = _g1;
-      _g1 = _y.dotProduct(_y);
+      updatePosition(x, p);
     }
 
     private void cubicBacktrack(final DoubleMatrix1D x, final DoubleMatrix1D p) {
@@ -179,15 +191,18 @@ public class NewtonVectorRootFinder extends VectorRootFinder {
       double b = temp5 * (-_lambda2 * temp1 * temp3 + _lambda1 * temp2 * temp4);
 
       double lambda = (-b + Math.sqrt(b * b + 6 * a * _g0)) / 3 / a;
-      lambda = Math.min(Math.max(lambda, 0.01 * _lambda1), 0.75 * _lambda2); //make sure new lambda is between 1% & 50% of old value 
+      lambda = Math.min(Math.max(lambda, 0.01 * _lambda1), 0.75 * _lambda2); //make sure new lambda is between 1% & 75% of old value 
 
       _lambda2 = _lambda1;
-      _g2 = _g1;
       _lambda1 = lambda;
-      _pos = x.subtract(p.multiply(_lambda1));
-      _y = _function.evaluate(_pos);
-      _g1 = _y.dotProduct(_y);
+      updatePosition(x, p);
+    }
 
+    private void updatePosition(final DoubleMatrix1D x, final DoubleMatrix1D p) {
+      _pos = (DoubleMatrix1D) OG_ALGEBRA.subtract(x, OG_ALGEBRA.scale(p, _lambda1));
+      _y = _function.evaluate(_pos);
+      _g2 = _g1;
+      _g1 = square(OG_ALGEBRA.getNorm2(_y));
     }
 
     private boolean closeEnough(final DoubleMatrix1D x, final DoubleMatrix1D y) {

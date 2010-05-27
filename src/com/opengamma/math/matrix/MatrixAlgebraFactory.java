@@ -11,8 +11,10 @@ import java.util.Map;
 public class MatrixAlgebraFactory {
   public static final String COLT = "Colt";
   public static final String COMMONS = "Commons";
+  public static final String OG = "OG";
   public static final ColtMatrixAlgebra COLT_ALGEBRA = new ColtMatrixAlgebra();
   public static final CommonsMatrixAlgebra COMMONS_ALGEBRA = new CommonsMatrixAlgebra();
+  public static final OGMatrixAlgebra OG_ALGEBRA = new OGMatrixAlgebra();
   private static final Map<String, MatrixAlgebra> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
 
@@ -23,6 +25,8 @@ public class MatrixAlgebraFactory {
     s_instanceNames.put(MatrixAlgebra.class, COLT);
     s_staticInstances.put(COMMONS, COMMONS_ALGEBRA);
     s_instanceNames.put(MatrixAlgebra.class, COMMONS);
+    s_staticInstances.put(OG, OG_ALGEBRA);
+    s_instanceNames.put(MatrixAlgebra.class, OG);
   }
 
   private MatrixAlgebraFactory() {

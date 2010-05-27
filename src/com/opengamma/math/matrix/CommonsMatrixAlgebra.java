@@ -107,7 +107,14 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       return temp.getL1Norm();
     } else if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
-      return temp.getNorm();
+      // TODO find if commons implements this anywhere, so we are not doing it
+      // by hand
+      double max = 0.0;
+      for (int col = temp.getColumnDimension(); --col >= 0;) {
+        max = Math.max(max, temp.getColumnVector(col).getL1Norm());
+      }
+      return max;
+
     }
     throw new NotImplementedException();
   }
@@ -147,6 +154,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       return temp.getLInfNorm();
     } else if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
+      //REVIEW Commons getNorm() is wrong - it returns the column norm
       // TODO find if commons implements this anywhere, so we are not doing it
       // by hand
       double max = 0.0;
@@ -154,6 +162,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
         max = Math.max(max, temp.getRowVector(row).getL1Norm());
       }
       return max;
+      //return temp.getNorm();
     }
     throw new NotImplementedException();
   }

@@ -12,7 +12,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Wrapper for Commons implementation of LUDecomposition
+ * Wrapper for Commons implementation of LU Decomposition
  */
 public class LUDecompositionCommons extends LUDecomposition {
 

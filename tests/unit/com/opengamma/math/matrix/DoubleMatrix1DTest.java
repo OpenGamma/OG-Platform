@@ -53,13 +53,4 @@ public class DoubleMatrix1DTest {
     }
   }
 
-  @Test
-  public void testDotProduct() {
-    final DoubleMatrix1D A = new DoubleMatrix1D(new double[] { -1, 2, 3 });
-    final DoubleMatrix1D B = new DoubleMatrix1D(new double[] { 2, -2, 1 });
-    double res = DoubleMatrix1D.dotProduct(A, B);
-    assertEquals(-3.0, res, 1e-15);
-    res = A.dotProduct(A);
-    assertEquals(14.0, res, 1e-15);
-  }
 }

@@ -8,7 +8,7 @@ package com.opengamma.math.linearalgebra;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * Base of any concrete implementation of LUDecomposition
+ * Base of any concrete implementation of LU Decomposition
  */
 public abstract class LUDecomposition extends Decomposition {
 

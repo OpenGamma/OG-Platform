@@ -226,13 +226,17 @@ public class MatrixAlgebraTest {
   private boolean MatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2, final double tol) {
     final int rows = m1.getNumberOfRows();
     final int cols = m1.getNumberOfColumns();
-    if (m2.getNumberOfRows() != rows || m2.getNumberOfColumns() != cols)
+    if (m2.getNumberOfRows() != rows || m2.getNumberOfColumns() != cols) {
       return false;
+    }
     int i, j;
-    for (i = 0; i < rows; i++)
-      for (j = 0; j < rows; j++)
-        if (Math.abs(m1.getEntry(i, j) - m2.getEntry(i, j)) > tol)
+    for (i = 0; i < rows; i++) {
+      for (j = 0; j < rows; j++) {
+        if (Math.abs(m1.getEntry(i, j) - m2.getEntry(i, j)) > tol) {
           return false;
+        }
+      }
+    }
     return true;
   }
 }
