@@ -12,7 +12,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * 
- * @author emcleod
  */
 public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   private final double _annualizedSkew;
@@ -23,6 +22,12 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
     super(discountCurve, b, volatilitySurface, spot, date);
     _annualizedSkew = annualizedSkew;
     _annualizedPearsonKurtosis = annualizedPearsonKurtosis;
+  }
+
+  public SkewKurtosisOptionDataBundle(final SkewKurtosisOptionDataBundle data) {
+    super(data);
+    _annualizedSkew = data.getAnnualizedSkew();
+    _annualizedPearsonKurtosis = data.getAnnualizedPearsonKurtosis();
   }
 
   public double getAnnualizedSkew() {
@@ -59,7 +64,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
 
   @Override
   public SkewKurtosisOptionDataBundle withSpot(final Double spot) {
-    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedFisherKurtosis());
+    return new SkewKurtosisOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 
   public SkewKurtosisOptionDataBundle withSkew(final Double skew) {
@@ -84,17 +89,22 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final SkewKurtosisOptionDataBundle other = (SkewKurtosisOptionDataBundle) obj;
-    if (Double.doubleToLongBits(_annualizedPearsonKurtosis) != Double.doubleToLongBits(other._annualizedPearsonKurtosis))
+    if (Double.doubleToLongBits(_annualizedPearsonKurtosis) != Double.doubleToLongBits(other._annualizedPearsonKurtosis)) {
       return false;
-    if (Double.doubleToLongBits(_annualizedSkew) != Double.doubleToLongBits(other._annualizedSkew))
+    }
+    if (Double.doubleToLongBits(_annualizedSkew) != Double.doubleToLongBits(other._annualizedSkew)) {
       return false;
+    }
     return true;
   }
 }

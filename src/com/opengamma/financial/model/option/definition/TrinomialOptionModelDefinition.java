@@ -7,7 +7,9 @@ package com.opengamma.financial.model.option.definition;
 
 /**
  * 
- * @author emcleod
+ * @param <T> The option definition type
+ * @param <U> The option data bundle type
+ * 
  */
 public abstract class TrinomialOptionModelDefinition<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 

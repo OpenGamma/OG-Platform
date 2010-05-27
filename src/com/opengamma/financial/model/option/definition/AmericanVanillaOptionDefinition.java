@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -17,13 +20,15 @@ import com.opengamma.util.time.Expiry;
  * price of the option is <i>O</i>, then the option should be exercised early if
  * <i>O > K - S</i> for a call and <i>O > S - K</i> for a put.
  * 
- * @author emcleod
  */
 public class AmericanVanillaOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
+      Validate.notNull(optionPrice);
+      ArgumentChecker.notNegative(optionPrice, "option price");
       final double spot = data.getSpot();
       return isCall() ? Math.max(optionPrice, spot - getStrike()) : Math.max(optionPrice, getStrike() - spot);
     }
@@ -32,6 +37,9 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
 
     @Override
     public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
+      Validate.notNull(optionPrice);
+      ArgumentChecker.notNegative(optionPrice, "option price");
       final double spot = data.getSpot();
       return isCall() ? optionPrice < spot - getStrike() : optionPrice < getStrike() - spot;
     }
@@ -39,9 +47,9 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @param strike
-   * @param expiry
-   * @param isCall
+   * @param strike The option strike
+   * @param expiry The option expiry
+   * @param isCall Whether the option is a put or call
    */
   public AmericanVanillaOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
     super(strike, expiry, isCall);
@@ -56,4 +64,33 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
   public OptionPayoffFunction<StandardOptionDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
+
+  @Override
+  public String toString() {
+    return "Vanilla American" + (isCall() ? " call " : " put ") + "[K = " + getStrike() + ", " + getExpiry() + "]";
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _exerciseFunction.hashCode();
+    result = prime * result + _payoffFunction.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return false;
+  }
+
 }

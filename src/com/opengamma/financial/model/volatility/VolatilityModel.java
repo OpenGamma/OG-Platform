@@ -7,11 +7,10 @@ package com.opengamma.financial.model.volatility;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <T> The type of the abscissa(s) 
  */
 
 public interface VolatilityModel<T> {
 
-  public Double getVolatility(T t);
+  Double getVolatility(T t);
 }

@@ -15,12 +15,12 @@ import com.opengamma.financial.model.interestrate.InterestRateModel;
  * <i>t</i> is the maturity in years and <i>r(t)</i> is the interest rate at
  * maturity <i>t</i>).
  * 
- * @author emcleod
  */
 
 public abstract class DiscountCurve implements InterestRateModel<Double> {
 
   /**
+   * @param t The time 
    * @return The interest rate for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
@@ -29,6 +29,7 @@ public abstract class DiscountCurve implements InterestRateModel<Double> {
   public abstract double getInterestRate(final Double t);
 
   /**
+   * @param t The time 
    * @return The discount factor for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.

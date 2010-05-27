@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.tuple.Pair;
@@ -31,6 +33,7 @@ public class StandardOptionDataBundle {
   }
 
   public StandardOptionDataBundle(final StandardOptionDataBundle data) {
+    Validate.notNull(data);
     _discountCurve = data.getDiscountCurve();
     _b = data.getCostOfCarry();
     _volatilitySurface = data.getVolatilitySurface();
@@ -100,38 +103,51 @@ public class StandardOptionDataBundle {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final StandardOptionDataBundle other = (StandardOptionDataBundle) obj;
     if (_b == null) {
-      if (other._b != null)
+      if (other._b != null) {
         return false;
-    } else if (!_b.equals(other._b))
+      }
+    } else if (!_b.equals(other._b)) {
       return false;
+    }
     if (_date == null) {
-      if (other._date != null)
+      if (other._date != null) {
         return false;
-    } else if (!_date.equals(other._date))
+      }
+    } else if (!_date.equals(other._date)) {
       return false;
+    }
     if (_discountCurve == null) {
-      if (other._discountCurve != null)
+      if (other._discountCurve != null) {
         return false;
-    } else if (!_discountCurve.equals(other._discountCurve))
+      }
+    } else if (!_discountCurve.equals(other._discountCurve)) {
       return false;
+    }
     if (_spot == null) {
-      if (other._spot != null)
+      if (other._spot != null) {
         return false;
-    } else if (!_spot.equals(other._spot))
+      }
+    } else if (!_spot.equals(other._spot)) {
       return false;
+    }
     if (_volatilitySurface == null) {
-      if (other._volatilitySurface != null)
+      if (other._volatilitySurface != null) {
         return false;
-    } else if (!_volatilitySurface.equals(other._volatilitySurface))
+      }
+    } else if (!_volatilitySurface.equals(other._volatilitySurface)) {
       return false;
+    }
     return true;
   }
 }

@@ -15,7 +15,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * 
- * @author emcleod
  */
 public class StandardFixedIncomeUnderlyingOptionDataBundle extends StandardOptionDataBundle {
   private final FixedInterestRateInstrumentDefinition _underlyingInstrument;
@@ -47,18 +46,23 @@ public class StandardFixedIncomeUnderlyingOptionDataBundle extends StandardOptio
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final StandardFixedIncomeUnderlyingOptionDataBundle other = (StandardFixedIncomeUnderlyingOptionDataBundle) obj;
     if (_underlyingInstrument == null) {
-      if (other._underlyingInstrument != null)
+      if (other._underlyingInstrument != null) {
         return false;
-    } else if (!_underlyingInstrument.equals(other._underlyingInstrument))
+      }
+    } else if (!_underlyingInstrument.equals(other._underlyingInstrument)) {
       return false;
+    }
     return true;
   }
 }

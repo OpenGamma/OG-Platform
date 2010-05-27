@@ -7,9 +7,9 @@ package com.opengamma.financial.model.interestrate;
 
 /**
  * 
+ * @param <T> The type of the abscissas
  * General interface to access interest rates.
  * 
- * @author emcleod
  */
 
 public interface InterestRateModel<T> {
@@ -21,6 +21,6 @@ public interface InterestRateModel<T> {
    * @return Interest rate as a decimal (i.e. 3% = 0.03)
    * @throws Exception
    */
-  public double getInterestRate(T x);
+  double getInterestRate(T x);
 
 }

@@ -9,7 +9,6 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * 
- * @author emcleod
  */
 public class CapletFloorletDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
@@ -22,8 +21,9 @@ public class CapletFloorletDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double r) {
-      if (isCap() == true)
+      if (isCap() == true) {
         return Math.max(r - getStrike(), 0);
+      }
       return Math.max(getStrike() - r, 0);
     }
   };
@@ -67,30 +67,40 @@ public class CapletFloorletDefinition extends OptionDefinition {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final CapletFloorletDefinition other = (CapletFloorletDefinition) obj;
     if (_capletTenor == null) {
-      if (other._capletTenor != null)
+      if (other._capletTenor != null) {
         return false;
-    } else if (!_capletTenor.equals(other._capletTenor))
+      }
+    } else if (!_capletTenor.equals(other._capletTenor)) {
       return false;
+    }
     if (_exerciseFunction == null) {
-      if (other._exerciseFunction != null)
+      if (other._exerciseFunction != null) {
         return false;
-    } else if (!_exerciseFunction.equals(other._exerciseFunction))
+      }
+    } else if (!_exerciseFunction.equals(other._exerciseFunction)) {
       return false;
-    if (_isCap != other._isCap)
+    }
+    if (_isCap != other._isCap) {
       return false;
+    }
     if (_payoffFunction == null) {
-      if (other._payoffFunction != null)
+      if (other._payoffFunction != null) {
         return false;
-    } else if (!_payoffFunction.equals(other._payoffFunction))
+      }
+    } else if (!_payoffFunction.equals(other._payoffFunction)) {
       return false;
+    }
     return true;
   }
 
