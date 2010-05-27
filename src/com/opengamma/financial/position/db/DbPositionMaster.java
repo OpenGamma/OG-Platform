@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -32,7 +33,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.util.Assert;
 
 import com.opengamma.DataNotFoundException;
@@ -227,7 +227,7 @@ public class DbPositionMaster implements PositionMaster {
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
     checkIdentifierScheme(uid);
     if (uid.isVersioned()) {
-      return selectPortfolio(extractPortfolioOid(uid), extractVersion(uid));
+      return selectPortfolioByOidVersion(extractPortfolioOid(uid), extractVersion(uid), true);
     }
     return getPortfolio(uid, Instant.now(getTimeSource()));
   }
@@ -241,15 +241,87 @@ public class DbPositionMaster implements PositionMaster {
    * @throws IllegalArgumentException if the identifier is not from this position master
    */
   public Portfolio getPortfolio(final UniqueIdentifier uid, final InstantProvider instantProvider) {
+    checkIdentifierScheme(uid);
+    Instant instant = Instant.of(instantProvider);
+    long portfolioOid = extractPortfolioOid(uid);
+    return selectPortfolioByOidInstant(portfolioOid, instant);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a portfolio by object identifier and version.
+   * @param portfolioOid  the object identifier
+   * @param version  the version
+   * @param loadTree  whether to load the tree
+   * @return the portfolio, null if not found
+   */
+  protected Portfolio selectPortfolioByOidVersion(final long portfolioOid, final long version, final boolean loadTree) {
+    MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addValue("version", version);
+    Map<String, Object> portfolioResult;
     try {
-      checkIdentifierScheme(uid);
-      Instant instant = Instant.of(instantProvider);
-      long portfolioOid = extractPortfolioOid(uid);
-      long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
-      return selectPortfolio(portfolioOid, version);
-    } catch (DataNotFoundException ex) {
+      portfolioResult = getTemplate().queryForMap(sqlPortfolioBasicsByOidVersion(), args);
+    } catch (EmptyResultDataAccessException ex) {
+      s_logger.info("Portfolio not found: " + portfolioOid + " version " + version);
       return null;
     }
+    final String name = (String) portfolioResult.get("NAME");
+    UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
+    PortfolioNodeImpl root = new PortfolioNodeImpl();
+    if (loadTree) {
+      root = selectPortfolioRootNode(portfolioOid, version);
+    }
+    return new PortfolioImpl(uid, name, root);
+  }
+
+  /**
+   * Gets the SQL for getting the version by instant.
+   * @return the SQL, not null
+   */
+  protected String sqlPortfolioBasicsByOidVersion() {
+    return "SELECT name " +
+            "FROM pos_portfolio " +
+            "WHERE pos_portfolio.oid = :portfolio_oid " +
+              "AND pos_portfolio.version = :version " +
+              "AND status = 'A'";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Queries to find the applicable version at the given instant.
+   * @param portfolioOid  the portfolio object identifier
+   * @param instant  the instant to query at, not null
+   * @return the version number applicable at the instant, null if not found
+   */
+  protected PortfolioImpl selectPortfolioByOidInstant(final long portfolioOid, final Instant instant) {
+    MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addValue("instant", DateUtil.toSqlTimestamp(instant));
+    Map<String, Object> portfolioResult;
+    try {
+      portfolioResult = getTemplate().queryForMap(sqlPortfolioBasicsByOidInstant(), args);
+    } catch (EmptyResultDataAccessException ex) {
+      s_logger.info("Portfolio not found: " + portfolioOid + " at " + instant);
+      return null;
+    }
+    long version = (Long) portfolioResult.get("VERSION");
+    String name = StringUtils.defaultString((String) portfolioResult.get("NAME"));
+    PortfolioNodeImpl root = selectPortfolioRootNode(portfolioOid, version);
+    UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
+    return new PortfolioImpl(uid, name, root);
+  }
+
+  /**
+   * Gets the SQL for getting the version by instant.
+   * @return the SQL, not null
+   */
+  protected String sqlPortfolioBasicsByOidInstant() {
+    return "SELECT version, name " +
+            "FROM pos_portfolio " +
+            "WHERE pos_portfolio.oid = :portfolio_oid " +
+              "AND :instant >= start_instant  AND :instant < end_instant " +
+              "AND status = 'A'";
   }
 
   //-------------------------------------------------------------------------
@@ -267,6 +339,7 @@ public class DbPositionMaster implements PositionMaster {
     try {
       return getTemplate().queryForLong(sqlVersionByPortfolioOidInstant(), map);
     } catch (EmptyResultDataAccessException ex) {
+      s_logger.info("Portfolio not found: " + portfolioOid + " at " + instant);
       throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant, ex);
     }
   }
@@ -279,43 +352,8 @@ public class DbPositionMaster implements PositionMaster {
     return "SELECT version " +
             "FROM pos_portfolio " +
             "WHERE pos_portfolio.oid = :portfolio_oid " +
-              "AND :instant >= start_instant  AND :instant < end_instant";
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets a portfolio by object identifier and version.
-   * @param portfolioOid  the object identifier
-   * @param version  the version
-   * @return the portfolio, null if not found
-   */
-  protected Portfolio selectPortfolio(final long portfolioOid, final long version) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
-      .addValue("portfolio_oid", portfolioOid)
-      .addValue("version", version);
-    NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
-    SqlRowSet rowSet = namedJdbc.queryForRowSet(sqlBasicPortfolioByOidVersion(), args);
-    if (rowSet.next() == false || rowSet.getTimestamp("START_INSTANT").equals(rowSet.getTimestamp("END_INSTANT"))) {
-      return null;
-    }
-    final String portfolioName = rowSet.getString("NAME");
-    PortfolioNodeImpl rootNode = selectPortfolioRootNode(portfolioOid, version);
-    if (rootNode == null) {
-      throw new IllegalStateException("Portfolio does not have root node: " + portfolioOid);
-    }
-    UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
-    return new PortfolioImpl(uid, portfolioName, rootNode);
-  }
-
-  /**
-   * Gets the SQL for getting the version by instant.
-   * @return the SQL, not null
-   */
-  protected String sqlBasicPortfolioByOidVersion() {
-    return "SELECT name, start_instant, end_instant " +
-            "FROM pos_portfolio " +
-            "WHERE pos_portfolio.oid = :portfolio_oid " +
-              "AND pos_portfolio.version = :version ";
+              "AND :instant >= start_instant  AND :instant < end_instant " +
+              "AND status = 'A'";
   }
 
   //-------------------------------------------------------------------------
@@ -323,7 +361,8 @@ public class DbPositionMaster implements PositionMaster {
    * Gets a portfolio root node by object identifier and version.
    * @param portfolioOid  the object identifier
    * @param version  the version
-   * @return the portfolio, null if not found
+   * @return the portfolio root node, not null
+   * @throws DataNotFoundException if the root node is missing
    */
   protected PortfolioNodeImpl selectPortfolioRootNode(final long portfolioOid, final long version) {
     MapSqlParameterSource args = new MapSqlParameterSource()
@@ -331,7 +370,12 @@ public class DbPositionMaster implements PositionMaster {
       .addValue("version", version);
     PortfolioNodeExtractor extractor = new PortfolioNodeExtractor(portfolioOid, version);
     NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
-    return (PortfolioNodeImpl) namedJdbc.query(sqlPortfolioRootNodeByOidVersion(), args, extractor);
+    PortfolioNodeImpl rootNode = (PortfolioNodeImpl) namedJdbc.query(sqlPortfolioRootNodeByOidVersion(), args, extractor);
+    if (rootNode == null) {
+      s_logger.error("Portfolio does not have a root node: " + portfolioOid);
+      throw new DataNotFoundException("Portfolio does not have root node: " + portfolioOid);
+    }
+    return rootNode;
   }
 
   /**
@@ -375,10 +419,10 @@ public class DbPositionMaster implements PositionMaster {
    * @throws IllegalArgumentException if the identifier is not from this position master
    */
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid, final InstantProvider instantProvider) {
+    checkIdentifierScheme(uid);
+    Instant instant = Instant.of(instantProvider);
+    long portfolioOid = extractPortfolioOid(uid);
     try {
-      checkIdentifierScheme(uid);
-      Instant instant = Instant.of(instantProvider);
-      long portfolioOid = extractPortfolioOid(uid);
       long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
       return selectPortfolioNodeTree(portfolioOid, extractOtherOid(uid), version);
     } catch (DataNotFoundException ex) {
@@ -521,10 +565,10 @@ public class DbPositionMaster implements PositionMaster {
    * @throws IllegalArgumentException if the identifier is not from this position master
    */
   public Position getPosition(final UniqueIdentifier uid, final InstantProvider instantProvider) {
+    checkIdentifierScheme(uid);
+    Instant instant = Instant.of(instantProvider);
+    long portfolioOid = extractPortfolioOid(uid);
     try {
-      checkIdentifierScheme(uid);
-      Instant instant = Instant.of(instantProvider);
-      long portfolioOid = extractPortfolioOid(uid);
       long version = selectVersionByPortfolioOidInstant(portfolioOid, instant);
       return selectPosition(portfolioOid, extractOtherOid(uid), version);
     } catch (DataNotFoundException ex) {
@@ -642,7 +686,8 @@ public class DbPositionMaster implements PositionMaster {
   protected String sqlPortfolioIdsByInstant() {
     return "SELECT oid, version " +
             "FROM pos_portfolio " +
-            "WHERE :instant >= start_instant AND :instant < end_instant";
+            "WHERE :instant >= start_instant AND :instant < end_instant " +
+              "AND status = 'A'";
   }
 
   //-------------------------------------------------------------------------
@@ -697,7 +742,7 @@ public class DbPositionMaster implements PositionMaster {
       throw new DataIntegrityViolationException("Unable to update Portfolio as version is not the latest version");
     }
     updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old version
-    UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant);  // insert new version
+    UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant, true);  // insert new version
     setUniqueIdentifier(portfolio, uid);
     return uid;
   }
@@ -720,7 +765,11 @@ public class DbPositionMaster implements PositionMaster {
     if (oldVersion != latestVersion) {
       throw new DataIntegrityViolationException("Unable to update Portfolio as version is not the latest version");
     }
-    return updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date it
+    Portfolio portfolio = selectPortfolioByOidVersion(portfolioOid, latestVersion, false);
+    updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old version
+    UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant, false);  // insert new version
+    setUniqueIdentifier(portfolio, uid);
+    return uid;
   }
 
   //-------------------------------------------------------------------------
@@ -781,7 +830,7 @@ public class DbPositionMaster implements PositionMaster {
    */
   protected UniqueIdentifier createPortfolio(final Portfolio portfolio, final Instant instant) {
     long portfolioOid = selectNextPortfolioOid();
-    UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, 1, instant);
+    UniqueIdentifier uid = insertPortfolio(portfolio, portfolioOid, 1, instant, true);
     insertTreeNodes(portfolio.getRootNode(), portfolioOid, 1);
     insertTreePositions(portfolio.getRootNode(), portfolioOid, 1);
     return uid;
@@ -848,13 +897,15 @@ public class DbPositionMaster implements PositionMaster {
    * @param portfolioOid  the portfolio oid, not null
    * @param version  the version, not null
    * @param instant  the instant to store at, not null
+   * @param active true if the portfolio is active, false for deleted
    * @return the version, not null
    */
   protected UniqueIdentifier insertPortfolio(
-      final Portfolio portfolio, final long portfolioOid, final long version, final Instant instant) {
+      final Portfolio portfolio, final long portfolioOid, final long version, final Instant instant, boolean active) {
     MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("version", version)
+      .addValue("status", active ? "A" : "D")
       .addValue("start_instant", DateUtil.toSqlTimestamp(instant))
       .addValue("end_instant", DateUtil.MAX_SQL_TIMESTAMP)
       .addValue("name", portfolio.getName());
@@ -870,9 +921,9 @@ public class DbPositionMaster implements PositionMaster {
    */
   protected String sqlInsertPortfolio() {
     return "INSERT INTO pos_portfolio " +
-              "(oid, version, start_instant, end_instant, name)" +
+              "(oid, version, status, start_instant, end_instant, name)" +
             "VALUES " +
-              "(:portfolio_oid, :version, :start_instant, :end_instant, :name)";
+              "(:portfolio_oid, :version, :status, :start_instant, :end_instant, :name)";
   }
 
   //-------------------------------------------------------------------------

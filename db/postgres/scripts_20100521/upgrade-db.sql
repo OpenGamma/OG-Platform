@@ -20,6 +20,7 @@ drop table pos_portfolionode;
 create table pos_portfolio (
     oid bigint not null,
     version bigint not null,
+    status char(1) not null,
     start_instant timestamp,
     end_instant timestamp,
     name varchar(255) not null,
