@@ -22,6 +22,7 @@ import org.springframework.jms.core.JmsTemplate;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.LocalViewProcessorClient;
 import com.opengamma.engine.view.client.ViewProcessorClient;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -158,7 +159,7 @@ public class ViewProcessorService {
    * @param viewProcessor  the view processor, not null
    */
   protected void addViewProcessor(final String name, final ViewProcessor viewProcessor) {
-    addViewProcessor(name, new LocalViewProcessorClient(viewProcessor));
+    addViewProcessor(name, new LocalViewProcessorClient(viewProcessor, UserPrincipal.getLocalUser()));
   }
 
   /**

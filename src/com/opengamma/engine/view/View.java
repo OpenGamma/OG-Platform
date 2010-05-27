@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,9 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.msg.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ThreadUtil;
 import com.opengamma.util.monitor.OperationTimer;
 
@@ -122,18 +127,26 @@ public class View implements Lifecycle {
   }
   
   public void addResultListener(ComputationResultListener resultListener) {
+    ArgumentChecker.notNull(resultListener, "Result listener");
+    
+    checkIsEntitledToResults(resultListener.getUser());
     _resultListeners.add(resultListener);
   }
   
   public void removeResultListener(ComputationResultListener resultListener) {
+    ArgumentChecker.notNull(resultListener, "Result listener");
     _resultListeners.remove(resultListener);
   }
   
   public void addDeltaResultListener(DeltaComputationResultListener deltaListener) {
+    ArgumentChecker.notNull(deltaListener, "Delta listener");
+    
+    checkIsEntitledToResults(deltaListener.getUser());
     _deltaListeners.add(deltaListener);
   }
   
   public void removeDeltaResultLister(DeltaComputationResultListener deltaListener) {
+    ArgumentChecker.notNull(deltaListener, "Delta listener");
     _deltaListeners.remove(deltaListener);
   }
 
@@ -168,7 +181,7 @@ public class View implements Lifecycle {
   private void addLiveDataSubscriptions() {
     Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
-    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getUser(), liveDataRequirements);
+    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
     timer.finished();
   }
 
@@ -387,6 +400,87 @@ public class View implements Lifecycle {
       setRecalculationThread(null);
     }
     s_logger.info("Stopped.");
+  }
+  
+  /**
+   * Reading the static contents of a view, modifying the view, 
+   * etc., can sometimes  be performed even by users 
+   * who are not entitled to view the results of the view.
+   * 
+   * @param user User who is requesting access
+   * @return true if the user should be able to view the
+   * static contents of the view. false otherwise.
+   */
+  public boolean isEntitledToAccess(UserPrincipal user) {
+    try {
+      checkIsEntitledToAccess(user);
+      return true;
+    } catch (ViewAccessException e) {
+      return false;
+    }
+  }
+  
+  /**
+   * Reading the static contents of a view, modifying the view, 
+   * etc., can sometimes  be performed even by users 
+   * who are not entitled to view the results of the view.
+   * 
+   * @param user User who is requesting access
+   * @throws ViewAccessException If the user is not entitled
+   */
+  public void checkIsEntitledToAccess(UserPrincipal user) {
+    // not done yet    
+  }
+  
+  /**
+   * A user is entitled to view the computation results produced
+   * by a view only if they are entitled to every market data
+   * line required to compute the results of the view.
+   * 
+   * @param user User who is requesting access
+   * @return true if the user should be able to view the
+   * computation results produced by the view. false otherwise.
+   */
+  public boolean isEntitledToResults(UserPrincipal user) {
+    try {
+      checkIsEntitledToResults(user);
+      return true;
+    } catch (ViewAccessException e) {
+      return false;
+    }
+  }
+  
+  /**
+   * A user is entitled to view the computation results produced
+   * by a view only if they are entitled to every market data
+   * line required to compute the results of the view.
+   * 
+   * @param user User who is requesting access
+   * @throws ViewAccessException If the user is not entitled 
+   */
+  public void checkIsEntitledToResults(UserPrincipal user) {
+    Set<ValueRequirement> requiredValues = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    Collection<LiveDataSpecification> requiredLiveData = ValueRequirement.getRequiredLiveData(
+        requiredValues, 
+        getProcessingContext().getSecurityMaster());
+    
+    Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataClient().isEntitled(user, requiredLiveData);
+    
+    ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
+    for (Map.Entry<LiveDataSpecification, Boolean> entry : entitlements.entrySet()) {
+      if (entry.getValue().booleanValue() == false) {
+        failures.add(entry.getKey());
+      }
+    }
+    
+    if (!failures.isEmpty()) {
+      throw new ViewAccessException(user + " is not entitled to " + this + " because they do not have permissions to " + failures);
+    }
+  }
+  
+  @Override
+  public String toString() {
+    return "View[" + getDefinition().getName() + "]";
   }
 
 }

@@ -16,8 +16,6 @@ import org.fudgemsg.FudgeFieldContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -91,7 +89,7 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   public void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements) {
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
-      LiveDataSpecification liveDataSpec = constructRequirementLiveDataSpecification(requirement);
+      LiveDataSpecification liveDataSpec = requirement.getRequiredLiveData(getSecurityMaster());
       liveDataSpecs.add(liveDataSpec);
       Set<ValueRequirement> requirementsForSpec = _liveDataSpec2ValueRequirements.get(liveDataSpec);
       if (requirementsForSpec == null) {
@@ -103,28 +101,6 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
     _liveDataClient.subscribe(user, liveDataSpecs, this);
   }
   
-  /**
-   * @param requirement
-   * @return
-   */
-  private LiveDataSpecification constructRequirementLiveDataSpecification(
-      ValueRequirement requirement) {
-    switch(requirement.getTargetSpecification().getType()) {
-      case PRIMITIVE:
-        // Just use the identifier as given.
-        return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), requirement.getTargetSpecification().getIdentifier());
-      case SECURITY:
-        Security security = getSecurityMaster().getSecurity(requirement.getTargetSpecification().getUniqueIdentifier());
-        if (security == null) {
-          throw new OpenGammaRuntimeException("Unknown security in configured security master: " + requirement.getTargetSpecification().getIdentifier());
-        }
-        // Package up the other identifiers
-        return new LiveDataSpecification(_liveDataClient.getDefaultNormalizationRuleSetId(), security.getIdentifiers());
-      default:
-        throw new OpenGammaRuntimeException("Unhandled requirement type for live data client: " + requirement);
-    }
-  }
-
   // Protected for unit testing.
   protected Map<LiveDataSpecification, Set<ValueRequirement>> getRequirementsForSubscriptionIds() {
     return Collections.unmodifiableMap(_liveDataSpec2ValueRequirements);

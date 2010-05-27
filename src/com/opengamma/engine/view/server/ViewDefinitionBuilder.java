@@ -37,7 +37,7 @@ public class ViewDefinitionBuilder implements FudgeBuilder<ViewDefinition> {
     final MutableFudgeFieldContainer message = context.newMessage();
     message.add(FIELD_NAME, null, viewDefinition.getName());
     context.objectToFudgeMsg(message, FIELD_IDENTIFIER, null, viewDefinition.getPortfolioId());
-    context.objectToFudgeMsg(message, FIELD_USER, null, viewDefinition.getUser());
+    context.objectToFudgeMsg(message, FIELD_USER, null, viewDefinition.getLiveDataUser());
     Map<String, ViewCalculationConfiguration> calculationConfigurations = viewDefinition.getAllCalculationConfigurationsByName();
     for (ViewCalculationConfiguration calculationConfiguration : calculationConfigurations.values()) {
       final MutableFudgeFieldContainer config = context.newMessage();

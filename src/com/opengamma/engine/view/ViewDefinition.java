@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 public class ViewDefinition implements Serializable {
   private final String _name;
   private final UniqueIdentifier _portfolioId;
-  private final UserPrincipal _user;
+  private final UserPrincipal _liveDataUser;
   private Long _minimumRecalculationPeriod;
   private boolean _computePortfolioNodeCalculations = true;
   private boolean _computePositionNodeCalculations = true;
@@ -44,22 +44,17 @@ public class ViewDefinition implements Serializable {
     
     _name = name;
     _portfolioId = portfolioId;
-    
-    try {
-      _user = new UserPrincipal(userName, InetAddress.getLocalHost().getHostAddress());
-    } catch (UnknownHostException e) {
-      throw new OpenGammaRuntimeException("Could not obtain local host address", e);
-    }
+    _liveDataUser = UserPrincipal.getLocalUser(userName);
   }
   
-  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal user) {
+  public ViewDefinition(String name, UniqueIdentifier portfolioId, UserPrincipal liveDataUser) {
     ArgumentChecker.notNull(name, "View name");
     ArgumentChecker.notNull(portfolioId, "Portfolio id");
-    ArgumentChecker.notNull(user, "User name");
+    ArgumentChecker.notNull(liveDataUser, "User name");
     
     _name = name;
     _portfolioId = portfolioId;
-    _user = user;
+    _liveDataUser = liveDataUser;
   }
   
   public Set<String> getAllValueRequirements() {
@@ -78,9 +73,19 @@ public class ViewDefinition implements Serializable {
     return _portfolioId;
   }
   
-  public UserPrincipal getUser() {
-    return _user;
+  /**
+   * @return The LiveData user should be used to create 
+   * LiveData subscriptions. It is thus a kind of 'super-user'
+   * and ensures that the View can be materialized even without
+   * any end user trying to use it.
+   * <p>
+   * Authenticating the end users of the View (of which there can be many) 
+   * is a separate matter entirely and has nothing to do with this user.  
+   */
+  public UserPrincipal getLiveDataUser() {
+    return _liveDataUser;
   }
+  
   public Collection<ViewCalculationConfiguration> getAllCalculationConfigurations() {
     return new ArrayList<ViewCalculationConfiguration>(_calculationConfigurationsByName.values());
   }

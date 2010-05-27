@@ -16,6 +16,7 @@ import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 
 /* package */ class ResultListener implements ComputationResultListener, DeltaComputationResultListener {
@@ -100,6 +101,11 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
       sb.append(" computation:").append(_computationResults.getDestinationName());
     }
     return sb.toString();
+  }
+
+  @Override
+  public UserPrincipal getUser() {
+    return _viewProcessor.getViewProcessorClient().getUser();
   }
   
 }

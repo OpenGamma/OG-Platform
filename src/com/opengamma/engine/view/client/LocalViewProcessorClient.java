@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,14 +30,22 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
    * The view processor that this is a client for.
    */
   private final ViewProcessor _viewProcessor;
+  
+  /**
+   * The user that this client is acting as.
+   */
+  private final UserPrincipal _user;
 
   /**
    * Creates the client wrapping a processor.
    * @param viewProcessor  the processor to wrap, not null
+   * @param user the user that this client is acting as, not null
    */
-  public LocalViewProcessorClient(ViewProcessor viewProcessor) {
+  public LocalViewProcessorClient(ViewProcessor viewProcessor, UserPrincipal user) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
+    ArgumentChecker.notNull(user, "User Credentials");
     _viewProcessor = viewProcessor;
+    _user = user;
   }
 
   //-------------------------------------------------------------------------
@@ -46,6 +55,11 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
    */
   public ViewProcessor getViewProcessor() {
     return _viewProcessor;
+  }
+  
+  @Override
+  public UserPrincipal getUser() {
+    return _user;
   }
 
   //-------------------------------------------------------------------------
@@ -98,10 +112,11 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
    * @return the view, not null
    */
   protected View getOrInitializeView(String viewName) {
-    View view = getViewProcessor().getView(viewName);
+    View view = getViewProcessor().getView(viewName, _user);
     if (view == null) {
       s_logger.debug("No view available with name {}, initializing", viewName);
-      view = getViewProcessor().initializeView(viewName);
+      getViewProcessor().initializeView(viewName);
+      view = getViewProcessor().getView(viewName, _user);
     }
     assert view != null : "View should not be null without an exception thrown";
     return view;

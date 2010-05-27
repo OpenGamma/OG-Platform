@@ -35,6 +35,8 @@ import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.livedata.client.LiveDataClient;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
@@ -53,6 +55,7 @@ public class ViewProcessor implements Lifecycle {
   private FunctionRepository _functionRepository;
   private SecurityMaster _securityMaster;
   private PositionMaster _positionMaster;
+  private LiveDataClient _liveDataClient;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private ViewComputationCacheSource _computationCacheSource;
@@ -134,6 +137,14 @@ public class ViewProcessor implements Lifecycle {
   public void setPositionMaster(PositionMaster positionMaster) {
     assertNotStarted();
     _positionMaster = positionMaster;
+  }
+  
+  public LiveDataClient getLiveDataClient() {
+    return _liveDataClient;
+  }
+
+  public void setLiveDataClient(LiveDataClient liveDataClient) {
+    _liveDataClient = liveDataClient;
   }
 
   /**
@@ -261,28 +272,41 @@ public class ViewProcessor implements Lifecycle {
   /**
    * Obtain an already-initialized {@link View} instance.
    * <p/>
-   * This method will only return a view if it has already been initialized.
-   * If there is a view definition available, but this method returns
-   * {@code null}, the view needs to be initialized using {@link #initializeView(String)}.
+   * This method will only return a view if it has already been initialized
+   * and if the given user has access to the view.
+   * <p/>
+   * If there is a view definition available, and the user has access to it,
+   * but this method returns {@code null}, the view needs to be 
+   * initialized using {@link #initializeView(String)}.
    * 
    * @param name The name of the view to obtain.
+   * @param credentials The user who should have access to the view. 
+   * Not null.
    * @return     The initialized view, or {@code null}.
+   * @throws ViewAccessException If the view exists and is initialized,
+   * but the user has no access to it. 
    */
-  public View getView(String name) {
+  public View getView(String name, UserPrincipal credentials) {
+    ArgumentChecker.notNull(name, "View name");
+    ArgumentChecker.notNull(credentials, "User credentials");
+    
     View view = _viewsByName.get(name);
+    if (view == null) {
+      return null;
+    }
+    view.checkIsEntitledToAccess(credentials);
     return view;
   }
   
   /**
    *
    * @param viewName the name of the view to initialize
-   * @return the initialized view
    * @throws NoSuchElementException if a view with the name is not available
    */
-  public View initializeView(String viewName) {
+  public void initializeView(String viewName) {
     ArgumentChecker.notNull(viewName, "View name");
     if (_viewsByName.containsKey(viewName)) {
-      return _viewsByName.get(viewName);
+      return;
     }
     ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
     if (viewDefinition == null) {
@@ -291,6 +315,7 @@ public class ViewProcessor implements Lifecycle {
     // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
     // might be based on the view definition (particularly for functions and the like).
     ViewProcessingContext vpc = new ViewProcessingContext(
+        getLiveDataClient(),
         getLiveDataAvailabilityProvider(),
         getLiveDataSnapshotProvider(),
         getFunctionRepository(),
@@ -320,7 +345,6 @@ public class ViewProcessor implements Lifecycle {
         // REVIEW kirk 2010-03-02 -- Is this the right thing to do?
         s_logger.warn("Asked to initialize view {} but in state {}. Doing nothing.", viewName, actualView.getCalculationState());
     }
-    return actualView;
   }
   
   public void startProcessing(String viewName) {
@@ -366,8 +390,9 @@ public class ViewProcessor implements Lifecycle {
   
   protected View getViewInternal(String viewName) {
     ArgumentChecker.notNull(viewName, "View name");
-    if (_viewsByName.containsKey(viewName)) {
-      return _viewsByName.get(viewName);
+    View view = _viewsByName.get(viewName);
+    if (view != null) {
+      return view; 
     }
     ViewDefinition viewDefinition = getViewDefinitionRepository().getDefinition(viewName);
     if (viewDefinition == null) {

@@ -12,8 +12,8 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.View;
+import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.util.ArgumentChecker;
 
 /**

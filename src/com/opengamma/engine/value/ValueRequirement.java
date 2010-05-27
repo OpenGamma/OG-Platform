@@ -6,6 +6,8 @@
 package com.opengamma.engine.value;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -17,7 +19,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -132,6 +136,20 @@ public final class ValueRequirement implements Serializable {
     String valueName = msg.getString(VALUE_NAME_FIELD_NAME);
     ComputationTargetSpecification targetSpecification = ComputationTargetSpecification.fromFudgeMsg(msg); 
     return new ValueRequirement(valueName, targetSpecification);
+  }
+  
+  public LiveDataSpecification getRequiredLiveData(SecurityMaster securityMaster) {
+    return getTargetSpecification().getRequiredLiveData(securityMaster);
+  }
+  
+  public static Collection<LiveDataSpecification> getRequiredLiveData(
+      Collection<ValueRequirement> valueRequirements, 
+      SecurityMaster securityMaster) {
+    ArrayList<LiveDataSpecification> returnValue = new ArrayList<LiveDataSpecification>();
+    for (ValueRequirement valueRequirement : valueRequirements) {
+      returnValue.add(valueRequirement.getRequiredLiveData(securityMaster));      
+    }
+    return returnValue;
   }
 
 }

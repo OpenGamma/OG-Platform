@@ -5,13 +5,16 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.livedata.msg.UserPrincipal;
+
 /**
  * A callback for code that only wants to receive delta updates
  * on view recomputation.
  *
  * @author kirk
  */
-public interface DeltaComputationResultListener {
+public interface DeltaComputationResultListener extends ComputationListener {
 
   void deltaResultAvailable(ViewDeltaResultModel deltaModel);
+  
 }

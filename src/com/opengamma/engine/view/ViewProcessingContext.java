@@ -20,12 +20,14 @@ import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calcnode.JobRequestSender;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
+import com.opengamma.livedata.client.LiveDataClient;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A collection for everything relating to processing a particular view.
  */
 public class ViewProcessingContext {
+  private final LiveDataClient _liveDataClient;
   private final LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
   private final LiveDataSnapshotProvider _liveDataSnapshotProvider;
   private final FunctionRepository _functionRepository;
@@ -40,6 +42,7 @@ public class ViewProcessingContext {
   private final ExecutorService _executorService;
 
   public ViewProcessingContext(
+      LiveDataClient liveDataClient,
       LiveDataAvailabilityProvider liveDataAvailabilityProvider,
       LiveDataSnapshotProvider liveDataSnapshotProvider,
       FunctionRepository functionRepository,
@@ -51,6 +54,7 @@ public class ViewProcessingContext {
       ViewProcessorQueryReceiver viewProcessorQueryReceiver,
       FunctionCompilationContext compilationContext,
       ExecutorService executorService) {
+    ArgumentChecker.notNull(liveDataClient, "LiveDataClient");
     ArgumentChecker.notNull(liveDataAvailabilityProvider, "LiveDataAvailabilityProvider");
     ArgumentChecker.notNull(liveDataSnapshotProvider, "LiveDataSnapshotProvier");
     ArgumentChecker.notNull(functionRepository, "FunctionRepository");
@@ -63,6 +67,7 @@ public class ViewProcessingContext {
     ArgumentChecker.notNull(compilationContext, "CompilationContext");
     ArgumentChecker.notNull(executorService, "ExecutorService");
     
+    _liveDataClient = liveDataClient;
     _liveDataAvailabilityProvider = liveDataAvailabilityProvider;
     _liveDataSnapshotProvider = liveDataSnapshotProvider;
     _functionRepository = functionRepository;
@@ -77,6 +82,14 @@ public class ViewProcessingContext {
     
     // REVIEW kirk 2010-05-22 -- This isn't the right place to wrap this.
     _computationTargetResolver = new CachingComputationTargetResolver(new DefaultComputationTargetResolver(securityMaster, positionMaster));
+  }
+  
+  
+  /**
+   * @return the liveDataClient
+   */
+  public LiveDataClient getLiveDataClient() {
+    return _liveDataClient;
   }
 
   /**

@@ -8,6 +8,7 @@ package com.opengamma.engine.view.client;
 import java.util.Set;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * A client for managing a processor of views.
@@ -66,5 +67,10 @@ public interface ViewProcessorClient {
    */
   // REVIEW jim 26-Apr-2010 -- should really allow access to view definition repository.
   ViewDefinition getViewDefinition(String viewName);
+  
+  /**
+   * Gets the user under which this clients operates.
+   */
+  UserPrincipal getUser();
 
 }

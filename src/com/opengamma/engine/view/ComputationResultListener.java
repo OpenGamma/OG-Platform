@@ -5,14 +5,16 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.livedata.msg.UserPrincipal;
+
 /**
  * Allows code to register callbacks for when new computation results
  * are available.
  *
  * @author kirk
  */
-public interface ComputationResultListener {
+public interface ComputationResultListener extends ComputationListener {
   
   void computationResultAvailable(ViewComputationResultModel resultModel);
-
+  
 }

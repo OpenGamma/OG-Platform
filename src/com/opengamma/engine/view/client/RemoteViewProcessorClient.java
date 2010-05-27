@@ -28,6 +28,7 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 
@@ -44,17 +45,23 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
   private final RestTarget _targetLiveCalculation;
   private final RestTarget _targetViewBase;
   
+  private final UserPrincipal _user;
+  
   private final ConcurrentMap<String, RemoteViewClient> _remoteViewClients = new ConcurrentHashMap<String, RemoteViewClient>();
   
   private final JmsTemplate _jmsTemplate = new JmsTemplate();
   
-  public RemoteViewProcessorClient(final FudgeContext fudgeContext, final ConnectionFactory connectionFactory, final RestTarget baseTarget) {
+  public RemoteViewProcessorClient(final FudgeContext fudgeContext, 
+      final ConnectionFactory connectionFactory, 
+      final RestTarget baseTarget,
+      final UserPrincipal user) {
     _restClient = RestClient.getInstance(fudgeContext, null);
     _targetAvailableViewNames = baseTarget.resolve(VIEWPROCESSOR_AVAILABLEVIEWNAMES);
     _targetLiveComputingViewNames = baseTarget.resolve(VIEWPROCESSOR_LIVECOMPUTINGVIEWNAMES);
     _targetSupported = baseTarget.resolve(VIEWPROCESSOR_SUPPORTED);
     _targetLiveCalculation = baseTarget.resolveBase(VIEWPROCESSOR_LIVECALCULATION);
     _targetViewBase = baseTarget.resolveBase(VIEWPROCESSOR_VIEW);
+    _user = user;
     getJmsTemplate().setConnectionFactory(connectionFactory);
     getJmsTemplate().setPubSubDomain(true);
   }
@@ -67,6 +74,11 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
     return _restClient;
   }
   
+  @Override
+  public UserPrincipal getUser() {
+    return _user;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public Set<String> getAvailableViewNames() {

@@ -14,10 +14,14 @@ import org.fudgemsg.FudgeMessageFactory;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.id.Identifiable;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -166,6 +170,33 @@ public final class ComputationTargetSpecification implements Serializable {
     ComputationTargetType type = ComputationTargetType.valueOf(msg.getString(TYPE_FIELD_NAME));
     UniqueIdentifier uid = UniqueIdentifier.fromFudgeMsg(msg.getMessage(IDENTIFIER_FIELD_NAME));
     return new ComputationTargetSpecification(type, uid);
+  }
+  
+  /**
+   * @return LiveData market data line that directly produces a value for
+   * this computation target.
+   * @throws OpenGammaRuntimeException If there is no LiveData directly corresponding
+   * to this computation target. This will be the case, in particular, if 
+   * this computation target is a {@link ComputationTargetType#POSITION} or 
+   * {@link ComputationTargetType#MULTIPLE_POSITIONS}, because
+   * there is no LiveData market data line that would directly value
+   * positions or porfolios.    
+   */
+  public LiveDataSpecification getRequiredLiveData(SecurityMaster securityMaster) {
+    switch(getType()) {
+      case PRIMITIVE:
+        // Just use the identifier as given.
+        return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), getIdentifier());
+      case SECURITY:
+        Security security = securityMaster.getSecurity(getUniqueIdentifier());
+        if (security == null) {
+          throw new OpenGammaRuntimeException("Unknown security in configured security master: " + getIdentifier());
+        }
+        // Package up the other identifiers
+        return new LiveDataSpecification(StandardRules.getOpenGammaRuleSetId(), security.getIdentifiers());
+      default:
+        throw new OpenGammaRuntimeException("No LiveData is needed to for " + this);
+    }
   }
 
 }
