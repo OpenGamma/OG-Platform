@@ -14,14 +14,17 @@ import org.fudgemsg.mapping.FudgeObjectDictionary;
  * @author Andrew Griffin
  */
 public class AnalyticsFudgeContextConfiguration extends FudgeContextConfiguration {
-  
-  public static final FudgeContextConfiguration INSTANCE = new AnalyticsFudgeContextConfiguration ();
+
+  /**
+   * A pre-constructed instance.
+   */
+  public static final FudgeContextConfiguration INSTANCE = new AnalyticsFudgeContextConfiguration();
   
   @Override
-  public void configureFudgeObjectDictionary (final FudgeObjectDictionary dictionary) {
-    MathInterpolation.addBuilders (dictionary);
-    ModelInterestRateCurve.addBuilders (dictionary);
-    ModelVolatilitySurface.addBuilders (dictionary);
+  public void configureFudgeObjectDictionary(final FudgeObjectDictionary dictionary) {
+    MathInterpolation.addBuilders(dictionary);
+    ModelInterestRateCurve.addBuilders(dictionary);
+    ModelVolatilitySurface.addBuilders(dictionary);
   }
   
 }
