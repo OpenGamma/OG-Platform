@@ -37,7 +37,6 @@ public class JmsSenderTest {
   @Before
   public void setUp() {
     ActiveMQConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
-    cf.setUseRetroactiveConsumer(true);
 
     JmsTemplate jmsTemplate = new JmsTemplate(cf);
     jmsTemplate.setPubSubDomain(true);
