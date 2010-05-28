@@ -104,19 +104,24 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
       }
       case SECURITY: {
         Security security = getSecurityMaster().getSecurity(uid);
-        s_logger.info("Resolved security ID {} to security {}", uid, security);
-        return (security == null ? null : new ComputationTarget(ComputationTargetType.SECURITY, security));
+        if (security == null) {
+          s_logger.info("Unable to resolve security UID {}", uid);
+          return null;
+        }
+        s_logger.info("Resolved security UID {} to security {}", uid, security);
+        return new ComputationTarget(ComputationTargetType.SECURITY, security);
       }
       case POSITION: {
         Position position = getPositionMaster().getPosition(uid);
-        s_logger.info("Resolved position ID {} to position {}", uid, position);
         if (position == null) {
+          s_logger.info("Unable to resolve position UID {}", uid);
           return null;
         }
+        s_logger.info("Resolved position UID {} to position {}", uid, position);
         if (position.getSecurity() == null) {
           Security security = getSecurityMaster().getSecurity(position.getSecurityKey());
           if (security == null) {
-            s_logger.warn("Couldn't resolve security ID {} for position ID {}", position.getSecurityKey(), uid);
+            s_logger.warn("Unable to resolve security ID {} for position UID {}", position.getSecurityKey(), uid);
           } else {
             s_logger.info("Resolved security ID {} to security {}", position.getSecurityKey(), security);
             position = new PositionImpl(position.getUniqueIdentifier(), position.getQuantity(), position.getSecurityKey(), security);
@@ -125,24 +130,19 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case MULTIPLE_POSITIONS: {
-        final PortfolioNode node;
         final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-        s_logger.info("Resolved multiple position ID {} to portfolio {}", uid, portfolio);
         if (portfolio != null) {
-          node = portfolio.getRootNode();
-          if (node == null) {
-            s_logger.warn("Root node for portfolio {} is null", portfolio);
-            return null;
-          }
+          s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
+          final PortfolioNode node = portfolio.getRootNode();
           return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
-        } else {
-          node = getPositionMaster().getPortfolioNode(uid);
-          s_logger.info("Resolved multiple position ID {} to portfolio node {}", uid, node);
-          if (node == null) {
-            return null;
-          }
+        }
+        final PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
+        if (node != null) {
+          s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
           return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
         }
+        s_logger.info("Unable to resolve multiple-position UID {}", uid);
+        return null;
       }
       default: {
         throw new OpenGammaRuntimeException("Unhandled computation target type: " + specification.getType());
