@@ -478,7 +478,8 @@ public class View implements Lifecycle {
     }
     
     if (!failures.isEmpty()) {
-      throw new ViewAccessException(user + " is not entitled to " + this + " because they do not have permissions to " + failures);
+      throw new ViewAccessException(user + " is not entitled to " + this + 
+          " because they do not have permissions to " + failures.get(0));
     }
   }
   
