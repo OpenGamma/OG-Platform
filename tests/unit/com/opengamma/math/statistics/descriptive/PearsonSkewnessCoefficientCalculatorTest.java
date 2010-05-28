@@ -19,7 +19,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * @author emcleod
  * 
  */
-public class PearsonSkewnessCoeffiecientCalculatorTest {
+public class PearsonSkewnessCoefficientCalculatorTest {
   private static final double STD = 2.;
   private static final Function1D<Double[], Double> FIRST = new PearsonFirstSkewnessCoefficientCalculator();
   private static final Function1D<Double[], Double> SECOND = new PearsonSecondSkewnessCoefficientCalculator();
