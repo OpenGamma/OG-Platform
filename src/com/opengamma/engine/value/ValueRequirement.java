@@ -6,8 +6,9 @@
 package com.opengamma.engine.value;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
@@ -145,7 +146,7 @@ public final class ValueRequirement implements Serializable {
   public static Collection<LiveDataSpecification> getRequiredLiveData(
       Collection<ValueRequirement> valueRequirements, 
       SecurityMaster securityMaster) {
-    ArrayList<LiveDataSpecification> returnValue = new ArrayList<LiveDataSpecification>();
+    Set<LiveDataSpecification> returnValue = new HashSet<LiveDataSpecification>();
     for (ValueRequirement valueRequirement : valueRequirements) {
       returnValue.add(valueRequirement.getRequiredLiveData(securityMaster));      
     }
