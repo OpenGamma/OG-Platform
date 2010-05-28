@@ -468,6 +468,7 @@ public class View implements Lifecycle {
         requiredValues, 
         getProcessingContext().getSecurityMaster());
     
+    s_logger.info("Checking that {} is entitled to the results of {}", user, this);
     Map<LiveDataSpecification, Boolean> entitlements = getProcessingContext().getLiveDataClient().isEntitled(user, requiredLiveData);
     
     ArrayList<LiveDataSpecification> failures = new ArrayList<LiveDataSpecification>();
