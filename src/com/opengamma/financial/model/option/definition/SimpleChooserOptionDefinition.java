@@ -10,6 +10,8 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
@@ -27,12 +29,12 @@ import com.opengamma.util.time.Expiry;
  * <i>P<sub>BSM</sub></i> is the Black-Scholes-Merton put price and <i>T</i> is
  * the time to maturity of the put or call.
  * 
- * @author emcleod
  */
 
 public class SimpleChooserOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       final double callPrice = BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
@@ -50,20 +52,21 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
   private final ZonedDateTime _chooseDate;
   private final OptionDefinition _callDefinition;
   private final OptionDefinition _putDefinition;
-  protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final Set<Greek> GREEKS = Collections.singleton(Greek.FAIR_PRICE);
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private static final Set<Greek> GREEKS = Collections.singleton(Greek.FAIR_PRICE);
 
   /**
    * 
-   * @param strike
-   * @param underlyingExpiry
-   * @param chooseDate
+   * @param strike The strike
+   * @param underlyingExpiry The expiry of the underlying European option
+   * @param chooseDate The date when the choice is to be made
    */
-  public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry,
-      final ZonedDateTime chooseDate) {
+  public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry, final ZonedDateTime chooseDate) {
     super(strike, underlyingExpiry, null);
-    if (chooseDate.toInstant().isAfter(underlyingExpiry.toInstant()))
+    Validate.notNull(chooseDate);
+    if (chooseDate.isAfter(underlyingExpiry.getExpiry())) {
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
+    }
     _chooseDate = chooseDate;
     _callDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, true);
     _putDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, false);
@@ -91,40 +94,55 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
     return _payoffFunction;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#hashCode()
+   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + (_callDefinition == null ? 0 : _callDefinition.hashCode());
-    result = prime * result + (_chooseDate == null ? 0 : _chooseDate.hashCode());
-    result = prime * result + (_putDefinition == null ? 0 : _putDefinition.hashCode());
+    result = prime * result + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
+    result = prime * result + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
+    result = prime * result + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
     return result;
   }
 
+  /* (non-Javadoc)
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final SimpleChooserOptionDefinition other = (SimpleChooserOptionDefinition) obj;
     if (_callDefinition == null) {
-      if (other._callDefinition != null)
+      if (other._callDefinition != null) {
         return false;
-    } else if (!_callDefinition.equals(other._callDefinition))
+      }
+    } else if (!_callDefinition.equals(other._callDefinition)) {
       return false;
+    }
     if (_chooseDate == null) {
-      if (other._chooseDate != null)
+      if (other._chooseDate != null) {
         return false;
-    } else if (!_chooseDate.equals(other._chooseDate))
+      }
+    } else if (!_chooseDate.equals(other._chooseDate)) {
       return false;
+    }
     if (_putDefinition == null) {
-      if (other._putDefinition != null)
+      if (other._putDefinition != null) {
         return false;
-    } else if (!_putDefinition.equals(other._putDefinition))
+      }
+    } else if (!_putDefinition.equals(other._putDefinition)) {
       return false;
+    }
     return true;
   }
 }
