@@ -5,23 +5,28 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import java.util.ArrayList;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.msg.EntitlementRequest;
 import com.opengamma.livedata.msg.EntitlementResponse;
+import com.opengamma.livedata.msg.EntitlementResponseMsg;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.transport.FudgeRequestReceiver;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Receives <code>EntitlementRequests</code>, passes them onto a delegate <code>LiveDataEntitlementChecker</code>,
- * and returns <code>EntitlementResponses</code>. 
+ * Receives {@link EntitlementRequests EntitlementRequest}, passes them onto a delegate
+ * {@link LiveDataEntitlementChecker}, and returns {@link EntitlementResponseMsgs EntitlementResponseMsg}. 
  *
  * @author pietari
  */
@@ -40,16 +45,36 @@ public class EntitlementServer implements FudgeRequestReceiver {
   }
   
   @Override
+  @Transactional
   public FudgeFieldContainer requestReceived(FudgeDeserializationContext context, FudgeMsgEnvelope requestEnvelope) {
     FudgeFieldContainer requestFudgeMsg = requestEnvelope.getMessage();
     EntitlementRequest entitlementRequest = EntitlementRequest.fromFudgeMsg(context, requestFudgeMsg);
-    s_logger.debug("Received entitlement request from {} for {}", entitlementRequest.getUser(), entitlementRequest.getLiveDataSpecification());
+    s_logger.debug("Received entitlement request {}", entitlementRequest);
     
-    DistributionSpecification distSpec = _distributionSpecResolver.getDistributionSpecification(entitlementRequest.getLiveDataSpecification());
+    ArrayList<EntitlementResponse> responses = new ArrayList<EntitlementResponse>();
+    for (LiveDataSpecification spec : entitlementRequest.getLiveDataSpecifications()) {
+      
+      DistributionSpecification distSpec;
+      try {
+        distSpec = _distributionSpecResolver.getDistributionSpecification(spec);
+      } catch (IllegalArgumentException e) {
+        s_logger.info("Could not build distribution spec", e);
+        responses.add(new EntitlementResponse(spec, false, e.getMessage()));
+        continue;
+      }
+      
+      boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUser(), distSpec);
+      
+      EntitlementResponse response;
+      if (isEntitled) {
+        response = new EntitlementResponse(spec, true);
+      } else {
+        response = new EntitlementResponse(spec, false, entitlementRequest.getUser() + " is not entitled to " + spec);
+      }
+      responses.add(response);
+    }
     
-    boolean isEntitled = _delegate.isEntitled(entitlementRequest.getUser(), distSpec);
-    
-    EntitlementResponse response = new EntitlementResponse(isEntitled);
+    EntitlementResponseMsg response = new EntitlementResponseMsg(responses);
     FudgeFieldContainer responseFudgeMsg = response.toFudgeMsg(new FudgeSerializationContext(context.getFudgeContext()));
     return responseFudgeMsg;
   }

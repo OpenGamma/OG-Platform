@@ -6,8 +6,16 @@
  
 namespace com.opengamma.livedata.msg {
 
+  message EntitlementResponseMsg {
+    required repeated EntitlementResponse responses;    
+  }
+
   message EntitlementResponse {
+    required LiveDataSpecification liveDataSpecification;
     required boolean isEntitled;
+    
+    /** Will be populated if isEntitled == false */
+    string msg;
   }
   
 }

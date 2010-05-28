@@ -367,5 +367,5 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
     
     getValueDistributor().notifyListeners(update);
   }
-  
+
 }

@@ -6,6 +6,7 @@
 package com.opengamma.livedata.client;
 
 import java.util.Collection;
+import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataListener;
@@ -17,8 +18,6 @@ import com.opengamma.livedata.msg.UserPrincipal;
 /**
  * The core interface through which clients are able to interact
  * with the rest of the OpenGamma Live Data system.
- *
- * @author kirk
  */
 public interface LiveDataClient {
   
@@ -32,7 +31,7 @@ public interface LiveDataClient {
       LiveDataListener listener);
   
   /**
-   * Equivalent to calling {@link #subscribe(String userName, LiveDataSpecification requestedSpecification, LiveDataListener listener)}
+   * Equivalent to calling {@link #subscribe(UserPrincipal, LiveDataSpecification, LiveDataListener)}
    * for each specification individually, but may be more efficient. 
    */
   void subscribe(UserPrincipal user,
@@ -57,7 +56,7 @@ public interface LiveDataClient {
       long timeout);
   
   /**
-   * Equivalent to calling {@link #snapshot(String userName, LiveDataSpecification requestedSpecification, long timeout)}
+   * Equivalent to calling {@link #snapshot(UserPrincipal, LiveDataSpecification, long)}
    * for each specification individually, but may be more efficient.
    * 
    * @return The returned response will be complete, i.e., it will contain <code>requestedSpecifications.size()</code> entries.
@@ -67,7 +66,40 @@ public interface LiveDataClient {
       Collection<LiveDataSpecification> requestedSpecifications,
       long timeout);
   
+  /**
+   * If you do not particularly care what format the data should be returned in
+   * (as in certain automated JUnit tests), this method can be used to choose a default
+   * normalization scheme when building {@link LiveDataSpecifications LiveDataSpecification}. 
+   * 
+   * @return Default normalization rule set ID 
+   */
   String getDefaultNormalizationRuleSetId();
+  
+  /**
+   * As part of subscribing to market data, there will automatically be an entitlement check,
+   * and if it fails, a {@link com.opengamma.livedata.msg.LiveDataSubscriptionResult#NOT_AUTHORIZED}
+   * response will be returned.
+   * <p>
+   * However, it is also possible to check user permissions explicitly using this method.
+   *  
+   * @param user User whose entitlements are being checked
+   * @param requestedSpecification What market data the user wants to view   
+   * @return true if the user is entitled to the requested market data. false otherwise.
+   * @throws OpenGammaRuntimeException If timeout was reached without reply from server 
+   */
+  boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification);
+  
+  /**
+   * Equivalent to calling {@link #isEntitled((UserPrincipal, LiveDataSpecification)}
+   * for each specification individually, but may be more efficient.
+   * 
+   * @param user User whose entitlements are being checked
+   * @return A Map telling, for each requested specification, whether the user is entitled 
+   * to that market data. 
+   * The returned response will be complete, i.e., it will contain <code>requestedSpecifications.size()</code> entries.
+   * @throws OpenGammaRuntimeException If timeout was reached without reply from server 
+   */
+  Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user, Collection<LiveDataSpecification> requestedSpecifications);
   
   // REVIEW kirk 2009-09-29 -- Once I figure out a cleaner way to implement these than the
   // original version, these will be re-added.

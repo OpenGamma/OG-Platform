@@ -9,6 +9,7 @@ import javax.jms.ConnectionFactory;
 
 import org.springframework.jms.core.JmsTemplate;
 
+import com.opengamma.livedata.entitlement.EntitlementServer;
 import com.opengamma.livedata.server.AbstractLiveDataServer;
 import com.opengamma.livedata.server.SubscriptionRequestReceiver;
 import com.opengamma.livedata.server.distribution.FudgeSenderFactory;
@@ -29,11 +30,9 @@ import com.opengamma.transport.jms.ActiveMQTestUtil;
 public class LiveDataClientTestUtils {
   
   public static DistributedLiveDataClient getInMemoryConduitClient(AbstractLiveDataServer server) {
-    ByteArrayFudgeRequestSender requestSender = new ByteArrayFudgeRequestSender(
-        new InMemoryByteArrayRequestConduit(
-            new FudgeRequestDispatcher(
-                new SubscriptionRequestReceiver(server))));
-    DistributedLiveDataClient liveDataClient = new DistributedLiveDataClient(requestSender);
+    ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
+    ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
+    DistributedLiveDataClient liveDataClient = new DistributedLiveDataClient(subscriptionRequestSender, entitlementRequestSender);
     
     FudgeSenderFactory factory = new FudgeSenderFactory(
         new ByteArrayFudgeMessageSender(
@@ -45,16 +44,17 @@ public class LiveDataClientTestUtils {
     
     return liveDataClient;
   }
-  
+
   public static JmsLiveDataClient getJmsClient(AbstractLiveDataServer server) {
-    SubscriptionRequestReceiver subReceiver = new SubscriptionRequestReceiver(server);
-    FudgeRequestDispatcher subDispatcher = new FudgeRequestDispatcher(subReceiver);
-    InMemoryByteArrayRequestConduit subscriptionConduit = new InMemoryByteArrayRequestConduit(subDispatcher);
-    ByteArrayFudgeRequestSender requestSender = new ByteArrayFudgeRequestSender(subscriptionConduit);
+    ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
+    ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     
     ConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
     
-    JmsLiveDataClient liveDataClient = new JmsLiveDataClient(requestSender, cf);
+    JmsLiveDataClient liveDataClient = new JmsLiveDataClient(
+        subscriptionRequestSender, 
+        entitlementRequestSender,
+        cf);
     
     JmsTemplate marketDataTemplate = new JmsTemplate();
     marketDataTemplate.setPubSubDomain(true);
@@ -67,6 +67,22 @@ public class LiveDataClientTestUtils {
     liveDataClient.setFudgeContext(liveDataClient.getFudgeContext());
     
     return liveDataClient;
+  }
+  
+  private static ByteArrayFudgeRequestSender getEntitlementRequestSender(AbstractLiveDataServer server) {
+    ByteArrayFudgeRequestSender entitlementRequestSender = new ByteArrayFudgeRequestSender(
+        new InMemoryByteArrayRequestConduit(
+            new FudgeRequestDispatcher(
+                new EntitlementServer(server.getEntitlementChecker(), server.getDistributionSpecificationResolver()))));
+    return entitlementRequestSender;
+  }
+
+  private static ByteArrayFudgeRequestSender getSubscriptionRequestSender(AbstractLiveDataServer server) {
+    ByteArrayFudgeRequestSender subscriptionRequestSender = new ByteArrayFudgeRequestSender(
+        new InMemoryByteArrayRequestConduit(
+            new FudgeRequestDispatcher(
+                new SubscriptionRequestReceiver(server))));
+    return subscriptionRequestSender;
   }
 
 }

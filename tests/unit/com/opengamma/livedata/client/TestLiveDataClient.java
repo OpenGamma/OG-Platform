@@ -7,7 +7,9 @@ package com.opengamma.livedata.client;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.fudgemsg.FudgeFieldContainer;
@@ -16,6 +18,7 @@ import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * 
@@ -60,4 +63,20 @@ public class TestLiveDataClient extends AbstractLiveDataClient {
     LiveDataValueUpdateBean bean = new LiveDataValueUpdateBean(_sequenceGenerator.incrementAndGet(), fullyQualifiedSpecification, fields);
     getValueDistributor().notifyListeners(bean);
   }
+
+  @Override
+  public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user,
+      Collection<LiveDataSpecification> requestedSpecifications) {
+    Map<LiveDataSpecification, Boolean> returnValue = new HashMap<LiveDataSpecification, Boolean>();
+    for (LiveDataSpecification spec : requestedSpecifications) {
+      returnValue.put(spec, isEntitled(user, spec));            
+    }
+    return returnValue;
+  }
+
+  @Override
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+    return true;
+  }
+  
 }

@@ -42,17 +42,28 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   private final FudgeContext _fudgeContext;
   private final FudgeRequestSender _subscriptionRequestSender;
   
+  private final DistributedEntitlementChecker _entitlementChecker;
+  
   private final long TIMEOUT = 30000;
   
-  public DistributedLiveDataClient(FudgeRequestSender subscriptionRequestSender) {
-    this(subscriptionRequestSender, new FudgeContext());
+  public DistributedLiveDataClient(
+      FudgeRequestSender subscriptionRequestSender,
+      FudgeRequestSender entitlementRequestSender) {
+    this(subscriptionRequestSender, entitlementRequestSender, new FudgeContext());
   }
 
-  public DistributedLiveDataClient(FudgeRequestSender subscriptionRequestSender, FudgeContext fudgeContext) {
+  public DistributedLiveDataClient(
+      FudgeRequestSender subscriptionRequestSender,
+      FudgeRequestSender entitlementRequestSender,
+      FudgeContext fudgeContext) {
     ArgumentChecker.notNull(subscriptionRequestSender, "Subscription request sender");
+    ArgumentChecker.notNull(entitlementRequestSender, "Entitlement request sender");
     ArgumentChecker.notNull(fudgeContext, "Fudge Context");
+    
     _subscriptionRequestSender = subscriptionRequestSender;
     _fudgeContext = fudgeContext;
+    
+    _entitlementChecker = new DistributedEntitlementChecker(entitlementRequestSender, fudgeContext);
   }
 
   /**
@@ -347,4 +358,15 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     valueUpdate(update);
   }
 
+  @Override
+  public Map<LiveDataSpecification, Boolean> isEntitled(UserPrincipal user,
+      Collection<LiveDataSpecification> requestedSpecifications) {
+    return _entitlementChecker.isEntitled(user, requestedSpecifications);
+  }
+
+  @Override
+  public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+    return _entitlementChecker.isEntitled(user, requestedSpecification);
+  }
+  
 }

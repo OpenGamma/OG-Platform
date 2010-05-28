@@ -147,7 +147,9 @@ public class SubscriptionHandle {
    */
   public synchronized void releaseTicksOnHold() {
     if (_snapshotOnHold == null) {
-      return; // should we throw an exception?
+      // this will happen if the snapshot failed.
+      s_logger.info("No ticks to send to {}. {}", getListener(), getRequestedSpecification());
+      return; 
     }
     
     long snapshotSequenceNo = _snapshotOnHold.getSequenceNumber();
@@ -163,6 +165,9 @@ public class SubscriptionHandle {
     }
     
     if (resetIndex == null) {
+      s_logger.info("{}: Sending snapshot and {} ticks on hold to {}", 
+          new Object[] { getRequestedSpecification(), _ticksOnHold.size(), getListener() });
+      
       // No resets. This is the normal case. Use the snapshot
       // and any subsequent ticks. The subsequent ticks
       // are not sorted, but are played back in the order received,
@@ -175,6 +180,9 @@ public class SubscriptionHandle {
         }
       }
     } else {
+      s_logger.info("{}: Reset detected. Sending {} ticks on hold to {}", 
+          new Object[] { getRequestedSpecification(), _ticksOnHold.size() - resetIndex, getListener() });
+      
       // This happens when the server is reset (rebooted/migrated) while subscribing.
       // We assume that the tick with sequence number = 0
       // is a full update (as LiveDataValueUpdate.getSequenceNumber() specifies).

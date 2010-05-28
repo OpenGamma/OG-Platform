@@ -8,7 +8,7 @@ namespace com.opengamma.livedata.msg {
 
   message EntitlementRequest {
     required UserPrincipal user;
-    required com.opengamma.livedata.LiveDataSpecification liveDataSpecification;
+    required repeated LiveDataSpecification liveDataSpecifications;   
   }
-  
+
 }

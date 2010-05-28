@@ -34,12 +34,17 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     new HashMap<String, DefaultMessageListenerContainer>();
   private AtomicBoolean _running = new AtomicBoolean(false);
 
-  public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory) {
-    this(subscriptionRequestSender, connectionFactory, FudgeContext.GLOBAL_DEFAULT);
+  public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
+      FudgeRequestSender entitlementRequestSender,
+      ConnectionFactory connectionFactory) {
+    this(subscriptionRequestSender, entitlementRequestSender, connectionFactory, FudgeContext.GLOBAL_DEFAULT);
   }
 
-  public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender, ConnectionFactory connectionFactory, FudgeContext fudgeContext) {
-    super(subscriptionRequestSender, fudgeContext);
+  public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
+      FudgeRequestSender entitlementRequestSender,
+      ConnectionFactory connectionFactory, 
+      FudgeContext fudgeContext) {
+    super(subscriptionRequestSender, entitlementRequestSender, fudgeContext);
     ArgumentChecker.notNull(connectionFactory, "JMS Connection Factory");
     _connectionFactory = connectionFactory;
   }

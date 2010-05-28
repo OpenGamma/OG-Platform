@@ -6,9 +6,15 @@
 package com.opengamma.livedata;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
+import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 
 
 /**
@@ -17,12 +23,27 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
  * @author kirk
  */
 public class CollectingLiveDataListener implements LiveDataListener {
+  
+  private final CountDownLatch _responseLatch;
+  private final CountDownLatch _updateLatch;
+  
   private final List<LiveDataSubscriptionResponse> _subscriptionResponses =
     new ArrayList<LiveDataSubscriptionResponse>();
   private final List<LiveDataSpecification> _stoppedSubscriptions =
     new ArrayList<LiveDataSpecification>();
-  private final List<LiveDataValueUpdate> _valueUpdates =
-    new ArrayList<LiveDataValueUpdate>();
+  private final Map<LiveDataSpecification, LiveDataSpecification> _client2ServerSpec =
+    new HashMap<LiveDataSpecification, LiveDataSpecification>();
+  private final Map<LiveDataSpecification, List<LiveDataValueUpdate>> _valueUpdates =
+    new HashMap<LiveDataSpecification, List<LiveDataValueUpdate>>();
+  
+  public CollectingLiveDataListener() {
+    this(1, 1);    
+  }
+  
+  public CollectingLiveDataListener(int numResponsesToExpect, int numUpdatesToWaitFor) {
+    _responseLatch = new CountDownLatch(numResponsesToExpect);    
+    _updateLatch = new CountDownLatch(numUpdatesToWaitFor);    
+  }
   
   public synchronized void clear() {
     _subscriptionResponses.clear();
@@ -34,6 +55,10 @@ public class CollectingLiveDataListener implements LiveDataListener {
   public synchronized void subscriptionResultReceived(
       LiveDataSubscriptionResponse subscriptionResult) {
     _subscriptionResponses.add(subscriptionResult);
+    if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+      _client2ServerSpec.put(subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
+    }
+    _responseLatch.countDown();
   }
 
   @Override
@@ -44,7 +69,14 @@ public class CollectingLiveDataListener implements LiveDataListener {
 
   @Override
   public synchronized void valueUpdate(LiveDataValueUpdate valueUpdate) {
-    _valueUpdates.add(valueUpdate);
+    List<LiveDataValueUpdate> updates = _valueUpdates.get(valueUpdate.getSpecification());
+    if (updates == null) {
+      updates = new ArrayList<LiveDataValueUpdate>();
+      _valueUpdates.put(valueUpdate.getSpecification(), updates);      
+    }
+    updates.add(valueUpdate);
+    
+    _updateLatch.countDown();
   }
   
   public synchronized List<LiveDataSubscriptionResponse> getSubscriptionResponses() {
@@ -56,7 +88,43 @@ public class CollectingLiveDataListener implements LiveDataListener {
   }
   
   public synchronized List<LiveDataValueUpdate> getValueUpdates() {
-    return new ArrayList<LiveDataValueUpdate>(_valueUpdates);
+    ArrayList<LiveDataValueUpdate> returnValue = new ArrayList<LiveDataValueUpdate>();
+    for (List<LiveDataValueUpdate> updates : _valueUpdates.values()) {
+      returnValue.addAll(updates);
+    }
+    return returnValue;
+  }
+  
+  public synchronized List<LiveDataValueUpdate> getValueUpdates(LiveDataSpecification specFromClient) {
+    LiveDataSpecification fullyQualifiedSpec = _client2ServerSpec.get(specFromClient);
+    if (fullyQualifiedSpec == null) {
+      return Collections.emptyList();
+    }
+    
+    List<LiveDataValueUpdate> updates = _valueUpdates.get(fullyQualifiedSpec);
+    if (updates == null) {
+      return Collections.emptyList();
+    }
+    
+    return Collections.unmodifiableList(updates);
+  }
+  
+  public boolean waitUntilAllResponsesReceived(long timeoutMs) {
+    try {
+      return _responseLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      throw new RuntimeException("Interrupted");
+    }
+  }
+  
+  public boolean waitUntilEnoughUpdatesReceived(long timeoutMs) {
+    try {
+      return _updateLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.interrupted();
+      throw new RuntimeException("Interrupted");
+    }
   }
 
 }
