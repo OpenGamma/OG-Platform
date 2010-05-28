@@ -50,16 +50,26 @@ public class ViewProcessorService {
    * The Fudge context.
    */
   private FudgeContext _fudgeContext;
+  
+  /**
+   * User to run as 
+   */
+  private final UserPrincipal _user;
 
   /**
    * Creates an instance with default values.
+   * 
+   * @param user User to run this service as.
    */
-  public ViewProcessorService() {
+  public ViewProcessorService(UserPrincipal user) {
+    ArgumentChecker.notNull(user, "User");
+    
     setTopicPrefix("ViewProcessor");
     final FudgeContext fudgeContext = new FudgeContext();
     EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(fudgeContext);
     setFudgeContext(fudgeContext);
     getJmsTemplate().setPubSubDomain(true);
+    _user = user;    
   }
 
   //-------------------------------------------------------------------------
@@ -159,7 +169,7 @@ public class ViewProcessorService {
    * @param viewProcessor  the view processor, not null
    */
   protected void addViewProcessor(final String name, final ViewProcessor viewProcessor) {
-    addViewProcessor(name, new LocalViewProcessorClient(viewProcessor, UserPrincipal.getLocalUser()));
+    addViewProcessor(name, new LocalViewProcessorClient(viewProcessor, _user));
   }
 
   /**
