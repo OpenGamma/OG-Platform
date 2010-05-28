@@ -63,7 +63,7 @@ public class JmsSenderTest {
     _container.destroy();
   }
   
-  @Test(timeout=10000)
+  @Test(timeout=30000)
   public void simpleScenario() throws Exception {
     MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("name", "ruby");
@@ -85,7 +85,7 @@ public class JmsSenderTest {
     }
   }
   
-  @Test(timeout=10000)
+  @Test(timeout=30000)
   public void reconnectionScenario() throws Exception {
     MutableFudgeFieldContainer msg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg1.add("name", "olivia");
