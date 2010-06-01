@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -14,13 +16,13 @@ import com.opengamma.util.time.Expiry;
  * When the spot price is <i>S</i>, an option with strike <i>K</i> has payoff
  * <i>max(0, ln(S / K))</i> for a call and <i>max(0, ln(K / S))</i> for a put.
  * 
- * @author emcleod
  */
 public class LogOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
       final double spot = data.getSpot();
       return Math.max(0, Math.log(spot / getStrike()));
     }
