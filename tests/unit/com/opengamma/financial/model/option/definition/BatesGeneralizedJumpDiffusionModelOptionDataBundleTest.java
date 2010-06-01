@@ -24,9 +24,9 @@ import com.opengamma.util.time.DateUtil;
 public class BatesGeneralizedJumpDiffusionModelOptionDataBundleTest {
   private static final double R = 0.05;
   private static final double SIGMA = 0.5;
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.05);
+  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(R);
   private static final DiscountCurve OTHER_CURVE = new ConstantInterestRateDiscountCurve(0.1);
-  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.5);
+  private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(0.55);
   private static final double B = 0.02;
   private static final double OTHER_B = 0.03;

@@ -12,7 +12,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * 
- * @author emcleod
  */
 public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionDataBundle {
   private final double _lambda;
@@ -23,6 +22,12 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
     _gamma = gamma;
+  }
+
+  public MertonJumpDiffusionModelOptionDataBundle(final MertonJumpDiffusionModelOptionDataBundle data) {
+    super(data);
+    _lambda = data.getLambda();
+    _gamma = data.getGamma();
   }
 
   public double getLambda() {
@@ -80,17 +85,22 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final MertonJumpDiffusionModelOptionDataBundle other = (MertonJumpDiffusionModelOptionDataBundle) obj;
-    if (Double.doubleToLongBits(_gamma) != Double.doubleToLongBits(other._gamma))
+    if (Double.doubleToLongBits(_gamma) != Double.doubleToLongBits(other._gamma)) {
       return false;
-    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda))
+    }
+    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
       return false;
+    }
     return true;
   }
 }
