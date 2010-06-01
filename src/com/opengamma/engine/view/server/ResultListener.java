@@ -19,34 +19,34 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
 
-/* package */ class ResultListener implements ComputationResultListener, DeltaComputationResultListener {
-  
+/* package */class ResultListener implements ComputationResultListener, DeltaComputationResultListener {
+
   // TODO 2010-03-30 Andrew -- needs to give up if no clients are subscribing to a topic (and get itself unregistered with the underlying View)
   // TODO 2010-05-14 Andrew -- needs to give up if there are no views using it any more (i.e. we're only referenced by the map in ViewProcessorResource) and release the JMS topics
   // TODO 2010-05-14 Andrew -- needs to detect errors with the JMS and do a graceful recovery (e.g. unregister itself; the client will recall the REST api and cause re-registration if it wants it)
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(ResultListener.class);
-  
+
   private ViewProcessorResource _viewProcessor;
   private JmsByteArrayMessageSender _computationResults;
   private JmsByteArrayMessageSender _deltaResults;
-  
+
   public ResultListener(final ViewProcessorResource viewProcessor) {
     _viewProcessor = viewProcessor;
   }
-  
+
   protected ViewProcessorResource getViewProcessor() {
     return _viewProcessor;
   }
-  
+
   protected FudgeContext getFudgeContext() {
     return getViewProcessor().getFudgeContext();
   }
-  
+
   protected FudgeSerializationContext getFudgeSerializationContext() {
     return new FudgeSerializationContext(getFudgeContext());
   }
-  
+
   @Override
   public void computationResultAvailable(ViewComputationResultModel resultModel) {
     s_logger.info("Write {} to JMS {}", resultModel, _computationResults);
@@ -62,34 +62,35 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
     s_logger.debug("Writing {} bytes data", fudgeMsg.length);
     _deltaResults.send(fudgeMsg);
   }
-  
+
   protected String getTopicName(final ViewClient viewClient, final String suffix) {
     final String topicName = getViewProcessor().getJmsTopicPrefix() + "-" + viewClient.getName() + "-" + suffix;
     return topicName;
   }
-  
+
   public synchronized String getComputationResultChannel(final ViewClient viewClient) {
     if (_computationResults == null) {
       final String topic = getTopicName(viewClient, "computation");
       s_logger.info("Set up JMS {}", topic);
-      _computationResults = new JmsByteArrayMessageSender(topic, getViewProcessor().getJmsTemplate());
+      _computationResults = getViewProcessor().getJmsByteArrayMessageSenderJob().getMessageSender(topic);
     }
     s_logger.debug("Adding listener {} to view client {}'s computation result", this, viewClient);
     viewClient.addComputationResultListener(this);
     return _computationResults.getDestinationName();
   }
-  
+
   public synchronized String getDeltaResultChannel(final ViewClient viewClient) {
     if (_deltaResults == null) {
       final String topic = getTopicName(viewClient, "delta");
       s_logger.info("Set up JMS {}", topic);
-      _deltaResults = new JmsByteArrayMessageSender(topic, getViewProcessor().getJmsTemplate());
+      // [ENG-107] the message sender job drops stuff if the JMS can't keep up, which may be a problem here
+      _deltaResults = getViewProcessor().getJmsByteArrayMessageSenderJob().getMessageSender(topic);
     }
-    s_logger.debug("Adding listener {} to view client {}'s computation result", this, viewClient);
+    s_logger.debug("Adding listener {} to view client {}'s delta result", this, viewClient);
     viewClient.addDeltaResultListener(this);
     return _deltaResults.getDestinationName();
   }
-  
+
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
@@ -107,5 +108,5 @@ import com.opengamma.transport.jms.JmsByteArrayMessageSender;
   public UserPrincipal getUser() {
     return _viewProcessor.getViewProcessorClient().getUser();
   }
-  
+
 }
