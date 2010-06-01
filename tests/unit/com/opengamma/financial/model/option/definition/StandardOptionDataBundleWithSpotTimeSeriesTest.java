@@ -72,9 +72,12 @@ public class StandardOptionDataBundleWithSpotTimeSeriesTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    final StandardOptionDataBundle other = new StandardOptionDataBundleWithSpotTimeSeries(CURVE, B, SURFACE, SPOT, DATE, TS);
-    assertEquals(DATA, other);
-    assertEquals(DATA.hashCode(), other.hashCode());
+    final StandardOptionDataBundle other1 = new StandardOptionDataBundleWithSpotTimeSeries(CURVE, B, SURFACE, SPOT, DATE, TS);
+    final StandardOptionDataBundle other2 = new StandardOptionDataBundleWithSpotTimeSeries(DATA);
+    assertEquals(DATA, other1);
+    assertEquals(DATA.hashCode(), other1.hashCode());
+    assertEquals(DATA, other2);
+    assertEquals(DATA.hashCode(), other2.hashCode());
     assertFalse(DATA.equals(new StandardOptionDataBundleWithSpotTimeSeries(OTHER_CURVE, B, SURFACE, SPOT, DATE, TS)));
     assertFalse(DATA.equals(new StandardOptionDataBundleWithSpotTimeSeries(CURVE, OTHER_B, SURFACE, SPOT, DATE, TS)));
     assertFalse(DATA.equals(new StandardOptionDataBundleWithSpotTimeSeries(CURVE, B, OTHER_SURFACE, SPOT, DATE, TS)));
