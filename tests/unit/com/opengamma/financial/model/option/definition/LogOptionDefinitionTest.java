@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import javax.time.calendar.ZonedDateTime;
@@ -34,7 +35,14 @@ public class LogOptionDefinitionTest {
   @Test
   public void testExercise() {
     final OptionExerciseFunction<StandardOptionDataBundle> exercise = DEFINITION.getExerciseFunction();
-    assertFalse(exercise.shouldExercise(DATA, STRIKE+1));
-    assertFalse(exercise.shouldExercise(DATA, STRIKE-1));
+    assertFalse(exercise.shouldExercise(DATA, STRIKE + 1));
+    assertFalse(exercise.shouldExercise(DATA, STRIKE - 1));
+  }
+
+  @Test
+  public void testPayoff() {
+    final OptionPayoffFunction<StandardOptionDataBundle> payoff = DEFINITION.getPayoffFunction();
+    assertEquals(payoff.getPayoff(DATA.withSpot(STRIKE - 10), 0.), 0, 0);
+    assertEquals(payoff.getPayoff(DATA.withSpot(STRIKE + 10), 0.), Math.log((STRIKE + 10) / STRIKE), 0);
   }
 }
