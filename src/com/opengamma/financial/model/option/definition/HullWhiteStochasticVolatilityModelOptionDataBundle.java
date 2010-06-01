@@ -12,7 +12,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * 
- * @author emcleod
  */
 public class HullWhiteStochasticVolatilityModelOptionDataBundle extends StandardOptionDataBundle {
   private final double _lambda;
@@ -29,6 +28,13 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
     _rho = rho;
   }
 
+  public HullWhiteStochasticVolatilityModelOptionDataBundle(final HullWhiteStochasticVolatilityModelOptionDataBundle data) {
+    super(data);
+    _lambda = data.getHalfLife();
+    _sigmaLR = data.getLongRunVolatility();
+    _volOfVol = data.getVolatilityOfVolatility();
+    _rho = data.getCorrelation();
+  }
   public double getHalfLife() {
     return _lambda;
   }
@@ -75,12 +81,12 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
         getLongRunVolatility(), getVolatilityOfVolatility(), getCorrelation());
   }
 
-  public HullWhiteStochasticVolatilityModelOptionDataBundle withHalfLife(final Double lambda) {
+  public HullWhiteStochasticVolatilityModelOptionDataBundle withHalfLife(final double lambda) {
     return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda,
         getLongRunVolatility(), getVolatilityOfVolatility(), getCorrelation());
   }
 
-  public HullWhiteStochasticVolatilityModelOptionDataBundle withLongRunVolatility(final Double longRunVolatility) {
+  public HullWhiteStochasticVolatilityModelOptionDataBundle withLongRunVolatility(final double longRunVolatility) {
     return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(),
         longRunVolatility, getVolatilityOfVolatility(), getCorrelation());
   }
@@ -90,7 +96,7 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
         getLongRunVolatility(), volOfVol, getCorrelation());
   }
 
-  public HullWhiteStochasticVolatilityModelOptionDataBundle withCorrelation(final Double rho) {
+  public HullWhiteStochasticVolatilityModelOptionDataBundle withCorrelation(final double rho) {
     return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(),
         getLongRunVolatility(), getVolatilityOfVolatility(), rho);
   }
@@ -113,21 +119,28 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final HullWhiteStochasticVolatilityModelOptionDataBundle other = (HullWhiteStochasticVolatilityModelOptionDataBundle) obj;
-    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda))
+    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
       return false;
-    if (Double.doubleToLongBits(_rho) != Double.doubleToLongBits(other._rho))
+    }
+    if (Double.doubleToLongBits(_rho) != Double.doubleToLongBits(other._rho)) {
       return false;
-    if (Double.doubleToLongBits(_sigmaLR) != Double.doubleToLongBits(other._sigmaLR))
+    }
+    if (Double.doubleToLongBits(_sigmaLR) != Double.doubleToLongBits(other._sigmaLR)) {
       return false;
-    if (Double.doubleToLongBits(_volOfVol) != Double.doubleToLongBits(other._volOfVol))
+    }
+    if (Double.doubleToLongBits(_volOfVol) != Double.doubleToLongBits(other._volOfVol)) {
       return false;
+    }
     return true;
   }
 }
