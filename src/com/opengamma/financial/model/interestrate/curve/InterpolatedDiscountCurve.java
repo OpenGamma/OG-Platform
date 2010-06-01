@@ -21,10 +21,9 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
  * 
- * @author emcleod
  */
 public class InterpolatedDiscountCurve extends DiscountCurve implements Serializable {
-  private static final Logger s_Log = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
   private final SortedMap<Double, Double> _dfData;
   private final SortedMap<Double, Interpolator1D> _interpolators;
@@ -42,7 +41,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    *           negative time to maturity.
    */
   public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D interpolator) {
-    this(data, Collections.<Double, Interpolator1D> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    this(data, Collections.<Double, Interpolator1D>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -61,29 +60,35 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    *           negative time to maturity.
    */
   public InterpolatedDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D> interpolators) {
-    if (data == null)
+    if (data == null) {
       throw new IllegalArgumentException("Data map was null");
-    if (interpolators == null)
+    }
+    if (interpolators == null) {
       throw new IllegalArgumentException("Interpolator was null");
-    if (interpolators.size() == 0)
+    }
+    if (interpolators.size() == 0) {
       throw new IllegalArgumentException("Interpolator map did not contain values");
-    if (data.size() < 2)
+    }
+    if (data.size() < 2) {
       throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
+    }
     for (final Map.Entry<Double, Interpolator1D> entry : interpolators.entrySet()) {
-      if (entry.getValue() == null)
+      if (entry.getValue() == null) {
         throw new IllegalArgumentException("Interpolator for time " + entry.getKey() + " was null");
+      }
     }
     final SortedMap<Double, Double> sortedRates = new TreeMap<Double, Double>();
     final SortedMap<Double, Double> sortedDF = new TreeMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
-      if (entry.getKey() < 0)
+      if (entry.getKey() < 0) {
         throw new IllegalArgumentException("Cannot have negative time in a discount curve");
+      }
       sortedRates.put(entry.getKey(), entry.getValue());
       sortedDF.put(entry.getKey(), Math.exp(-entry.getValue() * entry.getKey()));
     }
-    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
-    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
-    _interpolators = Collections.<Double, Interpolator1D> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(interpolators));
+    _rateData = Collections.<Double, Double>unmodifiableSortedMap(sortedRates);
+    _dfData = Collections.<Double, Double>unmodifiableSortedMap(sortedDF);
+    _interpolators = Collections.<Double, Interpolator1D>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(interpolators));
   }
 
   // This constructor was only used by the now removed Fudge functions - they
@@ -131,30 +136,38 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
   }
 
   /**
+   * 
+   * @param t Time in years
    * @return The interest rate for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
    */
   @Override
   public double getInterestRate(final Double t) {
-    if (t == null)
+    if (t == null) {
       throw new IllegalArgumentException("t was null");
-    if (t < 0)
+    }
+    if (t < 0) {
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
+    }
     return -Math.log(getDiscountFactor(t)) / t;
   }
 
   /**
+   * 
+   * @param t The time in years
    * @return The discount factor for time to maturity <i>t</i>.
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
    */
   @Override
   public double getDiscountFactor(final Double t) {
-    if (t == null)
+    if (t == null) {
       throw new IllegalArgumentException("t was null");
-    if (t < 0)
+    }
+    if (t < 0) {
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
+    }
     if (_interpolators.size() == 1) {
       return _interpolators.values().iterator().next().interpolate(_dfData, t).getResult();
     }
@@ -170,8 +183,9 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
 
   @Override
   public DiscountCurve withParallelShift(final Double shift) {
-    if (shift == null)
+    if (shift == null) {
       throw new IllegalArgumentException("Shift was null");
+    }
     final Map<Double, Double> map = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : _rateData.entrySet()) {
       map.put(entry.getKey(), entry.getValue() + shift);
@@ -181,12 +195,15 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
 
   @Override
   public DiscountCurve withSingleShift(final Double t, final Double shift) {
-    if (t == null)
+    if (t == null) {
       throw new IllegalArgumentException("t was null");
-    if (t < 0)
+    }
+    if (t < 0) {
       throw new IllegalArgumentException("t was negative");
-    if (shift == null)
+    }
+    if (shift == null) {
       throw new IllegalArgumentException("Shift was null");
+    }
     final Map<Double, Double> data = getData();
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
     if (data.containsKey(t)) {
@@ -199,19 +216,22 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
 
   @Override
   public DiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
-    if (shifts == null)
+    if (shifts == null) {
       throw new IllegalArgumentException("Shift map was null");
+    }
     if (shifts.isEmpty()) {
-      s_Log.info("Shift map was empty; returning identical curve");
+      s_logger.info("Shift map was empty; returning identical curve");
       return new InterpolatedDiscountCurve(getData(), getInterpolators());
     }
     final Map<Double, Double> data = getData();
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
     for (final Map.Entry<Double, Double> entry : shifts.entrySet()) {
-      if (entry.getValue() == null)
+      if (entry.getValue() == null) {
         throw new IllegalArgumentException("Null shift in shift map");
-      if (entry.getKey() < 0)
+      }
+      if (entry.getKey() < 0) {
         throw new IllegalArgumentException("Negative time in shift map");
+      }
       if (data.containsKey(entry.getKey())) {
         map.put(entry.getKey(), data.get(entry.getKey()) + entry.getValue());
       } else {
@@ -232,23 +252,30 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final InterpolatedDiscountCurve other = (InterpolatedDiscountCurve) obj;
     if (_rateData == null) {
-      if (other._rateData != null)
+      if (other._rateData != null) {
         return false;
-    } else if (!_rateData.equals(other._rateData))
+      }
+    } else if (!_rateData.equals(other._rateData)) {
       return false;
+    }
     if (_interpolators == null) {
-      if (other._interpolators != null)
+      if (other._interpolators != null) {
         return false;
-    } else if (!_interpolators.equals(other._interpolators))
+      }
+    } else if (!_interpolators.equals(other._interpolators)) {
       return false;
+    }
     return true;
   }
 
@@ -256,7 +283,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("InterpolatedDiscountCurve[");
-    sb.append("interpolators={");// .append(Interpolator1DFactory.getInterpolatorName(getInterpolators())).append(',');
+    sb.append("interpolators={");
     for (final Map.Entry<Double, Interpolator1D> e : _interpolators.entrySet()) {
       sb.append(e.getKey()).append('=').append(Interpolator1DFactory.getInterpolatorName(e.getValue())).append(',');
     }
