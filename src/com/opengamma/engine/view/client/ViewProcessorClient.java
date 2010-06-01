@@ -70,6 +70,7 @@ public interface ViewProcessorClient {
   
   /**
    * Gets the user under which this clients operates.
+   * @return the user, not null
    */
   UserPrincipal getUser();
 

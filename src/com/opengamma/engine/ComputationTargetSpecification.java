@@ -173,6 +173,7 @@ public final class ComputationTargetSpecification implements Serializable {
   }
   
   /**
+   * @param securityMaster Used to look up {@link Security} objects
    * @return LiveData market data line that directly produces a value for
    * this computation target.
    * @throws OpenGammaRuntimeException If there is no LiveData directly corresponding

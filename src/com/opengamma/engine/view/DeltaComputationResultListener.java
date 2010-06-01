@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import com.opengamma.livedata.msg.UserPrincipal;
-
 /**
  * A callback for code that only wants to receive delta updates
  * on view recomputation.
