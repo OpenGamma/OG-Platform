@@ -7,6 +7,10 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.Function1D;
 
+/**
+ * Finds a single root using the bisection method.
+ * 
+ */
 public class BisectionSingleRootFinder extends RealSingleRootFinder {
   private final double _accuracy;
   private static final int MAX_ITER = 100;
