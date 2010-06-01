@@ -10,8 +10,6 @@ import org.fudgemsg.mapping.FudgeObjectDictionary;
 
 /**
  * Registers custom builders for the OG-Analytics library.
- * 
- * @author Andrew Griffin
  */
 public class AnalyticsFudgeContextConfiguration extends FudgeContextConfiguration {
 

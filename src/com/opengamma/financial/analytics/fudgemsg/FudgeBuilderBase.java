@@ -13,9 +13,16 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
  * Base class for the builder pattern.
  */
 /* package */ abstract class FudgeBuilderBase<T> implements FudgeBuilder<T> {
-  
-  protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, T object);
 
+  /**
+   * Builds the message by serializing the specified object.
+   * <p>
+   * This method creates a new message and uses {@link #buildMessage(FudgeSerializationContext, MutableFudgeFieldContainer, Object)}
+   * to populate it.
+   * @param context  the Fudge context, not null
+   * @param object  the object being serialized
+   * @return the created object, not null
+   */
   @Override
   public final MutableFudgeFieldContainer buildMessage(FudgeSerializationContext context, T object) {
     final MutableFudgeFieldContainer message = context.newMessage();
@@ -23,5 +30,13 @@ import org.fudgemsg.mapping.FudgeSerializationContext;
     buildMessage(context, message, object);
     return message;
   }
+
+  /**
+   * Populates the message which is created by this base class.
+   * @param context  the Fudge context, not null
+   * @param message  the message to populate, not null
+   * @param object  the object being serialized
+   */
+  protected abstract void buildMessage(FudgeSerializationContext context, MutableFudgeFieldContainer message, T object);
 
 }
