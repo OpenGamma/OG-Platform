@@ -12,8 +12,6 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
  * 
- * @author emcleod
- * 
  */
 
 public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends StandardOptionDataBundle {
@@ -29,6 +27,12 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends Standard
     _delta = delta;
   }
 
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle(final BatesGeneralizedJumpDiffusionModelOptionDataBundle data) {
+    super(data);
+    _lambda = data.getLambda();
+    _expectedJumpSize = data.getExpectedJumpSize();
+    _delta = data.getDelta();
+  }
   public double getLambda() {
     return _lambda;
   }
@@ -102,19 +106,25 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends Standard
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final BatesGeneralizedJumpDiffusionModelOptionDataBundle other = (BatesGeneralizedJumpDiffusionModelOptionDataBundle) obj;
-    if (Double.doubleToLongBits(_delta) != Double.doubleToLongBits(other._delta))
+    if (Double.doubleToLongBits(_delta) != Double.doubleToLongBits(other._delta)) {
       return false;
-    if (Double.doubleToLongBits(_expectedJumpSize) != Double.doubleToLongBits(other._expectedJumpSize))
+    }
+    if (Double.doubleToLongBits(_expectedJumpSize) != Double.doubleToLongBits(other._expectedJumpSize)) {
       return false;
-    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda))
+    }
+    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
       return false;
+    }
     return true;
   }
 }

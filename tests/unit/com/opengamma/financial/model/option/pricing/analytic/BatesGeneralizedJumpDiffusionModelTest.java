@@ -24,7 +24,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class BatesGeneralizedJumpDiffusionModelTest {
   private static final AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelOptionDataBundle> MODEL = new BatesGeneralizedJumpDiffusionModel();
