@@ -5,24 +5,26 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * Definition for an asymmetric power options (a.k.a standard power options).
+ * Definition for an asymmetric power options (a.k.a. standard power options).
  * The exercise style is European.
  * <p>
  * When the spot price is <i>S</i>, an option with strike <i>K</i> and power
  * <i>i</i> (where <i>i > 0</i>) has payoff <i>max(S<sup>i</sup> - K, 0)</i> for
  * a call and <i>max(K - S<sup>i</sup>, 0)<i> for a put.
  * 
- * @author emcleod
  */
 public class AsymmetricPowerOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
       final double spot = data.getSpot();
       return isCall() ? Math.max(0, Math.pow(spot, getPower()) - getStrike()) : Math.max(0, getStrike() - Math.pow(spot, getPower()));
     }
@@ -38,10 +40,10 @@ public class AsymmetricPowerOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @param strike
-   * @param expiry
-   * @param power
-   * @param isCall
+   * @param strike The option strike
+   * @param expiry The option expiry
+   * @param power The power of the option
+   * @param isCall Is the option a call or put
    */
   public AsymmetricPowerOptionDefinition(final double strike, final Expiry expiry, final double power, final boolean isCall) {
     super(strike, expiry, isCall);
@@ -78,15 +80,19 @@ public class AsymmetricPowerOptionDefinition extends OptionDefinition {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final AsymmetricPowerOptionDefinition other = (AsymmetricPowerOptionDefinition) obj;
-    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power))
+    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power)) {
       return false;
+    }
     return true;
   }
 }
