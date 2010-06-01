@@ -46,7 +46,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
 
   /**
    * Creates a unique identifier.
-   * @param value  the value, not null
+   * @param id  the id, not null
    */
   public static UniqueIdentifier createUniqueIdentifier(String id) {
     // TODO: this static method is broken as it should use getIdentifierScheme()
@@ -113,7 +113,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
 
   /**
    * Creates a unique identifier.
-   * @param value  the value, not null
+   * @param dbBean  the securityBean, not null
    */
   public UniqueIdentifier createUniqueIdentifier(SecurityBean dbBean) {
     return UniqueIdentifier.of(getIdentifierScheme(), dbBean.getFirstVersion().getId().toString(), dbBean.getId().toString());
