@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.PORTFOLIO_ROOT_NODE;
-import static com.opengamma.engine.view.ViewCalculationResultModelImplTest.SPEC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;

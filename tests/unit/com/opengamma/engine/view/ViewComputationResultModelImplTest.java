@@ -31,7 +31,10 @@ public class ViewComputationResultModelImplTest {
   @Test
   public void test() {
     ViewComputationResultModelImpl model = new ViewComputationResultModelImpl();
-    
+    checkModel(model);
+  }
+
+  public static void checkModel(ViewComputationResultModelImpl model) {
     model.setInputDataTimestamp(400);
     assertEquals(400, model.getInputDataTimestamp());
     model.setResultTimestamp(500);
@@ -52,7 +55,6 @@ public class ViewComputationResultModelImplTest {
     HashMap<String, ComputedValue> expectedMap = new HashMap<String, ComputedValue>();
     expectedMap.put("DATA", COMPUTED_VALUE);
     assertEquals(expectedMap, Maps.newHashMap(calcResult.getValues(SPEC)));
-    
   }
 
 }
