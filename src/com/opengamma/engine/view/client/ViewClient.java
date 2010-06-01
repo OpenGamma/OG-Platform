@@ -11,6 +11,7 @@ import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.livedata.msg.UserPrincipal;
 
 /**
  * 
@@ -50,4 +51,10 @@ public interface ViewClient {
   void addDeltaResultListener(DeltaComputationResultListener listener);
 
   void removeDeltaResultListener(DeltaComputationResultListener listener);
+  
+  /**
+   * Gets the user under which this clients operates.
+   * @return the user, not null
+   */
+  UserPrincipal getUser();
 }

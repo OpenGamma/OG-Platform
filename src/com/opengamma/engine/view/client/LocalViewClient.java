@@ -14,6 +14,7 @@ import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.View;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,10 +23,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class LocalViewClient implements ViewClient {
   private final View _view;
+  private final UserPrincipal _user;
   
-  public LocalViewClient(View view) {
+  public LocalViewClient(View view, UserPrincipal user) {
     ArgumentChecker.notNull(view, "View");
+    ArgumentChecker.notNull(user, "User");
     _view = view;
+    _user = user;
   }
 
   /**
@@ -33,6 +37,11 @@ public class LocalViewClient implements ViewClient {
    */
   public View getView() {
     return _view;
+  }
+  
+  @Override
+  public UserPrincipal getUser() {
+    return _user;
   }
 
   @Override

@@ -86,7 +86,7 @@ public class LocalViewProcessorClient implements ViewProcessorClient {
   @Override
   public ViewClient getView(String viewName) {
     View view = getOrInitializeView(viewName);
-    return new LocalViewClient(view);
+    return new LocalViewClient(view, getUser());
   }
 
   @Override

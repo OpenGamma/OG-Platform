@@ -31,6 +31,7 @@ import com.opengamma.engine.view.ComputationResultListener;
 import com.opengamma.engine.view.DeltaComputationResultListener;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.livedata.msg.UserPrincipal;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
 import com.opengamma.transport.jaxrs.RestClient;
@@ -50,6 +51,7 @@ import com.opengamma.util.ArgumentChecker;
   private final RemoteViewProcessorClient _viewProcessorClient;
   
   private final String _name;
+  private final UserPrincipal _user;
   
   private final RestTarget _targetAllSecurityTypes;
   private final RestTarget _targetAllValueNames;
@@ -67,7 +69,10 @@ import com.opengamma.util.ArgumentChecker;
   private DefaultMessageListenerContainer _resultListenerContainer;
   private DefaultMessageListenerContainer _deltaListenerContainer;
   
-  protected RemoteViewClient(final RemoteViewProcessorClient viewProcessorClient, final String name, final RestTarget target) {
+  protected RemoteViewClient(final RemoteViewProcessorClient viewProcessorClient, 
+      final String name, 
+      final RestTarget target,
+      final UserPrincipal user) {
     _viewProcessorClient = viewProcessorClient;
     _name = name;
     _targetAllSecurityTypes = target.resolve(VIEW_ALLSECURITYTYPES);
@@ -79,6 +84,7 @@ import com.opengamma.util.ArgumentChecker;
     _targetPerformComputation = target.resolve(VIEW_PERFORMCOMPUTATION);
     _targetComputationResult = target.resolve(VIEW_COMPUTATIONRESULT);
     _targetDeltaResult = target.resolve(VIEW_DELTARESULT);
+    _user = user;
   }
   
   protected RemoteViewProcessorClient getViewProcessorClient() {
@@ -206,6 +212,11 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public String getName() {
     return _name;
+  }
+  
+  @Override
+  public UserPrincipal getUser() {
+    return _user;
   }
 
   @Override

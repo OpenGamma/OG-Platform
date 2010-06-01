@@ -103,7 +103,7 @@ public class RemoteViewProcessorClient implements ViewProcessorClient {
       synchronized (this) {
         RemoteViewClient viewClient = getRemoteViewClients().get(viewName);
         if (viewClient == null) {
-          viewClient = new RemoteViewClient(this, viewName, viewBase);
+          viewClient = new RemoteViewClient(this, viewName, viewBase, getUser());
           getRemoteViewClients().put(viewName, viewClient);
         }
         return viewClient;
