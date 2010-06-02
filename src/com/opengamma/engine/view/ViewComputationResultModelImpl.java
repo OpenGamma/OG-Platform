@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.time.Instant;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
@@ -23,32 +25,32 @@ import com.opengamma.engine.value.ComputedValue;
  */
 public class ViewComputationResultModelImpl implements
     ViewComputationResultModel, Serializable {
-  private long _inputDataTimestamp;
-  private long _resultTimestamp;
+  private Instant _inputDataTimestamp;
+  private Instant _resultTimestamp;
   private final Map<String, ViewCalculationResultModelImpl> _resultModels =
     new TreeMap<String, ViewCalculationResultModelImpl>();
   
   @Override
-  public long getInputDataTimestamp() {
+  public Instant getInputDataTimestamp() {
     return _inputDataTimestamp;
   }
 
   /**
    * @param inputDataTimestamp the inputDataTimestamp to set
    */
-  public void setInputDataTimestamp(long inputDataTimestamp) {
+  public void setInputDataTimestamp(Instant inputDataTimestamp) {
     _inputDataTimestamp = inputDataTimestamp;
   }
 
   @Override
-  public long getResultTimestamp() {
+  public Instant getResultTimestamp() {
     return _resultTimestamp;
   }
 
   /**
    * @param resultTimestamp the resultTimestamp to set
    */
-  public void setResultTimestamp(long resultTimestamp) {
+  public void setResultTimestamp(Instant resultTimestamp) {
     _resultTimestamp = resultTimestamp;
   }
   

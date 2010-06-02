@@ -21,16 +21,16 @@ public class CalculationJobResult implements Serializable {
   
   private final CalculationJobSpecification _specification;
   private final InvocationResult _result;
-  private final long _duration;
+  private final long _durationNanos;
   
   public CalculationJobResult(
       CalculationJobSpecification specification,
       InvocationResult result,
-      long duration) {
+      long durationNanos) {
     // TODO kirk 2009-09-29 -- Check Inputs.
     _specification = specification;
     _result = result;
-    _duration = duration;
+    _durationNanos = durationNanos;
   }
 
   /**
@@ -48,10 +48,10 @@ public class CalculationJobResult implements Serializable {
   }
 
   /**
-   * @return the duration
+   * @return the duration, in nanoseconds
    */
   public long getDuration() {
-    return _duration;
+    return _durationNanos;
   }
 
   public FudgeFieldContainer toFudgeMsg(FudgeContext fudgeContext) {

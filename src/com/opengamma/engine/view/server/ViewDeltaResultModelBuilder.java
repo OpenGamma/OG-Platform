@@ -7,6 +7,8 @@ package com.opengamma.engine.view.server;
 
 import java.util.Collection;
 
+import javax.time.Instant;
+
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -35,11 +37,11 @@ public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResult
   @Override
   public ViewDeltaResultModel buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
     final ViewComputationResultModel parent = ViewComputationResultModelBuilder.createObject(context, message);
-    final long parentResultTimestamp = message.getFieldValue(Long.class, message.getByName(FIELD_PREVIOUSTS));
+    final Instant parentResultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_PREVIOUSTS));
     return new ViewDeltaResultModel() {
 
       @Override
-      public long getPreviousResultTimestamp() {
+      public Instant getPreviousResultTimestamp() {
         return parentResultTimestamp;
       }
 
@@ -60,12 +62,12 @@ public class ViewDeltaResultModelBuilder implements FudgeBuilder<ViewDeltaResult
       }
 
       @Override
-      public long getInputDataTimestamp() {
+      public Instant getInputDataTimestamp() {
         return parent.getInputDataTimestamp();
       }
 
       @Override
-      public long getResultTimestamp() {
+      public Instant getResultTimestamp() {
         return parent.getResultTimestamp();
       }
     };

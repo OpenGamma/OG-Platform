@@ -16,6 +16,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +55,15 @@ public class SingleComputationCycle {
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   
   // State:
+  
+  /**
+   * Milliseconds, see System.currentTimeMillis()
+   */
   private final long _snapshotTime;
+  
+  /**
+   * Nanoseconds, see System.nanoTime()
+   */
   private final long _startTime;
   private final AtomicLong _jobIdSource = new AtomicLong(0L);
   private final ReentrantReadWriteLock _nodeExecutionLock = new ReentrantReadWriteLock();
@@ -83,13 +93,13 @@ public class SingleComputationCycle {
     _processingContext = processingContext;
     _portfolioEvaluationModel = portfolioEvaluationModel;
     _resultModel = resultModel;
-    _startTime = System.currentTimeMillis();
+    _startTime = System.nanoTime();
     _viewDefinition = viewDefinition;
     _snapshotTime = snapshotTime;
   }
   
   /**
-   * @return the snapshotTime
+   * @return the snapshotTime. Milliseconds from epoch
    */
   public Long getSnapshotTime() {
     return _snapshotTime;
@@ -117,7 +127,7 @@ public class SingleComputationCycle {
   }
 
   /**
-   * @return the startTime
+   * @return the start time. Nanoseconds, see {@link System#nanoTime()}. 
    */
   public long getStartTime() {
     return _startTime;
@@ -142,7 +152,7 @@ public class SingleComputationCycle {
   }
   
   public void prepareInputs() {
-    getResultModel().setInputDataTimestamp(getSnapshotTime());
+    getResultModel().setInputDataTimestamp(Instant.ofMillis(getSnapshotTime()));
     
     createAllCaches();
     

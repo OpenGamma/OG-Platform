@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import javax.time.Instant;
+
 
 
 /**
@@ -36,7 +38,7 @@ public interface ViewDeltaResultModel extends ViewComputationResultModel {
    * 
    * @return the timestamp for the previous result in the delta chain
    */
-  long getPreviousResultTimestamp();
+  Instant getPreviousResultTimestamp();
   
   // TODO kirk 2010-03-29 -- Notify on new nodes/positions
   // TODO kirk 2010-03-29 -- Notify on removed nodes/positions

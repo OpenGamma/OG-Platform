@@ -95,8 +95,7 @@ public abstract class AbstractCalculationNode {
                                                                     getFunctionRepository(), getFunctionExecutionContext(), 
                                                                     new ViewProcessorQuery(getViewProcessorQuerySender(), spec),
                                                                     target, job.getDesiredValues());
-    // TODO kirk 2010-05-22 -- Change to nanotime. ENG-105
-    long startTS = System.currentTimeMillis();
+    long startNanos = System.nanoTime();
     boolean wasException = false;
     try {
       invocationJob.run();
@@ -109,10 +108,10 @@ public abstract class AbstractCalculationNode {
       s_logger.info("Invoking " + job.getFunctionUniqueIdentifier() + " on " + target + " throw exception.", e);
       wasException = true;
     }
-    long endTS = System.currentTimeMillis();
-    long duration = endTS - startTS;
+    long endNanos = System.nanoTime();
+    long durationNanos = endNanos - startNanos;
     InvocationResult invocationResult = wasException ? InvocationResult.ERROR : InvocationResult.SUCCESS;
-    CalculationJobResult jobResult = new CalculationJobResult(spec, invocationResult, duration);
+    CalculationJobResult jobResult = new CalculationJobResult(spec, invocationResult, durationNanos);
     return jobResult;
   }
 

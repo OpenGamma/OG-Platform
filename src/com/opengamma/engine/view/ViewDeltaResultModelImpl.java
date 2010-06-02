@@ -5,24 +5,25 @@
  */
 package com.opengamma.engine.view;
 
+import javax.time.Instant;
 
 /**
  * 
  */
 public class ViewDeltaResultModelImpl extends ViewComputationResultModelImpl implements ViewDeltaResultModel {
-  private long _previousResultTimestamp;
+  private Instant _previousResultTimestamp;
 
   /**
    * @return the previousResultTimestamp
    */
-  public long getPreviousResultTimestamp() {
+  public Instant getPreviousResultTimestamp() {
     return _previousResultTimestamp;
   }
 
   /**
    * @param previousResultTimestamp the previousResultTimestamp to set
    */
-  public void setPreviousResultTimestamp(long previousResultTimestamp) {
+  public void setPreviousResultTimestamp(Instant previousResultTimestamp) {
     _previousResultTimestamp = previousResultTimestamp;
   }
 }

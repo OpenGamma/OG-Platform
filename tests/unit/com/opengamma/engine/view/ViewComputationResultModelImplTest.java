@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNotNull;
 import java.util.HashMap;
 import java.util.Set;
 
+import javax.time.Instant;
+
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
@@ -35,10 +37,10 @@ public class ViewComputationResultModelImplTest {
   }
 
   public static void checkModel(ViewComputationResultModelImpl model) {
-    model.setInputDataTimestamp(400);
-    assertEquals(400, model.getInputDataTimestamp());
-    model.setResultTimestamp(500);
-    assertEquals(500, model.getResultTimestamp());
+    model.setInputDataTimestamp(Instant.ofMillis(400));
+    assertEquals(Instant.ofMillis(400), model.getInputDataTimestamp());
+    model.setResultTimestamp(Instant.ofMillis(500));
+    assertEquals(Instant.ofMillis(500), model.getResultTimestamp());
     
     Set<String> calcConfigNames = Sets.newHashSet("configName1", "configName2");
     model.setCalculationConfigurationNames(calcConfigNames);

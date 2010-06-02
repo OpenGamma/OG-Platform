@@ -7,6 +7,8 @@ package com.opengamma.engine.view;
 
 import static org.junit.Assert.assertEquals;
 
+import javax.time.Instant;
+
 import org.junit.Test;
 
 /**
@@ -19,8 +21,8 @@ public class ViewDeltaResultModelImplTest {
     ViewDeltaResultModelImpl model = new ViewDeltaResultModelImpl();
     ViewComputationResultModelImplTest.checkModel(model);
     
-    model.setPreviousResultTimestamp(200);
-    assertEquals(200, model.getPreviousResultTimestamp());
+    model.setPreviousResultTimestamp(Instant.ofMillis(200));
+    assertEquals(Instant.ofMillis(200), model.getPreviousResultTimestamp());
   }
 
 }
