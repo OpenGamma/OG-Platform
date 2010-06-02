@@ -7,8 +7,7 @@ package com.opengamma.engine.function;
 
 import javax.time.calendar.Clock;
 
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 
 /**
