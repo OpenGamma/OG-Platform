@@ -32,15 +32,14 @@ public abstract class OptionDefinition {
    * @param expiry The expiry
    * @param isCall Is the option a put or call
    * @throws IllegalArgumentException
-   *          If the strike is null
-   * @throws IllegalArgumentException
    *          If the strike is negative
    * @throws IllegalArgumentException
    *          If the expiry is null                   
    */
   public OptionDefinition(final Double strike, final Expiry expiry, final Boolean isCall) {
-    Validate.notNull(strike);
-    ArgumentChecker.notNegative(strike, "strike");
+    if (strike != null) {
+      ArgumentChecker.notNegative(strike, "strike");
+    }
     Validate.notNull(expiry);
     _strike = strike;
     _expiry = expiry;

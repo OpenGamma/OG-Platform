@@ -42,11 +42,6 @@ public class OptionDefinitionTest {
   };
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullStrike() {
-    new MyOptionDefinition(null, EXPIRY, IS_CALL);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testNegativeStrike() {
     new MyOptionDefinition(-STRIKE, EXPIRY, IS_CALL);
   }
