@@ -486,7 +486,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     for (IdentifierBundle identifier : deletedIdentifiers) {
       _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-      assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
+      assertEquals(new ArrayLocalDateDoubleTimeSeries(), actualTS);
     }
   }
   
@@ -505,7 +505,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
       //delete timeseries
       _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
       actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-      assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
+      assertEquals(new ArrayLocalDateDoubleTimeSeries(), actualTS);
       // add timeseries to existing identifiers in the datastore
       timeSeries = makeRandomTimeSeries();
       _timeseriesDao.addTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD,
@@ -520,7 +520,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     addRandonTimeSeriesToDB(2);
     IdentifierBundle bundle = new IdentifierBundle(new Identifier(IdentificationScheme.BLOOMBERG_TICKER, "AAPL US Equity"));
     DoubleTimeSeries<LocalDate> actualTS = _timeseriesDao.getHistoricalTimeSeries(bundle, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-    assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, actualTS);
+    assertEquals(new ArrayLocalDateDoubleTimeSeries(), actualTS);
   }
   
   @Test
@@ -625,7 +625,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     //delete timeSeries
     _timeseriesDao.deleteTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME);
     actualTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-    timeSeries = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
+    timeSeries = new ArrayLocalDateDoubleTimeSeries();
     assertEquals(timeSeries, actualTS); 
     timeStampTSMap.put(Clock.system(javax.time.calendar.TimeZone.UTC).zonedDateTime(), timeSeries);
     
@@ -648,7 +648,7 @@ public class RowStoreTimeSeriesDaoTest extends DBTest {
     //before 1st delta should return empty timeseries
     ZonedDateTime beforeDelta = timeStampTSMap.firstKey().minusMinutes(1);
     DoubleTimeSeries<LocalDate> snapshotTS = _timeseriesDao.getTimeSeriesSnapShot(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, LCLOSE_OBSERVATION_TIME, beforeDelta);
-    assertEquals(ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, snapshotTS);
+    assertEquals(new ArrayLocalDateDoubleTimeSeries(), snapshotTS);
     //after last delta should return latest timeseries
     ZonedDateTime afterDelta = timeStampTSMap.lastKey().plusMinutes(1);
     DoubleTimeSeries<LocalDate> latestTS = _timeseriesDao.getHistoricalTimeSeries(identifier, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
