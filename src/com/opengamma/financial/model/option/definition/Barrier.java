@@ -1,24 +1,44 @@
 package com.opengamma.financial.model.option.definition;
 
 /**
- * @author emcleod
+ *
  */
 
 public class Barrier {
 
+  /**
+   * Knock type
+   */
   public enum KnockType {
-    IN, OUT
+    /**
+     * Knock-in
+     */
+    IN,
+    /**
+     * Knock-out
+     */
+    OUT
   }
 
+  /**
+   * Barrier type
+   */
   public enum BarrierType {
-    DOWN, UP
+    /**
+     * Down
+     */
+    DOWN,
+    /**
+     * Up
+     */
+    UP
   }
 
   private final KnockType _knock;
   private final BarrierType _barrier;
   private final double _value;
 
-  public Barrier(KnockType knock, BarrierType barrier, double value) {
+  public Barrier(final KnockType knock, final BarrierType barrier, final double value) {
     _knock = knock;
     _barrier = barrier;
     _value = value;
