@@ -35,10 +35,12 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * 
  */
 public class DiscountCurveFunction
-extends AbstractFunction 
-implements FunctionInvoker {
+  extends AbstractFunction 
+  implements FunctionInvoker {
+  
   private Interpolator1D _interpolator; 
   private DiscountCurveDefinition _definition;
   private Set<ValueRequirement> _requirements;
@@ -75,7 +77,7 @@ implements FunctionInvoker {
    */
   public static Set<ValueRequirement> buildRequirements(DiscountCurveDefinition definition) {
     Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for(FixedIncomeStrip strip : definition.getStrips()) {
+    for (FixedIncomeStrip strip : definition.getStrips()) {
       ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       result.add(requirement);
     }
@@ -91,7 +93,7 @@ implements FunctionInvoker {
 
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if(target.getType() != ComputationTargetType.PRIMITIVE) {
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
     return ObjectUtils.equals(
@@ -101,7 +103,7 @@ implements FunctionInvoker {
 
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target) {
-    if(canApplyTo(context, target)) {
+    if (canApplyTo(context, target)) {
       return _requirements;
     }
     return null;
@@ -109,7 +111,7 @@ implements FunctionInvoker {
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    if(canApplyTo(context, target)) {
+    if (canApplyTo(context, target)) {
       return _results;
     }
     return null;
@@ -143,7 +145,7 @@ implements FunctionInvoker {
     Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
     // Always start with 0 at the 0 point for super-short-end expiry options.
     timeInYearsToRates.put(0., 0.);
-    for(FixedIncomeStrip strip : getDefinition().getStrips()) {
+    for (FixedIncomeStrip strip : getDefinition().getStrips()) {
       ValueRequirement stripRequirement = new ValueRequirement(ValueRequirementNames.MARKET_DATA_HEADER, strip.getMarketDataSpecification());
       FudgeFieldContainer fieldContainer = (FudgeFieldContainer) inputs.getValue(stripRequirement);
       Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
