@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
@@ -15,24 +17,22 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * @author emcleod
  * 
  */
 
 public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
-  final BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
-  final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
+  private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Definition was null");
+    Validate.notNull(definition);
     final Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final SkewKurtosisOptionDataBundle data) {
-        if (data == null)
-          throw new IllegalArgumentException("Data bundle was null");
+        Validate.notNull(data);
         final double s = data.getSpot();
         final double k = definition.getStrike();
         final double t = definition.getTimeToExpiry(data.getDate());
@@ -46,13 +46,14 @@ public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<
         if (!definition.isCall()) {
           callDefinition = new EuropeanVanillaOptionDefinition(callDefinition.getStrike(), callDefinition.getExpiry(), true);
         }
-        final Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(callDefinition);
+        final Function1D<StandardOptionDataBundle, Double> bsm = BSM.getPricingFunction(callDefinition);
         final double bsmCall = bsm.evaluate(data);
         final double w = getW(sigma, t, skew, kurtosis);
         final double d = getD(s, k, sigma, t, b, w, sigmaT);
         final double call = bsmCall + skew * getQ3(s, d, w, sigmaT) + kurtosis * getQ4(s, d, w, sigmaT);
-        if (!definition.isCall())
+        if (!definition.isCall()) {
           return call - s * Math.exp((b - r) * t) + k * Math.exp(-r * t);
+        }
         return call;
       }
     };
@@ -69,10 +70,10 @@ public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<
   }
 
   double getQ3(final double s, final double d, final double w, final double sigmaT) {
-    return s * sigmaT * (2 * sigmaT - d) * _normal.getPDF(d) / (6 * (1 + w));
+    return s * sigmaT * (2 * sigmaT - d) * NORMAL.getPDF(d) / (6 * (1 + w));
   }
 
   double getQ4(final double s, final double d, final double w, final double sigmaT) {
-    return s * sigmaT * (d * d - 3 * d * sigmaT + 3 * sigmaT * sigmaT - 1) * _normal.getPDF(d) / (24 * (1 + w));
+    return s * sigmaT * (d * d - 3 * d * sigmaT + 3 * sigmaT * sigmaT - 1) * NORMAL.getPDF(d) / (24 * (1 + w));
   }
 }

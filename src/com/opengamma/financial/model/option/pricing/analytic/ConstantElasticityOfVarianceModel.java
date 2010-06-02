@@ -11,7 +11,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class ConstantElasticityOfVarianceModel extends AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> {
 

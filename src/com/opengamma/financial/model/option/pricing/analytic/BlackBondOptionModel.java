@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.BondOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
@@ -15,21 +17,19 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * @author emcleod
  */
 public class BlackBondOptionModel extends AnalyticOptionModel<BondOptionDefinition, StandardOptionDataBundle> {
-  protected final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final BondOptionDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Option definition was null");
+    Validate.notNull(definition);
     return new Function1D<StandardOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
-        if (data == null)
-          throw new IllegalArgumentException("Data bundle was null");
+        Validate.notNull(data);
         final ZonedDateTime date = data.getDate();
         final double k = definition.getStrike();
         final double tOption = definition.getTimeToExpiry(date);
@@ -43,7 +43,7 @@ public class BlackBondOptionModel extends AnalyticOptionModel<BondOptionDefiniti
         final double d1 = getD1(forwardBondPrice, k, tOption, sigma, 0);
         final double d2 = getD2(d1, sigma, tOption);
         final int sign = definition.isCall() ? 1 : -1;
-        return sign * p1 * (forwardBondPrice * _normal.getCDF(sign * d1) - k * _normal.getCDF(sign * d2));
+        return sign * p1 * (forwardBondPrice * NORMAL.getCDF(sign * d1) - k * NORMAL.getCDF(sign * d2));
       }
 
     };

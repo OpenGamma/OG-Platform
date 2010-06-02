@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelOptionDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -16,24 +18,22 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.function.Function1D;
 
 /**
- * 
- * @author emcleod
+ *  
  */
 
 public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<OptionDefinition, BatesGeneralizedJumpDiffusionModelOptionDataBundle> {
-  protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
-  protected final int N = 50;
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private static final int N = 50;
 
   @Override
   public Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Definition was null");
+    Validate.notNull(definition);
     final Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double> pricingFunction = new Function1D<BatesGeneralizedJumpDiffusionModelOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final BatesGeneralizedJumpDiffusionModelOptionDataBundle data) {
-        if (data == null)
-          throw new IllegalArgumentException("Data bundle was null");
+        Validate.notNull(data);
         final double s = data.getSpot();
         final DiscountCurve discountCurve = data.getDiscountCurve();
         final VolatilitySurface volSurface = data.getVolatilitySurface();
@@ -52,7 +52,7 @@ public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<Opti
         double mult = Math.exp(-lambdaT);
         b -= lambda * expectedJumpSize;
         StandardOptionDataBundle bsmData = new StandardOptionDataBundle(discountCurve, b, volSurface, s, date);
-        final Function1D<StandardOptionDataBundle, Double> bsmFunction = _bsm.getPricingFunction(definition);
+        final Function1D<StandardOptionDataBundle, Double> bsmFunction = BSM.getPricingFunction(definition);
         double price = mult * bsmFunction.evaluate(bsmData);
         for (int i = 1; i < N; i++) {
           z = Math.sqrt(sigmaSq + delta * delta * i / t);

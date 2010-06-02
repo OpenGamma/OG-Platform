@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.CappedPowerOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
@@ -15,18 +17,20 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * @author emcleod
  * 
  */
 public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptionDefinition, StandardOptionDataBundle> {
-  final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final CappedPowerOptionDefinition definition) {
+    Validate.notNull(definition);
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
+        Validate.notNull(data);
         try {
           final double s = data.getSpot();
           final double k = definition.getStrike();
@@ -46,8 +50,8 @@ public class CappedPowerOptionModel extends AnalyticOptionModel<CappedPowerOptio
           final int sign = isCall ? 1 : -1;
           final double df1 = Math.exp(-r * t);
           final double df2 = Math.exp(t * ((power - 1) * (r + power * sigma * sigma * 0.5) - power * (r - b)));
-          final double term1 = Math.pow(s, power) * df2 * (_normal.getCDF(sign * d1) - _normal.getCDF(sign * d3));
-          final double term2 = df1 * (k * _normal.getCDF(sign * d2) - 1 / (k + sign * cap) * _normal.getCDF(sign * d4));
+          final double term1 = Math.pow(s, power) * df2 * (NORMAL.getCDF(sign * d1) - NORMAL.getCDF(sign * d3));
+          final double term2 = df1 * (k * NORMAL.getCDF(sign * d2) - 1 / (k + sign * cap) * NORMAL.getCDF(sign * d4));
           return sign * (term1 - term2);
         } catch (final InterpolationException e) {
           throw new OptionPricingException(e);

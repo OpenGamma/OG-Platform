@@ -19,15 +19,15 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ * @param <T> The type of the option definition
+ * @param <U> The type of the option data bundle
+ * Base class for analytic option models. 
  */
-public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements
-    OptionModel<T, U> {
+public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 
   public abstract Function1D<U, Double> getPricingFunction(T definition);
 
-  public GreekVisitor<Double> getGreekVisitor(final Function1D<U, Double> pricingFunction, final U data,
-      final T definition) {
+  public GreekVisitor<Double> getGreekVisitor(final Function1D<U, Double> pricingFunction, final U data, final T definition) {
     return new AnalyticOptionModelFiniteDifferenceGreekVisitor<U, T>(pricingFunction, data, definition);
   }
 
@@ -55,15 +55,18 @@ public abstract class AnalyticOptionModel<T extends OptionDefinition, U extends 
     return Math.exp(t * (b - r));
   }
 
-  protected class AnalyticOptionModelFiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, R extends OptionDefinition>
-      extends FiniteDifferenceGreekVisitor<S, R> {
+  /**
+   * Extends the finite difference greek visitor to allow calculation of dZetaDVol
+   * @param <S> The type of the option data bundle
+   * @param <R> The type of the option definition
+   */
+  protected class AnalyticOptionModelFiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, R extends OptionDefinition> extends FiniteDifferenceGreekVisitor<S, R> {
     private static final double EPS = 1e-3;
     private final S _data;
     private final R _definition;
     private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
 
-    public AnalyticOptionModelFiniteDifferenceGreekVisitor(final Function1D<S, Double> pricingFunction, final S data,
-        final R definition) {
+    public AnalyticOptionModelFiniteDifferenceGreekVisitor(final Function1D<S, Double> pricingFunction, final S data, final R definition) {
       super(pricingFunction, data, definition);
       _data = data;
       _definition = definition;

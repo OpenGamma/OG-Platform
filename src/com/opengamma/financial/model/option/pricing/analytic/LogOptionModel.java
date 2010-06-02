@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.LogOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
@@ -15,26 +17,28 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  * Pricing model for log options.
  * 
- * @author emcleod
  */
 public class LogOptionModel extends AnalyticOptionModel<LogOptionDefinition, StandardOptionDataBundle> {
-  final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalDistribution(0, 1);
+  private final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final LogOptionDefinition definition) {
-    Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
+    Validate.notNull(definition);
+    final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(StandardOptionDataBundle data) {
-        double s = data.getSpot();
-        double k = definition.getStrike();
-        double t = definition.getTimeToExpiry(data.getDate());
-        double b = data.getCostOfCarry();
-        double r = data.getInterestRate(t);
-        double sigma = data.getVolatility(t, k);
-        double df = Math.exp(-r * t);
-        double sigmaT = sigma * Math.sqrt(t);
-        double x = (Math.log(s / k) + t * (b - sigma * sigma * 0.5)) / sigmaT;
+      public Double evaluate(final StandardOptionDataBundle data) {
+        Validate.notNull(data);
+        final double s = data.getSpot();
+        final double k = definition.getStrike();
+        final double t = definition.getTimeToExpiry(data.getDate());
+        final double b = data.getCostOfCarry();
+        final double r = data.getInterestRate(t);
+        final double sigma = data.getVolatility(t, k);
+        final double df = Math.exp(-r * t);
+        final double sigmaT = sigma * Math.sqrt(t);
+        final double x = (Math.log(s / k) + t * (b - sigma * sigma * 0.5)) / sigmaT;
         return df * sigmaT * (_normalProbabilityDistribution.getPDF(x) + x * _normalProbabilityDistribution.getCDF(x));
       }
 

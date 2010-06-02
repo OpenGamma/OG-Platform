@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
@@ -13,22 +15,20 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 
 public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
-  protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
 
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Definition was null");
+    Validate.notNull(definition);
     final Function1D<SkewKurtosisOptionDataBundle, Double> pricingFunction = new Function1D<SkewKurtosisOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final SkewKurtosisOptionDataBundle data) {
-        if (data == null)
-          throw new IllegalArgumentException("Data bundle was null");
+        Validate.notNull(data);
         final double s = data.getSpot();
         final double k = definition.getStrike();
         final double t = definition.getTimeToExpiry(data.getDate());
@@ -38,13 +38,14 @@ public class JarrowRuddSkewnessKurtosisModel extends AnalyticOptionModel<OptionD
         final double skew = data.getAnnualizedSkew();
         final double kurtosis = data.getAnnualizedFisherKurtosis();
         final OptionDefinition callDefinition = definition.isCall() ? definition : new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), true);
-        final Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(callDefinition);
+        final Function1D<StandardOptionDataBundle, Double> bsm = BSM.getPricingFunction(callDefinition);
         final double bsmCall = bsm.evaluate(data);
         final double d2 = getD2(getD1(s, k, t, sigma, b), sigma, t);
         final double a = getA(d2, k, sigma, t);
         final double call = bsmCall + getLambda1(sigma, t, skew) * getQ3(s, k, sigma, t, r, a, d2) + getLambda2(sigma, t, kurtosis) * getQ4(s, k, sigma, t, r, a, d2);
-        if (!definition.isCall())
+        if (!definition.isCall()) {
           return call - s * Math.exp((b - r) * t) + k * Math.exp(-r * t);
+        }
         return call;
       }
     };

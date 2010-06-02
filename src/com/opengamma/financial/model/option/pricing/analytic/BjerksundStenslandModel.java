@@ -7,6 +7,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -19,24 +21,22 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * @author emcleod
  * 
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
-  private final ProbabilityDistribution<Double[]> _bivariateNormal = new BivariateNormalDistribution();
-  private final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
-  protected BlackScholesMertonModel _bsm = new BlackScholesMertonModel();
+  private static final ProbabilityDistribution<Double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Option definition was null");
+    Validate.notNull(definition);
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
-        if (data == null)
-          throw new IllegalArgumentException("Data bundle was null");
+        Validate.notNull(data);
         final ZonedDateTime date = data.getDate();
         double s = data.getSpot();
         double k = definition.getStrike();
@@ -56,7 +56,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
         }
         if (b >= r) {
           final OptionDefinition european = new EuropeanVanillaOptionDefinition(k, definition.getExpiry(), definition.isCall());
-          final Function1D<StandardOptionDataBundle, Double> bsm = _bsm.getPricingFunction(european);
+          final Function1D<StandardOptionDataBundle, Double> bsm = BSM.getPricingFunction(european);
           return bsm.evaluate(newData);
         }
         return getCallPrice(s, k, sigma, t, r, b);
@@ -65,7 +65,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     return pricingFunction;
   }
 
-  double getCallPrice(final double s, final double k, final double sigma, final double t2, final double r, final double b) {
+  private double getCallPrice(final double s, final double k, final double sigma, final double t2, final double r, final double b) {
     final double sigmaSq = sigma * sigma;
     final double y = 0.5 - b / sigmaSq;
     final double beta = y + Math.sqrt(y * y + 2 * r / sigmaSq);
@@ -76,8 +76,9 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double h2 = getH(b, t2, sigma, k, b0, bInfinity);
     final double x1 = getX(b0, bInfinity, h1);
     final double x2 = getX(b0, bInfinity, h2);
-    if (s >= x2)
+    if (s >= x2) {
       return s - k;
+    }
     final double alpha1 = getAlpha(x1, beta, k);
     final double alpha2 = getAlpha(x2, beta, k);
     return alpha2 * Math.pow(s, beta) - alpha2 * getPhi(s, t1, beta, x2, x2, r, b, sigma) + getPhi(s, t1, 1, x2, x2, r, b, sigma) - getPhi(s, t1, 1, x1, x2, r, b, sigma) - k
@@ -106,11 +107,10 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double y = getY(t, b, sigmaSq, gamma, denom);
     final double d1 = getD(s / h, denom, y);
     final double d2 = getD(x * x / (s * h), denom, y);
-    return Math.exp(lambda * t) * Math.pow(s, gamma) * (_normal.getCDF(d1) - Math.pow(x / s, kappa) * _normal.getCDF(d2));
+    return Math.exp(lambda * t) * Math.pow(s, gamma) * (NORMAL.getCDF(d1) - Math.pow(x / s, kappa) * NORMAL.getCDF(d2));
   }
 
-  private double getPsi(final double s, final double t1, final double t2, final double gamma, final double h, final double x2, final double x1, final double r, final double b,
-      final double sigma) {
+  private double getPsi(final double s, final double t1, final double t2, final double gamma, final double h, final double x2, final double x1, final double r, final double b, final double sigma) {
     final double sigmaSq = sigma * sigma;
     final double denom1 = getDenom(t1, sigma);
     final double denom2 = getDenom(t2, sigma);
@@ -129,8 +129,8 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double rho = Math.sqrt(t1 / t2);
     return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
-        * (_bivariateNormal.getCDF(new Double[] { d1, e1, rho }) - Math.pow(x2 / s, kappa) * _bivariateNormal.getCDF(new Double[] { d2, e2, rho }) - Math.pow(x1 / s, kappa)
-            * _bivariateNormal.getCDF(new Double[] { d3, e3, -rho }) + Math.pow(x1 / x2, kappa) * _bivariateNormal.getCDF(new Double[] { d4, e4, -rho }));
+        * (BIVARIATE_NORMAL.getCDF(new Double[] {d1, e1, rho}) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new Double[] {d2, e2, rho}) - Math.pow(x1 / s, kappa)
+            * BIVARIATE_NORMAL.getCDF(new Double[] {d3, e3, -rho}) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new Double[] {d4, e4, -rho}));
   }
 
   private double getLambda(final double r, final double gamma, final double b, final double sigmaSq) {

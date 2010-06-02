@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.SimpleChooserOptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
@@ -18,15 +20,17 @@ import com.opengamma.util.time.DateUtil;
  * 
  */
 public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> {
-  private final ProbabilityDistribution<Double> _normalProbabilityDistribution = new NormalDistribution(0, 1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final SimpleChooserOptionDefinition definition) {
+    Validate.notNull(definition);
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
+        Validate.notNull(data);
         final double s = data.getSpot();
         final double k = definition.getStrike();
         final double t1 = DateUtil.getDifferenceInYears(data.getDate(), definition.getChooseDate());
@@ -43,8 +47,7 @@ public class SimpleChooserOptionModel extends AnalyticOptionModel<SimpleChooserO
         final double y = getD(logSK, bT2, sigmaSq * t1, sigmaT1);
         final double df1 = getDF(r, b, t2);
         final double df2 = getDF(r, 0, t2);
-        return s * df1 * (_normalProbabilityDistribution.getCDF(d) - _normalProbabilityDistribution.getCDF(-y)) - k * df2
-            * (_normalProbabilityDistribution.getCDF(d - sigmaT2) - _normalProbabilityDistribution.getCDF(-y + sigmaT1));
+        return s * df1 * (NORMAL.getCDF(d) - NORMAL.getCDF(-y)) - k * df2 * (NORMAL.getCDF(d - sigmaT2) - NORMAL.getCDF(-y + sigmaT1));
       }
 
     };

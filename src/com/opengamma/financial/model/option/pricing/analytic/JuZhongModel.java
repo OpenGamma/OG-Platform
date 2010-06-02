@@ -8,6 +8,8 @@ package com.opengamma.financial.model.option.pricing.analytic;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
@@ -23,22 +25,21 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
-  protected final ProbabilityDistribution<Double> _normal = new NormalDistribution(0, 1);
-  protected final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  protected final Set<Greek> PRICE = Collections.singleton(Greek.FAIR_PRICE);
-  protected final RealSingleRootFinder FINDER = new BisectionSingleRootFinder();
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
+  private static final Set<Greek> PRICE = Collections.singleton(Greek.FAIR_PRICE);
+  private static final RealSingleRootFinder FINDER = new BisectionSingleRootFinder();
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Definition was null");
+    Validate.notNull(definition);
     final double phi = definition.isCall() ? 1 : -1;
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
-        if (data == null)
-          throw new IllegalArgumentException("Data bundle was null");
+        Validate.notNull(data);
         final GreekResultCollection bsmResult = BSM.getGreeks(definition, data, PRICE);
         final double bsmPrice = bsmResult.get(Greek.FAIR_PRICE);
         final double s = data.getSpot();
@@ -55,8 +56,9 @@ public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefin
         final double lambdaDash = getLambdaDash(phi, alpha, beta, h);
         final Function1D<Double, Double> function = getFunction(phi, Math.exp(-b * t), k, t, sigmaSq, b, lambda, definition, data);
         final double sEstimate = FINDER.getRoot(function, 0., s * 2);
-        if (phi * (sEstimate - s) <= 0)
+        if (phi * (sEstimate - s) <= 0) {
           return phi * (s - k);
+        }
         final double estimatePrice = BSM.getGreeks(definition, data.withSpot(sEstimate), PRICE).get(Greek.FAIR_PRICE);
         final double hA = phi * (sEstimate - k) - estimatePrice;
         final double derivative = getDerivative(k, r, b, t, sigma, phi, sEstimate);
@@ -105,18 +107,19 @@ public class JuZhongModel extends AnalyticOptionModel<AmericanVanillaOptionDefin
     final double df = Math.exp(t * (r - b));
     final double d1 = getD1(sEstimate, k, t, sigma, b);
     final double d2 = getD2(d1, sigma, t);
-    return sEstimate * _normal.getPDF(d1) * sigma * df / (2 * r * Math.sqrt(t)) - phi * b * sEstimate * _normal.getCDF(phi * d1) * df / r + phi * k * _normal.getCDF(phi * d2);
+    return sEstimate * NORMAL.getPDF(d1) * sigma * df / (2 * r * Math.sqrt(t)) - phi * b * sEstimate * NORMAL.getCDF(phi * d1) * df / r + phi * k * NORMAL.getCDF(phi * d2);
   }
 
   protected Function1D<Double, Double> getFunction(final double phi, final double df, final double k, final double t, final double sigma, final double b, final double lambda,
       final OptionDefinition definition, final StandardOptionDataBundle data) {
     return new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         final GreekResultCollection bsmPrice = BSM.getGreeks(definition, data.withSpot(x), PRICE);
         final double price = bsmPrice.get(Greek.FAIR_PRICE);
-        return phi * (df * _normal.getCDF(phi * getD1(x, k, t, sigma, b)) + lambda * (phi * (x - k) - price) / x - 1);
+        return phi * (df * NORMAL.getCDF(phi * getD1(x, k, t, sigma, b)) + lambda * (phi * (x - k) - price) / x - 1);
       }
 
     };

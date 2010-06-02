@@ -5,25 +5,26 @@
  */
 package com.opengamma.financial.model.option.pricing.analytic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.CapFloorDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class BlackCapModel extends AnalyticOptionModel<CapFloorDefinition, StandardOptionDataBundle> {
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final CapFloorDefinition definition) {
-    if (definition == null)
-      throw new IllegalArgumentException("Option definition was null");
+    Validate.notNull(definition);
     return new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
-      public Double evaluate(final StandardOptionDataBundle x) {
-        // TODO Auto-generated method stub
+      public Double evaluate(final StandardOptionDataBundle data) {
+        Validate.notNull(data);
+        //TODO
         return null;
       }
 
