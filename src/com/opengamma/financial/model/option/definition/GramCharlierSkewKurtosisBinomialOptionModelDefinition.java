@@ -9,7 +9,6 @@ import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
  * 
- * @author emcleod
  */
 public class GramCharlierSkewKurtosisBinomialOptionModelDefinition extends BinomialOptionModelDefinition<OptionDefinition, SkewKurtosisOptionDataBundle> {
   private final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> _rb = new RendlemanBartterBinomialOptionModelDefinition();
