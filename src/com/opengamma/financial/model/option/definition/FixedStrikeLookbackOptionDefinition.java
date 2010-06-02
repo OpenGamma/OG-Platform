@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -14,13 +16,14 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * underlying(strike) and the strike(minimum observed price of the underlying)
  * and zero.
  * 
- * @author emcleod
  */
 public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
 
     @Override
     public Double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
+      Validate.notNull(data.getSpotTimeSeries());
       final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
       return isCall() ? Math.max(0, ts.maxValue() - getStrike()) : Math.max(0, getStrike() - ts.minValue());
     }
@@ -37,11 +40,13 @@ public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
     super(strike, expiry, isCall);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> getPayoffFunction() {
     return _payoffFunction;
