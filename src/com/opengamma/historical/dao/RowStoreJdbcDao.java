@@ -791,14 +791,14 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     if (timeSeriesKey == INVALID_KEY) {
       s_logger.debug("empty timeseries returned for identifiers={}, dataSource={} dataProvider={} dataField={} observationTime={}", 
           new Object[]{identifiers, dataSource, dataProvider, field, observationTime});
-      return ArraySQLDateDoubleTimeSeries.EMPTY_SERIES;
+      return new ArraySQLDateDoubleTimeSeries();
     }
   
     String sql = null;
     Map<String, String> sqlQueries = getSqlQueries();
     
     if (start != null & end != null) {
-        sql = sqlQueries.get(LOAD_TIME_SERIES_WITH_DATES);
+      sql = sqlQueries.get(LOAD_TIME_SERIES_WITH_DATES);
     }  else {
       sql = sqlQueries.get(LOAD_TIME_SERIES);
     }
