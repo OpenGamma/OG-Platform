@@ -28,6 +28,11 @@ public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDa
     _spotTS = data.getSpotTimeSeries();
   }
 
+  public StandardOptionWithSpotTimeSeriesDataBundle(final StandardOptionDataBundle data, final DoubleTimeSeries<?> spotTS) {
+    super(data);
+    _spotTS = spotTS;
+  }
+
   public DoubleTimeSeries<?> getSpotTimeSeries() {
     return _spotTS;
   }

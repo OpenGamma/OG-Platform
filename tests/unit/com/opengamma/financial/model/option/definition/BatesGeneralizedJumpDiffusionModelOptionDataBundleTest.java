@@ -69,10 +69,14 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundleTest {
   public void testEqualsAndHashCode() {
     final BatesGeneralizedJumpDiffusionModelOptionDataBundle data1 = new BatesGeneralizedJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA);
     final BatesGeneralizedJumpDiffusionModelOptionDataBundle data2 = new BatesGeneralizedJumpDiffusionModelOptionDataBundle(DATA);
+    final BatesGeneralizedJumpDiffusionModelOptionDataBundle data3 = new BatesGeneralizedJumpDiffusionModelOptionDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, JUMP,
+        DELTA);
     assertEquals(DATA, data1);
     assertEquals(DATA, data2);
+    assertEquals(DATA, data3);
     assertEquals(DATA.hashCode(), data1.hashCode());
     assertEquals(DATA.hashCode(), data2.hashCode());
+    assertEquals(DATA.hashCode(), data3.hashCode());
     assertFalse(DATA.equals(new BatesGeneralizedJumpDiffusionModelOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA)));
     assertFalse(DATA.equals(new BatesGeneralizedJumpDiffusionModelOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA)));
     assertFalse(DATA.equals(new BatesGeneralizedJumpDiffusionModelOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, JUMP, DELTA)));

@@ -42,7 +42,8 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundleTest {
   private static final double OTHER_RHO = -0.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final ZonedDateTime OTHER_DATE = DateUtil.getUTCDate(2010, 6, 1);
-  private static final HullWhiteStochasticVolatilityModelOptionDataBundle DATA = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO);
+  private static final HullWhiteStochasticVolatilityModelOptionDataBundle DATA = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL,
+      RHO);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullBundle() {
@@ -72,10 +73,14 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundleTest {
   public void testEqualsAndHashCode() {
     final HullWhiteStochasticVolatilityModelOptionDataBundle data1 = new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO);
     final HullWhiteStochasticVolatilityModelOptionDataBundle data2 = new HullWhiteStochasticVolatilityModelOptionDataBundle(DATA);
+    final HullWhiteStochasticVolatilityModelOptionDataBundle data3 = new HullWhiteStochasticVolatilityModelOptionDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA,
+        SIGMA_LR, VOL_OF_VOL, RHO);
     assertEquals(DATA, data1);
     assertEquals(DATA, data2);
+    assertEquals(DATA, data3);
     assertEquals(DATA.hashCode(), data1.hashCode());
     assertEquals(DATA.hashCode(), data2.hashCode());
+    assertEquals(DATA.hashCode(), data3.hashCode());
     assertFalse(DATA.equals(new HullWhiteStochasticVolatilityModelOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO)));
     assertFalse(DATA.equals(new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO)));
     assertFalse(DATA.equals(new HullWhiteStochasticVolatilityModelOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, SIGMA_LR, VOL_OF_VOL, RHO)));

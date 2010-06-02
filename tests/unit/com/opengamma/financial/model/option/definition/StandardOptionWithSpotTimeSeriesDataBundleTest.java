@@ -32,13 +32,13 @@ public class StandardOptionWithSpotTimeSeriesDataBundleTest {
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
-  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] { 1, 2 }, new double[] { 3, 4 });
+  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2}, new double[] {3, 4});
   private static final DiscountCurve OTHER_CURVE = new ConstantInterestRateDiscountCurve(R + 1);
   private static final double OTHER_B = B + 1;
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(SIGMA + 1);
   private static final double OTHER_SPOT = SPOT + 1;
   private static final ZonedDateTime OTHER_DATE = DateUtil.getDateOffsetWithYearFraction(DATE, 1);
-  private static final DoubleTimeSeries<?> OTHER_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] { 1, 2 }, new double[] { 5, 6 });
+  private static final DoubleTimeSeries<?> OTHER_TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2}, new double[] {5, 6});
   private static final StandardOptionWithSpotTimeSeriesDataBundle DATA = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, SURFACE, SPOT, DATE, TS);
 
   @Test(expected = IllegalArgumentException.class)
@@ -73,11 +73,14 @@ public class StandardOptionWithSpotTimeSeriesDataBundleTest {
   @Test
   public void testEqualsAndHashCode() {
     final StandardOptionDataBundle other1 = new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, SURFACE, SPOT, DATE, TS);
-    final StandardOptionDataBundle other2 = new StandardOptionWithSpotTimeSeriesDataBundle(DATA);
+    final StandardOptionDataBundle other2 = new StandardOptionWithSpotTimeSeriesDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), TS);
+    final StandardOptionDataBundle other3 = new StandardOptionWithSpotTimeSeriesDataBundle(DATA);
     assertEquals(DATA, other1);
     assertEquals(DATA.hashCode(), other1.hashCode());
     assertEquals(DATA, other2);
     assertEquals(DATA.hashCode(), other2.hashCode());
+    assertEquals(DATA, other3);
+    assertEquals(DATA.hashCode(), other3.hashCode());
     assertFalse(DATA.equals(new StandardOptionWithSpotTimeSeriesDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, TS)));
     assertFalse(DATA.equals(new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, TS)));
     assertFalse(DATA.equals(new StandardOptionWithSpotTimeSeriesDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, TS)));

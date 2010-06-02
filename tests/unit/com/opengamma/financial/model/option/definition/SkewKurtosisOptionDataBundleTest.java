@@ -70,9 +70,15 @@ public class SkewKurtosisOptionDataBundleTest {
 
   @Test
   public void testEqualsAndHashCode() {
-    final SkewKurtosisOptionDataBundle other = new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS);
-    assertEquals(DATA, other);
-    assertEquals(DATA.hashCode(), other.hashCode());
+    final SkewKurtosisOptionDataBundle data1 = new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS);
+    final SkewKurtosisOptionDataBundle data2 = new SkewKurtosisOptionDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), SKEW, KURTOSIS);
+    final SkewKurtosisOptionDataBundle data3 = new SkewKurtosisOptionDataBundle(new SkewKurtosisOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS));
+    assertEquals(DATA, data1);
+    assertEquals(DATA.hashCode(), data1.hashCode());
+    assertEquals(DATA, data2);
+    assertEquals(DATA.hashCode(), data2.hashCode());
+    assertEquals(DATA, data3);
+    assertEquals(DATA.hashCode(), data3.hashCode());
     assertFalse(DATA.equals(new SkewKurtosisOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, SKEW, KURTOSIS)));
     assertFalse(DATA.equals(new SkewKurtosisOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, SKEW, KURTOSIS)));
     assertFalse(DATA.equals(new SkewKurtosisOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, SKEW, KURTOSIS)));

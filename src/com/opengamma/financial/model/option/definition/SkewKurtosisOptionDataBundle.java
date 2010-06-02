@@ -30,6 +30,12 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
     _annualizedPearsonKurtosis = data.getAnnualizedPearsonKurtosis();
   }
 
+  public SkewKurtosisOptionDataBundle(final StandardOptionDataBundle data, final double annualizedSkew, final double annualizedPearsonKurtosis) {
+    super(data);
+    _annualizedSkew = annualizedSkew;
+    _annualizedPearsonKurtosis = annualizedPearsonKurtosis;
+  }
+
   public double getAnnualizedSkew() {
     return _annualizedSkew;
   }

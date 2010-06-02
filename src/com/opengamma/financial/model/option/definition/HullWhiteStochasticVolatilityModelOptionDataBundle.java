@@ -19,8 +19,8 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
   private final double _volOfVol;
   private final double _rho;
 
-  public HullWhiteStochasticVolatilityModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot,
-      final ZonedDateTime date, final double lambda, final double sigmaLR, final double volOfVol, final double rho) {
+  public HullWhiteStochasticVolatilityModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+      final double lambda, final double sigmaLR, final double volOfVol, final double rho) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
     _sigmaLR = sigmaLR;
@@ -35,6 +35,15 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
     _volOfVol = data.getVolatilityOfVolatility();
     _rho = data.getCorrelation();
   }
+
+  public HullWhiteStochasticVolatilityModelOptionDataBundle(final StandardOptionDataBundle data, final double lambda, final double sigmaLR, final double volOfVol, final double rho) {
+    super(data);
+    _lambda = lambda;
+    _sigmaLR = sigmaLR;
+    _volOfVol = volOfVol;
+    _rho = rho;
+  }
+
   public double getHalfLife() {
     return _lambda;
   }
@@ -71,34 +80,34 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
 
   @Override
   public HullWhiteStochasticVolatilityModelOptionDataBundle withSpot(final Double spot) {
-    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getHalfLife(),
-        getLongRunVolatility(), getVolatilityOfVolatility(), getCorrelation());
+    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), spot, getDate(), getHalfLife(), getLongRunVolatility(),
+        getVolatilityOfVolatility(), getCorrelation());
   }
 
   @Override
   public HullWhiteStochasticVolatilityModelOptionDataBundle withDate(final ZonedDateTime date) {
-    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getHalfLife(),
-        getLongRunVolatility(), getVolatilityOfVolatility(), getCorrelation());
+    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), date, getHalfLife(), getLongRunVolatility(),
+        getVolatilityOfVolatility(), getCorrelation());
   }
 
   public HullWhiteStochasticVolatilityModelOptionDataBundle withHalfLife(final double lambda) {
-    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda,
-        getLongRunVolatility(), getVolatilityOfVolatility(), getCorrelation());
+    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), lambda, getLongRunVolatility(),
+        getVolatilityOfVolatility(), getCorrelation());
   }
 
   public HullWhiteStochasticVolatilityModelOptionDataBundle withLongRunVolatility(final double longRunVolatility) {
-    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(),
-        longRunVolatility, getVolatilityOfVolatility(), getCorrelation());
+    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(), longRunVolatility,
+        getVolatilityOfVolatility(), getCorrelation());
   }
 
   public HullWhiteStochasticVolatilityModelOptionDataBundle withVolatilityOfVolatility(final double volOfVol) {
-    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(),
-        getLongRunVolatility(), volOfVol, getCorrelation());
+    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(), getLongRunVolatility(), volOfVol,
+        getCorrelation());
   }
 
   public HullWhiteStochasticVolatilityModelOptionDataBundle withCorrelation(final double rho) {
-    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(),
-        getLongRunVolatility(), getVolatilityOfVolatility(), rho);
+    return new HullWhiteStochasticVolatilityModelOptionDataBundle(getDiscountCurve(), getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(), getLongRunVolatility(),
+        getVolatilityOfVolatility(), rho);
   }
 
   @Override

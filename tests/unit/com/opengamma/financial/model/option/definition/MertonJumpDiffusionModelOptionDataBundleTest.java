@@ -21,7 +21,7 @@ import com.opengamma.util.time.DateUtil;
 /**
  * 
  */
-public class MertonJumpDiffusionDataBundleTest {
+public class MertonJumpDiffusionModelOptionDataBundleTest {
   private static final double R = 0.01;
   private static final double SIGMA = 0.3;
   private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(R);
@@ -66,10 +66,13 @@ public class MertonJumpDiffusionDataBundleTest {
   public void testEqualsAndHashCode() {
     final MertonJumpDiffusionModelOptionDataBundle data1 = new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA);
     final MertonJumpDiffusionModelOptionDataBundle data2 = new MertonJumpDiffusionModelOptionDataBundle(DATA);
+    final MertonJumpDiffusionModelOptionDataBundle data3 = new MertonJumpDiffusionModelOptionDataBundle(new StandardOptionDataBundle(CURVE, B, SURFACE, SPOT, DATE), LAMBDA, GAMMA);
     assertEquals(DATA, data1);
     assertEquals(DATA, data2);
+    assertEquals(DATA, data3);
     assertEquals(DATA.hashCode(), data1.hashCode());
     assertEquals(DATA.hashCode(), data2.hashCode());
+    assertEquals(DATA.hashCode(), data3.hashCode());
     assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(OTHER_CURVE, B, SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
     assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, OTHER_B, SURFACE, SPOT, DATE, LAMBDA, GAMMA)));
     assertFalse(DATA.equals(new MertonJumpDiffusionModelOptionDataBundle(CURVE, B, OTHER_SURFACE, SPOT, DATE, LAMBDA, GAMMA)));

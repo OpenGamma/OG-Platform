@@ -17,8 +17,8 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
   private final double _lambda;
   private final double _gamma;
 
-  public MertonJumpDiffusionModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot,
-      final ZonedDateTime date, final double lambda, final double gamma) {
+  public MertonJumpDiffusionModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+      final double lambda, final double gamma) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
     _gamma = gamma;
@@ -28,6 +28,12 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
     super(data);
     _lambda = data.getLambda();
     _gamma = data.getGamma();
+  }
+
+  public MertonJumpDiffusionModelOptionDataBundle(final StandardOptionDataBundle data, final double lambda, final double gamma) {
+    super(data);
+    _lambda = lambda;
+    _gamma = gamma;
   }
 
   public double getLambda() {
