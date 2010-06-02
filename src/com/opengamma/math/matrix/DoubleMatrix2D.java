@@ -67,6 +67,14 @@ public class DoubleMatrix2D implements Matrix<Double> {
     }
   }
 
+  public static DoubleMatrix2D Identity(int dimension) {
+    double[][] data = new double[dimension][dimension];
+    for (int i = 0; i < dimension; i++) {
+      data[i][i] = 1.0;
+    }
+    return new DoubleMatrix2D(data);
+  }
+
   @Override
   public Double getEntry(final int... index) {
     return _data[index[0]][index[1]];
