@@ -19,25 +19,25 @@
       </composite-element>
     </set>
   </class>
-  <query name="FutureBundleBean.many.byDateFuture">
+  <query name="FutureBundleBean.many.byDateFuture"><![CDATA[ 
     from
       FutureBundleBean as a
     where
-      (a.startDate is null or a.startDate &lt;= :now) and
-      (a.endDate is null or a.endDate &gt; :now) and
+      (a.startDate is null or a.startDate <= :now) and
+      (a.endDate is null or a.endDate > :now) and
       a.future = :future
-  </query>
+  ]]></query>
   <query name="FutureBundleBean.many.byFuture">
     from
       FutureBundleBean as a
     where
       a.future = :future
   </query>
-  <query name="FutureBundleBean.one.nextBundle">
+  <query name="FutureBundleBean.one.nextBundle"><![CDATA[ 
     from
       FutureBundleBean as a
     where
       a.future = :future and
-      a.startDate = (select min(b.startDate) from FutureBundleBean as b where b.future = :future and b.startDate &gt; :now)
-  </query>
+      a.startDate = (select min(b.startDate) from FutureBundleBean as b where b.future = :future and b.startDate > :now)
+  ]]></query>
 </hibernate-mapping>

@@ -21,14 +21,14 @@
       e.companyName=:companyName and 
       e.currency=:currency
   </query>
-  <query name="EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate">
+  <query name="EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate"><![CDATA[ 
     from 
       EquitySecurityBean as e 
     where 
       e.exchange=:exchange and 
       e.companyName=:companyName and 
       e.currency=:currency and
-      e.effectiveDateTime &lt;= :now and
+      e.effectiveDateTime <= :now and
       not exists (select 
                     s.id 
                   from 
@@ -37,34 +37,34 @@
                 s.exchange=:exchange and 
               s.companyName=:companyName and 
               s.currency=:currency and
-              s.effectiveDateTime &lt; :now and
-              s.effectiveDateTime &gt; e.effectiveDateTime and 
-              s.id &lt;&gt; e.id)
-  </query>
-  <query name="EquitySecurityBean.one.byFirstVersionDate">
+              s.effectiveDateTime < :now and
+              s.effectiveDateTime > e.effectiveDateTime and 
+              s.id <> e.id)
+  ]]></query>
+  <query name="EquitySecurityBean.one.byFirstVersionDate"><![CDATA[ 
     from 
       EquitySecurityBean as e 
     where 
       e.firstVersion=:firstVersion and 
-      e.effectiveDateTime &lt;= :now and
+      e.effectiveDateTime <= :now and
       not exists (select 
                     s.id 
                   from 
                     EquitySecurityBean as s
                   where
                     s.firstVersion = :firstVersion and
-                    s.effectiveDateTime &lt; :now and
-                    s.effectiveDateTime &gt; e.effectiveDateTime and
-                    s.id &lt;&gt; e.id)  
-  </query>
-  <query name="EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate">
+                    s.effectiveDateTime < :now and
+                    s.effectiveDateTime > e.effectiveDateTime and
+                    s.id <> e.id)  
+  ]]></query>
+  <query name="EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate"><![CDATA[ 
     from 
       EquitySecurityBean as e 
     where 
       e.exchange = :exchange and 
       e.companyName = :companyName and 
       e.currency = :currency and
-      e.effectiveDateTime &lt;= :now and
+      e.effectiveDateTime <= :now and
       e.deleted = false and
       not exists (select 
                     s.id 
@@ -74,17 +74,17 @@
                     s.exchange = :exchange and
                     s.companyName = :companyName and
                     s.currency = :currency and
-                    s.effectiveDateTime &lt; :now and
-                    s.effectiveDateTime &gt; e.effectiveDateTime and
-                    s.id &lt;&gt; e.id)  
-  </query>
-  <query name="EquitySecurityBean.one.liveByFirstVersionDate">
+                    s.effectiveDateTime < :now and
+                    s.effectiveDateTime > e.effectiveDateTime and
+                    s.id <> e.id)  
+  ]]></query>
+  <query name="EquitySecurityBean.one.liveByFirstVersionDate"><![CDATA[ 
     from 
       EquitySecurityBean as e 
     where 
       e.firstVersion=:firstVersion and 
       e.deleted=false and
-      e.effectiveDateTime &lt;= :now and
+      e.effectiveDateTime <= :now and
       not exists (select 
                     s.id 
                   from 
@@ -92,10 +92,10 @@
                   where
                     s.firstVersion = :firstVersion and
                     s.deleted = false and
-                    s.effectiveDateTime &lt; :now and
-                    s.effectiveDateTime &gt; e.effectiveDateTime and
-                    s.id &lt;&gt; e.id)  
-  </query>
+                    s.effectiveDateTime < :now and
+                    s.effectiveDateTime > e.effectiveDateTime and
+                    s.id <> e.id)  
+  ]]></query>
   <query name="EquitySecurityBean.many.allVersionsByFirstVersion">
     from 
       EquitySecurityBean as e 
