@@ -30,7 +30,6 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
       Validate.notNull(data);
       Validate.notNull(data.getSpotTimeSeries());
       final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
-      System.out.println(ts + " " + ts.minValue());
       return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };
