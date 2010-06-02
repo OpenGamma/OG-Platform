@@ -8,8 +8,7 @@ package com.opengamma.util.timeseries;
 import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <DATE_TYPE> the type of object used to hold Dates/DateTimes in the wrapper
  */
 public abstract class AbstractMutableIntDoubleTimeSeries<DATE_TYPE> extends AbstractIntDoubleTimeSeries<DATE_TYPE> implements MutableDoubleTimeSeries<DATE_TYPE> {
 

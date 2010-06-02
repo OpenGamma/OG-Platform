@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries;
  * 
  */
 public class ArraySQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries.Integer {
-  public static final ArraySQLDateDoubleTimeSeries EMPTY_SERIES = new ArraySQLDateDoubleTimeSeries();
+  private static final ArraySQLDateDoubleTimeSeries EMPTY_SERIES = new ArraySQLDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new SQLDateEpochDaysConverter();
 
   public ArraySQLDateDoubleTimeSeries() {
@@ -56,6 +56,10 @@ public class ArraySQLDateDoubleTimeSeries extends SQLDateDoubleTimeSeries.Intege
 
   public ArraySQLDateDoubleTimeSeries(final FastIntDoubleTimeSeries pidts) {
     super(s_converter, pidts);
+  }
+  
+  public ArraySQLDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastIntDoubleTimeSeries pidts) {
+    super(converter, pidts);
   }
 
   public ArraySQLDateDoubleTimeSeries(final TimeZone timeZone, final FastIntDoubleTimeSeries pidts) {

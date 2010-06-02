@@ -21,13 +21,8 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
  * 
  */
 public class ListSQLDateDoubleTimeSeries extends MutableSQLDateDoubleTimeSeries.Integer {
-  public static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
-  public static final ListSQLDateDoubleTimeSeries EMPTY_SERIES = new ListSQLDateDoubleTimeSeries();
+  private static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
   private static final DateTimeConverter<Date> s_converter = new SQLDateEpochDaysConverter();
-
-  protected ListSQLDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries fastTS) {
-    super(converter, fastTS);
-  }
 
   public ListSQLDateDoubleTimeSeries() {
     super(new SQLDateEpochDaysConverter(), new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS));
@@ -61,6 +56,10 @@ public class ListSQLDateDoubleTimeSeries extends MutableSQLDateDoubleTimeSeries.
 
   public ListSQLDateDoubleTimeSeries(final FastMutableIntDoubleTimeSeries pmidts) {
     super(s_converter, pmidts);
+  }
+  
+  public ListSQLDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries pmidts) {
+    super(converter, pmidts);
   }
 
   public ListSQLDateDoubleTimeSeries(final TimeZone timeZone, final FastMutableIntDoubleTimeSeries pmidts) {

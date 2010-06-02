@@ -22,11 +22,10 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
  * 
  */
 public class ListLocalDateDoubleTimeSeries extends MutableLocalDateDoubleTimeSeries.Integer {
-  public static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
-  public static final ListLocalDateDoubleTimeSeries EMPTY_SERIES = new ListLocalDateDoubleTimeSeries();
+  private static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
 
-  protected ListLocalDateDoubleTimeSeries(final DateTimeConverter<LocalDate> converter, final FastMutableIntDoubleTimeSeries fastTS) {
+  public ListLocalDateDoubleTimeSeries(final DateTimeConverter<LocalDate> converter, final FastMutableIntDoubleTimeSeries fastTS) {
     super(converter, fastTS);
   }
 
@@ -73,6 +72,6 @@ public class ListLocalDateDoubleTimeSeries extends MutableLocalDateDoubleTimeSer
     return new ListLocalDateDoubleTimeSeries(dateTimes, values);
   }
 
-
+  
 
 }

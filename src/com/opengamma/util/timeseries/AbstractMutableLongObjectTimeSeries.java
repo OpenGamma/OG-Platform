@@ -8,8 +8,8 @@ package com.opengamma.util.timeseries;
 import com.opengamma.util.timeseries.fast.longint.object.FastMutableLongObjectTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <DATE_TYPE> the type of object used to hold Dates/DateTimes in the wrapper
+ * @param <T> the type of the objects being stored in the time series
  */
 public abstract class AbstractMutableLongObjectTimeSeries<DATE_TYPE, T> extends AbstractLongObjectTimeSeries<DATE_TYPE, T> implements MutableObjectTimeSeries<DATE_TYPE, T> {
 
@@ -27,12 +27,12 @@ public abstract class AbstractMutableLongObjectTimeSeries<DATE_TYPE, T> extends 
 
   @Override
   public void putDataPoint(final DATE_TYPE time, final T value) {
-    getFastSeries().primitivePutDataPoint(_converter.convertToLong(time), value);
+    getFastSeries().primitivePutDataPoint(getConverter().convertToLong(time), value);
   }
 
   @Override
   public void removeDataPoint(final DATE_TYPE time) {
-    getFastSeries().primitiveRemoveDataPoint(_converter.convertToLong(time));
+    getFastSeries().primitiveRemoveDataPoint(getConverter().convertToLong(time));
   }
 
   @Override

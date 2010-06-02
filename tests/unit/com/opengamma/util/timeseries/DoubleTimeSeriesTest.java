@@ -17,12 +17,17 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeContextConfiguration;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsgFormatter;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.timeseries.fudge.TimeSeriesFudgeContextConfiguration;
 
 @Ignore
 public abstract class DoubleTimeSeriesTest<E> {
@@ -388,6 +393,17 @@ public abstract class DoubleTimeSeriesTest<E> {
     assertOperationSuccessful(createStandardTimeSeries().minimum(2.0), new double[] {1.0, 2.0, 2.0, 2.0, 2.0, 2.0});
     assertOperationSuccessful(createStandardTimeSeries().maximum(2.5), new double[] {2.5, 2.5, 3.0, 4.0, 5.0, 6.0});
     assertOperationSuccessful(createStandardTimeSeries().average(2.0), new double[] {1.5, 2.0, 2.5, 3.0, 3.5, 4.0});
+  }
+  
+  @Test
+  public void testFudgeSerialization() {
+    FudgeContextConfiguration contextConfiguration = TimeSeriesFudgeContextConfiguration.getInstance();
+    FudgeContext context = new FudgeContext();
+    contextConfiguration.configureFudgeContext(context);
+    FudgeFieldContainer msg = context.toFudgeMsg(createStandardTimeSeries()).getMessage();
+    FudgeMsgFormatter.outputToSystemOut(msg);
+    Object o = context.fromFudgeMsg(msg);
+    assertEquals(createStandardTimeSeries(), o);
   }
   
   protected static void assertOperationSuccessful(DoubleTimeSeries<?> result, double[] expected) {

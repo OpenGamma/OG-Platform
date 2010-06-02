@@ -61,6 +61,10 @@ public class ListZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDoubl
   public ListZonedDateTimeDoubleTimeSeries(final FastMutableLongDoubleTimeSeries pmidts) {
     super(s_converter, pmidts);
   }
+  
+  public ListZonedDateTimeDoubleTimeSeries(final DateTimeConverter<ZonedDateTime> converter, final FastMutableLongDoubleTimeSeries pmidts) {
+    super(converter, pmidts);
+  }
 
   public ListZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastMutableLongDoubleTimeSeries pmidts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), pmidts);

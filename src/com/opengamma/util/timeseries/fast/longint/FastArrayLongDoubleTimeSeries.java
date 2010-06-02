@@ -446,9 +446,6 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
           }
           i++;
         }
-      } else if (obj instanceof AbstractFastBackedDoubleTimeSeries<?>) {
-        final FastBackedDoubleTimeSeries<?> fastBackedDTS = (FastBackedDoubleTimeSeries<?>) obj;
-        return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }

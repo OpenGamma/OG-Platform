@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -21,7 +22,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public class ArrayDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSeries.Long {
   private static final FastListLongDoubleTimeSeries DEFAULT_SERIES_TEMPLATE = new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-  public static final ArrayDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayDateTimeDoubleTimeSeries();
+  private static final ArrayDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayDateTimeDoubleTimeSeries();
   private static final DateEpochMillisConverter s_converter = new DateEpochMillisConverter();
 
   public ArrayDateTimeDoubleTimeSeries() { 
@@ -56,6 +57,10 @@ public class ArrayDateTimeDoubleTimeSeries extends DateTimeDoubleTimeSeries.Long
 
   public ArrayDateTimeDoubleTimeSeries(final FastLongDoubleTimeSeries pidts) {
     super(s_converter, pidts);
+  }
+  
+  public ArrayDateTimeDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastLongDoubleTimeSeries pidts) {
+    super(converter, pidts);
   }
 
   public ArrayDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastLongDoubleTimeSeries pidts) {

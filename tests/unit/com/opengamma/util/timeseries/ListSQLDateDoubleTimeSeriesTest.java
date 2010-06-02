@@ -16,7 +16,7 @@ public class ListSQLDateDoubleTimeSeriesTest extends SQLDateDoubleTimeSeriesTest
 
   @Override
   public SQLDateDoubleTimeSeries createEmptyTimeSeries() {
-    return ListSQLDateDoubleTimeSeries.EMPTY_SERIES;
+    return new ListSQLDateDoubleTimeSeries();
   }
 
   @Override

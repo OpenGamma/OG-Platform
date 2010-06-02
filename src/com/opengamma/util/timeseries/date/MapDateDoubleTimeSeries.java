@@ -57,6 +57,10 @@ public class MapDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Integer
   public MapDateDoubleTimeSeries(final FastMutableIntDoubleTimeSeries pmidts) {
     super(s_converter, pmidts);
   }
+  
+  public MapDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries pmidts) {
+    super(converter, pmidts);
+  }
 
   public MapDateDoubleTimeSeries(final TimeZone timeZone, final FastMutableIntDoubleTimeSeries pmidts) {
     super(new DateEpochDaysConverter(timeZone), pmidts);

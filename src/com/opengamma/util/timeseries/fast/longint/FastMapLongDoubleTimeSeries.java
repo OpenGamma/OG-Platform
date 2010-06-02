@@ -301,9 +301,6 @@ public class FastMapLongDoubleTimeSeries extends AbstractFastMutableLongDoubleTi
             return false;
           }
         }
-      } else if (obj instanceof AbstractFastBackedDoubleTimeSeries<?>) {
-        final FastBackedDoubleTimeSeries<?> fastBackedDTS = (FastBackedDoubleTimeSeries<?>) obj;
-        return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }
