@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
@@ -19,21 +21,23 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * The payoff from a put is <i>S<sub>max</sub> - S</i>, where <i>S<sub>max</sub>
  * is the maximum observed price.
  * 
- * @author emcleod
  */
 public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
-  private final OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries>() {
+  private final OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
+    public Double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
+      Validate.notNull(data.getSpotTimeSeries());
       final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
+      System.out.println(ts + " " + ts.minValue());
       return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries>() {
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
 
     @Override
-    public Boolean shouldExercise(final StandardOptionDataBundleWithSpotTimeSeries data, final Double optionPrice) {
+    public Boolean shouldExercise(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
       return false;
     }
   };
@@ -42,13 +46,15 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
     super(null, expiry, isCall);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public OptionExerciseFunction<StandardOptionDataBundleWithSpotTimeSeries> getExerciseFunction() {
+  public OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public OptionPayoffFunction<StandardOptionDataBundleWithSpotTimeSeries> getPayoffFunction() {
+  public OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
 }
