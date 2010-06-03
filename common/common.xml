@@ -419,7 +419,18 @@
 		depends="clean, clover-setup, compile, tests, clover-html-report">
 	</target>
 	
+    <macrodef name="stripLastChar" description="Drops the last char off of property value">
+	  <attribute name="my.property.name"/>
+	  <sequential>
+	    <length string="${@{my.property.name}}" property="length.prop" />
+	    <math result="length.prop" operand1="${length.prop}" operation="-" operand2="1" datatype="int"/>
+    	<propertyregex property="@{my.property.name}" override="true" input="${@{my.property.name}}" regexp="^.*{${length.prop},${length.prop}}" select="\0"/>
+	  </sequential>
+	</macrodef> 
+	
 	<target name="upload-dev" depends="zipfile" description="--> release the code to the dev server">
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
 	    <input message="Enter the password for ${dev.server.user}@${dev.server.host}:" addproperty="dev.server.pw">
 	      <!-- <handler type="secure" /> -->
 	    </input>
@@ -429,12 +440,46 @@
 	    	verbose="true" 
 	    	sftp="true"
 	    	trust="true" />
-	    <sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
+
+		<!-- Get the PID of the /bin/sh process (.sh file) that launched a java subprocess -->
+		<sshexec host="${dev.server.host}" 
+			username="${dev.server.user}" 
+			password="${dev.server.pw}"
+			command="ps -ef | grep -v grep | grep ${dev.server.startup.script} | awk '{ print $2 }'"
+		    outputproperty="process.id.of.script"
+			failonerror="false"
+			trust="true" 
+			verbose="true" />
+		
+		<if>
+		  <length string="${process.id.of.script}" length="0" when="gt"/>
+		  <then>
+			<!-- Bug in sshexec, see http://old.nabble.com/sshexec-td24832653.html -->
+			<stripLastChar my.property.name="process.id.of.script"/>
+			
+		  	<!-- We need to kill the java subprocess. This will automatically kill the bin/sh process as well. -->
+			<sshexec host="${dev.server.host}" 
+						username="${dev.server.user}" 
+						password="${dev.server.pw}"
+						command="ps -ef | awk '$3 == '${process.id.of.script}' { print $2 }' | xargs kill"
+					    failonerror="false"
+						trust="true" 
+						verbose="true"/>
+		  </then>
+	  	</if>
+
+		<sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
 	        command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
 	    <sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
 	        command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
 	    <sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
 	        command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
+		
+		<sshexec host="${dev.server.host}" 
+				username="${dev.server.user}" 
+				password="${dev.server.pw}"
+				command="nohup ${dev.server.dir}/${dist.name}/scripts/${dev.server.startup.script} &gt;${dev.server.dir}/${dist.name}/nohup.log 2&gt;&amp;1 &amp;"
+				trust="true" />
 	</target>
 	
 </project>
