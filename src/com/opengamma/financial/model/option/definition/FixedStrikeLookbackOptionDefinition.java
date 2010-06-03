@@ -51,4 +51,17 @@ public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
   public OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> getPayoffFunction() {
     return _payoffFunction;
   }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return super.equals(obj);
+  }
 }

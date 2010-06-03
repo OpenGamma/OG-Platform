@@ -75,9 +75,9 @@ public class FadeInOptionDefinition extends OptionDefinition {
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_lowerBound);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_upperBound);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 

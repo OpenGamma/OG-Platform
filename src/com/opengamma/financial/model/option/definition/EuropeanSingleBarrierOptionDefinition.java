@@ -3,7 +3,6 @@ package com.opengamma.financial.model.option.definition;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  */
 
 public class EuropeanSingleBarrierOptionDefinition extends OptionDefinition {
