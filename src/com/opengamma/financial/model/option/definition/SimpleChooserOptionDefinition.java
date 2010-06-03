@@ -8,8 +8,6 @@ package com.opengamma.financial.model.option.definition;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.greeks.Greek;
@@ -49,31 +47,28 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
       return false;
     }
   };
-  private final ZonedDateTime _chooseDate;
+  private final double _underlyingStrike;
+  private final Expiry _underlyingExpiry;
   private final OptionDefinition _callDefinition;
   private final OptionDefinition _putDefinition;
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final Set<Greek> GREEKS = Collections.singleton(Greek.FAIR_PRICE);
 
   /**
-   * 
-   * @param strike The strike
+   * @param chooseDate The date when the choice is to be made (i.e. the option expiry)
+   * @param underlyingStrike The strike
    * @param underlyingExpiry The expiry of the underlying European option
-   * @param chooseDate The date when the choice is to be made
    */
-  public SimpleChooserOptionDefinition(final double strike, final Expiry underlyingExpiry, final ZonedDateTime chooseDate) {
-    super(strike, underlyingExpiry, null);
-    Validate.notNull(chooseDate);
-    if (chooseDate.isAfter(underlyingExpiry.getExpiry())) {
+  public SimpleChooserOptionDefinition(final Expiry chooseDate, final double underlyingStrike, final Expiry underlyingExpiry) {
+    super(null, chooseDate, null);
+    Validate.notNull(underlyingExpiry);
+    if (underlyingExpiry.getExpiry().isBefore(chooseDate.getExpiry())) {
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
     }
-    _chooseDate = chooseDate;
-    _callDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, true);
-    _putDefinition = new EuropeanVanillaOptionDefinition(strike, underlyingExpiry, false);
-  }
-
-  public ZonedDateTime getChooseDate() {
-    return _chooseDate;
+    _underlyingStrike = underlyingStrike;
+    _underlyingExpiry = underlyingExpiry;
+    _callDefinition = new EuropeanVanillaOptionDefinition(underlyingStrike, underlyingExpiry, true);
+    _putDefinition = new EuropeanVanillaOptionDefinition(underlyingStrike, underlyingExpiry, false);
   }
 
   public OptionDefinition getCallDefinition() {
@@ -82,6 +77,14 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
 
   public OptionDefinition getPutDefinition() {
     return _putDefinition;
+  }
+
+  public double getUnderlyingStrike() {
+    return _underlyingStrike;
+  }
+
+  public Expiry getUnderlyingExpiry() {
+    return _underlyingExpiry;
   }
 
   @Override
@@ -94,22 +97,17 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
     return _payoffFunction;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + ((_callDefinition == null) ? 0 : _callDefinition.hashCode());
-    result = prime * result + ((_chooseDate == null) ? 0 : _chooseDate.hashCode());
-    result = prime * result + ((_putDefinition == null) ? 0 : _putDefinition.hashCode());
+    result = prime * result + ((_underlyingExpiry == null) ? 0 : _underlyingExpiry.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_underlyingStrike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
@@ -122,25 +120,14 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
       return false;
     }
     final SimpleChooserOptionDefinition other = (SimpleChooserOptionDefinition) obj;
-    if (_callDefinition == null) {
-      if (other._callDefinition != null) {
+    if (_underlyingExpiry == null) {
+      if (other._underlyingExpiry != null) {
         return false;
       }
-    } else if (!_callDefinition.equals(other._callDefinition)) {
+    } else if (!_underlyingExpiry.equals(other._underlyingExpiry)) {
       return false;
     }
-    if (_chooseDate == null) {
-      if (other._chooseDate != null) {
-        return false;
-      }
-    } else if (!_chooseDate.equals(other._chooseDate)) {
-      return false;
-    }
-    if (_putDefinition == null) {
-      if (other._putDefinition != null) {
-        return false;
-      }
-    } else if (!_putDefinition.equals(other._putDefinition)) {
+    if (Double.doubleToLongBits(_underlyingStrike) != Double.doubleToLongBits(other._underlyingStrike)) {
       return false;
     }
     return true;

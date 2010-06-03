@@ -29,9 +29,9 @@ public class SimpleChooserOptionModelTest {
   @Test
   public void test() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
-    final ZonedDateTime chooseDate = DateUtil.getDateOffsetWithYearFraction(date, 0.25);
+    final Expiry chooseDate = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 0.25));
     final Expiry underlyingExpiry = new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 0.5));
-    final SimpleChooserOptionDefinition definition = new SimpleChooserOptionDefinition(50, underlyingExpiry, chooseDate);
+    final SimpleChooserOptionDefinition definition = new SimpleChooserOptionDefinition(chooseDate, 50, underlyingExpiry);
     final StandardOptionDataBundle bundle = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(0.25), 50., date);
     final AnalyticOptionModel<SimpleChooserOptionDefinition, StandardOptionDataBundle> model = new SimpleChooserOptionModel();
     assertEquals(model.getGreeks(definition, bundle, Sets.newHashSet(Greek.FAIR_PRICE)).get(Greek.FAIR_PRICE), 6.1071, EPS);
