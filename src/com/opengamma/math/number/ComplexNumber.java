@@ -32,12 +32,14 @@ public class ComplexNumber extends Number {
   @Override
   public String toString() {
     if (CompareUtils.closeEquals(0, _real)) {
-      if (CompareUtils.closeEquals(0, _imaginary))
+      if (CompareUtils.closeEquals(0, _imaginary)) {
         return Double.toString(0);
+      }
       return Double.toString(_imaginary) + "i";
     }
-    if (CompareUtils.closeEquals(0, _imaginary))
+    if (CompareUtils.closeEquals(0, _imaginary)) {
       return Double.toString(_real);
+    }
     return Double.toString(_real) + " + " + Double.toString(_imaginary) + "i";
   }
 
@@ -55,17 +57,22 @@ public class ComplexNumber extends Number {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final ComplexNumber other = (ComplexNumber) obj;
-    if (Double.doubleToLongBits(_imaginary) != Double.doubleToLongBits(other._imaginary))
+    if (Double.doubleToLongBits(_imaginary) != Double.doubleToLongBits(other._imaginary)) {
       return false;
-    if (Double.doubleToLongBits(_real) != Double.doubleToLongBits(other._real))
+    }
+    if (Double.doubleToLongBits(_real) != Double.doubleToLongBits(other._real)) {
       return false;
+    }
     return true;
   }
 
