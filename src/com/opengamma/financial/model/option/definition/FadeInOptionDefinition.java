@@ -7,6 +7,9 @@ package com.opengamma.financial.model.option.definition;
 
 import java.util.Iterator;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -14,25 +17,27 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  * Definition for a fade-in option. The payoff of the option is the same as that
  * for a standard option with the size of the payoff weighted by how many
- * fixings the asset price were inside a pre-defined range <i>(L, U)</i>
+ * times the asset price was inside a pre-defined range <i>(L, U)</i>
  * 
- * @author emcleod
  */
 public class FadeInOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
 
     @Override
     public Double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
+      Validate.notNull(data.getSpotTimeSeries());
       final DoubleTimeSeries<?> spotTS = data.getSpotTimeSeries();
       final Iterator<Double> iter = spotTS.valuesIterator();
-      double inRange = 0;
+      int inRange = 0;
+      double value = 0;
       while (iter.hasNext()) {
-        inRange = iter.next();
-        if (inRange > getLowerBound() && inRange < getUpperBound()) {
+        value = iter.next();
+        if (value > getLowerBound() && value < getUpperBound()) {
           inRange++;
         }
       }
-      return inRange / spotTS.size() * (isCall() ? Math.max(0, data.getSpot() - getStrike()) : Math.max(0, getStrike() - data.getSpot()));
+      return inRange * (isCall() ? Math.max(0, data.getSpot() - getStrike()) : Math.max(0, getStrike() - data.getSpot())) / spotTS.size();
     }
   };
   private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
@@ -42,12 +47,16 @@ public class FadeInOptionDefinition extends OptionDefinition {
       return false;
     }
   };
-  // TODO maybe use a barrier here?
   private final double _lowerBound;
   private final double _upperBound;
 
   public FadeInOptionDefinition(final double strike, final Expiry expiry, final boolean isCall, final double lowerBound, final double upperBound) {
     super(strike, expiry, isCall);
+    ArgumentChecker.notNegative(lowerBound, "lower bound");
+    ArgumentChecker.notNegative(upperBound, "upper bound");
+    if (upperBound < lowerBound) {
+      throw new IllegalArgumentException("Upper bound was less than lower bound");
+    }
     _lowerBound = lowerBound;
     _upperBound = upperBound;
   }
@@ -74,25 +83,32 @@ public class FadeInOptionDefinition extends OptionDefinition {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final FadeInOptionDefinition other = (FadeInOptionDefinition) obj;
-    if (Double.doubleToLongBits(_lowerBound) != Double.doubleToLongBits(other._lowerBound))
+    if (Double.doubleToLongBits(_lowerBound) != Double.doubleToLongBits(other._lowerBound)) {
       return false;
-    if (Double.doubleToLongBits(_upperBound) != Double.doubleToLongBits(other._upperBound))
+    }
+    if (Double.doubleToLongBits(_upperBound) != Double.doubleToLongBits(other._upperBound)) {
       return false;
+    }
     return true;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> getExerciseFunction() {
     return _exerciseFunction;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> getPayoffFunction() {
     return _payoffFunction;
