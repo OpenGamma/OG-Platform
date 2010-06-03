@@ -22,6 +22,12 @@
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 	<available file="${ivy.jar.file}" property="skip.download"/>
 	
+	<!-- Use the DSA SSH private key if found, otherwise use the RSA key.
+		 If your private key is not in ~/.ssh, or is named in a non-standard way, you
+		 will need to set the ssh.private.key property manually in build.properties. -->
+	<available file="${user.home}/.ssh/id_rsa" property="ssh.private.key" value="${user.home}/.ssh/id_rsa"/>
+	<available file="${user.home}/.ssh/id_dsa" property="ssh.private.key" value="${user.home}/.ssh/id_dsa"/>
+	 
 	<target name="download-ivy" unless="skip.download">
 		<mkdir dir="${ivy.jar.dir}" />
 		<!--
@@ -431,12 +437,15 @@
 	<target name="upload-dev" depends="zipfile" description="--> release the code to the dev server">
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
 
-	    <input message="Enter the password for ${dev.server.user}@${dev.server.host}:" addproperty="dev.server.pw">
-	      <!-- <handler type="secure" /> -->
-	    </input>
-	    <scp file="${dist.dir}/${dist.name}-${version}.zip"
+		<!-- If you get a FileNotFoundException complaining about ssh.private.key, make sure your
+			 SSH private key is in the standard location (see the ssh.private.key 'available' commands above). -->
+		
+		<!-- If you get an authentication failure, check that your SSH public key has been added to 
+		     the dev server ~/.ssh/authorized_keys2 file, where ~ is the home directory of ${dev.server.user}. -->
+
+		<scp file="${dist.dir}/${dist.name}-${version}.zip"
 	        todir="${dev.server.user}@${dev.server.host}:${dev.server.dir}" 
-	    	password="${dev.server.pw}" 
+			keyfile="${ssh.private.key}"
 	    	verbose="true" 
 	    	sftp="true"
 	    	trust="true" />
@@ -444,12 +453,10 @@
 		<!-- Get the PID of the /bin/sh process (.sh file) that launched a java subprocess -->
 		<sshexec host="${dev.server.host}" 
 			username="${dev.server.user}" 
-			password="${dev.server.pw}"
+			keyfile="${ssh.private.key}"
 			command="ps -ef | grep -v grep | grep ${dev.server.startup.script} | awk '{ print $2 }'"
 		    outputproperty="process.id.of.script"
-			failonerror="false"
-			trust="true" 
-			verbose="true" />
+			trust="true"/>
 		
 		<if>
 		  <length string="${process.id.of.script}" length="0" when="gt"/>
@@ -460,24 +467,22 @@
 		  	<!-- We need to kill the java subprocess. This will automatically kill the bin/sh process as well. -->
 			<sshexec host="${dev.server.host}" 
 						username="${dev.server.user}" 
-						password="${dev.server.pw}"
+						keyfile="${ssh.private.key}"
 						command="ps -ef | awk '$3 == '${process.id.of.script}' { print $2 }' | xargs kill"
-					    failonerror="false"
-						trust="true" 
-						verbose="true"/>
+						trust="true"/>
 		  </then>
 	  	</if>
 
-		<sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
+		<sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
 	        command="rm -r ${dev.server.dir}/${dist.name}" failonerror="false" trust="true" />
-	    <sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
+	    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
 	        command="unzip ${dev.server.dir}/${dist.name}-${version}.zip -d ${dev.server.dir}" trust="true" />
-	    <sshexec host="${dev.server.host}" username="${dev.server.user}" password="${dev.server.pw}"
+	    <sshexec host="${dev.server.host}" username="${dev.server.user}" keyfile="${ssh.private.key}"
 	        command="chmod +x ${dev.server.dir}/${dist.name}/scripts/*.sh" trust="true" />
 		
 		<sshexec host="${dev.server.host}" 
 				username="${dev.server.user}" 
-				password="${dev.server.pw}"
+				keyfile="${ssh.private.key}"
 				command="nohup ${dev.server.dir}/${dist.name}/scripts/${dev.server.startup.script} &gt;${dev.server.dir}/${dist.name}/nohup.log 2&gt;&amp;1 &amp;"
 				trust="true" />
 	</target>
