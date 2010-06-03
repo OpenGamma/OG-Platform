@@ -15,6 +15,10 @@ import org.apache.commons.lang.Validate;
 public class DoubleMatrix1D implements Matrix<Double> {
   private final double[] _data;
   private final int _elements;
+  /**
+   * Empty matrix
+   */
+  public static final DoubleMatrix1D EMPTY_MATRIX = new DoubleMatrix1D(new double[0]);
 
   public DoubleMatrix1D(final Double[] data) {
     Validate.notNull(data);

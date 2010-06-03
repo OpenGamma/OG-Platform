@@ -6,14 +6,16 @@
 package com.opengamma.math.matrix;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
 /**
- * @author emcleod
  * 
  */
 public class DoubleMatrix2DTest {
+  private static final DoubleMatrix2D PRIMITIVES = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+  private static final DoubleMatrix2D OBJECTS = new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3.}, new Double[] {4., 5., 6.}, new Double[] {7., 8., 9.}});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullPrimitiveArray() {
@@ -23,6 +25,16 @@ public class DoubleMatrix2DTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNullObjectArray() {
     new DoubleMatrix2D((Double[][]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNonRectangularMatrix1() {
+    new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9, 10}});
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNonRectangularMatrix2() {
+    new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3.}, new Double[] {4., 5., 6.}, new Double[] {7., 8., 9., 10.}});
   }
 
   @Test
@@ -64,9 +76,26 @@ public class DoubleMatrix2DTest {
     x = d.getData();
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        assertEquals(x[i][j], y[i][j], 1e-15);
+        assertEquals(x[i][j], y[i][j], 0);
+        assertEquals(x[i][j], d.getEntry(i, j), 0);
       }
     }
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    DoubleMatrix2D primitives = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}});
+    DoubleMatrix2D objects = new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3.}, new Double[] {4., 5., 6.}, new Double[] {7., 8., 9.}});
+    assertEquals(primitives, PRIMITIVES);
+    assertEquals(objects, OBJECTS);
+    assertEquals(PRIMITIVES, OBJECTS);
+    assertEquals(primitives.hashCode(), PRIMITIVES.hashCode());
+    assertEquals(objects.hashCode(), OBJECTS.hashCode());
+    assertEquals(PRIMITIVES.hashCode(), OBJECTS.hashCode());
+    primitives = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 11}});
+    objects = new DoubleMatrix2D(new Double[][] {new Double[] {1., 2., 3.}, new Double[] {4., 5., 6.}, new Double[] {7., 8., 11.}});
+    assertFalse(primitives.equals(PRIMITIVES));
+    assertFalse(objects.equals(OBJECTS));
   }
 
 }

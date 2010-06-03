@@ -14,6 +14,7 @@ import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.matrix.DoubleMatrixUtil;
 
 /**
  * Uses the Sherman-Morrison formula to invert Broyden's Jacobian update formula, thus providing a direct update formula for the inverse Jacobian 
@@ -34,12 +35,12 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
    * @param relativeTol
    * @param maxSteps
    */
-  public ShermanMorrisonVectorRootFinder(double absoluteTol, double relativeTol, int maxSteps) {
+  public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
     super(absoluteTol, relativeTol, maxSteps);
     _decomp = new LUDecompositionCommons();
   }
 
-  public ShermanMorrisonVectorRootFinder(double absoluteTol, double relativeTol, int maxSteps, Decomposition decomp) {
+  public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition decomp) {
     super(absoluteTol, relativeTol, maxSteps);
     Validate.notNull(decomp);
     _decomp = decomp;
@@ -58,9 +59,9 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
    */
   @Override
   protected void initializeMatrices() {
-    DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
-    DecompositionResult deconResult = _decomp.evaluate(jacobianEst);
-    _invJacobianEst = deconResult.solve(DoubleMatrix2D.Identity(_x.getNumberOfElements()));
+    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
+    final DecompositionResult deconResult = _decomp.evaluate(jacobianEst);
+    _invJacobianEst = deconResult.solve(DoubleMatrixUtil.getIdentityMatrix2D(_x.getNumberOfElements()));
   }
 
   /* (non-Javadoc)
@@ -69,11 +70,10 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
   @Override
   protected void updateMatrices() {
     DoubleMatrix1D vtemp1 = OG_ALGEBRA.multiply(_deltax, _invJacobianEst);
-    double length2 = OG_ALGEBRA.getInnerProduct(vtemp1, _deltay);
+    final double length2 = OG_ALGEBRA.getInnerProduct(vtemp1, _deltay);
     vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.scale(vtemp1, 1.0 / length2);
-    DoubleMatrix1D vtemp2 = (DoubleMatrix1D) OG_ALGEBRA
-        .subtract(_deltax, OG_ALGEBRA.multiply(_invJacobianEst, _deltay));
-    DoubleMatrix2D mtemp = OG_ALGEBRA.getOuterProduct(vtemp2, vtemp1);
+    final DoubleMatrix1D vtemp2 = (DoubleMatrix1D) OG_ALGEBRA.subtract(_deltax, OG_ALGEBRA.multiply(_invJacobianEst, _deltay));
+    final DoubleMatrix2D mtemp = OG_ALGEBRA.getOuterProduct(vtemp2, vtemp1);
     _invJacobianEst = (DoubleMatrix2D) OG_ALGEBRA.add(_invJacobianEst, mtemp);
   }
 
