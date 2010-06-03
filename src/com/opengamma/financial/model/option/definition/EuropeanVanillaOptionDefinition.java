@@ -54,29 +54,17 @@ public class EuropeanVanillaOptionDefinition extends OptionDefinition {
     return "Vanilla European" + (isCall() ? " call " : " put ") + "[K = " + getStrike() + ", " + getExpiry() + "]";
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     return super.hashCode();
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
     if (getClass() != obj.getClass()) {
       return false;
     }
-    return true;
+    return super.equals(obj);
   }
 
 }

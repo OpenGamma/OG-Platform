@@ -72,25 +72,15 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
 
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + _exerciseFunction.hashCode();
-    result = prime * result + _payoffFunction.hashCode();
-    return result;
+    return super.hashCode();
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
     if (getClass() != obj.getClass()) {
       return false;
     }
-    return false;
+    return super.equals(obj);
   }
 
 }

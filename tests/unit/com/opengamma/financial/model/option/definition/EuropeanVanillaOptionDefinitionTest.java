@@ -51,4 +51,21 @@ public class EuropeanVanillaOptionDefinitionTest {
     assertEquals(payoff.getPayoff(DATA.withSpot(SPOT + DIFF), null), 0, EPS);
     assertEquals(payoff.getPayoff(DATA.withSpot(SPOT - DIFF), null), DIFF, EPS);
   }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    assertFalse(CALL.equals(PUT));
+    OptionDefinition call = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, true);
+    final OptionDefinition put = new EuropeanVanillaOptionDefinition(SPOT, EXPIRY, false);
+    assertEquals(call, CALL);
+    assertEquals(call.hashCode(), CALL.hashCode());
+    assertEquals(put, PUT);
+    assertEquals(put.hashCode(), PUT.hashCode());
+    call = new EuropeanVanillaOptionDefinition(SPOT + 1, EXPIRY, true);
+    assertFalse(call.equals(CALL));
+    call = new EuropeanVanillaOptionDefinition(SPOT, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 2)), true);
+    assertFalse(call.equals(CALL));
+    call = new AmericanVanillaOptionDefinition(SPOT, EXPIRY, true);
+    assertFalse(call.equals(CALL));
+  }
 }
