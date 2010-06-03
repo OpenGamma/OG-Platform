@@ -45,4 +45,17 @@ public class LogOptionDefinitionTest {
     assertEquals(payoff.getPayoff(DATA.withSpot(STRIKE - 10), 0.), 0, 0);
     assertEquals(payoff.getPayoff(DATA.withSpot(STRIKE + 10), 0.), Math.log((STRIKE + 10) / STRIKE), 0);
   }
+
+  @Test
+  public void testHashCodeAndEquals() {
+    OptionDefinition definition = new LogOptionDefinition(STRIKE, EXPIRY);
+    assertEquals(definition, DEFINITION);
+    assertEquals(definition.hashCode(), DEFINITION.hashCode());
+    definition = new LogOptionDefinition(STRIKE + 1, EXPIRY);
+    assertFalse(definition.equals(DEFINITION));
+    definition = new LogOptionDefinition(STRIKE, new Expiry(EXPIRY.getExpiry().plusDays(3)));
+    assertFalse(definition.equals(DEFINITION));
+    definition = new EuropeanVanillaOptionDefinition(STRIKE, EXPIRY, true);
+    assertFalse(definition.equals(DEFINITION));
+  }
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -16,7 +19,6 @@ import com.opengamma.util.time.Expiry;
  * S<sup>i</sup> - K), C]</i> for a call and <i>min[max(0, K - S<sup>i</sup>),
  * C]</i> for a put.
  * 
- * @author emcleod
  */
 
 public class CappedPowerOptionDefinition extends OptionDefinition {
@@ -24,6 +26,7 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
 
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
       final double spot = data.getSpot();
       return isCall() ? Math.min(Math.max(Math.pow(spot, getPower()) - getStrike(), 0), getCap()) : Math.min(Math.max(getStrike() - Math.pow(spot, getPower()), 0), getCap());
     }
@@ -40,14 +43,15 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
 
   /**
    * 
-   * @param strike
-   * @param expiry
-   * @param power
-   * @param cap
-   * @param isCall
+   * @param strike The option strike
+   * @param expiry The option expiry
+   * @param power The power 
+   * @param cap The cap
+   * @param isCall Is the option a put or call
    */
   public CappedPowerOptionDefinition(final double strike, final Expiry expiry, final double power, final double cap, final boolean isCall) {
     super(strike, expiry, isCall);
+    ArgumentChecker.notNegative(cap, "cap");
     _power = power;
     _cap = cap;
   }
@@ -84,25 +88,30 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_cap);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_power);
-    result = prime * result + (int) (temp ^ temp >>> 32);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final CappedPowerOptionDefinition other = (CappedPowerOptionDefinition) obj;
-    if (Double.doubleToLongBits(_cap) != Double.doubleToLongBits(other._cap))
+    if (Double.doubleToLongBits(_cap) != Double.doubleToLongBits(other._cap)) {
       return false;
-    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power))
+    }
+    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power)) {
       return false;
+    }
     return true;
   }
 }
