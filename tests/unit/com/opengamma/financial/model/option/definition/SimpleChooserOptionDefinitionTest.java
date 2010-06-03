@@ -50,6 +50,16 @@ public class SimpleChooserOptionDefinitionTest {
     new SimpleChooserOptionDefinition(EXPIRY, STRIKE, new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.05)));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegativeStrike() {
+    new SimpleChooserOptionDefinition(EXPIRY, -STRIKE, UNDERLYING_EXPIRY);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullDataBundle() {
+    CHOOSER.getPayoffFunction().getPayoff(null, null);
+  }
+
   @Test
   public void testExerciseFunction() {
     final OptionExerciseFunction<StandardOptionDataBundle> exercise = CHOOSER.getExerciseFunction();

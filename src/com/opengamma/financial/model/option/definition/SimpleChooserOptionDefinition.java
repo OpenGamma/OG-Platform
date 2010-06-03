@@ -13,6 +13,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -35,6 +36,7 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
     @SuppressWarnings("synthetic-access")
     @Override
     public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      Validate.notNull(data);
       final double callPrice = BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
       final double putPrice = BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
       return Math.max(callPrice, putPrice);
@@ -56,12 +58,13 @@ public class SimpleChooserOptionDefinition extends OptionDefinition {
 
   /**
    * @param chooseDate The date when the choice is to be made (i.e. the option expiry)
-   * @param underlyingStrike The strike
+   * @param underlyingStrike The strike of the underlying option
    * @param underlyingExpiry The expiry of the underlying European option
    */
   public SimpleChooserOptionDefinition(final Expiry chooseDate, final double underlyingStrike, final Expiry underlyingExpiry) {
     super(null, chooseDate, null);
     Validate.notNull(underlyingExpiry);
+    ArgumentChecker.notNegative(underlyingStrike, "underlying strike");
     if (underlyingExpiry.getExpiry().isBefore(chooseDate.getExpiry())) {
       throw new IllegalArgumentException("Underlying option expiry must be after the choice date");
     }
