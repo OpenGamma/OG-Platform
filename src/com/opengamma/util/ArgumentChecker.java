@@ -169,7 +169,7 @@ public final class ArgumentChecker {
    */
   public static void notNegativeOrZero(int parameter, String name) throws IllegalArgumentException {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
     }
   }
 
@@ -181,7 +181,7 @@ public final class ArgumentChecker {
    */
   public static void notNegativeOrZero(double parameter, String name) throws IllegalArgumentException {
     if (parameter <= 0) {
-      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
     }
   }
 
