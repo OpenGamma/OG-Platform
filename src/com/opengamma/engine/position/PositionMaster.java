@@ -25,23 +25,26 @@ public interface PositionMaster {
 
   /**
    * Finds a specific portfolio by identifier.
-   * @param identifier  the identifier, null returns null
+   * @param uid  the unique identifier, null returns null
    * @return the portfolio, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
-  Portfolio getPortfolio(UniqueIdentifier identifier);
+  Portfolio getPortfolio(UniqueIdentifier uid);
 
   /**
    * Finds a specific node from any portfolio by identifier.
-   * @param identifier  the identifier, null returns null
+   * @param uid  the unique identifier, null returns null
    * @return the node, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
-  PortfolioNode getPortfolioNode(UniqueIdentifier identifier);
+  PortfolioNode getPortfolioNode(UniqueIdentifier uid);
 
   /**
    * Finds a specific position from any portfolio by identifier.
-   * @param identifier  the identifier, null returns null
+   * @param uid  the unique identifier, null returns null
    * @return the position, null if not found
+   * @throws IllegalArgumentException if the identifier is not from this position master
    */
-  Position getPosition(UniqueIdentifier identifier);
+  Position getPosition(UniqueIdentifier uid);
 
 }
