@@ -11,8 +11,8 @@ build/
 lib/
 derby.log
 db/
-!src/*/db/
-!tests/*/db/
+!src/com/opengamma/util/db/
+!tests/unit/com/opengamma/util/db/
 !db/*/create-db.sql
 /.fudge-proto-gitignore
 /MANIFEST.MF
