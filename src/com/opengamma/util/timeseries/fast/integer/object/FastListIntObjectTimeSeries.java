@@ -367,9 +367,6 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
             return false;
           }
         }
-      } else if (obj instanceof AbstractFastBackedObjectTimeSeries<?, ?>) {
-        final FastBackedObjectTimeSeries<?, ?> fastBackedDTS = (FastBackedObjectTimeSeries<?, ?>) obj;
-        return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }

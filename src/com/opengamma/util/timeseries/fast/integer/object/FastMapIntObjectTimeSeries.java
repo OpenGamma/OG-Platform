@@ -298,9 +298,6 @@ public class FastMapIntObjectTimeSeries<T> extends AbstractFastMutableIntObjectT
             return false;
           }
         }
-      } else if (obj instanceof AbstractFastBackedObjectTimeSeries<?, ?>) {
-        final FastBackedObjectTimeSeries<?, ?> fastBackedDTS = (FastBackedObjectTimeSeries<?, ?>) obj;
-        return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }

@@ -18,12 +18,12 @@ import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSerie
 
 
 /**
- * @author jim
- * 
+ * @param <DATE_TYPE> the type of object used to hold Dates/DateTimes in the wrpper
+ * @param <T> the type of the objects being stored in the time series
  */
 public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> {
 
-  final DateTimeConverter<DATE_TYPE> _converter;
+  private final DateTimeConverter<DATE_TYPE> _converter;
   private final FastLongObjectTimeSeries<T> _timeSeries;
 
   public AbstractLongObjectTimeSeries(final DateTimeConverter<DATE_TYPE> converter, final FastLongObjectTimeSeries<T> timeSeries) {
@@ -94,7 +94,9 @@ public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends Abstrac
   public boolean isEmpty() {
     return getFastSeries().isEmpty();
   }
-
+  /**
+   * Converts from the underlying iterator into the wrapped type.
+   */
   protected class IteratorAdapter implements Iterator<Entry<DATE_TYPE, T>> {
 
     private final Iterator<Entry<Long, T>> _iterator;
@@ -214,9 +216,9 @@ public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends Abstrac
     FastObjectTimeSeries<?, T> fastSeries = other.getFastSeries();
     FastLongObjectTimeSeries<T> longObjectTimeSeries;
     if (fastSeries instanceof FastIntObjectTimeSeries<?>) {
-      longObjectTimeSeries = getFastSeries().operate((FastIntObjectTimeSeries<T>)fastSeries, operator);
+      longObjectTimeSeries = getFastSeries().operate((FastIntObjectTimeSeries<T>) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongObjectTimeSeries<T>
-      longObjectTimeSeries = getFastSeries().operate((FastLongObjectTimeSeries<T>)fastSeries, operator);
+      longObjectTimeSeries = getFastSeries().operate((FastLongObjectTimeSeries<T>) fastSeries, operator);
     }
     return (FastBackedObjectTimeSeries<DATE_TYPE, T>) getConverter().convertFromLong(this, longObjectTimeSeries);
   }
@@ -230,9 +232,9 @@ public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends Abstrac
   public FastBackedObjectTimeSeries<DATE_TYPE, T> operate(final FastObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {  
     FastLongObjectTimeSeries<T> intObjectTimeSeries;
     if (other instanceof FastIntObjectTimeSeries<?>) {
-      intObjectTimeSeries = getFastSeries().operate((FastIntObjectTimeSeries<T>)other, operator);
+      intObjectTimeSeries = getFastSeries().operate((FastIntObjectTimeSeries<T>) other, operator);
     } else { // if (fastSeries instanceof FastLongObjectTimeSeries<T>
-      intObjectTimeSeries = getFastSeries().operate((FastLongObjectTimeSeries<T>)other, operator);
+      intObjectTimeSeries = getFastSeries().operate((FastLongObjectTimeSeries<T>) other, operator);
     }
     return (FastBackedObjectTimeSeries<DATE_TYPE, T>) getConverter().convertFromLong(this, intObjectTimeSeries);
   }
@@ -241,16 +243,20 @@ public abstract class AbstractLongObjectTimeSeries<DATE_TYPE, T> extends Abstrac
   public FastBackedObjectTimeSeries<DATE_TYPE, T> unionOperate(final FastObjectTimeSeries<?, T> other, final BinaryOperator<T> operator) {  
     FastLongObjectTimeSeries<T> intObjectTimeSeries;
     if (other instanceof FastIntObjectTimeSeries<?>) {
-      intObjectTimeSeries = getFastSeries().unionOperate((FastIntObjectTimeSeries<T>)other, operator);
+      intObjectTimeSeries = getFastSeries().unionOperate((FastIntObjectTimeSeries<T>) other, operator);
     } else { // if (fastSeries instanceof FastLongObjectTimeSeries<T>
-      intObjectTimeSeries = getFastSeries().unionOperate((FastLongObjectTimeSeries<T>)other, operator);
+      intObjectTimeSeries = getFastSeries().unionOperate((FastLongObjectTimeSeries<T>) other, operator);
     }
     return (FastBackedObjectTimeSeries<DATE_TYPE, T>) getConverter().convertFromLong(this, intObjectTimeSeries);
   }
 
   @Override
   public boolean equals(final Object obj) {
-    return getFastSeries().equals(obj);
+    if (obj instanceof FastBackedObjectTimeSeries<?, ?>) {
+      FastBackedObjectTimeSeries<?, ?> fbots = (FastBackedObjectTimeSeries<?, ?>) obj; 
+      return getFastSeries().equals(fbots.getFastSeries());
+    }
+    return false;
   }
 
   @Override

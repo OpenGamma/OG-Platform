@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
@@ -27,33 +28,49 @@ public class ArrayYearOffsetDoubleTimeSeries extends YearOffsetDoubleTimeSeries.
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final ZonedDateTime zeroDate, final Double[] dates, final double[] values) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(zeroDate), 
+          new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, 
+                                            new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), 
+                                            values));
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final Double[] dates, final double[] values) {
-    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(timeZone, zeroDate)
-        .convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), 
+          new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, 
+                                            new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong(dates), 
+                                            values));
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final ZonedDateTime zeroDate, final List<Double> dates, final List<Double> values) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(zeroDate), 
+          new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, 
+                                            new YearOffsetEpochMillisConverter(zeroDate).convertToLong(dates), 
+                                            values));
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final List<Double> dates, final List<Double> values) {
-    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new YearOffsetEpochMillisConverter(timeZone, zeroDate)
-        .convertToLong(dates), values));
+    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), 
+          new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, 
+                                            new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong(dates), 
+                                            values));
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final ZonedDateTime zeroDate, final YearOffsetDoubleTimeSeries dts) {
-    super(new YearOffsetEpochMillisConverter(zeroDate), new YearOffsetEpochMillisConverter(zeroDate).convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
+    super(new YearOffsetEpochMillisConverter(zeroDate), 
+          new YearOffsetEpochMillisConverter(zeroDate).convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final YearOffsetDoubleTimeSeries dts) {
-    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
+    super(new YearOffsetEpochMillisConverter(timeZone, zeroDate), 
+          new YearOffsetEpochMillisConverter(timeZone, zeroDate).convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final ZonedDateTime zeroDate, final FastLongDoubleTimeSeries pidts) {
     super(new YearOffsetEpochMillisConverter(zeroDate), pidts);
+  }
+  
+  public ArrayYearOffsetDoubleTimeSeries(final DateTimeConverter<Double> converter, final FastLongDoubleTimeSeries pidts) {
+    super(converter, pidts);
   }
 
   public ArrayYearOffsetDoubleTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate, final FastLongDoubleTimeSeries pidts) {

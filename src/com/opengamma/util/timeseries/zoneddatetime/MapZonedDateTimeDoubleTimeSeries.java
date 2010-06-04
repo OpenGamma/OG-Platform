@@ -52,7 +52,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
   public MapZonedDateTimeDoubleTimeSeries(final ZonedDateTimeDoubleTimeSeries dts) {
     super(s_converter, (FastMutableLongDoubleTimeSeries) s_converter.convertToLong(new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
-
+  
   public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), (FastMutableLongDoubleTimeSeries) new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(new FastMapLongDoubleTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
@@ -60,6 +60,10 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
 
   public MapZonedDateTimeDoubleTimeSeries(final FastMutableLongDoubleTimeSeries pmidts) {
     super(s_converter, pmidts);
+  }
+  
+  public MapZonedDateTimeDoubleTimeSeries(final DateTimeConverter<ZonedDateTime> converter, final FastMutableLongDoubleTimeSeries pmidts) {
+    super(converter, pmidts);
   }
 
   public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastMutableLongDoubleTimeSeries pmidts) {

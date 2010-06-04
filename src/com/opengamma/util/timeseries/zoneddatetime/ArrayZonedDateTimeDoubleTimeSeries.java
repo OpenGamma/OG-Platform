@@ -10,6 +10,7 @@ import java.util.List;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
@@ -60,6 +61,10 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
 
   public ArrayZonedDateTimeDoubleTimeSeries(final FastLongDoubleTimeSeries pidts) {
     super(s_converter, pidts);
+  }
+  
+  public ArrayZonedDateTimeDoubleTimeSeries(final DateTimeConverter<ZonedDateTime> converter, final FastLongDoubleTimeSeries pidts) {
+    super(converter, pidts);
   }
 
   public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastLongDoubleTimeSeries pidts) {

@@ -58,6 +58,10 @@ public class ArrayDateDoubleTimeSeries extends DateDoubleTimeSeries.Integer {
   public ArrayDateDoubleTimeSeries(final FastIntDoubleTimeSeries pidts) {
     super(s_converter, pidts);
   }
+  
+  public ArrayDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastIntDoubleTimeSeries timeSeries) {
+    super(converter, timeSeries);
+  }
 
   public ArrayDateDoubleTimeSeries(final TimeZone timeZone, final FastIntDoubleTimeSeries pidts) {
     super(new DateEpochDaysConverter(timeZone), pidts);
