@@ -12,7 +12,7 @@ import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.linalg.Algebra;
 
 /**
- * Provided matrix algebra by calling the Colt library 
+ * Provides matrix algebra by calling the Colt library 
  */
 public class ColtMatrixAlgebra extends MatrixAlgebra {
   private final Algebra _algebra = new Algebra();
@@ -44,8 +44,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      return _algebra.mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()), DoubleFactory1D.dense
-          .make(((DoubleMatrix1D) m2).getData()));
+      return _algebra.mult(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getData()));
     }
     throw new IllegalArgumentException("Cannot find the inner product of a " + m1.getClass() + " and " + m2.getClass());
   }
@@ -58,23 +57,21 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     if (m1 instanceof DoubleMatrix2D) {
       final DoubleMatrix2D x = (DoubleMatrix2D) m1;
       if (m2 instanceof DoubleMatrix1D) {
-        return new DoubleMatrix1D(_algebra.mult(DoubleFactory2D.dense.make(x.getData()),
-            DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getData())).toArray());
+        return new DoubleMatrix1D(_algebra.mult(DoubleFactory2D.dense.make(x.getData()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getData())).toArray());
       } else if (m2 instanceof DoubleMatrix2D) {
-        return new DoubleMatrix2D(_algebra.mult(DoubleFactory2D.dense.make(x.getData()),
-            DoubleFactory2D.dense.make(((DoubleMatrix2D) m2).getData())).toArray());
+        return new DoubleMatrix2D(_algebra.mult(DoubleFactory2D.dense.make(x.getData()), DoubleFactory2D.dense.make(((DoubleMatrix2D) m2).getData())).toArray());
+      } else {
+        throw new IllegalArgumentException("Can only have 1D or 2D matrix as second argument");
       }
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only multiply 2D and 1D matrices");
   }
 
   @Override
   public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      final cern.colt.matrix.DoubleMatrix2D x = DoubleFactory2D.dense.make(m1.getNumberOfElements(), m2
-          .getNumberOfElements());
-      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()), DoubleFactory1D.dense
-          .make(((DoubleMatrix1D) m2).getData()), x);
+      final cern.colt.matrix.DoubleMatrix2D x = DoubleFactory2D.dense.make(m1.getNumberOfElements(), m2.getNumberOfElements());
+      _algebra.multOuter(DoubleFactory1D.dense.make(((DoubleMatrix1D) m1).getData()), DoubleFactory1D.dense.make(((DoubleMatrix1D) m2).getData()), x);
       return new DoubleMatrix2D(x.toArray());
     }
     throw new IllegalArgumentException("Cannot find the outer product of a " + m1.getClass() + " and " + m2.getClass());
@@ -87,7 +84,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     } else if (m instanceof DoubleMatrix2D) {
       return _algebra.norm1(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()));
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find norm1 of DoubleMatrix2D; have " + m.getClass());
   }
 
   @Override
@@ -97,7 +94,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     } else if (m instanceof DoubleMatrix2D) {
       return _algebra.norm2(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()));
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find norm2 of DoubleMatrix2D; have " + m.getClass());
   }
 
   @Override
@@ -107,7 +104,7 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     } else if (m instanceof DoubleMatrix2D) {
       return _algebra.normInfinity(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()));
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find normInfinity of DoubleMatrix2D; have " + m.getClass());
   }
 
   @Override
@@ -115,6 +112,11 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     if (m instanceof DoubleMatrix2D) {
       return new DoubleMatrix2D(_algebra.pow(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()), p).toArray());
     }
+    throw new IllegalArgumentException("Can only find transpose of DoubleMatrix2D; have " + m.getClass());
+  }
+
+  @Override
+  public DoubleMatrix2D getPower(final Matrix<?> m, final double p) {
     throw new NotImplementedException();
   }
 
@@ -123,15 +125,14 @@ public class ColtMatrixAlgebra extends MatrixAlgebra {
     if (m instanceof DoubleMatrix2D) {
       return _algebra.trace(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()));
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find trace of DoubleMatrix2D; have " + m.getClass());
   }
 
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
-      return new DoubleMatrix2D(_algebra.transpose(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData()))
-          .toArray());
+      return new DoubleMatrix2D(_algebra.transpose(DoubleFactory2D.dense.make(((DoubleMatrix2D) m).getData())).toArray());
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find transpose of DoubleMatrix2D; have " + m.getClass());
   }
 }

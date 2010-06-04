@@ -13,25 +13,16 @@ import org.apache.commons.lang.NotImplementedException;
  */
 public class OGMatrixAlgebra extends MatrixAlgebra {
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getCondition(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getCondition(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getDeterminant(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getDeterminant(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getInnerProduct(com.opengamma.math.matrix.Matrix, com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -47,29 +38,19 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       }
       return sum;
     }
-    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and "
-        + m2.getClass());
+    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getInverse(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getNorm1(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getNorm1(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getNorm2(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getNorm2(final Matrix<?> m) {
     if (m instanceof DoubleMatrix1D) {
@@ -86,17 +67,11 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find  Norm2 of a DoubleMatrix1D; have " + m.getClass());
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getNormInfinity(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getNormInfinity(final Matrix<?> m) {
     throw new NotImplementedException();
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getOuterProduct(com.opengamma.math.matrix.Matrix, com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -113,21 +88,14 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       }
       return new DoubleMatrix2D(res);
     }
-    throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and "
-        + m2.getClass());
+    throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getPower(com.opengamma.math.matrix.Matrix, int)
-   */
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
     throw new NotImplementedException();
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getTrace(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getTrace(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -145,9 +113,6 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only take transpose of DoubleMatrix2D; Have " + m.getClass());
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#getTranspose(com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -166,7 +131,25 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only take transpose of DoubleMatrix2D; Have " + m.getClass());
   }
 
-  public DoubleMatrix2D multiply(final DoubleMatrix2D m1, final DoubleMatrix2D m2) {
+  @Override
+  public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
+    if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
+      return multiply((DoubleMatrix2D) m1, (DoubleMatrix2D) m2);
+    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix1D) {
+      return multiply((DoubleMatrix2D) m1, (DoubleMatrix1D) m2);
+    } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
+      return multiply((DoubleMatrix1D) m1, (DoubleMatrix2D) m2);
+    }
+    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. Have " + m1.getClass() + " and "
+        + m2.getClass());
+  }
+
+  @Override
+  public DoubleMatrix2D getPower(final Matrix<?> m, final double p) {
+    throw new NotImplementedException();
+  }
+
+  private DoubleMatrix2D multiply(final DoubleMatrix2D m1, final DoubleMatrix2D m2) {
     final double[][] a = m1.getData();
     final double[][] b = m2.getData();
     final int p = b.length;
@@ -196,7 +179,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @param vector A column vector
    * @return A column vector
    */
-  public DoubleMatrix1D multiply(final DoubleMatrix2D matrix, final DoubleMatrix1D vector) {
+  private DoubleMatrix1D multiply(final DoubleMatrix2D matrix, final DoubleMatrix1D vector) {
     final double[][] a = matrix.getData();
     final double[] b = vector.getData();
     final int n = b.length;
@@ -223,7 +206,7 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * @param matrix A matrix
    * @return A row vector
    */
-  public DoubleMatrix1D multiply(final DoubleMatrix1D vector, final DoubleMatrix2D matrix) {
+  private DoubleMatrix1D multiply(final DoubleMatrix1D vector, final DoubleMatrix2D matrix) {
     final double[] a = vector.getData();
     final double[][] b = matrix.getData();
     final int n = a.length;
@@ -242,22 +225,5 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
       res[i] = sum;
     }
     return new DoubleMatrix1D(res);
-
-  }
-
-  /* (non-Javadoc)
-   * @see com.opengamma.math.matrix.MatrixAlgebra#multiply(com.opengamma.math.matrix.Matrix, com.opengamma.math.matrix.Matrix)
-   */
-  @Override
-  public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
-    if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      return multiply((DoubleMatrix2D) m1, (DoubleMatrix2D) m2);
-    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix1D) {
-      return multiply((DoubleMatrix2D) m1, (DoubleMatrix1D) m2);
-    } else if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix2D) {
-      return multiply((DoubleMatrix1D) m1, (DoubleMatrix2D) m2);
-    }
-    throw new IllegalArgumentException("Can only multiply two DoubleMatrix2D; a DoubleMatrix2D and a DoubleMatrix1D; or a DoubleMatrix1D and a DoubleMatrix2D. Have "
-        + m1.getClass() + " and " + m2.getClass());
   }
 }

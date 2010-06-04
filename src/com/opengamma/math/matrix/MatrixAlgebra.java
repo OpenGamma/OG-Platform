@@ -16,36 +16,43 @@ import org.apache.commons.lang.NotImplementedException;
 public abstract class MatrixAlgebra {
 
   public Matrix<?> add(final Matrix<?> m1, final Matrix<?> m2) {
-    if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      final double[] x1 = ((DoubleMatrix1D) m1).getData();
-      final double[] x2 = ((DoubleMatrix1D) m2).getData();
-      final int n = x1.length;
-      if (n != x2.length) {
-        throw new IllegalArgumentException("Can only add matrices of the same shape");
-      }
-      final double[] sum = new double[n];
-      for (int i = 0; i < n; i++) {
-        sum[i] = x1[i] + x2[i];
-      }
-      return new DoubleMatrix1D(sum);
-    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      final double[][] x1 = ((DoubleMatrix2D) m1).getData();
-      final double[][] x2 = ((DoubleMatrix2D) m2).getData();
-      final int n = x1.length;
-      final int m = x1[0].length;
-      if (n != x2.length) {
-        throw new IllegalArgumentException("Can only add matrices of the same shape");
-      }
-      final double[][] sum = new double[n][x1[0].length];
-      for (int i = 0; i < n; i++) {
-        if (x2[i].length != m) {
+    if (m1 instanceof DoubleMatrix1D) {
+      if (m2 instanceof DoubleMatrix1D) {
+        final double[] x1 = ((DoubleMatrix1D) m1).getData();
+        final double[] x2 = ((DoubleMatrix1D) m2).getData();
+        final int n = x1.length;
+        if (n != x2.length) {
           throw new IllegalArgumentException("Can only add matrices of the same shape");
         }
-        for (int j = 0; j < m; j++) {
-          sum[i][j] = x1[i][j] + x2[i][j];
+        final double[] sum = new double[n];
+        for (int i = 0; i < n; i++) {
+          sum[i] = x1[i] + x2[i];
         }
+        return new DoubleMatrix1D(sum);
       }
-      return new DoubleMatrix2D(sum);
+      throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
+    } else if (m1 instanceof DoubleMatrix2D) {
+      if (m2 instanceof DoubleMatrix2D) {
+
+        final double[][] x1 = ((DoubleMatrix2D) m1).getData();
+        final double[][] x2 = ((DoubleMatrix2D) m2).getData();
+        final int n = x1.length;
+        final int m = x1[0].length;
+        if (n != x2.length) {
+          throw new IllegalArgumentException("Can only add matrices of the same shape");
+        }
+        final double[][] sum = new double[n][x1[0].length];
+        for (int i = 0; i < n; i++) {
+          if (x2[i].length != m) {
+            throw new IllegalArgumentException("Can only add matrices of the same shape");
+          }
+          for (int j = 0; j < m; j++) {
+            sum[i][j] = x1[i][j] + x2[i][j];
+          }
+        }
+        return new DoubleMatrix2D(sum);
+      }
+      throw new IllegalArgumentException("Tried to add a " + m1.getClass() + " and " + m2.getClass());
     }
     throw new NotImplementedException();
   }
@@ -69,7 +76,7 @@ public abstract class MatrixAlgebra {
   public abstract Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2);
 
   /**
-   * Scale a vector or matrix by a give amount, i.e. each element is multiplied by the scale 
+   * Scale a vector or matrix by a given amount, i.e. each element is multiplied by the scale 
    * @param m Some vector or matrix
    * @param scale 
    * @return the scaled vector or matrix 
@@ -98,36 +105,43 @@ public abstract class MatrixAlgebra {
   }
 
   public Matrix<?> subtract(final Matrix<?> m1, final Matrix<?> m2) {
-    if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
-      final double[] x1 = ((DoubleMatrix1D) m1).getData();
-      final double[] x2 = ((DoubleMatrix1D) m2).getData();
-      final int n = x1.length;
-      if (n != x2.length) {
-        throw new IllegalArgumentException("Can only subtract matrices of the same shape");
-      }
-      final double[] subtract = new double[n];
-      for (int i = 0; i < n; i++) {
-        subtract[i] = x1[i] - x2[i];
-      }
-      return new DoubleMatrix1D(subtract);
-    } else if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
-      final double[][] x1 = ((DoubleMatrix2D) m1).getData();
-      final double[][] x2 = ((DoubleMatrix2D) m2).getData();
-      final int n = x1.length;
-      final int m = x1[0].length;
-      if (n != x2.length) {
-        throw new IllegalArgumentException("Can only subtract matrices of the same shape");
-      }
-      final double[][] subtract = new double[n][x1[0].length];
-      for (int i = 0; i < n; i++) {
-        if (x2[i].length != m) {
+    if (m1 instanceof DoubleMatrix1D) {
+      if (m2 instanceof DoubleMatrix1D) {
+        final double[] x1 = ((DoubleMatrix1D) m1).getData();
+        final double[] x2 = ((DoubleMatrix1D) m2).getData();
+        final int n = x1.length;
+        if (n != x2.length) {
           throw new IllegalArgumentException("Can only subtract matrices of the same shape");
         }
-        for (int j = 0; j < m; j++) {
-          subtract[i][j] = x1[i][j] - x2[i][j];
+        final double[] sum = new double[n];
+        for (int i = 0; i < n; i++) {
+          sum[i] = x1[i] - x2[i];
         }
+        return new DoubleMatrix1D(sum);
       }
-      return new DoubleMatrix2D(subtract);
+      throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
+    } else if (m1 instanceof DoubleMatrix2D) {
+      if (m2 instanceof DoubleMatrix2D) {
+
+        final double[][] x1 = ((DoubleMatrix2D) m1).getData();
+        final double[][] x2 = ((DoubleMatrix2D) m2).getData();
+        final int n = x1.length;
+        final int m = x1[0].length;
+        if (n != x2.length) {
+          throw new IllegalArgumentException("Can only subtract matrices of the same shape");
+        }
+        final double[][] sum = new double[n][x1[0].length];
+        for (int i = 0; i < n; i++) {
+          if (x2[i].length != m) {
+            throw new IllegalArgumentException("Can only subtract matrices of the same shape");
+          }
+          for (int j = 0; j < m; j++) {
+            sum[i][j] = x1[i][j] - x2[i][j];
+          }
+        }
+        return new DoubleMatrix2D(sum);
+      }
+      throw new IllegalArgumentException("Tried to subtract a " + m1.getClass() + " and " + m2.getClass());
     }
     throw new NotImplementedException();
   }
@@ -190,8 +204,8 @@ public abstract class MatrixAlgebra {
 
   /**
    * For a vector returns the <a href="http://mathworld.wolfram.com/L-Infinity-Norm.html"> L<sub>&infin;</sub> norm</a>.
-     * The L<sub>&infin;</sub> norm is the max of the absolute values of elements.
-     * <p>For a matrix returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteRowSumNorm.html"> Maximum Absolute Row Sum Norm</a></p>
+   * The L<sub>&infin;</sub> norm is the max of the absolute values of elements.
+   * <p>For a matrix returns the <a href="http://mathworld.wolfram.com/MaximumAbsoluteRowSumNorm.html"> Maximum Absolute Row Sum Norm</a></p>
    * @param m a vector or a matrix
    * @return the norm
    */
@@ -204,6 +218,14 @@ public abstract class MatrixAlgebra {
    * @return The matrix result 
    */
   public abstract DoubleMatrix2D getPower(final Matrix<?> m, final int p);
+
+  /**
+   * Returns a matrix raised to some power, e.g. A<sup>3</sup> = A*A*A
+   * @param m Some square Matrix
+   * @param p The power
+   * @return The matrix result 
+   */
+  public abstract DoubleMatrix2D getPower(Matrix<?> m, double p);
 
   /**
    * Returns the trace (i.e. sum of diagonal elements) of a matrix

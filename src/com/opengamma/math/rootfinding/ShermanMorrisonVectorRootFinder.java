@@ -51,7 +51,7 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
    */
   @Override
   protected DoubleMatrix1D getDirection() {
-    return OG_ALGEBRA.multiply(_invJacobianEst, _y);
+    return (DoubleMatrix1D) OG_ALGEBRA.multiply(_invJacobianEst, _y);
   }
 
   /* (non-Javadoc)
@@ -69,7 +69,7 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
    */
   @Override
   protected void updateMatrices() {
-    DoubleMatrix1D vtemp1 = OG_ALGEBRA.multiply(_deltax, _invJacobianEst);
+    DoubleMatrix1D vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.multiply(_deltax, _invJacobianEst);
     final double length2 = OG_ALGEBRA.getInnerProduct(vtemp1, _deltay);
     vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.scale(vtemp1, 1.0 / length2);
     final DoubleMatrix1D vtemp2 = (DoubleMatrix1D) OG_ALGEBRA.subtract(_deltax, OG_ALGEBRA.multiply(_invJacobianEst, _deltay));

@@ -22,9 +22,10 @@ import com.opengamma.math.number.ComplexNumber;
  *   Wraps an OpenGamma class in the analogous Commons Math class.
  *
  */
-public class CommonsMathWrapper {
+public final class CommonsMathWrapper {
 
   private CommonsMathWrapper() {
+    // Can't instantiate this class
   }
 
   public static UnivariateRealFunction wrap(final Function1D<Double, Double> f) {
@@ -38,6 +39,15 @@ public class CommonsMathWrapper {
   }
 
   public static RealMatrix wrap(final DoubleMatrix2D x) {
+    return new Array2DRowRealMatrix(x.getData());
+  }
+
+  public static RealMatrix wrapAsMatrix(final DoubleMatrix1D x) {
+    final int n = x.getNumberOfElements();
+    final double[][] y = new double[n][1];
+    for (int i = 0; i < n; i++) {
+      y[i][0] = x.getEntry(i);
+    }
     return new Array2DRowRealMatrix(x.getData());
   }
 

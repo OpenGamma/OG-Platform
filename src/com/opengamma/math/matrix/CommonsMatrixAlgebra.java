@@ -19,17 +19,10 @@ import org.apache.commons.math.linear.SingularValueDecompositionImpl;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * Provided matrix algebra by calling the Commons-math library 
+ * Provides matrix algebra by calling the Commons library 
  */
 public class CommonsMatrixAlgebra extends MatrixAlgebra {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getCondition(com.opengamma.math
-   * .matrix.Matrix)
-   */
   @Override
   public double getCondition(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -40,13 +33,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find condition number of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getDeterminant(com.opengamma.math
-   * .matrix.Matrix)
-   */
   @Override
   public double getDeterminant(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -57,13 +43,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find determinant of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getInnerProduct(com.opengamma.math
-   * .matrix.Matrix, com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public double getInnerProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -74,13 +53,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getInverse(com.opengamma.math.matrix
-   * .Matrix)
-   */
   @Override
   public DoubleMatrix2D getInverse(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -92,13 +64,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find inverse of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getNorm1(com.opengamma.math.matrix
-   * .Matrix)
-   */
   @Override
   public double getNorm1(final Matrix<?> m) {
     if (m instanceof DoubleMatrix1D) {
@@ -115,16 +80,9 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       return max;
 
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find norm1 of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getNorm2(com.opengamma.math.matrix
-   * .Matrix)
-   */
   @Override
   public double getNorm2(final Matrix<?> m) {
     if (m instanceof DoubleMatrix1D) {
@@ -134,18 +92,10 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
       final SingularValueDecomposition svd = new SingularValueDecompositionImpl(temp);
       return svd.getNorm();
-      // return svd.getSingularValues()[0];
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find norm2 of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getNormInfinity(com.opengamma.math
-   * .matrix.Matrix)
-   */
   @Override
   public double getNormInfinity(final Matrix<?> m) {
     if (m instanceof DoubleMatrix1D) {
@@ -161,18 +111,10 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
         max = Math.max(max, temp.getRowVector(row).getL1Norm());
       }
       return max;
-      //return temp.getNorm();
     }
-    throw new NotImplementedException();
+    throw new IllegalArgumentException("Can only find normInfinity of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getOuterProduct(com.opengamma.math
-   * .matrix.Matrix, com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public DoubleMatrix2D getOuterProduct(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D && m2 instanceof DoubleMatrix1D) {
@@ -181,30 +123,21 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       return CommonsMathWrapper.wrap(t1.outerProduct(t2));
     }
     throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
-
   }
 
-  /*
-   * (non-Javadoc)
-   * Since Commons appears to have no power function for matrices, we call the Colt version
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getPower(com.opengamma.math.matrix
-   * .Matrix, int)
-   */
   @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final int p) {
-    //TODO write a Power function that does not use Colt
-    final MatrixAlgebra coltAlgebra = new ColtMatrixAlgebra();
-    return coltAlgebra.getPower(m, p);
+    return getPower(m, (double) p);
   }
 
-  /* 
+  /**
    * Returns a real matrix raised to some real power 
    * Currently this method is limited to symmetric matrices only as Commons Math does not support the diagonalization of asymmetric matrices  
-   *@param The <strong>symmetric</strong> matrix to take the power of. 
-   *@param The power to raise to matrix to
-   *
+   * @param m The <strong>symmetric</strong> matrix to take the power of. 
+   * @param p The power to raise to matrix to
+   * @return The result
    */
+  @Override
   public DoubleMatrix2D getPower(final Matrix<?> m, final double p) {
     if (m instanceof DoubleMatrix2D) {
       final RealMatrix temp = CommonsMathWrapper.wrap((DoubleMatrix2D) m);
@@ -225,13 +158,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find pow of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getTrace(com.opengamma.math.matrix
-   * .Matrix)
-   */
   @Override
   public double getTrace(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -241,13 +167,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find trace of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#getTranspose(com.opengamma.math
-   * .matrix.Matrix)
-   */
   @Override
   public DoubleMatrix2D getTranspose(final Matrix<?> m) {
     if (m instanceof DoubleMatrix2D) {
@@ -257,21 +176,25 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
     throw new IllegalArgumentException("Can only find transpose of DoubleMatrix2D; have " + m.getClass());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.matrix.MatrixAlgebra#multiply(com.opengamma.math.matrix
-   * .Matrix, com.opengamma.math.matrix.Matrix)
-   */
   @Override
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
-    if (m1 instanceof DoubleMatrix2D && m2 instanceof DoubleMatrix2D) {
+    if (m1 instanceof DoubleMatrix1D) {
+      throw new IllegalArgumentException("Cannot have 1D matrix as first argument");
+    }
+    if (m1 instanceof DoubleMatrix2D) {
       final RealMatrix t1 = CommonsMathWrapper.wrap((DoubleMatrix2D) m1);
-      final RealMatrix t2 = CommonsMathWrapper.wrap((DoubleMatrix2D) m2);
+      RealMatrix t2;
+      if (m2 instanceof DoubleMatrix1D) {
+        t2 = CommonsMathWrapper.wrapAsMatrix((DoubleMatrix1D) m2);
+      } else if (m2 instanceof DoubleMatrix2D) {
+        t2 = CommonsMathWrapper.wrap((DoubleMatrix2D) m2);
+      } else {
+        throw new IllegalArgumentException("Can only have 1D or 2D matrix as second argument");
+      }
+      t2 = CommonsMathWrapper.wrap((DoubleMatrix2D) m2);
       return CommonsMathWrapper.wrap(t1.multiply(t2));
     }
-    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
+    throw new IllegalArgumentException("Can only multiply 2D and 1D matrices");
   }
 
 }

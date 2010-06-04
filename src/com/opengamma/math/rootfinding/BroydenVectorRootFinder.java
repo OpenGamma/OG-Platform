@@ -14,6 +14,7 @@ import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.matrix.Matrix;
 
 /**
  *  Uses Broyden's Jacobian update formula
@@ -22,7 +23,7 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
 
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private DoubleMatrix2D _jacobianEst;
+  private DoubleMatrix2D _jacobianEst; //TODO change to Matrix<?>
   private Decomposition _decomp;
 
   public BroydenVectorRootFinder() {
@@ -34,17 +35,14 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
     _decomp = new LUDecompositionCommons();
   }
 
-  public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps,
-      final Decomposition decomp) {
+  public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition decomp) {
     super(absoluteTol, relativeTol, maxSteps);
-
     Validate.notNull(decomp);
     _decomp = decomp;
   }
 
-  public void setDecompositionMethod(Decomposition decompMethod) {
+  public void setDecompositionMethod(final Decomposition decompMethod) {
     Validate.notNull(decompMethod);
-
     _decomp = decompMethod;
   }
 
@@ -53,7 +51,7 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
    */
   @Override
   protected DoubleMatrix1D getDirection() {
-    DecompositionResult res = _decomp.evaluate(_jacobianEst);
+    final DecompositionResult res = _decomp.evaluate(_jacobianEst);
     return res.solve(_y);
   }
 
@@ -70,9 +68,9 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
    */
   @Override
   protected void updateMatrices() {
-    double length2 = OG_ALGEBRA.getInnerProduct(_deltax, _deltax);
-    DoubleMatrix1D temp = (DoubleMatrix1D) OG_ALGEBRA.subtract(_deltay, OG_ALGEBRA.multiply(_jacobianEst, _deltax));
-    temp = (DoubleMatrix1D) OG_ALGEBRA.scale(temp, 1.0 / length2);
+    final double length2 = OG_ALGEBRA.getInnerProduct(_deltax, _deltax);
+    Matrix<?> temp = OG_ALGEBRA.subtract(_deltay, OG_ALGEBRA.multiply(_jacobianEst, _deltax));
+    temp = OG_ALGEBRA.scale(temp, 1.0 / length2);
     _jacobianEst = (DoubleMatrix2D) OG_ALGEBRA.add(_jacobianEst, OG_ALGEBRA.getOuterProduct(temp, _deltax));
   }
 
