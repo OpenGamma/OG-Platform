@@ -1,26 +1,42 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.position.rest;
 
-import java.util.Set;
+import java.net.URI;
 
+import javax.time.calendar.OffsetDateTime;
+import javax.time.calendar.ZoneOffset;
+import javax.time.calendar.format.DateTimeFormatter;
+import javax.time.calendar.format.DateTimeFormatters;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.engine.position.PositionMaster;
+import org.apache.commons.lang.StringUtils;
+
+import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.PortfolioSummary;
+import com.opengamma.financial.position.SearchPortfoliosRequest;
+import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.PagingRequest;
 
 /**
- * RESTful resource for /portfolios.
+ * RESTful resource for all portfolios.
  * <p>
  * The portfolios resource represents the whole of a position master.
  */
@@ -30,7 +46,7 @@ public class PortfoliosResource {
   /**
    * The injected position master.
    */
-  private final PositionMaster _posMaster;
+  private final ManagablePositionMaster _posMaster;
   /**
    * Information about the URI injected by JSR-311.
    */
@@ -41,8 +57,8 @@ public class PortfoliosResource {
    * Creates the resource.
    * @param posMaster  the position master, not null
    */
-  public PortfoliosResource(final PositionMaster posMaster) {
-    ArgumentChecker.notNull(posMaster, "position master");
+  public PortfoliosResource(final ManagablePositionMaster posMaster) {
+    ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
   }
 
@@ -51,7 +67,7 @@ public class PortfoliosResource {
    * Gets the position master.
    * @return the position master, not null
    */
-  public PositionMaster getPositionMaster() {
+  public ManagablePositionMaster getPositionMaster() {
     return _posMaster;
   }
 
@@ -65,19 +81,90 @@ public class PortfoliosResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Produces(MediaType.TEXT_PLAIN)
-  public String getAsHtml() {
-    Set<UniqueIdentifier> uids = getPositionMaster().getPortfolioIds();
-    return uids.toString() +
-      "\n " + getUriInfo().getPath() +
-      "\n " + getUriInfo().getAbsolutePath() +
-      "\n " + getUriInfo().getBaseUri() +
-      "\n " + getUriInfo().getMatchedResources() +
-      "\n " + getUriInfo().getMatchedURIs() +
-      "\n " + getUriInfo().getPathParameters() +
-      "\n " + getUriInfo().getPathSegments() +
-      "\n " + getUriInfo().getQueryParameters() +
-      "\n " + getUriInfo().getRequestUri();
+  @Produces(MediaType.TEXT_HTML)
+  public String getAsHtml(
+      @QueryParam("page") int page,
+      @QueryParam("pageSize") int pageSize,
+      @QueryParam("name") String name,
+      @QueryParam("deleted") boolean deleted) {
+    String html = "<html>" +
+      "<head><title>Portfolios</title></head>" +
+      "<body>" +
+      "<h2>Portfolio search</h2>" +
+      "<form method=\"GET\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
+      "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
+      "Deleted: <label><input type=\"checkbox\" name=\"deleted\" value=\"true\" /> Include deleted portfolios</label><br />" +
+      "<input type=\"submit\" value=\"Search\" />" +
+      "</form>";
+    
+    if (getUriInfo().getQueryParameters().size() > 0) {
+      PagingRequest paging = PagingRequest.of(page, pageSize);
+      SearchPortfoliosRequest request = new SearchPortfoliosRequest(paging);
+      request.setName(StringUtils.trimToNull(name));
+      request.setIncludeDeleted(deleted);
+      SearchPortfoliosResult result = getPositionMaster().searchPortfolios(request);
+      
+      html += "<h2>Portfolio results</h2>" +
+        "<p><table border=\"1\">" +
+        "<tr><th>Name</th><th>Positions</th><th>Last updated</th><th>Status</th><th>Actions</th></tr>";
+      for (PortfolioSummary summary : result.getPortfolioSummaries()) {
+        URI uri = getUriInfo().getAbsolutePathBuilder().path(summary.getUniqueIdentifier().toString()).build();
+        html += "<tr>";
+        if (summary.isActive()) {
+          html += "<td><a href=\"" + uri + "\">" + summary.getName() + "</a></td>";
+        } else {
+          html += "<td>" + summary.getName() + "</td>";
+        }
+        DateTimeFormatter pattern = DateTimeFormatters.pattern("dd MMM yyyy, HH:mm:ss.SSS");
+        html +=
+          "<td>" + summary.getTotalPositions() + "</td>" +
+          "<td>" + pattern.print(OffsetDateTime.ofInstant(summary.getStartInstant(), ZoneOffset.UTC)) + "</td>" +
+          "<td>" + (summary.isActive() ? "Active" : "Deleted") + "</td>";
+        if (summary.isActive()) {
+          html += "<td><a href=\"" + uri + "\">View</a></td>";
+        } else {
+          html += "<td>" +
+            "<form method=\"POST\" action=\"" + uri + "\">" +
+            "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
+            "<input type=\"hidden\" name=\"status\" value=\"A\" />" +
+            "<input type=\"submit\" value=\"Reinstate\" />" +
+            "</form>" +
+            "</td>";
+        }
+        html += "</tr>";
+      }
+      html += "</table></p>";
+    }
+    html += "<h2>Add portfolio</h2>" +
+      "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
+      "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
+      "<input type=\"submit\" value=\"Add\" />" +
+      "</form>";
+    html += "</body></html>";
+    return html;
+  }
+
+  @POST
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  public Response post(@FormParam("name") String name) {
+    name = StringUtils.trimToNull(name);
+    if (name == null) {
+      String html = "<html>" +
+        "<head><title>Portfolios</title></head>" +
+        "<body>" +
+        "<h2>Add portfolio</h2>" +
+        "<p>The name must be entered!</p>" +
+        "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\"><br />" +
+        "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
+        "<input type=\"submit\" value=\"Add\" /><br />" +
+        "</form>" +
+        "</body></html>";
+      return Response.ok(html).build();
+    }
+    PortfolioImpl portfolio = new PortfolioImpl(name);
+    UniqueIdentifier uid = getPositionMaster().addPortfolio(portfolio);
+    URI uri = getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+    return Response.seeOther(uri).build();
   }
 
   //-------------------------------------------------------------------------
