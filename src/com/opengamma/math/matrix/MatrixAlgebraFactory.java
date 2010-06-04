@@ -8,12 +8,34 @@ package com.opengamma.math.matrix;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MatrixAlgebraFactory {
+/**
+ * 
+ * Factory class for various types of matrix algebra calculators.
+ */
+public final class MatrixAlgebraFactory {
+  /**
+   * Label for Colt matrix algebra
+   */
   public static final String COLT = "Colt";
+  /**
+   * Label for Commons matrix algebra
+   */
   public static final String COMMONS = "Commons";
+  /**
+   * Label for OpenGamma matrix algebra
+   */
   public static final String OG = "OG";
+  /**
+   * Instance of Colt matrix algebra
+   */
   public static final ColtMatrixAlgebra COLT_ALGEBRA = new ColtMatrixAlgebra();
+  /**
+   * Instance of Commons matrix algebra
+   */
   public static final CommonsMatrixAlgebra COMMONS_ALGEBRA = new CommonsMatrixAlgebra();
+  /**
+   * Instance of OpenGamma matrix algebra
+   */
   public static final OGMatrixAlgebra OG_ALGEBRA = new OGMatrixAlgebra();
   private static final Map<String, MatrixAlgebra> s_staticInstances;
   private static final Map<Class<?>, String> s_instanceNames;
@@ -30,6 +52,7 @@ public class MatrixAlgebraFactory {
   }
 
   private MatrixAlgebraFactory() {
+    // cannot construct an instance
   }
 
   public static MatrixAlgebra getMatrixAlgebra(final String algebraName) {

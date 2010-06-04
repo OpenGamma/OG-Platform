@@ -71,8 +71,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final RealVector t2 = CommonsMathWrapper.wrap((DoubleMatrix1D) m2);
       return t1.dotProduct(t2);
     }
-    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and "
-        + m2.getClass());
+    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
   /*
@@ -110,7 +109,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       // TODO find if commons implements this anywhere, so we are not doing it
       // by hand
       double max = 0.0;
-      for (int col = temp.getColumnDimension(); --col >= 0;) {
+      for (int col = temp.getColumnDimension() - 1; col >= 0; col--) {
         max = Math.max(max, temp.getColumnVector(col).getL1Norm());
       }
       return max;
@@ -158,7 +157,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       // TODO find if commons implements this anywhere, so we are not doing it
       // by hand
       double max = 0.0;
-      for (int row = temp.getRowDimension(); --row >= 0;) {
+      for (int row = temp.getRowDimension() - 1; row >= 0; row--) {
         max = Math.max(max, temp.getRowVector(row).getL1Norm());
       }
       return max;
@@ -181,8 +180,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final RealVector t2 = CommonsMathWrapper.wrap((DoubleMatrix1D) m2);
       return CommonsMathWrapper.wrap(t1.outerProduct(t2));
     }
-    throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and "
-        + m2.getClass());
+    throw new IllegalArgumentException("Can only find outer product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
 
   }
 
@@ -215,7 +213,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final double[] iEigenValues = eigen.getImagEigenvalues();
       final int n = rEigenValues.length;
       final double[][] d = new double[n][n];
-      for (int i = n; --i >= 0;) {
+      for (int i = n - 1; i >= 0; --i) {
         d[i][i] = Math.pow(rEigenValues[i], p);
         if (iEigenValues[i] != 0.0) {
           throw new NotImplementedException("Cannot handle complex eigenvalues in getPower");
@@ -273,8 +271,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       final RealMatrix t2 = CommonsMathWrapper.wrap((DoubleMatrix2D) m2);
       return CommonsMathWrapper.wrap(t1.multiply(t2));
     }
-    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and "
-        + m2.getClass());
+    throw new IllegalArgumentException("Can only find inner product of DoubleMatrix1D; have " + m1.getClass() + " and " + m2.getClass());
   }
 
 }

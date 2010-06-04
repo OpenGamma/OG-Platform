@@ -5,6 +5,10 @@
  */
 package com.opengamma.math.matrix;
 
+/**
+ * 
+ * @param <T> Type of elements
+ */
 public interface Matrix<T> {
   int getNumberOfElements();
 

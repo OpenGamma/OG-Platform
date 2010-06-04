@@ -213,7 +213,7 @@ public abstract class MatrixAlgebra {
   public abstract double getTrace(final Matrix<?> m);
 
   /**
-   * Resturns the transpose of a matrix
+   * Returns the transpose of a matrix
    * @param m Some matrix
    * @return The transpose
    */
