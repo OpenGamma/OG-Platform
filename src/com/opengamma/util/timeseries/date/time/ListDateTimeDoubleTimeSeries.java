@@ -20,10 +20,9 @@ import com.opengamma.util.timeseries.fast.longint.FastMutableLongDoubleTimeSerie
  * 
  */
 public class ListDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSeries.Long {
-  public static final ListDateTimeDoubleTimeSeries EMPTY_SERIES = new ListDateTimeDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochMillisConverter();
 
-  private ListDateTimeDoubleTimeSeries() {
+  public ListDateTimeDoubleTimeSeries() {
     super(new DateEpochMillisConverter(), new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
@@ -56,6 +55,10 @@ public class ListDateTimeDoubleTimeSeries extends MutableDateTimeDoubleTimeSerie
 
   public ListDateTimeDoubleTimeSeries(final FastMutableLongDoubleTimeSeries pmidts) {
     super(s_converter, pmidts);
+  }
+  
+  public ListDateTimeDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableLongDoubleTimeSeries pmidts) {
+    super(converter, pmidts);
   }
 
   public ListDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastMutableLongDoubleTimeSeries pmidts) {

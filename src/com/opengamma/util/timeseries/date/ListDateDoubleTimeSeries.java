@@ -27,7 +27,7 @@ public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Intege
   public static final ListDateDoubleTimeSeries EMPTY_SERIES = new ListDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
-  protected ListDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries fastTS) {
+  public ListDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries fastTS) {
     super(converter, fastTS);
   }
 

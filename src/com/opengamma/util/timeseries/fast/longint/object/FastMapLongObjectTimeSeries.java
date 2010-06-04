@@ -305,9 +305,6 @@ public class FastMapLongObjectTimeSeries<T> extends AbstractFastMutableLongObjec
             return false;
           }
         }
-      } else if (obj instanceof AbstractFastBackedObjectTimeSeries<?, ?>) {
-        final FastBackedObjectTimeSeries<?, T> fastBackedDTS = (FastBackedObjectTimeSeries<?, T>) obj;
-        return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }

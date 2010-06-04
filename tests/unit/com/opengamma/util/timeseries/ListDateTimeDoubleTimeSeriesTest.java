@@ -16,7 +16,7 @@ public class ListDateTimeDoubleTimeSeriesTest extends DateDoubleTimeSeriesTest {
 
   @Override
   public DateTimeDoubleTimeSeries createEmptyTimeSeries() {
-    return ListDateTimeDoubleTimeSeries.EMPTY_SERIES;
+    return new ListDateTimeDoubleTimeSeries();
   }
 
   @Override

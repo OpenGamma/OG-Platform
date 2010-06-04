@@ -22,7 +22,6 @@ import com.opengamma.util.timeseries.fast.integer.FastListIntDoubleTimeSeries;
  * 
  */
 public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.Integer {
-  public static final ArrayLocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
   private static final DateTimeConverter<LocalDate> s_converter = new LocalDateEpochDaysConverter();
 
   public ArrayLocalDateDoubleTimeSeries() {
@@ -57,6 +56,10 @@ public class ArrayLocalDateDoubleTimeSeries extends LocalDateDoubleTimeSeries.In
 
   public ArrayLocalDateDoubleTimeSeries(final FastIntDoubleTimeSeries pidts) {
     super(s_converter, pidts);
+  }
+  
+  public ArrayLocalDateDoubleTimeSeries(final DateTimeConverter<LocalDate> converter, final FastIntDoubleTimeSeries pidts) {
+    super(converter, pidts);
   }
 
   public ArrayLocalDateDoubleTimeSeries(final TimeZone timeZone, final FastIntDoubleTimeSeries pidts) {

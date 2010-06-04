@@ -461,9 +461,6 @@ public class FastArrayLongObjectTimeSeries<T> extends AbstractFastLongObjectTime
           }
           i++;
         }
-      } else if (obj instanceof AbstractFastBackedObjectTimeSeries<?, ?>) {
-        final FastBackedObjectTimeSeries<?, T> fastBackedDTS = (FastBackedObjectTimeSeries<?, T>) obj;
-        return equals(fastBackedDTS.getFastSeries());
       } else {
         return false;
       }

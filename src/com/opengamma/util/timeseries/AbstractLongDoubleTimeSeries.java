@@ -17,12 +17,11 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 
 /**
- * @author jim
- * 
+ * @param <DATE_TYPE> the type of the objects used to represent dates in this wrapper.
  */
 public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFastBackedDoubleTimeSeries<DATE_TYPE> {
 
-  final DateTimeConverter<DATE_TYPE> _converter;
+  private final DateTimeConverter<DATE_TYPE> _converter;
   private final FastLongDoubleTimeSeries _timeSeries;
 
   public AbstractLongDoubleTimeSeries(final DateTimeConverter<DATE_TYPE> converter, final FastLongDoubleTimeSeries timeSeries) {
@@ -93,7 +92,10 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
   public boolean isEmpty() {
     return getFastSeries().isEmpty();
   }
-
+  
+  /**
+   * Converts from the underlying iterator into the wrapped type.
+   */
   protected class IteratorAdapter implements Iterator<Entry<DATE_TYPE, Double>> {
 
     private final Iterator<Entry<Long, Double>> _iterator;
@@ -212,9 +214,9 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
     FastTimeSeries<?> fastSeries = other.getFastSeries();
     FastLongDoubleTimeSeries longDoubleTimeSeries;
     if (fastSeries instanceof FastIntDoubleTimeSeries) {
-      longDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries)fastSeries, operator);
+      longDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries) fastSeries, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      longDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries)fastSeries, operator);
+      longDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries) fastSeries, operator);
     }
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, longDoubleTimeSeries);
   }
@@ -227,9 +229,9 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
   public FastBackedDoubleTimeSeries<DATE_TYPE> operate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastLongDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
-      intDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().operate((FastIntDoubleTimeSeries) other, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      intDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().operate((FastLongDoubleTimeSeries) other, operator);
     }
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, intDoubleTimeSeries);
   }
@@ -237,16 +239,20 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
   public FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastTimeSeries<?> other, final BinaryOperator operator) {  
     FastLongDoubleTimeSeries intDoubleTimeSeries;
     if (other instanceof FastIntDoubleTimeSeries) {
-      intDoubleTimeSeries = getFastSeries().unionOperate((FastIntDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().unionOperate((FastIntDoubleTimeSeries) other, operator);
     } else { // if (fastSeries instanceof FastLongDoubleTimeSeries
-      intDoubleTimeSeries = getFastSeries().unionOperate((FastLongDoubleTimeSeries)other, operator);
+      intDoubleTimeSeries = getFastSeries().unionOperate((FastLongDoubleTimeSeries) other, operator);
     }
     return (FastBackedDoubleTimeSeries<DATE_TYPE>) getConverter().convertFromLong(this, intDoubleTimeSeries);
   }
 
   @Override
   public boolean equals(final Object obj) {
-    return getFastSeries().equals(obj);
+    if (obj instanceof FastBackedDoubleTimeSeries<?>) {
+      FastBackedDoubleTimeSeries<?> fbdts = (FastBackedDoubleTimeSeries<?>) obj; 
+      return getFastSeries().equals(fbdts.getFastSeries());
+    }
+    return false;
   }
 
   @Override

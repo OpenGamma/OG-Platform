@@ -20,7 +20,6 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
  * 
  */
 public class MapSQLDateDoubleTimeSeries extends MutableSQLDateDoubleTimeSeries.Integer {
-  public static final MapSQLDateDoubleTimeSeries EMPTY_SERIES = new MapSQLDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new SQLDateEpochDaysConverter();
 
   public MapSQLDateDoubleTimeSeries() {
@@ -56,6 +55,10 @@ public class MapSQLDateDoubleTimeSeries extends MutableSQLDateDoubleTimeSeries.I
 
   public MapSQLDateDoubleTimeSeries(final FastMutableIntDoubleTimeSeries pmidts) {
     super(s_converter, pmidts);
+  }
+  
+  public MapSQLDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries pmidts) {
+    super(converter, pmidts);
   }
 
   public MapSQLDateDoubleTimeSeries(final TimeZone timeZone, final FastMutableIntDoubleTimeSeries pmidts) {

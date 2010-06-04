@@ -18,8 +18,7 @@ import com.opengamma.util.timeseries.fast.FastTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 /**
- * @author jim
- * 
+ * @param <DATE_TYPE> the type of the objects used to represent dates in this wrapper.
  */
 public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFastBackedDoubleTimeSeries<DATE_TYPE> {
 
@@ -94,7 +93,10 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
   public boolean isEmpty() {
     return getFastSeries().isEmpty();
   }
-
+  
+  /**
+   * Converts from the underlying iterator into the wrapped type.
+   */
   protected class IteratorAdapter implements Iterator<Entry<DATE_TYPE, Double>> {
 
     private final Iterator<Entry<Integer, Double>> _iterator;
@@ -243,7 +245,11 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
 
   @Override
   public boolean equals(final Object obj) {
-    return getFastSeries().equals(obj);
+    if (obj instanceof FastBackedDoubleTimeSeries<?>) {
+      FastBackedDoubleTimeSeries<?> fbdts = (FastBackedDoubleTimeSeries<?>) obj; 
+      return getFastSeries().equals(fbdts.getFastSeries());
+    }
+    return false;
   }
 
   @Override
