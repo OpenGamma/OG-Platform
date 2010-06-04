@@ -16,11 +16,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author jim
  */
 public class IdentifierAssociationBean {
-  private Long _id = null;
-  private SecurityBean _security = null;
-  private IdentifierBean _identifier = null;
-  private Date _validStartDate = null; // inclusive
-  private Date _validEndDate = null; // not inclusive
+  private Long _id;
+  private SecurityBean _security;
+  private IdentifierBean _identifier;
+  private Date _validStartDate; // inclusive
+  private Date _validEndDate; // not inclusive
 
   public IdentifierAssociationBean() {
   }
@@ -54,23 +54,35 @@ public class IdentifierAssociationBean {
     _security = security;
   }
   
-  public Date getValidStartDate () {
+  public Date getValidStartDate() {
     return _validStartDate;
   }
   
-  public void setValidStartDate (final Date validStartDate) {
+  public void setValidStartDate(final Date validStartDate) {
     _validStartDate = validStartDate;
   }
   
-  public Date getValidEndDate () {
+  public Date getValidEndDate() {
     return _validEndDate;
   }
   
-  public void setValidEndDate (final Date validEndDate) {
+  public void setValidEndDate(final Date validEndDate) {
     _validEndDate = validEndDate;
   }
   
-  // note this will match objects with different id's as long as the domain and identifier are the same.
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_id == null) ? 0 : _id.hashCode());
+    result = prime * result + ((_security == null) ? 0 : _security.hashCode());
+    result = prime * result + ((_identifier == null) ? 0 : _identifier.hashCode());
+    result = prime * result + ((_validStartDate == null) ? 0 : _validStartDate.hashCode());
+    result = prime * result + ((_validEndDate == null) ? 0 : _validEndDate.hashCode());
+    return result;
+  }
+
+  //note this will match objects with different id's as long as the domain and identifier are the same.
   public boolean equals(Object other) {
     if (!(other instanceof IdentifierAssociationBean)) {
       return false;
@@ -82,12 +94,12 @@ public class IdentifierAssociationBean {
     if (ObjectUtils.equals(otherBean.getSecurity(), getSecurity()) &&
         ObjectUtils.equals(otherBean.getIdentifier(), getIdentifier()) &&
         ObjectUtils.equals(otherBean.getValidStartDate(), getValidStartDate()) &&
-        ObjectUtils.equals(otherBean.getValidStartDate(), getValidStartDate())) {
+        ObjectUtils.equals(otherBean.getValidEndDate(), getValidEndDate())) {
       return true;
     }
     return false;
   }
-  
+
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }

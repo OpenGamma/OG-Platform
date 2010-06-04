@@ -67,7 +67,7 @@ public class HibernateSecurityMasterSession {
   // SESSION LEVEL METHODS
 
   // Exchanges
-  /* package */ExchangeBean getOrCreateExchangeBean(String name,
+  protected ExchangeBean getOrCreateExchangeBean(String name,
       String description) {
     Query query = getSession().getNamedQuery("ExchangeBean.one");
     query.setString("name", name);
@@ -87,13 +87,13 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings("unchecked")
-  /* package */List<ExchangeBean> getExchangeBeans() {
+  protected List<ExchangeBean> getExchangeBeans() {
     Query query = getSession().getNamedQuery("ExchangeBean.all");
     return query.list();
   }
 
   // Currencies
-  /* package */CurrencyBean getOrCreateCurrencyBean(String name) {
+  protected CurrencyBean getOrCreateCurrencyBean(String name) {
     Query query = getSession().getNamedQuery("CurrencyBean.one");
     query.setString("name", name);
     CurrencyBean currency = (CurrencyBean) query.uniqueResult();
@@ -104,25 +104,25 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings("unchecked")
-  /* package */List<CurrencyBean> getCurrencyBeans() {
+  protected List<CurrencyBean> getCurrencyBeans() {
     Query query = getSession().getNamedQuery("CurrencyBean.all");
     return query.list();
   }
 
   // GICS codes
-  /* package */GICSCodeBean getOrCreateGICSCodeBean(final String name,
+  protected GICSCodeBean getOrCreateGICSCodeBean(final String name,
       final String description) {
     Query query = getSession().getNamedQuery("GICSCodeBean.one");
     query.setString("name", name);
     GICSCodeBean gicsCode = (GICSCodeBean) query.uniqueResult();
     if (gicsCode == null) {
-      gicsCode = persistBean (new GICSCodeBean(name, description));
+      gicsCode = persistBean(new GICSCodeBean(name, description));
     } else {
       if (description != null) {
-        if (gicsCode.getDescription () == null) {
-          gicsCode.setDescription (description);
-          getSession ().saveOrUpdate (gicsCode);
-          getSession ().flush ();
+        if (gicsCode.getDescription() == null) {
+          gicsCode.setDescription(description);
+          getSession().saveOrUpdate(gicsCode);
+          getSession().flush();
         }
       }
     }
@@ -130,125 +130,125 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings("unchecked")
-  /* package */List<GICSCodeBean> getGICSCodeBeans() {
+  protected List<GICSCodeBean> getGICSCodeBeans() {
     Query query = getSession().getNamedQuery("GICSCodeBean.all");
     return query.list();
   }
   
   // Daycount conventions
-  /* package */ DayCountBean getOrCreateDayCountBean (final String convention) {
-    final Query query = getSession ().getNamedQuery ("DayCountBean.one");
-    query.setString ("name", convention);
-    DayCountBean bean = (DayCountBean)query.uniqueResult ();
+  protected DayCountBean getOrCreateDayCountBean(final String convention) {
+    final Query query = getSession().getNamedQuery("DayCountBean.one");
+    query.setString("name", convention);
+    DayCountBean bean = (DayCountBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new DayCountBean (convention));
+      bean = persistBean(new DayCountBean(convention));
     }
     return bean;
   }
   
   @SuppressWarnings ("unchecked")
-  /* package */ List<DayCountBean> getDayCountBeans() {
+  protected List<DayCountBean> getDayCountBeans() {
     final Query query = getSession().getNamedQuery("DayCountBean.all");
     return query.list();
   }
   
   // Business day conventions
-  /* package */ BusinessDayConventionBean getOrCreateBusinessDayConventionBean (final String convention) {
-    final Query query = getSession ().getNamedQuery ("BusinessDayConventionBean.one");
-    query.setString ("name", convention);
-    BusinessDayConventionBean bean = (BusinessDayConventionBean)query.uniqueResult ();
+  protected BusinessDayConventionBean getOrCreateBusinessDayConventionBean(final String convention) {
+    final Query query = getSession().getNamedQuery("BusinessDayConventionBean.one");
+    query.setString("name", convention);
+    BusinessDayConventionBean bean = (BusinessDayConventionBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new BusinessDayConventionBean (convention));
+      bean = persistBean(new BusinessDayConventionBean(convention));
     }
     return bean;
   }
 
   @SuppressWarnings ("unchecked")
-  /* package */ List<BusinessDayConventionBean> getBusinessDayConventionBeans() {
+  protected List<BusinessDayConventionBean> getBusinessDayConventionBeans() {
     final Query query = getSession().getNamedQuery("BusinessDayConventionBean.all");
     return query.list();
   }
 
   // Frequencies
-  /* package */ FrequencyBean getOrCreateFrequencyBean (final String convention) {
-    final Query query = getSession ().getNamedQuery ("FrequencyBean.one");
-    query.setString ("name", convention);
-    FrequencyBean bean = (FrequencyBean)query.uniqueResult ();
+  protected FrequencyBean getOrCreateFrequencyBean(final String convention) {
+    final Query query = getSession().getNamedQuery("FrequencyBean.one");
+    query.setString("name", convention);
+    FrequencyBean bean = (FrequencyBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new FrequencyBean (convention));
+      bean = persistBean(new FrequencyBean(convention));
     }
     return bean;
   }
 
   @SuppressWarnings ("unchecked")
-  /* package */ List<FrequencyBean> getFrequencyBeans () {
-    final Query query = getSession ().getNamedQuery ("FrequencyBean.all");
-    return query.list ();
+  protected List<FrequencyBean> getFrequencyBeans() {
+    final Query query = getSession().getNamedQuery("FrequencyBean.all");
+    return query.list();
   }
   
   // CommodityFutureTypes
   
-  /* package */ CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean (final String type) {
-    final Query query = getSession ().getNamedQuery ("CommodityFutureTypeBean.one");
-    query.setString ("name", type);
-    CommodityFutureTypeBean bean = (CommodityFutureTypeBean)query.uniqueResult ();
+  protected CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean(final String type) {
+    final Query query = getSession().getNamedQuery("CommodityFutureTypeBean.one");
+    query.setString("name", type);
+    CommodityFutureTypeBean bean = (CommodityFutureTypeBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new CommodityFutureTypeBean (type));
+      bean = persistBean(new CommodityFutureTypeBean(type));
     }
     return bean;
   }
   
   // BondFutureType
   
-  /* package */ BondFutureTypeBean getOrCreateBondFutureTypeBean (final String type) {
-    final Query query = getSession ().getNamedQuery ("BondFutureTypeBean.one");
-    query.setString ("name", type);
-    BondFutureTypeBean bean = (BondFutureTypeBean)query.uniqueResult ();
+  protected BondFutureTypeBean getOrCreateBondFutureTypeBean(final String type) {
+    final Query query = getSession().getNamedQuery("BondFutureTypeBean.one");
+    query.setString("name", type);
+    BondFutureTypeBean bean = (BondFutureTypeBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new BondFutureTypeBean (type));
+      bean = persistBean(new BondFutureTypeBean(type));
     }
     return bean;
   }
   
   // UnitName
   
-  /* package */ UnitBean getOrCreateUnitNameBean (final String unitName) {
-    final Query query = getSession ().getNamedQuery ("UnitBean.one");
-    query.setString ("name", unitName);
-    UnitBean bean = (UnitBean)query.uniqueResult ();
+  protected UnitBean getOrCreateUnitNameBean(final String unitName) {
+    final Query query = getSession().getNamedQuery("UnitBean.one");
+    query.setString("name", unitName);
+    UnitBean bean = (UnitBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new UnitBean (unitName));
+      bean = persistBean(new UnitBean(unitName));
     }
     return bean;
   }
   
   // CashRateType
   
-  /* package */ CashRateTypeBean getOrCreateCashRateTypeBean (final String type) {
-    final Query query = getSession ().getNamedQuery ("CashRateTypeBean.one");
-    query.setString ("name", type);
-    CashRateTypeBean bean = (CashRateTypeBean)query.uniqueResult ();
+  protected CashRateTypeBean getOrCreateCashRateTypeBean(final String type) {
+    final Query query = getSession().getNamedQuery("CashRateTypeBean.one");
+    query.setString("name", type);
+    CashRateTypeBean bean = (CashRateTypeBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new CashRateTypeBean (type));
+      bean = persistBean(new CashRateTypeBean(type));
     }
     return bean;
   }
   
   // IssuerTypeBean
   
-  /* package */ IssuerTypeBean getOrCreateIssuerTypeBean (final String type) {
-    final Query query = getSession ().getNamedQuery ("IssuerTypeBean.one");
-    query.setString ("name", type);
-    IssuerTypeBean bean = (IssuerTypeBean)query.uniqueResult ();
+  protected IssuerTypeBean getOrCreateIssuerTypeBean(final String type) {
+    final Query query = getSession().getNamedQuery("IssuerTypeBean.one");
+    query.setString("name", type);
+    IssuerTypeBean bean = (IssuerTypeBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new IssuerTypeBean (type));
+      bean = persistBean(new IssuerTypeBean(type));
     }
     return bean;
   }
   
   // MarketBean
   
-  /* package */ MarketBean getOrCreateMarketBean(final String market) {
+  protected MarketBean getOrCreateMarketBean(final String market) {
     final Query query = getSession().getNamedQuery("MarketBean.one");
     query.setString("name", market);
     MarketBean bean = (MarketBean) query.uniqueResult();
@@ -260,7 +260,7 @@ public class HibernateSecurityMasterSession {
   
   // YieldConventionBean
   
-  /* package */ YieldConventionBean getOrCreateYieldConventionBean(final String convention) {
+  protected YieldConventionBean getOrCreateYieldConventionBean(final String convention) {
     final Query query = getSession().getNamedQuery("YieldConventionBean.one");
     query.setString("name", convention);
     YieldConventionBean bean = (YieldConventionBean) query.uniqueResult();
@@ -272,24 +272,24 @@ public class HibernateSecurityMasterSession {
   
   // GuaranteeTypeBean
   
-  /* package */ GuaranteeTypeBean getOrCreateGuaranteeTypeBean(final String type) {
+  protected GuaranteeTypeBean getOrCreateGuaranteeTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("GuaranteeTypeBean.one");
     query.setString("name", type);
     GuaranteeTypeBean bean = (GuaranteeTypeBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new GuaranteeTypeBean (type));
+      bean = persistBean(new GuaranteeTypeBean(type));
     }
     return bean;
   }
   
   // CouponTypeBean
   
-  /* package */ CouponTypeBean getOrCreateCouponTypeBean (final String type) {
-    final Query query = getSession ().getNamedQuery ("CouponTypeBean.one");
-    query.setString ("name", type);
-    CouponTypeBean bean = (CouponTypeBean)query.uniqueResult ();
+  protected CouponTypeBean getOrCreateCouponTypeBean(final String type) {
+    final Query query = getSession().getNamedQuery("CouponTypeBean.one");
+    query.setString("name", type);
+    CouponTypeBean bean = (CouponTypeBean) query.uniqueResult();
     if (bean == null) {
-      bean = persistBean (new CouponTypeBean (type));
+      bean = persistBean(new CouponTypeBean(type));
     }
     return bean;
   }
@@ -328,7 +328,7 @@ public class HibernateSecurityMasterSession {
     return association;
   }
   
-  /* package */IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(
+  protected IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(
       Date now, String scheme, String identifier, SecurityBean security) {
     Query query = getSession().getNamedQuery(
         "IdentifierAssociationBean.one.byDateIdentifier");
@@ -339,9 +339,7 @@ public class HibernateSecurityMasterSession {
     if (association == null) {
       association = createIdentifierAssociationBean(now, scheme, identifier, security);
     } else {
-      if (association.getSecurity().getId().equals(security.getId())) {
-        // we're okay, it's already there
-      } else {
+      if (!association.getSecurity().getId().equals(security.getId())) {
         // terminate the previous record, and create a new one
         association.setValidEndDate(now);
         getSession().update(association);
@@ -354,13 +352,13 @@ public class HibernateSecurityMasterSession {
 
   // only for testing.
   @SuppressWarnings ("unchecked")
-  /* package */List<IdentifierAssociationBean> getAllAssociations() {
+  protected List<IdentifierAssociationBean> getAllAssociations() {
     Query query = getSession().createQuery(
         "from IdentifierAssociationBean as d");
     return query.list();
   }
 
-  /* package */ void associateOrUpdateIdentifierWithSecurity(Date now,
+  protected void associateOrUpdateIdentifierWithSecurity(Date now,
       Identifier identifier, SecurityBean security) {
     getCreateOrUpdateIdentifierAssociationBean(now, identifier
         .getScheme().getName(), identifier.getValue(), security
@@ -369,7 +367,7 @@ public class HibernateSecurityMasterSession {
   
   // Generic Securities
 
-  /* package */ SecurityBean getSecurityBean(final UniqueIdentifier uid) {
+  protected SecurityBean getSecurityBean(final UniqueIdentifier uid) {
     if (uid.isLatest()) {
       return getSecurityBean(new Date(), uid);
     }
@@ -379,7 +377,7 @@ public class HibernateSecurityMasterSession {
     return security;
   }
 
-  /* package */ SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
+  protected SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
     Query query = getSession().getNamedQuery("SecurityBean.one.byDateOid");
     query.setLong("securityOid", Long.valueOf(uid.getValue()));
     query.setDate("now", now);
@@ -387,7 +385,7 @@ public class HibernateSecurityMasterSession {
     return security;
   }
 
-  /* package */ SecurityBean getSecurityBean(Date now, IdentifierBundle bundle) {
+  protected SecurityBean getSecurityBean(Date now, IdentifierBundle bundle) {
     Collection<Identifier> identifiers = bundle.getIdentifiers();
     Set<String> schemes = getListOfSchemes(identifiers);
     for (String scheme : schemes) {
@@ -406,7 +404,7 @@ public class HibernateSecurityMasterSession {
   
   // Specific securities through BeanOperation
   
-  /* package */ <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
+  protected <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
       final BeanOperation<S, SBean> beanOperation,
       final Date effectiveDateTime,
       final boolean deleted,
@@ -420,7 +418,7 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  /* package */ void persistSecurityBean(
+  protected void persistSecurityBean(
       final Date effectiveDateTime,
       final boolean deleted,
       final Date lastModified,
@@ -461,13 +459,13 @@ public class HibernateSecurityMasterSession {
 
   // Internal query methods for equities
   @SuppressWarnings("unchecked")
-  /* package */List<EquitySecurityBean> getEquitySecurityBeans() {
+  protected List<EquitySecurityBean> getEquitySecurityBeans() {
     Query query = getSession().getNamedQuery("EquitySecurityBean.all");
     return query.list();
   }
 
   @SuppressWarnings("unchecked")
-  /* package */List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(
+  protected List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(
       EquitySecurityBean firstVersion) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.many.allVersionsByFirstVersion");
@@ -475,7 +473,7 @@ public class HibernateSecurityMasterSession {
     return query.list();
   }
 
-  /* package */EquitySecurityBean getCurrentEquitySecurityBean(Date now,
+  protected EquitySecurityBean getCurrentEquitySecurityBean(Date now,
       ExchangeBean exchange, String companyName, CurrencyBean currency) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate");
@@ -486,7 +484,7 @@ public class HibernateSecurityMasterSession {
     return (EquitySecurityBean) query.uniqueResult();
   }
 
-  /* package */EquitySecurityBean getCurrentEquitySecurityBean(Date now,
+  protected EquitySecurityBean getCurrentEquitySecurityBean(Date now,
       EquitySecurityBean firstVersion) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.byFirstVersionDate");
@@ -495,7 +493,7 @@ public class HibernateSecurityMasterSession {
     return (EquitySecurityBean) query.uniqueResult();
   }
 
-  /* package */EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
+  protected EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
       ExchangeBean exchange, String companyName, CurrencyBean currency) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate");
@@ -506,7 +504,7 @@ public class HibernateSecurityMasterSession {
     return (EquitySecurityBean) query.uniqueResult();
   }
 
-  /* package */EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
+  protected EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
       EquitySecurityBean firstVersion) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.liveByFirstVersionDate");
@@ -518,15 +516,15 @@ public class HibernateSecurityMasterSession {
   // Equity options
 
   @SuppressWarnings("unchecked")
-  /* package */List<OptionSecurityBean> getEquityOptionSecurityBeans() {
+  protected List<OptionSecurityBean> getEquityOptionSecurityBeans() {
     Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
     return query.list();
   }
   
   // Futures
   
-  /* package */ @SuppressWarnings("unchecked")
-  List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future) {
+  @SuppressWarnings("unchecked")
+  protected List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future) {
     Query query;
     if (now != null) {
       query = getSession().getNamedQuery("FutureBundleBean.many.byDateFuture");
@@ -538,14 +536,14 @@ public class HibernateSecurityMasterSession {
     return query.list();
   }
   
-  /* package */ FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future) {
+  protected FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future) {
     Query query = getSession().getNamedQuery("FutureBundleBean.one.nextBundle");
     query.setDate("now", now);
     query.setParameter("future", future);
     return (FutureBundleBean) query.uniqueResult();
   }
   
-  /* package */ void persistFutureBundleBeans(final Date now, final FutureSecurityBean future) {
+  protected void persistFutureBundleBeans(final Date now, final FutureSecurityBean future) {
     OperationTimer timer = new OperationTimer(s_logger, "persistFutureBundleBeans");
     final Set<FutureBundleBean> beanBasket = future.getBasket();
     final List<FutureBundleBean> dbBasket = getFutureBundleBeans(now, future);

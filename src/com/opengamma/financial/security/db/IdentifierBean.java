@@ -43,15 +43,31 @@ public class IdentifierBean {
     _identifier = identifier;
   }
   
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_identifier == null) ? 0 : _identifier.hashCode());
+    result = prime * result + ((_scheme == null) ? 0 : _scheme.hashCode());
+    return result;
+  }
+
+  @Override
   public boolean equals(Object other) {
-    if (other == null) return false;
-    if (other == this) return true;
-    if (!(other instanceof IdentifierBean)) return false;
+    if (other == null) {
+      return false;
+    }
+    if (other == this) { 
+      return true;
+    }
+    if (!(other instanceof IdentifierBean)) {
+      return false;
+    }
     IdentifierBean otherBean = (IdentifierBean) other;
     return ObjectUtils.equals(otherBean.getScheme(), getScheme())
         && ObjectUtils.equals(otherBean.getIdentifier(), getIdentifier());
   }
-  
+
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }
