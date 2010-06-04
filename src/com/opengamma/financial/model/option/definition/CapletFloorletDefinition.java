@@ -11,16 +11,11 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class CapletFloorletDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
-    @Override
-    public final Boolean shouldExercise(final StandardOptionDataBundle data, final Double r) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double r) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double r) {
       if (isCap() == true) {
         return Math.max(r - getStrike(), 0);
       }

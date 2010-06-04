@@ -25,19 +25,13 @@ public class CappedPowerOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       final double spot = data.getSpot();
       return isCall() ? Math.min(Math.max(Math.pow(spot, getPower()) - getStrike(), 0), getCap()) : Math.min(Math.max(getStrike() - Math.pow(spot, getPower()), 0), getCap());
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
   private final double _power;
   private final double _cap;
 

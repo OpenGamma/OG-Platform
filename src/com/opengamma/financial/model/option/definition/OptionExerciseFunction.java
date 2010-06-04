@@ -12,5 +12,5 @@ package com.opengamma.financial.model.option.definition;
  */
 public interface OptionExerciseFunction<S extends StandardOptionDataBundle> {
 
-  Boolean shouldExercise(S data, Double optionPrice);
+  boolean shouldExercise(S data, Double optionPrice);
 }

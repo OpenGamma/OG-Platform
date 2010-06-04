@@ -11,5 +11,5 @@ package com.opengamma.financial.model.option.definition;
  */
 public interface OptionPayoffFunction<S extends StandardOptionDataBundle> {
 
-  Double getPayoff(S data, Double optionPrice);
+  double getPayoff(S data, Double optionPrice);
 }

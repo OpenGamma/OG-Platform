@@ -24,7 +24,7 @@ public class FadeInOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       Validate.notNull(data.getSpotTimeSeries());
       final DoubleTimeSeries<?> spotTS = data.getSpotTimeSeries();
@@ -40,13 +40,7 @@ public class FadeInOptionDefinition extends OptionDefinition {
       return inRange * (isCall() ? Math.max(0, data.getSpot() - getStrike()) : Math.max(0, getStrike() - data.getSpot())) / spotTS.size();
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
   private final double _lowerBound;
   private final double _upperBound;
 

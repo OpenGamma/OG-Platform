@@ -25,7 +25,7 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       Validate.notNull(optionPrice);
       ArgumentChecker.notNegative(optionPrice, "option price");
@@ -36,7 +36,7 @@ public class AmericanVanillaOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
+    public boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       Validate.notNull(optionPrice);
       ArgumentChecker.notNegative(optionPrice, "option price");

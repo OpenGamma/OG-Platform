@@ -10,22 +10,14 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * 
- * @author emcleod
  */
 public class CapFloorDefinition extends OptionDefinition {
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
-      // TODO Auto-generated method stub
-      return null;
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+      return 0;
     }
   };
   private final boolean _isCap;

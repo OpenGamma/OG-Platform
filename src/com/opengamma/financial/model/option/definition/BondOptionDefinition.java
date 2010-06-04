@@ -12,24 +12,17 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class BondOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       final double spot = data.getSpot();
       return isCall() ? Math.max(0, spot - getStrike()) : Math.max(0, getStrike() - spot);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
   private final Expiry _bondMaturity;
 
   public BondOptionDefinition(final double strike, final Expiry expiry, final boolean isCall, final Expiry bondMaturity) {
@@ -67,28 +60,37 @@ public class BondOptionDefinition extends OptionDefinition {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final BondOptionDefinition other = (BondOptionDefinition) obj;
     if (_bondMaturity == null) {
-      if (other._bondMaturity != null)
+      if (other._bondMaturity != null) {
         return false;
-    } else if (!_bondMaturity.equals(other._bondMaturity))
+      }
+    } else if (!_bondMaturity.equals(other._bondMaturity)) {
       return false;
+    }
     if (_exerciseFunction == null) {
-      if (other._exerciseFunction != null)
+      if (other._exerciseFunction != null) {
         return false;
-    } else if (!_exerciseFunction.equals(other._exerciseFunction))
+      }
+    } else if (!_exerciseFunction.equals(other._exerciseFunction)) {
       return false;
+    }
     if (_payoffFunction == null) {
-      if (other._payoffFunction != null)
+      if (other._payoffFunction != null) {
         return false;
-    } else if (!_payoffFunction.equals(other._payoffFunction))
+      }
+    } else if (!_payoffFunction.equals(other._payoffFunction)) {
       return false;
+    }
     return true;
   }
 }

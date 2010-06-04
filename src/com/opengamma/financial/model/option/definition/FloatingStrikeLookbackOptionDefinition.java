@@ -26,20 +26,14 @@ public class FloatingStrikeLookbackOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       Validate.notNull(data.getSpotTimeSeries());
       final FastLongDoubleTimeSeries ts = data.getSpotTimeSeries().toFastLongDoubleTimeSeries();
       return isCall() ? data.getSpot() - ts.minValue() : ts.maxValue() - data.getSpot();
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionWithSpotTimeSeriesDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
 
   public FloatingStrikeLookbackOptionDefinition(final Expiry expiry, final boolean isCall) {
     super(null, expiry, isCall);

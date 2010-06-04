@@ -34,19 +34,13 @@ public class ComplexChooserOptionDefinition extends OptionDefinition {
 
     @SuppressWarnings("synthetic-access")
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       final double callPrice = BSM.getGreeks(getCallDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
       final double putPrice = BSM.getGreeks(getPutDefinition(), data, GREEKS).get(Greek.FAIR_PRICE);
       return Math.max(callPrice, putPrice);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
   private final double _callStrike;
   private final double _putStrike;
   private final Expiry _callExpiry;

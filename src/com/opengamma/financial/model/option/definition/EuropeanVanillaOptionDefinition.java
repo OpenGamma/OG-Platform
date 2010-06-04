@@ -21,19 +21,13 @@ public class EuropeanVanillaOptionDefinition extends OptionDefinition {
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       Validate.notNull(data);
       final double spot = data.getSpot();
       return isCall() ? Math.max(0, spot - getStrike()) : Math.max(0, getStrike() - spot);
     }
   };
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new OptionExerciseFunction<StandardOptionDataBundle>() {
-
-    @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
-      return false;
-    }
-  };
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
 
   public EuropeanVanillaOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
     super(strike, expiry, isCall);
