@@ -44,11 +44,11 @@ public final class MatrixAlgebraFactory {
     s_staticInstances = new HashMap<String, MatrixAlgebra>();
     s_instanceNames = new HashMap<Class<?>, String>();
     s_staticInstances.put(COLT, COLT_ALGEBRA);
-    s_instanceNames.put(MatrixAlgebra.class, COLT);
+    s_instanceNames.put(ColtMatrixAlgebra.class, COLT);
     s_staticInstances.put(COMMONS, COMMONS_ALGEBRA);
-    s_instanceNames.put(MatrixAlgebra.class, COMMONS);
+    s_instanceNames.put(CommonsMatrixAlgebra.class, COMMONS);
     s_staticInstances.put(OG, OG_ALGEBRA);
-    s_instanceNames.put(MatrixAlgebra.class, OG);
+    s_instanceNames.put(OGMatrixAlgebra.class, OG);
   }
 
   private MatrixAlgebraFactory() {
