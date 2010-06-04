@@ -76,7 +76,7 @@ public class ComplexMathUtils {
   /**
    * Returns the principal value of log, with z the principal argument of z defined to lie in the interval (-pi, pi]
    * @param z ComplexNumber
-   * @return
+   * @return The log 
    */
   public static ComplexNumber log(final ComplexNumber z) {
     ArgumentChecker.notNull(z, "z");
