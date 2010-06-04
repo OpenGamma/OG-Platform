@@ -29,14 +29,14 @@ public class OptionDefinitionTest {
   protected static final OptionExerciseFunction<StandardOptionDataBundle> EXERCISE = new OptionExerciseFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
+    public boolean shouldExercise(final StandardOptionDataBundle data, final Double optionPrice) {
       return false;
     }
   };
   protected static final OptionPayoffFunction<StandardOptionDataBundle> PAYOFF = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @Override
-    public Double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
+    public double getPayoff(final StandardOptionDataBundle data, final Double optionPrice) {
       return PAYOFF_VALUE;
     }
   };
