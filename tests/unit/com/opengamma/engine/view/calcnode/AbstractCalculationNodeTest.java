@@ -7,6 +7,8 @@ package com.opengamma.engine.view.calcnode;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -76,9 +78,13 @@ public class AbstractCalculationNodeTest {
 
     CalculationJob calcJob = new CalculationJob(jobSpec, fn.getUniqueIdentifier(), target.toSpecification(), Sets.newHashSet(inputSpec), Sets.newHashSet(outputReq));
     
+    long startTime = System.nanoTime();
     CalculationJobResult jobResult = calcNode.executeJob(calcJob);
+    long endTime = System.nanoTime();
     assertNotNull(jobResult);
     assertEquals(InvocationResult.ERROR, jobResult.getResult());
+    assertTrue(jobResult.getDuration() >= 0);
+    assertTrue(endTime - startTime >= jobResult.getDuration());
   }
 
   @Test

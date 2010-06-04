@@ -7,6 +7,8 @@ package com.opengamma.engine.view;
 
 import java.util.Collection;
 
+import javax.time.Instant;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 
 /**
@@ -20,9 +22,9 @@ public interface ViewComputationResultModel {
   
   // REVIEW kirk 2009-09-03 -- Should these be JSR-310 instants? Probably.
   
-  long getInputDataTimestamp();
+  Instant getInputDataTimestamp();
   
-  long getResultTimestamp();
+  Instant getResultTimestamp();
   
   // REVIEW kirk 2009-12-31 -- This is intended to cross network boundaries,
   // so has to be at the level of specifications.

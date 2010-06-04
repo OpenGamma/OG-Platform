@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,10 @@ public class ViewRecalculationJob extends TerminatableJob {
   private final View _view;
   private ViewComputationResultModelImpl _previousResult;
   private double _numExecutions;
+  
+  /**
+   * Nanoseconds
+   */
   private double _totalTime;
   
   public ViewRecalculationJob(View view) {
@@ -83,18 +89,19 @@ public class ViewRecalculationJob extends TerminatableJob {
     cycle.populateResultModel();
     cycle.releaseResources();
     
-    long endTime = System.currentTimeMillis();
-    cycle.getResultModel().setResultTimestamp(endTime);
-    long delta = endTime - cycle.getStartTime();
+    Instant resultTimestamp = Instant.nowSystemClock();
+    cycle.getResultModel().setResultTimestamp(resultTimestamp);
+    long endNanoTime = System.nanoTime();
+    long delta = endNanoTime - cycle.getStartTime();
     _totalTime += delta;
     _numExecutions += 1.0;
-    s_logger.info("Last latency was {}, Average latency is {}ms", delta, (_totalTime / _numExecutions));
+    s_logger.info("Last latency was {}ms, Average latency is {}ms", delta / 1000, (_totalTime / _numExecutions) / 1000);
     getView().recalculationPerformed(cycle.getResultModel());
     // Do this intentionally AFTER alerting the view. Because of the listener system,
     // we have to recompute the delta, because we have to factor in the dispatch time
     // in recalculationPerformed().
-    endTime = System.currentTimeMillis();
-    delta = endTime - cycle.getStartTime();
+    endNanoTime = System.nanoTime();
+    delta = endNanoTime - cycle.getStartTime();
     delayOnMinimumRecalculationPeriod(delta);
   }
   
@@ -102,15 +109,15 @@ public class ViewRecalculationJob extends TerminatableJob {
    * Enforce the delay imposed by the minimum recalculation period for a view definition.
    * This is primarily a method so that it's clear in stack traces what's going on.
    * 
-   * @param cycleComputationTime The time it took to actually calculate the view iteration 
+   * @param cycleComputationMillis The time it took to actually calculate the view iteration, milliseconds
    */
-  protected void delayOnMinimumRecalculationPeriod(long cycleComputationTime) {
+  protected void delayOnMinimumRecalculationPeriod(long cycleComputationMillis) {
     if (getView().getDefinition().getMinimumRecalculationPeriod() == null) {
       return;
     }
     long minimumRecalculationPeriod = getView().getDefinition().getMinimumRecalculationPeriod();
-    if (cycleComputationTime < minimumRecalculationPeriod) {
-      long timeToWait = minimumRecalculationPeriod - cycleComputationTime;
+    if (cycleComputationMillis < minimumRecalculationPeriod) {
+      long timeToWait = minimumRecalculationPeriod - cycleComputationMillis;
       s_logger.debug("Waiting for {}ms as computed faster than minimum recalculation period", timeToWait);
       try {
         Thread.sleep(timeToWait);

@@ -115,14 +115,14 @@ public class ViewDefinition implements Serializable {
   }
 
   /**
-   * @return the minimumRecalculationPeriod
+   * @return Minimum recalculation period, milliseconds
    */
   public Long getMinimumRecalculationPeriod() {
     return _minimumRecalculationPeriod;
   }
 
   /**
-   * @param minimumRecalculationPeriod the minimumRecalculationPeriod to set
+   * @param minimumRecalculationPeriod the minimumRecalculationPeriod to set, milliseconds
    */
   public void setMinimumRecalculationPeriod(Long minimumRecalculationPeriod) {
     _minimumRecalculationPeriod = minimumRecalculationPeriod;

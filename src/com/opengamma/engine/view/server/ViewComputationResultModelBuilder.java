@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import javax.time.Instant;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -52,8 +54,8 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
   }
   
   protected static ViewComputationResultModel createObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-    final long inputDataTimestamp = message.getFieldValue(Long.class, message.getByName(FIELD_INPUTTS));
-    final long resultTimestamp = message.getFieldValue(Long.class, message.getByName(FIELD_RESULTTS));
+    final Instant inputDataTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_INPUTTS));
+    final Instant resultTimestamp = message.getFieldValue(Instant.class, message.getByName(FIELD_RESULTTS));
     final Map<String, ViewCalculationResultModel> map = new HashMap<String, ViewCalculationResultModel>();
     final Queue<String> keys = new LinkedList<String>();
     final Queue<ViewCalculationResultModel> values = new LinkedList<ViewCalculationResultModel>();
@@ -92,11 +94,11 @@ public class ViewComputationResultModelBuilder implements FudgeBuilder<ViewCompu
         return map.get(calcConfigurationName);
       }
       @Override
-      public long getInputDataTimestamp() {
+      public Instant getInputDataTimestamp() {
         return inputDataTimestamp;
       }
       @Override
-      public long getResultTimestamp() {
+      public Instant getResultTimestamp() {
         return resultTimestamp;
       }
       @Override

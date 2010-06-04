@@ -7,8 +7,7 @@ package com.opengamma.engine.function;
 
 import javax.time.calendar.Clock;
 
-import com.opengamma.engine.historicaldata.HistoricalDataProvider;
-import com.opengamma.engine.security.SecurityMaster;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
 
 /**
@@ -16,14 +15,6 @@ import com.opengamma.engine.view.calcnode.ViewProcessorQuery;
  *
  */
 public class FunctionExecutionContext extends AbstractFunctionContext {
-  /**
-   * The name under which an instance of {@link HistoricalDataProvider} should be bound.
-   */
-  public static final String HISTORICAL_DATA_PROVIDER_NAME = "historicalDataProvider";
-  /**
-   * The name under which an instance of {@link SecurityMaster} should be bound.
-   */
-  public static final String SECURITY_MASTER_NAME = "securityMaster";
   /**
    * The name under which an instance of {@link ViewProcessor} should be bound.
    */
@@ -37,22 +28,6 @@ public class FunctionExecutionContext extends AbstractFunctionContext {
    */
   public static final String SNAPSHOT_CLOCK_NAME = "snapshotClock";
 
-  public HistoricalDataProvider getHistoricalDataProvider() {
-    return (HistoricalDataProvider) get(HISTORICAL_DATA_PROVIDER_NAME);
-  }
-  
-  public void setHistoricalDataProvider(HistoricalDataProvider historicalDataProvider) {
-    put(HISTORICAL_DATA_PROVIDER_NAME, historicalDataProvider);
-  }
-  
-  public SecurityMaster getSecurityMaster() {
-    return (SecurityMaster) get(SECURITY_MASTER_NAME);
-  }
-  
-  public void setSecurityMaster(SecurityMaster secMaster) {
-    put(SECURITY_MASTER_NAME, secMaster);
-  }
-  
   public ViewProcessorQuery getViewProcessorQuery() {
     return (ViewProcessorQuery) get(VIEW_PROCESSOR_QUERY_NAME);
   }
