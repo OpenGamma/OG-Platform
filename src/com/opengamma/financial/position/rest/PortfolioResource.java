@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -99,6 +100,18 @@ public class PortfolioResource {
       "<body>" +
       "<h2>Portfolio - " + portfolio.getUniqueIdentifier() + "</h2>" +
       "<p>" + portfolio.getName() + "</p>";
+    html += "<p><table border=\"1\">" +
+      "<tr><th>Name</th><th>Nodes</th><th>Positions</th><th>Actions</th></tr>";
+    for (PortfolioNode node : portfolio.getRootNode().getChildNodes()) {
+      URI uri = getUriInfo().getBaseUriBuilder().path(PortfolioNodeResource.class).build(getPortfolioUid(), node.getUniqueIdentifier());
+      html += "<tr>";
+      html += "<td><a href=\"" + uri + "\">" + node.getName() + "</a></td>";
+      html += "<td>" + node.getChildNodes().size() + "</td>";
+      html += "<td>" + node.getPositions().size() + "</td>";
+      html += "<td><br /></td>";
+      html += "</tr>";
+    }
+    html += "</table>";
     
     html += "<h2>Update portfolio</h2>" +
       "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
@@ -148,6 +161,11 @@ public class PortfolioResource {
   }
 
   //-------------------------------------------------------------------------
+  @Path("nodes")
+  public PortfolioNodesResource findNodes() {
+    return new PortfolioNodesResource(this);
+  }
+
   @Path("positions")
   public PositionsResource findPositions() {
     return new PositionsResource(this);

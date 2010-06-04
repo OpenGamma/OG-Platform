@@ -60,6 +60,15 @@ public class PositionResource {
     return _positionUid;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the portfolio unique identifier.
+   * @return the unique identifier, not null
+   */
+  public UniqueIdentifier getPortfolioUid() {
+    return getPositionsResource().getPortfolioUid();
+  }
+
   /**
    * Gets the position master.
    * @return the position master, not null

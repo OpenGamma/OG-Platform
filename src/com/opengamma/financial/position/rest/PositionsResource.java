@@ -5,19 +5,10 @@
  */
 package com.opengamma.financial.position.rest;
 
-import java.net.URI;
-import java.util.Set;
-
-import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionAccumulator;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -51,6 +42,15 @@ public class PositionsResource {
     return _portfolioResource;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the portfolio unique identifier.
+   * @return the unique identifier, not null
+   */
+  public UniqueIdentifier getPortfolioUid() {
+    return getPortfolioResource().getPortfolioUid();
+  }
+
   /**
    * Gets the position master.
    * @return the position master, not null
@@ -68,27 +68,26 @@ public class PositionsResource {
   }
 
   //-------------------------------------------------------------------------
-  @GET
-  @Produces(MediaType.TEXT_HTML)
-  public String getAsHtml() {
-    UniqueIdentifier portfolioUid = getPortfolioResource().getPortfolioUid();
-    Portfolio portfolio = getPositionMaster().getPortfolio(portfolioUid);
-    if (portfolio == null) {
-      return null;
-    }
-    Set<Position> positions = PositionAccumulator.getAccumulatedPositions(portfolio.getRootNode());
-    String html = "<html>" +
-      "<head><title>Positions</title></head>" +
-      "<body>" +
-      "<h2>Positions</h2>" +
-      "<p><table>";
-    for (Position position : positions) {
-      URI uri = getUriInfo().getRequestUriBuilder().path(position.getUniqueIdentifier().toString()).build();
-      html += "<tr><td><a href=\"" + uri + "\">" + position.getUniqueIdentifier() + "</a></td></tr>";
-    }
-    html += "</table></p></body></html>";
-    return html;
-  }
+//  @GET
+//  @Produces(MediaType.TEXT_HTML)
+//  public String getAsHtml() {
+//    Portfolio portfolio = getPositionMaster().getPortfolio(getPortfolioUid());
+//    if (portfolio == null) {
+//      return null;
+//    }
+//    Set<Position> positions = PositionAccumulator.getAccumulatedPositions(portfolio.getRootNode());
+//    String html = "<html>" +
+//      "<head><title>Positions</title></head>" +
+//      "<body>" +
+//      "<h2>Positions</h2>" +
+//      "<p><table border=\"1\">";
+//    for (Position position : positions) {
+//      URI uri = getUriInfo().getBaseUriBuilder().path(PositionResource.class).build(getPortfolioUid(), position.getUniqueIdentifier());
+//      html += "<tr><td><a href=\"" + uri + "\">" + position.getUniqueIdentifier() + "</a></td></tr>";
+//    }
+//    html += "</table></p></body></html>";
+//    return html;
+//  }
 
   //-------------------------------------------------------------------------
   @Path("{positionUid}")
