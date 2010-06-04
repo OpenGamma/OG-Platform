@@ -5,15 +5,21 @@
  */
 package com.opengamma.math.matrix;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Various utility classes for matrices.
  */
-public class DoubleMatrixUtil {
+public final class DoubleMatrixUtil {
+
+  private DoubleMatrixUtil() {
+    //Cannot instantiate
+  }
 
   public static DoubleMatrix2D getIdentityMatrix2D(final int dimension) {
-    ArgumentChecker.notNull(dimension, "dimension");
+    ArgumentChecker.notNegative(dimension, "dimension");
     if (dimension == 0) {
       return DoubleMatrix2D.EMPTY_MATRIX;
     }
@@ -28,7 +34,7 @@ public class DoubleMatrixUtil {
   }
 
   public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(final DoubleMatrix1D vector) {
-    ArgumentChecker.notNull(vector, "vector");
+    Validate.notNull(vector);
     final int n = vector.getNumberOfElements();
     if (n == 0) {
       return DoubleMatrix2D.EMPTY_MATRIX;
