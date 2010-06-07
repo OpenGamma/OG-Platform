@@ -26,7 +26,7 @@ import com.opengamma.engine.ComputationTargetResolverAdapter;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFormatter;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -67,8 +67,8 @@ public class PortfolioEvaluationModel {
   private Portfolio _portfolio;
   
   // REVIEW kirk 2010-03-29 -- Use a sorted map here?
-  private final Map<String, DependencyGraphModel> _graphModelsByConfiguration =
-    new ConcurrentHashMap<String, DependencyGraphModel>();
+  private final Map<String, DependencyGraph> _graphsByConfiguration =
+    new ConcurrentHashMap<String, DependencyGraph>();
   private final Map<IdentifierBundle, Security> _securitiesByKey = new ConcurrentHashMap<IdentifierBundle, Security>();
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
@@ -108,15 +108,15 @@ public class PortfolioEvaluationModel {
   }
   
   public Set<String> getAllCalculationConfigurationNames() {
-    return new TreeSet<String>(_graphModelsByConfiguration.keySet());
+    return new TreeSet<String>(_graphsByConfiguration.keySet());
   }
   
-  public Collection<DependencyGraphModel> getAllDependencyGraphModels() {
-    return new ArrayList<DependencyGraphModel>(_graphModelsByConfiguration.values());
+  public Collection<DependencyGraph> getAllDependencyGraphs() {
+    return new ArrayList<DependencyGraph>(_graphsByConfiguration.values());
   }
   
-  public DependencyGraphModel getDependencyGraphModel(String calcConfigName) {
-    return _graphModelsByConfiguration.get(calcConfigName);
+  public DependencyGraph getDependencyGraph(String calcConfigName) {
+    return _graphsByConfiguration.get(calcConfigName);
   }
   
   private class ResolvedSecurityComputationTargetResolver extends ComputationTargetResolverAdapter {
@@ -205,17 +205,17 @@ public class PortfolioEvaluationModel {
   
   private void outputDependencyGraphs() {
     StringBuilder sb = new StringBuilder();
-    for (DependencyGraphModel depGraphModel : _graphModelsByConfiguration.values()) {
-      sb.append("DepGraphModel for ").append(depGraphModel.getCalculationConfigurationName());
-      for (DependencyGraph depGraph : depGraphModel.getAllDependencyGraphs()) {
-        sb.append("\tGot dep graph for ").append(depGraph.getComputationTarget());
-        sb.append("\tProducing values ").append(depGraph.getOutputValues());
-        for (DependencyNode depNode : depGraph.getDependencyNodes()) {
-          sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
-        }
+    for (Map.Entry<String, DependencyGraph> entry : _graphsByConfiguration.entrySet()) {
+      sb.append("DepGraph for ").append(entry.getKey());
+      
+      DependencyGraph depGraph = entry.getValue();
+      sb.append("\tComputation target ").append(depGraph.getComputationTarget());
+      sb.append("\tProducing values ").append(depGraph.getOutputValues());
+      for (DependencyNode depNode : depGraph.getDependencyNodes()) {
+        sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
       }
     }
-    s_logger.warn("Dependency Graph Models -- \n{}", sb);
+    s_logger.warn("Dependency Graphs -- \n{}", sb);
   }
   
   protected void resolveSecurities(final ViewCompilationServices viewCompilationServices) {
@@ -369,45 +369,28 @@ public class PortfolioEvaluationModel {
       String configName = entry.getKey();
       ViewCalculationConfiguration calcConfig = entry.getValue();
       
-      DependencyGraphModel dependencyGraphModel = new DependencyGraphModel();
-      dependencyGraphModel.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
-      dependencyGraphModel.setTargetResolver(computationTargetResolver);
-      dependencyGraphModel.setFunctionResolver(functionResolver);
-      dependencyGraphModel.setCompilationContext(compilationContext);
-      dependencyGraphModel.setCalculationConfigurationName(configName);
+      DependencyGraphBuilder dependencyGraphBuilder = new DependencyGraphBuilder();
+      dependencyGraphBuilder.setLiveDataAvailabilityProvider(liveDataAvailabilityProvider);
+      dependencyGraphBuilder.setTargetResolver(computationTargetResolver);
+      dependencyGraphBuilder.setFunctionResolver(functionResolver);
+      dependencyGraphBuilder.setCompilationContext(compilationContext);
+      dependencyGraphBuilder.setCalculationConfigurationName(configName);
 
-      // TODO kirk 2010-05-22 -- This will all have to change to support security and
-      // primitive-level calculations.
-      Map<String, Set<String>> outputsBySecurityType = calcConfig.getValueRequirementsBySecurityTypes();
-      if (viewDefinition.isComputePositionNodeCalculations()) {
-        for (Position position : getPopulatedPositions()) {
-          // REVIEW kirk 2009-09-04 -- This is potentially a VERY computationally expensive
-          // operation. We could/should do them in parallel.
-          Set<String> requiredOutputValues = outputsBySecurityType.get(position.getSecurity().getSecurityType());
-          Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-          for (String requirementName : requiredOutputValues) {
-            ValueRequirement requirement = new ValueRequirement(requirementName, position);
-            requirements.add(requirement);
-          }
-          dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
-        }
-      }
-      if (viewDefinition.isComputePortfolioNodeCalculations()) {
-        PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphModel, calcConfig);
-        new PortfolioNodeTraverser(compiler).traverse(getPortfolio().getRootNode());
-      }
+      PortfolioNodeCompiler compiler = new PortfolioNodeCompiler(dependencyGraphBuilder, calcConfig);
+      new PortfolioNodeTraverser(compiler).traverse(getPortfolio().getRootNode());
       
-      dependencyGraphModel.removeUnnecessaryOutputs();
+      DependencyGraph depGraph = dependencyGraphBuilder.getDependencyGraph();
+      depGraph.removeUnnecessaryValues();
       
-      _graphModelsByConfiguration.put(configName, dependencyGraphModel);
+      _graphsByConfiguration.put(configName, depGraph);
     }
     timer.finished();
   }
   
   public Set<ValueRequirement> getAllLiveDataRequirements() {
     Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    for (DependencyGraphModel dependencyGraphModel : _graphModelsByConfiguration.values()) {
-      Set<ValueRequirement> requiredLiveData = dependencyGraphModel.getAllRequiredLiveData();
+    for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
+      Set<ValueRequirement> requiredLiveData = dependencyGraph.getAllRequiredLiveData();
       result.addAll(requiredLiveData);
     }
     return result;
@@ -436,18 +419,18 @@ public class PortfolioEvaluationModel {
    * Compiles dependency graphs for each stage in a portfolio tree.
    */
   protected static class PortfolioNodeCompiler extends AbstractPortfolioNodeTraversalCallback {
-    private final DependencyGraphModel _dependencyGraphModel;
+    private final DependencyGraphBuilder _dependencyGraphBuilder;
     private final ViewCalculationConfiguration _calculationConfiguration;
     
     public PortfolioNodeCompiler(
-        DependencyGraphModel dependencyGraphModel,
+        DependencyGraphBuilder dependencyGraphBuilder,
         ViewCalculationConfiguration calculationConfiguration) {
-      _dependencyGraphModel = dependencyGraphModel;
+      _dependencyGraphBuilder = dependencyGraphBuilder;
       _calculationConfiguration = calculationConfiguration;
     }
 
     @Override
-    public void postOrderOperation(PortfolioNode portfolioNode) {
+    public void preOrderOperation(PortfolioNode portfolioNode) {
       // Yes, we could in theory do this outside the loop by implementing more
       // callbacks, but it might have gotten hairy, so for the first pass I just
       // did it this way.
@@ -462,7 +445,7 @@ public class PortfolioEvaluationModel {
         for (String requiredOutput : requiredOutputs) {
           requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
         }
-        _dependencyGraphModel.addTarget(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode), requirements);
+        _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode), requirements);
       }
     }
         

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.value.ComputedValue;
@@ -22,15 +22,15 @@ import com.opengamma.engine.value.ComputedValue;
  */
 public class ViewCalculationResultModelImpl implements Serializable,
     ViewCalculationResultModel {
-  private DependencyGraphModel _dependencyGraphModel;
+  private DependencyGraphBuilder _dependencyGraphModel;
   private final Map<ComputationTargetSpecification, Map<String, ComputedValue>> _values =
     new HashMap<ComputationTargetSpecification, Map<String, ComputedValue>>();
 
-  public void setDependencyGraphModel(DependencyGraphModel dependencyGraphModel) {
+  public void setDependencyGraphModel(DependencyGraphBuilder dependencyGraphModel) {
     _dependencyGraphModel = dependencyGraphModel;
   }
   
-  public DependencyGraphModel getDependencyGraphModel() {
+  public DependencyGraphBuilder getDependencyGraphModel() {
     return _dependencyGraphModel;
   }
 

@@ -76,4 +76,9 @@ public class LiveDataSourcingFunction extends AbstractFunction implements Functi
     throw new NotImplementedException("LiveDataSourcingFunction should never be executed.");
   }
 
+  @Override
+  public Set<ValueRequirement> getAllRequiredLiveData() {
+    return Collections.singleton(_requirement);
+  }
+  
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyGraphModel;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -193,9 +191,9 @@ public class SingleComputationCycle {
    * 
    */
   private void createAllCaches() {
-    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
-      ViewComputationCache cache =  getProcessingContext().getComputationCacheSource().getCache(getViewName(), depGraphModel.getCalculationConfigurationName(), getSnapshotTime());
-      _cachesByCalculationConfiguration.put(depGraphModel.getCalculationConfigurationName(), cache);
+    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+      ViewComputationCache cache =  getProcessingContext().getComputationCacheSource().getCache(getViewName(), calcConfigurationName, getSnapshotTime());
+      _cachesByCalculationConfiguration.put(calcConfigurationName, cache);
     }
   }
 
@@ -203,60 +201,35 @@ public class SingleComputationCycle {
    * @param dataAsValue
    */
   private void addToAllCaches(ComputedValue dataAsValue) {
-    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
-      getComputationCache(depGraphModel.getCalculationConfigurationName()).putValue(dataAsValue);
+    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+      getComputationCache(calcConfigurationName).putValue(dataAsValue);
     }
   }
 
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {
-    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
-      s_logger.info("Executing plans for calculation configuration {}", depGraphModel.getCalculationConfigurationName());
-      // NOTE kirk 2010-04-01 -- Yes, this is correct. Yes, it's counterintuitive that we do things from
-      // larger to smaller graphs.
-      // 1) Because we always generate the top-level aggregate nodes right now, we guarantee that by hitting
-      //    MULTIPLE_POSITIONS we're guaranteed to hit the POSITION-level nodes because dependency graphs
-      //    link to the lower levels that they require. Since we only output at the POSITION level, we're set.
-      // 2) There's a massive benefit to having larger dependency graphs with lots of stuff to do when executing.
-      //    If you have a small graph, or a large graph where most stuff is already done, just processing the
-      //    dependency graph itself is costly and limits your parallelism.
-      // This optimization took multi-calc-node performance up by a factor of 2. Don't mess with it
-      // lightly.
-      
-      // There are two ways to execute the different dependency graphs: sequentially or in parallel.
-      // Both are implemented, and both work.
-      // However, right now on the scope that we're working on, we don't actually need the parallel form,
-      // and the additional overhead of thread management slows us down, so I've hard coded it to the sequential
-      // form. This should ultimately change if we discover that as graphs get bigger we want to have them
-      // running in parallel.
-      if (getViewDefinition().isComputePortfolioNodeCalculations()) {
-        executePlansSequential(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
-        //executePlansParallel(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
-      }
-      if (getViewDefinition().isComputePositionNodeCalculations()) {
-        executePlansSequential(depGraphModel, ComputationTargetType.POSITION);
-        //executePlansParallel(depGraphModel, ComputationTargetType.POSITION);
-      }
-      if (getViewDefinition().isComputeSecurityNodeCalculations()) {
-        executePlansSequential(depGraphModel, ComputationTargetType.SECURITY);
-        //executePlansParallel(depGraphModel, ComputationTargetType.SECURITY);
-      }
-      if (getViewDefinition().isComputePrimitiveNodeCalculations()) {
-        executePlansSequential(depGraphModel, ComputationTargetType.PRIMITIVE);
-        //executePlansParallel(depGraphModel, ComputationTargetType.PRIMITIVE);
-      }
-    }
+    // There are two ways to execute the different dependency graphs: sequentially or in parallel.
+    // Both are implemented, and both work.
+    // However, right now on the scope that we're working on, we don't actually need the parallel form,
+    // and the additional overhead of thread management slows us down, so I've hard coded it to the sequential
+    // form. This should ultimately change if we discover that as graphs get bigger we want to have them
+    // running in parallel.
+    executePlansSequential();
+    //executePlansParallel();
   }
   
-  protected void executePlansParallel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
+  protected void executePlansParallel() {
     ExecutorCompletionService<Object> completionService = new ExecutorCompletionService<Object>(getProcessingContext().getExecutorService());
     int nSubmitted = 0;
-    Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
-    for (DependencyGraph depGraph : depGraphs) {
-      s_logger.info("{} - Submitting dependency graph for {} for execution", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
+    
+    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+      s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
+      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+      
+      s_logger.info("Submitting dependency graph {} for execution", depGraph.getComputationTarget());
       final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
-          depGraphModel.getCalculationConfigurationName(),
+          calcConfigurationName,
           depGraph,
           getProcessingContext(),
           this);
@@ -268,6 +241,7 @@ public class SingleComputationCycle {
       }, depGraphExecutor);
       nSubmitted++;
     }
+
     for (int i = 0; i < nSubmitted; i++) {
       Future<Object> result = null;
       try {
@@ -284,13 +258,15 @@ public class SingleComputationCycle {
     }
   }
 
-  protected void executePlansSequential(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
-    Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
-    for (DependencyGraph depGraph : depGraphs) {
-      s_logger.info("{} - Submitting dependency graph for {} for execution", depGraphModel.getCalculationConfigurationName(), depGraph.getComputationTarget());
+  protected void executePlansSequential() {
+    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+      s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
+      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+      
+      s_logger.info("Submitting dependency graph {} for execution", depGraph.getComputationTarget());
       final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
-          depGraphModel.getCalculationConfigurationName(),
+          calcConfigurationName,
           depGraph,
           getProcessingContext(),
           this);
@@ -298,23 +274,22 @@ public class SingleComputationCycle {
     }
   }
 
-  
   public void populateResultModel() {
-    for (DependencyGraphModel depGraphModel : getPortfolioEvaluationModel().getAllDependencyGraphModels()) {
-      populateResultModel(depGraphModel, ComputationTargetType.POSITION);
-      populateResultModel(depGraphModel, ComputationTargetType.MULTIPLE_POSITIONS);
+    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+
+      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.POSITION);
+      populateResultModel(calcConfigurationName, depGraph, ComputationTargetType.MULTIPLE_POSITIONS);
     }
   }
   
-  protected void populateResultModel(DependencyGraphModel depGraphModel, ComputationTargetType targetType) {
-    ViewComputationCache computationCache = getComputationCache(depGraphModel.getCalculationConfigurationName());
-    Collection<DependencyGraph> depGraphs = depGraphModel.getDependencyGraphs(targetType);
-    for (DependencyGraph depGraph : depGraphs) {
-      for (ValueSpecification outputSpec : depGraph.getOutputValues()) {
-        Object value = computationCache.getValue(outputSpec);
-        if (value != null) {
-          getResultModel().addValue(depGraphModel.getCalculationConfigurationName(), new ComputedValue(outputSpec, value));
-        }
+  protected void populateResultModel(String calcConfigurationName, DependencyGraph depGraph, ComputationTargetType type) {
+    ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
+    for (ValueSpecification outputSpec : depGraph.getOutputValues(type)) {
+      Object value = computationCache.getValue(outputSpec);
+      
+      if (value != null) {
+        getResultModel().addValue(calcConfigurationName, new ComputedValue(outputSpec, value));
       }
     }
   }

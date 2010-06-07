@@ -85,6 +85,10 @@ public class DependencyNode {
     return Collections.unmodifiableSet(_inputRequirements);
   }
   
+  public Set<ValueRequirement> getAllRequiredLiveData() {
+    return _functionDefinition.getAllRequiredLiveData();
+  }
+  
   /**
    * @return the functionDefinition
    */
