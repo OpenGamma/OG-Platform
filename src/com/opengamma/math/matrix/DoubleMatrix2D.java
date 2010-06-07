@@ -90,22 +90,6 @@ public class DoubleMatrix2D implements Matrix<Double> {
     return _columns;
   }
 
-  /**
-   * Gets the matrix transpose
-   * @return a new matrix 
-   */
-  public DoubleMatrix2D getTranspose() {
-
-    final double[][] primitives = new double[_columns][_rows];
-    for (int i = 0; i < _rows; i++) {
-      for (int j = 0; j < _columns; j++) {
-        primitives[i][j] = _data[j][i];
-      }
-    }
-
-    return new DoubleMatrix2D(primitives);
-  }
-
   @Override
   public int hashCode() {
     final int prime = 31;

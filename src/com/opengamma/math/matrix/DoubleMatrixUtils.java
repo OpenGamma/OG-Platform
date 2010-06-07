@@ -12,10 +12,22 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Various utility classes for matrices.
  */
-public final class DoubleMatrixUtil {
+public final class DoubleMatrixUtils {
 
-  private DoubleMatrixUtil() {
+  private DoubleMatrixUtils() {
     //Cannot instantiate
+  }
+
+  public static DoubleMatrix2D getTranspose(final DoubleMatrix2D matrix) {
+    final int rows = matrix.getNumberOfRows();
+    final int columns = matrix.getNumberOfColumns();
+    final double[][] primitives = new double[columns][rows];
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < columns; j++) {
+        primitives[i][j] = matrix.getEntry(j, i);
+      }
+    }
+    return new DoubleMatrix2D(primitives);
   }
 
   public static DoubleMatrix2D getIdentityMatrix2D(final int dimension) {
