@@ -1,31 +1,53 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.frequency;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
- * 
- *
- * @author Andrew
+ * A simple frequency implementation.
  */
 public class SimpleFrequency implements Frequency {
-  
-  public static final Frequency MONTHLY = new SimpleFrequency ("monthly");
-  public static final Frequency ANNUAL = new SimpleFrequency ("annual");
-  public static final Frequency SEMI_ANNUAL = new SimpleFrequency ("semiannual");
-  public static final Frequency QUARTERLY = new SimpleFrequency ("quarterly");
-  
+  // TODO: should be an enum?
+
+  /**
+   * Monthly frequency.
+   */
+  public static final Frequency MONTHLY = new SimpleFrequency("monthly");
+  /**
+   * Annual frequency.
+   */
+  public static final Frequency ANNUAL = new SimpleFrequency("annual");
+  /**
+   * Semi-annual frequency.
+   */
+  public static final Frequency SEMI_ANNUAL = new SimpleFrequency("semiannual");
+  /**
+   * Quarterly frequency.
+   */
+  public static final Frequency QUARTERLY = new SimpleFrequency("quarterly");
+
+  /**
+   * The convention name.
+   */
   private final String _name;
-  
-  protected SimpleFrequency (final String name) {
+
+  /**
+   * Creates an instance.
+   * @param name  the convention name, not null
+   */
+  protected SimpleFrequency(final String name) {
+    ArgumentChecker.notNull(name, "name");
     _name = name;
   }
-  
+
+  //-------------------------------------------------------------------------
   @Override
-  public String getConventionName () {
+  public String getConventionName() {
     return _name;
   }
-  
+
 }

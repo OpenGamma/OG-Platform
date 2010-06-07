@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -10,30 +10,30 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- * Adjusts a date to the following business day, unless that date is in a
- * different month, in which case the date is adjusted to be the preceding
- * business day.
- * 
+ * The modified following business day convention.
+ * <p>
+ * This chooses the next working day following a non-working day, unless that
+ * date is in a different month, in which case the date is adjusted to be the
+ * preceding business day.
+ * <p>
  * Also known as "Modified Following".
- * 
- * @author emcleod
  */
-
 public class ModifiedBusinessDayConvention extends BusinessDayConvention {
+
   private static final BusinessDayConvention FOLLOWING = new FollowingBusinessDayConvention();
   private static final BusinessDayConvention PRECEDING = new PrecedingBusinessDayConvention();
 
   @Override
   public LocalDate adjustDate(final Calendar workingDays, final LocalDate date) {
     final LocalDate followingDate = FOLLOWING.adjustDate(workingDays, date);
-    if (followingDate.getMonthOfYear() != date.getMonthOfYear()) {
-      return PRECEDING.adjustDate(workingDays, date);
+    if (followingDate.getMonthOfYear() == date.getMonthOfYear()) {
+      return followingDate;
     }
-    return followingDate;
+    return PRECEDING.adjustDate(workingDays, date);
   }
-  
+
   @Override
-  public String getConventionName () {
+  public String getConventionName() {
     return "Modified";
   }
 

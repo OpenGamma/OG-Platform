@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -12,23 +12,42 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- * 
- * @author emcleod
- * 
+ * Convention for handling business days.
  */
-
 public abstract class BusinessDayConvention {
 
-  public abstract LocalDate adjustDate (Calendar workingDayCalendar, LocalDate date);
+  /**
+   * Adjusts the specified date using the working day calendar.
+   * @param workingDayCalendar  the working days, not null
+   * @param date  the date to adjust, not null
+   * @return the adjusted date, not null
+   */
+  public abstract LocalDate adjustDate(Calendar workingDayCalendar, LocalDate date);
 
-  public ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime date) {
-    return ZonedDateTime.of(adjustDate(workingDayCalendar, date.toLocalDate()), date.toLocalTime(), date.getZone());
+  /**
+   * Adjusts the specified date-time using the working day calendar.
+   * @param workingDayCalendar  the working days, not null
+   * @param dateTime  the date-time to adjust, not null
+   * @return the adjusted date-time, not null
+   */
+  public ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime dateTime) {
+    LocalDate adjusted = adjustDate(workingDayCalendar, dateTime.toLocalDate());
+    return ZonedDateTime.of(adjusted, dateTime.toLocalTime(), dateTime.getZone());
   }
 
-  public abstract String getConventionName ();
-  
-  public DateAdjuster getDateAdjuster (final Calendar workingDayCalendar) {
-    return new BusinessDayConventionWithCalendar (this, workingDayCalendar);
+  /**
+   * Converts this convention to a {@code DateAdjuster} using the specified working day calendar.
+   * @param workingDayCalendar  the working days, not null
+   * @return the date adjuster, not null
+   */
+  public DateAdjuster getDateAdjuster(final Calendar workingDayCalendar) {
+    return new BusinessDayConventionWithCalendar(this, workingDayCalendar);
   }
-  
+
+  /**
+   * Gets the name of the convention.
+   * @return the name, not null
+   */
+  public abstract String getConventionName();
+
 }

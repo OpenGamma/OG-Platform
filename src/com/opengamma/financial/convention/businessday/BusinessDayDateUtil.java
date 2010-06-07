@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -10,9 +10,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * 
- * 
- * @author emcleod
+ * Utilities for managing the business day convention.
  */
 public class BusinessDayDateUtil {
 
@@ -20,14 +18,16 @@ public class BusinessDayDateUtil {
    * Calculates the number of days in between two dates with the date count rule
    * specified by the DateAdjuster.
    * 
-   * @param startDate
-   * @param includeStart
-   * @param endDate
-   * @param includeEnd
-   * @param dateAdjuster
-   * @return The number of days between two dates.
+   * @param startDate  the start date-time, not null
+   * @param includeStart  whether to include the start
+   * @param endDate  the end date-time, not null
+   * @param includeEnd  whether to include the end
+   * @param convention  the date adjuster, not null
+   * @return the number of days between two dates
    */
-  public static int getDaysBetween(final ZonedDateTime startDate, final boolean includeStart, final ZonedDateTime endDate, final boolean includeEnd,
+  public static int getDaysBetween(
+      final ZonedDateTime startDate, final boolean includeStart,
+      final ZonedDateTime endDate, final boolean includeEnd,
       final DateAdjuster convention) {
     LocalDate date = startDate.toLocalDate();
     LocalDate localEndDate = endDate.toLocalDate();
@@ -44,4 +44,5 @@ public class BusinessDayDateUtil {
     }
     return mult * (includeEnd ? result : result - 1);
   }
+
 }

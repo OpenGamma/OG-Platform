@@ -11,14 +11,14 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * Definition for the Actual/Actual day count convention. The day count fraction
- * is the actual number of days in the period divided by 365 or, if any portion
- * of the period falls in a leap year, the sum of the actual number of days that
- * fall in the leap year divided by 366 and the actual number of days that fall
- * in the non-leap year.
+ * The Actual/Actual day count convention.
  * <p>
- * This convention is also known as "Actual/Actual", "Act/Act" or
- * "Act/Act (ISDA)".
+ * The day count fraction is the actual number of days in the period divided by 365
+ * or, if any portion of the period falls in a leap year, the sum of the actual number
+ * of days that fall in the leap year divided by 366 and the actual number of days that
+ * fall in the non-leap year.
+ * <p>
+ * This convention is also known as "Actual/Actual", "Act/Act" or "Act/Act (ISDA)".
  */
 public class ActualActualISDADayCount extends StatelessDayCount {
 
@@ -42,7 +42,7 @@ public class ActualActualISDADayCount extends StatelessDayCount {
   }
 
   @Override
-  public String getConventionName () {
+  public String getConventionName() {
     return "Actual/Actual";
   }
 
