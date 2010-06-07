@@ -15,7 +15,7 @@ import com.opengamma.math.util.wrapper.ColtMathWrapper;
 /**
  * Wrapper for Colt implementation of SVD
  */
-public class SVDecompositionColt extends SVDecomposition {
+public class SVDecompositionColt extends Decomposition<SVDecompositionResult> {
 
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {

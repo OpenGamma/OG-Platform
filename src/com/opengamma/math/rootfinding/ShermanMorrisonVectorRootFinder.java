@@ -14,7 +14,7 @@ import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.DoubleMatrixUtil;
+import com.opengamma.math.matrix.DoubleMatrixUtils;
 
 /**
  * Uses the Sherman-Morrison formula to invert Broyden's Jacobian update formula, thus providing a direct update formula for the inverse Jacobian 
@@ -24,7 +24,7 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
   private DoubleMatrix2D _invJacobianEst;
-  private final Decomposition _decomp;
+  private final Decomposition<?> _decomp;
 
   public ShermanMorrisonVectorRootFinder() {
     this(DEF_TOL, DEF_TOL, MAX_STEPS);
@@ -40,7 +40,7 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
     _decomp = new LUDecompositionCommons();
   }
 
-  public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition decomp) {
+  public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
     super(absoluteTol, relativeTol, maxSteps);
     Validate.notNull(decomp);
     _decomp = decomp;
@@ -61,7 +61,7 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
   protected void initializeMatrices() {
     final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
     final DecompositionResult deconResult = _decomp.evaluate(jacobianEst);
-    _invJacobianEst = deconResult.solve(DoubleMatrixUtil.getIdentityMatrix2D(_x.getNumberOfElements()));
+    _invJacobianEst = deconResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(_x.getNumberOfElements()));
   }
 
   /* (non-Javadoc)

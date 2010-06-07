@@ -13,7 +13,7 @@ import com.opengamma.math.matrix.MatrixAlgebra;
  */
 public class SVDecompositionColtTest extends SVDecompositionCalculationTestCase {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
-  private static final SVDecomposition SVD = new SVDecompositionColt();
+  private static final Decomposition<SVDecompositionResult> SVD = new SVDecompositionColt();
 
   @Override
   protected MatrixAlgebra getAlgebra() {
@@ -21,7 +21,7 @@ public class SVDecompositionColtTest extends SVDecompositionCalculationTestCase 
   }
 
   @Override
-  protected SVDecomposition getSVD() {
+  protected Decomposition<SVDecompositionResult> getSVD() {
     return SVD;
   }
 

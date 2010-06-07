@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.DoubleMatrixUtil;
+import com.opengamma.math.matrix.DoubleMatrixUtils;
 import com.opengamma.math.matrix.MatrixAlgebra;
 
 /**
@@ -21,7 +21,7 @@ public abstract class SVDecompositionCalculationTestCase {
   private static final double EPS = 1e-10;
   private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {-3.4, -1, 4}, new double[] {1, 6, 1}});
 
-  protected abstract SVDecomposition getSVD();
+  protected abstract Decomposition<SVDecompositionResult> getSVD();
 
   protected abstract MatrixAlgebra getAlgebra();
 
@@ -38,7 +38,7 @@ public abstract class SVDecompositionCalculationTestCase {
     final SVDecompositionResult svd_result = (SVDecompositionResult) result;
     final DoubleMatrix2D u = svd_result.getU();
     final double[] sv = svd_result.getSingularValues();
-    final DoubleMatrix2D w = DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(sv);
+    final DoubleMatrix2D w = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(sv);
     final DoubleMatrix2D vt = svd_result.getVT();
     final DoubleMatrix2D a = (DoubleMatrix2D) algebra.multiply(algebra.multiply(u, w), vt);
     checkEquals(A, a);
@@ -60,7 +60,7 @@ public abstract class SVDecompositionCalculationTestCase {
         svinv[i] = 1.0 / sv[i];
       }
     }
-    final DoubleMatrix2D winv = DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(svinv);
+    final DoubleMatrix2D winv = DoubleMatrixUtils.getTwoDimensionalDiagonalMatrix(svinv);
     final DoubleMatrix2D ainv = (DoubleMatrix2D) algebra.multiply(algebra.multiply(v, winv), ut);
     final DoubleMatrix2D identity = (DoubleMatrix2D) algebra.multiply(A, ainv);
     checkIdentity(identity);

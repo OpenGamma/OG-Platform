@@ -317,7 +317,7 @@ public class MatrixAlgebraImplementationTest {
 
   @Test
   public void testMultiply() {
-    assertMatrixEquals(COMMONS.multiply(DoubleMatrixUtil.getIdentityMatrix2D(2), M3), M3);
+    assertMatrixEquals(COMMONS.multiply(DoubleMatrixUtils.getIdentityMatrix2D(2), M3), M3);
     assertMatrixEquals(COMMONS.multiply(M3, M4), COLT.multiply(M3, M4));
   }
 

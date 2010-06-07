@@ -23,10 +23,9 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
 
-  private Decomposition _decomp;
+  private Decomposition<?> _decomp;
 
-  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps,
-      final Decomposition decomp) {
+  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
     super(absoluteTol, relativeTol, maxSteps);
 
     Validate.notNull(decomp);
@@ -49,7 +48,7 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
    * @param decompMethod The method used to solve for the Newton step
    * @throws IllegalArgumentException If the Decomposition is null 
    */
-  public void setDecompositionMethod(Decomposition decompMethod) {
+  public void setDecompositionMethod(final Decomposition<?> decompMethod) {
     Validate.notNull(decompMethod);
 
     _decomp = decompMethod;
@@ -60,8 +59,8 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
    */
   @Override
   protected DoubleMatrix1D getDirection() {
-    DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
-    DecompositionResult res = _decomp.evaluate(jacobianEst);
+    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
+    final DecompositionResult res = _decomp.evaluate(jacobianEst);
     return res.solve(_y);
   }
 

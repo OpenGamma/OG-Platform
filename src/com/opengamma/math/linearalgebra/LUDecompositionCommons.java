@@ -14,13 +14,13 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * Wrapper for Commons implementation of LU Decomposition
  */
-public class LUDecompositionCommons extends LUDecomposition {
+public class LUDecompositionCommons extends Decomposition<LUDecompositionResult> {
 
   /* (non-Javadoc)
    * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
    */
   @Override
-  public LUDecompositionResult evaluate(DoubleMatrix2D x) {
+  public LUDecompositionResult evaluate(final DoubleMatrix2D x) {
     if (x == null) {
       throw new IllegalArgumentException("Passed a null to LowerUpperDecomposition.evaluate");
     }

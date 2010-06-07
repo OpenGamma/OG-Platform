@@ -16,7 +16,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * Wrapper for Commons implementation of SVD
  */
-public class SVDecompositionCommons extends SVDecomposition {
+public class SVDecompositionCommons extends Decomposition<SVDecompositionResult> {
 
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {

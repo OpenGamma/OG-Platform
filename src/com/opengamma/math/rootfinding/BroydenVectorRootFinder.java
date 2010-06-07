@@ -24,7 +24,7 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
   private DoubleMatrix2D _jacobianEst; //TODO change to Matrix<?>
-  private Decomposition _decomp;
+  private Decomposition<?> _decomp;
 
   public BroydenVectorRootFinder() {
     this(DEF_TOL, DEF_TOL, MAX_STEPS);
@@ -35,13 +35,13 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
     _decomp = new LUDecompositionCommons();
   }
 
-  public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition decomp) {
+  public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
     super(absoluteTol, relativeTol, maxSteps);
     Validate.notNull(decomp);
     _decomp = decomp;
   }
 
-  public void setDecompositionMethod(final Decomposition decompMethod) {
+  public void setDecompositionMethod(final Decomposition<?> decompMethod) {
     Validate.notNull(decompMethod);
     _decomp = decompMethod;
   }

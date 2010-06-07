@@ -10,7 +10,9 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * Base class for a bunch of matrix decomposition (e.g. SVD, LU etc)
+ * @param <S> The type of the decomposition result
  */
-public abstract class Decomposition extends Function1D<DoubleMatrix2D, DecompositionResult> {
+
+public abstract class Decomposition<S extends DecompositionResult> extends Function1D<DoubleMatrix2D, S> {
 
 }

@@ -14,13 +14,13 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * Wrapper for Commons implementation of QR Decomposition
  */
-public class QRDecompositionCommons extends QRDecomposition {
+public class QRDecompositionCommons extends Decomposition<QRDecompositionResult> {
 
   /* (non-Javadoc)
    * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
    */
   @Override
-  public QRDecompositionResult evaluate(DoubleMatrix2D x) {
+  public QRDecompositionResult evaluate(final DoubleMatrix2D x) {
     if (x == null) {
       throw new IllegalArgumentException("Passed a null to QRDecomposer.evaluate");
     }
