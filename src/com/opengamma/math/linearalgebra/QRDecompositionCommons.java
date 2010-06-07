@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import org.apache.commons.lang.Validate;
+import org.apache.commons.math.linear.QRDecomposition;
 import org.apache.commons.math.linear.QRDecompositionImpl;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -16,18 +18,12 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
  */
 public class QRDecompositionCommons extends Decomposition<QRDecompositionResult> {
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public QRDecompositionResult evaluate(final DoubleMatrix2D x) {
-    if (x == null) {
-      throw new IllegalArgumentException("Passed a null to QRDecomposer.evaluate");
-    }
+    Validate.notNull(x);
     final RealMatrix temp = CommonsMathWrapper.wrap(x);
-    final org.apache.commons.math.linear.QRDecomposition qr = new QRDecompositionImpl(temp);
-
-    return new QRDecompositionResultCommons(qr);
+    final QRDecomposition qr = new QRDecompositionImpl(temp);
+    return new QRDecompositionCommonsResult(qr);
   }
 
 }
