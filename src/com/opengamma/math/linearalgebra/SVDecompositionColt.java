@@ -22,7 +22,7 @@ public class SVDecompositionColt extends Decomposition<SVDecompositionResult> {
     Validate.notNull(x);
     final cern.colt.matrix.DoubleMatrix2D coltMatrix = ColtMathWrapper.wrap(x);
     final SingularValueDecomposition svd = new SingularValueDecomposition(coltMatrix);
-    return new SVDecompositionResultColt(svd);
+    return new SVDecompositionColtResult(svd);
   }
 
 }

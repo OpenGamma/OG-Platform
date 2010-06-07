@@ -23,7 +23,7 @@ public class SVDecompositionCommons extends Decomposition<SVDecompositionResult>
     Validate.notNull(x);
     final RealMatrix commonsMatrix = CommonsMathWrapper.wrap(x);
     final SingularValueDecomposition svd = new SingularValueDecompositionImpl(commonsMatrix);
-    return new SVDecompositionResultCommons(svd);
+    return new SVDecompositionCommonsResult(svd);
   }
 
 }
