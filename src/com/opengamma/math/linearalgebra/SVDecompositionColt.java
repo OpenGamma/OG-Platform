@@ -5,8 +5,11 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import org.apache.commons.lang.Validate;
+
 import cern.colt.matrix.linalg.SingularValueDecomposition;
 
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.ColtWrapper;
 
 /**
@@ -14,20 +17,11 @@ import com.opengamma.math.util.wrapper.ColtWrapper;
  */
 public class SVDecompositionColt extends SVDecomposition {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
-  public SVDecompositionResult evaluate(final com.opengamma.math.matrix.DoubleMatrix2D x) {
-    if (x == null) {
-      throw new IllegalArgumentException("Passed a null to SingularValueDecomposition.evaluate");
-    }
-    final cern.colt.matrix.DoubleMatrix2D temp = ColtWrapper.wrap(x);
-
-    final cern.colt.matrix.linalg.SingularValueDecomposition svd = new SingularValueDecomposition(temp);
-
+  public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
+    Validate.notNull(x);
+    final cern.colt.matrix.DoubleMatrix2D coltMatrix = ColtWrapper.wrap(x);
+    final SingularValueDecomposition svd = new SingularValueDecomposition(coltMatrix);
     return new SVDecompositionResultColt(svd);
   }
 

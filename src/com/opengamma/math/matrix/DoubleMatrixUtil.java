@@ -45,4 +45,9 @@ public final class DoubleMatrixUtil {
     }
     return new DoubleMatrix2D(data);
   }
+
+  public static DoubleMatrix2D getTwoDimensionalDiagonalMatrix(final double[] vector) {
+    Validate.notNull(vector);
+    return getTwoDimensionalDiagonalMatrix(new DoubleMatrix1D(vector));
+  }
 }

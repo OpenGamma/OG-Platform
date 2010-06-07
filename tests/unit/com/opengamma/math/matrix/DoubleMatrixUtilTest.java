@@ -21,7 +21,12 @@ public class DoubleMatrixUtilTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullVector() {
-    DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(null);
+    DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix((DoubleMatrix1D) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullArray() {
+    DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix((double[]) null);
   }
 
   @Test
@@ -36,5 +41,7 @@ public class DoubleMatrixUtilTest {
   public void testDiagonalMatrix() {
     assertEquals(DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(DoubleMatrix1D.EMPTY_MATRIX), DoubleMatrix2D.EMPTY_MATRIX);
     assertEquals(DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(new DoubleMatrix1D(new double[] {1, 1, 1, 1})), DoubleMatrixUtil.getIdentityMatrix2D(4));
+    assertEquals(DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(new double[0]), DoubleMatrix2D.EMPTY_MATRIX);
+    assertEquals(DoubleMatrixUtil.getTwoDimensionalDiagonalMatrix(new double[] {1, 1, 1, 1}), DoubleMatrixUtil.getIdentityMatrix2D(4));
   }
 }

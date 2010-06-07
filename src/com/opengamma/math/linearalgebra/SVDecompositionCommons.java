@@ -5,7 +5,9 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.math.linear.RealMatrix;
+import org.apache.commons.math.linear.SingularValueDecomposition;
 import org.apache.commons.math.linear.SingularValueDecompositionImpl;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -16,20 +18,11 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
  */
 public class SVDecompositionCommons extends SVDecomposition {
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
-
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
-    if (x == null) {
-      throw new IllegalArgumentException("Passed a null to SingularValueDecomposition.evaluate");
-    }
-    final RealMatrix temp = CommonsMathWrapper.wrap(x);
-    final org.apache.commons.math.linear.SingularValueDecomposition svd = new SingularValueDecompositionImpl(temp);
-
+    Validate.notNull(x);
+    final RealMatrix commonsMatrix = CommonsMathWrapper.wrap(x);
+    final SingularValueDecomposition svd = new SingularValueDecompositionImpl(commonsMatrix);
     return new SVDecompositionResultCommons(svd);
   }
 
