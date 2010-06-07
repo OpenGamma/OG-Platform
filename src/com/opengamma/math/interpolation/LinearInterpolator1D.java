@@ -11,13 +11,10 @@ import java.util.TreeMap;
 /**
  * A one-dimensional linear interpolator. The interpolated value of the function
  * <i>y</i> at <i>x</i> between two data points <i>(x<sub>1</sub>,
- * y<sub>1</sub></i> and <i>(x<sub>2</sub>, y<sub>2</sub></i> is given by:<br>
- * <i>y = (y<sun>1</sub> + (x - x<sub>1</sub>) * (y<sub>2</sub> - y<sub>1</sub>)
+ * y<sub>1</sub>)</i> and <i>(x<sub>2</sub>, y<sub>2</sub>)</i> is given by:<br>
+ * <i>y = y<sub>1</sub> + (x - x<sub>1</sub>) * (y<sub>2</sub> - y<sub>1</sub>)
  * / (x<sub>2</sub> - x<sub>1</sub>)</i>
- * 
- * @author emcleod
  */
-
 public class LinearInterpolator1D extends Interpolator1D {
 
   /**
@@ -34,12 +31,14 @@ public class LinearInterpolator1D extends Interpolator1D {
    */
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    if (value == null)
+    if (value == null) {
       throw new IllegalArgumentException("x value to be interpolated was null");
+    }
     final TreeMap<Double, Double> sorted = initData(data);
     final Double x1 = getLowerBoundKey(sorted, value);
-    if (x1.equals(sorted.lastKey()))
+    if (x1.equals(sorted.lastKey())) {
       return new InterpolationResult<Double>(sorted.lastEntry().getValue());
+    }
     final Double x2 = sorted.higherKey(x1);
     final Double y1 = sorted.get(x1);
     final Double y2 = sorted.get(x2);
@@ -49,12 +48,15 @@ public class LinearInterpolator1D extends Interpolator1D {
 
   @Override
   public boolean equals(final Object o) {
-    if (o == null)
+    if (o == null) {
       return false;
-    if (o == this)
+    }
+    if (o == this) {
       return true;
-    if (!(o instanceof LinearInterpolator1D))
+    }
+    if (!(o instanceof LinearInterpolator1D)) {
       return false;
+    }
     return true;
   }
 

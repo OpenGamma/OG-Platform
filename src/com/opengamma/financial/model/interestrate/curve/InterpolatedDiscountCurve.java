@@ -41,7 +41,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    *           negative time to maturity.
    */
   public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D interpolator) {
-    this(data, Collections.<Double, Interpolator1D>singletonMap(Double.POSITIVE_INFINITY, interpolator));
+    this(data, Collections.<Double, Interpolator1D> singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -86,9 +86,10 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
       sortedRates.put(entry.getKey(), entry.getValue());
       sortedDF.put(entry.getKey(), Math.exp(-entry.getValue() * entry.getKey()));
     }
-    _rateData = Collections.<Double, Double>unmodifiableSortedMap(sortedRates);
-    _dfData = Collections.<Double, Double>unmodifiableSortedMap(sortedDF);
-    _interpolators = Collections.<Double, Interpolator1D>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(interpolators));
+    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
+    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
+    _interpolators = Collections.<Double, Interpolator1D> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(
+        interpolators));
   }
 
   // This constructor was only used by the now removed Fudge functions - they
@@ -120,8 +121,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
 
   /**
    * 
-   * @return The data sorted by maturity. Note that these are discount factors,
-   *         not rates.
+   * @return The data sorted by maturity. Note that these are rates not discount factors
    */
   public SortedMap<Double, Double> getData() {
     return _rateData;
