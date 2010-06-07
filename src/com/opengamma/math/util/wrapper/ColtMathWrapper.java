@@ -8,11 +8,12 @@ package com.opengamma.math.util.wrapper;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
- * 
+ * Wrapper for colt classes
  */
-public class ColtWrapper {
+public final class ColtMathWrapper {
 
-  private ColtWrapper() {
+  private ColtMathWrapper() {
+    //Cannot instantiate
   }
 
   public static DoubleMatrix2D wrap(final cern.colt.matrix.DoubleMatrix2D x) {

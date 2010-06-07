@@ -5,6 +5,10 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import org.apache.commons.lang.Validate;
+import org.apache.commons.math.linear.DecompositionSolver;
+import org.apache.commons.math.linear.SingularValueDecomposition;
+
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
@@ -13,139 +17,93 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
  * Wrapper for results of Commons implementation of SVD
  */
 public class SVDecompositionResultCommons implements SVDecompositionResult {
+  private final double _condition;
+  private final double _norm;
+  private final int _rank;
+  private final DoubleMatrix2D _s;
+  private final double[] _singularValues;
+  private final DoubleMatrix2D _u;
+  private final DoubleMatrix2D _v;
+  private final DoubleMatrix2D _uTranspose;
+  private final DoubleMatrix2D _vTranspose;
+  private final DecompositionSolver _solver;
 
-  private final org.apache.commons.math.linear.SingularValueDecomposition _svd;
-
-  public SVDecompositionResultCommons(final org.apache.commons.math.linear.SingularValueDecomposition svd) {
-    _svd = svd;
+  // TODO combine this and the colt result by feeding in the values for condition etc directly. This means that we will need an OG wrapper for the solver 
+  // in the commons case or our own for the colt stuff
+  public SVDecompositionResultCommons(final SingularValueDecomposition svd) {
+    Validate.notNull(svd);
+    _condition = svd.getConditionNumber();
+    _norm = svd.getNorm();
+    _rank = svd.getRank();
+    _s = CommonsMathWrapper.wrap(svd.getS());
+    _singularValues = svd.getSingularValues();
+    _u = CommonsMathWrapper.wrap(svd.getU());
+    _uTranspose = CommonsMathWrapper.wrap(svd.getUT());
+    _v = CommonsMathWrapper.wrap(svd.getV());
+    _vTranspose = CommonsMathWrapper.wrap(svd.getVT());
+    _solver = svd.getSolver();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @seecom.opengamma.math.linearalgebra.SingularValueDecompositionResult#
-   * getConditionNumber()
-   */
   @Override
   public double getConditionNumber() {
-    return _svd.getConditionNumber();
+    return _condition;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getNorm()
-   */
   @Override
   public double getNorm() {
-    return _svd.getNorm();
+    return _norm;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getRank()
-   */
   @Override
   public int getRank() {
-    return _svd.getRank();
+    return _rank;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getS()
-   */
   @Override
   public DoubleMatrix2D getS() {
-
-    return CommonsMathWrapper.wrap(_svd.getS());
+    return _s;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @seecom.opengamma.math.linearalgebra.SingularValueDecompositionResult#
-   * getSingularValues()
-   */
   @Override
   public double[] getSingularValues() {
-    return _svd.getSingularValues();
+    return _singularValues;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getU()
-   */
   @Override
   public DoubleMatrix2D getU() {
-
-    return CommonsMathWrapper.wrap(_svd.getU());
+    return _u;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getUT()
-   */
   @Override
   public DoubleMatrix2D getUT() {
-
-    return CommonsMathWrapper.wrap(_svd.getUT());
+    return _uTranspose;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getV()
-   */
   @Override
   public DoubleMatrix2D getV() {
-
-    return CommonsMathWrapper.wrap(_svd.getV());
+    return _v;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.linearalgebra.SingularValueDecompositionResult#getVT()
-   */
   @Override
   public DoubleMatrix2D getVT() {
-
-    return CommonsMathWrapper.wrap(_svd.getVT());
+    return _vTranspose;
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.linearalgebra.SingularValueDecompositionResult#Solve(com.opengamma.math.matrix.DoubleMatrix1D)
-   */
   @Override
-  public DoubleMatrix1D solve(DoubleMatrix1D b) {
-    return CommonsMathWrapper.wrap(_svd.getSolver().solve(CommonsMathWrapper.wrap(b)));
+  public DoubleMatrix1D solve(final DoubleMatrix1D b) {
+    Validate.notNull(b);
+    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.linearalgebra.DecompositionResult#solve(double[])
-   */
   @Override
-  public double[] solve(double[] b) {
-    return _svd.getSolver().solve(b);
+  public double[] solve(final double[] b) {
+    Validate.notNull(b);
+    return _solver.solve(b);
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.linearalgebra.DecompositionResult#solve(com.opengamma.math.matrix.DoubleMatrix2D)
-   */
   @Override
-  public DoubleMatrix2D solve(DoubleMatrix2D b) {
-    return CommonsMathWrapper.wrap(_svd.getSolver().solve(CommonsMathWrapper.wrap(b)));
+  public DoubleMatrix2D solve(final DoubleMatrix2D b) {
+    Validate.notNull(b);
+    return CommonsMathWrapper.wrap(_solver.solve(CommonsMathWrapper.wrap(b)));
   }
-
 }

@@ -7,7 +7,7 @@ package com.opengamma.math.linearalgebra;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.util.wrapper.ColtWrapper;
+import com.opengamma.math.util.wrapper.ColtMathWrapper;
 
 /**
  * Wrapper for results of Colt implementation of SVD
@@ -62,7 +62,7 @@ public class SVDecompositionResultColt implements SVDecompositionResult {
   @Override
   public DoubleMatrix2D getS() {
 
-    return ColtWrapper.wrap(_svd.getS());
+    return ColtMathWrapper.wrap(_svd.getS());
   }
 
   /*
@@ -85,7 +85,7 @@ public class SVDecompositionResultColt implements SVDecompositionResult {
   @Override
   public DoubleMatrix2D getU() {
 
-    return ColtWrapper.wrap(_svd.getU());
+    return ColtMathWrapper.wrap(_svd.getU());
   }
 
   /*
@@ -97,7 +97,7 @@ public class SVDecompositionResultColt implements SVDecompositionResult {
   @Override
   public DoubleMatrix2D getUT() {
 
-    return ColtWrapper.wrap(_svd.getU()).getTranspose();
+    return ColtMathWrapper.wrap(_svd.getU()).getTranspose();
   }
 
   /*
@@ -109,7 +109,7 @@ public class SVDecompositionResultColt implements SVDecompositionResult {
   @Override
   public DoubleMatrix2D getV() {
 
-    return ColtWrapper.wrap(_svd.getV());
+    return ColtMathWrapper.wrap(_svd.getV());
   }
 
   /*
@@ -121,7 +121,7 @@ public class SVDecompositionResultColt implements SVDecompositionResult {
   @Override
   public DoubleMatrix2D getVT() {
 
-    return ColtWrapper.wrap(_svd.getV()).getTranspose();
+    return ColtMathWrapper.wrap(_svd.getV()).getTranspose();
   }
 
   /* (non-Javadoc)
