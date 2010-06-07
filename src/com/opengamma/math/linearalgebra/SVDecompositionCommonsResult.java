@@ -16,7 +16,7 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 /**
  * Wrapper for results of Commons implementation of SVD
  */
-public class SVDecompositionResultCommons implements SVDecompositionResult {
+public class SVDecompositionCommonsResult implements SVDecompositionResult {
   private final double _condition;
   private final double _norm;
   private final int _rank;
@@ -30,7 +30,7 @@ public class SVDecompositionResultCommons implements SVDecompositionResult {
 
   // TODO combine this and the colt result by feeding in the values for condition etc directly. This means that we will need an OG wrapper for the solver 
   // in the commons case or our own for the colt stuff
-  public SVDecompositionResultCommons(final SingularValueDecomposition svd) {
+  public SVDecompositionCommonsResult(final SingularValueDecomposition svd) {
     Validate.notNull(svd);
     _condition = svd.getConditionNumber();
     _norm = svd.getNorm();

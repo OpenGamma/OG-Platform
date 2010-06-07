@@ -17,7 +17,7 @@ import com.opengamma.math.util.wrapper.ColtMathWrapper;
 /**
  * Wrapper for results of Colt implementation of SVD
  */
-public class SVDecompositionResultColt implements SVDecompositionResult {
+public class SVDecompositionColtResult implements SVDecompositionResult {
   private final double _condition;
   private final double _norm;
   private final int _rank;
@@ -28,7 +28,7 @@ public class SVDecompositionResultColt implements SVDecompositionResult {
   private final DoubleMatrix2D _uTranspose;
   private final DoubleMatrix2D _vTranspose;
 
-  public SVDecompositionResultColt(final SingularValueDecomposition svd) {
+  public SVDecompositionColtResult(final SingularValueDecomposition svd) {
     Validate.notNull(svd);
     _condition = svd.cond();
     _norm = svd.norm2();

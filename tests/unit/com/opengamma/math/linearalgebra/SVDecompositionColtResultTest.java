@@ -18,7 +18,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 /**
  * 
  */
-public class SVDecompositionResultColtTest {
+public class SVDecompositionColtResultTest {
   protected static final double CONDITION = 3.9;
   protected static final double NORM = 2.4;
   protected static final int RANK = 4;
@@ -29,12 +29,12 @@ public class SVDecompositionResultColtTest {
   protected static final DoubleMatrix2D V_T = DoubleFactory2D.dense.make(new double[][] {new double[] {21, 24, 27}, new double[] {22, 25, 28}, new double[] {23, 26, 29}});
   protected static final double[] SINGULAR_VALUES = new double[] {1, 2, 3};
   protected static final SingularValueDecomposition SVD = new MySingularValueDecomposition();
-  private static final SVDecompositionResultColt RESULT = new SVDecompositionResultColt(SVD);
+  private static final SVDecompositionColtResult RESULT = new SVDecompositionColtResult(SVD);
   private static final double EPS = 1e-15;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSVD() {
-    new SVDecompositionResultColt(null);
+    new SVDecompositionColtResult(null);
   }
 
   @Test(expected = IllegalArgumentException.class)

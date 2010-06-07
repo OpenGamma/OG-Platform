@@ -25,7 +25,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class SVDecompositionResultCommonsTest {
+public class SVDecompositionCommonsResultTest {
   protected static final double CONDITION = 0.5;
   protected static final double NORM = 0.2;
   protected static final int RANK = 6;
@@ -39,12 +39,12 @@ public class SVDecompositionResultCommonsTest {
   protected static final RealMatrix RESULT_2D = new Array2DRowRealMatrix(new double[][] {new double[] {3.5, 4.5}, new double[] {5.5, 6.5}});
   protected static final RealVector RESULT_1D = new ArrayRealVector(new double[] {7.5, 8.5});
   protected static final DecompositionSolver SOLVER = new MyDecompositionSolver();
-  private static final SVDecompositionResult SVD = new SVDecompositionResultCommons(new MySingularValueDecomposition());
+  private static final SVDecompositionResult SVD = new SVDecompositionCommonsResult(new MySingularValueDecomposition());
   private static final double EPS = 1e-15;
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSVD() {
-    new SVDecompositionResultCommons(null);
+    new SVDecompositionCommonsResult(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
