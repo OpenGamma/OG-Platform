@@ -19,15 +19,12 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * If the analytic Jacobian is not known, it will be calculated using central difference 
  */
 public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
-
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-
   private Decomposition<?> _decomp;
 
   public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
     super(absoluteTol, relativeTol, maxSteps);
-
     Validate.notNull(decomp);
     _decomp = decomp;
   }
@@ -35,7 +32,6 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
   public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
     super(absoluteTol, relativeTol, maxSteps);
     _decomp = new LUDecompositionCommons();
-    //_decon = new SVDecompositionColt();
   }
 
   public NewtonVectorRootFinder() {
@@ -50,13 +46,9 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
    */
   public void setDecompositionMethod(final Decomposition<?> decompMethod) {
     Validate.notNull(decompMethod);
-
     _decomp = decompMethod;
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.NewtonRootFinderImpl#getDirection()
-   */
   @Override
   protected DoubleMatrix1D getDirection() {
     final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
@@ -64,22 +56,14 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
     return res.solve(_y);
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.NewtonRootFinderImpl#initializeMatrices()
-   */
   @Override
   protected void initializeMatrices() {
-    // TODO Auto-generated method stub
-
+    // no need to do anything
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.NewtonRootFinderImpl#updateMatrices()
-   */
   @Override
   protected void updateMatrices() {
-    // TODO Auto-generated method stub
-
+    // no need to do anything
   }
 
 }

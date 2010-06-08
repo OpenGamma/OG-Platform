@@ -23,7 +23,7 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
 
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private DoubleMatrix2D _invJacobianEst;
+  private DoubleMatrix2D _inverseJacobianEstimate;
   private final Decomposition<?> _decomp;
 
   public ShermanMorrisonVectorRootFinder() {
@@ -31,9 +31,9 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
   }
 
   /**
-   * @param absoluteTol
-   * @param relativeTol
-   * @param maxSteps
+   * @param absoluteTol Absolute tolerance
+   * @param relativeTol Relative tolerance
+   * @param maxSteps Maximum number of steps to be used
    */
   public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
     super(absoluteTol, relativeTol, maxSteps);
@@ -46,35 +46,26 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
     _decomp = decomp;
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.NewtonRootFinderImpl#getDirection()
-   */
   @Override
   protected DoubleMatrix1D getDirection() {
-    return (DoubleMatrix1D) OG_ALGEBRA.multiply(_invJacobianEst, _y);
+    return (DoubleMatrix1D) OG_ALGEBRA.multiply(_inverseJacobianEstimate, _y);
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.NewtonRootFinderImpl#initializeMatrices()
-   */
   @Override
   protected void initializeMatrices() {
     final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
     final DecompositionResult deconResult = _decomp.evaluate(jacobianEst);
-    _invJacobianEst = deconResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(_x.getNumberOfElements()));
+    _inverseJacobianEstimate = deconResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(_x.getNumberOfElements()));
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.NewtonRootFinderImpl#updateMatrices()
-   */
   @Override
   protected void updateMatrices() {
-    DoubleMatrix1D vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.multiply(_deltax, _invJacobianEst);
-    final double length2 = OG_ALGEBRA.getInnerProduct(vtemp1, _deltay);
+    DoubleMatrix1D vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.multiply(_deltaX, _inverseJacobianEstimate);
+    final double length2 = OG_ALGEBRA.getInnerProduct(vtemp1, _deltaY);
     vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.scale(vtemp1, 1.0 / length2);
-    final DoubleMatrix1D vtemp2 = (DoubleMatrix1D) OG_ALGEBRA.subtract(_deltax, OG_ALGEBRA.multiply(_invJacobianEst, _deltay));
+    final DoubleMatrix1D vtemp2 = (DoubleMatrix1D) OG_ALGEBRA.subtract(_deltaX, OG_ALGEBRA.multiply(_inverseJacobianEstimate, _deltaY));
     final DoubleMatrix2D mtemp = OG_ALGEBRA.getOuterProduct(vtemp2, vtemp1);
-    _invJacobianEst = (DoubleMatrix2D) OG_ALGEBRA.add(_invJacobianEst, mtemp);
+    _inverseJacobianEstimate = (DoubleMatrix2D) OG_ALGEBRA.add(_inverseJacobianEstimate, mtemp);
   }
 
 }

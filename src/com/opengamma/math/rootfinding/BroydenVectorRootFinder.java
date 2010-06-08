@@ -23,7 +23,7 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
 
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private DoubleMatrix2D _jacobianEst; //TODO change to Matrix<?>
+  private DoubleMatrix2D _jacobianEstimate; //TODO change to Matrix<?>
   private Decomposition<?> _decomp;
 
   public BroydenVectorRootFinder() {
@@ -46,32 +46,23 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
     _decomp = decompMethod;
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.VectorRootFinderImpl#getDirection()
-   */
   @Override
   protected DoubleMatrix1D getDirection() {
-    final DecompositionResult res = _decomp.evaluate(_jacobianEst);
+    final DecompositionResult res = _decomp.evaluate(_jacobianEstimate);
     return res.solve(_y);
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.VectorRootFinderImpl#initializeMatrices()
-   */
   @Override
   protected void initializeMatrices() {
-    _jacobianEst = _jacobian.evaluate(_x);
+    _jacobianEstimate = _jacobian.evaluate(_x);
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.rootfinding.VectorRootFinderImpl#updateMatrices()
-   */
   @Override
   protected void updateMatrices() {
-    final double length2 = OG_ALGEBRA.getInnerProduct(_deltax, _deltax);
-    Matrix<?> temp = OG_ALGEBRA.subtract(_deltay, OG_ALGEBRA.multiply(_jacobianEst, _deltax));
+    final double length2 = OG_ALGEBRA.getInnerProduct(_deltaX, _deltaX);
+    Matrix<?> temp = OG_ALGEBRA.subtract(_deltaY, OG_ALGEBRA.multiply(_jacobianEstimate, _deltaX));
     temp = OG_ALGEBRA.scale(temp, 1.0 / length2);
-    _jacobianEst = (DoubleMatrix2D) OG_ALGEBRA.add(_jacobianEst, OG_ALGEBRA.getOuterProduct(temp, _deltax));
+    _jacobianEstimate = (DoubleMatrix2D) OG_ALGEBRA.add(_jacobianEstimate, OG_ALGEBRA.getOuterProduct(temp, _deltaX));
   }
 
 }
