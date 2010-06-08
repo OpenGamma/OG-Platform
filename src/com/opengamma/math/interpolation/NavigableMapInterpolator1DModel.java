@@ -6,9 +6,10 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NavigableMap;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
 
 /**
  * An implementation of {@link Interpolator1DModel} backed by a
@@ -19,7 +20,7 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
   private final NavigableMap<Double, Double> _backingMap;
   
   public NavigableMapInterpolator1DModel(NavigableMap<Double, Double> backingMap) {
-    ArgumentChecker.notNull(backingMap, "Backing map");
+    Validate.notNull(backingMap, "Backing map");
     _backingMap = backingMap;
   }
 
@@ -63,7 +64,11 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
 
   @Override
   public Double higherValue(Double key) {
-    return _backingMap.higherEntry(key).getValue();
+    Map.Entry<Double, Double> entry = _backingMap.higherEntry(key);
+    if (entry == null) {
+      return null;
+    }
+    return entry.getValue();
   }
 
   @Override

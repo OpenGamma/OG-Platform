@@ -16,7 +16,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class Interpolator1DTest {
   private static final Interpolator1D DUMMY = new Interpolator1D() {
@@ -56,33 +55,6 @@ public class Interpolator1DTest {
     assertArrayEquals(model.getKeys(), x);
   }
   
-  // REVIEW kirk 2010-06-08 -- This needs to be moved to a test of Interpolator1DModel.
-
-  @Test
-  public void testGetLowerBound() {
-    final Interpolator1DModel model = DUMMY.initData(DATA);
-    try {
-      model.getLowerBoundKey(null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      model.getLowerBoundKey(0.);
-      fail();
-    } catch (final InterpolationException e) {
-      // Expected
-    }
-    try {
-      model.getLowerBoundKey(10.);
-      fail();
-    } catch (final InterpolationException e) {
-      // Expected
-    }
-    assertEquals(model.getLowerBoundKey(3.2), 3., EPS);
-    assertEquals(model.getLowerBoundIndex(3.2), 2);
-  }
-
   private void assertArrayEquals(final double[] x, final double[] y) {
     assertEquals(x.length, y.length);
     for (int i = 0; i < x.length; i++) {

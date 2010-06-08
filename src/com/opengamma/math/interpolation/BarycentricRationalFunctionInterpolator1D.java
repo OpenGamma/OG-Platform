@@ -7,7 +7,7 @@ package com.opengamma.math.interpolation;
 
 import java.util.Map;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -24,11 +24,11 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    ArgumentChecker.notNull(data, "Data to be interpolated");
+    Validate.notNull(data, "Data to be interpolated");
+    final Interpolator1DModel model = initData(data);
     if (data.size() < _degree) {
       throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
     }
-    final Interpolator1DModel model = initData(data);
     final double[] x = model.getKeys();
     final double[] y = model.getValues();
     final double[] w = getWeights(x);
