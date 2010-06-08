@@ -20,7 +20,7 @@ public class LinearInterpolator1D extends Interpolator1D {
   public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
-    InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     if (boundedValues.getHigherKey() == null) {
       return new InterpolationResult<Double>(boundedValues.getLowerBoundValue());
     }
@@ -28,33 +28,11 @@ public class LinearInterpolator1D extends Interpolator1D {
       throw new InterpolationException("");
     }
     final double x1 = boundedValues.getLowerBoundKey();
-    /*if (x1.equals(model.lastKey())) {
-      return new InterpolationResult<Double>(model.lastValue());
-    }*/
     final double x2 = boundedValues.getHigherKey();
     final double y1 = boundedValues.getLowerBoundValue();
     final double y2 = boundedValues.getHigherValue();
     final double result = y1 + (value - x1) / (x2 - x1) * (y2 - y1);
     return new InterpolationResult<Double>(result);
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (o == null) {
-      return false;
-    }
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof LinearInterpolator1D)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
   }
 
 }

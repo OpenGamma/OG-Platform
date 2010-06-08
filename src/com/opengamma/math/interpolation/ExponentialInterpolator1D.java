@@ -29,23 +29,4 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     return new InterpolationResult<Double>(result);
   }
 
-  @Override
-  public boolean equals(final Object o) {
-    if (o == null) {
-      return false;
-    }
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof ExponentialInterpolator1D)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
-
 }
