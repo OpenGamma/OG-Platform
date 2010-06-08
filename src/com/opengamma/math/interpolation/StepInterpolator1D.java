@@ -6,12 +6,10 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.opengamma.util.CompareUtils;
 
 /**
- * @author emcleod
  * 
  */
 public class StepInterpolator1D extends Interpolator1D {
@@ -25,37 +23,38 @@ public class StepInterpolator1D extends Interpolator1D {
     _eps = Math.abs(eps);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.interpolation.Interpolator1D#interpolate(java.util.Map,
-   * java.lang.Double)
-   */
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    if (value == null)
+    if (value == null) {
       throw new IllegalArgumentException("x value to be interpolated was null");
-    final TreeMap<Double, Double> sorted = initData(data);
-    if (value < sorted.firstKey() || CompareUtils.closeEquals(sorted.firstKey(), value, _eps))
-      return new InterpolationResult<Double>(sorted.firstEntry().getValue(), 0.);
-    if (value > sorted.lastKey() || CompareUtils.closeEquals(value, sorted.lastKey(), _eps))
-      return new InterpolationResult<Double>(sorted.lastEntry().getValue(), 0.);
-    if (sorted.containsKey(value))
-      return new InterpolationResult<Double>(sorted.get(value), 0.);
-    if (CompareUtils.closeEquals(sorted.higherKey(value), value, _eps))
-      return new InterpolationResult<Double>(sorted.higherEntry(value).getValue(), 0.);
-    return new InterpolationResult<Double>(sorted.lowerEntry(value).getValue(), 0.);
+    }
+    final Interpolator1DModel model = initData(data);
+    if (value < model.firstKey() || CompareUtils.closeEquals(model.firstKey(), value, _eps)) {
+      return new InterpolationResult<Double>(model.firstValue(), 0.);
+    }
+    if (value > model.lastKey() || CompareUtils.closeEquals(value, model.lastKey(), _eps)) {
+      return new InterpolationResult<Double>(model.lastValue(), 0.);
+    }
+    if (model.containsKey(value)) {
+      return new InterpolationResult<Double>(model.get(value), 0.);
+    }
+    if (CompareUtils.closeEquals(model.higherKey(value), value, _eps)) {
+      return new InterpolationResult<Double>(model.higherValue(value), 0.);
+    }
+    return new InterpolationResult<Double>(model.get(model.getLowerBoundKey(value)), 0.);
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (o == null)
+    if (o == null) {
       return false;
-    if (o == this)
+    }
+    if (o == this) {
       return true;
-    if (!(o instanceof StepInterpolator1D))
+    }
+    if (!(o instanceof StepInterpolator1D)) {
       return false;
+    }
     final StepInterpolator1D other = (StepInterpolator1D) o;
     return _eps == other._eps;
   }

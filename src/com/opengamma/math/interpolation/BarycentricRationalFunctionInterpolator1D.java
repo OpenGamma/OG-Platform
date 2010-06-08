@@ -6,35 +6,39 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.TreeMap;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
- * @author emcleod
  */
 public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
   private final int _degree;
 
   public BarycentricRationalFunctionInterpolator1D(final int degree) {
-    if (degree < 1)
+    if (degree < 1) {
       throw new IllegalArgumentException("Cannot perform interpolation with rational functions of degree < 1");
+    }
     _degree = degree;
   }
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final TreeMap<Double, Double> sorted = initData(data);
-    if (data.size() < _degree)
-      throw new InterpolationException("Cannot interpolate " + sorted.size() + " data points with rational functions of degree " + _degree);
-    final Double[] x = sorted.keySet().toArray(new Double[0]);
-    final Double[] y = sorted.values().toArray(new Double[0]);
+    Validate.notNull(data, "Data to be interpolated");
+    final Interpolator1DModel model = initData(data);
+    if (data.size() < _degree) {
+      throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
+    }
+    final double[] x = model.getKeys();
+    final double[] y = model.getValues();
     final double[] w = getWeights(x);
     final int n = x.length;
     double delta, temp, num = 0, den = 0;
     for (int i = 0; i < n; i++) {
       delta = value - x[i];
-      if (Math.abs(delta) < EPS)
+      if (Math.abs(delta) < EPS) {
         return new InterpolationResult<Double>(y[i]);
+      }
       temp = w[i] / delta;
       num += temp * y[i];
       den += temp;
@@ -42,7 +46,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
     return new InterpolationResult<Double>(num / den);
   }
 
-  private double[] getWeights(final Double[] x) {
+  private double[] getWeights(final double[] x) {
     final int n = x.length;
     final double[] w = new double[n];
     int iMin, iMax, mult, jMax;
@@ -72,12 +76,15 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
 
   @Override
   public boolean equals(final Object o) {
-    if (o == null)
+    if (o == null) {
       return false;
-    if (o == this)
+    }
+    if (o == this) {
       return true;
-    if (!(o instanceof BarycentricRationalFunctionInterpolator1D))
+    }
+    if (!(o instanceof BarycentricRationalFunctionInterpolator1D)) {
       return false;
+    }
     final BarycentricRationalFunctionInterpolator1D other = (BarycentricRationalFunctionInterpolator1D) o;
     return _degree == other._degree;
   }

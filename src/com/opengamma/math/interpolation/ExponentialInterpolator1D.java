@@ -6,27 +6,26 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * 
- * @author emcleod
  * 
  */
-
 public class ExponentialInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final TreeMap<Double, Double> sorted = initData(data);
-    if (value == null)
+    final Interpolator1DModel model = initData(data);
+    if (value == null) {
       throw new IllegalArgumentException("Value was null");
-    final Double x1 = getLowerBoundKey(sorted, value);
-    if (x1.equals(sorted.lastKey()))
-      return new InterpolationResult<Double>(sorted.lastEntry().getValue());
-    final Double x2 = sorted.higherKey(x1);
-    final Double y1 = sorted.get(x1);
-    final Double y2 = sorted.get(x2);
+    }
+    final Double x1 = model.getLowerBoundKey(value);
+    if (x1.equals(model.lastKey())) {
+      return new InterpolationResult<Double>(model.lastValue());
+    }
+    final Double x2 = model.higherKey(x1);
+    final Double y1 = model.get(x1);
+    final Double y2 = model.get(x2);
     final double xDiff = x2 - x1;
     final double result = Math.pow(y1, value * (x2 - value) / xDiff / x1) * Math.pow(y2, value * (value - x1) / xDiff / x2);
     return new InterpolationResult<Double>(result);
@@ -34,12 +33,15 @@ public class ExponentialInterpolator1D extends Interpolator1D {
 
   @Override
   public boolean equals(final Object o) {
-    if (o == null)
+    if (o == null) {
       return false;
-    if (o == this)
+    }
+    if (o == this) {
       return true;
-    if (!(o instanceof ExponentialInterpolator1D))
+    }
+    if (!(o instanceof ExponentialInterpolator1D)) {
       return false;
+    }
     return true;
   }
 
