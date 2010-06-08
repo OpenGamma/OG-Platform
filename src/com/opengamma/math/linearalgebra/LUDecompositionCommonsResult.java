@@ -25,7 +25,6 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final DoubleMatrix2D _u;
 
   public LUDecompositionCommonsResult(final LUDecomposition lu) {
-    System.out.println(lu.getDeterminant());
     _determinant = lu.getDeterminant();
     _l = CommonsMathWrapper.wrap(lu.getL());
     _p = CommonsMathWrapper.wrap(lu.getP());
