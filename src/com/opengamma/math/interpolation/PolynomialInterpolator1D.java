@@ -6,7 +6,6 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.NavigableMap;
 
 /**
  * Interpolates between data points using a polynomial. The method used is
@@ -50,16 +49,16 @@ public class PolynomialInterpolator1D extends Interpolator1D {
    */
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final NavigableMap<Double, Double> sorted = initData(data);
+    final Interpolator1DModel model = initData(data);
     if (data.size() < _degree + 1) {
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
     }
-    final int lower = getLowerBoundIndex(sorted, value);
-    if (lower == sorted.size() - 1) {
-      return new InterpolationResult<Double>(sorted.lastEntry().getValue());
+    final int lower = model.getLowerBoundIndex(value);
+    if (lower == model.size() - 1) {
+      return new InterpolationResult<Double>(model.lastValue());
     }
-    final Double[] xArray = sorted.keySet().toArray(new Double[0]);
-    final Double[] yArray = sorted.values().toArray(new Double[0]);
+    final double[] xArray = model.getKeys();
+    final double[] yArray = model.getValues();
     final double[] c = new double[_degree + 1];
     final double[] d = new double[_degree + 1];
     if (lower + _degree >= data.size()) {

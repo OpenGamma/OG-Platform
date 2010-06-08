@@ -11,7 +11,6 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NavigableMap;
 
 import org.junit.Test;
 
@@ -52,14 +51,16 @@ public class Interpolator1DTest {
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    final Double[] x = new Double[] { 1., 2., 3., 3.5, 6.7 };
-    final NavigableMap<Double, Double> sorted = DUMMY.initData(DATA);
-    assertArrayEquals(sorted.keySet().toArray(new Double[0]), x);
+    final double[] x = new double[] { 1., 2., 3., 3.5, 6.7 };
+    final Interpolator1DModel model = DUMMY.initData(DATA);
+    assertArrayEquals(model.getKeys(), x);
   }
+  
+  // REVIEW kirk 2010-06-08 -- This needs to be moved to a test of Interpolator1DModel.
 
   @Test
   public void testGetLowerBound() {
-    final NavigableMap<Double, Double> sorted = DUMMY.initData(DATA);
+    final Interpolator1DModel model = DUMMY.initData(DATA);
     try {
       DUMMY.getLowerBoundKey(null, 0.);
       fail();
@@ -67,31 +68,31 @@ public class Interpolator1DTest {
       // Expected
     }
     try {
-      DUMMY.getLowerBoundKey(sorted, null);
+      model.getLowerBoundKey(null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      DUMMY.getLowerBoundKey(sorted, 0.);
+      model.getLowerBoundKey(0.);
       fail();
     } catch (final InterpolationException e) {
       // Expected
     }
     try {
-      DUMMY.getLowerBoundKey(sorted, 10.);
+      model.getLowerBoundKey(10.);
       fail();
     } catch (final InterpolationException e) {
       // Expected
     }
-    assertEquals(DUMMY.getLowerBoundKey(sorted, 3.2), 3., EPS);
-    assertEquals(DUMMY.getLowerBoundIndex(sorted, 3.2), 2);
+    assertEquals(model.getLowerBoundKey(3.2), 3., EPS);
+    assertEquals(model.getLowerBoundIndex(3.2), 2);
   }
 
-  private void assertArrayEquals(final Double[] x, final Double[] y) {
+  private void assertArrayEquals(final double[] x, final double[] y) {
     assertEquals(x.length, y.length);
     for (int i = 0; i < x.length; i++) {
-      assertEquals(x[i], y[i]);
+      assertEquals(x[i], y[i], EPS);
     }
   }
 }

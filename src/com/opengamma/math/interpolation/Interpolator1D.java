@@ -41,14 +41,14 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    * @throws IllegalArgumentException
    *           Thrown if the data set is null or if its size is less than two.
    */
-  protected NavigableMap<Double, Double> initData(final Map<Double, Double> data) {
+  protected Interpolator1DModel initData(final Map<Double, Double> data) {
     if (data == null) {
       throw new IllegalArgumentException("Data map was null");
     }
     if (data.size() < 2) {
       throw new IllegalArgumentException("Need at least two points to perform interpolation");
     }
-    return new TreeMap<Double, Double>(data);
+    return new NavigableMapInterpolator1DModel(new TreeMap<Double, Double>(data));
   }
 
   /**

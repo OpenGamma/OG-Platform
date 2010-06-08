@@ -6,7 +6,8 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.NavigableMap;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -17,14 +18,15 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final NavigableMap<Double, Double> sorted = initData(data);
-    final int low = getLowerBoundIndex(sorted, value);
-    if (low == sorted.size() - 1) {
-      return new InterpolationResult<Double>(sorted.lastEntry().getValue());
+    Validate.notNull(value, "Value to interpolate");
+    final Interpolator1DModel model = initData(data);
+    final int low = model.getLowerBoundIndex(value);
+    if (low == model.size() - 1) {
+      return new InterpolationResult<Double>(model.lastValue());
     }
     final int high = low + 1;
-    final Double[] xData = sorted.keySet().toArray(new Double[0]);
-    final Double[] yData = sorted.values().toArray(new Double[0]);
+    final double[] xData = model.getKeys();
+    final double[] yData = model.getValues();
     final double delta = xData[high] - xData[low];
     if (Math.abs(delta) < EPS) {
       throw new InterpolationException("x data points were not distinct");
@@ -37,7 +39,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     return new InterpolationResult<Double>(y);
   }
 
-  private double[] getSecondDerivative(final Double[] x, final Double[] y) {
+  private double[] getSecondDerivative(final double[] x, final double[] y) {
     final int n = x.length;
     final double[] y2 = new double[n];
     double p, ratio;

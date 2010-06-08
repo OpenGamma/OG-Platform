@@ -6,13 +6,11 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.NavigableMap;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- * @author emcleod
  */
 public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
   private final int _degree;
@@ -30,9 +28,9 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
     if (data.size() < _degree) {
       throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
     }
-    final NavigableMap<Double, Double> sorted = initData(data);
-    final Double[] x = sorted.keySet().toArray(new Double[0]);
-    final Double[] y = sorted.values().toArray(new Double[0]);
+    final Interpolator1DModel model = initData(data);
+    final double[] x = model.getKeys();
+    final double[] y = model.getValues();
     final double[] w = getWeights(x);
     final int n = x.length;
     double delta, temp, num = 0, den = 0;
@@ -48,7 +46,7 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
     return new InterpolationResult<Double>(num / den);
   }
 
-  private double[] getWeights(final Double[] x) {
+  private double[] getWeights(final double[] x) {
     final int n = x.length;
     final double[] w = new double[n];
     int iMin, iMax, mult, jMax;
