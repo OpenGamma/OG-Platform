@@ -9,7 +9,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class MultiquadraticRadialBasisFunction extends Function1D<Double, Double> {
   private final double _scaleFactor;

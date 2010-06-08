@@ -9,14 +9,16 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.Validate;
+
 /**
- * 
  * A base class for interpolation in one dimension.
- * 
- * @author emcleod
  */
 
 public abstract class Interpolator1D implements Interpolator<Map<Double, Double>, Double, Double>, Serializable {
+  /**
+   * Default accuracy
+   */
   protected static final double EPS = 1e-12;
 
   /**
@@ -29,12 +31,12 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *         (if appropriate) the estimated error of this value.
    */
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
+  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     return interpolate(Interpolator1DModelFactory.fromMap(data), value);
   }
 
   public abstract InterpolationResult<Double> interpolate(Interpolator1DModel model, Double value);
-  
+
   /**
    * 
    * @param data
@@ -44,9 +46,7 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *           Thrown if the data set is null or if its size is less than two.
    */
   protected Interpolator1DModel initData(final Map<Double, Double> data) {
-    if (data == null) {
-      throw new IllegalArgumentException("Data map was null");
-    }
+    Validate.notNull(data);
     if (data.size() < 2) {
       throw new IllegalArgumentException("Need at least two points to perform interpolation");
     }

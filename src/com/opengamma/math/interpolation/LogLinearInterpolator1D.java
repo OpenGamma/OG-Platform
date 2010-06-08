@@ -16,7 +16,6 @@ import org.apache.commons.lang.Validate;
  * It is the equivalent of performing a linear interpolation on a data set after
  * taking the logarithm of the y-values.
  * 
- * @author emcleod
  */
 
 public class LogLinearInterpolator1D extends Interpolator1D {

@@ -13,7 +13,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class ShepardInterpolatorND extends InterpolatorND {
   private final Function1D<Double, Double> _basisFunction;
@@ -26,10 +25,12 @@ public class ShepardInterpolatorND extends InterpolatorND {
   public InterpolationResult<Double> interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
     checkData(data);
     final int dimension = getDimension(data.keySet());
-    if (value == null)
+    if (value == null) {
       throw new IllegalArgumentException("Value was null");
-    if (value.size() != dimension)
+    }
+    if (value.size() != dimension) {
       throw new IllegalArgumentException("The value has dimension " + value.size() + "; the dimension of the data was " + dimension);
+    }
     double sum = 0, weightedSum = 0;
     double r, w;
     final Iterator<Map.Entry<List<Double>, Double>> iter = data.entrySet().iterator();
@@ -37,8 +38,9 @@ public class ShepardInterpolatorND extends InterpolatorND {
     for (int i = 0; i < dimension; i++) {
       entry = iter.next();
       r = getRadius(value, entry.getKey());
-      if (r == 0)
+      if (r == 0) {
         return new InterpolationResult<Double>(entry.getValue());
+      }
       w = _basisFunction.evaluate(r);
       sum += w;
       weightedSum += w * entry.getValue();

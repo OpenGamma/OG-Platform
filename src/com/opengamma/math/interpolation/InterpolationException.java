@@ -8,24 +8,22 @@ package com.opengamma.math.interpolation;
 /**
  * Thrown if there is a problem with interpolation.
  * 
- * @author emcleod
  */
-
 public class InterpolationException extends RuntimeException {
 
   public InterpolationException() {
     super();
   }
 
-  public InterpolationException(String s) {
+  public InterpolationException(final String s) {
     super(s);
   }
 
-  public InterpolationException(String s, Throwable cause) {
+  public InterpolationException(final String s, final Throwable cause) {
     super(s, cause);
   }
 
-  public InterpolationException(Throwable cause) {
+  public InterpolationException(final Throwable cause) {
     super(cause);
   }
 }

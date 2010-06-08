@@ -9,9 +9,7 @@ import org.apache.commons.lang.Validate;
 
 /**
  * 
- * @author emcleod
  */
-
 public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
 
   @Override
@@ -35,8 +33,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     final double a = (xData[high] - value) / delta;
     final double b = (value - xData[low]) / delta;
     final double[] y2 = getSecondDerivative(xData, yData);
-    final double y = a * yData[low] + b * yData[high] + (a * (a * a - 1) * y2[low] + b * (b * b - 1) * y2[high])
-        * delta * delta / 6.;
+    final double y = a * yData[low] + b * yData[high] + (a * (a * a - 1) * y2[low] + b * (b * b - 1) * y2[high]) * delta * delta / 6.;
     return new InterpolationResult<Double>(y);
   }
 

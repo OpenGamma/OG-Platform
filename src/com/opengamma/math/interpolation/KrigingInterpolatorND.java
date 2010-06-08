@@ -19,15 +19,15 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class KrigingInterpolatorND extends InterpolatorND {
   private final LUDecompositionQuick _luDecomposition = new LUDecompositionQuick();
   final double _beta;
 
   public KrigingInterpolatorND(final double beta) {
-    if (beta < 1 || beta >= 2)
+    if (beta < 1 || beta >= 2) {
       throw new IllegalArgumentException("Beta was not in acceptable range (1 <= beta < 2");
+    }
     _beta = beta;
   }
 
@@ -38,10 +38,12 @@ public class KrigingInterpolatorND extends InterpolatorND {
   public InterpolationResult<Double> interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
     checkData(data);
     final int dimension = getDimension(data.keySet());
-    if (value == null)
+    if (value == null) {
       throw new IllegalArgumentException("Value was null");
-    if (value.size() != dimension)
+    }
+    if (value.size() != dimension) {
       throw new IllegalArgumentException("Dimension of value did not match dimension of data");
+    }
     final int n = data.size();
     final Function1D<Double, Double> variogram = getVariogram(data, n, dimension);
     final double[] y = getLUSolution(data, n, variogram);

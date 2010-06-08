@@ -10,9 +10,6 @@ import org.apache.commons.lang.Validate;
 /**
  * Interpolates between data points using a polynomial. The method used is
  * Neville's algorithm.
- * 
- * @author emcleod
- * 
  */
 public class PolynomialInterpolator1D extends Interpolator1D {
   private final int _degree;

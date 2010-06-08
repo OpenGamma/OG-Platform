@@ -10,31 +10,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * 
- * @author emcleod
  */
 public abstract class InterpolatorND implements Interpolator<Map<List<Double>, Double>, List<Double>, Double> {
 
   public abstract InterpolationResult<Double> interpolate(Map<List<Double>, Double> data, List<Double> value);
 
   protected void checkData(final Map<List<Double>, Double> data) {
-    if (data == null)
-      throw new IllegalArgumentException("Data set was null");
-    if (data.size() < 2)
+    Validate.notNull(data);
+    if (data.size() < 2) {
       throw new IllegalArgumentException("Need at least two points to perform interpolation");
-    if (data.containsKey(null))
+    }
+    if (data.containsKey(null)) {
       throw new IllegalArgumentException("Cannot have a null key in the data set");
-    if (data.containsValue(null))
+    }
+    if (data.containsValue(null)) {
       throw new IllegalArgumentException("Cannot have a null value in the data set");
+    }
   }
 
   protected int getDimension(final Set<List<Double>> coordinates) {
     final Iterator<List<Double>> iter = coordinates.iterator();
     final int size = iter.next().size();
     while (iter.hasNext()) {
-      if (iter.next().size() != size)
+      if (iter.next().size() != size) {
         throw new IllegalArgumentException("Not all coordinates in the data set were of the same dimension");
+      }
     }
     return size;
   }

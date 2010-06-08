@@ -19,7 +19,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
   private final Function1D<Double, Double> _basisFunction;
@@ -27,8 +26,9 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
   private final LUDecompositionQuick _luDecomposition = new LUDecompositionQuick();
 
   public RadialBasisFunctionInterpolatorND(final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
-    if (basisFunction == null)
+    if (basisFunction == null) {
       throw new IllegalArgumentException("Basis function was null");
+    }
     _basisFunction = basisFunction;
     _useNormalized = useNormalized;
   }
@@ -37,10 +37,12 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
   public InterpolationResult<Double> interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
     checkData(data);
     final int dimension = getDimension(data.keySet());
-    if (value == null)
+    if (value == null) {
       throw new IllegalArgumentException("Value was null");
-    if (value.size() != dimension)
+    }
+    if (value.size() != dimension) {
       throw new IllegalArgumentException("The value has dimension " + value.size() + "; the dimension of the data was " + dimension);
+    }
     double sum = 0;
     double weightedSum = 0;
     double f;
@@ -48,8 +50,9 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
     final Iterator<List<Double>> iter = data.keySet().iterator();
     for (int i = 0; i < data.size(); i++) {
       f = _basisFunction.evaluate(getRadius(value, iter.next()));
-      if (Double.isNaN(f) || Double.isInfinite(f))
+      if (Double.isNaN(f) || Double.isInfinite(f)) {
         throw new InterpolationException("Basis function evaluation returned " + f + "; could not calculate interpolated value");
+      }
       weightedSum += w[i] * f;
       sum += f;
     }
