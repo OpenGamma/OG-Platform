@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
+import org.apache.commons.lang.Validate;
 
 /**
  * A one-dimensional linear interpolator. The interpolated value of the function
@@ -16,31 +16,24 @@ import java.util.Map;
  */
 public class LinearInterpolator1D extends Interpolator1D {
 
-  /**
-   * 
-   * @param data
-   *          A map containing the (x, y) data points.
-   * @param value
-   *          The value of x for which the interpolated point y is required.
-   * @return An InterpolationResult containing the value of the interpolated
-   *         point and an interpolation error of zero (linear interpolation is
-   *         by definition exact).
-   * @throws IllegalArgumentException
-   *           If the x-value is null.
-   */
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    if (value == null) {
-      throw new IllegalArgumentException("x value to be interpolated was null");
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
+    InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    if (boundedValues.getHigherKey() == null) {
+      return new InterpolationResult<Double>(boundedValues.getLowerBoundValue());
     }
-    final Interpolator1DModel model = initData(data);
-    final Double x1 = model.getLowerBoundKey(value);
-    if (x1.equals(model.lastKey())) {
+    if (boundedValues.getLowerBoundKey() == null) {
+      throw new InterpolationException("");
+    }
+    final double x1 = boundedValues.getLowerBoundKey();
+    /*if (x1.equals(model.lastKey())) {
       return new InterpolationResult<Double>(model.lastValue());
-    }
-    final Double x2 = model.higherKey(x1);
-    final Double y1 = model.get(x1);
-    final Double y2 = model.get(x2);
+    }*/
+    final double x2 = boundedValues.getHigherKey();
+    final double y1 = boundedValues.getLowerBoundValue();
+    final double y2 = boundedValues.getHigherValue();
     final double result = y1 + (value - x1) / (x2 - x1) * (y2 - y1);
     return new InterpolationResult<Double>(result);
   }

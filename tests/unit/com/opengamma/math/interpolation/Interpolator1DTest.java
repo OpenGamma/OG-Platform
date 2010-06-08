@@ -19,9 +19,8 @@ import org.junit.Test;
  */
 public class Interpolator1DTest {
   private static final Interpolator1D DUMMY = new Interpolator1D() {
-
     @Override
-    public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
+    public InterpolationResult<Double> interpolate(Interpolator1DModel model, Double value) {
       return new InterpolationResult<Double>(0., 0.);
     }
 

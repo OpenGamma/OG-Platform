@@ -44,7 +44,7 @@ public abstract class Interpolator1DModelTestCase {
   @Test
   public void lowerBoundIndices() {
     Interpolator1DModel model = createModel(KEYS1, VALUES1);
-    
+
     assertEquals(0, model.getLowerBoundIndex(1.5));
     assertEquals(4, model.getLowerBoundIndex(100.));
     assertEquals(3, model.getLowerBoundIndex(4.));

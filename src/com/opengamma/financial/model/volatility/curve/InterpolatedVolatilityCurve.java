@@ -12,34 +12,42 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DModel;
+import com.opengamma.math.interpolation.Interpolator1DModelFactory;
 
 /**
  * 
  */
 public class InterpolatedVolatilityCurve extends VolatilityCurve {
+  private final Interpolator1DModel _volatilityDataModel;
   private final SortedMap<Double, Double> _volatilityData;
   private final Interpolator1D _interpolator;
 
   public InterpolatedVolatilityCurve(final Map<Double, Double> data, final Interpolator1D interpolator) {
-    if (data == null)
+    if (data == null) {
       throw new IllegalArgumentException("Data map was null");
-    if (interpolator == null)
+    }
+    if (interpolator == null) {
       throw new IllegalArgumentException("Interpolator was null");
-    if (data.size() < 2)
+    }
+    if (data.size() < 2) {
       throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
+    }
     final SortedMap<Double, Double> sortedVolatilities = new TreeMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : data.entrySet()) {
-      if (entry.getKey() < 0)
+      if (entry.getKey() < 0) {
         throw new IllegalArgumentException("Cannot have negative time in a discount curve");
+      }
       sortedVolatilities.put(entry.getKey(), entry.getValue());
     }
-    _volatilityData = Collections.<Double, Double> unmodifiableSortedMap(sortedVolatilities);
+    _volatilityData = Collections.<Double, Double>unmodifiableSortedMap(sortedVolatilities);
+    _volatilityDataModel = Interpolator1DModelFactory.fromMap(sortedVolatilities);
     _interpolator = interpolator;
   }
 
   @Override
   public Double getVolatility(final Double t) {
-    return _interpolator.interpolate(getVolatilityData(), t).getResult();
+    return _interpolator.interpolate(_volatilityDataModel, t).getResult();
   }
 
   @Override

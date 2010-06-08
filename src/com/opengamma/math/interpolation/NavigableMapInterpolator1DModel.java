@@ -113,4 +113,13 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
     return _backingMap.containsKey(key);
   }
 
+  /* (non-Javadoc)
+   * @see com.opengamma.math.interpolation.Interpolator1DModel#getBoundedValues(java.lang.Double)
+   */
+  @Override
+  public InterpolationBoundedValues getBoundedValues(Double key) {
+    Double lowerBoundKey = getLowerBoundKey(key);
+    return new InterpolationBoundedValues(lowerBoundKey, get(lowerBoundKey), higherKey(key), higherValue(key));
+  }
+
 }

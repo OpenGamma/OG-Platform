@@ -29,7 +29,7 @@ public class StepInterpolator1DTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate(null, 2.);
+    INTERPOLATOR.interpolate((Map<Double, Double>)null, 2.);
   }
 
   @Test(expected = IllegalArgumentException.class)

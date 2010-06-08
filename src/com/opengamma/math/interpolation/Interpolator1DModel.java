@@ -30,6 +30,8 @@ public interface Interpolator1DModel {
   
   Double higherValue(Double key);
   
+  InterpolationBoundedValues getBoundedValues(Double key);
+  
   boolean containsKey(Double key);
   
   int size();
@@ -37,5 +39,5 @@ public interface Interpolator1DModel {
   double[] getKeys();
   
   double[] getValues();
-
+  
 }

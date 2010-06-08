@@ -5,8 +5,6 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 
 /**
@@ -23,11 +21,11 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    Validate.notNull(data, "Data to be interpolated");
-    final Interpolator1DModel model = initData(data);
-    if (data.size() < _degree) {
-      throw new InterpolationException("Cannot interpolate " + data.size() + " data points with rational functions of degree " + _degree);
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
+    if (model.size() < _degree) {
+      throw new InterpolationException("Cannot interpolate " + model.size() + " data points with rational functions of degree " + _degree);
     }
     final double[] x = model.getKeys();
     final double[] y = model.getValues();

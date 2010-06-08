@@ -23,17 +23,16 @@ import com.opengamma.math.function.PolynomialFunction1D;
  */
 public class PolynomialInterpolator1DTest {
 
+  @Test(expected=IllegalArgumentException.class)
+  public void illegalDegree() {
+    new PolynomialInterpolator1D(0);
+  }
+
   @Test
   public void testWithBadInputs() {
-    try {
-      new PolynomialInterpolator1D(0);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
     final Interpolator1D interpolator = new PolynomialInterpolator1D(3);
     try {
-      interpolator.interpolate(null, 3.);
+      interpolator.interpolate((Map<Double, Double>)null, 3.);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -93,8 +92,10 @@ public class PolynomialInterpolator1DTest {
     assertEquals(quarticResult.getResult(), quartic.evaluate(x), eps);
     final InterpolationResult<Double> underFittedEstimate = quadraticInterpolator.interpolate(quarticData, x);
     assertEquals(underFittedEstimate.getResult(), quartic.evaluate(x), Math.abs(underFittedEstimate.getErrorEstimate()));
+    
     final InterpolationResult<Double> overFittedEstimate = quarticInterpolator.interpolate(quadraticData, x);
-    assertEquals(overFittedEstimate.getResult(), quadratic.evaluate(x), Math.abs(overFittedEstimate.getErrorEstimate()));
+    assertTrue((overFittedEstimate.getErrorEstimate() > 3e-16) && (overFittedEstimate.getErrorEstimate() < 3.2e-16));
+    assertEquals(overFittedEstimate.getResult(), quadratic.evaluate(x), eps);
     assertTrue(Math.abs(overFittedEstimate.getErrorEstimate()) < Math.abs(underFittedEstimate.getErrorEstimate()));
   }
 }

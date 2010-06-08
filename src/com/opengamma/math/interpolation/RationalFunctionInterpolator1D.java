@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -21,10 +21,11 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final Interpolator1DModel model = initData(data);
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
     final int m = _degree + 1;
-    if (data.size() < m) {
+    if (model.size() < m) {
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform this interpolation");
     }
     final double[] xArray = model.getKeys();
