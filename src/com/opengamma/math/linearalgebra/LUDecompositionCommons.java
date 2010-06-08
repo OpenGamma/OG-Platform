@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import org.apache.commons.lang.Validate;
+import org.apache.commons.math.linear.LUDecomposition;
 import org.apache.commons.math.linear.LUDecompositionImpl;
 import org.apache.commons.math.linear.RealMatrix;
 
@@ -16,18 +18,12 @@ import com.opengamma.math.util.wrapper.CommonsMathWrapper;
  */
 public class LUDecompositionCommons extends Decomposition<LUDecompositionResult> {
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public LUDecompositionResult evaluate(final DoubleMatrix2D x) {
-    if (x == null) {
-      throw new IllegalArgumentException("Passed a null to LowerUpperDecomposition.evaluate");
-    }
+    Validate.notNull(x);
     final RealMatrix temp = CommonsMathWrapper.wrap(x);
-    final org.apache.commons.math.linear.LUDecomposition lu = new LUDecompositionImpl(temp);
-
-    return new LUDecompositionResultCommons(lu);
+    final LUDecomposition lu = new LUDecompositionImpl(temp);
+    return new LUDecompositionCommonsResult(lu);
   }
 
 }
