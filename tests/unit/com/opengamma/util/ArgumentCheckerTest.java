@@ -6,7 +6,6 @@
 package com.opengamma.util;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -240,14 +239,88 @@ public class ArgumentCheckerTest {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class) 
-  public void testNotNegative() {
-    double parameter = -4;
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_notNegative_double_ok() {
+    ArgumentChecker.notNegative(0.0d, "name");
+    ArgumentChecker.notNegative(1.0d, "name");
+  }
+
+  @Test(expected=IllegalArgumentException.class) 
+  public void test_notNegative_double_negative() {
     try {
-      ArgumentChecker.notNegative(parameter, "name");
+      ArgumentChecker.notNegative(-1.0d, "name");
     } catch(IllegalArgumentException iae) {
-      assertTrue(iae.getMessage().contains("'name'"));
+      assertEquals(iae.getMessage().contains("'name'"), true);
       throw iae;
     }
   }
+
+  @Test
+  public void test_notNegative_int_ok() {
+    ArgumentChecker.notNegative(0, "name");
+    ArgumentChecker.notNegative(1, "name");
+  }
+
+  @Test(expected=IllegalArgumentException.class) 
+  public void test_notNegative_int_negative() {
+    try {
+      ArgumentChecker.notNegative(-1, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_notNegativeOrZero_double_ok() {
+    ArgumentChecker.notNegativeOrZero(1.0d, "name");
+  }
+
+  @Test(expected=IllegalArgumentException.class) 
+  public void test_notNegativeOrZero_double_zero() {
+    try {
+      ArgumentChecker.notNegativeOrZero(0.0d, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
+  @Test(expected=IllegalArgumentException.class) 
+  public void test_notNegativeOrZero_double_negative() {
+    try {
+      ArgumentChecker.notNegativeOrZero(-1.0d, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
+  @Test
+  public void test_notNegativeOrZero_int_ok() {
+    ArgumentChecker.notNegativeOrZero(1, "name");
+  }
+
+  @Test(expected=IllegalArgumentException.class) 
+  public void test_notNegativeOrZero_int_zero() {
+    try {
+      ArgumentChecker.notNegativeOrZero(0, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
+  @Test(expected=IllegalArgumentException.class) 
+  public void test_notNegativeOrZero_int_negative() {
+    try {
+      ArgumentChecker.notNegativeOrZero(-1, "name");
+    } catch(IllegalArgumentException iae) {
+      assertEquals(iae.getMessage().contains("'name'"), true);
+      throw iae;
+    }
+  }
+
 }

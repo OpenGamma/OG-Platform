@@ -135,10 +135,54 @@ public final class ArgumentChecker {
       }
     }
   }
-  
-  public static void notNegative(double parameter, String name) throws IllegalArgumentException {
-    if(parameter < 0) {
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks that the argument is not negative.
+   * @param parameter  the parameter to check
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is negative
+   */
+  public static void notNegative(int parameter, String name) throws IllegalArgumentException {
+    if (parameter < 0) {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
     }
   }
+
+  /**
+   * Checks that the argument is not negative.
+   * @param parameter  the parameter to check
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is negative
+   */
+  public static void notNegative(double parameter, String name) throws IllegalArgumentException {
+    if (parameter < 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative");
+    }
+  }
+
+  /**
+   * Checks that the argument is not negative or zero.
+   * @param parameter  the parameter to check
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is negative or zero
+   */
+  public static void notNegativeOrZero(int parameter, String name) throws IllegalArgumentException {
+    if (parameter <= 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
+    }
+  }
+
+  /**
+   * Checks that the argument is not negative or zero.
+   * @param parameter  the parameter to check
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws IllegalArgumentException if the input is negative or zero
+   */
+  public static void notNegativeOrZero(double parameter, String name) throws IllegalArgumentException {
+    if (parameter <= 0) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
+    }
+  }
+
 }
