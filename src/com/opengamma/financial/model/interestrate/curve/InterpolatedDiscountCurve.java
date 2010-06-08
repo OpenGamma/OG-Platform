@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.math.interpolation.Interpolator1DModel;
+import com.opengamma.math.interpolation.Interpolator1DModelFactory;
 
 /**
  * 
@@ -25,6 +27,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 public class InterpolatedDiscountCurve extends DiscountCurve implements Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
+  private final Interpolator1DModel _discountFactorModel;
   private final SortedMap<Double, Double> _dfData;
   private final SortedMap<Double, Interpolator1D> _interpolators;
 
@@ -86,9 +89,10 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
       sortedRates.put(entry.getKey(), entry.getValue());
       sortedDF.put(entry.getKey(), Math.exp(-entry.getValue() * entry.getKey()));
     }
-    _rateData = Collections.<Double, Double> unmodifiableSortedMap(sortedRates);
-    _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
-    _interpolators = Collections.<Double, Interpolator1D> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(
+    _rateData = Collections.<Double, Double>unmodifiableSortedMap(sortedRates);
+    _dfData = Collections.<Double, Double>unmodifiableSortedMap(sortedDF);
+    _discountFactorModel = Interpolator1DModelFactory.fromMap(sortedDF);
+    _interpolators = Collections.<Double, Interpolator1D>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(
         interpolators));
   }
 
@@ -169,11 +173,11 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     }
     if (_interpolators.size() == 1) {
-      return _interpolators.values().iterator().next().interpolate(_dfData, t).getResult();
+      return _interpolators.values().iterator().next().interpolate(_discountFactorModel, t).getResult();
     }
     final Map<Double, Interpolator1D> tail = _interpolators.tailMap(t);
     final Double key = tail.isEmpty() ? _interpolators.lastKey() : _interpolators.tailMap(t).firstKey();
-    return _interpolators.get(key).interpolate(_dfData, t).getResult();
+    return _interpolators.get(key).interpolate(_discountFactorModel, t).getResult();
   }
 
   @Override

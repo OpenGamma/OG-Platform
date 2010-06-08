@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.CompareUtils;
 
@@ -24,11 +24,9 @@ public class StepInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    if (value == null) {
-      throw new IllegalArgumentException("x value to be interpolated was null");
-    }
-    final Interpolator1DModel model = initData(data);
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
     if (value < model.firstKey() || CompareUtils.closeEquals(model.firstKey(), value, _eps)) {
       return new InterpolationResult<Double>(model.firstValue(), 0.);
     }

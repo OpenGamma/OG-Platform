@@ -7,9 +7,9 @@ package com.opengamma.math.rootfinding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -119,7 +119,7 @@ public class YieldCurveBootStrapTest {
   private ToySwap setupSwap(int payments) {
     double[] fixed = new double[payments];
     double[] floating = new double[2 * payments];
-    Vector<Pair<Double, Double>> liborSetResetTimes = new Vector<Pair<Double, Double>>();
+    LinkedList<Pair<Double, Double>> liborSetResetTimes = new LinkedList<Pair<Double, Double>>();
 
     for (int i = 0; i < payments; i++) {
       floating[2 * i + 1] = fixed[i] = 0.5 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
@@ -140,10 +140,10 @@ public class YieldCurveBootStrapTest {
   private class ToySwap {
     double[] _fixedPaymentTimes;
     double[] _floatPaymentTimes;
-    Vector<Pair<Double, Double>> _liborSetResetTimes;
+    LinkedList<Pair<Double, Double>> _liborSetResetTimes;
 
     public ToySwap(double[] fixedPaymentDates, double[] floatingPaymentDates,
-        Vector<Pair<Double, Double>> liborSetResetTimes) {
+        LinkedList<Pair<Double, Double>> liborSetResetTimes) {
       _fixedPaymentTimes = fixedPaymentDates;
       if (floatingPaymentDates.length != liborSetResetTimes.size()) {
         throw new IllegalArgumentException("list of floatingPaymentDates not the same length as liborSetResetTimes");
@@ -170,7 +170,7 @@ public class YieldCurveBootStrapTest {
     }
 
     public double getLastPaymentTime() {
-      return Math.max(_fixedPaymentTimes[_fixedPaymentTimes.length - 1], _liborSetResetTimes.lastElement().getSecond());
+      return Math.max(_fixedPaymentTimes[_fixedPaymentTimes.length - 1], _liborSetResetTimes.getLast().getSecond());
     }
 
   }

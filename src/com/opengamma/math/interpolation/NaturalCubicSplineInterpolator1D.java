@@ -5,8 +5,6 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 
 /**
@@ -17,12 +15,15 @@ import org.apache.commons.lang.Validate;
 public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    Validate.notNull(value, "Value to interpolate");
-    final Interpolator1DModel model = initData(data);
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
     final int low = model.getLowerBoundIndex(value);
     if (low == model.size() - 1) {
       return new InterpolationResult<Double>(model.lastValue());
+    }
+    if (low < 0) {
+      throw new InterpolationException("");
     }
     final int high = low + 1;
     final double[] xData = model.getKeys();

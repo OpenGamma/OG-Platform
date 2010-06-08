@@ -18,6 +18,10 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   private final double[] _values;
   
   public ArrayInterpolator1DModel(double[] keys, double[] values) {
+    this(keys, values, false);
+  }
+  
+  public ArrayInterpolator1DModel(double[] keys, double[] values, boolean inputsSorted) {
     Validate.notNull(keys, "Keys must not be null.");
     Validate.notNull(values, "Values must not be null.");
     Validate.isTrue((keys.length == values.length), "keys and values must be same length.");
@@ -25,7 +29,9 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
     _keys = Arrays.copyOf(keys, keys.length);
     _values = Arrays.copyOf(values, values.length);
     
-    parallelBinarySort();
+    if (!inputsSorted) {
+      parallelBinarySort();
+    }
   }
 
   /**
@@ -38,7 +44,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   
   private static void dualArrayQuickSort(double[] keys, double[] values, int left, int right) {
     if (right > left) {
-      int pivot = 0;
+      int pivot = keys.length / 2;
       int pivotNewIndex = partition(keys, values, left, right, pivot);
       dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
       dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
@@ -94,6 +100,18 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
       return null;
     }
     return _values[index];
+  }
+
+  @Override
+  public InterpolationBoundedValues getBoundedValues(Double key) {
+    int index = getLowerBoundIndex(key);
+    if (index < 0) {
+      return new InterpolationBoundedValues(null, null, _keys[0], _values[0]);
+    }
+    if (index >= (_keys.length - 1)) {
+      return new InterpolationBoundedValues(_keys[_keys.length - 1], _values[_values.length - 1], null, null);
+    }
+    return new InterpolationBoundedValues(_keys[index], _values[index], _keys[index + 1], _values[index + 1]);
   }
 
   @Override

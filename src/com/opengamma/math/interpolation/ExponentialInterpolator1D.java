@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
@@ -14,11 +14,9 @@ import java.util.Map;
 public class ExponentialInterpolator1D extends Interpolator1D {
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final Interpolator1DModel model = initData(data);
-    if (value == null) {
-      throw new IllegalArgumentException("Value was null");
-    }
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
     final Double x1 = model.getLowerBoundKey(value);
     if (x1.equals(model.lastKey())) {
       return new InterpolationResult<Double>(model.lastValue());

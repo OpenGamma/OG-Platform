@@ -29,8 +29,12 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *         (if appropriate) the estimated error of this value.
    */
   @Override
-  public abstract InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value);
+  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
+    return interpolate(Interpolator1DModelFactory.fromMap(data), value);
+  }
 
+  public abstract InterpolationResult<Double> interpolate(Interpolator1DModel model, Double value);
+  
   /**
    * 
    * @param data

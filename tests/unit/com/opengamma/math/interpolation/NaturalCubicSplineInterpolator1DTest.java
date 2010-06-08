@@ -51,13 +51,12 @@ public class NaturalCubicSplineInterpolator1DTest {
   @Test
   public void test() {
     final Map<Double, Double> data = new HashMap<Double, Double>();
-    double x;
     for (int i = 0; i < 12; i++) {
-      x = Double.valueOf(i) / 10.;
+      double x = i / 10.;
       data.put(x, CUBIC.evaluate(x));
     }
     for (int i = 0; i < 100; i++) {
-      x = RANDOM.nextDouble();
+      double x = RANDOM.nextDouble();
       assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(data, x).getResult(), EPS);
     }
   }

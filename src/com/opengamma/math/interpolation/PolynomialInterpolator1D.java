@@ -5,7 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
-import java.util.Map;
+import org.apache.commons.lang.Validate;
 
 /**
  * Interpolates between data points using a polynomial. The method used is
@@ -31,26 +31,11 @@ public class PolynomialInterpolator1D extends Interpolator1D {
     _degree = degree;
   }
 
-  /**
-   * 
-   * @param data
-   *          A map containing the (x, y) data points.
-   * @param value
-   *          The value of x for which the interpolated point y is required.
-   * @return An InterpolationResult containing the value of the interpolated
-   *         point and the interpolation error.
-   * @throws IllegalArgumentException
-   *           If the x value is null; if the number of data points is smaller
-   *           than (degree + 1)
-   * @throws InterpolationException
-   *           If the next lowest point in the sorted (x, y) data is within the
-   *           degree of the polynomial number of data points of the end of the
-   *           data; if two x points are equal.
-   */
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final Interpolator1DModel model = initData(data);
-    if (data.size() < _degree + 1) {
+  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Model must not be null");
+    if (model.size() < _degree + 1) {
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
     }
     final int lower = model.getLowerBoundIndex(value);
@@ -61,8 +46,8 @@ public class PolynomialInterpolator1D extends Interpolator1D {
     final double[] yArray = model.getValues();
     final double[] c = new double[_degree + 1];
     final double[] d = new double[_degree + 1];
-    if (lower + _degree >= data.size()) {
-      throw new InterpolationException("Lower bound index of x (=" + lower + ") is within " + _degree + " data points of end of series (length = " + data.size() + ")");
+    if (lower + _degree >= model.size()) {
+      throw new InterpolationException("Lower bound index of x (=" + lower + ") is within " + _degree + " data points of end of series (length = " + model.size() + ")");
     }
     int ns = Math.abs(value - xArray[lower]) < Math.abs(value - xArray[lower + 1]) ? 0 : 1;
     for (int i = 0; i <= _degree; i++) {
