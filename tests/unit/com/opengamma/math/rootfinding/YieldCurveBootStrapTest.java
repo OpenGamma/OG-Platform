@@ -33,8 +33,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class YieldCurveBootStrapTest {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveBootStrapTest.class);
-  private static final int HOTSPOT_WARMUP_CYCLES = 10;
-  private static final int BENCHMARK_CYCLES = 50;
+  private static final int HOTSPOT_WARMUP_CYCLES = 0;
+  private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   //private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Interpolator1D INTERPOLATOR = new LinearInterpolator1D();
@@ -105,7 +105,6 @@ public class YieldCurveBootStrapTest {
       for (int i = 0; i < _timeGrid.length; i++) {
         data.put(_timeGrid[i], x.getEntry(i));
       }
-      //      System.out.println("-------------------" + data);
       DiscountCurve curve = new InterpolatedDiscountCurve(data, INTERPOLATOR);
 
       double[] res = new double[_swapValues.length];
