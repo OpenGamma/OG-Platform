@@ -22,7 +22,7 @@ import com.opengamma.math.function.Function1D;
  */
 public class KrigingInterpolatorND extends InterpolatorND {
   private final LUDecompositionQuick _luDecomposition = new LUDecompositionQuick();
-  final double _beta;
+  private final double _beta;
 
   public KrigingInterpolatorND(final double beta) {
     if (beta < 1 || beta >= 2) {
@@ -82,7 +82,8 @@ public class KrigingInterpolatorND extends InterpolatorND {
       v[i][n] = 1;
       v[n][i] = 1;
     }
-    v[n][n] = y[n] = 0;
+    v[n][n] = 0;
+    y[n] = 0;
     final DoubleMatrix2D matrix = DoubleFactory2D.dense.make(v);
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(y);
     _luDecomposition.decompose(matrix);
@@ -113,6 +114,7 @@ public class KrigingInterpolatorND extends InterpolatorND {
     final double alpha = num / denom;
     return new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         return alpha * Math.pow(x, _beta);
