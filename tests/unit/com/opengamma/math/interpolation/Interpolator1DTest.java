@@ -62,12 +62,6 @@ public class Interpolator1DTest {
   public void testGetLowerBound() {
     final Interpolator1DModel model = DUMMY.initData(DATA);
     try {
-      DUMMY.getLowerBoundKey(null, 0.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
       model.getLowerBoundKey(null);
       fail();
     } catch (final IllegalArgumentException e) {
