@@ -8,6 +8,7 @@ package com.opengamma.math.interpolation;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 /**
@@ -40,11 +41,13 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    * @throws IllegalArgumentException
    *           Thrown if the data set is null or if its size is less than two.
    */
-  protected TreeMap<Double, Double> initData(final Map<Double, Double> data) {
-    if (data == null)
+  protected NavigableMap<Double, Double> initData(final Map<Double, Double> data) {
+    if (data == null) {
       throw new IllegalArgumentException("Data map was null");
-    if (data.size() < 2)
+    }
+    if (data.size() < 2) {
       throw new IllegalArgumentException("Need at least two points to perform interpolation");
+    }
     return new TreeMap<Double, Double>(data);
   }
 
@@ -62,16 +65,20 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *           value of x in the data set, or if x is larger than the largest
    *           value of x in the data set.
    */
-  protected Double getLowerBoundKey(final TreeMap<Double, Double> data, final Double value) {
-    if (data == null)
+  protected Double getLowerBoundKey(final NavigableMap<Double, Double> data, final Double value) {
+    if (data == null) {
       throw new IllegalArgumentException("Data set was null");
-    if (value == null)
+    }
+    if (value == null) {
       throw new IllegalArgumentException("x value was null");
+    }
     final Double lower = data.floorKey(value);
-    if (lower == null)
+    if (lower == null) {
       throw new InterpolationException("Value " + value + " was less than the lowest data point for x " + data.firstKey());
-    if (!value.equals(data.lastKey()) && lower.equals(data.lastKey()))
+    }
+    if (!value.equals(data.lastKey()) && lower.equals(data.lastKey())) {
       throw new InterpolationException("Value " + value + " was greater than the largest data point for x " + data.lastKey());
+    }
     return lower;
   }
 
@@ -86,7 +93,7 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
    *          The value of x for which the interpolated point y is to be found.
    * @return The index of the nearest low value of x in the data set.
    */
-  protected int getLowerBoundIndex(final TreeMap<Double, Double> data, final Double value) {
+  protected int getLowerBoundIndex(final NavigableMap<Double, Double> data, final Double value) {
     final Double lower = getLowerBoundKey(data, value);
     int i = 0;
     final Iterator<Double> iter = data.keySet().iterator();
@@ -99,8 +106,9 @@ public abstract class Interpolator1D implements Interpolator<Map<Double, Double>
   }
 
   protected boolean classEquals(final Object o) {
-    if (o == null)
+    if (o == null) {
       return false;
+    }
     return getClass().equals(o.getClass());
   }
 }

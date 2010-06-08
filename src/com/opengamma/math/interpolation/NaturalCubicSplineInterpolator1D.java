@@ -6,7 +6,7 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 
 /**
  * 
@@ -17,7 +17,7 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
 
   @Override
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
-    final TreeMap<Double, Double> sorted = initData(data);
+    final NavigableMap<Double, Double> sorted = initData(data);
     final int low = getLowerBoundIndex(sorted, value);
     if (low == sorted.size() - 1) {
       return new InterpolationResult<Double>(sorted.lastEntry().getValue());
@@ -42,7 +42,8 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     final double[] y2 = new double[n];
     double p, ratio;
     final double[] u = new double[n - 1];
-    y2[0] = u[0] = 0.0;
+    y2[0] = 0.0;
+    u[0] = 0.0;
     for (int i = 1; i < n - 1; i++) {
       ratio = (x[i] - x[i - 1]) / (x[i + 1] - x[i - 1]);
       p = ratio * y2[i - 1] + 2.0;

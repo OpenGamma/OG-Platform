@@ -6,7 +6,7 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 
 /**
  * A one-dimensional linear interpolator. The interpolated value of the function
@@ -39,7 +39,7 @@ public class LogLinearInterpolator1D extends Interpolator1D {
     if (value == null) {
       throw new IllegalArgumentException("x value was null");
     }
-    final TreeMap<Double, Double> sorted = initData(data);
+    final NavigableMap<Double, Double> sorted = initData(data);
     final Double x1 = getLowerBoundKey(sorted, value);
     if (x1.equals(sorted.lastKey())) {
       return new InterpolationResult<Double>(sorted.lastEntry().getValue());

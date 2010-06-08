@@ -6,20 +6,18 @@
 package com.opengamma.math.interpolation;
 
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 
 /**
  * 
- * @author emcleod
- * 
  */
-
 public class RationalFunctionInterpolator1D extends Interpolator1D {
   private final int _degree;
 
   public RationalFunctionInterpolator1D(final int degree) {
-    if (degree < 1)
+    if (degree < 1) {
       throw new IllegalArgumentException("Need a degree of at least 1 to perform rational function interpolation");
+    }
     _degree = degree;
   }
 
@@ -27,27 +25,29 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
   public InterpolationResult<Double> interpolate(final Map<Double, Double> data, final Double value) {
     // REVIEW kirk 2009-12-30 -- If the inputs are already sorted, we shouldn't
     // double-sort it.
-    final TreeMap<Double, Double> sorted = initData(data);
+    final NavigableMap<Double, Double> sorted = initData(data);
     final int m = _degree + 1;
-    if (data.size() < m)
+    if (data.size() < m) {
       throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform this interpolation");
+    }
     // REVIEW kirk 2009-12-30 -- It may make sense to convert these early on
     // to double[] and take the conversion hit once, rather than on every loop
     // through the arrays.
     final Double[] xArray = sorted.keySet().toArray(new Double[0]);
     final Double[] yArray = sorted.values().toArray(new Double[0]);
     double diff = Math.abs(value - xArray[0]);
-    if (Math.abs(diff) < EPS)
+    if (Math.abs(diff) < EPS) {
       return new InterpolationResult<Double>(yArray[0], 0.0);
+    }
     double diff1;
     final double[] c = new double[m];
     final double[] d = new double[m];
     int ns = 0;
     for (int i = 0; i < m; i++) {
       diff1 = Math.abs(value - xArray[i]);
-      if (diff < EPS)
+      if (diff < EPS) {
         return new InterpolationResult<Double>(yArray[i], 0.);
-      else if (diff1 < diff) {
+      } else if (diff1 < diff) {
         ns = i;
         diff = diff1;
       }
@@ -62,8 +62,9 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
         diff = xArray[i + j] - value;
         t = (xArray[j] - value) * d[j] / diff;
         dd = t - c[j + 1];
-        if (Math.abs(dd) < EPS)
+        if (Math.abs(dd) < EPS) {
           throw new InterpolationException("Interpolating function has a pole at x = " + value);
+        }
         dd = w / dd;
         d[j] = c[j + 1] * dd;
         c[j] = t * dd;
@@ -76,12 +77,15 @@ public class RationalFunctionInterpolator1D extends Interpolator1D {
 
   @Override
   public boolean equals(final Object o) {
-    if (o == null)
+    if (o == null) {
       return false;
-    if (o == this)
+    }
+    if (o == this) {
       return true;
-    if (!(o instanceof RationalFunctionInterpolator1D))
+    }
+    if (!(o instanceof RationalFunctionInterpolator1D)) {
       return false;
+    }
     final RationalFunctionInterpolator1D other = (RationalFunctionInterpolator1D) o;
     return _degree == other._degree;
   }

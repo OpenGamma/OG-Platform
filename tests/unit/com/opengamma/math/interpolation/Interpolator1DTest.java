@@ -11,7 +11,7 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.NavigableMap;
 
 import org.junit.Test;
 
@@ -53,13 +53,13 @@ public class Interpolator1DTest {
       // Expected
     }
     final Double[] x = new Double[] { 1., 2., 3., 3.5, 6.7 };
-    final TreeMap<Double, Double> sorted = DUMMY.initData(DATA);
+    final NavigableMap<Double, Double> sorted = DUMMY.initData(DATA);
     assertArrayEquals(sorted.keySet().toArray(new Double[0]), x);
   }
 
   @Test
   public void testGetLowerBound() {
-    final TreeMap<Double, Double> sorted = DUMMY.initData(DATA);
+    final NavigableMap<Double, Double> sorted = DUMMY.initData(DATA);
     try {
       DUMMY.getLowerBoundKey(null, 0.);
       fail();
