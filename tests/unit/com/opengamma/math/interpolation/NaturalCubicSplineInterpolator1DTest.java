@@ -6,7 +6,6 @@
 package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,30 +29,23 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Function1D<Double, Double> CUBIC = new PolynomialFunction1D(COEFF);
   private static final double EPS = 1e-1;
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void nullInputMap() {
+    INTERPOLATOR.interpolate(null, 3.);
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void emptyInputMap() {
+    INTERPOLATOR.interpolate(Collections.<Double, Double> emptyMap(), 3.);
+  }
 
-  @Test
-  public void testInputs() {
-    try {
-      INTERPOLATOR.interpolate(null, 3.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      INTERPOLATOR.interpolate(Collections.<Double, Double> emptyMap(), 3.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  @Test(expected=IllegalArgumentException.class)
+  public void nullInterpolateValue() {
     final Map<Double, Double> map = new HashMap<Double, Double>();
     map.put(1., 2.);
     map.put(2., 4.);
-    try {
-      INTERPOLATOR.interpolate(map, null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    INTERPOLATOR.interpolate(map, null);
   }
 
   @Test
