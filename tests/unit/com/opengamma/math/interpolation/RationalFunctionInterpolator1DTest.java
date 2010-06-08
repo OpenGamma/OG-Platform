@@ -29,7 +29,7 @@ public class RationalFunctionInterpolator1DTest {
   @Test
   public void testInputs() {
     try {
-      INTERPOLATOR.interpolate(null, 2.);
+      INTERPOLATOR.interpolate((Map<Double, Double>)null, 2.);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected

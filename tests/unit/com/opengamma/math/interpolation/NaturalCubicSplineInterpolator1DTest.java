@@ -32,7 +32,7 @@ public class NaturalCubicSplineInterpolator1DTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void nullInputMap() {
-    INTERPOLATOR.interpolate(null, 3.);
+    INTERPOLATOR.interpolate((Map<Double, Double>)null, 3.);
   }
   
   @Test(expected=IllegalArgumentException.class)

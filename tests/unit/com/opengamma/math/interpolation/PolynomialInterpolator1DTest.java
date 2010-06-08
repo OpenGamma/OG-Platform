@@ -32,7 +32,7 @@ public class PolynomialInterpolator1DTest {
   public void testWithBadInputs() {
     final Interpolator1D interpolator = new PolynomialInterpolator1D(3);
     try {
-      interpolator.interpolate(null, 3.);
+      interpolator.interpolate((Map<Double, Double>)null, 3.);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
