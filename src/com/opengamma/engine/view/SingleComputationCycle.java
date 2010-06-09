@@ -17,7 +17,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -255,9 +254,9 @@ public class SingleComputationCycle {
       deltaCalculator.computeDelta();
       
       s_logger.info("Computed delta for calc conf {}. Of {} nodes, {} require recomputation.", 
-          new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator._changedNodes.size()});
+          new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator.getChangedNodes().size()});
       
-      for (DependencyNode unchangedNode : deltaCalculator._unchangedNodes) {
+      for (DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
         markExecuted(unchangedNode);
         
         for (ValueSpecification spec : unchangedNode.getOutputValues()) {
@@ -269,68 +268,6 @@ public class SingleComputationCycle {
       }
     }
   }
-  
-  private final class LiveDataDeltaCalculator {
-    
-    private final DependencyGraph _graph;
-    private final ViewComputationCache _cache; 
-    private final ViewComputationCache _previousCache;
-    
-    private LiveDataDeltaCalculator(DependencyGraph graph,
-        ViewComputationCache cache,
-        ViewComputationCache previousCache) {
-      _graph = graph;
-      _cache = cache;
-      _previousCache = previousCache;
-    }
-    
-    private Set<DependencyNode> _changedNodes = new HashSet<DependencyNode>();
-    private Set<DependencyNode> _unchangedNodes = new HashSet<DependencyNode>();
-    
-    public void computeDelta() {
-      for (DependencyNode rootNode : _graph.getRootNodes()) {
-        computeDelta(rootNode);
-      }
-    }
-
-    private boolean computeDelta(DependencyNode node) {
-      if (_changedNodes.contains(node)) {
-        return true; 
-      } 
-      if (_unchangedNodes.contains(node)) {
-        return false;
-      }
-      
-      boolean hasChanged = false;
-      for (DependencyNode inputNode : node.getInputNodes()) {
-        // if any children changed, this node automatically requires recomputation.
-        hasChanged |= computeDelta(inputNode);      
-      }
-      
-      if (!hasChanged) {
-        // if no children changed, the node may still require recomputation
-        // due to LiveData changes affecting the function of the node.
-        for (ValueRequirement req : node.getRequiredLiveData()) {
-          Object oldValue = _previousCache.getValue(new ValueSpecification(req));
-          Object newValue = _cache.getValue(new ValueSpecification(req));
-          if (!ObjectUtils.equals(oldValue, newValue)) {
-            hasChanged = true;
-            break;
-          }
-        }
-      }
-      
-      if (hasChanged) {
-        _changedNodes.add(node);        
-      } else {
-        _unchangedNodes.add(node);
-      }
-      
-      return hasChanged;
-    }
-  }
-  
-  // --------------------------------------------------------------------------
   
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {

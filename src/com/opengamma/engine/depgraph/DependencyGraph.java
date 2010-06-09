@@ -29,10 +29,10 @@ import com.opengamma.util.tuple.Pair;
 public class DependencyGraph {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraph.class);
   
-  private final List<DependencyNode> _rootNodes = new ArrayList<DependencyNode>();
+  private final Set<DependencyNode> _rootNodes = new HashSet<DependencyNode>();
   
   /** Includes the root node(s) */
-  private final List<DependencyNode> _dependencyNodes = new ArrayList<DependencyNode>();
+  private final Set<DependencyNode> _dependencyNodes = new HashSet<DependencyNode>();
   
   /** A map to speed up lookups. Contents are equal to _dependencyNodes. */
   private final Map<ComputationTargetType, List<DependencyNode>> _computationTarget2DependencyNode = 
@@ -42,8 +42,8 @@ public class DependencyGraph {
 
   private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
   
-  public List<DependencyNode> getRootNodes() {
-    return Collections.unmodifiableList(_rootNodes);
+  public Set<DependencyNode> getRootNodes() {
+    return Collections.unmodifiableSet(_rootNodes);
   }
 
   public Set<ValueSpecification> getOutputValues() {
@@ -60,8 +60,8 @@ public class DependencyGraph {
     return outputValues;
   }
   
-  public Collection<DependencyNode> getDependencyNodes() {
-    return Collections.unmodifiableList(_dependencyNodes);
+  public Set<DependencyNode> getDependencyNodes() {
+    return Collections.unmodifiableSet(_dependencyNodes);
   }
   
   public int getSize() {
