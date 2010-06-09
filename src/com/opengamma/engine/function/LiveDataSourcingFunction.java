@@ -77,7 +77,7 @@ public class LiveDataSourcingFunction extends AbstractFunction implements Functi
   }
 
   @Override
-  public Set<ValueRequirement> getAllRequiredLiveData() {
+  public Set<ValueRequirement> getRequiredLiveData() {
     return Collections.singleton(_requirement);
   }
   

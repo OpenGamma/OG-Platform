@@ -35,7 +35,7 @@ public class DependencyGraphBuilder {
   private FunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
   // State:
-  private DependencyGraph _graph;
+  private DependencyGraph _graph = new DependencyGraph();
     
   /**
    * @return the calculationConfigurationName
@@ -117,18 +117,14 @@ public class DependencyGraphBuilder {
     ArgumentChecker.notNull(requirements, "Value requirements");
     checkInjectedInputs();
     
-    if (_graph == null) {
-      _graph = new DependencyGraph(target);
-    }
-    
     for (ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
       requirementPair.getFirst().addTerminalOutputValue(requirementPair.getSecond());
+      _graph.addRootNode(requirementPair.getFirst());
     }
   }
   
-  protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(
-      ComputationTarget target, ValueRequirement requirement) {
+  protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
 
     // getNodeProducing() is O(n) -> total algorithm is O(n^2) - need to optimize

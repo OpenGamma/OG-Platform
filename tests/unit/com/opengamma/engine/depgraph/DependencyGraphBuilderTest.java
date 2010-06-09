@@ -63,7 +63,6 @@ public class DependencyGraphBuilderTest {
     
     DependencyGraph graph = model.getDependencyGraph();
     assertNotNull(graph);
-    assertEquals(target, graph.getComputationTarget());
     assertTrue(graph.getOutputValues().contains(spec1));
     assertTrue(graph.getOutputValues().contains(spec2));
     
@@ -75,7 +74,8 @@ public class DependencyGraphBuilderTest {
     assertTrue(node.getOutputValues().contains(spec1));
     assertTrue(node.getOutputValues().contains(spec2));
     assertTrue(node.getInputNodes().isEmpty());
-    
+    assertEquals(target, node.getComputationTarget());
+
     graph.removeUnnecessaryValues();
 
     nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
@@ -196,7 +196,6 @@ public class DependencyGraphBuilderTest {
     
     graph.removeUnnecessaryValues();
 
-    assertEquals(target, graph.getComputationTarget());
     assertTrue(graph.getOutputValues().contains(spec1));
     assertTrue(graph.getOutputValues().contains(spec2));
     
@@ -209,6 +208,7 @@ public class DependencyGraphBuilderTest {
         assertFalse(node.getOutputValues().contains(spec2));
         assertTrue(node.getInputRequirements().contains(req2));
         assertEquals(1, node.getInputNodes().size());
+        assertEquals(target, node.getComputationTarget());
       } else if(ObjectUtils.equals(node.getFunctionDefinition(), fn2)) {
         assertFalse(node.getOutputValues().contains(spec1));
         assertTrue(node.getOutputValues().contains(spec2));
@@ -254,7 +254,6 @@ public class DependencyGraphBuilderTest {
     
     graph.removeUnnecessaryValues();
 
-    assertEquals(target, graph.getComputationTarget());
     assertTrue(graph.getOutputValues().contains(spec1));
     
     Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
@@ -265,6 +264,7 @@ public class DependencyGraphBuilderTest {
         assertTrue(node.getOutputValues().contains(spec1));
         assertTrue(node.getInputRequirements().contains(req2));
         assertEquals(1, node.getInputNodes().size());
+        assertEquals(target, node.getComputationTarget());
       } else if(node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
         assertFalse(node.getOutputValues().contains(spec1));
         assertEquals(1, node.getOutputValues().size());

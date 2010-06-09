@@ -26,7 +26,22 @@ public class ViewDefinition implements Serializable {
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
+  
+  /** 
+   * View cannot be recalculated more frequently than this.
+   * Milliseconds.
+   * Null = view can be recalculated as frequently as you want.
+   */
   private Long _minimumRecalculationPeriod;
+  
+  /** 
+   * A full recomputation of the view should be performed at this interval 
+   * (i.e., no delta vs. previous result should be used).
+   * Milliseconds.
+   * Null = no full recomputation needs to be performed - previous result can always be used
+   */ 
+  private Long _fullRecalculationPeriod;
+  
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
@@ -123,5 +138,20 @@ public class ViewDefinition implements Serializable {
   public void setMinimumRecalculationPeriod(Long minimumRecalculationPeriod) {
     _minimumRecalculationPeriod = minimumRecalculationPeriod;
   }
+
+  /**
+   * @return Full recalculation period, milliseconds
+   */
+  public Long getFullRecalculationPeriod() {
+    return _fullRecalculationPeriod;
+  }
+
+  /**
+   * @param fullRecalculationPeriod the fullRecalculationPeriod to set, milliseconds
+   */
+  public void setFullRecalculationPeriod(Long fullRecalculationPeriod) {
+    _fullRecalculationPeriod = fullRecalculationPeriod;
+  }
+  
 
 }

@@ -85,8 +85,13 @@ public class DependencyNode {
     return Collections.unmodifiableSet(_inputRequirements);
   }
   
-  public Set<ValueRequirement> getAllRequiredLiveData() {
-    return _functionDefinition.getAllRequiredLiveData();
+  /**
+   * @return The returned {@code ValueRequirements} only tell you what the function
+   * of this <i>this</i> node requires. They tell you nothing about the 
+   * functions of any child nodes. 
+   */
+  public Set<ValueRequirement> getRequiredLiveData() {
+    return _functionDefinition.getRequiredLiveData();
   }
   
   /**

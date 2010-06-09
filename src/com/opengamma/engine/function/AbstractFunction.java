@@ -45,7 +45,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
   }
 
   @Override
-  public Set<ValueRequirement> getAllRequiredLiveData() {
+  public Set<ValueRequirement> getRequiredLiveData() {
     return Collections.emptySet();
   }
 

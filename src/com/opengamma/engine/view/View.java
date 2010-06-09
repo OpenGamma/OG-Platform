@@ -311,11 +311,13 @@ public class View implements Lifecycle {
   public synchronized void runOneCycle() {
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     recalcJob.runOneCycle();
+    recalcJob.postRunCycle();
   }
   
   public synchronized void runOneCycle(long snapshotTime) {
     ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
     recalcJob.runOneCycle(snapshotTime);
+    recalcJob.postRunCycle();
   }
 
   @Override

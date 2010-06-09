@@ -17,7 +17,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -29,25 +28,24 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DependencyGraph {
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraph.class);
-  private final ComputationTarget _computationTarget;
-  private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+  
+  private final List<DependencyNode> _rootNodes = new ArrayList<DependencyNode>();
+  
+  /** Includes the root node(s) */
   private final List<DependencyNode> _dependencyNodes = new ArrayList<DependencyNode>();
+  
+  /** A map to speed up lookups. Contents are equal to _dependencyNodes. */
   private final Map<ComputationTargetType, List<DependencyNode>> _computationTarget2DependencyNode = 
     new HashMap<ComputationTargetType, List<DependencyNode>>();
+  
+  private final Set<ValueSpecification> _outputValues = new HashSet<ValueSpecification>();
+
   private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
   
-  public DependencyGraph(ComputationTarget computationTarget) {
-    ArgumentChecker.notNull(computationTarget, "Computation target");
-    _computationTarget = computationTarget;
+  public List<DependencyNode> getRootNodes() {
+    return Collections.unmodifiableList(_rootNodes);
   }
 
-  /**
-   * @return the computationTarget
-   */
-  public ComputationTarget getComputationTarget() {
-    return _computationTarget;
-  }
-  
   public Set<ValueSpecification> getOutputValues() {
     return Collections.unmodifiableSet(_outputValues);
   }
@@ -64,6 +62,10 @@ public class DependencyGraph {
   
   public Collection<DependencyNode> getDependencyNodes() {
     return Collections.unmodifiableList(_dependencyNodes);
+  }
+  
+  public int getSize() {
+    return _dependencyNodes.size();
   }
   
   public Collection<DependencyNode> getDependencyNodes(ComputationTargetType type) {
@@ -89,9 +91,11 @@ public class DependencyGraph {
   }
   
   public void addDependencyNode(DependencyNode node) {
+    ArgumentChecker.notNull(node, "Node");
+    
     _dependencyNodes.add(node);
     _outputValues.addAll(node.getOutputValues());
-    _allRequiredLiveData.addAll(node.getAllRequiredLiveData());
+    _allRequiredLiveData.addAll(node.getRequiredLiveData());
     
     List<DependencyNode> nodesByType = _computationTarget2DependencyNode.get(node.getComputationTarget().getType());
     if (nodesByType == null) {
@@ -99,6 +103,11 @@ public class DependencyGraph {
       _computationTarget2DependencyNode.put(node.getComputationTarget().getType(), nodesByType);
     }
     nodesByType.add(node);
+  }
+  
+  public void addRootNode(DependencyNode node) {
+    ArgumentChecker.notNull(node, "Node");
+    _rootNodes.add(node);
   }
   
   /**
@@ -112,7 +121,7 @@ public class DependencyGraph {
     for (DependencyNode node : _dependencyNodes) {
       Set<ValueSpecification> unnecessaryValues = node.removeUnnecessaryOutputs();
       if (!unnecessaryValues.isEmpty()) {
-        s_logger.info("Graph for {} removed {} unnecessary potential results", getComputationTarget(), unnecessaryValues.size());
+        s_logger.info("{}: removed {} unnecessary potential results", this, unnecessaryValues.size());
         _outputValues.removeAll(unnecessaryValues);
       }
     }

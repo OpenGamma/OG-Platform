@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +54,13 @@ public class SingleComputationCycle {
   private final PortfolioEvaluationModel _portfolioEvaluationModel;
   
   // State:
+  
+  /** Current state of the cycle */
+  private enum State {
+    CREATED, INPUTS_PREPARED, EXECUTING, FINISHED, CLEANED  
+  }
+  
+  private State _state;
   
   /**
    * Milliseconds, see System.currentTimeMillis()
@@ -94,6 +102,8 @@ public class SingleComputationCycle {
     _startTime = System.nanoTime();
     _viewDefinition = viewDefinition;
     _snapshotTime = snapshotTime;
+    
+    _state = State.CREATED;
   }
   
   /**
@@ -149,7 +159,13 @@ public class SingleComputationCycle {
     return _viewDefinition;
   }
   
+  // --------------------------------------------------------------------------
+  
   public void prepareInputs() {
+    if (_state != State.CREATED) {
+      throw new IllegalStateException("State must be " + State.CREATED);
+    }
+    
     getResultModel().setInputDataTimestamp(Instant.ofMillis(getSnapshotTime()));
     
     createAllCaches();
@@ -172,6 +188,8 @@ public class SingleComputationCycle {
     if (!missingLiveData.isEmpty()) {
       s_logger.warn("Missing {} live data elements: {}", missingLiveData.size(), formatMissingLiveData(missingLiveData));
     }
+    
+    _state = State.INPUTS_PREPARED;
   }
   
   protected static String formatMissingLiveData(Set<ValueRequirement> missingLiveData) {
@@ -205,9 +223,122 @@ public class SingleComputationCycle {
       getComputationCache(calcConfigurationName).putValue(dataAsValue);
     }
   }
+  
+  // --------------------------------------------------------------------------
 
+  /**
+   * Determine which live data inputs have changed between iterations, and:
+   * <ul>
+   * <li>Copy over all values that can be demonstrated to be the same from the previous iteration (because no input has changed)
+   * <li>Only recompute the values that could have changed based on live data inputs
+   * </ul> 
+   * 
+   * @param previousCycle Previous iteration. It must not have been cleaned yet ({@link #releaseResources()}).
+   */
+  public void computeDelta(SingleComputationCycle previousCycle) {
+    if (_state != State.INPUTS_PREPARED) {
+      throw new IllegalStateException("State must be " + State.INPUTS_PREPARED);
+    }
+    if (previousCycle._state != State.FINISHED) {
+      throw new IllegalArgumentException("State of previous cycle must be " + State.FINISHED);
+    }
+    
+    for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
+      DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
+      
+      ViewComputationCache cache = this.getComputationCache(calcConfigurationName); 
+      ViewComputationCache previousCache = previousCycle.getComputationCache(calcConfigurationName);
+      
+      LiveDataDeltaCalculator deltaCalculator = new LiveDataDeltaCalculator(depGraph,
+          cache,
+          previousCache);
+      deltaCalculator.computeDelta();
+      
+      s_logger.info("Computed delta for calc conf {}. Of {} nodes, {} require recomputation.", 
+          new Object[] {calcConfigurationName, depGraph.getSize(), deltaCalculator._changedNodes.size()});
+      
+      for (DependencyNode unchangedNode : deltaCalculator._unchangedNodes) {
+        markExecuted(unchangedNode);
+        
+        for (ValueSpecification spec : unchangedNode.getOutputValues()) {
+          Object previousValue = previousCache.getValue(spec);
+          if (previousValue != null) {
+            cache.putValue(new ComputedValue(spec, previousValue));
+          }
+        }
+      }
+    }
+  }
+  
+  private final class LiveDataDeltaCalculator {
+    
+    private final DependencyGraph _graph;
+    private final ViewComputationCache _cache; 
+    private final ViewComputationCache _previousCache;
+    
+    private LiveDataDeltaCalculator(DependencyGraph graph,
+        ViewComputationCache cache,
+        ViewComputationCache previousCache) {
+      _graph = graph;
+      _cache = cache;
+      _previousCache = previousCache;
+    }
+    
+    private Set<DependencyNode> _changedNodes = new HashSet<DependencyNode>();
+    private Set<DependencyNode> _unchangedNodes = new HashSet<DependencyNode>();
+    
+    public void computeDelta() {
+      for (DependencyNode rootNode : _graph.getRootNodes()) {
+        computeDelta(rootNode);
+      }
+    }
+
+    private boolean computeDelta(DependencyNode node) {
+      if (_changedNodes.contains(node)) {
+        return true; 
+      } 
+      if (_unchangedNodes.contains(node)) {
+        return false;
+      }
+      
+      boolean hasChanged = false;
+      for (DependencyNode inputNode : node.getInputNodes()) {
+        // if any children changed, this node automatically requires recomputation.
+        hasChanged |= computeDelta(inputNode);      
+      }
+      
+      if (!hasChanged) {
+        // if no children changed, the node may still require recomputation
+        // due to LiveData changes affecting the function of the node.
+        for (ValueRequirement req : node.getRequiredLiveData()) {
+          Object oldValue = _previousCache.getValue(new ValueSpecification(req));
+          Object newValue = _cache.getValue(new ValueSpecification(req));
+          if (!ObjectUtils.equals(oldValue, newValue)) {
+            hasChanged = true;
+            break;
+          }
+        }
+      }
+      
+      if (hasChanged) {
+        _changedNodes.add(node);        
+      } else {
+        _unchangedNodes.add(node);
+      }
+      
+      return hasChanged;
+    }
+  }
+  
+  // --------------------------------------------------------------------------
+  
   // REVIEW kirk 2009-11-03 -- This is a database kernel. Act accordingly.
   public void executePlans() {
+    if (_state != State.INPUTS_PREPARED) {
+      throw new IllegalStateException("State must be " + State.INPUTS_PREPARED);
+    }
+    _state = State.EXECUTING;
+    
     // There are two ways to execute the different dependency graphs: sequentially or in parallel.
     // Both are implemented, and both work.
     // However, right now on the scope that we're working on, we don't actually need the parallel form,
@@ -216,6 +347,8 @@ public class SingleComputationCycle {
     // running in parallel.
     executePlansSequential();
     //executePlansParallel();
+    
+    _state = State.FINISHED;
   }
   
   protected void executePlansParallel() {
@@ -226,7 +359,7 @@ public class SingleComputationCycle {
       s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
       
-      s_logger.info("Submitting dependency graph {} for execution", depGraph.getComputationTarget());
+      s_logger.info("Submitting {} for execution", depGraph);
       final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
           calcConfigurationName,
@@ -263,7 +396,7 @@ public class SingleComputationCycle {
       s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
       
-      s_logger.info("Submitting dependency graph {} for execution", depGraph.getComputationTarget());
+      s_logger.info("Submitting {} for execution", depGraph);
       final DependencyGraphExecutor depGraphExecutor = new DependencyGraphExecutor(
           getViewName(),
           calcConfigurationName,
@@ -273,6 +406,8 @@ public class SingleComputationCycle {
       depGraphExecutor.executeGraph(getSnapshotTime(), _jobIdSource);
     }
   }
+  
+  // --------------------------------------------------------------------------
 
   public void populateResultModel() {
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
@@ -295,9 +430,17 @@ public class SingleComputationCycle {
   }
   
   public void releaseResources() {
+    if (_state != State.FINISHED) {
+      throw new IllegalStateException("State must be " + State.FINISHED);
+    }
+    
     getProcessingContext().getLiveDataSnapshotProvider().releaseSnapshot(getSnapshotTime());
     getProcessingContext().getComputationCacheSource().releaseCaches(getViewName(), getSnapshotTime());
+    
+    _state = State.CLEANED;
   }
+  
+  // --------------------------------------------------------------------------
   
   // Dependency Node Maintenance:
   // REVIEW kirk 2010-04-30 -- Is this good locking? I'm not entirely sure.

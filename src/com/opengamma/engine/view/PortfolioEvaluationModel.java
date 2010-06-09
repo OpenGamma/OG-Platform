@@ -209,7 +209,6 @@ public class PortfolioEvaluationModel {
       sb.append("DepGraph for ").append(entry.getKey());
       
       DependencyGraph depGraph = entry.getValue();
-      sb.append("\tComputation target ").append(depGraph.getComputationTarget());
       sb.append("\tProducing values ").append(depGraph.getOutputValues());
       for (DependencyNode depNode : depGraph.getDependencyNodes()) {
         sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
