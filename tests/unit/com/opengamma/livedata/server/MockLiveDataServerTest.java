@@ -116,6 +116,12 @@ public class MockLiveDataServerTest {
     
     assertTrue(_server.unsubscribe("nonpersistent"));
     assertTrue(_server.unsubscribe("persistent"));
+    
+    assertNull(_server.getSubscription("nonpersistent"));
+    assertNull(_server.getSubscription("persistent"));
+    
+    assertFalse(_server.isSubscribedTo("nonpersistent"));
+    assertFalse(_server.isSubscribedTo("persistent"));
   }
   
   @Test
@@ -175,6 +181,9 @@ public class MockLiveDataServerTest {
     assertTrue(_server.stopDistributor(distributor));
     assertTrue(sub.getDistributors().isEmpty());
     assertFalse(_server.isSubscribedTo("mysub"));
+    assertNull(_server.getSubscription("mysub"));
+    assertNull(_server.getSubscription(spec));
+    assertNull(_server.getMarketDataDistributor(spec));
     assertEquals(0, _server.getNumActiveSubscriptions());
     
     assertFalse(_server.stopDistributor(distributor));

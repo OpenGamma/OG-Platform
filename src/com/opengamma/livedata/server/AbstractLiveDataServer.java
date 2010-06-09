@@ -580,15 +580,13 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
         // Entitlement check
         if (!getEntitlementChecker().isEntitled(
             subscriptionRequest.getUser(), distributionSpec)) {
-          s_logger.info("{} is not entitled to {}",
-              subscriptionRequest.getUser(), requestedSpecification);
-          // TODO kirk 2009-10-28 -- Extend interface on EntitlementChecker to
-          // get a user message.
+          String msg = subscriptionRequest.getUser() + " is not entitled to " + requestedSpecification;
+          s_logger.info(msg);
           responses.add(new LiveDataSubscriptionResponse(
               requestedSpecification,
               LiveDataSubscriptionResult.NOT_AUTHORIZED,
+              msg,
               null,
-              distributionSpec.getFullyQualifiedLiveDataSpecification(),
               null,
               null));
           continue;
@@ -763,6 +761,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       }
       
       distributor.getSubscription().removeDistributor(distributor);
+      _fullyQualifiedSpec2Distributor.remove(distributor.getFullyQualifiedLiveDataSpecification());
       
       if (distributor.getSubscription().getDistributors().isEmpty()) {
         unsubscribe(distributor.getSubscription());                
