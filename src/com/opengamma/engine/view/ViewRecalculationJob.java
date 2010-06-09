@@ -21,7 +21,6 @@ import com.opengamma.util.TerminatableJob;
 public class ViewRecalculationJob extends TerminatableJob {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRecalculationJob.class);
   private final View _view;
-  private ViewComputationResultModelImpl _previousResult;
   private double _numExecutions;
   private SingleComputationCycle _previousCycle;
   private Instant _previousFullRecalculationTime; 
@@ -36,20 +35,6 @@ public class ViewRecalculationJob extends TerminatableJob {
       throw new NullPointerException("Must provide a backing view.");
     }
     _view = view;
-  }
-
-  /**
-   * @return the previousResult
-   */
-  public ViewComputationResultModelImpl getPreviousResult() {
-    return _previousResult;
-  }
-
-  /**
-   * @param previousResult the previousResult to set
-   */
-  public void setPreviousResult(ViewComputationResultModelImpl previousResult) {
-    _previousResult = previousResult;
   }
 
   /**
