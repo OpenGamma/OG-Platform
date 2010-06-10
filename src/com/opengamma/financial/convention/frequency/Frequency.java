@@ -17,5 +17,6 @@ public interface Frequency {
    * @return the name, not null
    */
   String getConventionName();
+  int getPeriodsPerYear();
 
 }

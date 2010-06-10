@@ -14,7 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializationContext;
 import org.fudgemsg.mapping.FudgeObjectDictionary;
 import org.fudgemsg.mapping.FudgeSerializationContext;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurv
  */
 /* package */ final class ModelInterestRateCurve {
 
-  private static final FudgeBuilder<ConstantInterestRateDiscountCurve> CONSTANT_INTEREST_RATE_DISCOUNT_CURVE = new ConstantInterestRateDiscountCurveBuilder();
+  private static final FudgeBuilder<ConstantYieldCurve> CONSTANT_YIELD_CURVE = new ConstantYieldCurveBuilder();
   private static final FudgeBuilder<InterpolatedDiscountCurve> INTERPOLATED_DISCOUNT_CURVE = new InterpolatedDiscountCurveBuilder();
 
   /**
@@ -32,28 +32,28 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurv
   }
 
   /* package */ static void addBuilders(final FudgeObjectDictionary dictionary) {
-    dictionary.addBuilder(ConstantInterestRateDiscountCurve.class, CONSTANT_INTEREST_RATE_DISCOUNT_CURVE);
+    dictionary.addBuilder(ConstantYieldCurve.class, CONSTANT_YIELD_CURVE);
     dictionary.addBuilder(InterpolatedDiscountCurve.class, INTERPOLATED_DISCOUNT_CURVE);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Fudge builder for {@code ConstantInterestRateDiscountCurve}.
+   * Fudge builder for {@code ConstantYieldCurve}.
    */
-  private static final class ConstantInterestRateDiscountCurveBuilder extends FudgeBuilderBase<ConstantInterestRateDiscountCurve> {
+  private static final class ConstantYieldCurveBuilder extends FudgeBuilderBase<ConstantYieldCurve> {
     private static final String RATE_FIELD_NAME = "rate";
 
-    private ConstantInterestRateDiscountCurveBuilder() {
+    private ConstantYieldCurveBuilder() {
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final ConstantInterestRateDiscountCurve object) {
+    protected void buildMessage(final FudgeSerializationContext context, final MutableFudgeFieldContainer message, final ConstantYieldCurve object) {
       message.add(RATE_FIELD_NAME, null, object.getInterestRate(0.));
     }
 
     @Override
-    public ConstantInterestRateDiscountCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
-      return new ConstantInterestRateDiscountCurve(message.getFieldValue(Double.class, message.getByName(RATE_FIELD_NAME)));
+    public ConstantYieldCurve buildObject(final FudgeDeserializationContext context, final FudgeFieldContainer message) {
+      return new ConstantYieldCurve(message.getFieldValue(Double.class, message.getByName(RATE_FIELD_NAME)));
     }
   }
 

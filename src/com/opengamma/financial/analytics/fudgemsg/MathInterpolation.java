@@ -19,6 +19,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 /**
  * Holds Fudge builders for the interpolation model.
  */
+@SuppressWarnings("unchecked")
 /* package */ final class MathInterpolation {
 
   private static final FudgeBuilder<GridInterpolator2D> GRID_INTERPOLATOR_2D = new GridInterpolator2DBuilder();

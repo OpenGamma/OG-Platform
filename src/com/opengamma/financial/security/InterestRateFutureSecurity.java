@@ -15,7 +15,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class InterestRateFutureSecurity extends FutureSecurity {
   
-  private final String _cashRateType;
+  private final String _cashRateType; // REVIEW: jim 28-May-2010 -- we might want to make this UniqueIdentifier like FloatingInterestRateLeg...
   
   /**
    * @param expiry

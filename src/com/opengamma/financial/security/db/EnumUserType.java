@@ -98,10 +98,14 @@ public abstract class EnumUserType<E extends Enum<E>> implements UserType {
     return _enumToString.get(value);
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "deprecation" })
   @Override
   public void nullSafeSet(PreparedStatement stmt, Object value, int index) throws HibernateException, SQLException {
     if (value == null) {
+      // NOTE kirk 2010-06-11 -- This has to remain deprecated due to a bug in Hibernate 3.5.2
+      // where they deprecated the constants there (e.g. Hibernate.STRING) but didn't put in
+      // the StringType.INSTNANCE you're supposed to use instead.
+      // When we upgrade to a new hibernate which doesn't have this bug, we need to change.
       stmt.setNull(index, Hibernate.STRING.sqlType());
     } else {
       stmt.setString(index, enumToString((E) value));
@@ -118,8 +122,10 @@ public abstract class EnumUserType<E extends Enum<E>> implements UserType {
     return _clazz;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public int[] sqlTypes() {
+    // NOTE kirk 2010-06-11 -- See note above in nullSafeSet.
     return new int[] {Hibernate.STRING.sqlType()};
   }
 }
