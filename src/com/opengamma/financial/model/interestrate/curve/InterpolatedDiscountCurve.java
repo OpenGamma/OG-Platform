@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.math.interpolation.Interpolator1DModelFactory;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -28,7 +30,7 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
   private final SortedMap<Double, Double> _dfData;
-  private final SortedMap<Double, Interpolator1D<Interpolator1DModel>> _interpolators;
+  private final SortedMap<Double, Interpolator1D<? extends Interpolator1DModel>> _interpolators;
 
   /**
    * 
@@ -42,8 +44,8 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D<Interpolator1DModel> interpolator) {
-    this(data, Collections.<Double, Interpolator1D<Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
+    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -61,20 +63,14 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<Interpolator1DModel>> interpolators) {
-    if (data == null) {
-      throw new IllegalArgumentException("Data map was null");
-    }
-    if (interpolators == null) {
-      throw new IllegalArgumentException("Interpolator was null");
-    }
-    if (interpolators.size() == 0) {
-      throw new IllegalArgumentException("Interpolator map did not contain values");
-    }
+  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
+    Validate.notNull(data);
+    Validate.notNull(interpolators);
+    Validate.notEmpty(interpolators);
     if (data.size() < 2) {
       throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
     }
-    for (final Map.Entry<Double, Interpolator1D<Interpolator1DModel>> entry : interpolators.entrySet()) {
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel>> entry : interpolators.entrySet()) {
       if (entry.getValue() == null) {
         throw new IllegalArgumentException("Interpolator for time " + entry.getKey() + " was null");
       }
@@ -90,35 +86,8 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
     }
     _rateData = Collections.<Double, Double>unmodifiableSortedMap(sortedRates);
     _dfData = Collections.<Double, Double>unmodifiableSortedMap(sortedDF);
-    _interpolators = Collections.<Double, Interpolator1D<Interpolator1DModel>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<Interpolator1DModel>>(interpolators));
+    _interpolators = Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel>>(interpolators));
   }
-
-  // This constructor was only used by the now removed Fudge functions - they
-  // now have to use the public ones; not as efficient
-  // protected InterpolatedDiscountCurve(final SortedMap<Double, Double>
-  // sortedRates, final SortedMap<Double, Double> sortedDF, final Interpolator1D
-  // interpolator) {
-  // _rateData = Collections.<Double, Double>
-  // unmodifiableSortedMap(sortedRates);
-  // _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
-  // final SortedMap<Double, Interpolator1D> sorted = new TreeMap<Double,
-  // Interpolator1D>();
-  // sorted.put(Double.POSITIVE_INFINITY, interpolator);
-  // _interpolators = Collections.<Double, Interpolator1D>
-  // unmodifiableSortedMap(sorted);
-  // }
-
-  // This constructor was only used by the now removed Fudge functions - they
-  // now have to use the public ones; not as efficient
-  // protected InterpolatedDiscountCurve(final SortedMap<Double, Double>
-  // sortedRates, final SortedMap<Double, Double> sortedDF, final
-  // SortedMap<Double, Interpolator1D> interpolators) {
-  // _rateData = Collections.<Double, Double>
-  // unmodifiableSortedMap(sortedRates);
-  // _dfData = Collections.<Double, Double> unmodifiableSortedMap(sortedDF);
-  // _interpolators = Collections.<Double, Interpolator1D>
-  // unmodifiableSortedMap(interpolators);
-  // }
 
   /**
    * 
@@ -132,7 +101,7 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
    * 
    * @return The interpolator for this curve.
    */
-  public Map<Double, Interpolator1D<Interpolator1DModel>> getInterpolators() {
+  public Map<Double, Interpolator1D<? extends Interpolator1DModel>> getInterpolators() {
     return _interpolators;
   }
 
@@ -145,12 +114,8 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
    */
   @Override
   public double getInterestRate(final Double t) {
-    if (t == null) {
-      throw new IllegalArgumentException("t was null");
-    }
-    if (t < 0) {
-      throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
-    }
+    Validate.notNull(t);
+    ArgumentChecker.notNegative(t, "time");
     return -Math.log(getDiscountFactor(t)) / t;
   }
 
@@ -161,6 +126,7 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
    */
+  @SuppressWarnings("unchecked")
   @Override
   public double getDiscountFactor(final Double t) {
     if (t == null) {
@@ -170,12 +136,12 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     }
     if (_interpolators.size() == 1) {
-      final Interpolator1D<Interpolator1DModel> interpolator = _interpolators.values().iterator().next();
+      final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) _interpolators.values().iterator().next();
       return interpolator.interpolate(Interpolator1DModelFactory.fromMap(_dfData, interpolator), t).getResult();
     }
-    final Map<Double, Interpolator1D<Interpolator1DModel>> tail = _interpolators.tailMap(t);
+    final Map<Double, Interpolator1D<? extends Interpolator1DModel>> tail = _interpolators.tailMap(t);
     final Double key = tail.isEmpty() ? _interpolators.lastKey() : _interpolators.tailMap(t).firstKey();
-    final Interpolator1D<Interpolator1DModel> interpolator = _interpolators.get(key);
+    final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) _interpolators.get(key);
     return interpolator.interpolate(Interpolator1DModelFactory.fromMap(_dfData, interpolator), t).getResult();
   }
 
@@ -186,9 +152,7 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
 
   @Override
   public YieldAndDiscountCurve withParallelShift(final Double shift) {
-    if (shift == null) {
-      throw new IllegalArgumentException("Shift was null");
-    }
+    Validate.notNull(shift);
     final Map<Double, Double> map = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : _rateData.entrySet()) {
       map.put(entry.getKey(), entry.getValue() + shift);
@@ -198,15 +162,9 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
 
   @Override
   public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
-    if (t == null) {
-      throw new IllegalArgumentException("t was null");
-    }
-    if (t < 0) {
-      throw new IllegalArgumentException("t was negative");
-    }
-    if (shift == null) {
-      throw new IllegalArgumentException("Shift was null");
-    }
+    Validate.notNull(t);
+    Validate.notNull(shift);
+    ArgumentChecker.notNegative(t, "time");
     final Map<Double, Double> data = getData();
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
     if (data.containsKey(t)) {
@@ -219,9 +177,7 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
 
   @Override
   public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
-    if (shifts == null) {
-      throw new IllegalArgumentException("Shift map was null");
-    }
+    Validate.notNull(shifts);
     if (shifts.isEmpty()) {
       s_logger.info("Shift map was empty; returning identical curve");
       return new InterpolatedDiscountCurve(getData(), getInterpolators());
@@ -229,12 +185,9 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
     final Map<Double, Double> data = getData();
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
     for (final Map.Entry<Double, Double> entry : shifts.entrySet()) {
-      if (entry.getValue() == null) {
-        throw new IllegalArgumentException("Null shift in shift map");
-      }
-      if (entry.getKey() < 0) {
-        throw new IllegalArgumentException("Negative time in shift map");
-      }
+      Validate.notNull(entry.getKey());
+      Validate.notNull(entry.getValue());
+      ArgumentChecker.notNegative(entry.getKey(), "time");
       if (data.containsKey(entry.getKey())) {
         map.put(entry.getKey(), data.get(entry.getKey()) + entry.getValue());
       } else {
@@ -287,7 +240,7 @@ public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements 
     final StringBuilder sb = new StringBuilder();
     sb.append("InterpolatedDiscountCurve[");
     sb.append("interpolators={");
-    for (final Map.Entry<Double, Interpolator1D<Interpolator1DModel>> e : _interpolators.entrySet()) {
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel>> e : _interpolators.entrySet()) {
       sb.append(e.getKey()).append('=').append(Interpolator1DFactory.getInterpolatorName(e.getValue())).append(',');
     }
     sb.append("},rate_data={");

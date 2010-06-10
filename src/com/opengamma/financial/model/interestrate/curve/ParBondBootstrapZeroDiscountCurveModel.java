@@ -21,16 +21,15 @@ import com.opengamma.math.interpolation.Interpolator1DModel;
 
 /**
  * 
- * @author emcleod
  */
 public class ParBondBootstrapZeroDiscountCurveModel implements DiscountCurveModel<FixedInterestRateInstrumentDefinition> {
-  private final Map<Double, Interpolator1D<Interpolator1DModel>> _interpolators;
+  private final Map<Double, Interpolator1D<? extends Interpolator1DModel>> _interpolators;
 
-  public ParBondBootstrapZeroDiscountCurveModel(final Interpolator1D<Interpolator1DModel> interpolator) {
-    this(Collections.<Double, Interpolator1D<Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  public ParBondBootstrapZeroDiscountCurveModel(final Interpolator1D<? extends Interpolator1DModel> interpolator) {
+    this(Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
-  public ParBondBootstrapZeroDiscountCurveModel(final Map<Double, Interpolator1D<Interpolator1DModel>> interpolators) {
+  public ParBondBootstrapZeroDiscountCurveModel(final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
     _interpolators = interpolators;
   }
 

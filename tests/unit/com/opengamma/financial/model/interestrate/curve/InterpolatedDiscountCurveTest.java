@@ -22,7 +22,6 @@ import com.opengamma.math.interpolation.StepInterpolator1D;
 
 /**
  * 
- * @author emcleod
  */
 public class InterpolatedDiscountCurveTest {
   private static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
@@ -72,17 +71,17 @@ public class InterpolatedDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNullInterpolatorMap() {
-    new InterpolatedDiscountCurve(DATA, (Map<Double, Interpolator1D<Interpolator1DModel>>) null);
+    new InterpolatedDiscountCurve(DATA, (Map<Double, Interpolator1D<? extends Interpolator1DModel>>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithEmptyInterpolatorMap() {
-    new InterpolatedDiscountCurve(DATA, Collections.<Double, Interpolator1D<Interpolator1DModel>>emptyMap());
+    new InterpolatedDiscountCurve(DATA, Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>emptyMap());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNullInInterpolatorMap() {
-    final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
+    final Map<Double, Interpolator1D<? extends Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<? extends Interpolator1DModel>>();
     map.put(3., LINEAR);
     map.put(6., null);
     new InterpolatedDiscountCurve(DATA, map);
@@ -180,7 +179,7 @@ public class InterpolatedDiscountCurveTest {
 
   @Test
   public void testTwoLinearInterpolators() {
-    final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
+    final Map<Double, Interpolator1D<? extends Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<? extends Interpolator1DModel>>();
     map.put(2.1, LINEAR);
     map.put(10., LINEAR);
     final YieldAndDiscountCurve curve1 = new InterpolatedDiscountCurve(DATA, LINEAR);
@@ -191,7 +190,7 @@ public class InterpolatedDiscountCurveTest {
 
   @Test
   public void testMultipleInterpolators() {
-    final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
+    final Map<Double, Interpolator1D<? extends Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<? extends Interpolator1DModel>>();
     map.put(2.1, LINEAR);
     map.put(10., STEP);
     final YieldAndDiscountCurve curve = new InterpolatedDiscountCurve(DATA, map);

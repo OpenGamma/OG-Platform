@@ -18,28 +18,28 @@ import org.apache.commons.lang.Validate;
 public final class Interpolator1DModelFactory {
   private Interpolator1DModelFactory() {
   }
-  
-  public static Interpolator1DModel fromArrays(double[] keys, double[] values) {
+
+  public static Interpolator1DModel fromArrays(final double[] keys, final double[] values) {
     return new ArrayInterpolator1DModel(keys, values);
   }
-  
-  public static Interpolator1DModel fromSortedArrays(double[] keys, double[] values) {
+
+  public static Interpolator1DModel fromSortedArrays(final double[] keys, final double[] values) {
     return new ArrayInterpolator1DModel(keys, values, true);
   }
-  
+
   @SuppressWarnings("unchecked")
-  public static Interpolator1DModel fromMap(Map<Double, Double> data) {
+  public static Interpolator1DModel fromMap(final Map<Double, Double> data) {
     Validate.notNull(data, "Backing data for interpolation must not be null.");
     Validate.notEmpty(data, "Backing data for interpolation must not be empty.");
     if (data instanceof SortedMap) {
-      double[] keys = ArrayUtils.toPrimitive(data.keySet().toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
-      double[] values = ArrayUtils.toPrimitive(data.values().toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
+      final double[] keys = ArrayUtils.toPrimitive(data.keySet().toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
+      final double[] values = ArrayUtils.toPrimitive(data.values().toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY));
       return fromSortedArrays(keys, values);
     } else {
-      double[] keys = new double[data.size()];
-      double[] values = new double[data.size()];
+      final double[] keys = new double[data.size()];
+      final double[] values = new double[data.size()];
       int i = 0;
-      for (Map.Entry<Double, Double> entry : data.entrySet()) {
+      for (final Map.Entry<Double, Double> entry : data.entrySet()) {
         keys[i] = entry.getKey();
         values[i] = entry.getValue();
         i++;
@@ -51,22 +51,22 @@ public final class Interpolator1DModelFactory {
   public static Interpolator1DWithSecondDerivativeModel toModelWithSecondDerivative(final Interpolator1DModel model) {
     return new Interpolator1DWithSecondDerivativeModel(model);
   }
-  
-  public static Interpolator1DModel fromArrays(final double[] keys, final double[] values, final Interpolator1D<?> interpolator) {
+
+  public static Interpolator1DModel fromArrays(final double[] keys, final double[] values, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
     if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
       return toModelWithSecondDerivative(fromArrays(keys, values));
     }
     return fromArrays(keys, values);
   }
-  
-  public static Interpolator1DModel fromSortedArrays(final double[] keys, final double[] values, final Interpolator1D<?> interpolator) {
+
+  public static Interpolator1DModel fromSortedArrays(final double[] keys, final double[] values, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
     if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
       return toModelWithSecondDerivative(fromSortedArrays(keys, values));
     }
     return fromSortedArrays(keys, values);
   }
-  
-  public static Interpolator1DModel fromMap(final Map<Double, Double> data, final Interpolator1D<?> interpolator) {
+
+  public static Interpolator1DModel fromMap(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
     if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
       return toModelWithSecondDerivative(fromMap(data));
     }
