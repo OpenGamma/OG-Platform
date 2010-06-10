@@ -59,8 +59,8 @@ public class Subscription {
   private final Date _creationTime;
   
   /**
-   * 
-   * @param securityUniqueId
+   * @param marketDataSenderFactory Will create market data distributors for this subscription
+   * @param securityUniqueId Security unique ID
    */
   public Subscription(String securityUniqueId, MarketDataSenderFactory marketDataSenderFactory) {
     ArgumentChecker.notNull(securityUniqueId, "Security unique ID");

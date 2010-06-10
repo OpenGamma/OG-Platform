@@ -47,7 +47,6 @@ import com.opengamma.util.PerformanceCounter;
  * The base class from which most OpenGamma Live Data feed servers should
  * extend. Handles most common cases for distributed contract management.
  * 
- * @author kirk
  */
 public abstract class AbstractLiveDataServer implements Lifecycle {
   private static final Logger s_logger = LoggerFactory
@@ -158,11 +157,10 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   
   /**
    * Returns an image (i.e., all fields) from the underlying market data provider.
-   * <p>
-   * The return value is a map from unique ID to subscription handle.
+   * 
+   * @return The return value is a map from unique ID to subscription handle.
    * The map must contain an entry for each <code>uniqueId</code>.
    * Failure to snapshot any <code>uniqueId</code> should result in an exception being thrown. 
-   * 
    * @param uniqueIds Not null. May be empty.
    * @throws RuntimeException If the snapshot could not be obtained.
    */
@@ -197,10 +195,14 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    */
   protected abstract boolean snapshotOnSubscriptionStartRequired(Subscription subscription);
   
-  
-  
+  /**
+   * Whether the server is connected to underlying market data API or not
+   */
   public enum ConnectionStatus {
-    CONNECTED, NOT_CONNECTED
+    /** Connection established */
+    CONNECTED,
+    /** Connection not established */
+    NOT_CONNECTED
   }
   
   public ConnectionStatus getConnectionStatus() {
@@ -271,6 +273,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   }
   
   /**
+   * @param securityUniqueId Security unique ID
    * @return A {@code LiveDataSpecification} with default normalization
    * rule used.
    */
@@ -284,8 +287,8 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Subscribes to the market data and creates a default distributor.
    *
-   * @param securityUniqueId
-   * @return
+   * @param securityUniqueId Security unique ID
+   * @return Whether the subscription succeeded or failed
    * @see #getDefaultNormalizationRuleSetId()
    */
   public SubscriptionResult subscribe(String securityUniqueId) {
@@ -295,9 +298,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Subscribes to the market data and creates a default distributor.
    *
-   * @param securityUniqueId
-   * @param persistent
-   * @return
+   * @param securityUniqueId Security unique ID
+   * @param persistent See {@link MarketDataDistributor#isPersistent()}
+   * @return Whether the subscription succeeded or failed
    * @see #getDefaultNormalizationRuleSetId()
    */
   public SubscriptionResult subscribe(String securityUniqueId, boolean persistent) {
@@ -531,6 +534,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * If you want to force a snapshot - i.e., always a request a snapshot from the underlying API -
    * you can use this method.
+   * 
+   * @param securityUniqueId Security unique ID
+   * @return The snapshot
    */
   public FudgeFieldContainer doSnapshot(String securityUniqueId) {
     Map<String, FudgeFieldContainer> snapshots = doSnapshot(Collections.singleton(securityUniqueId));
@@ -544,6 +550,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * Processes a market data subscription request by going through the steps of
    * resolution, entitlement check, and subscription.
+   * 
+   * @param subscriptionRequest Request from client telling what to subscribe to
+   * @return LiveDataSubscriptionResponseMsg Sent back to the client of this server
    */
   public LiveDataSubscriptionResponseMsg subscriptionRequestMade(
       LiveDataSubscriptionRequest subscriptionRequest) {
@@ -665,6 +674,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * Unsubscribes from market data. All distributors related to that
    * subscription will be stopped.
    * 
+   * @param securityUniqueId Security unique ID
    * @return true if a market data subscription was actually removed. false
    *         otherwise.
    */
@@ -680,6 +690,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * Unsubscribes from market data. All distributors related to that
    * subscription will be stopped.
    * 
+   * @param subscription What to unsubscribe from
    * @return true if a market data subscription was actually removed. false
    *         otherwise.
    */
@@ -743,6 +754,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
    * If the subscription to which the distributor belongs no longer 
    * has any active distributors after this, that subscription will be deleted.
    * 
+   * @param distributor The distributor to stop
    * @return true if a distributor was actually stopped. false
    *         otherwise.
    */
@@ -888,6 +900,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
   /**
    * This method is mainly useful in tests.
    * 
+   * @param securityUniqueId Security unique ID
    * @return The only market data distributor associated with the 
    * security unique ID. 
    * @throws OpenGammaRuntimeException If there is no distributor

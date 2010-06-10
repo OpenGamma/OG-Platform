@@ -22,8 +22,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Distributes market data to clients and keeps a history of what has been distributed.
- *
- * @author pietari
  */
 public class MarketDataDistributor {
   
@@ -50,7 +48,7 @@ public class MarketDataDistributor {
    * this store provides a current snapshot of the entire state of the 
    * market data line.   
    */
-  private FieldHistoryStore _lastKnownValues = null;
+  private FieldHistoryStore _lastKnownValues;
   
   /** 
    * A history store to be used by the FieldHistoryUpdater normalization rule.
@@ -71,7 +69,7 @@ public class MarketDataDistributor {
    * False = a non-persistent distributor. Will die if the server is
    * restarted.
    */
-  private boolean _persistent = false;
+  private boolean _persistent; // = false;
   
   /** 
    * When this distributor should stop distributing
@@ -81,13 +79,14 @@ public class MarketDataDistributor {
    * <p>
    * Null means the distributor should not expire.
    */
-  private Long _expiry = null;
+  private Long _expiry;
   
   
   /**
-   * @parma distributionSpec What data should be distributed, how and where.
+   * @param distributionSpec What data should be distributed, how and where.
    * @param subscription Which subscription this distributor belongs to.
    * @param marketDataSenderFactory Used to create listener(s) that actually publish the data
+   * @param persistent Whether this distributor is persistent. 
    */
   public MarketDataDistributor(DistributionSpecification distributionSpec,
       Subscription subscription,
@@ -161,7 +160,7 @@ public class MarketDataDistributor {
   /**
    * Updates field history without sending any market data to field receivers. 
    * 
-   * @param liveDataFields Unnormalized market data from underlying market data API.
+   * @param msg Unnormalized market data from underlying market data API.
    */
   public synchronized void updateFieldHistory(FudgeFieldContainer msg) {
     FudgeFieldContainer normalizedMsg = normalize(msg);
@@ -235,6 +234,13 @@ public class MarketDataDistributor {
     _persistent = persistent;
   }
 
+  /**
+   * @return Whether this distributor is persistent. 
+   * <p>
+   * True = a persistent distributor, should survive a server restart.
+   * False = a non-persistent distributor. Will die if the server is
+   * restarted.
+   */
   public synchronized boolean isPersistent() {
     return _persistent;
   }
