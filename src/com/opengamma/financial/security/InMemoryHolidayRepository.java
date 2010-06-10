@@ -29,7 +29,7 @@ public class InMemoryHolidayRepository implements HolidayRepository {
   }
   
   private void parseCurrencyFile(File currencyFile) throws IOException {
-    String[] columnNames = new String[] {"CenterID", "ISOCurrencyCode", "RelatedFinancialCentre", "EventYear"
+    String[] columnNames = new String[] {"CenterID", "ISOCurrencyCode", "RelatedFinancialCentre", "EventYear" };
     CSVReader reader = new CSVReader(new FileReader(currencyFile));
     String[] row;
     while ((row = reader.readNext()) != null) {
