@@ -11,8 +11,9 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeFieldContainer;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
@@ -25,17 +26,16 @@ import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 /**
  * 
  *
- * @author pietari
  */
 public class JmsSenderTest {
   
-  private CollectingByteArrayMessageReceiver _collectingReceiver;
-  private DefaultMessageListenerContainer _container;
-  private MarketDataDistributor _mdd;
-  private JmsSenderFactory _factory;
+  private static CollectingByteArrayMessageReceiver _collectingReceiver;
+  private static DefaultMessageListenerContainer _container;
+  private static MarketDataDistributor _mdd;
+  private static JmsSenderFactory _factory;
   
-  @Before
-  public void setUp() {
+  @BeforeClass
+  public static void setUpClass() {
     ActiveMQConnectionFactory cf = ActiveMQTestUtil.createTestConnectionFactory();
 
     JmsTemplate jmsTemplate = new JmsTemplate(cf);
@@ -56,10 +56,15 @@ public class JmsSenderTest {
     _container.start();
   }
   
-  @After
-  public void tearDown() {
+  @AfterClass
+  public static void tearDown() {
     _container.stop();
     _container.destroy();
+  }
+  
+  @Before
+  public void setUp() {
+    _collectingReceiver.clearMessages();
   }
   
   @Test(timeout=30000)
@@ -121,13 +126,13 @@ public class JmsSenderTest {
     }
     
     assertEquals(msg1, updates[0].getFields());
-    assertEquals(0, updates[0].getSequenceNumber());
+    assertEquals(1, updates[0].getSequenceNumber()); // starts from 1 because simpleScenario() already sent 1
     
     assertEquals(msg3, updates[1].getFields());
-    assertEquals(2, updates[1].getSequenceNumber());
+    assertEquals(3, updates[1].getSequenceNumber());
     
     assertEquals(msg4, updates[2].getFields());
-    assertEquals(3, updates[2].getSequenceNumber());
+    assertEquals(4, updates[2].getSequenceNumber());
   }
 
 }
