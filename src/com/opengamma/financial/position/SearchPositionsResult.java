@@ -8,7 +8,6 @@ package com.opengamma.financial.position;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.engine.position.Position;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.Paging;
 
@@ -24,14 +23,14 @@ public final class SearchPositionsResult {
   /**
    * The paged list of positions.
    */
-  private final List<Position> _positions;
+  private final List<PositionSummary> _positions;
 
   /**
    * Creates an instance.
    * @param paging  the paging information, not null
    * @param positions  the positions, not null
    */
-  public SearchPositionsResult(final Paging paging, final List<Position> positions) {
+  public SearchPositionsResult(final Paging paging, final List<PositionSummary> positions) {
     ArgumentChecker.notNull(paging, "paging");
     ArgumentChecker.noNulls(positions, "positions");
     _paging = paging;
@@ -51,7 +50,7 @@ public final class SearchPositionsResult {
    * Gets the list of positions.
    * @return the list of positions, unmodifiable, not null
    */
-  public List<Position> getPositions() {
+  public List<PositionSummary> getPositions() {
     return _positions;
   }
 

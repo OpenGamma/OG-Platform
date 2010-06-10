@@ -212,6 +212,14 @@ public interface ManagablePositionMaster extends PositionMaster {
   /**
    * Searches for positions matching the request.
    * 
+   * @param positionUid  the unique identifier, not null
+   * @return the position, null if not found
+   */
+  PositionSummary getPositionSummary(final UniqueIdentifier positionUid);
+
+  /**
+   * Searches for positions matching the request.
+   * 
    * @param request  the request to add, not null
    * @return the matched positions, not null
    */
