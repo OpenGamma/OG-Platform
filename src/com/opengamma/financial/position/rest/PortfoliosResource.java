@@ -26,7 +26,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.opengamma.engine.position.PortfolioImpl;
+import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.PortfolioSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
@@ -87,15 +87,15 @@ public class PortfoliosResource {
       @QueryParam("pageSize") int pageSize,
       @QueryParam("name") String name,
       @QueryParam("deleted") boolean deleted) {
-    String html = "<html>" +
-      "<head><title>Portfolios</title></head>" +
-      "<body>" +
-      "<h2>Portfolio search</h2>" +
+    String html = "<html>\n" +
+      "<head><title>Portfolios</title></head>\n" +
+      "<body>\n" +
+      "<h2>Portfolio search</h2>\n" +
       "<form method=\"GET\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "Deleted: <label><input type=\"checkbox\" name=\"deleted\" value=\"true\" /> Include deleted portfolios</label><br />" +
       "<input type=\"submit\" value=\"Search\" />" +
-      "</form>";
+      "</form>\n";
     
     if (getUriInfo().getQueryParameters().size() > 0) {
       PagingRequest paging = PagingRequest.of(page, pageSize);
@@ -104,11 +104,11 @@ public class PortfoliosResource {
       request.setIncludeDeleted(deleted);
       SearchPortfoliosResult result = getPositionMaster().searchPortfolios(request);
       
-      html += "<h2>Portfolio results</h2>" +
+      html += "<h2>Portfolio results</h2>\n" +
         "<p><table border=\"1\">" +
         "<tr><th>Name</th><th>Positions</th><th>Last updated</th><th>Status</th><th>Actions</th></tr>";
       for (PortfolioSummary summary : result.getPortfolioSummaries()) {
-        URI uri = getUriInfo().getAbsolutePathBuilder().path(summary.getUniqueIdentifier().toString()).build();
+        URI uri = getUriInfo().getBaseUriBuilder().path(PortfolioResource.class).build(summary.getUniqueIdentifier().toLatest());
         html += "<tr>";
         if (summary.isActive()) {
           html += "<td><a href=\"" + uri + "\">" + summary.getName() + "</a></td>";
@@ -133,36 +133,38 @@ public class PortfoliosResource {
         }
         html += "</tr>";
       }
-      html += "</table></p>";
+      html += "</table></p>\n";
     }
-    html += "<h2>Add portfolio</h2>" +
+    html += "<h2>Add portfolio</h2>\n" +
       "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
-      "</form>";
-    html += "</body></html>";
+      "</form>\n";
+    html += "</body>\n</html>";
     return html;
   }
 
   @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   public Response post(@FormParam("name") String name) {
-    name = StringUtils.trimToNull(name);
-    if (name == null) {
-      String html = "<html>" +
-        "<head><title>Portfolios</title></head>" +
-        "<body>" +
-        "<h2>Add portfolio</h2>" +
-        "<p>The name must be entered!</p>" +
+    AddPortfolioRequest request = new AddPortfolioRequest();
+    request.setName(name);
+    try {
+      request.checkValid();  // TODO: proper validation
+    } catch (IllegalArgumentException ex) {
+      String html = "<html>\n" +
+        "<head><title>Portfolios</title></head>\n" +
+        "<body>\n" +
+        "<h2>Add portfolio</h2>\n" +
+        "<p>The name must be entered!</p>\n" +
         "<form method=\"POST\" action=\"" + getUriInfo().getAbsolutePath() + "\"><br />" +
         "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
         "<input type=\"submit\" value=\"Add\" /><br />" +
-        "</form>" +
-        "</body></html>";
+        "</form>\n" +
+        "</body>\n</html>";
       return Response.ok(html).build();
     }
-    PortfolioImpl portfolio = new PortfolioImpl(name);
-    UniqueIdentifier uid = getPositionMaster().addPortfolio(portfolio);
+    UniqueIdentifier uid = getPositionMaster().addPortfolio(request);
     URI uri = getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
     return Response.seeOther(uri).build();
   }
@@ -172,6 +174,16 @@ public class PortfoliosResource {
   public PortfolioResource findPortfolio(@PathParam("portfolioUid") String uidStr) {
     UniqueIdentifier uid = UniqueIdentifier.parse(uidStr);
     return new PortfolioResource(this, uid);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI for portfolios.
+   * @param uriInfo  the URI information, not null
+   * @return the URI, not null
+   */
+  public static URI uri(UriInfo uriInfo) {
+    return uriInfo.getBaseUriBuilder().path(PortfoliosResource.class).build();
   }
 
 }

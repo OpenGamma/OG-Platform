@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.position.rest;
 
+import java.net.URI;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -101,6 +103,18 @@ public class PositionResource {
       "</body>" +
       "</html>";
     return html;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI for a portfolio.
+   * @param uriInfo  the URI information, not null
+   * @param portfolioUid  the portfolio unique identifier, not null
+   * @param positionUid  the position unique identifier, not null
+   * @return the URI, not null
+   */
+  public static URI uri(UriInfo uriInfo, UniqueIdentifier portfolioUid, UniqueIdentifier positionUid) {
+    return uriInfo.getBaseUriBuilder().path(PositionResource.class).build(portfolioUid.toLatest(), positionUid);
   }
 
 }
