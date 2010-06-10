@@ -130,7 +130,8 @@ public class DbPositionMasterWorker {
    * @return the unique identifier, not null
    */
   protected UniqueIdentifier createPortfolioUniqueIdentifier(final long portfolioOid, final long version) {
-    return UniqueIdentifier.of(getIdentifierScheme(), Long.toString(portfolioOid), Long.toString(version));
+    String value = new StringBuilder().append(DbPositionMaster.TYPE_PORTFOLIO).append(portfolioOid).toString();
+    return UniqueIdentifier.of(getIdentifierScheme(), value, Long.toString(version));
   }
 
   /**
@@ -140,8 +141,20 @@ public class DbPositionMasterWorker {
    * @param version  the version
    * @return the unique identifier, not null
    */
-  protected UniqueIdentifier createUniqueIdentifier(final long portfolioOid, final long oid, final long version) {
-    String value = new StringBuilder().append(portfolioOid).append('-').append(oid).toString();
+  protected UniqueIdentifier createNodeUniqueIdentifier(final long portfolioOid, final long oid, final long version) {
+    String value = new StringBuilder().append(DbPositionMaster.TYPE_NODE).append(portfolioOid).append('-').append(oid).toString();
+    return UniqueIdentifier.of(getIdentifierScheme(), value, Long.toString(version));
+  }
+
+  /**
+   * Creates a unique identifier.
+   * @param portfolioOid  the portfolio object identifier
+   * @param oid  the object identifier
+   * @param version  the version
+   * @return the unique identifier, not null
+   */
+  protected UniqueIdentifier createPositionUniqueIdentifier(final long portfolioOid, final long oid, final long version) {
+    String value = new StringBuilder().append(DbPositionMaster.TYPE_POSITION).append(portfolioOid).append('-').append(oid).toString();
     return UniqueIdentifier.of(getIdentifierScheme(), value, Long.toString(version));
   }
 
@@ -396,7 +409,7 @@ public class DbPositionMasterWorker {
       _lastNodeOid = nodeOid;
       long leftId = rs.getLong("LEFT_ID");
       long rightId = rs.getLong("RIGHT_ID");
-      UniqueIdentifier uid = createUniqueIdentifier(_portfolioOid, nodeOid, _version);
+      UniqueIdentifier uid = createNodeUniqueIdentifier(_portfolioOid, nodeOid, _version);
       String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
       PortfolioNodeImpl node = new PortfolioNodeImpl(uid, name);
       // find and add to parent unless this is the root
@@ -415,7 +428,7 @@ public class DbPositionMasterWorker {
       _lastPositionOid = positionOid;
       BigDecimal quantity = rs.getBigDecimal("QUANTITY");
       // Trade not supported yet
-      UniqueIdentifier uid = createUniqueIdentifier(_portfolioOid, positionOid, _version);
+      UniqueIdentifier uid = createPositionUniqueIdentifier(_portfolioOid, positionOid, _version);
       _position = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
       PortfolioNodeImpl parent = _nodes.peek().getSecond();
       parent.addPosition(_position);
@@ -486,7 +499,7 @@ public class DbPositionMasterWorker {
       long positionOid = rs.getLong("POSITION_OID");
       BigDecimal quantity = rs.getBigDecimal("QUANTITY");
       // Trade not supported yet
-      UniqueIdentifier uid = createUniqueIdentifier(_portfolioOid, positionOid, _version);
+      UniqueIdentifier uid = createPositionUniqueIdentifier(_portfolioOid, positionOid, _version);
       _position = new PositionImpl(uid, quantity, IdentifierBundle.EMPTY);
     }
   }
@@ -688,7 +701,7 @@ public class DbPositionMasterWorker {
     insertNodesBuildArgs(rootNode, portfolioOid, new long[] {nodeOid, 1}, version, nodeList, treeList);
     getTemplate().batchUpdate(sqlInsertNode(), (MapSqlParameterSource[]) nodeList.toArray(new MapSqlParameterSource[nodeList.size()]));
     getTemplate().batchUpdate(sqlInsertTree(), (MapSqlParameterSource[]) treeList.toArray(new MapSqlParameterSource[treeList.size()]));
-    return createUniqueIdentifier(portfolioOid, nodeOid, version);
+    return createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
   }
 
   /**
@@ -727,7 +740,7 @@ public class DbPositionMasterWorker {
       .addValue("right_id", right);
     treeList.add(treeArgs);
     // set the uid
-    UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, nodeOid, version);
+    UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
     setUniqueIdentifier(node, uid);
   }
 
@@ -744,7 +757,7 @@ public class DbPositionMasterWorker {
     final List<MapSqlParameterSource> treeList = new ArrayList<MapSqlParameterSource>();
     insertTreeBuildArgs(rootNode, portfolioOid, new long[] {1}, version, treeList);
     getTemplate().batchUpdate(sqlInsertTree(), (MapSqlParameterSource[]) treeList.toArray(new MapSqlParameterSource[treeList.size()]));
-    return createUniqueIdentifier(portfolioOid, nodeOid, version);
+    return createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
   }
 
   /**
@@ -772,7 +785,7 @@ public class DbPositionMasterWorker {
       .addValue("right_id", right);
     treeList.add(treeArgs);
     // set the uid
-    UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, nodeOid, version);
+    UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
     setUniqueIdentifier(node, uid);
   }
 
@@ -794,7 +807,7 @@ public class DbPositionMasterWorker {
       .addValue("end_version", END_VERSION)
       .addValue("name", node.getName());
     getTemplate().update(sqlInsertNode(), args);
-    UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, nodeOid, version);
+    UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
     setUniqueIdentifier(node, uid);
     return uid;
   }
@@ -879,7 +892,7 @@ public class DbPositionMasterWorker {
         secKeyList.add(treeArgs);
       }
       // set the uid
-      UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, positionOid, version);
+      UniqueIdentifier uid = createPositionUniqueIdentifier(portfolioOid, positionOid, version);
       setUniqueIdentifier(position, uid);
     }
   }

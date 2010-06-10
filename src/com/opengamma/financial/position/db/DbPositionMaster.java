@@ -51,6 +51,18 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * The scheme used for UniqueIdentifier objects.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbPos";
+  /**
+   * The type of a portfolio for unique identifiers.
+   */
+  /* package */ static final char TYPE_PORTFOLIO = 'F';
+  /**
+   * The type of a node for unique identifiers.
+   */
+  /* package */ static final char TYPE_NODE = 'N';
+  /**
+   * The type of a position for unique identifiers.
+   */
+  /* package */ static final char TYPE_POSITION = 'P';
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMaster.class);
 
@@ -155,12 +167,17 @@ public class DbPositionMaster implements ManagablePositionMaster {
   /**
    * Checks whether the unique identifier has the right scheme.
    * @param uid  the unique identifier, not null
+   * @param type  the object type
    */
-  protected void checkIdentifierScheme(final UniqueIdentifier uid) {
+  protected void checkIdentifier(final UniqueIdentifier uid, final char type) {
     Validate.notNull(uid, "UniqueIdentifier must not be null");
     if (isManagerFor(uid) == false) {
-      s_logger.debug("invalid UniqueIdentifier scheme: {}", uid.getScheme());
+      s_logger.debug("Invalid UniqueIdentifier scheme: {}", uid.getScheme());
       throw new IllegalArgumentException("Invalid identifier for DbPositionMaster: " + uid);
+    }
+    if (uid.getValue().charAt(0) != type) {
+      s_logger.debug("Invalid UniqueIdentifier object type: {} expected {}", type, uid);
+      throw new IllegalArgumentException("Invalid object type " + type + " in DbPositionMaster identifier: " + uid);
     }
   }
 
@@ -171,11 +188,11 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @return the portfolio object identifier
    */
   protected long extractPortfolioOid(final UniqueIdentifier uid) {
-    int pos = uid.getValue().indexOf('-');
+    int pos = uid.getValue().indexOf('-', 1);
     if (pos < 0) {
-      return Long.parseLong(uid.getValue());
+      return Long.parseLong(uid.getValue().substring(1));
     }
-    return Long.parseLong(uid.getValue().substring(0, pos));
+    return Long.parseLong(uid.getValue().substring(1, pos));
   }
 
   /**
@@ -184,7 +201,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @return the non-portfolio object identifier
    */
   protected long extractOtherOid(final UniqueIdentifier uid) {
-    int pos = uid.getValue().indexOf('-');
+    int pos = uid.getValue().indexOf('-', 1);
     if (pos < 0) {
       throw new IllegalArgumentException("Unique identifier is invalid: " + uid);
     }
@@ -217,7 +234,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
-    checkIdentifierScheme(uid);
+    checkIdentifier(uid, TYPE_PORTFOLIO);
     if (uid.getValue().contains("-")) {
       return null;  // TODO: better solution/exception
     }
@@ -229,7 +246,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid, final InstantProvider instantProvider) {
-    checkIdentifierScheme(uid);
+    checkIdentifier(uid, TYPE_PORTFOLIO);
     if (uid.getValue().contains("-")) {
       return null;  // TODO: better solution/exception
     }
@@ -241,7 +258,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid) {
-    checkIdentifierScheme(uid);
+    checkIdentifier(uid, TYPE_NODE);
     if (uid.isVersioned()) {
       return getWorker().selectPortfolioNodeTree(extractPortfolioOid(uid), extractOtherOid(uid), extractVersion(uid));
     }
@@ -250,7 +267,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public PortfolioNode getPortfolioNode(final UniqueIdentifier uid, final InstantProvider instantProvider) {
-    checkIdentifierScheme(uid);
+    checkIdentifier(uid, TYPE_NODE);
     Instant instant = Instant.of(instantProvider);
     long portfolioOid = extractPortfolioOid(uid);
     try {
@@ -264,7 +281,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public Position getPosition(final UniqueIdentifier uid) {
-    checkIdentifierScheme(uid);
+    checkIdentifier(uid, TYPE_POSITION);
     if (uid.isVersioned()) {
       return getWorker().selectPosition(extractPortfolioOid(uid), extractOtherOid(uid), extractVersion(uid));
     }
@@ -273,7 +290,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public Position getPosition(final UniqueIdentifier uid, final InstantProvider instantProvider) {
-    checkIdentifierScheme(uid);
+    checkIdentifier(uid, TYPE_POSITION);
     Instant instant = Instant.of(instantProvider);
     long portfolioOid = extractPortfolioOid(uid);
     try {
@@ -332,7 +349,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     request.checkValid();
     Instant instant = Instant.now(getTimeSource());
     UniqueIdentifier oldUid = request.getUniqueIdentifier();
-    checkIdentifierScheme(oldUid);
+    checkIdentifier(oldUid, TYPE_PORTFOLIO);
     long portfolioOid = extractPortfolioOid(oldUid);
     long oldVersion = extractVersion(oldUid);
     long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
@@ -349,7 +366,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
   public UniqueIdentifier removePortfolio(final UniqueIdentifier portfolioUid) {
     Validate.notNull(portfolioUid, "UniqueIdentifier must not be null");
     Instant instant = Instant.now(getTimeSource());
-    checkIdentifierScheme(portfolioUid);
+    checkIdentifier(portfolioUid, TYPE_PORTFOLIO);
     long portfolioOid = extractPortfolioOid(portfolioUid);
     long oldVersion = extractVersion(portfolioUid);
     long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
@@ -366,7 +383,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
   public UniqueIdentifier reinstatePortfolio(final UniqueIdentifier portfolioUid) {
     Validate.notNull(portfolioUid, "UniqueIdentifier must not be null");
     Instant instant = Instant.now(getTimeSource());
-    checkIdentifierScheme(portfolioUid);
+    checkIdentifier(portfolioUid, TYPE_PORTFOLIO);
     long portfolioOid = extractPortfolioOid(portfolioUid);
     long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, false);  // find latest version
     Portfolio portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, false, false, false);
@@ -382,7 +399,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     request.checkValid();
     final Instant instant = Instant.now(getTimeSource());
     final UniqueIdentifier parentUid = request.getParentNode();
-    checkIdentifierScheme(parentUid);
+    checkIdentifier(parentUid, TYPE_NODE);
     final long portfolioOid = extractPortfolioOid(parentUid);
     final long oldVersion = extractVersion(parentUid);
     final long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
@@ -404,7 +421,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
     getWorker().insertNode(newChild, portfolioOid, newChildOid, newVersion, instant);  // insert the child node
     getWorker().insertTree(root, portfolioOid, newVersion);  // insert tree with new child
-    return getWorker().createUniqueIdentifier(portfolioOid, newChildOid, newVersion);
+    return getWorker().createNodeUniqueIdentifier(portfolioOid, newChildOid, newVersion);
   }
 
   @Override
@@ -413,7 +430,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     request.checkValid();
     final Instant instant = Instant.now(getTimeSource());
     final UniqueIdentifier nodeUid = request.getUniqueIdentifier();
-    checkIdentifierScheme(nodeUid);
+    checkIdentifier(nodeUid, TYPE_NODE);
     final long portfolioOid = extractPortfolioOid(nodeUid);
     final long nodeOid = extractOtherOid(nodeUid);
     final long oldVersion = extractVersion(nodeUid);
@@ -437,7 +454,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
   public UniqueIdentifier removePortfolioNode(final UniqueIdentifier nodeUid) {
     Validate.notNull(nodeUid, "UniqueIdentifier must not be null");
     Instant instant = Instant.now(getTimeSource());
-    checkIdentifierScheme(nodeUid);
+    checkIdentifier(nodeUid, TYPE_NODE);
     long portfolioOid = extractPortfolioOid(nodeUid);
     long nodeOid = extractOtherOid(nodeUid);
     long oldVersion = extractVersion(nodeUid);
@@ -461,7 +478,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     getWorker().updateTreeSetEndVersion(portfolioOid, newVersion);  // end old version
     getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
     getWorker().insertTree(root, portfolioOid, newVersion);  // insert tree with removed child
-    return getWorker().createUniqueIdentifier(portfolioOid, nodeOid, newVersion);
+    return getWorker().createNodeUniqueIdentifier(portfolioOid, nodeOid, newVersion);
   }
 
   /**
