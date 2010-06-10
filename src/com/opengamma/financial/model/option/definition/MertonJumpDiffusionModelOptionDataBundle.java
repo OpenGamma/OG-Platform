@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
@@ -17,7 +17,7 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
   private final double _lambda;
   private final double _gamma;
 
-  public MertonJumpDiffusionModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+  public MertonJumpDiffusionModelOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final double lambda, final double gamma) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
@@ -45,7 +45,7 @@ public class MertonJumpDiffusionModelOptionDataBundle extends StandardOptionData
   }
 
   @Override
-  public MertonJumpDiffusionModelOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+  public MertonJumpDiffusionModelOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
     return new MertonJumpDiffusionModelOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getGamma());
   }
 

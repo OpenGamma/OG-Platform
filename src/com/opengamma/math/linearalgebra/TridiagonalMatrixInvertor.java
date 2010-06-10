@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.linearalgebra;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
@@ -13,7 +14,18 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  */
 public class TridiagonalMatrixInvertor {
 
+  /**
+   * An N by N matrix is in tridiagonal form if the main diagonal and the diagonals immediately above and below the main diagonal have non-zero entries, while every other entry is zero 
+   * @param a the main diagonal of length N
+   * @param b the sub-diagonal above the main diagonal of length N-1 
+   * @param c the sub-diagonal below the main diagonal of length N-1 
+   * @return the inverse of the tridiagonal matrix 
+   */
   public static DoubleMatrix2D getInverse(final double[] a, final double[] b, final double[] c) {
+    if (a == null || b == null || c == null) {
+      throw new IllegalArgumentException("some of the diagonals are null");
+    }
+
     int n = a.length;
     if (b.length != n - 1 || c.length != n - 1) {
       throw new IllegalArgumentException("length of subdiagonals is wrong");
@@ -27,6 +39,10 @@ public class TridiagonalMatrixInvertor {
     theta[1] = a[0];
     for (i = 2; i <= n; i++) {
       theta[i] = a[i - 1] * theta[i - 1] - b[i - 2] * c[i - 2] * theta[i - 2];
+    }
+
+    if (theta[n] == 0.0) {
+      throw new MathException("Zero determinate. Cannot invert the matrix");
     }
 
     phi[n - 1] = 1.0;

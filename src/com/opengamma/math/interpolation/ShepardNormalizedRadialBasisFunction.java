@@ -9,10 +9,9 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class ShepardNormalizedRadialBasisFunction extends Function1D<Double, Double> {
-  private static double _power;
+  private final double _power;
 
   public ShepardNormalizedRadialBasisFunction(final double power) {
     _power = power;

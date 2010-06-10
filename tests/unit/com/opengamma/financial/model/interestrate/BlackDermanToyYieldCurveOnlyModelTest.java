@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.definition.BlackDermanToyDataBundle;
 import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.financial.model.volatility.curve.ConstantVolatilityCurve;
@@ -27,7 +27,7 @@ public class BlackDermanToyYieldCurveOnlyModelTest {
     final int steps = 9;
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
     final ZonedDateTime maturity = DateUtil.getDateOffsetWithYearFraction(date, 4);
-    final BlackDermanToyDataBundle data = new BlackDermanToyDataBundle(new ConstantInterestRateDiscountCurve(0.05),
+    final BlackDermanToyDataBundle data = new BlackDermanToyDataBundle(new ConstantYieldCurve(0.05),
         new ConstantVolatilityCurve(0.1), date);
     final BlackDermanToyYieldOnlyInterestRateModel model = new BlackDermanToyYieldOnlyInterestRateModel(steps);
     final RecombiningBinomialTree<Triple<Double, Double, Double>> tree = model.getTrees(maturity).evaluate(data);

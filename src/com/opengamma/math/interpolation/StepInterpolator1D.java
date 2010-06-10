@@ -12,7 +12,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * 
  */
-public class StepInterpolator1D extends Interpolator1D {
+public class StepInterpolator1D extends Interpolator1D<Interpolator1DModel> {
   private final double _eps;
 
   public StepInterpolator1D() {

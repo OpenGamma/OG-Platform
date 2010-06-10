@@ -24,11 +24,10 @@ import com.opengamma.util.tuple.Pair;
  * A volatility surface contains volatilities for pairs of values (x, y) (e.g.
  * time and strike).
  * 
- * @author emcleod
  */
 
 public class InterpolatedVolatilitySurface extends VolatilitySurface {
-  private static final Logger s_Log = LoggerFactory.getLogger(InterpolatedVolatilitySurface.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedVolatilitySurface.class);
   private final SortedMap<Pair<Double, Double>, Double> _volatilityData;
   private final SortedMap<Pair<Double, Double>, Double> _varianceData;
   private final Interpolator2D _interpolator;
@@ -45,15 +44,19 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    *           Thrown if the data map is null or empty.
    */
   public InterpolatedVolatilitySurface(final Map<Pair<Double, Double>, Double> data, final Interpolator2D interpolator) {
-    if (data == null)
+    if (data == null) {
       throw new IllegalArgumentException("Data map was null");
-    if (interpolator == null)
+    }
+    if (interpolator == null) {
       throw new IllegalArgumentException("Interpolator was null");
-    if (data.isEmpty())
+    }
+    if (data.isEmpty()) {
       throw new IllegalArgumentException("Data map was empty");
+    }
     for (final Double sigma : data.values()) {
-      if (sigma < 0)
+      if (sigma < 0) {
         throw new IllegalArgumentException("Cannot have negative volatility");
+      }
     }
     final SortedMap<Pair<Double, Double>, Double> sortedVolatility = new TreeMap<Pair<Double, Double>, Double>(FirstThenSecondPairComparator.INSTANCE_DOUBLES);
     sortedVolatility.putAll(data);
@@ -61,8 +64,8 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
       sortedVariance.put(entry.getKey(), entry.getValue() * entry.getValue());
     }
-    _volatilityData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVolatility);
-    _varianceData = Collections.<Pair<Double, Double>, Double> unmodifiableSortedMap(sortedVariance);
+    _volatilityData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVolatility);
+    _varianceData = Collections.<Pair<Double, Double>, Double>unmodifiableSortedMap(sortedVariance);
     _interpolator = interpolator;
   }
 
@@ -85,17 +88,20 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
   }
 
   /**
-   * 
+   * @param xy The (x, y) coordinate
    * @return The volatility for (x, y).
    */
   @Override
   public Double getVolatility(final Pair<Double, Double> xy) {
-    if (xy == null)
+    if (xy == null) {
       throw new IllegalArgumentException("xy pair was null");
-    if (xy.getFirst() == null)
+    }
+    if (xy.getFirst() == null) {
       throw new IllegalArgumentException("x-value was null");
-    if (xy.getSecond() == null)
+    }
+    if (xy.getSecond() == null) {
       throw new IllegalArgumentException("y-value was null");
+    }
     return Math.sqrt(_interpolator.interpolate(_varianceData, xy).getResult());
   }
 
@@ -106,19 +112,22 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   @Override
   public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
-    if (shifts == null)
+    if (shifts == null) {
       throw new IllegalArgumentException("Shift map was null");
+    }
     if (shifts.isEmpty()) {
-      s_Log.info("Shift map was empty; returning identical surface");
+      s_logger.info("Shift map was empty; returning identical surface");
       return new InterpolatedVolatilitySurface(getData(), getInterpolator());
     }
     final Map<Pair<Double, Double>, Double> data = getData();
     final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>(data);
     for (final Map.Entry<Pair<Double, Double>, Double> entry : shifts.entrySet()) {
-      if (entry.getKey() == null)
+      if (entry.getKey() == null) {
         throw new IllegalArgumentException("Null xy pair in shift map");
-      if (entry.getValue() == null)
+      }
+      if (entry.getValue() == null) {
         throw new IllegalArgumentException("Null shift in shift map");
+      }
       if (map.containsKey(entry.getKey())) {
         map.put(entry.getKey(), map.get(entry.getKey()) + entry.getValue());
       } else {
@@ -130,8 +139,9 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   @Override
   public VolatilitySurface withParallelShift(final Double shift) {
-    if (shift == null)
+    if (shift == null) {
       throw new IllegalArgumentException("Shift was null");
+    }
     final Map<Pair<Double, Double>, Double> data = getData();
     final Map<Pair<Double, Double>, Double> shifted = new HashMap<Pair<Double, Double>, Double>();
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
@@ -142,14 +152,18 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   @Override
   public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
-    if (xy == null)
+    if (xy == null) {
       throw new IllegalArgumentException("xy pair was null");
-    if (xy.getFirst() == null)
+    }
+    if (xy.getFirst() == null) {
       throw new IllegalArgumentException("x-value was null");
-    if (xy.getSecond() == null)
+    }
+    if (xy.getSecond() == null) {
       throw new IllegalArgumentException("y-value was null");
-    if (shift == null)
+    }
+    if (shift == null) {
       throw new IllegalArgumentException("Shift was null");
+    }
     final Map<Pair<Double, Double>, Double> data = getData();
     final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>(data);
     if (map.containsKey(xy)) {
@@ -171,24 +185,30 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final InterpolatedVolatilitySurface other = (InterpolatedVolatilitySurface) obj;
     if (_volatilityData == null) {
-      if (other._volatilityData != null)
+      if (other._volatilityData != null) {
         return false;
-    } else if (!_volatilityData.equals(other._volatilityData))
+      }
+    } else if (!_volatilityData.equals(other._volatilityData)) {
       return false;
+    }
     if (_interpolator == null) {
-      if (other._interpolator != null)
+      if (other._interpolator != null) {
         return false;
-    } else if (!_interpolator.equals(other._interpolator))
+      }
+    } else if (!_interpolator.equals(other._interpolator)) {
       return false;
+    }
     return true;
   }
-
 }

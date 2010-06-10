@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.definition.FixedInterestRateInstrumentDefinition;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
@@ -19,7 +19,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 public class StandardFixedIncomeUnderlyingOptionDataBundle extends StandardOptionDataBundle {
   private final FixedInterestRateInstrumentDefinition _underlyingInstrument;
 
-  public StandardFixedIncomeUnderlyingOptionDataBundle(final DiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final ZonedDateTime date,
+  public StandardFixedIncomeUnderlyingOptionDataBundle(final YieldAndDiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final ZonedDateTime date,
       final FixedInterestRateInstrumentDefinition underlyingInstrument) {
     super(discountCurve, b, volatilitySurface, null, date);
     _underlyingInstrument = underlyingInstrument;

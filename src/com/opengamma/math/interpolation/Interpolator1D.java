@@ -6,52 +6,41 @@
 package com.opengamma.math.interpolation;
 
 import java.io.Serializable;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
- * 
  * A base class for interpolation in one dimension.
- * 
- * @author emcleod
+ * @param <T> Type of Interpolator1DModel
  */
 
-public abstract class Interpolator1D implements Interpolator<Map<Double, Double>, Double, Double>, Serializable {
+public abstract class Interpolator1D<T extends Interpolator1DModel> implements Interpolator<T, Double, Double>, Serializable {
+  /**
+   * Default accuracy
+   */
   protected static final double EPS = 1e-12;
 
-  /**
-   * @param data
-   *          A map containing the (x, y) data set.
-   * @param value
-   *          The value of x for which an interpolated value for y is to be
-   *          found.
-   * @return An InterpolationResult containing the interpolated value of y and
-   *         (if appropriate) the estimated error of this value.
-   */
   @Override
-  public InterpolationResult<Double> interpolate(Map<Double, Double> data, Double value) {
-    return interpolate(Interpolator1DModelFactory.fromMap(data), value);
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result;
+    return result;
   }
 
-  public abstract InterpolationResult<Double> interpolate(Interpolator1DModel model, Double value);
-  
-  /**
-   * 
-   * @param data
-   *          A map containing the (x, y) data set.
-   * @return A map containing the data set sorted by x values.
-   * @throws IllegalArgumentException
-   *           Thrown if the data set is null or if its size is less than two.
-   */
-  protected Interpolator1DModel initData(final Map<Double, Double> data) {
-    if (data == null) {
-      throw new IllegalArgumentException("Data map was null");
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
     }
-    if (data.size() < 2) {
-      throw new IllegalArgumentException("Need at least two points to perform interpolation");
+    if (obj == null) {
+      return false;
     }
-    return new NavigableMapInterpolator1DModel(new TreeMap<Double, Double>(data));
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
   }
+
+  public abstract InterpolationResult<Double> interpolate(T model, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {

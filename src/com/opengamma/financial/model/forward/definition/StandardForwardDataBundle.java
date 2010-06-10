@@ -7,7 +7,7 @@ package com.opengamma.financial.model.forward.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * @author emcleod
@@ -17,7 +17,7 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
   private final double _yield;
   private final double _storageCost;
 
-  public StandardForwardDataBundle(final double yield, final DiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
+  public StandardForwardDataBundle(final double yield, final YieldAndDiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
     super(discountCurve, spot, date);
     if (storageCost < 0)
       throw new IllegalArgumentException("Storage cost cannot be negative");
@@ -53,7 +53,7 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
    * .interestrate.curve.DiscountCurve)
    */
   @Override
-  public ForwardDataBundle withDiscountCurve(final DiscountCurve newCurve) {
+  public ForwardDataBundle withDiscountCurve(final YieldAndDiscountCurve newCurve) {
     if (newCurve == null)
       throw new IllegalArgumentException("New curve was null");
     return new StandardForwardDataBundle(getYield(), newCurve, getSpot(), getDate(), getStorageCost());

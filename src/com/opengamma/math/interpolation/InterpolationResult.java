@@ -11,8 +11,6 @@ import com.opengamma.math.MathException;
  * Contains the results of an interpolation - the interpolated value, and the
  * estimated error of that value (if applicable).
  * 
- * @author emcleod
- * 
  * @param <T>
  *          The type of the interpolated value and the error.
  */

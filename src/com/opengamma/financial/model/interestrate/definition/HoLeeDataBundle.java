@@ -7,7 +7,7 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 
 /**
@@ -16,10 +16,10 @@ import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
  */
 public class HoLeeDataBundle {
   private final ZonedDateTime _date;
-  private final DiscountCurve _yieldCurve;
+  private final YieldAndDiscountCurve _yieldCurve;
   private final VolatilityCurve _volatilityCurve;
 
-  public HoLeeDataBundle(final ZonedDateTime date, final DiscountCurve yieldCurve, final VolatilityCurve volatilityCurve) {
+  public HoLeeDataBundle(final ZonedDateTime date, final YieldAndDiscountCurve yieldCurve, final VolatilityCurve volatilityCurve) {
     _date = date;
     _yieldCurve = yieldCurve;
     _volatilityCurve = volatilityCurve;
@@ -29,7 +29,7 @@ public class HoLeeDataBundle {
     return _date;
   }
 
-  public DiscountCurve getYieldCurve() {
+  public YieldAndDiscountCurve getYieldCurve() {
     return _yieldCurve;
   }
 

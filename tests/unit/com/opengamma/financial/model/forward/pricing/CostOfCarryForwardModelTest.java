@@ -20,7 +20,7 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
 import com.opengamma.financial.model.forward.definition.StandardForwardDataBundle;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -38,7 +38,7 @@ public class CostOfCarryForwardModelTest {
   private static final ForwardModel<StandardForwardDataBundle> MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition DEFINITION = new ForwardDefinition(EXPIRY);
   private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(D,
-      new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
+      new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = NullPointerException.class)

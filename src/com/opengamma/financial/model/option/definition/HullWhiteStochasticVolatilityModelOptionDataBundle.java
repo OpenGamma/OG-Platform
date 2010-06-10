@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
@@ -19,7 +19,7 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
   private final double _volOfVol;
   private final double _rho;
 
-  public HullWhiteStochasticVolatilityModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+  public HullWhiteStochasticVolatilityModelOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final double lambda, final double sigmaLR, final double volOfVol, final double rho) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
@@ -61,7 +61,7 @@ public class HullWhiteStochasticVolatilityModelOptionDataBundle extends Standard
   }
 
   @Override
-  public HullWhiteStochasticVolatilityModelOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+  public HullWhiteStochasticVolatilityModelOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
     return new HullWhiteStochasticVolatilityModelOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getHalfLife(), getLongRunVolatility(),
         getVolatilityOfVolatility(), getCorrelation());
   }

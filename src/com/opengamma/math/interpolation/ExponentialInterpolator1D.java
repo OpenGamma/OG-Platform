@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
  * 
  * 
  */
-public class ExponentialInterpolator1D extends Interpolator1D {
+public class ExponentialInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
   public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
@@ -27,25 +27,6 @@ public class ExponentialInterpolator1D extends Interpolator1D {
     final double xDiff = x2 - x1;
     final double result = Math.pow(y1, value * (x2 - value) / xDiff / x1) * Math.pow(y2, value * (value - x1) / xDiff / x2);
     return new InterpolationResult<Double>(result);
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (o == null) {
-      return false;
-    }
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof ExponentialInterpolator1D)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
   }
 
 }

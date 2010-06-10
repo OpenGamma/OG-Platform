@@ -15,5 +15,5 @@ import javax.time.calendar.ZonedDateTime;
  */
 public interface DiscountCurveModel<T> {
 
-  public DiscountCurve getCurve(Set<T> data, ZonedDateTime date);
+  public YieldAndDiscountCurve getCurve(Set<T> data, ZonedDateTime date);
 }

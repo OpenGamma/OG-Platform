@@ -36,7 +36,7 @@ public class CouponBondBootstrapZeroDiscountCurveModel implements DiscountCurveM
    * javax.time.calendar.ZonedDateTime)
    */
   @Override
-  public DiscountCurve getCurve(final Set<FixedInterestRateInstrumentDefinition> data, final ZonedDateTime date) {
+  public YieldAndDiscountCurve getCurve(final Set<FixedInterestRateInstrumentDefinition> data, final ZonedDateTime date) {
     // TODO Auto-generated method stub
     return null;
   }

@@ -12,8 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -21,8 +21,8 @@ import com.opengamma.util.time.DateUtil;
  *
  */
 public class FXFutureDataBundleTest {
-  private static final DiscountCurve FOREIGN = new ConstantInterestRateDiscountCurve(0.03);
-  private static final DiscountCurve DOMESTIC = new ConstantInterestRateDiscountCurve(0.05);
+  private static final YieldAndDiscountCurve FOREIGN = new ConstantYieldCurve(0.03);
+  private static final YieldAndDiscountCurve DOMESTIC = new ConstantYieldCurve(0.05);
   private static final double SPOT = 1.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final FXFutureDataBundle DATA = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
@@ -72,9 +72,9 @@ public class FXFutureDataBundleTest {
     FutureDataBundle data = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, DATE);
     assertEquals(data, DATA);
     assertEquals(data.hashCode(), DATA.hashCode());
-    data = new FXFutureDataBundle(new ConstantInterestRateDiscountCurve(0.12), FOREIGN, SPOT, DATE);
+    data = new FXFutureDataBundle(new ConstantYieldCurve(0.12), FOREIGN, SPOT, DATE);
     assertFalse(data.equals(DATA));
-    data = new FXFutureDataBundle(DOMESTIC, new ConstantInterestRateDiscountCurve(0.07), SPOT, DATE);
+    data = new FXFutureDataBundle(DOMESTIC, new ConstantYieldCurve(0.07), SPOT, DATE);
     assertFalse(data.equals(DATA));
     data = new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT - 1, DATE);
     assertFalse(data.equals(DATA));
@@ -85,7 +85,7 @@ public class FXFutureDataBundleTest {
 
   @Test
   public void testBuilders() {
-    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(0.02);
+    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.02);
     final double spot = 2;
     final ZonedDateTime date = DateUtil.getUTCDate(2010, 2, 1);
     assertEquals(DATA.withDate(date), new FXFutureDataBundle(DOMESTIC, FOREIGN, SPOT, date));

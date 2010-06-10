@@ -11,8 +11,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * A base class for two-dimensional interpolation.
- * 
- * @author emcleod
  */
 
 public abstract class Interpolator2D implements Interpolator<Map<Pair<Double, Double>, Double>, Pair<Double, Double>, Double> {

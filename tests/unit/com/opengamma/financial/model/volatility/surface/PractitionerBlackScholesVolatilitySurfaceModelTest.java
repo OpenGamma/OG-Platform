@@ -16,8 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
 public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> MODEL = new PractitionerBlackScholesVolatilitySurfaceModel();
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.04);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.04);
   private static final double B = 0.03;
   private static final double SPOT = 100;
   private static final boolean IS_CALL = true;

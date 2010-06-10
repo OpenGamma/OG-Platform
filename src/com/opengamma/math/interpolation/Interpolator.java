@@ -6,12 +6,12 @@
 package com.opengamma.math.interpolation;
 
 /**
- * 
- * @author emcleod
- * 
+ * @param <S> The type of the data
+ * @param <T> The type of the value to interpolate
+ * @param <U> The type of the result
  */
 
 public interface Interpolator<S, T, U> {
 
-  public InterpolationResult<U> interpolate(S data, T value);
+  InterpolationResult<U> interpolate(S data, T value);
 }

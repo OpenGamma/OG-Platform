@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -38,7 +38,7 @@ public class BlackScholesGeometricBrownianMotionProcessTest {
   private static final double B = 0.1;
   private static final double S = 100;
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(
-      new ConstantInterestRateDiscountCurve(R), B, new ConstantVolatilitySurface(0.), S, DATE);
+      new ConstantYieldCurve(R), B, new ConstantVolatilitySurface(0.), S, DATE);
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)

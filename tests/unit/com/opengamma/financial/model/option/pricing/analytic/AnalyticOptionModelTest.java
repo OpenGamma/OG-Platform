@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -42,7 +42,7 @@ public class AnalyticOptionModelTest {
   private static final EuropeanVanillaOptionDefinition PUT = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, false);
   private static final EuropeanVanillaOptionDefinition CALL = new EuropeanVanillaOptionDefinition(15, ONE_YEAR, true);
   private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(
-      new ConstantInterestRateDiscountCurve(0.06), 0.02, new ConstantVolatilitySurface(0.24), 15., DATE);
+      new ConstantYieldCurve(0.06), 0.02, new ConstantVolatilitySurface(0.24), 15., DATE);
   private static final double EPS = 1e-2;
 
   public <S extends OptionDefinition, T extends StandardOptionDataBundle> void testInputs(

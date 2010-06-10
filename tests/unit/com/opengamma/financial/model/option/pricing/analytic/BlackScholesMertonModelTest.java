@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -92,7 +92,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   private void testPrices(final Set<Greek> greeks, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma,
       final double spot, final GreekResultCollection expected) {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
     final GreekResultCollection result = MODEL.getGreeks(definition, data, greeks);
     testResults(result, expected);
     testPutCallParity(strike, expiry, r, b, sigma, spot);
@@ -101,7 +101,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
   private void testGreek(final Greek greek, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma, final double spot,
       final GreekResultCollection expected) {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
     final GreekResultCollection result = MODEL.getGreeks(definition, data, Collections.singleton(greek));
     testResults(result, expected);
   }
@@ -110,7 +110,7 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     final Set<Greek> greeks = Collections.singleton(Greek.FAIR_PRICE);
     final EuropeanVanillaOptionDefinition call = new EuropeanVanillaOptionDefinition(strike, expiry, true);
     final EuropeanVanillaOptionDefinition put = new EuropeanVanillaOptionDefinition(strike, expiry, false);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
     final GreekResultCollection callResult = MODEL.getGreeks(call, data, greeks);
     final GreekResultCollection putResult = MODEL.getGreeks(put, data, greeks);
     final Double c = callResult.values().iterator().next();

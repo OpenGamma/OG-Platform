@@ -16,10 +16,9 @@ import org.apache.commons.lang.Validate;
  * It is the equivalent of performing a linear interpolation on a data set after
  * taking the logarithm of the y-values.
  * 
- * @author emcleod
  */
 
-public class LogLinearInterpolator1D extends Interpolator1D {
+public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
   public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
@@ -34,25 +33,6 @@ public class LogLinearInterpolator1D extends Interpolator1D {
     final Double y2 = model.get(x2);
     final double result = Math.pow(y2 / y1, (value - x1) / (x2 - x1)) * y1;
     return new InterpolationResult<Double>(result);
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    if (o == null) {
-      return false;
-    }
-    if (o == this) {
-      return true;
-    }
-    if (!(o instanceof LogLinearInterpolator1D)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
   }
 
 }

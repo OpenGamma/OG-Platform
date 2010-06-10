@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
@@ -19,7 +19,7 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends Standard
   private final double _expectedJumpSize;
   private final double _delta;
 
-  public BatesGeneralizedJumpDiffusionModelOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final double lambda, final double expectedJumpSize, final double delta) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _lambda = lambda;
@@ -54,7 +54,7 @@ public class BatesGeneralizedJumpDiffusionModelOptionDataBundle extends Standard
   }
 
   @Override
-  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+  public BatesGeneralizedJumpDiffusionModelOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
     return new BatesGeneralizedJumpDiffusionModelOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getLambda(), getExpectedJumpSize(), getDelta());
   }
 

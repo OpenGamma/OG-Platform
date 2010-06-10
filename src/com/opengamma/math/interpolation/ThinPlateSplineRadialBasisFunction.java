@@ -9,7 +9,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class ThinPlateSplineRadialBasisFunction extends Function1D<Double, Double> {
   private final double _scaleFactor;
@@ -19,8 +18,9 @@ public class ThinPlateSplineRadialBasisFunction extends Function1D<Double, Doubl
   }
 
   public ThinPlateSplineRadialBasisFunction(final double scaleFactor) {
-    if (scaleFactor <= 0)
+    if (scaleFactor <= 0) {
       throw new IllegalArgumentException("Scale factor must be greater than zero");
+    }
     _scaleFactor = scaleFactor;
   }
 
