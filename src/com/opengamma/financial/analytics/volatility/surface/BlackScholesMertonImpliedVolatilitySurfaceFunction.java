@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -112,7 +112,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
 
     final FudgeFieldContainer optionMarketData = (FudgeFieldContainer) inputs.getValue(optionMarketDataReq);
     final FudgeFieldContainer underlyingMarketData = (FudgeFieldContainer) inputs.getValue(underlyingMarketDataReq);
-    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(discountCurveReq);
+    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(discountCurveReq);
     // TODO cost-of-carry model
     if (optionMarketData.getByName(MarketDataFieldNames.INDICATIVE_VALUE_FIELD) == null) {
       s_logger.warn("No indicative value for option price, have {}", optionMarketData);

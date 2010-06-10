@@ -31,7 +31,7 @@ import com.opengamma.financial.model.future.definition.FXFutureDataBundle;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.pricing.FXFutureAsForwardModel;
 import com.opengamma.financial.model.future.pricing.FutureModel;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.id.UniqueIdentifier;
 
@@ -50,8 +50,8 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
       final Set<ValueRequirement> desiredValues) {
     final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final DiscountCurve domesticCurve = null;// getDiscountCurveMarketDataRequirement();
-    final DiscountCurve foreignCurve = null;// getDiscountCurveMarketDataRequirement();
+    final YieldAndDiscountCurve domesticCurve = null;// getDiscountCurveMarketDataRequirement();
+    final YieldAndDiscountCurve foreignCurve = null;// getDiscountCurveMarketDataRequirement();
     final double spot = 0;// getUnderlyingMarketDataRequirement();
     final FXFutureDataBundle data = new FXFutureDataBundle(domesticCurve, foreignCurve, spot, now);
     final FutureDefinition definition = new FutureDefinition(future.getExpiry());
