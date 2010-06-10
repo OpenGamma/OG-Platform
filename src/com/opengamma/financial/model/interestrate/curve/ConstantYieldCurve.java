@@ -9,82 +9,76 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  * 
- * A DiscountCurve that has a constant interest rate for all times in the
+ * A YieldAndDiscountCurve that has a constant interest rate for all times in the
  * future.
  * 
- * @author emcleod
  */
 public class ConstantYieldCurve extends YieldAndDiscountCurve {
-  private static final Logger s_Log = LoggerFactory.getLogger(ConstantYieldCurve.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ConstantYieldCurve.class);
   private final double _rate;
 
   public ConstantYieldCurve(final Double rate) {
-    if (rate == null)
-      throw new IllegalArgumentException("Rate was null");
-    if (rate < 0)
-      throw new IllegalArgumentException("Cannot have a negative interest rate");
+    Validate.notNull(rate);
+    ArgumentChecker.notNegative(rate, "rate");
     _rate = rate;
   }
 
   @Override
   public double getInterestRate(final Double t) {
-    if (t < 0)
-      throw new IllegalArgumentException("t was less than zero");
+    Validate.notNull(t);
+    ArgumentChecker.notNegative(t, "time");
     return _rate;
   }
 
   @Override
   public double getDiscountFactor(final Double t) {
-    if (t < 0)
-      throw new IllegalArgumentException("t was less than zero");
-    return Math.exp(-_rate * t);
+    Validate.notNull(t);
+    ArgumentChecker.notNegative(t, "time");
+    return Math.exp(-_rate * t); //TODO only works for continuously compounded rates
   }
 
   @Override
   public Set<Double> getMaturities() {
-    return Collections.<Double> emptySet();
+    return Collections.<Double>emptySet();
   }
 
   @Override
   public YieldAndDiscountCurve withParallelShift(final Double shift) {
-    if (shift == null)
-      throw new IllegalArgumentException("Shift was null");
+    Validate.notNull(shift);
     return new ConstantYieldCurve(_rate + shift);
   }
 
   @Override
   public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
-    if (t == null)
-      throw new IllegalArgumentException("t was null");
-    if (shift == null)
-      throw new IllegalArgumentException("Shift was null");
-    if (t < 0)
-      throw new IllegalArgumentException("t was less than zero");
+    Validate.notNull(t);
+    Validate.notNull(shift);
+    ArgumentChecker.notNegative(t, "time");
     return new ConstantYieldCurve(_rate + shift);
   }
 
   @Override
   public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
-    if (shifts == null)
-      throw new IllegalArgumentException("Shift map was null");
+    Validate.notNull(shifts);
     if (shifts.isEmpty()) {
-      s_Log.info("Shift map was empty; returning unchanged curve");
+      s_logger.info("Shift map was empty; returning unchanged curve");
       return new ConstantYieldCurve(_rate);
     }
     if (shifts.size() != 1) {
-      s_Log.warn("Shift map contained more than one element - only using first");
+      s_logger.warn("Shift map contained more than one element - only using first");
     }
     final Map.Entry<Double, Double> firstEntry = shifts.entrySet().iterator().next();
-    if (firstEntry.getKey() < 0)
-      throw new IllegalArgumentException("Time for shift was less than zero");
-    if (firstEntry.getValue() == null)
-      throw new IllegalArgumentException("Value for shift was null");
+    Validate.notNull(firstEntry);
+    ArgumentChecker.notNegative(firstEntry.getKey(), "time");
+    Validate.notNull(firstEntry.getValue());
     return new ConstantYieldCurve(_rate + firstEntry.getValue());
   }
 
@@ -100,15 +94,19 @@ public class ConstantYieldCurve extends YieldAndDiscountCurve {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final ConstantYieldCurve other = (ConstantYieldCurve) obj;
-    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate))
+    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
       return false;
+    }
     return true;
   }
 }
