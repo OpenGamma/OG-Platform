@@ -27,7 +27,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -121,7 +121,7 @@ public class DiscountCurveFunction
 
   @Override
   public String getShortName() {
-    return _curveCurrency + "-" + _curveName + " Discount Curve";
+    return _curveCurrency + "-" + _curveName + " Yield Curve";
   }
 
   @Override
@@ -148,11 +148,9 @@ public class DiscountCurveFunction
       Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
-    // Bootstrap the discount curve
-    @SuppressWarnings("unchecked")
-    YieldAndDiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
-    // Prepare results
-    ComputedValue resultValue = new ComputedValue(_result, discountCurve);
+    // Bootstrap the yield curve
+    YieldAndDiscountCurve yieldCurve = new InterpolatedYieldCurve(timeInYearsToRates, _interpolator);
+    ComputedValue resultValue = new ComputedValue(_result, yieldCurve);
     return Collections.singleton(resultValue);
   }
 
