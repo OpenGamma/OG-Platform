@@ -20,7 +20,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class ParBondBootstrapZeroDiscountCurveModelTest {
 
@@ -33,7 +32,7 @@ public class ParBondBootstrapZeroDiscountCurveModelTest {
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 3)), 0.075));
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 4)), 0.08));
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 5)), 0.085));
-    final InterpolatedDiscountCurve curve = new ParBondBootstrapZeroDiscountCurveModel(new LinearInterpolator1D()).getCurve(data, date);
+    final InterpolatedYieldAndDiscountCurve curve = new ParBondBootstrapZeroDiscountCurveModel(new LinearInterpolator1D()).getCurve(data, date);
     System.out.println(curve.getData());
   }
 }

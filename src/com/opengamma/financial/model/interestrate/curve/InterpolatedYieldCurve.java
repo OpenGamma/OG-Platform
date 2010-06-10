@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator1DModel;
-import com.opengamma.math.interpolation.Interpolator1DModelFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,10 +24,36 @@ import com.opengamma.util.ArgumentChecker;
 public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldCurve.class);
 
+  /**
+   * 
+   * @param data
+   *          A map containing pairs of maturities in years and rates as decimals (i.e. 4% = 0.04)
+   * @param interpolator
+   *          An interpolator to get interest rates / discount factors for
+   *          maturities that fall in between nodes. This cannot be null.
+   * @throws IllegalArgumentException
+   *           Thrown if the data map is null or empty, or if it contains a
+   *           negative time to maturity.
+   */
   public InterpolatedYieldCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
     super(data, interpolator);
   }
 
+  /**
+   * 
+   * @param data
+   *          A map containing pairs of maturities in years and interest rates
+   *          in percent (e.g. 3% = 0.03)
+   * @param interpolators
+   *          A map of times and interpolators. This allows different
+   *          interpolators
+   *          to be used for different regions of the curve. The time value is
+   *          the
+   *          maximum time in years for which an interpolator is valid.
+   * @throws IllegalArgumentException
+   *           Thrown if the data map is null or empty, or if it contains a
+   *           negative time to maturity.
+   */
   public InterpolatedYieldCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
     super(data, interpolators);
   }
@@ -47,12 +72,12 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
     ArgumentChecker.notNegative(t, "time");
     if (getInterpolators().size() == 1) {
       final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) getInterpolators().values().iterator().next();
-      return interpolator.interpolate(Interpolator1DModelFactory.fromMap(getData(), interpolator), t).getResult();
+      return interpolator.interpolate(getModels().values().iterator().next(), t).getResult();
     }
     final Map<Double, Interpolator1D<? extends Interpolator1DModel>> tail = getInterpolators().tailMap(t);
     final Double key = tail.isEmpty() ? getInterpolators().lastKey() : getInterpolators().tailMap(t).firstKey();
     final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) getInterpolators().get(key);
-    return interpolator.interpolate(Interpolator1DModelFactory.fromMap(getData(), interpolator), t).getResult();
+    return interpolator.interpolate(getModels().get(key), t).getResult();
   }
 
   /**

@@ -15,14 +15,16 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DModel;
+import com.opengamma.math.interpolation.Interpolator1DModelFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscountCurve {
-  private final Map<Double, Double> _data;
+  private final SortedMap<Double, Double> _data;
   private final SortedMap<Double, Interpolator1D<? extends Interpolator1DModel>> _interpolators;
+  private final SortedMap<Double, Interpolator1DModel> _models;
 
   /**
    * 
@@ -67,8 +69,13 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     assert ArgumentChecker.hasNegativeElement(data.keySet()) == false;
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
-    _data = Collections.<Double, Double>unmodifiableMap(data);
+    _data = Collections.<Double, Double>unmodifiableSortedMap(new TreeMap<Double, Double>(data));
     _interpolators = Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel>>(interpolators));
+    final SortedMap<Double, Interpolator1DModel> models = new TreeMap<Double, Interpolator1DModel>();
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel>> entry : _interpolators.entrySet()) {
+      models.put(entry.getKey(), Interpolator1DModelFactory.fromMap(data, entry.getValue()));
+    }
+    _models = Collections.unmodifiableSortedMap(models);
   }
 
   /**
@@ -85,6 +92,10 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    */
   public SortedMap<Double, Interpolator1D<? extends Interpolator1DModel>> getInterpolators() {
     return _interpolators;
+  }
+
+  public SortedMap<Double, Interpolator1DModel> getModels() {
+    return _models;
   }
 
   /**

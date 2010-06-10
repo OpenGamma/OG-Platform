@@ -6,10 +6,9 @@
 package com.opengamma.math.rootfinding;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,7 +21,9 @@ import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurv
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.math.interpolation.Interpolator1DWithSecondDerivativeModel;
+import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.monitor.OperationTimer;
@@ -37,27 +38,26 @@ public class YieldCurveBootStrapTest {
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
-  //private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new LinearInterpolator1D();
-  protected List<ToySwap> _swaps;
-  protected double[] _swapValues;
-  private final double[] _timeGrid;
-  final DoubleMatrix1D _x0;
+  protected static final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel> CUBIC = new NaturalCubicSplineInterpolator1D();
+  protected static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
+  protected static List<ToySwap> SWAPS;
+  protected static double[] SWAP_VALUES;
+  protected static final double[] TIME_GRID;
+  protected static final DoubleMatrix1D X0;
 
-  public YieldCurveBootStrapTest() {
+  static {
     final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
-    _swapValues = new double[] {0.03, 0.035, 0.04, 0.043, 0.045, 0.045, 0.04, 0.035, 0.033, 0.034, 0.036, 0.039, 0.042};
+    SWAP_VALUES = new double[] {0.03, 0.035, 0.04, 0.043, 0.045, 0.045, 0.04, 0.035, 0.033, 0.034, 0.036, 0.039, 0.042};
     final int n = payments.length;
-    _timeGrid = new double[n];
-    _swaps = new ArrayList<ToySwap>();
+    TIME_GRID = new double[n];
+    SWAPS = new ArrayList<ToySwap>();
     final double[] rates = new double[n];
     for (int i = 0; i < n; i++) {
-      _swaps.add(setupSwap(payments[i]));
-      _timeGrid[i] = _swaps.get(i).getLastPaymentTime();
+      SWAPS.add(setupSwap(payments[i]));
+      TIME_GRID[i] = SWAPS.get(i).getLastPaymentTime();
       rates[i] = 0.05;
     }
-
-    _x0 = new DoubleMatrix1D(rates);
+    X0 = new DoubleMatrix1D(rates);
   }
 
   @Test
@@ -72,52 +72,69 @@ public class YieldCurveBootStrapTest {
   }
 
   @Test
-  public void TestShermanMorrison() {
+  public void testShermanMorrison() {
     final VectorRootFinder rootFinder = new ShermanMorrisonVectorRootFinder();
     doTest(rootFinder);
   }
 
   @Test
-  public void TestBroyden() {
+  public void testBroyden() {
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder();
     doTest(rootFinder);
   }
 
   private void doTest(final VectorRootFinder rootFinder) {
-
     for (int i = 0; i < HOTSPOT_WARMUP_CYCLES; i++) {
-      final DoubleMatrix1D x1 = rootFinder.getRoot(ROOT, _x0);
+      rootFinder.getRoot(ROOT_WITH_CUBIC, X0);
     }
 
     final OperationTimer timer = new OperationTimer(s_logger, "processing {} cycles on newton", BENCHMARK_CYCLES);
     for (int i = 0; i < BENCHMARK_CYCLES; i++) {
-      final DoubleMatrix1D x1 = rootFinder.getRoot(ROOT, _x0);
+      rootFinder.getRoot(ROOT_WITH_CUBIC, X0);
     }
     timer.finished();
 
   }
 
-  private final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROOT = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROOT_WITH_LINEAR = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      final Map<Double, Double> data = new HashMap<Double, Double>();
-      data.put(0.0, 0.03);
-      for (int i = 0; i < _timeGrid.length; i++) {
-        data.put(_timeGrid[i], x.getEntry(i));
+      final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
+      data.put(0.0, 1.);
+      for (int i = 0; i < TIME_GRID.length; i++) {
+        data.put(TIME_GRID[i], Math.exp(-TIME_GRID[i] * x.getEntry(i)));
       }
-      final YieldAndDiscountCurve curve = new InterpolatedDiscountCurve(data, INTERPOLATOR);
-
-      final double[] res = new double[_swapValues.length];
-      for (int i = 0; i < _swapValues.length; i++) {
-        res[i] = _swapValues[i] - _swaps.get(i).getSwapRate(curve);
+      final YieldAndDiscountCurve curve1 = new InterpolatedDiscountCurve(data, LINEAR);
+      final double[] res = new double[SWAP_VALUES.length];
+      for (int i = 0; i < SWAP_VALUES.length; i++) {
+        res[i] = SWAP_VALUES[i] - SWAPS.get(i).getSwapRate(curve1);
       }
       return new DoubleMatrix1D(res);
     }
 
   };
 
-  private ToySwap setupSwap(final int payments) {
+  private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> ROOT_WITH_CUBIC = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+
+    @Override
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+      final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
+      data.put(0.0, 1.);
+      for (int i = 0; i < TIME_GRID.length; i++) {
+        data.put(TIME_GRID[i], Math.exp(-TIME_GRID[i] * x.getEntry(i)));
+      }
+      final YieldAndDiscountCurve curve1 = new InterpolatedDiscountCurve(data, CUBIC);
+      final double[] res = new double[SWAP_VALUES.length];
+      for (int i = 0; i < SWAP_VALUES.length; i++) {
+        res[i] = SWAP_VALUES[i] - SWAPS.get(i).getSwapRate(curve1);
+      }
+      return new DoubleMatrix1D(res);
+    }
+
+  };
+
+  private static ToySwap setupSwap(final int payments) {
     final double[] fixed = new double[payments];
     final double[] floating = new double[2 * payments];
     final LinkedList<Pair<Double, Double>> liborSetResetTimes = new LinkedList<Pair<Double, Double>>();
@@ -134,7 +151,7 @@ public class YieldCurveBootStrapTest {
       liborSetResetTimes.add(temp);
     }
 
-    return new ToySwap(fixed, floating, liborSetResetTimes);
+    return new YieldCurveBootStrapTest().new ToySwap(fixed, floating, liborSetResetTimes);
   }
 
   private class ToySwap {
