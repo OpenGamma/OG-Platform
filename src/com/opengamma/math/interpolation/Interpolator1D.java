@@ -18,6 +18,28 @@ public abstract class Interpolator1D<T extends Interpolator1DModel> implements I
    */
   protected static final double EPS = 1e-12;
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result;
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
+  }
+
   public abstract InterpolationResult<Double> interpolate(T model, Double value);
 
   protected boolean classEquals(final Object o) {
