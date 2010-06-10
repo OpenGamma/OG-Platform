@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.securities;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -14,10 +18,10 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.io.Resources;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.InMemoryRegionRepository;
 import com.opengamma.financial.security.Region;
 import com.opengamma.financial.security.RegionRepository;
@@ -26,32 +30,46 @@ import com.opengamma.financial.security.RegionType;
 /**
  * Unit tests for the InMemoryRegionRepository
  */
-
 public class InMemoryRegionRepositoryTest {
+
   @Test
   public void testConstructor() throws URISyntaxException {
     URL countryCSV = Resources.getResource("com/opengamma/financial/securities/countrylist_test.csv");
     RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
     System.err.println("Constructed and indexed");
-    LocalDate now = Clock.system(TimeZone.UTC).today();
+    LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
     System.err.println("Got now");
     Set<Region> allOfType = regionRepository.getAllOfType(now, "Political", RegionType.INDEPENDENT_STATE);
     System.err.println("getAllOfType");
-    Assert.assertEquals(193, allOfType.size());
-    Assert.assertEquals(272, regionRepository.getHierarchyRoot(now, "Political").getSubRegions().size());
+    assertEquals(193, allOfType.size());
+    assertEquals(272, regionRepository.getHierarchyRoot(now, "Political").getSubRegions().size());
     System.err.println("getHierarchyRoot");
     Region ukRegion = regionRepository.getHierarchyNode(now, "Political", "United Kingdom");
     System.err.println("getHierarchyNode");
-    Assert.assertNotNull(ukRegion);
-    Assert.assertTrue(allOfType.contains(ukRegion));
-    Assert.assertEquals(RegionType.INDEPENDENT_STATE, ukRegion.getRegionType());
-    Assert.assertEquals(regionRepository.getHierarchyRoot(now, "Political"), ukRegion.getSuperRegion());
-    Assert.assertEquals(0, ukRegion.getSubRegions().size());
+    assertNotNull(ukRegion);
+    assertTrue(allOfType.contains(ukRegion));
+    assertEquals(RegionType.INDEPENDENT_STATE, ukRegion.getRegionType());
+    assertEquals(regionRepository.getHierarchyRoot(now, "Political"), ukRegion.getSuperRegion());
+    assertEquals(0, ukRegion.getSubRegions().size());
     
-    Assert.assertEquals(regionRepository.getHierarchyRoot(now, "Politcal"), regionRepository.getHierarchyNode(now, "Political", "World"));
+    assertEquals(regionRepository.getHierarchyRoot(now, "Political"), regionRepository.getHierarchyNode(now, "Political", "World"));
     System.err.println("more getHierarchyNode");
-    
-    Assert.assertNull(regionRepository.getHierarchyNode(now, "Incorrect Name", "World"));
-    Assert.assertNull(regionRepository.getHierarchyRoot(now, "Incorrect Name"));
   }
+
+  @Test(expected=OpenGammaRuntimeException.class)  // TODO: check if this should throw exception or return null
+  public void test_getHierarchyNode_unknownName() throws URISyntaxException {
+    URL countryCSV = Resources.getResource("com/opengamma/financial/securities/countrylist_test.csv");
+    RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
+    regionRepository.getHierarchyNode(now, "Incorrect Name", "World");
+  }
+
+  @Test
+  public void test_getHierarchyRoot_unknownName() throws URISyntaxException {
+    URL countryCSV = Resources.getResource("com/opengamma/financial/securities/countrylist_test.csv");
+    RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
+    LocalDate now = LocalDate.now(Clock.system(TimeZone.UTC));
+    assertEquals(null, regionRepository.getHierarchyRoot(now, "Incorrect Name"));
+  }
+
 }
