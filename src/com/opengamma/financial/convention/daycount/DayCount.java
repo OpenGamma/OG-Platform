@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -8,42 +8,38 @@ package com.opengamma.financial.convention.daycount;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * 
- * Interface for day count conventions.
- * 
- * @author emcleod
+ * Convention for calculating the day count.
  */
-
 public interface DayCount {
 
   /**
-   * 
+   * Gets the basis of the day count for the specified date.
+   * <p>
    * The basis is the number of days the convention defines as being in a year.
+   * This method is needed because some day count conventions define a year length
+   * as 366 in a leap year but 365 otherwise.
    * 
-   * @param The
-   *          date for which the basis is required. This parameter is needed
-   *          because some day count conventions define a year length as 366 in
-   *          a leap year but 365 otherwise.
-   * @return The number of days in a year.
+   * @param date  the date for which the basis is required, not null
+   * @return the number of days in a year
    */
-  public double getBasis(final ZonedDateTime date);
+  double getBasis(final ZonedDateTime date);
 
   /**
+   * Gets the day count between the specified dates.
+   * <p>
+   * Given two dates, this method returns the fraction of a year between these dates
+   * according to the convention.
    * 
-   * Given two dates, this method returns the fraction of a year between these
-   * dates.
-   * 
-   * @param firstDate
-   *          The earlier date.
-   * @param secondDate
-   *          The later date.
-   * @return The fraction.
+   * @param firstDate  the earlier date, not null
+   * @param secondDate  the later date, not null
+   * @return the day count fraction
    */
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate);
-  
+  double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate);
+
   /**
-   * The standard name for this convention.
+   * Gets the name of the convention.
+   * @return the name, not null
    */
-  public String getConventionName ();
-  
+  String getConventionName();
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -11,29 +11,33 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- * Composes a BusinessDayConvention with a Calendar to give a DateAdjuster instance.
+ * Allows a {@code BusinessDayConvention} to fulfill the {@code DateAdjuster} interface.
  */
-/* package */ class BusinessDayConventionWithCalendar implements DateAdjuster {
-  
+/* package */class BusinessDayConventionWithCalendar implements DateAdjuster {
+
+  /**
+   * The convention.
+   */
   private final BusinessDayConvention _businessDayConvention;
-  private final Calendar _calendar;
-  
-  protected BusinessDayConventionWithCalendar (final BusinessDayConvention businessDayConvention, final Calendar calendar) {
+  /**
+   * The working days.
+   */
+  private final Calendar _workingDayCalendar;
+
+  /**
+   * Creates an instance.
+   * @param businessDayConvention  the convention, not null
+   * @param workingDayCalendar  the working days, not null
+   */
+  protected BusinessDayConventionWithCalendar(final BusinessDayConvention businessDayConvention, final Calendar workingDayCalendar) {
     _businessDayConvention = businessDayConvention;
-    _calendar = calendar;
-  }
-  
-  protected BusinessDayConvention getBusinessDayConvention () {
-    return _businessDayConvention;
-  }
-  
-  protected Calendar getCalendar () {
-    return _calendar;
+    _workingDayCalendar = workingDayCalendar;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public LocalDate adjustDate(LocalDate date) {
-    return getBusinessDayConvention ().adjustDate (getCalendar (), date);
+    return _businessDayConvention.adjustDate(_workingDayCalendar, date);
   }
-  
+
 }

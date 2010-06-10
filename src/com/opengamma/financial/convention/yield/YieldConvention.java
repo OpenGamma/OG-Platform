@@ -6,12 +6,15 @@
 package com.opengamma.financial.convention.yield;
 
 /**
- * This will need converting at some point to supply whatever is needed to do a proper calculation.
- * 
- * @author Andrew Griffin
+ * Convention for yields.
  */
 public interface YieldConvention {
-  
-  public String getConventionName ();
-  
+  // TODO: supply whatever is needed to do a proper calculation
+
+  /**
+   * Gets the name of the convention.
+   * @return the name, not null
+   */
+  String getConventionName();
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -12,8 +12,9 @@ import java.util.ResourceBundle;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * Factory for obtaining instances of a particular convention. Convention names are read from a
- * "BusinessDayConvention" resource.
+ * Factory to obtain instances of {@code BusinessDayConvention}.
+ * <p>
+ * Convention names are read from a properties file.
  */
 public final class BusinessDayConventionFactory {
   
@@ -21,9 +22,15 @@ public final class BusinessDayConventionFactory {
    * Singleton instance of {@code BusinessDayConventionFactory}.
    */
   public static final BusinessDayConventionFactory INSTANCE = new BusinessDayConventionFactory();
-  
+
+  /**
+   * Map of convention name to convention.
+   */
   private final Map<String, BusinessDayConvention> _conventionMap = new HashMap<String, BusinessDayConvention>();
-  
+
+  /**
+   * Creates the factory.
+   */
   private BusinessDayConventionFactory() {
     final ResourceBundle conventions = ResourceBundle.getBundle(BusinessDayConvention.class.getName());
     final Map<String, BusinessDayConvention> instances = new HashMap<String, BusinessDayConvention>();
@@ -34,18 +41,18 @@ public final class BusinessDayConventionFactory {
         try {
           instance = (BusinessDayConvention) Class.forName(clazz).newInstance();
           instances.put(clazz, instance);
-        } catch (InstantiationException e) {
-          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", e);
-        } catch (IllegalAccessException e) {
-          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", e);
-        } catch (ClassNotFoundException e) {
-          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", e);
+        } catch (InstantiationException ex) {
+          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", ex);
+        } catch (IllegalAccessException ex) {
+          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", ex);
+        } catch (ClassNotFoundException ex) {
+          throw new OpenGammaRuntimeException("Error initialising BusinessDay conventions", ex);
         }
       }
       _conventionMap.put(convention.toLowerCase(), instance);
     }
   }
-  
+
   /**
    * Retrieves a named BusinessDayConvention. Note that the lookup is not case sensitive.
    * 
@@ -55,5 +62,5 @@ public final class BusinessDayConventionFactory {
   public BusinessDayConvention getBusinessDayConvention(final String name) {
     return _conventionMap.get(name.toLowerCase());
   }
-  
+
 }

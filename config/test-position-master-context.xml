@@ -21,8 +21,9 @@
 				<property name="dataSource" ref="derbyDataSource"/>
 			</bean>
 		</constructor-arg>
+        <constructor-arg><bean class="com.opengamma.util.db.DerbyDbHelper" /></constructor-arg>
 		<!-- property name="timeSource" -->
-        <property name="identifierScheme" value="Db.Derby.PosMaster" />
+        <property name="identifierScheme" value="DbPos" />
 	</bean>
 	
 	<bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -38,8 +39,9 @@
 				<property name="dataSource" ref="postgresDataSource"/>
 			</bean>
 		</constructor-arg>
+        <constructor-arg><bean class="com.opengamma.util.db.PostgreSQLDbHelper" /></constructor-arg>
         <!-- property name="timeSource" -->
-        <property name="identifierScheme" value="Db.Postgres.PosMaster" />
+        <property name="identifierScheme" value="DbPos" />
 	</bean>
 	
 </beans>

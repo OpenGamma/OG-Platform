@@ -33,47 +33,47 @@
       <property name="identifier" type="string" not-null="true" unique-key="unique_associations"/>
     </component>
   </class>
-  <query name="IdentifierAssociationBean.one.byDateIdentifier">
+  <query name="IdentifierAssociationBean.one.byDateIdentifier"><![CDATA[ 
     from 
       IdentifierAssociationBean as a 
     where
-      (a.validStartDate is null or a.validStartDate &lt;= :now) and
-      (a.validEndDate is null or a.validEndDate &gt; :now) and
+      (a.validStartDate is null or a.validStartDate <= :now) and
+      (a.validEndDate is null or a.validEndDate > :now) and
       a.identifier.scheme = :scheme and
       a.identifier.identifier = :identifier
-  </query>
-  <query name="IdentifierAssociationBean.one.byDateIdentifierSecurity">
+  ]]></query>
+  <query name="IdentifierAssociationBean.one.byDateIdentifierSecurity"><![CDATA[ 
     from 
       IdentifierAssociationBean as a 
     where
-      (a.validStartDate is null or a.validStartDate &lt;= :now) and
-      (a.validEndDate is null or a.validEndDate &gt; :now) and
+      (a.validStartDate is null or a.validStartDate <= :now) and
+      (a.validEndDate is null or a.validEndDate > :now) and
       a.identifier.scheme = :scheme and
       a.identifier.identifier = :identifier and
       a.security = :security
-  </query>
-  <query name="IdentifierAssociationBean.many.byDateSecurity">
+  ]]></query>
+  <query name="IdentifierAssociationBean.many.byDateSecurity"><![CDATA[ 
     from 
       IdentifierAssociationBean as a 
     where
-      (a.validStartDate is null or a.validStartDate &lt;= :now) and
-      (a.validEndDate is null or a.validEndDate &gt; :now) and
+      (a.validStartDate is null or a.validStartDate <= :now) and
+      (a.validEndDate is null or a.validEndDate > :now) and
       a.security = :security
-  </query>
-  <query name="IdentifierAssociationBean.one.previousAssociation">
+  ]]></query>
+  <query name="IdentifierAssociationBean.one.previousAssociation"><![CDATA[ 
     from
       IdentifierAssociationBean as a
     where
       a.identifier.scheme = :scheme and
       a.identifier.identifier = :identifier and
-      a.validEndDate = (select max(b.validEndDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validEndDate &lt;= :now)
-  </query>
-  <query name="IdentifierAssociationBean.one.nextAssociation">
+      a.validEndDate = (select max(b.validEndDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validEndDate <= :now)
+  ]]></query>
+  <query name="IdentifierAssociationBean.one.nextAssociation"><![CDATA[ 
     from
       IdentifierAssociationBean as a
     where
       a.identifier.scheme = :scheme and 
       a.identifier.identifier = :identifier and 
-      a.validStartDate = (select min(b.validStartDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validStartDate &gt; :now)
-  </query>
+      a.validStartDate = (select min(b.validStartDate) from IdentifierAssociationBean as b where b.identifier.scheme = :scheme and b.identifier.identifier = :identifier and b.validStartDate > :now)
+  ]]></query>
 </hibernate-mapping>

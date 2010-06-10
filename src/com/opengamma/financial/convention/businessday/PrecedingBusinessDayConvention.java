@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -10,24 +10,23 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- * Adjusts a date to the preceding business day.
- * 
- * @author emcleod
+ * The preceding business day convention.
+ * <p>
+ * This chooses the next working day preceding a non-working day.
  */
-
 public class PrecedingBusinessDayConvention extends BusinessDayConvention {
 
   @Override
   public LocalDate adjustDate(final Calendar workingDays, LocalDate date) {
-    while (!workingDays.isWorkingDay (date)) {
-      date = date.minusDays (1);
+    while (!workingDays.isWorkingDay(date)) {
+      date = date.minusDays(1);
     }
     return date;
   }
-  
+
   @Override
-  public String getConventionName () {
+  public String getConventionName() {
     return "Preceding";
   }
-  
+
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -8,22 +8,24 @@ package com.opengamma.financial.convention.calendar;
 import javax.time.calendar.LocalDate;
 
 /**
- * Abstraction of a calendar interface for tracking working/non-working days (e.g. Bank Holidays)
- * to be used in conjunction with DayCount and BusinessDayConvention to calculate actual settlement
- * dates and other stuff.
- * 
- * @author Andrew Griffin
+ * Convention for working day calendars.
+ * <p>
+ * Abstraction of a calendar interface for tracking working/non-working days, such as Bank Holidays.
+ * This is used in conjunction with DayCount and BusinessDayConvention to calculate settlement dates.
  */
 public interface Calendar {
-  
+
   /**
-   * Returns true if the date is a working day under this calendar. False if it is a non-working day.
+   * Checks if the specified date is a working date.
+   * @param date  the date to check, not null
+   * @return true if working date, false if non-working
    */
-  public boolean isWorkingDay (LocalDate date);
-  
+  boolean isWorkingDay(LocalDate date);
+
   /**
-   * Returns a name/identifier for the calendar as recognised by CalendarFactory
+   * Gets the name of the convention.
+   * @return the name, not null
    */
-  public String getConventionName ();
-  
+  String getConventionName();
+
 }

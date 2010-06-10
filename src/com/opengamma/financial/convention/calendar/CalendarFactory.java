@@ -9,32 +9,43 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * Factory for getting/creating Calendar instances. Calendar names are read from
- * a Calendar resource. Mappings from country names to Calendars are read from a
- * Country resource.
- * <p/>
- * This is really quite a bad implementation. Bank Holiday dates need to be pulled
- * from a database or a more easily updatable source. It should probably be possible
- * to update the data with the system running instead of at initialisation.
+ * Factory to obtain instances of {@code Calendar}.
+ * <p>
+ * The holidays and country details are read from a properties file.
  */
 public final class CalendarFactory {
+  // TODO: This is really quite a bad implementation. Bank Holiday dates need to be pulled
+  // from a database or a more easily updated source. It should probably be possible
+  // to update the data with the system running instead of at initialization.
   
   /**
    * Singleton instance.
    */
   public static final CalendarFactory INSTANCE = new CalendarFactory();
-  
+
+  /**
+   * Map of convention name to convention.
+   */
   private final Map<String, Calendar> _calendarMap = new HashMap<String, Calendar>();
   private final Map<String, Calendar> _countryMap = new HashMap<String, Calendar>();
-  
+
+  /**
+   * Creates the factory.
+   */
+  private CalendarFactory() {
+    loadCalendarInstances();
+    loadCountryDefinitions();
+  }
+
   @SuppressWarnings("unchecked")
-  private void loadCalendarInstances () {
+  private void loadCalendarInstances() {
     final ResourceBundle calendars = ResourceBundle.getBundle(Calendar.class.getName());
     for (final String calendarName : calendars.keySet()) {
       try {
@@ -78,20 +89,20 @@ public final class CalendarFactory {
           throw new OpenGammaRuntimeException("No suitable constructor for '" + calendarName + "'");
         }
         _calendarMap.put(calendarName.toLowerCase(), instance);
-      } catch (InstantiationException e) {
-        throw new OpenGammaRuntimeException("Error initialising Calendars", e);
-      } catch (IllegalAccessException e) {
-        throw new OpenGammaRuntimeException("Error initialising Calendars", e);
-      } catch (ClassNotFoundException e) {
-        throw new OpenGammaRuntimeException("Error initialising Calendars", e);
-      } catch (IllegalArgumentException e) {
-        throw new OpenGammaRuntimeException("Error initialising Calendars", e);
-      } catch (InvocationTargetException e) {
-        throw new OpenGammaRuntimeException("Error initialising Calendars", e);
+      } catch (InstantiationException ex) {
+        throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
+      } catch (IllegalAccessException ex) {
+        throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
+      } catch (ClassNotFoundException ex) {
+        throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
+      } catch (IllegalArgumentException ex) {
+        throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
+      } catch (InvocationTargetException ex) {
+        throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
       }
     }
   }
-  
+
   private void loadCountryDefinitions() {
     final ResourceBundle countries = ResourceBundle.getBundle("com.opengamma.financial.convention.calendar.Country");
     for (final String countryCode : countries.keySet()) {
@@ -103,24 +114,25 @@ public final class CalendarFactory {
       _countryMap.put(countryCode, calendar);
     }
   }
-  
-  private CalendarFactory() {
-    loadCalendarInstances();
-    loadCountryDefinitions();
-  }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Returns a working day calendar based on the symbolic name. Note that the lookup is not case sensitive.
+   * Gets a working day calendar by name.
+   * Matching is case insensitive.
+   * @param name  the name, not null
+   * @return the convention, null if not found
    */
   public Calendar getCalendar(final String name) {
-    return _calendarMap.get(name.toLowerCase());
+    return _calendarMap.get(name.toLowerCase(Locale.ENGLISH));
   }
-  
+
   /**
-   * Returns a working day calendar associated with a country's ISO code.
+   * Gets a working day calendar by 3-letter country code.
+   * @param country  the country code, not null
+   * @return the convention, null if not found
    */
   public Calendar getCalendarByCountry(final String country) {
     return _countryMap.get(country);
   }
-  
+
 }

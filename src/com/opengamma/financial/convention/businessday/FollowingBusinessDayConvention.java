@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -10,22 +10,22 @@ import javax.time.calendar.LocalDate;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- * Adjusts a date to the following business day.
- * 
- * @author emcleod
+ * The following business day convention.
+ * <p>
+ * This chooses the next working day following a non-working day.
  */
-
 public class FollowingBusinessDayConvention extends BusinessDayConvention {
 
   @Override
   public LocalDate adjustDate(final Calendar workingDays, LocalDate date) {
-    while (!workingDays.isWorkingDay (date)) {
-      date = date.plusDays (1);
+    while (!workingDays.isWorkingDay(date)) {
+      date = date.plusDays(1);
     }
     return date;
   }
-  
-  public String getConventionName () {
+
+  @Override
+  public String getConventionName() {
     return "Following";
   }
 

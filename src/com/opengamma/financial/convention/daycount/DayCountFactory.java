@@ -1,30 +1,37 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * Factory for obtaining instances of a particular convention. Convention names are read from a
- * "DayCount" resource.
- * 
+ * Factory to obtain instances of {@code DayCount}.
+ * <p>
+ * The conventions are read from a properties file.
  */
 public final class DayCountFactory {
-  
+
   /**
-   * The singleton instance.
+   * Singleton instance.
    */
   public static final DayCountFactory INSTANCE = new DayCountFactory();
-  
+
+  /**
+   * Map of convention name to convention.
+   */
   private final Map<String, DayCount> _conventionMap = new HashMap<String, DayCount>();
-  
+
+  /**
+   * Creates the factory
+   */
   private DayCountFactory() {
     final ResourceBundle conventions = ResourceBundle.getBundle(DayCount.class.getName());
     final Map<String, DayCount> instances = new HashMap<String, DayCount>();
@@ -35,23 +42,27 @@ public final class DayCountFactory {
         try {
           instance = (DayCount) Class.forName(clazz).newInstance();
           instances.put(clazz, instance);
-        } catch (InstantiationException e) {
-          throw new OpenGammaRuntimeException("Error initialising DayCount conventions", e);
-        } catch (IllegalAccessException e) {
-          throw new OpenGammaRuntimeException("Error initialising DayCount conventions", e);
-        } catch (ClassNotFoundException e) {
-          throw new OpenGammaRuntimeException("Error initialising DayCount conventions", e);
+        } catch (InstantiationException ex) {
+          throw new OpenGammaRuntimeException("Error initialising DayCount conventions", ex);
+        } catch (IllegalAccessException ex) {
+          throw new OpenGammaRuntimeException("Error initialising DayCount conventions", ex);
+        } catch (ClassNotFoundException ex) {
+          throw new OpenGammaRuntimeException("Error initialising DayCount conventions", ex);
         }
       }
-      _conventionMap.put(convention.toLowerCase(), instance);
+      _conventionMap.put(convention.toLowerCase(Locale.ENGLISH), instance);
     }
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Returns a DayCount convention by symbolic name. Note that the lookup is not case sensitive.
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * @param name  the name, not null
+   * @return the convention, null if not found
    */
   public DayCount getDayCount(final String name) {
-    return _conventionMap.get(name.toLowerCase());
+    return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
-  
+
 }
