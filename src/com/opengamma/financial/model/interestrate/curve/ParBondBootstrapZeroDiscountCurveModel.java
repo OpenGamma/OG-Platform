@@ -34,7 +34,7 @@ public class ParBondBootstrapZeroDiscountCurveModel implements DiscountCurveMode
   }
 
   @Override
-  public InterpolatedDiscountCurve getCurve(final Set<FixedInterestRateInstrumentDefinition> data, final ZonedDateTime date) {
+  public InterpolatedYieldAndDiscountCurve getCurve(final Set<FixedInterestRateInstrumentDefinition> data, final ZonedDateTime date) {
     final Map<Double, Double> zeroRates = new HashMap<Double, Double>();
     final Comparator<FixedInterestRateInstrumentDefinition> comparator = new FixedIncomeDefinitionComparator(date);
     final TreeSet<FixedInterestRateInstrumentDefinition> sorted = new TreeSet<FixedInterestRateInstrumentDefinition>(comparator);
@@ -54,7 +54,7 @@ public class ParBondBootstrapZeroDiscountCurveModel implements DiscountCurveMode
       zeroRates.put(t, r);
       sum += Math.exp(-r * t);
     }
-    return new InterpolatedDiscountCurve(zeroRates, _interpolators);
+    return new InterpolatedYieldCurve(zeroRates, _interpolators);
   }
 
   class FixedIncomeDefinitionComparator implements Comparator<FixedInterestRateInstrumentDefinition> {

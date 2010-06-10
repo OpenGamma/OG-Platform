@@ -1,11 +1,10 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
- * 
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.interestrate.curve;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -22,13 +21,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve implements Serializable {
-  private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
+public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
+  private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldCurve.class);
 
   /**
    * 
    * @param data
-   *          A map containing pairs of maturities in years and discount factors
+   *          A map containing pairs of maturities in years and rates as decimals (i.e. 4% = 0.04)
    * @param interpolator
    *          An interpolator to get interest rates / discount factors for
    *          maturities that fall in between nodes. This cannot be null.
@@ -36,14 +35,15 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
+  public InterpolatedYieldCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
     super(data, interpolator);
   }
 
   /**
    * 
    * @param data
-   *          A map containing pairs of maturities in years and discount factors
+   *          A map containing pairs of maturities in years and interest rates
+   *          in percent (e.g. 3% = 0.03)
    * @param interpolators
    *          A map of times and interpolators. This allows different
    *          interpolators
@@ -54,7 +54,7 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
+  public InterpolatedYieldCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
     super(data, interpolators);
   }
 
@@ -65,23 +65,9 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
    * @throws IllegalArgumentException
    *           If the time to maturity is negative.
    */
-  @Override
-  public double getInterestRate(final Double t) {
-    Validate.notNull(t);
-    ArgumentChecker.notNegative(t, "time");
-    return -Math.log(getDiscountFactor(t)) / t;
-  }
-
-  /**
-   * 
-   * @param t The time in years
-   * @return The discount factor for time to maturity <i>t</i>.
-   * @throws IllegalArgumentException
-   *           If the time to maturity is negative.
-   */
   @SuppressWarnings("unchecked")
   @Override
-  public double getDiscountFactor(final Double t) {
+  public double getInterestRate(final Double t) {
     Validate.notNull(t);
     ArgumentChecker.notNegative(t, "time");
     if (getInterpolators().size() == 1) {
@@ -92,6 +78,20 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
     final Double key = tail.isEmpty() ? getInterpolators().lastKey() : getInterpolators().tailMap(t).firstKey();
     final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) getInterpolators().get(key);
     return interpolator.interpolate(getModels().get(key), t).getResult();
+  }
+
+  /**
+   * 
+   * @param t The time in years
+   * @return The discount factor for time to maturity <i>t</i>.
+   * @throws IllegalArgumentException
+   *           If the time to maturity is negative.
+   */
+  @Override
+  public double getDiscountFactor(final Double t) {
+    Validate.notNull(t);
+    ArgumentChecker.notNegative(t, "time");
+    return Math.exp(-getInterestRate(t) * t);
   }
 
   @Override
@@ -106,7 +106,7 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
     for (final Map.Entry<Double, Double> entry : getData().entrySet()) {
       map.put(entry.getKey(), entry.getValue() + shift);
     }
-    return new InterpolatedDiscountCurve(map, getInterpolators());
+    return new InterpolatedYieldCurve(map, getInterpolators());
   }
 
   @Override
@@ -118,10 +118,10 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
     if (data.containsKey(t)) {
       map.put(t, data.get(t) + shift);
-      return new InterpolatedDiscountCurve(map, getInterpolators());
+      return new InterpolatedYieldCurve(map, getInterpolators());
     }
-    map.put(t, getDiscountFactor(t) + shift);
-    return new InterpolatedDiscountCurve(map, getInterpolators());
+    map.put(t, getInterestRate(t) + shift);
+    return new InterpolatedYieldCurve(map, getInterpolators());
   }
 
   @Override
@@ -129,7 +129,7 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
     Validate.notNull(shifts);
     if (shifts.isEmpty()) {
       s_logger.info("Shift map was empty; returning identical curve");
-      return new InterpolatedDiscountCurve(getData(), getInterpolators());
+      return new InterpolatedYieldCurve(getData(), getInterpolators());
     }
     final Map<Double, Double> data = getData();
     final Map<Double, Double> map = new HashMap<Double, Double>(data);
@@ -140,21 +140,21 @@ public class InterpolatedDiscountCurve extends InterpolatedYieldAndDiscountCurve
       if (data.containsKey(entry.getKey())) {
         map.put(entry.getKey(), data.get(entry.getKey()) + entry.getValue());
       } else {
-        map.put(entry.getKey(), getDiscountFactor(entry.getKey()) + entry.getValue());
+        map.put(entry.getKey(), getInterestRate(entry.getKey()) + entry.getValue());
       }
     }
-    return new InterpolatedDiscountCurve(map, getInterpolators());
+    return new InterpolatedYieldCurve(map, getInterpolators());
   }
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("InterpolatedDiscountCurve[");
+    sb.append("InterpolatedYieldCurve[");
     sb.append("interpolators={");
     for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel>> e : getInterpolators().entrySet()) {
       sb.append(e.getKey()).append('=').append(Interpolator1DFactory.getInterpolatorName(e.getValue())).append(',');
     }
-    sb.append("},df_data={");
+    sb.append("},rate_data={");
     for (final Map.Entry<Double, Double> e : getData().entrySet()) {
       sb.append(e.getKey()).append('=').append(e.getValue()).append(',');
     }

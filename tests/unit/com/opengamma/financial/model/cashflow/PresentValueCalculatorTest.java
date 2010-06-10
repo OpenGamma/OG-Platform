@@ -13,7 +13,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.math.interpolation.StepInterpolator1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -32,8 +32,8 @@ public class PresentValueCalculatorTest {
   private static final Long DATE = 0l;
 
   static {
-    final long[] times = new long[] { 1, 2, 3, 4, 5 };
-    final double[] cf = new double[] { .1, .1, .1, .1, 1.1 };
+    final long[] times = new long[] {1, 2, 3, 4, 5};
+    final double[] cf = new double[] {.1, .1, .1, .1, 1.1};
     final Map<Double, Double> rates = new HashMap<Double, Double>();
     rates.put(1., 0.04);
     rates.put(2., 0.0425);
@@ -46,8 +46,8 @@ public class PresentValueCalculatorTest {
     lnRates.put(3., Math.log(1.045));
     lnRates.put(4., Math.log(1.0425));
     lnRates.put(5., Math.log(1.042));
-    RATES = new InterpolatedDiscountCurve(rates, new StepInterpolator1D());
-    LN_RATES = new InterpolatedDiscountCurve(lnRates, new StepInterpolator1D());
+    RATES = new InterpolatedYieldCurve(rates, new StepInterpolator1D());
+    LN_RATES = new InterpolatedYieldCurve(lnRates, new StepInterpolator1D());
     TS = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, times, cf);
   }
 

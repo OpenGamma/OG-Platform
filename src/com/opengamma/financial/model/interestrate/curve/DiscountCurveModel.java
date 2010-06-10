@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 
 /**
  * 
- * @author emcleod
  */
 public interface DiscountCurveModel<T> {
 
