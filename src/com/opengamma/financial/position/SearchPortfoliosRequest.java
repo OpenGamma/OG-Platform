@@ -8,7 +8,6 @@ package com.opengamma.financial.position;
 import javax.time.Instant;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -125,7 +124,6 @@ public final class SearchPortfoliosRequest {
    * Validates this request throwing an exception if not.
    */
   public void checkValid() {
-    Validate.notEmpty(getName(), "Name must not be empty");
   }
 
   //-------------------------------------------------------------------------
