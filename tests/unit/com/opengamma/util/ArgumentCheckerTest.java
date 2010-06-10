@@ -21,6 +21,22 @@ public class ArgumentCheckerTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_isTrue_ok() {
+    ArgumentChecker.isTrue(true, "Message");
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_isTrue_false() {
+    try {
+      ArgumentChecker.isTrue(false, "Message");
+    } catch (NullPointerException ex) {
+      assertEquals(ex.getMessage().equals("Message"), true);
+      throw ex;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_notNull_ok() {
     ArgumentChecker.notNull("Kirk", "name");
   }

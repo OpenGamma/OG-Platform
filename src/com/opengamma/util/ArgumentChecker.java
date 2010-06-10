@@ -22,6 +22,20 @@ public final class ArgumentChecker {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks that the specified boolean is true.
+   * This will normally be the result of a caller-specific check.
+   * @param trueIfValid  a boolean resulting from testing an argument, may be null
+   * @param message  the error message, not null
+   * @throws NullPointerException if the input is null
+   */
+  public static void isTrue(boolean trueIfValid, String message) throws NullPointerException {
+    if (trueIfValid == false) {
+      throw new IllegalArgumentException(message);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Checks that the specified parameter is non-null.
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
