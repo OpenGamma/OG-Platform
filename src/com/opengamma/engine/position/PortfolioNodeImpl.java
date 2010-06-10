@@ -191,17 +191,17 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
   /**
    * Recursively finds a specific node from this node by identifier.
    * If this node matches it is returned.
-   * @param identifier  the identifier, null returns null
+   * @param uid  the identifier, null returns null
    * @return the node, null if not found
    */
   @Override
-  public PortfolioNode getNode(UniqueIdentifier identifier) {
-    if (identifier != null) {
-      if (identifier.equals(_identifier)) {
+  public PortfolioNode getNode(UniqueIdentifier uid) {
+    if (uid != null) {
+      if (uid.equals(_identifier)) {
         return this;
       }
       for (PortfolioNode child : _childNodes) {
-        PortfolioNode result = child.getNode(identifier);
+        PortfolioNode result = child.getNode(uid);
         if (result != null) {
           return result;
         }
@@ -212,19 +212,19 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
 
   /**
    * Recursively finds a specific position from this node by identifier.
-   * @param identifier  the identifier, null returns null
+   * @param uid  the identifier, null returns null
    * @return the position, null if not found
    */
   @Override
-  public Position getPosition(UniqueIdentifier identifier) {
-    if (identifier != null) {
+  public Position getPosition(UniqueIdentifier uid) {
+    if (uid != null) {
       for (Position child : _positions) {
-        if (identifier.equals(child.getUniqueIdentifier())) {
+        if (uid.equals(child.getUniqueIdentifier())) {
           return child;
         }
       }
       for (PortfolioNode child : _childNodes) {
-        Position result = child.getPosition(identifier);
+        Position result = child.getPosition(uid);
         if (result != null) {
           return result;
         }
@@ -294,7 +294,5 @@ public class PortfolioNodeImpl implements PortfolioNode, MutableUniqueIdentifiab
     // Intentionally skip the contained children and positions
     return result;
   }
-  
-  
 
 }
