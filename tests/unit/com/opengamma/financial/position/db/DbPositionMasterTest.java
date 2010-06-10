@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
@@ -33,9 +34,13 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.AddPortfolioNodeRequest;
+import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.PortfolioSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
+import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
+import com.opengamma.financial.position.UpdatePortfolioRequest;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -75,7 +80,7 @@ public class DbPositionMasterTest extends DBTest {
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_posMaster);
-    assertEquals(true, _posMaster.getIdentifierScheme().matches("DbPos"));
+    assertEquals(true, _posMaster.getIdentifierScheme().equals("DbPos"));
     assertNotNull(_posMaster.getTemplate());
     assertNotNull(_posMaster.getTimeSource());
   }
@@ -89,6 +94,16 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals(null, test);
   }
 
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPortfolio_badScheme() {
+    _posMaster.getPortfolio(UniqueIdentifier.of("Rubbish", "123456789", "1"));
+  }
+
+//  @Test(expected=IllegalArgumentException.class)
+//  public void test_getPortfolio_badIdentifier() {
+//    _posMaster.getPortfolio(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "123456789-123", "1"));
+//  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_getPortfolioNode_noMatch() {
@@ -96,6 +111,16 @@ public class DbPositionMasterTest extends DBTest {
     
     final PortfolioNode test = _posMaster.getPortfolioNode(uid);
     assertEquals(null, test);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPortfolioNode_badScheme() {
+    _posMaster.getPortfolioNode(UniqueIdentifier.of("Rubbish", "123456789", "1"));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPortfolioNode_badIdentifier() {
+    _posMaster.getPortfolioNode(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "123456789", "1"));
   }
 
   //-------------------------------------------------------------------------
@@ -107,12 +132,41 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals(null, test);
   }
 
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPosition_badScheme() {
+    _posMaster.getPosition(UniqueIdentifier.of("Rubbish", "123456789", "1"));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPosition_badIdentifier() {
+    _posMaster.getPosition(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "123456789", "1"));
+  }
+
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_getPortfolio() {
+  public void test_isManagerFor_true() {
+    UniqueIdentifier uid = UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "123456789-123456789", "1");
+    assertEquals(true, _posMaster.isManagerFor(uid));
+  }
+
+  @Test
+  public void test_isManagerFor_false() {
+    UniqueIdentifier uid = UniqueIdentifier.of("Other", "123456789-123456789", "1");
+    assertEquals(false, _posMaster.isManagerFor(uid));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_isModificationSupported() {
+    assertEquals(true, _posMaster.isModificationSupported());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getPortfolio() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
-    UniqueIdentifier uid = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     
     final Portfolio test = _posMaster.getPortfolio(uid);
     assertNotNull(test);
@@ -136,16 +190,18 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_addPortfolio_updatePortfolioOnly_getPortfolioByInstant() throws Exception {
+  public void test_getPortfolioByInstant() throws Exception {
     TimeSource timeSource = TimeSource.system();
     _posMaster.setTimeSource(timeSource);
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid1 = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid1 = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     Instant instant1 = timeSource.instant();
     TimeUnit.MILLISECONDS.sleep(100);
     
-    base.setName("New name");
-    UniqueIdentifier uid2 = _posMaster.updatePortfolioOnly(base);
+    UpdatePortfolioRequest request2 = new UpdatePortfolioRequest();
+    request2.setName("New name");
+    request2.setUniqueIdentifier(uid1);
+    UniqueIdentifier uid2 = _posMaster.updatePortfolio(request2);
     Instant instant2 = timeSource.instant();
     
     final Portfolio test1 = _posMaster.getPortfolio(uid1.toLatest(), instant1);
@@ -159,10 +215,10 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_getPortfolioNode_tree() {
+  public void test_getPortfolioNode_tree() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
-    _posMaster.addPortfolio(base);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
     UniqueIdentifier uid = base.getRootNode().getUniqueIdentifier();
     
     final PortfolioNode test = _posMaster.getPortfolioNode(uid);
@@ -185,12 +241,23 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals(null, older);
   }
 
+  @Test
+  public void test_getPortfolioNode_latest() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UniqueIdentifier uid = base.getRootNode().getUniqueIdentifier();
+    
+    final PortfolioNode test = _posMaster.getPortfolioNode(uid.toLatest());
+    assertNotNull(test);
+    assertEquals(uid, test.getUniqueIdentifier());
+  }
+
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_getPortfolioNode_partTree() {
+  public void test_getPortfolioNode_partTree() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
-    _posMaster.addPortfolio(base);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
     UniqueIdentifier uid = base.getRootNode().getChildNodes().get(0).getUniqueIdentifier();
     
     final PortfolioNode test = _posMaster.getPortfolioNode(uid);
@@ -210,11 +277,11 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_getPosition_oneSecurityKey() {
+  public void test_getPosition_oneSecurityKey() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
     Position expectedPosition = expectedPositions.get(0);
-    _posMaster.addPortfolio(base);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
     UniqueIdentifier uid = expectedPosition.getUniqueIdentifier();
     
     final Position test = _posMaster.getPosition(uid);
@@ -223,23 +290,34 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_addPortfolio_getPosition_twoSecurityKeys() {
+  public void test_getPosition_twoSecurityKeys() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
     Position expectedPosition = expectedPositions.get(expectedPositions.size() - 1);
-    _posMaster.addPortfolio(base);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
     UniqueIdentifier uid = expectedPosition.getUniqueIdentifier();
     
     final Position test = _posMaster.getPosition(uid);
     assertNotNull(test);
     assertEquals(expectedPosition, test);
+  }
+
+  @Test
+  public void test_getPosition_latest() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UniqueIdentifier uid = base.getRootNode().getUniqueIdentifier();
+    
+    final Position test = _posMaster.getPosition(uid.toLatest());
+    assertNotNull(test);
+    assertEquals(uid, test.getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_getPortfolioIds() {
+  public void test_getPortfolioIds() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     
     final Set<UniqueIdentifier> test1 = _posMaster.getPortfolioIds();
     assertNotNull(test1);
@@ -249,16 +327,44 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_searchPortfolios_all() {
+  public void test_getPortfolioIds_Instant() throws Exception {
+    TimeSource timeSource = TimeSource.system();
+    _posMaster.setTimeSource(timeSource);
+    PortfolioImpl base1 = buildPortfolio();
+    base1.setName("Test 1");
+    UniqueIdentifier uid1 = _posMaster.addPortfolio(new AddPortfolioRequest(base1));
+    Instant instant1 = timeSource.instant();
+    TimeUnit.MILLISECONDS.sleep(100);
+    
+    PortfolioImpl base2 = buildPortfolio();
+    base2.setName("Test 2");
+    UniqueIdentifier uid2 = _posMaster.addPortfolio(new AddPortfolioRequest(base2));
+    Instant instant2 = timeSource.instant();
+    
+    final Set<UniqueIdentifier> test1 = _posMaster.getPortfolioIds(instant1);
+    assertNotNull(test1);
+    assertEquals(1, test1.size());
+    assertEquals(true, test1.contains(uid1));
+    
+    final Set<UniqueIdentifier> test2 = _posMaster.getPortfolioIds(instant2);
+    assertNotNull(test2);
+    assertEquals(2, test2.size());
+    assertEquals(true, test2.contains(uid1));
+    assertEquals(true, test2.contains(uid2));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_searchPortfolios_all() {
     PortfolioImpl base1 = buildPortfolio();
     base1.setName("Test one");
     int total1 = buildExpectedPositions(base1).size();
-    UniqueIdentifier uid1 = _posMaster.addPortfolio(base1);
+    UniqueIdentifier uid1 = _posMaster.addPortfolio(new AddPortfolioRequest(base1));
     
     PortfolioImpl base2 = buildPortfolio();
     base2.setName("Test two");
     int total2 = buildExpectedPositions(base2).size();
-    UniqueIdentifier uid2 = _posMaster.addPortfolio(base2);
+    UniqueIdentifier uid2 = _posMaster.addPortfolio(new AddPortfolioRequest(base2));
     
     SearchPortfoliosRequest request = new SearchPortfoliosRequest(PagingRequest.ALL);
     SearchPortfoliosResult test = _posMaster.searchPortfolios(request);
@@ -285,18 +391,18 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_addPortfolio_searchPortfolios_page1() {
+  public void test_searchPortfolios_page1() {
     PortfolioImpl base1 = buildPortfolio();
     base1.setName("Test 1");
-    UniqueIdentifier uid1 = _posMaster.addPortfolio(base1);
+    UniqueIdentifier uid1 = _posMaster.addPortfolio(new AddPortfolioRequest(base1));
     
     PortfolioImpl base2 = buildPortfolio();
     base2.setName("Test 2");
-    UniqueIdentifier uid2 = _posMaster.addPortfolio(base2);
+    UniqueIdentifier uid2 = _posMaster.addPortfolio(new AddPortfolioRequest(base2));
     
     PortfolioImpl base3 = buildPortfolio();
     base3.setName("Test 3");
-    _posMaster.addPortfolio(base3);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base3));
     
     SearchPortfoliosRequest request = new SearchPortfoliosRequest(new PagingRequest(1, 2));
     SearchPortfoliosResult test = _posMaster.searchPortfolios(request);
@@ -316,18 +422,18 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_addPortfolio_searchPortfolios_page2() {
+  public void test_searchPortfolios_page2() {
     PortfolioImpl base1 = buildPortfolio();
     base1.setName("Test 1");
-    _posMaster.addPortfolio(base1);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base1));
     
     PortfolioImpl base2 = buildPortfolio();
     base2.setName("Test 2");
-    _posMaster.addPortfolio(base2);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base2));
     
     PortfolioImpl base3 = buildPortfolio();
     base3.setName("Test 3");
-    UniqueIdentifier uid3 = _posMaster.addPortfolio(base3);
+    UniqueIdentifier uid3 = _posMaster.addPortfolio(new AddPortfolioRequest(base3));
     
     SearchPortfoliosRequest request = new SearchPortfoliosRequest(new PagingRequest(2, 2));
     SearchPortfoliosResult test = _posMaster.searchPortfolios(request);
@@ -343,18 +449,18 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_addPortfolio_searchPortfolios_nameExactMatch() {
+  public void test_searchPortfolios_nameExactMatch() {
     PortfolioImpl base1 = buildPortfolio();
     base1.setName("Test 1");
-    _posMaster.addPortfolio(base1);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base1));
     
     PortfolioImpl base2 = buildPortfolio();
     base2.setName("Test 21");
-    UniqueIdentifier uid2 = _posMaster.addPortfolio(base2);
+    UniqueIdentifier uid2 = _posMaster.addPortfolio(new AddPortfolioRequest(base2));
     
     PortfolioImpl base3 = buildPortfolio();
     base3.setName("Test 22");
-    _posMaster.addPortfolio(base3);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base3));
     
     SearchPortfoliosRequest request = new SearchPortfoliosRequest(new PagingRequest(1, 20));
     request.setName("Test 21");
@@ -369,18 +475,18 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_addPortfolio_searchPortfolios_nameWildcardMatch() {
+  public void test_searchPortfolios_nameWildcardMatch() {
     PortfolioImpl base1 = buildPortfolio();
     base1.setName("Test 1");
-    _posMaster.addPortfolio(base1);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base1));
     
     PortfolioImpl base2 = buildPortfolio();
     base2.setName("Test 21");
-    UniqueIdentifier uid2 = _posMaster.addPortfolio(base2);
+    UniqueIdentifier uid2 = _posMaster.addPortfolio(new AddPortfolioRequest(base2));
     
     PortfolioImpl base3 = buildPortfolio();
     base3.setName("Test 22");
-    UniqueIdentifier uid3 = _posMaster.addPortfolio(base3);
+    UniqueIdentifier uid3 = _posMaster.addPortfolio(new AddPortfolioRequest(base3));
     
     SearchPortfoliosRequest request = new SearchPortfoliosRequest(new PagingRequest(1, 20));
     request.setName("Test 2*");
@@ -399,13 +505,21 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addPortfolio_noName() {
+    _posMaster.addPortfolio(new AddPortfolioRequest());
+  }
+
+  //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_updatePortfolioOnly() {
+  public void test_updatePortfolio() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid1 = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid1 = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     
-    base.setName("New name");
-    UniqueIdentifier uid2 = _posMaster.updatePortfolioOnly(base);
+    UpdatePortfolioRequest request = new UpdatePortfolioRequest();
+    request.setUniqueIdentifier(uid1);
+    request.setName("New name");
+    UniqueIdentifier uid2 = _posMaster.updatePortfolio(request);
     
     final Portfolio test1 = _posMaster.getPortfolio(uid1);
     assertNotNull(test1);
@@ -416,21 +530,51 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals("New name", test2.getName());
   }
 
-  @Test(expected=DataNotFoundException.class)
-  public void test_addPortfolio_updatePortfolioOnly_notFound() {
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePortfolio_noName() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePortfolioRequest request = new UpdatePortfolioRequest();  // no new name
+    request.setUniqueIdentifier(uid);
+    _posMaster.updatePortfolio(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePortfolio_notVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePortfolioRequest request = new UpdatePortfolioRequest();
+    request.setUniqueIdentifier(uid.toLatest());  // latest
+    request.setName("New name");
+    _posMaster.updatePortfolio(request);
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_updatePortfolio_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePortfolioRequest request = new UpdatePortfolioRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), uid.getValue(), "0"));  // version 0
+    request.setName("New name");
+    _posMaster.updatePortfolio(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_updatePortfolio_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     
-    final PortfolioImpl updated = new PortfolioImpl("New name");
-    updated.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "123456", "1"));  // invalid id
-    _posMaster.updatePortfolioOnly(updated);
+    UpdatePortfolioRequest request = new UpdatePortfolioRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "123456", "1"));  // invalid id
+    request.setName("New name");
+    _posMaster.updatePortfolio(request);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_removePortfolio() {
+  public void test_removePortfolio() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     
     _posMaster.removePortfolio(uid);
     
@@ -448,19 +592,32 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals(null, test4);
   }
 
-  @Test(expected=DataNotFoundException.class)
-  public void test_addPortfolio_removePortfolio_notFound() {
+  @Test(expected=IllegalArgumentException.class)
+  public void test_removePortfolio_notVersion() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(base);
-    
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    _posMaster.removePortfolio(uid.toLatest());  // latest
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_removePortfolio_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    _posMaster.removePortfolio(UniqueIdentifier.of(uid.getScheme(), uid.getValue(), "0"));  // latest
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_removePortfolio_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     _posMaster.removePortfolio(UniqueIdentifier.of(uid.getScheme(), "123456", "1"));  // invalid id
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_addPortfolio_reinstatePortfolio() {
+  public void test_reinstatePortfolio() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(base);
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     _posMaster.removePortfolio(uid);
     
     // not returned in list of ids
@@ -482,12 +639,183 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test(expected=DataNotFoundException.class)
-  public void test_addPortfolio_reinstatePortfolio_notFound() {
+  public void test_reinstatePortfolio_notFound() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier realUid = _posMaster.addPortfolio(base);
+    UniqueIdentifier realUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     UniqueIdentifier fakeUid = UniqueIdentifier.of(realUid.getScheme(), "123456789");
     
     _posMaster.reinstatePortfolio(fakeUid);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_addPortfolioNode() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier parentUid = baseNode.getUniqueIdentifier();
+    
+    AddPortfolioNodeRequest request = new AddPortfolioNodeRequest();
+    request.setParentNode(parentUid);
+    request.setName("New name");
+    UniqueIdentifier childUid = _posMaster.addPortfolioNode(request);
+    
+    final PortfolioNode testOldParent = _posMaster.getPortfolioNode(parentUid);
+    assertNotNull(testOldParent);
+    assertEquals(baseNode.getChildNodes().size(), testOldParent.getChildNodes().size());
+    
+    final PortfolioNode testNewParent = _posMaster.getPortfolioNode(UniqueIdentifier.of(parentUid.getScheme(), parentUid.getValue(), childUid.getVersion()));
+    assertNotNull(testNewParent);
+    assertEquals(baseNode.getChildNodes().size() + 1, testNewParent.getChildNodes().size());
+    
+    final PortfolioNode testChild = _posMaster.getPortfolioNode(childUid);
+    assertNotNull(testChild);
+    assertEquals("New name", testChild.getName());
+    assertEquals(false, testOldParent.getChildNodes().contains(testChild));
+    assertEquals(true, testNewParent.getChildNodes().contains(testChild));
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_addPortfolioNode_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    AddPortfolioNodeRequest request = new AddPortfolioNodeRequest();
+    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), uid.getValue() + "-1", "0"));  // version 0
+    request.setName("New name");
+    _posMaster.addPortfolioNode(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_addPortfolioNode_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    AddPortfolioNodeRequest request = new AddPortfolioNodeRequest();
+    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "123456-123456", "1"));  // invalid id
+    request.setName("New name");
+    _posMaster.addPortfolioNode(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addPortfolioNode_noParent() {
+    AddPortfolioNodeRequest request = new AddPortfolioNodeRequest();
+    request.setName("Name");
+    _posMaster.addPortfolioNode(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addPortfolioNode_noName() {
+    AddPortfolioNodeRequest request = new AddPortfolioNodeRequest();
+    request.setParentNode(UniqueIdentifier.of("DbPos", "1", "1"));
+    _posMaster.addPortfolioNode(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_updatePortfolioNode() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier uid1 = baseNode.getUniqueIdentifier();
+    
+    UpdatePortfolioNodeRequest request = new UpdatePortfolioNodeRequest();
+    request.setUniqueIdentifier(uid1);
+    request.setName("New name");
+    final UniqueIdentifier uid2 = _posMaster.updatePortfolioNode(request);
+    
+    final PortfolioNode test1 = _posMaster.getPortfolioNode(uid1);
+    assertNotNull(test1);
+    assertEquals(baseNode.getName(), test1.getName());
+    
+    final PortfolioNode test2 = _posMaster.getPortfolioNode(uid2);
+    assertNotNull(test2);
+    assertEquals("New name", test2.getName());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePortfolioNode_noName() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePortfolioNodeRequest request = new UpdatePortfolioNodeRequest();  // no new name
+    request.setUniqueIdentifier(uid);
+    _posMaster.updatePortfolioNode(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePortfolioNode_notVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePortfolioNodeRequest request = new UpdatePortfolioNodeRequest();
+    request.setUniqueIdentifier(uid.toLatest());  // latest
+    request.setName("New name");
+    _posMaster.updatePortfolioNode(request);
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_updatePortfolioNode_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePortfolioNodeRequest request = new UpdatePortfolioNodeRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), uid.getValue() + "-1", "0"));  // version 0
+    request.setName("New name");
+    _posMaster.updatePortfolioNode(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_updatePortfolioNode_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    UpdatePortfolioNodeRequest request = new UpdatePortfolioNodeRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "123456-123456", "1"));  // invalid id
+    request.setName("New name");
+    _posMaster.updatePortfolioNode(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_removePortfolioNode() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier removedUid = baseNode.getUniqueIdentifier();
+    
+    _posMaster.removePortfolioNode(removedUid);
+    
+    // still able to retrieve original
+    final PortfolioNode test1 = _posMaster.getPortfolioNode(removedUid);
+    assertNotNull(test1);
+    
+    // retrieving latest doesn't find it
+    final PortfolioNode test2 = _posMaster.getPortfolioNode(removedUid.toLatest());
+    assertEquals(null, test2);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_removePortfolioNode_notVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier removedUid = baseNode.getUniqueIdentifier();
+    _posMaster.removePortfolioNode(removedUid.toLatest());  // latest
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_removePortfolioNode_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier removedUid = baseNode.getUniqueIdentifier();
+    _posMaster.removePortfolioNode(UniqueIdentifier.of(removedUid.getScheme(), removedUid.getValue(), "0"));  // version 0
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_removePortfolioNode_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier removedUid = baseNode.getUniqueIdentifier();
+    _posMaster.removePortfolioNode(UniqueIdentifier.of(removedUid.getScheme(), "123456-123", "1"));  // invalid id
   }
 
   //-------------------------------------------------------------------------
@@ -522,6 +850,12 @@ public class DbPositionMasterTest extends DBTest {
     expectedPositions.addAll(base.getRootNode().getChildNodes().get(0).getPositions());
     expectedPositions.addAll(base.getRootNode().getChildNodes().get(1).getPositions());
     return expectedPositions;
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toString() {
+    assertEquals("DbPositionMaster[DbPos]", _posMaster.toString());
   }
 
 }

@@ -41,7 +41,8 @@ public class DiscountCurveFunction
   extends AbstractFunction 
   implements FunctionInvoker {
   
-  private Interpolator1D _interpolator; 
+  @SuppressWarnings("unchecked")
+  private Interpolator1D _interpolator;
   private DiscountCurveDefinition _definition;
   private Set<ValueRequirement> _requirements;
   private ValueSpecification _result;
@@ -71,10 +72,6 @@ public class DiscountCurveFunction
     _results = Collections.singleton(_result);
   }
   
-  /**
-   * @param definition
-   * @return
-   */
   public static Set<ValueRequirement> buildRequirements(DiscountCurveDefinition definition) {
     Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     for (FixedIncomeStrip strip : definition.getStrips()) {
@@ -124,7 +121,7 @@ public class DiscountCurveFunction
 
   @Override
   public String getShortName() {
-    return _curveCurrency + "-" + _curveName + " Discount Curve";
+    return _curveCurrency + "-" + _curveName + " Yield Curve";
   }
 
   @Override
@@ -151,9 +148,8 @@ public class DiscountCurveFunction
       Double price = fieldContainer.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
-    // Bootstrap the discount curve
+    // Bootstrap the yield curve
     YieldAndDiscountCurve yieldCurve = new InterpolatedYieldCurve(timeInYearsToRates, _interpolator);
-    // Prepare results
     ComputedValue resultValue = new ComputedValue(_result, yieldCurve);
     return Collections.singleton(resultValue);
   }

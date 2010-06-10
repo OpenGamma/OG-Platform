@@ -11,9 +11,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.opengamma.id.IdentifierBundle;
 
 /**
- * 
- *
- * @author yomi
+ * A bond that can be delivered to satisfy a bond future contract.  Typically held in a set representing
+ * the 'deliverable basket'.
  */
 public class BondFutureDeliverable {
   
@@ -69,21 +68,26 @@ public class BondFutureDeliverable {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     BondFutureDeliverable other = (BondFutureDeliverable) obj;
-    if (Double.doubleToLongBits(_conversionFactor) != Double
-        .doubleToLongBits(other._conversionFactor))
+    if (Double.doubleToLongBits(_conversionFactor) != Double.doubleToLongBits(other._conversionFactor)) {
       return false;
+    }
     if (_identifiers == null) {
-      if (other._identifiers != null)
+      if (other._identifiers != null) {
         return false;
-    } else if (!_identifiers.equals(other._identifiers))
+      }
+    } else if (!_identifiers.equals(other._identifiers)) {
       return false;
+    }
     return true;
   }
 

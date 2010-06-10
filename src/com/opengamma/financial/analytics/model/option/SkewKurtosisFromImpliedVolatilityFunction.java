@@ -12,6 +12,7 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -28,15 +29,18 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
-import edu.emory.mathcs.backport.java.util.Collections;
-
 /**
  * 
  *
- * @author emcleod
  */
 public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosisFunction {
+  /**
+   * Name of value requirement for Skew.
+   */
   public static final String SKEW = "Skew";
+  /**
+   * Name of value requirement for Kurtosis.
+   */
   public static final String KURTOSIS = "Kurtosis";
 
   @Override
@@ -62,7 +66,7 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends OptionSkewKurtosi
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
-      return Collections.singleton(getVolatilitySurfaceRequirement((OptionSecurity) target.getSecurity()));
+      return Sets.newHashSet(getVolatilitySurfaceRequirement((OptionSecurity) target.getSecurity()));
     }
     return null;
   }

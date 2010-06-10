@@ -108,27 +108,27 @@ public interface ManagablePositionMaster extends PositionMaster {
   /**
    * Adds a portfolio to the data store, including all nodes and positions.
    * <p>
+   * This method will add the whole tree of nodes and positions if they are specified.
    * The portfolio may originate from another position master.
-   * If the portfolio is mutable, the unique identifiers will be altered.
    * 
-   * @param portfolio  the portfolio to add, not null
+   * @param request  the request, not null
    * @return the new unique identifier of the portfolio, not null
    * @throws IllegalArgumentException if the portfolio is already created in this master
    */
-  UniqueIdentifier addPortfolio(final Portfolio portfolio);
+  UniqueIdentifier addPortfolio(final AddPortfolioRequest request);
 
   /**
-   * Updates a portfolio without updating the nodes or positions.
+   * Updates a portfolio.
    * <p>
-   * The portfolio specified must be the latest version.
-   * If the portfolio is mutable, the unique identifier will be altered.
+   * This method does not affect the tree nodes or positions.
+   * The portfolio unique identifier must be versioned and be the latest version.
    * 
-   * @param portfolio  the portfolio to remove, not null
+   * @param request  the request, not null
    * @return the new unique identifier of the portfolio, not null
    * @throws IllegalArgumentException if the portfolio is not from this position master
    * @throws DataNotFoundException if the portfolio is not found
    */
-  UniqueIdentifier updatePortfolioOnly(final Portfolio portfolio);
+  UniqueIdentifier updatePortfolio(final UpdatePortfolioRequest request);
 
   /**
    * Removes a portfolio.
@@ -161,27 +161,26 @@ public interface ManagablePositionMaster extends PositionMaster {
   /**
    * Adds a portfolio node to the specified node.
    * <p>
-   * If the position is mutable, the unique identifier will be altered.
+   * This method will add the single node specified in the request.
    * 
-   * @param nodeUid  the node to add to, not null
-   * @param node  the node to add, not null
-   * @return the new unique identifier of the node, not null
+   * @param request  the request, not null
+   * @return the unique identifier of the created node, not null
    * @throws IllegalArgumentException if the node is not from this position master
    */
-  UniqueIdentifier addPortfolioNode(final UniqueIdentifier nodeUid, final PortfolioNode node);
+  UniqueIdentifier addPortfolioNode(final AddPortfolioNodeRequest request);
 
   /**
    * Updates a portfolio node, without updating child nodes or positions.
    * <p>
-   * The node specified must be the latest version.
-   * If the node is mutable, the unique identifier will be altered.
+   * This method does not affect any other node or position.
+   * The portfolio node unique identifier must be versioned and be the latest version.
    * 
-   * @param node  the node to update, not null
+   * @param request  the request, not null
    * @return the new unique identifier of the node, not null
    * @throws IllegalArgumentException if the node is not from this position master
    * @throws DataNotFoundException if the node is not found
    */
-  UniqueIdentifier updatePortfolioNodeOnly(final PortfolioNode node);
+  UniqueIdentifier updatePortfolioNode(final UpdatePortfolioNodeRequest request);
 
   /**
    * Removes a portfolio node.

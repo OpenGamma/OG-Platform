@@ -48,7 +48,8 @@ public abstract class BondSecurity extends FinancialSecurity {
   private final double _parAmount;
   private final double _redemptionValue;
 
-  public BondSecurity (
+  //CSOFF: We need lots of parameters
+  public BondSecurity(
       final String issuerName,
       final String issuerType,
       final String issuerDomicile,
@@ -72,7 +73,8 @@ public abstract class BondSecurity extends FinancialSecurity {
       final double minimumIncrement,
       final double parAmount,
       final double redemptionValue
-      ) {
+    ) {
+    // CSON: We need lots of parameters
     super(BOND_TYPE);
     _issuerName = issuerName;
     _issuerType = issuerType;
