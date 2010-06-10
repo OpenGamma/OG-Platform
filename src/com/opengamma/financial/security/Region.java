@@ -5,11 +5,18 @@
  */
 package com.opengamma.financial.security;
 
+import java.util.Set;
+
+import org.fudgemsg.FudgeFieldContainer;
+
 /**
- * 
- *
- * @author jim
+ * General interface for Regions
  */
 public interface Region {
-
+  String getName();
+  RegionType getRegionType();
+  FudgeFieldContainer getDataUp();
+  FudgeFieldContainer getData();
+  Region getSuperRegion();
+  Set<Region> getSubRegions();
 }

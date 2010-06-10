@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.security.swap;
 
+import com.opengamma.financial.Currency;
+
 /**
  * 
  *
  * @author jim
  */
-public class Notional {
-  
+public abstract class Notional {
+
 }

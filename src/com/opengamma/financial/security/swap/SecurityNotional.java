@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.security.swap;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.financial.Currency;
+import com.opengamma.id.Identifier;
 
 /**
  * A notional that holds a unique id to identify a security to use as a notional.
@@ -13,13 +14,13 @@ import com.opengamma.id.UniqueIdentifier;
  */
 public class SecurityNotional extends Notional {
 
-  private UniqueIdentifier _notionalIdentifier;
+  private Identifier _notionalIdentifier;
 
-  public SecurityNotional(UniqueIdentifier notionalIdentifier) {
+  public SecurityNotional(Identifier notionalIdentifier) {
     _notionalIdentifier = notionalIdentifier;
   }
   
-  public UniqueIdentifier getNotionalIdentifier() {
+  public Identifier getNotionalIdentifier() {
     return _notionalIdentifier;
   }
 }

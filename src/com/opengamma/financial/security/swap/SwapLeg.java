@@ -8,7 +8,7 @@ package com.opengamma.financial.security.swap;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.security.Holiday;
+import com.opengamma.financial.security.Region;
 
 /**
  * Represents one leg of a swap.
@@ -16,23 +16,23 @@ import com.opengamma.financial.security.Holiday;
 public class SwapLeg {
   private DayCount _daycount;
   private Frequency _frequency;
-  private Holiday _holiday;
+  private Region _region;
   private BusinessDayConvention _businessDayConvention;
   private Notional _notional;
 
   /**
-   * @param daycount
-   * @param frequency
-   * @param holiday
-   * @param businessDayConvention
-   * @param notional
+   * @param daycount day count convention
+   * @param frequency the frequency for payments
+   * @param region the region of issue
+   * @param businessDayConvention the business day convention
+   * @param notional the notional value of this leg
    */
-  public SwapLeg(DayCount daycount, Frequency frequency, Holiday holiday, BusinessDayConvention businessDayConvention,
+  public SwapLeg(DayCount daycount, Frequency frequency, Region region, BusinessDayConvention businessDayConvention,
       Notional notional) {
     super();
     _daycount = daycount;
     _frequency = frequency;
-    _holiday = holiday;
+    _region = region;
     _businessDayConvention = businessDayConvention;
     _notional = notional;
   }
@@ -51,8 +51,8 @@ public class SwapLeg {
   /**
    * @return the holiday
    */
-  public Holiday getHoliday() {
-    return _holiday;
+  public Region getRegion() {
+    return _region;
   }
   /**
    * @return the businessDayConvention
