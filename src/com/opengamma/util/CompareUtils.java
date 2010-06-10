@@ -51,7 +51,7 @@ public class CompareUtils {
    * allowed difference is required, use the other version of this method.
    * @param a  the first value
    * @param b  the second value
-   * @return true, if a and b are equal to within 10^-6, false otherwise
+   * @return true, if a and b are equal to within 10^-15, false otherwise
    */
   public static boolean closeEquals(double a, double b) {
     return (Math.abs(a - b) < 1E-15);
