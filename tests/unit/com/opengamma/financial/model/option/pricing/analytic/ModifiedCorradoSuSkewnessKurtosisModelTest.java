@@ -11,8 +11,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
@@ -30,7 +30,7 @@ import com.opengamma.util.time.Expiry;
 public class ModifiedCorradoSuSkewnessKurtosisModelTest {
   private static final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> CORRADO_SU = new ModifiedCorradoSuSkewnessKurtosisModel();
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.07);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.07);
   private static final double B = 0.07;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(0.35);
   private static final double SPOT = 100;

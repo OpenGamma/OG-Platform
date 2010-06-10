@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.BatesGeneralizedJumpDiffusionModelOptionDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -35,7 +35,7 @@ public class BatesGeneralizedJumpDiffusionModel extends AnalyticOptionModel<Opti
       public Double evaluate(final BatesGeneralizedJumpDiffusionModelOptionDataBundle data) {
         Validate.notNull(data);
         final double s = data.getSpot();
-        final DiscountCurve discountCurve = data.getDiscountCurve();
+        final YieldAndDiscountCurve discountCurve = data.getDiscountCurve();
         final VolatilitySurface volSurface = data.getVolatilitySurface();
         final ZonedDateTime date = data.getDate();
         final double t = definition.getTimeToExpiry(date);

@@ -23,7 +23,7 @@ import com.opengamma.financial.model.forward.pricing.FXForwardModel;
 import com.opengamma.financial.model.forward.pricing.ForwardModel;
 import com.opengamma.financial.model.future.definition.FXFutureDataBundle;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -40,11 +40,11 @@ public class FXFutureAsForwardModelTest {
   private static final ForwardModel<FXForwardDataBundle> FORWARD_MODEL = new FXForwardModel();
   private static final ForwardDefinition FORWARD_DEFINITION = new ForwardDefinition(EXPIRY);
   private static final FXForwardDataBundle FORWARD_DATA = new FXForwardDataBundle(
-      new ConstantInterestRateDiscountCurve(R1), new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
+      new ConstantYieldCurve(R1), new ConstantYieldCurve(R2), SPOT, DATE);
   private static final FutureModel<FXFutureDataBundle> MODEL = new FXFutureAsForwardModel();
   private static final FutureDefinition DEFINITION = new FutureDefinition(EXPIRY);
-  private static final FXFutureDataBundle DATA = new FXFutureDataBundle(new ConstantInterestRateDiscountCurve(R1),
-      new ConstantInterestRateDiscountCurve(R2), SPOT, DATE);
+  private static final FXFutureDataBundle DATA = new FXFutureDataBundle(new ConstantYieldCurve(R1),
+      new ConstantYieldCurve(R2), SPOT, DATE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = NullPointerException.class)

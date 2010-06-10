@@ -31,7 +31,7 @@ public class InterpolatedDiscountCurveTest {
   private static final Map<Double, Double> DF_DATA = new HashMap<Double, Double>();
   private static final double SHIFT = 0.001;
   private static final double T = 1.5;
-  private static final DiscountCurve CURVE;
+  private static final YieldAndDiscountCurve CURVE;
   private static final Double EPS = 1e-15;
 
   static {
@@ -147,7 +147,7 @@ public class InterpolatedDiscountCurveTest {
 
   @Test
   public void testParallelShift() {
-    final DiscountCurve curve = CURVE.withParallelShift(SHIFT);
+    final YieldAndDiscountCurve curve = CURVE.withParallelShift(SHIFT);
     final Map<Double, Double> shiftedData = new TreeMap<Double, Double>();
     for (final Map.Entry<Double, Double> entry : DATA.entrySet()) {
       shiftedData.put(entry.getKey(), entry.getValue() + SHIFT);
@@ -158,7 +158,7 @@ public class InterpolatedDiscountCurveTest {
   @Test
   public void testSingleShift() {
     final double t = 2.;
-    final DiscountCurve curve = CURVE.withSingleShift(t, SHIFT);
+    final YieldAndDiscountCurve curve = CURVE.withSingleShift(t, SHIFT);
     final Map<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     shiftedData.put(t, DATA.get(t) + SHIFT);
     assertEquals(curve, new InterpolatedDiscountCurve(shiftedData, LINEAR));
@@ -171,7 +171,7 @@ public class InterpolatedDiscountCurveTest {
     final Map<Double, Double> shifts = new HashMap<Double, Double>();
     shifts.put(t1, SHIFT);
     shifts.put(t2, -SHIFT);
-    final DiscountCurve curve = CURVE.withMultipleShifts(shifts);
+    final YieldAndDiscountCurve curve = CURVE.withMultipleShifts(shifts);
     final Map<Double, Double> shiftedData = new TreeMap<Double, Double>(DATA);
     shiftedData.put(t1, DATA.get(t1) + SHIFT);
     shiftedData.put(t2, DATA.get(t2) - SHIFT);
@@ -183,8 +183,8 @@ public class InterpolatedDiscountCurveTest {
     final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
     map.put(2.1, LINEAR);
     map.put(10., LINEAR);
-    final DiscountCurve curve1 = new InterpolatedDiscountCurve(DATA, LINEAR);
-    final DiscountCurve curve2 = new InterpolatedDiscountCurve(DATA, map);
+    final YieldAndDiscountCurve curve1 = new InterpolatedDiscountCurve(DATA, LINEAR);
+    final YieldAndDiscountCurve curve2 = new InterpolatedDiscountCurve(DATA, map);
     assertEquals(curve1.getDiscountFactor(1.5), curve2.getDiscountFactor(1.5), EPS);
     assertEquals(curve1.getDiscountFactor(2.5), curve2.getDiscountFactor(2.5), EPS);
   }
@@ -194,7 +194,7 @@ public class InterpolatedDiscountCurveTest {
     final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
     map.put(2.1, LINEAR);
     map.put(10., STEP);
-    final DiscountCurve curve = new InterpolatedDiscountCurve(DATA, map);
+    final YieldAndDiscountCurve curve = new InterpolatedDiscountCurve(DATA, map);
     assertEquals(curve.getInterestRate(1.5), -Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 1.5).getResult()) / 1.5, EPS);
     assertEquals(curve.getInterestRate(2.5), -Math.log(STEP.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 2.5).getResult()) / 2.5, EPS);
   }

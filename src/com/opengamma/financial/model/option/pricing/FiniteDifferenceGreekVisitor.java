@@ -8,8 +8,8 @@ package com.opengamma.financial.model.option.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.greeks.GreekVisitor;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -76,8 +76,8 @@ public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T 
     final double t = _definition.getTimeToExpiry(date);
     final double r = _data.getInterestRate(t);
     final double b = _data.getCostOfCarry();
-    final DiscountCurve upCurve = new ConstantInterestRateDiscountCurve(r + EPS);
-    final DiscountCurve downCurve = new ConstantInterestRateDiscountCurve(r - EPS);
+    final YieldAndDiscountCurve upCurve = new ConstantYieldCurve(r + EPS);
+    final YieldAndDiscountCurve downCurve = new ConstantYieldCurve(r - EPS);
     final S dataUp = (S) _data.withCostOfCarry(b + EPS).withDiscountCurve(upCurve);
     final S dataDown = (S) _data.withCostOfCarry(b - EPS).withDiscountCurve(downCurve);
     return getFirstDerivative(dataUp, dataDown);

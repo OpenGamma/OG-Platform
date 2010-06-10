@@ -7,7 +7,7 @@ package com.opengamma.financial.model.future.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * @author emcleod
@@ -17,7 +17,7 @@ public class StandardFutureDataBundle extends FutureDataBundle {
   private final double _yield;
   private final double _storageCost;
 
-  public StandardFutureDataBundle(final double yield, final DiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
+  public StandardFutureDataBundle(final double yield, final YieldAndDiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
     super(discountCurve, spot, date);
     if (storageCost < 0)
       throw new IllegalArgumentException("Storage cost cannot be negative");
@@ -45,7 +45,7 @@ public class StandardFutureDataBundle extends FutureDataBundle {
   }
 
   @Override
-  public FutureDataBundle withDiscountCurve(final DiscountCurve newCurve) {
+  public FutureDataBundle withDiscountCurve(final YieldAndDiscountCurve newCurve) {
     if (newCurve == null)
       throw new IllegalArgumentException("New curve was null");
     return new StandardFutureDataBundle(getYield(), newCurve, getSpot(), getDate(), getStorageCost());

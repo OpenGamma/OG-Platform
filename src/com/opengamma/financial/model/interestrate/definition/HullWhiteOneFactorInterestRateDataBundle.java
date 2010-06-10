@@ -7,7 +7,7 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 
 /**
@@ -16,11 +16,11 @@ import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
  */
 public class HullWhiteOneFactorInterestRateDataBundle {
   private final ZonedDateTime _date;
-  private final DiscountCurve _yieldCurve;
+  private final YieldAndDiscountCurve _yieldCurve;
   private final Double _speed;
   private final VolatilityCurve _volatilityCurve;
 
-  public HullWhiteOneFactorInterestRateDataBundle(final ZonedDateTime date, final DiscountCurve yieldCurve, final Double speed, final VolatilityCurve volatilityCurve) {
+  public HullWhiteOneFactorInterestRateDataBundle(final ZonedDateTime date, final YieldAndDiscountCurve yieldCurve, final Double speed, final VolatilityCurve volatilityCurve) {
     _date = date;
     _yieldCurve = yieldCurve;
     _speed = speed;

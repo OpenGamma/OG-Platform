@@ -16,7 +16,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
@@ -38,7 +38,7 @@ public class ComplexChooserOptionDefinitionTest {
   private static final OptionDefinition VANILLA_CALL = new EuropeanVanillaOptionDefinition(CALL_STRIKE, CALL_EXPIRY, true);
   private static final OptionDefinition VANILLA_PUT = new EuropeanVanillaOptionDefinition(PUT_STRIKE, PUT_EXPIRY, false);
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> MODEL = new BlackScholesMertonModel();
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.06), 0., new ConstantVolatilitySurface(0.15), 100., DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.15), 100., DATE);
   private static final Set<Greek> PRICE = Sets.newHashSet(Greek.FAIR_PRICE);
   private static final double EPS = 1e-15;
 

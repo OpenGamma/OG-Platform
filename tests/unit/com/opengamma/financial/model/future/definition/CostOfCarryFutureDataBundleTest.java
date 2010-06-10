@@ -12,8 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
@@ -22,7 +22,7 @@ import com.opengamma.util.time.DateUtil;
  */
 public class CostOfCarryFutureDataBundleTest {
   private static final double YIELD = 0.04;
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.05);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.05);
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 1, 1);
   private static final double STORAGE = 2;
@@ -75,7 +75,7 @@ public class CostOfCarryFutureDataBundleTest {
     assertEquals(data.hashCode(), DATA.hashCode());
     data = new StandardFutureDataBundle(YIELD + 1, CURVE, SPOT, DATE, STORAGE);
     assertFalse(data.equals(DATA));
-    data = new StandardFutureDataBundle(YIELD, new ConstantInterestRateDiscountCurve(0.1), SPOT, DATE, STORAGE);
+    data = new StandardFutureDataBundle(YIELD, new ConstantYieldCurve(0.1), SPOT, DATE, STORAGE);
     assertFalse(data.equals(DATA));
     data = new StandardFutureDataBundle(YIELD, CURVE, SPOT + 1, DATE, STORAGE);
     assertFalse(data.equals(DATA));
@@ -88,7 +88,7 @@ public class CostOfCarryFutureDataBundleTest {
   @Test
   public void testBuilders() {
     final double yield = -0.01;
-    final DiscountCurve curve = new ConstantInterestRateDiscountCurve(0.02);
+    final YieldAndDiscountCurve curve = new ConstantYieldCurve(0.02);
     final double spot = 110;
     final ZonedDateTime date = DateUtil.getUTCDate(2010, 2, 1);
     final double storageCost = 4;

@@ -17,7 +17,7 @@ import com.opengamma.financial.model.interestrate.InterestRateModel;
  * 
  */
 
-public abstract class DiscountCurve implements InterestRateModel<Double> {
+public abstract class YieldAndDiscountCurve implements InterestRateModel<Double> {
 
   /**
    * @param t The time 
@@ -38,9 +38,9 @@ public abstract class DiscountCurve implements InterestRateModel<Double> {
 
   public abstract Set<Double> getMaturities();
 
-  public abstract DiscountCurve withParallelShift(final Double shift);
+  public abstract YieldAndDiscountCurve withParallelShift(final Double shift);
 
-  public abstract DiscountCurve withSingleShift(final Double t, Double shift);
+  public abstract YieldAndDiscountCurve withSingleShift(final Double t, Double shift);
 
-  public abstract DiscountCurve withMultipleShifts(final Map<Double, Double> shifts);
+  public abstract YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts);
 }

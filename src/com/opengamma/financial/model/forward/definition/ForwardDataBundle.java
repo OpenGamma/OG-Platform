@@ -7,18 +7,18 @@ package com.opengamma.financial.model.forward.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * @author emcleod
  *
  */
 public abstract class ForwardDataBundle {
-  private final DiscountCurve _discountCurve;
+  private final YieldAndDiscountCurve _discountCurve;
   private final double _spot;
   private final ZonedDateTime _date;
 
-  public ForwardDataBundle(final DiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
+  public ForwardDataBundle(final YieldAndDiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
     if (discountCurve == null)
       throw new IllegalArgumentException("Discount curve was null");
     if (spot < 0)
@@ -30,7 +30,7 @@ public abstract class ForwardDataBundle {
     _date = date;
   }
 
-  public DiscountCurve getDiscountCurve() {
+  public YieldAndDiscountCurve getDiscountCurve() {
     return _discountCurve;
   }
 
@@ -46,7 +46,7 @@ public abstract class ForwardDataBundle {
 
   public abstract ForwardDataBundle withDate(ZonedDateTime newDate);
 
-  public abstract ForwardDataBundle withDiscountCurve(DiscountCurve newCurve);
+  public abstract ForwardDataBundle withDiscountCurve(YieldAndDiscountCurve newCurve);
 
   /*
    * (non-Javadoc)

@@ -11,8 +11,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.HullWhiteStochasticVolatilityModelOptionDataBundle;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -28,7 +28,7 @@ public class HullWhiteStochasticVolatilityModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.25));
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(0.08);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(0.08);
   private static final double B = 0;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(Math.sqrt(0.09));
   private static final double SPOT = 100;

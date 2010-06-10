@@ -20,16 +20,16 @@ public class ConstantInterestRateDiscountCurveTest {
   private static final double RATE = 0.05;
   private static final double T = 4;
   private static final double SHIFT = 0.001;
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(RATE);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(RATE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullInput() {
-    new ConstantInterestRateDiscountCurve(null);
+    new ConstantYieldCurve(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInput() {
-    new ConstantInterestRateDiscountCurve(-RATE);
+    new ConstantYieldCurve(-RATE);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -81,7 +81,7 @@ public class ConstantInterestRateDiscountCurveTest {
   public void test() {
     assertEquals(RATE, CURVE.getInterestRate(T), EPS);
     assertEquals(Math.exp(-RATE * T), CURVE.getDiscountFactor(T), EPS);
-    DiscountCurve curve = CURVE.withParallelShift(SHIFT);
+    YieldAndDiscountCurve curve = CURVE.withParallelShift(SHIFT);
     assertEquals(RATE + SHIFT, curve.getInterestRate(T), EPS);
     assertEquals(Math.exp(-T * (RATE + SHIFT)), curve.getDiscountFactor(T), EPS);
     curve = CURVE.withSingleShift(T, SHIFT);

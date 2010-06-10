@@ -12,8 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
@@ -24,8 +24,8 @@ import com.opengamma.util.time.DateUtil;
 public class HullWhiteStochasticVolatilityModelOptionDataBundleTest {
   private static final double R = 0.03;
   private static final double SIGMA = 0.3;
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(R);
-  private static final DiscountCurve OTHER_CURVE = new ConstantInterestRateDiscountCurve(0.2);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
+  private static final YieldAndDiscountCurve OTHER_CURVE = new ConstantYieldCurve(0.2);
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(0.25);
   private static final double B = 0.01;

@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 
 /**
@@ -17,7 +17,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   private final double _annualizedSkew;
   private final double _annualizedPearsonKurtosis;
 
-  public SkewKurtosisOptionDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+  public SkewKurtosisOptionDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final double annualizedSkew, final double annualizedPearsonKurtosis) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _annualizedSkew = annualizedSkew;
@@ -49,7 +49,7 @@ public class SkewKurtosisOptionDataBundle extends StandardOptionDataBundle {
   }
 
   @Override
-  public SkewKurtosisOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+  public SkewKurtosisOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
     return new SkewKurtosisOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getAnnualizedSkew(), getAnnualizedPearsonKurtosis());
   }
 

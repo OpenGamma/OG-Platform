@@ -7,34 +7,34 @@ package com.opengamma.financial.model.forward.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * @author emcleod
  *
  */
 public class FXForwardDataBundle extends ForwardDataBundle {
-  private final DiscountCurve _foreignCurve;
+  private final YieldAndDiscountCurve _foreignCurve;
 
-  public FXForwardDataBundle(final DiscountCurve domesticCurve, final DiscountCurve foreignCurve, final double spot, final ZonedDateTime date) {
+  public FXForwardDataBundle(final YieldAndDiscountCurve domesticCurve, final YieldAndDiscountCurve foreignCurve, final double spot, final ZonedDateTime date) {
     super(domesticCurve, spot, date);
     if (foreignCurve == null)
       throw new IllegalArgumentException("Foreign curve was null");
     _foreignCurve = foreignCurve;
   }
 
-  public DiscountCurve getForeignCurve() {
+  public YieldAndDiscountCurve getForeignCurve() {
     return _foreignCurve;
   }
 
   @Override
-  public FXForwardDataBundle withDiscountCurve(final DiscountCurve newCurve) {
+  public FXForwardDataBundle withDiscountCurve(final YieldAndDiscountCurve newCurve) {
     if (newCurve == null)
       throw new IllegalArgumentException("New curve was null");
     return new FXForwardDataBundle(newCurve, getForeignCurve(), getSpot(), getDate());
   }
 
-  public FXForwardDataBundle withForeignCurve(final DiscountCurve newCurve) {
+  public FXForwardDataBundle withForeignCurve(final YieldAndDiscountCurve newCurve) {
     if (newCurve == null)
       throw new IllegalArgumentException("New curve was null");
     return new FXForwardDataBundle(getDiscountCurve(), newCurve, getSpot(), getDate());

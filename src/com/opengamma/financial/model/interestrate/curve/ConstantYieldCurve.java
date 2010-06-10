@@ -20,11 +20,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author emcleod
  */
-public class ConstantInterestRateDiscountCurve extends DiscountCurve {
-  private static final Logger s_Log = LoggerFactory.getLogger(ConstantInterestRateDiscountCurve.class);
+public class ConstantYieldCurve extends YieldAndDiscountCurve {
+  private static final Logger s_Log = LoggerFactory.getLogger(ConstantYieldCurve.class);
   private final double _rate;
 
-  public ConstantInterestRateDiscountCurve(final Double rate) {
+  public ConstantYieldCurve(final Double rate) {
     if (rate == null)
       throw new IllegalArgumentException("Rate was null");
     if (rate < 0)
@@ -52,30 +52,30 @@ public class ConstantInterestRateDiscountCurve extends DiscountCurve {
   }
 
   @Override
-  public DiscountCurve withParallelShift(final Double shift) {
+  public YieldAndDiscountCurve withParallelShift(final Double shift) {
     if (shift == null)
       throw new IllegalArgumentException("Shift was null");
-    return new ConstantInterestRateDiscountCurve(_rate + shift);
+    return new ConstantYieldCurve(_rate + shift);
   }
 
   @Override
-  public DiscountCurve withSingleShift(final Double t, final Double shift) {
+  public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
     if (t == null)
       throw new IllegalArgumentException("t was null");
     if (shift == null)
       throw new IllegalArgumentException("Shift was null");
     if (t < 0)
       throw new IllegalArgumentException("t was less than zero");
-    return new ConstantInterestRateDiscountCurve(_rate + shift);
+    return new ConstantYieldCurve(_rate + shift);
   }
 
   @Override
-  public DiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
+  public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
     if (shifts == null)
       throw new IllegalArgumentException("Shift map was null");
     if (shifts.isEmpty()) {
       s_Log.info("Shift map was empty; returning unchanged curve");
-      return new ConstantInterestRateDiscountCurve(_rate);
+      return new ConstantYieldCurve(_rate);
     }
     if (shifts.size() != 1) {
       s_Log.warn("Shift map contained more than one element - only using first");
@@ -85,7 +85,7 @@ public class ConstantInterestRateDiscountCurve extends DiscountCurve {
       throw new IllegalArgumentException("Time for shift was less than zero");
     if (firstEntry.getValue() == null)
       throw new IllegalArgumentException("Value for shift was null");
-    return new ConstantInterestRateDiscountCurve(_rate + firstEntry.getValue());
+    return new ConstantYieldCurve(_rate + firstEntry.getValue());
   }
 
   @Override
@@ -106,7 +106,7 @@ public class ConstantInterestRateDiscountCurve extends DiscountCurve {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    final ConstantInterestRateDiscountCurve other = (ConstantInterestRateDiscountCurve) obj;
+    final ConstantYieldCurve other = (ConstantYieldCurve) obj;
     if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate))
       return false;
     return true;

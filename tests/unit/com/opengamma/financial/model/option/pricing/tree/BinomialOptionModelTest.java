@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -64,7 +64,7 @@ public class BinomialOptionModelTest {
   @Test
   public void testEuropeanCallTree() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
     final OptionDefinition option = new EuropeanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), true);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final Pair<Double, Double>[][] result = f.evaluate(data).getTree();
@@ -86,7 +86,7 @@ public class BinomialOptionModelTest {
   @Test
   public void testAmericanPutTree() {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
-    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
+    final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0., new ConstantVolatilitySurface(0.), 100., date);
     final OptionDefinition option = new AmericanVanillaOptionDefinition(100, new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 1)), false);
     final Function1D<StandardOptionDataBundle, RecombiningBinomialTree<Pair<Double, Double>>> f = BINOMIAL_THREE_STEPS.getTreeGeneratingFunction(option);
     final Pair<Double, Double>[][] result = f.evaluate(data).getTree();

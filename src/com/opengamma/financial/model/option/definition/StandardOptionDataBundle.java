@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.tuple.Pair;
 
@@ -17,14 +17,14 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class StandardOptionDataBundle {
-  private final DiscountCurve _discountCurve;
+  private final YieldAndDiscountCurve _discountCurve;
   private final Double _b;
   private final VolatilitySurface _volatilitySurface;
   private final Double _spot;
   private final ZonedDateTime _date;
 
   // TODO need a cost of carry model
-  public StandardOptionDataBundle(final DiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final Double spot, final ZonedDateTime date) {
+  public StandardOptionDataBundle(final YieldAndDiscountCurve discountCurve, final Double b, final VolatilitySurface volatilitySurface, final Double spot, final ZonedDateTime date) {
     _discountCurve = discountCurve;
     _b = b;
     _volatilitySurface = volatilitySurface;
@@ -57,7 +57,7 @@ public class StandardOptionDataBundle {
     return _spot;
   }
 
-  public DiscountCurve getDiscountCurve() {
+  public YieldAndDiscountCurve getDiscountCurve() {
     return _discountCurve;
   }
 
@@ -69,7 +69,7 @@ public class StandardOptionDataBundle {
     return _date;
   }
 
-  public StandardOptionDataBundle withDiscountCurve(final DiscountCurve curve) {
+  public StandardOptionDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
     return new StandardOptionDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate());
   }
 

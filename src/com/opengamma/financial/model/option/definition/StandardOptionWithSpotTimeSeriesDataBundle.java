@@ -7,7 +7,7 @@ package com.opengamma.financial.model.option.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -17,7 +17,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDataBundle {
   private final DoubleTimeSeries<?> _spotTS;
 
-  public StandardOptionWithSpotTimeSeriesDataBundle(final DiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
+  public StandardOptionWithSpotTimeSeriesDataBundle(final YieldAndDiscountCurve discountCurve, final double b, final VolatilitySurface volatilitySurface, final double spot, final ZonedDateTime date,
       final DoubleTimeSeries<?> spotTS) {
     super(discountCurve, b, volatilitySurface, spot, date);
     _spotTS = spotTS;
@@ -38,7 +38,7 @@ public class StandardOptionWithSpotTimeSeriesDataBundle extends StandardOptionDa
   }
 
   @Override
-  public StandardOptionWithSpotTimeSeriesDataBundle withDiscountCurve(final DiscountCurve curve) {
+  public StandardOptionWithSpotTimeSeriesDataBundle withDiscountCurve(final YieldAndDiscountCurve curve) {
     return new StandardOptionWithSpotTimeSeriesDataBundle(curve, getCostOfCarry(), getVolatilitySurface(), getSpot(), getDate(), getSpotTimeSeries());
   }
 

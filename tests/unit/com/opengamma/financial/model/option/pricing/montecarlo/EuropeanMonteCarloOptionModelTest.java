@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -28,7 +28,7 @@ public class EuropeanMonteCarloOptionModelTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.06), 0.06, new ConstantVolatilitySurface(0.2), 100.,
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.06), 0.06, new ConstantVolatilitySurface(0.2), 100.,
       DATE);
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(110, EXPIRY, true);
 

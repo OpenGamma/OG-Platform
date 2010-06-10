@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.GreekVisitor;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -31,7 +31,7 @@ public class FiniteDifferenceGreekVisitorTest {
     }
 
   };
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(1.), 0.03, new ConstantVolatilitySurface(0.1), 100., DateUtil.getUTCDate(
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(1.), 0.03, new ConstantVolatilitySurface(0.1), 100., DateUtil.getUTCDate(
       2010, 5, 1));
   private static final OptionDefinition DEFINITION = new EuropeanVanillaOptionDefinition(110, new Expiry(DateUtil.getUTCDate(2011, 5, 1)), true);
   private static final GreekVisitor<Double> VISITOR = new FiniteDifferenceGreekVisitor<StandardOptionDataBundle, OptionDefinition>(FUNCTION, DATA, DEFINITION);

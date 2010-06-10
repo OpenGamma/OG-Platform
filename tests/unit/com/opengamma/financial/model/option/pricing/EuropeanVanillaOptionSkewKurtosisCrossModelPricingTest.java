@@ -13,7 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.junit.Test;
 
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.option.definition.EdgeworthSkewKurtosisBinomialOptionModelDefinition;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
@@ -32,9 +32,9 @@ public class EuropeanVanillaOptionSkewKurtosisCrossModelPricingTest {
   private static final Double STRIKE = 9.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08,
+  private static final SkewKurtosisOptionDataBundle NORMAL_DATA = new SkewKurtosisOptionDataBundle(new ConstantYieldCurve(0.08), 0.08,
       new ConstantVolatilitySurface(0.3), 10., DATE, 0., 3.);
-  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new ConstantInterestRateDiscountCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3),
+  private static final SkewKurtosisOptionDataBundle DATA = new SkewKurtosisOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3),
       10., DATE, 1., 3.);
   private static final List<Greek> REQUIRED_GREEKS = Arrays.asList(Greek.FAIR_PRICE);
 

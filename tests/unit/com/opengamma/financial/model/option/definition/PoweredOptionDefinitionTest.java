@@ -12,7 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -28,7 +28,7 @@ public class PoweredOptionDefinitionTest {
   private static final double POWER = 4;
   private static final OptionDefinition CALL = new PoweredOptionDefinition(STRIKE, EXPIRY, POWER, true);
   private static final OptionDefinition PUT = new PoweredOptionDefinition(STRIKE, EXPIRY, POWER, false);
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantInterestRateDiscountCurve(0.05), 0.05, new ConstantVolatilitySurface(0.1), STRIKE, DateUtil.getUTCDate(
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.05), 0.05, new ConstantVolatilitySurface(0.1), STRIKE, DateUtil.getUTCDate(
       2009, 5, 1));
 
   @Test(expected = IllegalArgumentException.class)

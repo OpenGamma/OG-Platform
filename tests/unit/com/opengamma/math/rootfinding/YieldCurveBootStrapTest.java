@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -105,7 +105,7 @@ public class YieldCurveBootStrapTest {
       for (int i = 0; i < _timeGrid.length; i++) {
         data.put(_timeGrid[i], x.getEntry(i));
       }
-      DiscountCurve curve = new InterpolatedDiscountCurve(data, INTERPOLATOR);
+      YieldAndDiscountCurve curve = new InterpolatedDiscountCurve(data, INTERPOLATOR);
 
       double[] res = new double[_swapValues.length];
       for (int i = 0; i < _swapValues.length; i++) {
@@ -152,7 +152,7 @@ public class YieldCurveBootStrapTest {
       _liborSetResetTimes = liborSetResetTimes;
     }
 
-    public double getSwapRate(DiscountCurve curve) {
+    public double getSwapRate(YieldAndDiscountCurve curve) {
       double fixed = _fixedPaymentTimes[0] * curve.getDiscountFactor(_fixedPaymentTimes[0]);
       for (int i = 1; i < _fixedPaymentTimes.length; i++) {
         fixed += (_fixedPaymentTimes[i] - _fixedPaymentTimes[i - 1]) * curve.getDiscountFactor(_fixedPaymentTimes[i]);

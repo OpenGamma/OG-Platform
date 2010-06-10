@@ -23,7 +23,7 @@ import com.opengamma.financial.model.forward.pricing.CostOfCarryForwardModel;
 import com.opengamma.financial.model.forward.pricing.ForwardModel;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 import com.opengamma.financial.model.future.definition.StandardFutureDataBundle;
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -37,11 +37,11 @@ public class CostOfCarryFutureAsForwardModelTest {
   private static final ForwardModel<StandardForwardDataBundle> FORWARD_MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition FORWARD_DEFINITION = new ForwardDefinition(EXPIRY);
   private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D,
-      new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
+      new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
   private static final FutureModel<StandardFutureDataBundle> FUTURE_MODEL = new CostOfCarryFutureAsForwardModel();
   private static final FutureDefinition FUTURE_DEFINITION = new FutureDefinition(EXPIRY);
   private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D,
-      new ConstantInterestRateDiscountCurve(R), SPOT, DATE, STORAGE);
+      new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = NullPointerException.class)

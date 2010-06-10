@@ -24,10 +24,9 @@ import com.opengamma.math.interpolation.Interpolator1DModelFactory;
 /**
  * 
  */
-public class InterpolatedDiscountCurve extends DiscountCurve implements Serializable {
+public class InterpolatedDiscountCurve extends YieldAndDiscountCurve implements Serializable {
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedDiscountCurve.class);
   private final SortedMap<Double, Double> _rateData;
-  private final Interpolator1DModel _discountFactorModel;
   private final SortedMap<Double, Double> _dfData;
   private final SortedMap<Double, Interpolator1D<Interpolator1DModel>> _interpolators;
 
@@ -91,7 +90,6 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     }
     _rateData = Collections.<Double, Double>unmodifiableSortedMap(sortedRates);
     _dfData = Collections.<Double, Double>unmodifiableSortedMap(sortedDF);
-    _discountFactorModel = Interpolator1DModelFactory.fromMap(sortedDF);
     _interpolators = Collections.<Double, Interpolator1D<Interpolator1DModel>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<Interpolator1DModel>>(interpolators));
   }
 
@@ -172,11 +170,13 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
       throw new IllegalArgumentException("Cannot have a negative time in a DiscountCurve: provided " + t);
     }
     if (_interpolators.size() == 1) {
-      return _interpolators.values().iterator().next().interpolate(_discountFactorModel, t).getResult();
+      final Interpolator1D<Interpolator1DModel> interpolator = _interpolators.values().iterator().next();
+      return interpolator.interpolate(Interpolator1DModelFactory.fromMap(_dfData, interpolator), t).getResult();
     }
     final Map<Double, Interpolator1D<Interpolator1DModel>> tail = _interpolators.tailMap(t);
     final Double key = tail.isEmpty() ? _interpolators.lastKey() : _interpolators.tailMap(t).firstKey();
-    return _interpolators.get(key).interpolate(_discountFactorModel, t).getResult();
+    final Interpolator1D<Interpolator1DModel> interpolator = _interpolators.get(key);
+    return interpolator.interpolate(Interpolator1DModelFactory.fromMap(_dfData, interpolator), t).getResult();
   }
 
   @Override
@@ -185,7 +185,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
   }
 
   @Override
-  public DiscountCurve withParallelShift(final Double shift) {
+  public YieldAndDiscountCurve withParallelShift(final Double shift) {
     if (shift == null) {
       throw new IllegalArgumentException("Shift was null");
     }
@@ -197,7 +197,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
   }
 
   @Override
-  public DiscountCurve withSingleShift(final Double t, final Double shift) {
+  public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
     if (t == null) {
       throw new IllegalArgumentException("t was null");
     }
@@ -218,7 +218,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
   }
 
   @Override
-  public DiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
+  public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
     if (shifts == null) {
       throw new IllegalArgumentException("Shift map was null");
     }

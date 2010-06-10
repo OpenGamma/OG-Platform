@@ -12,8 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtil;
@@ -27,13 +27,13 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
 public class StandardOptionWithSpotTimeSeriesDataBundleTest {
   private static final double R = 0.05;
   private static final double SIGMA = 0.15;
-  private static final DiscountCurve CURVE = new ConstantInterestRateDiscountCurve(R);
+  private static final YieldAndDiscountCurve CURVE = new ConstantYieldCurve(R);
   private static final double B = 0.01;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final double SPOT = 100;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2010, 5, 1);
   private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2}, new double[] {3, 4});
-  private static final DiscountCurve OTHER_CURVE = new ConstantInterestRateDiscountCurve(R + 1);
+  private static final YieldAndDiscountCurve OTHER_CURVE = new ConstantYieldCurve(R + 1);
   private static final double OTHER_B = B + 1;
   private static final VolatilitySurface OTHER_SURFACE = new ConstantVolatilitySurface(SIGMA + 1);
   private static final double OTHER_SPOT = SPOT + 1;

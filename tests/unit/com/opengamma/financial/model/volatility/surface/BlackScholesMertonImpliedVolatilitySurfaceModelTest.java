@@ -17,8 +17,8 @@ import org.junit.Test;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
@@ -66,7 +66,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
     boolean isCall;
     double spot, strike, b, price;
     Expiry expiry;
-    DiscountCurve curve;
+    YieldAndDiscountCurve curve;
     EuropeanVanillaOptionDefinition definition;
     StandardOptionDataBundle initialData, data;
     double sigma = 0.01;
@@ -75,7 +75,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModelTest {
       sigma += 0.03;
       spot = 2 * RANDOM.nextDouble() + 10;
       strike = 2 * RANDOM.nextDouble() + 10;
-      curve = new ConstantInterestRateDiscountCurve(RANDOM.nextDouble() / 10);
+      curve = new ConstantYieldCurve(RANDOM.nextDouble() / 10);
       b = RANDOM.nextDouble() / 20;
       isCall = RANDOM.nextDouble() < 0.5 ? true : false;
       definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
