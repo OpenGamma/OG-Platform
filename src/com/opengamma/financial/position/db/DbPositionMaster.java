@@ -234,10 +234,10 @@ public class DbPositionMaster implements ManagablePositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
-    checkIdentifier(uid, TYPE_PORTFOLIO);
-    if (uid.getValue().contains("-")) {
+    if (uid.getValue().startsWith("" + TYPE_PORTFOLIO) == false) {
       return null;  // TODO: better solution/exception
     }
+    checkIdentifier(uid, TYPE_PORTFOLIO);
     if (uid.isVersioned()) {
       return getWorker().selectPortfolioByOidVersion(extractPortfolioOid(uid), extractVersion(uid), true, true, true);
     }
