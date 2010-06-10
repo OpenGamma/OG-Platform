@@ -198,5 +198,24 @@ public final class ArgumentChecker {
       throw new IllegalArgumentException("Input parameter '" + name + "' must not be negative or zero");
     }
   }
-
+  
+  public static boolean hasNullElement(Collection<?> collection) {    
+    notNull(collection, "collection");
+    for (Object o : collection) {
+      if (o == null) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  public static boolean hasNegativeElement(Collection<Double> collection) {
+    notNull(collection, "collection");
+    for (Double d : collection) {
+      if (d < 0) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

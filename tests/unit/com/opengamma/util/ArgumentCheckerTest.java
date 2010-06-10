@@ -6,6 +6,8 @@
 package com.opengamma.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +15,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 /**
  * Test ArgumentChecker.
@@ -338,5 +342,20 @@ public class ArgumentCheckerTest {
       throw iae;
     }
   }
-
+  
+  @Test
+  public void testHasNullElement() {
+    Collection<?> c = Sets.newHashSet(null, new Object(), new Object());
+    assertTrue(ArgumentChecker.hasNullElement(c));
+    c = Sets.newHashSet(new Object(), new Object());
+    assertFalse(ArgumentChecker.hasNullElement(c));
+  }
+  
+  @Test
+  public void testHashNegativeElement() {
+    Collection<Double> c = Sets.newHashSet(4., -5., -6.);
+    assertTrue(ArgumentChecker.hasNegativeElement(c));
+    c = Sets.newHashSet(1., 2., 3.);
+    assertFalse(ArgumentChecker.hasNegativeElement(c));
+  }
 }
