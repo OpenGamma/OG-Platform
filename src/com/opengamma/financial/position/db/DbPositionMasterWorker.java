@@ -8,6 +8,7 @@ package com.opengamma.financial.position.db;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +19,11 @@ import java.util.TreeSet;
 import javax.time.Instant;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -44,7 +45,6 @@ import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbHelper;
 import com.opengamma.util.db.Paging;
 import com.opengamma.util.time.DateUtil;
@@ -54,6 +54,23 @@ import com.opengamma.util.tuple.LongObjectPair;
  * Low level SQL focused part of the database backed position master.
  */
 public class DbPositionMasterWorker {
+
+  /**
+   * The maximum instant used for end-versioning.
+   */
+  protected static final Timestamp END_INSTANT = DateUtil.MAX_SQL_TIMESTAMP;
+  /**
+   * The maximum version used for end-versioning.
+   */
+  protected static final long END_VERSION = Long.MAX_VALUE;
+  /**
+   * Status flag for active portfolios.
+   */
+  protected static final String STATUS_ACTIVE = "A";
+  /**
+   * Status flag for deleted portfolios.
+   */
+  protected static final String STATUS_DELETED = "D";
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbPositionMasterWorker.class);
@@ -68,7 +85,7 @@ public class DbPositionMasterWorker {
    * @param parent  the parent manager, not null
    */
   public DbPositionMasterWorker(DbPositionMaster parent) {
-    ArgumentChecker.notNull(parent, "transactionManager");
+    Validate.notNull(parent, "transactionManager");
     _parent = parent;
   }
 
@@ -146,9 +163,11 @@ public class DbPositionMasterWorker {
    * @param version  the version
    * @param ignoreDeleted  whether to ignore deleted entries
    * @param loadTree  whether to load the tree
+   * @param loadPositions  whether to load the positions
    * @return the portfolio, null if not found
    */
-  protected Portfolio selectPortfolioByOidVersion(final long portfolioOid, final long version, final boolean ignoreDeleted, final boolean loadTree) {
+  protected PortfolioImpl selectPortfolioByOidVersion(final long portfolioOid, final long version,
+      final boolean ignoreDeleted, final boolean loadTree, final boolean loadPositions) {
     MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("version", version);
@@ -163,6 +182,7 @@ public class DbPositionMasterWorker {
     UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
     PortfolioNodeImpl root = new PortfolioNodeImpl();
     if (loadTree) {
+      // TODO: handle loadPositions
       root = selectPortfolioRootNode(portfolioOid, version);
     }
     return new PortfolioImpl(uid, name, root);
@@ -570,7 +590,7 @@ public class DbPositionMasterWorker {
       summary.setStartInstant(DateUtil.fromSqlTimestamp(rs.getTimestamp("START_INSTANT")));
       summary.setEndInstant(DateUtil.fromSqlTimestamp(rs.getTimestamp("END_INSTANT")));
       summary.setTotalPositions(rs.getInt("TOTAL_POSITIONS"));
-      summary.setActive(rs.getString("STATUS").equals("A"));
+      summary.setActive(rs.getString("STATUS").equals(STATUS_ACTIVE));
       return summary;
     }
   }
@@ -633,14 +653,12 @@ public class DbPositionMasterWorker {
     MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("version", version)
-      .addValue("status", active ? "A" : "D")
+      .addValue("status", active ? STATUS_ACTIVE : STATUS_DELETED)
       .addValue("start_instant", DateUtil.toSqlTimestamp(instant))
-      .addValue("end_instant", DateUtil.MAX_SQL_TIMESTAMP)
+      .addValue("end_instant", END_INSTANT)
       .addValue("name", portfolio.getName());
     getTemplate().update(sqlInsertPortfolio(), args);
-    UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
-    setUniqueIdentifier(portfolio, uid);
-    return uid;
+    return createPortfolioUniqueIdentifier(portfolioOid, version);
   }
 
   /**
@@ -697,14 +715,59 @@ public class DbPositionMasterWorker {
       .addValue("portfolio_oid", portfolioOid)
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
-      .addValue("end_version", Long.MAX_VALUE)
+      .addValue("end_version", END_VERSION)
       .addValue("name", node.getName());
     nodeList.add(nodeArgs);
     // the arguments for inserting into the tree table
     MapSqlParameterSource treeArgs = new MapSqlParameterSource()
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
-      .addValue("end_version", Long.MAX_VALUE)
+      .addValue("end_version", END_VERSION)
+      .addValue("left_id", left)
+      .addValue("right_id", right);
+    treeList.add(treeArgs);
+    // set the uid
+    UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, nodeOid, version);
+    setUniqueIdentifier(node, uid);
+  }
+
+  /**
+   * Inserts a tree of nodes.
+   * @param rootNode  the root node, not null
+   * @param portfolioOid  the portfolio oid, not null
+   * @param version  the version, not null
+   * @return the root node object identifier, not null
+   */
+  protected UniqueIdentifier insertTree(
+      final PortfolioNode rootNode, final long portfolioOid, final long version) {
+    final long nodeOid = selectNextNodeOid();
+    final List<MapSqlParameterSource> treeList = new ArrayList<MapSqlParameterSource>();
+    insertTreeBuildArgs(rootNode, portfolioOid, new long[] {1}, version, treeList);
+    getTemplate().batchUpdate(sqlInsertTree(), (MapSqlParameterSource[]) treeList.toArray(new MapSqlParameterSource[treeList.size()]));
+    return createUniqueIdentifier(portfolioOid, nodeOid, version);
+  }
+
+  /**
+   * Recursively create the arguments to insert into the tree existing nodes.
+   * @param node  the root node, not null
+   * @param portfolioOid  the portfolio oid, not null
+   * @param counter  the counter to create node oid, not null
+   * @param version  the version, not null
+   * @param treeList  the list of tree arguments to build, not null
+   */
+  protected void insertTreeBuildArgs(
+      final PortfolioNode node, final Long portfolioOid, long[] counter, final Long version, List<MapSqlParameterSource> treeList) {
+    // depth first, storing the left/right before/after the loop
+    final long left = counter[0]++;
+    for (PortfolioNode childNode : node.getChildNodes()) {
+      insertTreeBuildArgs(childNode, portfolioOid, counter, version, treeList);
+    }
+    final long right = counter[0]++;
+    final long nodeOid = getParent().extractOtherOid(node.getUniqueIdentifier());
+    MapSqlParameterSource treeArgs = new MapSqlParameterSource()
+      .addValue("node_oid", nodeOid)
+      .addValue("start_version", version)
+      .addValue("end_version", END_VERSION)
       .addValue("left_id", left)
       .addValue("right_id", right);
     treeList.add(treeArgs);
@@ -720,16 +783,15 @@ public class DbPositionMasterWorker {
    * @param nodeOid  the node oid, not null
    * @param version  the version, not null
    * @param instant  the instant to store at, not null
-   * @param active true if the portfolio is active, false for deleted
    * @return the version, not null
    */
   protected UniqueIdentifier insertNode(
-      final PortfolioNode node, final long portfolioOid, final long nodeOid, final long version, final Instant instant, boolean active) {
+      final PortfolioNode node, final long portfolioOid, final long nodeOid, final long version, final Instant instant) {
     MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
-      .addValue("end_version", Long.MAX_VALUE)
+      .addValue("end_version", END_VERSION)
       .addValue("name", node.getName());
     getTemplate().update(sqlInsertNode(), args);
     UniqueIdentifier uid = createUniqueIdentifier(portfolioOid, nodeOid, version);
@@ -801,7 +863,7 @@ public class DbPositionMasterWorker {
         .addValue("node_oid", nodeOid)
         .addValue("position_oid", positionOid)
         .addValue("start_version", version)
-        .addValue("end_version", Long.MAX_VALUE)
+        .addValue("end_version", END_VERSION)
         .addValue("quantity", position.getQuantity());
       positionList.add(positionArgs);
       // the arguments for inserting into the seckey table
@@ -811,7 +873,7 @@ public class DbPositionMasterWorker {
           .addValue("position_oid", positionOid)
           .addValue("seckey_oid", secKeyOid)
           .addValue("start_version", version)
-          .addValue("end_version", Long.MAX_VALUE)
+          .addValue("end_version", END_VERSION)
           .addValue("id_scheme", id.getScheme().getName())
           .addValue("id_value", id.getValue());
         secKeyList.add(treeArgs);
@@ -848,20 +910,14 @@ public class DbPositionMasterWorker {
   /**
    * Updates the portfolio table to end-date a portfolio.
    * @param portfolioOid  the portfolio to end
-   * @param version  the version number to update the end-date of
    * @param instant  the instant to use, not null
-   * @return the updated unique identifier, not null
    */
-  protected UniqueIdentifier updatePortfolioSetEndInstant(final long portfolioOid, final long version, final Instant instant) {
+  protected void updatePortfolioSetEndInstant(final long portfolioOid, final Instant instant) {
     MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
-      .addValue("version", version)
+      .addValue("search_instant", END_INSTANT)
       .addValue("end_instant", DateUtil.toSqlTimestamp(instant));
-    int rows = getTemplate().update(sqlUpdatePortfolioSetEndInstant(), args);
-    if (rows != 1) {
-      throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sqlUpdatePortfolioSetEndInstant(), 1, rows);
-    }
-    return createPortfolioUniqueIdentifier(portfolioOid, version);
+    getTemplate().update(sqlUpdatePortfolioSetEndInstant(), args);
   }
 
   /**
@@ -872,38 +928,60 @@ public class DbPositionMasterWorker {
     return "UPDATE pos_portfolio " +
             "SET end_instant = :end_instant " +
             "WHERE oid = :portfolio_oid " +
-              "AND version = :version ";
+              "AND end_instant = :search_instant ";
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Updates the portfolio table to end-date a node.
+   * Updates the tree table to end-version each node.
    * @param portfolioOid  the portfolio to end
-   * @param nodeOid  the node to end
-   * @param version  the version number to update the end-date of
-   * @return the updated unique identifier, not null
+   * @param endVersion  the version number to end the rows with
    */
-  protected UniqueIdentifier updateNodeSetEndVersion(final long portfolioOid, final long nodeOid, final long version) {
+  protected void updateTreeSetEndVersion(final long portfolioOid, final long endVersion) {
     MapSqlParameterSource args = new MapSqlParameterSource()
-      .addValue("node_oid", nodeOid)
-      .addValue("searchVersion", version)
-      .addValue("endVersion", version + 1);
-    int rows = getTemplate().update(sqlUpdateNodeSetEndVersion(), args);
-    if (rows != 1) {
-      throw new JdbcUpdateAffectedIncorrectNumberOfRowsException(sqlUpdatePortfolioSetEndInstant(), 1, rows);
-    }
-    return createPortfolioUniqueIdentifier(portfolioOid, version);
+      .addValue("portfolio_oid", portfolioOid)
+      .addValue("search_version", END_VERSION)
+      .addValue("end_version", endVersion);
+    getTemplate().update(sqlUpdateTreeSetEndVersion(), args);
   }
 
   /**
-   * Gets the SQL for end-dating a node.
+   * Gets the SQL for end-versioning a tree node.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateTreeSetEndVersion() {
+    return "UPDATE pos_nodetree " +
+            "SET end_version = :end_version " +
+            "WHERE node_oid IN (" +
+                "SELECT oid FROM pos_node WHERE portfolio_oid = :portfolio_oid" +
+              ") " +
+              "AND end_version = :search_version";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates the node table to end-version a node.
+   * @param portfolioOid  the portfolio to end
+   * @param nodeOid  the node to end
+   * @param endVersion  the version number to end the rows with
+   */
+  protected void updateNodeSetEndVersion(final long portfolioOid, final long nodeOid, final long endVersion) {
+    MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("node_oid", nodeOid)
+      .addValue("search_version", END_VERSION)
+      .addValue("end_version", endVersion);
+    getTemplate().update(sqlUpdateNodeSetEndVersion(), args);
+  }
+
+  /**
+   * Gets the SQL for end-versioning a node.
    * @return the SQL, not null
    */
   protected String sqlUpdateNodeSetEndVersion() {
     return "UPDATE pos_node " +
-            "SET end_version = :endVersion " +
+            "SET end_version = :end_version " +
             "WHERE oid = :node_oid " +
-              "AND :searchVersion >= start_version AND :searchVersion < end_version";
+              "AND end_version = :search_version";
   }
 
   //-------------------------------------------------------------------------

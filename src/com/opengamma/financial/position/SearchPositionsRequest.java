@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import javax.time.Instant;
 
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -154,6 +155,16 @@ public final class SearchPositionsRequest {
    */
   public void setSecurityKey(Identifier securityKey) {
     _securityKey = securityKey;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Validates this request throwing an exception if not.
+   */
+  public void checkValid() {
+    Validate.isTrue(getMinQuantity() == null || getMinQuantity().compareTo(BigDecimal.ZERO) < 0, "Minimum quantity must be zero or greater");
+    Validate.isTrue(getMaxQuantity() == null || getMaxQuantity().compareTo(BigDecimal.ZERO) < 0, "Maximum quantity must be zero or greater");
+    Validate.isTrue(getMinQuantity() == null || getMaxQuantity() == null || getMinQuantity().compareTo(getMaxQuantity()) < 0, "Minimum quantity must be less than maximum quantity");
   }
 
   //-------------------------------------------------------------------------

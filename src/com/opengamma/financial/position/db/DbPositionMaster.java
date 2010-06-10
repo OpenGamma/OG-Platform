@@ -12,6 +12,7 @@ import javax.time.Instant;
 import javax.time.InstantProvider;
 import javax.time.TimeSource;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,15 +22,20 @@ import org.springframework.util.Assert;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.position.PortfolioImpl;
 import com.opengamma.engine.position.PortfolioNode;
+import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
+import com.opengamma.financial.position.AddPortfolioNodeRequest;
+import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.financial.position.SearchPositionsRequest;
 import com.opengamma.financial.position.SearchPositionsResult;
+import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
+import com.opengamma.financial.position.UpdatePortfolioRequest;
 import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbHelper;
 
 /**
@@ -75,8 +81,8 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @param dbHelper  the database specific helper, not null
    */
   public DbPositionMaster(DataSourceTransactionManager transactionManager, DbHelper dbHelper) {
-    ArgumentChecker.notNull(transactionManager, "transactionManager");
-    ArgumentChecker.notNull(dbHelper, "dbHelper");
+    Validate.notNull(transactionManager, "DataSourceTransactionManager must not be null");
+    Validate.notNull(dbHelper, "DbHelper must not be null");
     DataSource dataSource = transactionManager.getDataSource();
     _jdbcTemplate = new SimpleJdbcTemplate(dataSource);
     _worker = new DbPositionMasterWorker(this);
@@ -123,7 +129,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @param timeSource  the time-source, not null
    */
   public void setTimeSource(final TimeSource timeSource) {
-    ArgumentChecker.notNull(timeSource, "timeSource");
+    Validate.notNull(timeSource, "TimeSource must not be null");
     _timeSource = timeSource;
   }
 
@@ -141,7 +147,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @param scheme  the scheme, not null
    */
   public void setIdentifierScheme(final String scheme) {
-    ArgumentChecker.notNull(scheme, "scheme");
+    Validate.notNull(scheme, "Scheme must not be null");
     _identifierScheme = scheme;
   }
 
@@ -151,7 +157,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @param uid  the unique identifier, not null
    */
   protected void checkIdentifierScheme(final UniqueIdentifier uid) {
-    ArgumentChecker.notNull(uid, "UniqueIdentifier");
+    Validate.notNull(uid, "UniqueIdentifier must not be null");
     if (isManagerFor(uid) == false) {
       s_logger.debug("invalid UniqueIdentifier scheme: {}", uid.getScheme());
       throw new IllegalArgumentException("Invalid identifier for DbPositionMaster: " + uid);
@@ -191,6 +197,9 @@ public class DbPositionMaster implements ManagablePositionMaster {
    * @return the version
    */
   protected long extractVersion(final UniqueIdentifier uid) {
+    if (uid.getVersion() == null) {
+      throw new IllegalArgumentException("Unique identifier does not contain a version: " + uid);
+    }
     return Long.parseLong(uid.getVersion());
   }
 
@@ -213,7 +222,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
       return null;  // TODO: better solution/exception
     }
     if (uid.isVersioned()) {
-      return getWorker().selectPortfolioByOidVersion(extractPortfolioOid(uid), extractVersion(uid), true, true);
+      return getWorker().selectPortfolioByOidVersion(extractPortfolioOid(uid), extractVersion(uid), true, true, true);
     }
     return getPortfolio(uid, Instant.now(getTimeSource()));
   }
@@ -298,38 +307,31 @@ public class DbPositionMaster implements ManagablePositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public SearchPortfoliosResult searchPortfolios(final SearchPortfoliosRequest request) {
+    Validate.notNull(request, "SearchPortfoliosRequest must not be null");
+    request.checkValid();
     Instant now = Instant.now(getTimeSource());
     return getWorker().selectPortfolioSummaries(request, now);
-//    ArrayList<PortfolioSummary> summaries = new ArrayList<PortfolioSummary>();
-//    Set<UniqueIdentifier> uids = getPortfolioIds();
-//    for (UniqueIdentifier uid : uids) {
-//      PortfolioSummary summary = new PortfolioSummary(uid);
-//      summary.setName(uid.toString());
-//      summaries.add(summary);
-//    }
-//    return new SearchPortfoliosResult(new Paging(request.getPagingRequest(), summaries.size()), summaries);
   }
 
   @Override
-  public UniqueIdentifier addPortfolio(final Portfolio portfolio) {
-    ArgumentChecker.notNull(portfolio, "portfolio");
+  public UniqueIdentifier addPortfolio(final AddPortfolioRequest request) {
+    Validate.notNull(request, "AddPortfolioRequest must not be null");
+    request.checkValid();
     Instant instant = Instant.now(getTimeSource());
-    UniqueIdentifier inputUid = portfolio.getUniqueIdentifier();
-    if (inputUid != null && inputUid.getScheme().equals(getIdentifierScheme())) {
-      throw new IllegalArgumentException("Portfolio already exists in this position master");
-    }
     long portfolioOid = getWorker().selectNextPortfolioOid();
+    Portfolio portfolio = new PortfolioImpl(request.getName());
     UniqueIdentifier uid = getWorker().insertPortfolio(portfolio, portfolioOid, 1, instant, true);
-    getWorker().insertNodes(portfolio.getRootNode(), portfolioOid, 1);
-    getWorker().insertTreePositions(portfolio.getRootNode(), portfolioOid, 1);
+    getWorker().insertNodes(request.getRootNode(), portfolioOid, 1);
+    getWorker().insertTreePositions(request.getRootNode(), portfolioOid, 1);
     return uid;
   }
 
   @Override
-  public UniqueIdentifier updatePortfolioOnly(final Portfolio portfolio) {
-    Assert.notNull(portfolio, "portfolio");
+  public UniqueIdentifier updatePortfolio(final UpdatePortfolioRequest request) {
+    Assert.notNull(request, "UpdatePortfolioRequest must not be null");
+    request.checkValid();
     Instant instant = Instant.now(getTimeSource());
-    UniqueIdentifier oldUid = portfolio.getUniqueIdentifier();
+    UniqueIdentifier oldUid = request.getUniqueIdentifier();
     checkIdentifierScheme(oldUid);
     long portfolioOid = extractPortfolioOid(oldUid);
     long oldVersion = extractVersion(oldUid);
@@ -337,13 +339,15 @@ public class DbPositionMaster implements ManagablePositionMaster {
     if (oldVersion != latestVersion) {
       throw new DataIntegrityViolationException("Unable to update PortfolioNode as version " + oldVersion + " is not the latest version " + latestVersion);
     }
-    getWorker().updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old version
-    return getWorker().insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant, true);  // insert new version
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    Portfolio portfolio = new PortfolioImpl(request.getName());
+    long newVersion = latestVersion + 1;
+    return getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
   }
 
   @Override
   public UniqueIdentifier removePortfolio(final UniqueIdentifier portfolioUid) {
-    ArgumentChecker.notNull(portfolioUid, "portfolio unique identifier");
+    Validate.notNull(portfolioUid, "UniqueIdentifier must not be null");
     Instant instant = Instant.now(getTimeSource());
     checkIdentifierScheme(portfolioUid);
     long portfolioOid = extractPortfolioOid(portfolioUid);
@@ -352,119 +356,146 @@ public class DbPositionMaster implements ManagablePositionMaster {
     if (oldVersion != latestVersion) {
       throw new DataIntegrityViolationException("Unable to update PortfolioNode as version " + oldVersion + " is not the latest version " + latestVersion);
     }
-    Portfolio portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, false);
-    getWorker().updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old version
-    return getWorker().insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant, false);  // insert new version
+    Portfolio portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, false, false);
+    long newVersion = latestVersion + 1;
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    return getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, false);  // insert new version
   }
 
   @Override
   public UniqueIdentifier reinstatePortfolio(final UniqueIdentifier portfolioUid) {
-    ArgumentChecker.notNull(portfolioUid, "portfolio unique identifier");
+    Validate.notNull(portfolioUid, "UniqueIdentifier must not be null");
     Instant instant = Instant.now(getTimeSource());
     checkIdentifierScheme(portfolioUid);
     long portfolioOid = extractPortfolioOid(portfolioUid);
     long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, false);  // find latest version
-    Portfolio portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, false, false);
-    getWorker().updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old version
-    return getWorker().insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant, true);  // insert new version
+    Portfolio portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, false, false, false);
+    long newVersion = latestVersion + 1;
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    return getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Adds a portfolio node to the specified node.
-   * <p>
-   * If the position is mutable, the unique identifier will be altered.
-   * 
-   * @param nodeUid  the node to add to, not null
-   * @param node  the node to add, not null
-   * @return the new unique identifier of the node, not null
-   * @throws IllegalArgumentException if the node is not from this position master
-   */
-  public UniqueIdentifier addPortfolioNode(final UniqueIdentifier nodeUid, final PortfolioNode node) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Updates a portfolio node, without updating child nodes or positions.
-   * <p>
-   * The node specified must be the latest version.
-   * If the node is mutable, the unique identifier will be altered.
-   * 
-   * @param node  the node to update, not null
-   * @return the new unique identifier of the node, not null
-   * @throws IllegalArgumentException if the node is not from this position master
-   * @throws DataNotFoundException if the node is not found
-   */
-  public UniqueIdentifier updatePortfolioNodeOnly(final PortfolioNode node) {
-    Assert.notNull(node, "node");
-    Instant instant = Instant.now(getTimeSource());
-    UniqueIdentifier oldUid = node.getUniqueIdentifier();
-    checkIdentifierScheme(oldUid);
-    long portfolioOid = extractPortfolioOid(oldUid);
-    long nodeOid = extractOtherOid(oldUid);
-    long oldVersion = extractVersion(oldUid);
-    Portfolio portfolio = getWorker().selectPortfolioByOidInstant(portfolioOid, instant);  // find latest version
-    long latestVersion = extractVersion(portfolio.getUniqueIdentifier());
+  @Override
+  public UniqueIdentifier addPortfolioNode(final AddPortfolioNodeRequest request) {
+    Validate.notNull(request, "AddPortfolioNodeRequest must not be null");
+    request.checkValid();
+    final Instant instant = Instant.now(getTimeSource());
+    final UniqueIdentifier parentUid = request.getParentNode();
+    checkIdentifierScheme(parentUid);
+    final long portfolioOid = extractPortfolioOid(parentUid);
+    final long oldVersion = extractVersion(parentUid);
+    final long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
     if (oldVersion != latestVersion) {
       throw new DataIntegrityViolationException("Unable to update PortfolioNode as version " + oldVersion + " is not the latest version " + latestVersion);
     }
-    getWorker().updatePortfolioSetEndInstant(portfolioOid, latestVersion, instant);  // end-date old portfolio version
-    getWorker().insertPortfolio(portfolio, portfolioOid, latestVersion + 1, instant, true);  // insert new version
-    getWorker().updateNodeSetEndVersion(portfolioOid, nodeOid, latestVersion);  // end-date old version
-    return getWorker().insertNode(node, portfolioOid, nodeOid, latestVersion + 1, instant, true);  // insert new version
+    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, true, false);
+    final PortfolioNodeImpl root = portfolio.getRootNode();
+    final PortfolioNodeImpl parentNode = (PortfolioNodeImpl) root.getNode(parentUid);
+    if (parentNode == null) {
+      throw new DataNotFoundException("Unable to add PortfolioNode as specified parent " + parentUid + " could not be found");
+    }
+    final PortfolioNodeImpl newChild = new PortfolioNodeImpl(request.getName());
+    parentNode.addChildNode(newChild);
+    final long newChildOid = getWorker().selectNextNodeOid();
+    final long newVersion = latestVersion + 1;
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    getWorker().updateTreeSetEndVersion(portfolioOid, newVersion);  // end old version
+    getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
+    getWorker().insertNode(newChild, portfolioOid, newChildOid, newVersion, instant);  // insert the child node
+    getWorker().insertTree(root, portfolioOid, newVersion);  // insert tree with new child
+    return getWorker().createUniqueIdentifier(portfolioOid, newChildOid, newVersion);
   }
 
-  /**
-   * Removes a portfolio node.
-   * <p>
-   * If the unique identifier contains a version it must be the latest version.
-   * <p>
-   * Where possible, implementations should retain the data in such a way that the
-   * positions can be reinstated.
-   * 
-   * @param nodeUid  the node unique identifier to remove, not null
-   * @return the new unique identifier of the node, not null
-   * @throws IllegalArgumentException if the node is not from this position master
-   * @throws DataNotFoundException if the node is not found
-   */
+  @Override
+  public UniqueIdentifier updatePortfolioNode(final UpdatePortfolioNodeRequest request) {
+    Validate.notNull(request, "PortfolioNode must not be null");
+    request.checkValid();
+    final Instant instant = Instant.now(getTimeSource());
+    final UniqueIdentifier nodeUid = request.getUniqueIdentifier();
+    checkIdentifierScheme(nodeUid);
+    final long portfolioOid = extractPortfolioOid(nodeUid);
+    final long nodeOid = extractOtherOid(nodeUid);
+    final long oldVersion = extractVersion(nodeUid);
+    final Portfolio portfolio = getWorker().selectPortfolioByOidInstant(portfolioOid, instant);  // find latest version
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant);
+    }
+    final long latestVersion = extractVersion(portfolio.getUniqueIdentifier());
+    if (oldVersion != latestVersion) {
+      throw new DataIntegrityViolationException("Unable to update PortfolioNode " + nodeUid + " as the version is not the latest version " + latestVersion);
+    }
+    final long newVersion = latestVersion + 1;
+    PortfolioNode node = new PortfolioNodeImpl(request.getName());
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    getWorker().updateNodeSetEndVersion(portfolioOid, nodeOid, newVersion);  // end old version
+    getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
+    return getWorker().insertNode(node, portfolioOid, nodeOid, newVersion, instant);  // insert new version
+  }
+
+  @Override
   public UniqueIdentifier removePortfolioNode(final UniqueIdentifier nodeUid) {
-    throw new UnsupportedOperationException();
+    Validate.notNull(nodeUid, "UniqueIdentifier must not be null");
+    Instant instant = Instant.now(getTimeSource());
+    checkIdentifierScheme(nodeUid);
+    long portfolioOid = extractPortfolioOid(nodeUid);
+    long nodeOid = extractOtherOid(nodeUid);
+    long oldVersion = extractVersion(nodeUid);
+    long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
+    if (oldVersion != latestVersion) {
+      throw new DataIntegrityViolationException("Unable to update PortfolioNode " + nodeUid + "  as version is not the latest version " + latestVersion);
+    }
+    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, true, false);
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant);
+    }
+    final PortfolioNodeImpl root = portfolio.getRootNode();
+    if (root.getUniqueIdentifier().equals(nodeUid)) {
+      throw new DataNotFoundException("Unable to remove PortfolioNode " + nodeUid + " as it is the root node in a portfolio");
+    }
+    if (removeNode(root, nodeUid) == null) {
+      throw new DataNotFoundException("Unable to remove PortfolioNode " + nodeUid + " as no parent node could not be found");
+    }
+    final long newVersion = latestVersion + 1;
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    getWorker().updateTreeSetEndVersion(portfolioOid, newVersion);  // end old version
+    getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
+    getWorker().insertTree(root, portfolioOid, newVersion);  // insert tree with removed child
+    return getWorker().createUniqueIdentifier(portfolioOid, nodeOid, newVersion);
   }
 
   /**
-   * Reinstates a previously removed portfolio node.
-   * <p>
-   * Any version in the unique identifier will be ignored.
-   * 
-   * @param nodeUid  the node unique identifier to reinstate, not null
-   * @return the new unique identifier of the node, null if unable to reinstate
-   * @throws IllegalArgumentException if the node is not from this position master
+   * Recursively finds the node and removes it from its parent.
+   * @param node  the node to start from, not null
+   * @param uid  the unique identifier of a node/position, not null
+   * @return the parent node, not null
    */
+  private PortfolioNodeImpl removeNode(PortfolioNodeImpl node, UniqueIdentifier uid) {
+    for (PortfolioNode childNode : node.getChildNodes()) {
+      if (uid.equals(childNode.getUniqueIdentifier())) {
+        node.removeChildNode(childNode);
+        return node;
+      }
+      PortfolioNodeImpl result = removeNode((PortfolioNodeImpl) childNode, uid);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
+  }
+
+  @Override
   public UniqueIdentifier reinstatePortfolioNode(final UniqueIdentifier nodeUid) {
     throw new UnsupportedOperationException();
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Searches for positions matching the request.
-   * 
-   * @param request  the request to add, not null
-   * @return the matched positions, not null
-   */
+  @Override
   public SearchPositionsResult searchPositions(final SearchPositionsRequest request) {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Adds a position to the specified node.
-   * <p>
-   * If the position is mutable, the unique identifier will be altered.
-   * 
-   * @param nodeUid  the node to add to, not null
-   * @param position  the position to add, not null
-   * @return the new unique identifier of the position, not null
-   * @throws IllegalArgumentException if the node is not from this position master
-   */
+  @Override
   public UniqueIdentifier addPosition(final UniqueIdentifier nodeUid, final Position position) {
     // TODO
     // check node version is non-null, ours and latest for that node
@@ -475,17 +506,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Updates a position, including the security key.
-   * <p>
-   * The position specified must be the latest version.
-   * If the position is mutable, the unique identifier will be altered.
-   * 
-   * @param position  the position to update, not null
-   * @return the new unique identifier of the position, not null
-   * @throws IllegalArgumentException if the node is not from this position master
-   * @throws DataNotFoundException if the position is not found
-   */
+  @Override
   public UniqueIdentifier updatePosition(final Position position) {
     // TODO
     // check position uid is non-null, ours and latest for that node
@@ -495,19 +516,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Removes a position.
-   * <p>
-   * If the unique identifier contains a version it must be the latest version.
-   * <p>
-   * Where possible, implementations should retain the data in such a way that the
-   * positions can be reinstated.
-   * 
-   * @param positionUid  the position unique identifier to remove, not null
-   * @return the new unique identifier of the position, not null
-   * @throws IllegalArgumentException if the position is not from this position master
-   * @throws DataNotFoundException if the position is not found
-   */
+  @Override
   public UniqueIdentifier removePosition(final UniqueIdentifier positionUid) {
     // TODO
     // check node version is non-null, ours and latest for that node
@@ -518,15 +527,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * Reinstates a previously removed position.
-   * <p>
-   * Any version in the unique identifier will be ignored.
-   * 
-   * @param positionUid  the position unique identifier to reinstate, not null
-   * @return the new unique identifier of the position, null if unable to reinstate
-   * @throws IllegalArgumentException if the position is not from this position master
-   */
+  @Override
   public UniqueIdentifier reinstatePosition(final UniqueIdentifier positionUid) {
     throw new UnsupportedOperationException();
   }
