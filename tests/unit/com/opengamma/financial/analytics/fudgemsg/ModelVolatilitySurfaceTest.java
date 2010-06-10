@@ -16,6 +16,7 @@ import com.opengamma.financial.model.volatility.surface.ConstantVolatilitySurfac
 import com.opengamma.financial.model.volatility.surface.InterpolatedVolatilitySurface;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.tuple.Pair;
@@ -32,7 +33,7 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
   @Test
   public void testInterpolatedVolatilitySurface () {
     double sigma = 0.4;
-    Interpolator1D linear = new LinearInterpolator1D ();
+    Interpolator1D<Interpolator1DModel> linear = new LinearInterpolator1D ();
     Interpolator2D interpolator = new GridInterpolator2D (linear, linear);
     Map<Pair<Double,Double>,Double> data = new HashMap<Pair<Double,Double>,Double> ();
     data.put(Pair.of(0., 1.), sigma);
