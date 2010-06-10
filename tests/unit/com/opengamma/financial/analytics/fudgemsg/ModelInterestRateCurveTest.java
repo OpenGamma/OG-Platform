@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
@@ -20,8 +20,8 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
   
   @Test
   public void testConstantInterestRateDiscountCurve () {
-    ConstantInterestRateDiscountCurve dc1 = new ConstantInterestRateDiscountCurve (0.05);
-    ConstantInterestRateDiscountCurve dc2 = cycleObject (ConstantInterestRateDiscountCurve.class, dc1);
+    ConstantYieldCurve dc1 = new ConstantYieldCurve (0.05);
+    ConstantYieldCurve dc2 = cycleObject (ConstantYieldCurve.class, dc1);
     assertEquals (dc1, dc2);
   }
   

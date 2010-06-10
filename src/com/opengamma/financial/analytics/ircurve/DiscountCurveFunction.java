@@ -27,7 +27,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -152,7 +152,7 @@ public class DiscountCurveFunction
       timeInYearsToRates.put(strip.getNumYears(), price);
     }
     // Bootstrap the discount curve
-    DiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
+    YieldAndDiscountCurve discountCurve = new InterpolatedDiscountCurve(timeInYearsToRates, _interpolator);
     // Prepare results
     ComputedValue resultValue = new ComputedValue(_result, discountCurve);
     return Collections.singleton(resultValue);
