@@ -86,6 +86,15 @@ public class DependencyNode {
   }
   
   /**
+   * @return The returned {@code ValueRequirements} only tell you what the function
+   * of this <i>this</i> node requires. They tell you nothing about the 
+   * functions of any child nodes. 
+   */
+  public Set<ValueRequirement> getRequiredLiveData() {
+    return _functionDefinition.getRequiredLiveData();
+  }
+  
+  /**
    * @return the functionDefinition
    */
   public FunctionDefinition getFunctionDefinition() {

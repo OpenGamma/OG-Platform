@@ -34,7 +34,7 @@ import com.opengamma.id.UniqueIdentifier;
 /**
  * 
  */
-public class DependencyGraphModelTest {
+public class DependencyGraphBuilderTest {
 
   @Test
   public void singleOutputSingleFunctionNode() {
@@ -54,19 +54,15 @@ public class DependencyGraphModelTest {
         Sets.newHashSet(value1, value2));
     functionRepo.addFunction(fn1, fn1);
 
-    DependencyGraphModel model = new DependencyGraphModel();
+    DependencyGraphBuilder model = new DependencyGraphBuilder();
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
 
     model.addTarget(target, Sets.newHashSet(req1));
     
-    Collection<DependencyGraph> graphs = model.getDependencyGraphs(ComputationTargetType.PRIMITIVE);
-    assertNotNull(graphs);
-    assertEquals(1, graphs.size());
-    DependencyGraph graph = graphs.iterator().next();
+    DependencyGraph graph = model.getDependencyGraph();
     assertNotNull(graph);
-    assertEquals(target, graph.getComputationTarget());
     assertTrue(graph.getOutputValues().contains(spec1));
     assertTrue(graph.getOutputValues().contains(spec2));
     
@@ -78,13 +74,11 @@ public class DependencyGraphModelTest {
     assertTrue(node.getOutputValues().contains(spec1));
     assertTrue(node.getOutputValues().contains(spec2));
     assertTrue(node.getInputNodes().isEmpty());
-    
-    model.removeUnnecessaryOutputs();
-    graphs = model.getDependencyGraphs(ComputationTargetType.PRIMITIVE);
-    graph = graphs.iterator().next();
-    assertTrue(graph.getOutputValues().contains(spec1));
-    assertFalse(graph.getOutputValues().contains(spec2));
-    nodes = graph.getDependencyNodes();
+    assertEquals(target, node.getComputationTarget());
+
+    graph.removeUnnecessaryValues();
+
+    nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     node = nodes.iterator().next();
@@ -116,7 +110,7 @@ public class DependencyGraphModelTest {
         Sets.newHashSet(value1, value2));
     functionRepo.addFunction(fn1, fn1);
 
-    DependencyGraphModel model = new DependencyGraphModel();
+    DependencyGraphBuilder model = new DependencyGraphBuilder();
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
@@ -124,12 +118,9 @@ public class DependencyGraphModelTest {
     model.addTarget(target, Sets.newHashSet(req1));
     model.addTarget(target, Sets.newHashSet(req2));
     
-    Collection<DependencyGraph> graphs = model.getDependencyGraphs(ComputationTargetType.PRIMITIVE);
-    assertNotNull(graphs);
-    assertEquals(1, graphs.size());
-    DependencyGraph graph = graphs.iterator().next();
+    DependencyGraph graph = model.getDependencyGraph();
     assertNotNull(graph);
-    Collection<DependencyNode> nodes = graph.getDependencyNodes();
+    Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(1, nodes.size());
     DependencyNode node = nodes.iterator().next();
@@ -159,7 +150,7 @@ public class DependencyGraphModelTest {
         Sets.newHashSet(value1, value2));
     functionRepo.addFunction(fn1, fn1);
 
-    DependencyGraphModel model = new DependencyGraphModel();
+    DependencyGraphBuilder model = new DependencyGraphBuilder();
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(new MapComputationTargetResolver());
@@ -193,24 +184,22 @@ public class DependencyGraphModelTest {
     MapComputationTargetResolver targetResolver = new MapComputationTargetResolver();
     targetResolver.addTarget(target);
 
-    DependencyGraphModel model = new DependencyGraphModel();
+    DependencyGraphBuilder model = new DependencyGraphBuilder();
     model.setLiveDataAvailabilityProvider(new FixedLiveDataAvailabilityProvider());
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(targetResolver);
 
     model.addTarget(target, req1);
-    model.removeUnnecessaryOutputs();
     
-    Collection<DependencyGraph> graphs = model.getDependencyGraphs(ComputationTargetType.PRIMITIVE);
-    assertNotNull(graphs);
-    assertEquals(1, graphs.size());
-    DependencyGraph graph = graphs.iterator().next();
+    DependencyGraph graph = model.getDependencyGraph();
     assertNotNull(graph);
-    assertEquals(target, graph.getComputationTarget());
+    
+    graph.removeUnnecessaryValues();
+
     assertTrue(graph.getOutputValues().contains(spec1));
     assertTrue(graph.getOutputValues().contains(spec2));
     
-    Collection<DependencyNode> nodes = graph.getDependencyNodes();
+    Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
@@ -219,6 +208,7 @@ public class DependencyGraphModelTest {
         assertFalse(node.getOutputValues().contains(spec2));
         assertTrue(node.getInputRequirements().contains(req2));
         assertEquals(1, node.getInputNodes().size());
+        assertEquals(target, node.getComputationTarget());
       } else if(ObjectUtils.equals(node.getFunctionDefinition(), fn2)) {
         assertFalse(node.getOutputValues().contains(spec1));
         assertTrue(node.getOutputValues().contains(spec2));
@@ -252,23 +242,21 @@ public class DependencyGraphModelTest {
     FixedLiveDataAvailabilityProvider ldap = new FixedLiveDataAvailabilityProvider();
     ldap.addRequirement(req2);
 
-    DependencyGraphModel model = new DependencyGraphModel();
+    DependencyGraphBuilder model = new DependencyGraphBuilder();
     model.setLiveDataAvailabilityProvider(ldap);
     model.setFunctionResolver(new DefaultFunctionResolver(functionRepo));
     model.setTargetResolver(targetResolver);
 
     model.addTarget(target, req1);
-    model.removeUnnecessaryOutputs();
 
-    Collection<DependencyGraph> graphs = model.getDependencyGraphs(ComputationTargetType.PRIMITIVE);
-    assertNotNull(graphs);
-    assertEquals(1, graphs.size());
-    DependencyGraph graph = graphs.iterator().next();
+    DependencyGraph graph = model.getDependencyGraph();
     assertNotNull(graph);
-    assertEquals(target, graph.getComputationTarget());
+    
+    graph.removeUnnecessaryValues();
+
     assertTrue(graph.getOutputValues().contains(spec1));
     
-    Collection<DependencyNode> nodes = graph.getDependencyNodes();
+    Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
     assertNotNull(nodes);
     assertEquals(2, nodes.size());
     for (DependencyNode node : nodes) {
@@ -276,6 +264,7 @@ public class DependencyGraphModelTest {
         assertTrue(node.getOutputValues().contains(spec1));
         assertTrue(node.getInputRequirements().contains(req2));
         assertEquals(1, node.getInputNodes().size());
+        assertEquals(target, node.getComputationTarget());
       } else if(node.getFunctionDefinition() instanceof LiveDataSourcingFunction) {
         assertFalse(node.getOutputValues().contains(spec1));
         assertEquals(1, node.getOutputValues().size());

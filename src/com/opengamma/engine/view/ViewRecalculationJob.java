@@ -5,6 +5,9 @@
  */
 package com.opengamma.engine.view;
 
+import java.util.concurrent.TimeUnit;
+
+import javax.time.Duration;
 import javax.time.Instant;
 
 import org.slf4j.Logger;
@@ -18,8 +21,9 @@ import com.opengamma.util.TerminatableJob;
 public class ViewRecalculationJob extends TerminatableJob {
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRecalculationJob.class);
   private final View _view;
-  private ViewComputationResultModelImpl _previousResult;
   private double _numExecutions;
+  private SingleComputationCycle _previousCycle;
+  private Instant _previousFullRecalculationTime; 
   
   /**
    * Nanoseconds
@@ -34,20 +38,6 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
 
   /**
-   * @return the previousResult
-   */
-  public ViewComputationResultModelImpl getPreviousResult() {
-    return _previousResult;
-  }
-
-  /**
-   * @param previousResult the previousResult to set
-   */
-  public void setPreviousResult(ViewComputationResultModelImpl previousResult) {
-    _previousResult = previousResult;
-  }
-
-  /**
    * @return the view
    */
   public View getView() {
@@ -59,8 +49,15 @@ public class ViewRecalculationJob extends TerminatableJob {
     long snapshotTime = getView().getProcessingContext().getLiveDataSnapshotProvider().snapshot();
     runOneCycle(snapshotTime);
   }
-
-  protected void runOneCycle(long snapshotTime) {
+  
+  @Override
+  protected void postRunCycle() {
+    if (_previousCycle != null) {
+      _previousCycle.releaseResources();
+    }
+  }
+  
+  public void runOneCycle(long snapshotTime) {
     SingleComputationCycle cycle = createCycle(snapshotTime);
     runCycle(cycle);
   }
@@ -84,25 +81,42 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
   
   private void runCycle(SingleComputationCycle cycle) {
+    Instant resultTimestamp = Instant.nowSystemClock();
+    
     cycle.prepareInputs();
+
+    if (_previousCycle == null ||
+        _previousFullRecalculationTime == null || 
+        (getView().getDefinition().getFullRecalculationPeriod() != null &&
+        Duration.between(_previousFullRecalculationTime, resultTimestamp).isGreaterThan(
+            Duration.of(getView().getDefinition().getFullRecalculationPeriod(), TimeUnit.MILLISECONDS)))) {
+      s_logger.info("Performing full recalculation");
+      _previousFullRecalculationTime = resultTimestamp;
+    } else {
+      cycle.computeDelta(_previousCycle);
+    }
+    
     cycle.executePlans();
     cycle.populateResultModel();
-    cycle.releaseResources();
     
-    Instant resultTimestamp = Instant.nowSystemClock();
     cycle.getResultModel().setResultTimestamp(resultTimestamp);
     long endNanoTime = System.nanoTime();
     long delta = endNanoTime - cycle.getStartTime();
     _totalTime += delta;
     _numExecutions += 1.0;
-    s_logger.info("Last latency was {}ms, Average latency is {}ms", delta / 1000, (_totalTime / _numExecutions) / 1000);
+    s_logger.info("Last latency was {} ms, Average latency is {} ms", Math.round(delta / 1E6), Math.round((_totalTime / _numExecutions) / 1E6));
     getView().recalculationPerformed(cycle.getResultModel());
     // Do this intentionally AFTER alerting the view. Because of the listener system,
     // we have to recompute the delta, because we have to factor in the dispatch time
     // in recalculationPerformed().
     endNanoTime = System.nanoTime();
     delta = endNanoTime - cycle.getStartTime();
-    delayOnMinimumRecalculationPeriod(delta);
+    delayOnMinimumRecalculationPeriod((long) (delta / 1E6));
+    
+    if (_previousCycle != null) {
+      _previousCycle.releaseResources();
+    }
+    _previousCycle = cycle;
   }
   
   /**
@@ -118,7 +132,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     long minimumRecalculationPeriod = getView().getDefinition().getMinimumRecalculationPeriod();
     if (cycleComputationMillis < minimumRecalculationPeriod) {
       long timeToWait = minimumRecalculationPeriod - cycleComputationMillis;
-      s_logger.debug("Waiting for {}ms as computed faster than minimum recalculation period", timeToWait);
+      s_logger.info("Waiting for {} ms as computed faster than minimum recalculation period", timeToWait);
       try {
         Thread.sleep(timeToWait);
       } catch (InterruptedException e) {

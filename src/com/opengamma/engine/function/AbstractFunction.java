@@ -5,6 +5,11 @@
  */
 package com.opengamma.engine.function;
 
+import java.util.Collections;
+import java.util.Set;
+
+import com.opengamma.engine.value.ValueRequirement;
+
 
 /**
  * The base class from which most {@link FunctionDefinition} implementations
@@ -37,6 +42,11 @@ public abstract class AbstractFunction implements FunctionDefinition {
   
   @Override
   public void init(FunctionCompilationContext context) {
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequiredLiveData() {
+    return Collections.emptySet();
   }
 
 }

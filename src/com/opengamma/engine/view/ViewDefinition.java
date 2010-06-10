@@ -26,11 +26,22 @@ public class ViewDefinition implements Serializable {
   private final String _name;
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
+  
+  /** 
+   * View cannot be recalculated more frequently than this.
+   * Milliseconds.
+   * Null = view can be recalculated as frequently as you want.
+   */
   private Long _minimumRecalculationPeriod;
-  private boolean _computePortfolioNodeCalculations = true;
-  private boolean _computePositionNodeCalculations = true;
-  private boolean _computeSecurityNodeCalculations /*= false*/;
-  private boolean _computePrimitiveNodeCalculations /*= false*/;
+  
+  /** 
+   * A full recomputation of the view should be performed at this interval 
+   * (i.e., no delta vs. previous result should be used).
+   * Milliseconds.
+   * Null = no full recomputation needs to be performed - previous result can always be used
+   */ 
+  private Long _fullRecalculationPeriod;
+  
   private final Map<String, ViewCalculationConfiguration> _calculationConfigurationsByName =
     new TreeMap<String, ViewCalculationConfiguration>();
   
@@ -129,59 +140,18 @@ public class ViewDefinition implements Serializable {
   }
 
   /**
-   * @return the computePortfolioNodeCalculations
+   * @return Full recalculation period, milliseconds
    */
-  public boolean isComputePortfolioNodeCalculations() {
-    return _computePortfolioNodeCalculations;
+  public Long getFullRecalculationPeriod() {
+    return _fullRecalculationPeriod;
   }
 
   /**
-   * @param computePortfolioNodeCalculations the computePortfolioNodeCalculations to set
+   * @param fullRecalculationPeriod the fullRecalculationPeriod to set, milliseconds
    */
-  public void setComputePortfolioNodeCalculations(boolean computePortfolioNodeCalculations) {
-    _computePortfolioNodeCalculations = computePortfolioNodeCalculations;
+  public void setFullRecalculationPeriod(Long fullRecalculationPeriod) {
+    _fullRecalculationPeriod = fullRecalculationPeriod;
   }
-
-  /**
-   * @return the computePositionNodeCalculations
-   */
-  public boolean isComputePositionNodeCalculations() {
-    return _computePositionNodeCalculations;
-  }
-
-  /**
-   * @param computePositionNodeCalculations the computePositionNodeCalculations to set
-   */
-  public void setComputePositionNodeCalculations(boolean computePositionNodeCalculations) {
-    _computePositionNodeCalculations = computePositionNodeCalculations;
-  }
-
-  /**
-   * @return the computeSecurityNodeCalculations
-   */
-  public boolean isComputeSecurityNodeCalculations() {
-    return _computeSecurityNodeCalculations;
-  }
-
-  /**
-   * @param computeSecurityNodeCalculations the computeSecurityNodeCalculations to set
-   */
-  public void setComputeSecurityNodeCalculations(boolean computeSecurityNodeCalculations) {
-    _computeSecurityNodeCalculations = computeSecurityNodeCalculations;
-  }
-
-  /**
-   * @return the computePrimitiveNodeCalculations
-   */
-  public boolean isComputePrimitiveNodeCalculations() {
-    return _computePrimitiveNodeCalculations;
-  }
-
-  /**
-   * @param computePrimitiveNodeCalculations the computePrimitiveNodeCalculations to set
-   */
-  public void setComputePrimitiveNodeCalculations(boolean computePrimitiveNodeCalculations) {
-    _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
-  }
+  
 
 }

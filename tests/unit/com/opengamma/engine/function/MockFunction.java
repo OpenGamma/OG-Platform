@@ -27,18 +27,31 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
   private final Set<ValueRequirement> _requirements = new HashSet<ValueRequirement>();
   private final Set<ValueSpecification> _resultSpecs = new HashSet<ValueSpecification>();
   private final Set<ComputedValue> _results = new HashSet<ComputedValue>();
+  private final Set<ValueRequirement> _requiredLiveData = new HashSet<ValueRequirement>();
   
   public MockFunction(ComputationTarget target) {
-    this(target, Collections.<ValueRequirement>emptySet(), Collections.<ComputedValue>emptySet());
+    this(target, Collections.<ValueRequirement>emptySet());
+  }
+  
+  public MockFunction(ComputationTarget target, Set<ValueRequirement> requiredLiveData) {
+    this(target, Collections.<ValueRequirement>emptySet(), Collections.<ComputedValue>emptySet(), requiredLiveData);
+  }
+  
+  public MockFunction(ComputationTarget target, Set<ValueRequirement> requirements, Collection<ComputedValue> results) {
+    this(target, requirements, results, Collections.<ValueRequirement>emptySet());
   }
 
-  public MockFunction(ComputationTarget target, Collection<ValueRequirement> requirements, Collection<ComputedValue> results) {
+  public MockFunction(ComputationTarget target, 
+      Collection<ValueRequirement> requirements, 
+      Collection<ComputedValue> results,
+      Collection<ValueRequirement> requiredLiveData) {
     _target = target;
     _requirements.addAll(requirements);
     _results.addAll(results);
     for (ComputedValue result : _results) {
       _resultSpecs.add(result.getSpecification());
     }
+    _requiredLiveData.addAll(requiredLiveData);
   }
 
   @Override
@@ -76,6 +89,11 @@ public class MockFunction extends AbstractFunction implements FunctionInvoker {
       }
     }
     return results;
+  }
+  
+  @Override
+  public Set<ValueRequirement> getRequiredLiveData() {
+    return _requiredLiveData;
   }
 
 }

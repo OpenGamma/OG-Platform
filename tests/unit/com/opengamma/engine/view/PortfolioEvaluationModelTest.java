@@ -21,7 +21,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraphModel;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.function.DefaultFunctionResolver;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -83,7 +83,7 @@ public class PortfolioEvaluationModelTest {
     pem.init(vcs, viewDefinition);
     
     assertTrue(pem.getAllLiveDataRequirements().isEmpty());
-    assertTrue(pem.getAllDependencyGraphModels().isEmpty());
+    assertTrue(pem.getAllDependencyGraphs().isEmpty());
     
     Set<Security> securities = pem.getSecurities();
     assertTrue(securities.contains(defSec));
@@ -131,17 +131,16 @@ public class PortfolioEvaluationModelTest {
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
-    viewDefinition.setComputePositionNodeCalculations(false);
     
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
     pem.init(vcs, viewDefinition);
     
     assertTrue(pem.getAllLiveDataRequirements().isEmpty());
-    assertEquals(1, pem.getAllDependencyGraphModels().size());
-    DependencyGraphModel dgm = pem.getDependencyGraphModel("Fibble");
-    assertNotNull(dgm);
-    assertTrue(dgm.getAllRequiredLiveData().isEmpty());
-    assertEquals(1, dgm.getAllDependencyGraphs().size());
+    assertEquals(1, pem.getAllDependencyGraphs().size());
+    DependencyGraph dg = pem.getDependencyGraph("Fibble");
+    assertNotNull(dg);
+    assertTrue(dg.getAllRequiredLiveData().isEmpty());
+    assertEquals(1, dg.getDependencyNodes().size());
     
     Set<Security> securities = pem.getSecurities();
     assertTrue(securities.contains(defSec));
@@ -204,17 +203,16 @@ public class PortfolioEvaluationModelTest {
     
     ViewDefinition viewDefinition = new ViewDefinition("My View", UniqueIdentifier.of("FOO", "BAR"), "kirk");
     viewDefinition.addValueDefinition("Fibble", "My Sec", "Req-1");
-    viewDefinition.setComputePositionNodeCalculations(false);
     
     PortfolioEvaluationModel pem = new PortfolioEvaluationModel(p);
     pem.init(vcs, viewDefinition);
     
     assertTrue(pem.getAllLiveDataRequirements().isEmpty());
-    assertEquals(1, pem.getAllDependencyGraphModels().size());
-    DependencyGraphModel dgm = pem.getDependencyGraphModel("Fibble");
-    assertNotNull(dgm);
-    assertTrue(dgm.getAllRequiredLiveData().isEmpty());
-    assertEquals(2, dgm.getAllDependencyGraphs().size());
+    assertEquals(1, pem.getAllDependencyGraphs().size());
+    DependencyGraph dg = pem.getDependencyGraph("Fibble");
+    assertNotNull(dg);
+    assertTrue(dg.getAllRequiredLiveData().isEmpty());
+    assertEquals(2, dg.getDependencyNodes().size());
     
     Set<Security> securities = pem.getSecurities();
     assertTrue(securities.contains(sec1));

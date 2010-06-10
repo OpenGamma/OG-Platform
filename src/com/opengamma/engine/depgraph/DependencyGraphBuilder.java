@@ -5,13 +5,7 @@
  */
 package com.opengamma.engine.depgraph;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -19,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionResolver;
@@ -33,8 +26,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class DependencyGraphModel {
-  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphModel.class);
+public class DependencyGraphBuilder {
+  private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphBuilder.class);
   // Injected Inputs:
   private String _calculationConfigurationName;
   private LiveDataAvailabilityProvider _liveDataAvailabilityProvider;
@@ -42,9 +35,7 @@ public class DependencyGraphModel {
   private FunctionResolver _functionResolver;
   private FunctionCompilationContext _compilationContext;
   // State:
-  private final Map<ComputationTarget, DependencyGraph> _graphsByTarget =
-    new HashMap<ComputationTarget, DependencyGraph>();
-  private final Set<ValueRequirement> _allRequiredLiveData = new HashSet<ValueRequirement>();
+  private DependencyGraph _graph = new DependencyGraph();
     
   /**
    * @return the calculationConfigurationName
@@ -117,23 +108,6 @@ public class DependencyGraphModel {
     ArgumentChecker.notNullInjected(getTargetResolver(), "targetResolver");
   }
   
-  public Set<ValueRequirement> getAllRequiredLiveData() {
-    return Collections.unmodifiableSet(_allRequiredLiveData);
-  }
-  
-  /**
-   * Go through the entire model and remove any output values that
-   * aren't actually consumed.
-   * Because functions can possibly produce more than their minimal set of values,
-   * we need to strip out the ones that aren't actually used after the whole graph
-   * is bootstrapped.
-   */
-  public void removeUnnecessaryOutputs() {
-    for (DependencyGraph graph : _graphsByTarget.values()) {
-      graph.removeUnnecessaryValues();
-    }
-  }
-  
   public void addTarget(ComputationTarget target, ValueRequirement requirement) {
     addTarget(target, Collections.singleton(requirement));
   }
@@ -146,26 +120,25 @@ public class DependencyGraphModel {
     for (ValueRequirement requirement : requirements) {
       Pair<DependencyNode, ValueSpecification> requirementPair = addTargetRequirement(target, requirement);
       requirementPair.getFirst().addTerminalOutputValue(requirementPair.getSecond());
+      _graph.addRootNode(requirementPair.getFirst());
     }
   }
   
-  protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(
-      ComputationTarget target, ValueRequirement requirement) {
+  protected Pair<DependencyNode, ValueSpecification> addTargetRequirement(ComputationTarget target, ValueRequirement requirement) {
     s_logger.info("Adding target requirement for {} on {}", requirement, target);
-    Pair<DependencyNode, ValueSpecification> existingNode = resolveRequirement(target, requirement);
+
+    // getNodeProducing() is O(n) -> total algorithm is O(n^2) - need to optimize
+    Pair<DependencyNode, ValueSpecification> existingNode = _graph.getNodeProducing(requirement);
     if (existingNode != null) {
       s_logger.debug("Existing Node : {} on {}", requirement, target);
       return existingNode;
     }
     
-    DependencyGraph depGraph = getDependencyGraph(target);
-    
     if (getLiveDataAvailabilityProvider().isAvailable(requirement)) {
       s_logger.debug("Live Data : {} on {}", requirement, target);
-      _allRequiredLiveData.add(requirement);
       LiveDataSourcingFunction function = new LiveDataSourcingFunction(requirement);
       DependencyNode node = new DependencyNode(getCompilationContext(), function, target);
-      depGraph.addDependencyNode(node);
+      _graph.addDependencyNode(node);
       return Pair.of(node, function.getResult());
     }
     
@@ -176,7 +149,7 @@ public class DependencyGraphModel {
       throw new UnsatisfiableDependencyGraphException("Could not satisfy requirement " + requirement + " for target " + target);
     }
     DependencyNode node = new DependencyNode(getCompilationContext(), resolvedFunction.getFirst(), target);
-    depGraph.addDependencyNode(node);
+    _graph.addDependencyNode(node);
     
     for (ValueRequirement inputRequirement : node.getInputRequirements()) {
       ComputationTarget inputTarget = getTargetResolver().resolve(inputRequirement.getTargetSpecification());
@@ -191,37 +164,8 @@ public class DependencyGraphModel {
     return Pair.of(node, resolvedFunction.getSecond());
   }
   
-  protected DependencyGraph getDependencyGraph(ComputationTarget target) {
-    DependencyGraph depGraph = _graphsByTarget.get(target);
-    if (depGraph == null) {
-      depGraph = new DependencyGraph(target);
-      _graphsByTarget.put(target, depGraph);
-    }
-    return depGraph;
+  public DependencyGraph getDependencyGraph() {
+    return _graph;
   }
   
-  protected Pair<DependencyNode, ValueSpecification> resolveRequirement(ComputationTarget target, ValueRequirement requirement) {
-    for (DependencyGraph depGraph : _graphsByTarget.values()) {
-      Pair<DependencyNode, ValueSpecification> satisfiedRequirement = depGraph.getNodeProducing(requirement);
-      if (satisfiedRequirement != null) {
-        return satisfiedRequirement;
-      }
-    }
-    return null;
-  }
-  
-  public Collection<DependencyGraph> getAllDependencyGraphs() {
-    return new ArrayList<DependencyGraph>(_graphsByTarget.values());
-  }
-  
-  public Collection<DependencyGraph> getDependencyGraphs(ComputationTargetType targetType) {
-    List<DependencyGraph> graphs = new ArrayList<DependencyGraph>();
-    for (Map.Entry<ComputationTarget, DependencyGraph> entry : _graphsByTarget.entrySet()) {
-      if (entry.getKey().getType() == targetType) {
-        graphs.add(entry.getValue());
-      }
-    }
-    return graphs;
-  }
-
 }
