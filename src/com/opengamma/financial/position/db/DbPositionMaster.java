@@ -493,38 +493,15 @@ public class DbPositionMaster implements ManagablePositionMaster {
   @Override
   public PositionSummary getPositionSummary(final UniqueIdentifier positionUid) {
     checkIdentifierScheme(positionUid);
+    final long portfolioOid = extractPortfolioOid(positionUid);
+    long version;
     if (positionUid.isVersioned()) {
-      return getWorker().selectPosition(extractPortfolioOid(positionUid), extractOtherOid(positionUid), extractVersion(positionUid));
+      version = extractVersion(positionUid);
+    } else {
+      version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
     }
-    return getPosition(positionUid, Instant.now(getTimeSource()));
-    
-    Validate.notNull(nodeUid, "UniqueIdentifier must not be null");
-    Instant instant = Instant.now(getTimeSource());
-    checkIdentifierScheme(nodeUid);
-    long portfolioOid = extractPortfolioOid(nodeUid);
-    long nodeOid = extractOtherOid(nodeUid);
-    long oldVersion = extractVersion(nodeUid);
-    long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
-    if (oldVersion != latestVersion) {
-      throw new DataIntegrityViolationException("Unable to update PortfolioNode " + nodeUid + "  as version is not the latest version " + latestVersion);
-    }
-    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, true, false);
-    if (portfolio == null) {
-      throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant);
-    }
-    final PortfolioNodeImpl root = portfolio.getRootNode();
-    if (root.getUniqueIdentifier().equals(nodeUid)) {
-      throw new DataNotFoundException("Unable to remove PortfolioNode " + nodeUid + " as it is the root node in a portfolio");
-    }
-    if (removeNode(root, nodeUid) == null) {
-      throw new DataNotFoundException("Unable to remove PortfolioNode " + nodeUid + " as no parent node could not be found");
-    }
-    final long newVersion = latestVersion + 1;
-    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
-    getWorker().updateTreeSetEndVersion(portfolioOid, newVersion);  // end old version
-    getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
-    getWorker().insertTree(root, portfolioOid, newVersion);  // insert tree with removed child
-    return getWorker().createUniqueIdentifier(portfolioOid, nodeOid, newVersion);
+    return null;
+//    return getWorker().selectPositionSummary(portfolioOid, extractOtherOid(positionUid), version);
   }
 
   @Override
