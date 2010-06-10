@@ -15,10 +15,9 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class ExponentialInterpolator1DTest {
-  private static final Interpolator1D INTERPOLATOR = new ExponentialInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new ExponentialInterpolator1D();
   private static final double EPS = 1e-4;
 
   @Test
@@ -31,11 +30,11 @@ public class ExponentialInterpolator1DTest {
     data.put(t1, df1);
     data.put(t2, df2);
     try {
-      INTERPOLATOR.interpolate(data, null);
+      INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
-    assertEquals(0.7957, INTERPOLATOR.interpolate(data, 3.5).getResult(), EPS);
+    assertEquals(0.7957, INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), 3.5).getResult(), EPS);
   }
 }

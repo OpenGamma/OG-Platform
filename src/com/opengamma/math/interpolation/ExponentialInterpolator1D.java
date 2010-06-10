@@ -11,7 +11,7 @@ import org.apache.commons.lang.Validate;
  * 
  * 
  */
-public class ExponentialInterpolator1D extends Interpolator1D {
+public class ExponentialInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
   public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {

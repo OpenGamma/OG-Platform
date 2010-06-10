@@ -17,11 +17,10 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class LogLinearInterpolator1DTest {
-  private static final Interpolator1D LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new LogLinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
@@ -34,7 +33,7 @@ public class LogLinearInterpolator1DTest {
   @Test
   public void test() {
     try {
-      INTERPOLATOR.interpolate(new HashMap<Double, Double>(), null);
+      INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(new HashMap<Double, Double>()), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -48,6 +47,7 @@ public class LogLinearInterpolator1DTest {
       transformedData.put(x, Math.log(FUNCTION.evaluate(x)));
     }
     x = 3.4;
-    assertEquals(Math.exp(INTERPOLATOR.interpolate(data, x).getResult()), LINEAR.interpolate(transformedData, x).getResult(), EPS);
+    assertEquals(Math.exp(INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x).getResult()), LINEAR.interpolate(Interpolator1DModelFactory.fromMap(transformedData), x).getResult(),
+        EPS);
   }
 }

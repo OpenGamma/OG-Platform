@@ -18,7 +18,7 @@ import org.apache.commons.lang.Validate;
  * 
  */
 
-public class LogLinearInterpolator1D extends Interpolator1D {
+public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
   public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {

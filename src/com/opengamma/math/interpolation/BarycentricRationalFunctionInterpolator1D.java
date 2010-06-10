@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D {
+public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DModel> {
   private final int _degree;
 
   public BarycentricRationalFunctionInterpolator1D(final int degree) {

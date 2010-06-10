@@ -14,7 +14,7 @@ import org.apache.commons.lang.Validate;
  * <i>y = y<sub>1</sub> + (x - x<sub>1</sub>) * (y<sub>2</sub> - y<sub>1</sub>)
  * / (x<sub>2</sub> - x<sub>1</sub>)</i>
  */
-public class LinearInterpolator1D extends Interpolator1D {
+public class LinearInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
   public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {

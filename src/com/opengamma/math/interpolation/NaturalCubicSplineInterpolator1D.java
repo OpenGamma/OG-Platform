@@ -10,10 +10,10 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
+public class NaturalCubicSplineInterpolator1D extends Interpolator1D<Interpolator1DWithSecondDerivativeModel> {
 
   @Override
-  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+  public InterpolationResult<Double> interpolate(final Interpolator1DWithSecondDerivativeModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
     final int low = model.getLowerBoundIndex(value);
@@ -32,30 +32,8 @@ public class NaturalCubicSplineInterpolator1D extends Interpolator1D {
     }
     final double a = (xData[high] - value) / delta;
     final double b = (value - xData[low]) / delta;
-    final double[] y2 = getSecondDerivative(xData, yData);
+    final double[] y2 = model.getSecondDerivatives();
     final double y = a * yData[low] + b * yData[high] + (a * (a * a - 1) * y2[low] + b * (b * b - 1) * y2[high]) * delta * delta / 6.;
     return new InterpolationResult<Double>(y);
-  }
-
-  private double[] getSecondDerivative(final double[] x, final double[] y) {
-    final int n = x.length;
-    final double[] y2 = new double[n];
-    double p, ratio;
-    final double[] u = new double[n - 1];
-    y2[0] = 0.0;
-    u[0] = 0.0;
-    for (int i = 1; i < n - 1; i++) {
-      ratio = (x[i] - x[i - 1]) / (x[i + 1] - x[i - 1]);
-      p = ratio * y2[i - 1] + 2.0;
-      y2[i] = (ratio - 1.0) / p;
-      u[i] = (y[i + 1] - y[i]) / (x[i + 1] - x[i]) - (y[i] - y[i - 1]) / (x[i] - x[i - 1]);
-      u[i] = (6.0 * u[i] / (x[i + 1] - x[i - 1]) - ratio * u[i - 1]) / p;
-    }
-    y2[n - 1] = 0.0;
-    for (int k = n - 2; k >= 0; k--) {
-      y2[k] = y2[k] * y2[k + 1] + u[k];
-    }
-
-    return y2;
   }
 }

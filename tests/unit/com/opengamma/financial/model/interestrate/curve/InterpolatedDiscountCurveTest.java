@@ -15,6 +15,8 @@ import java.util.TreeMap;
 import org.junit.Test;
 
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DModel;
+import com.opengamma.math.interpolation.Interpolator1DModelFactory;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.StepInterpolator1D;
 
@@ -23,8 +25,8 @@ import com.opengamma.math.interpolation.StepInterpolator1D;
  * @author emcleod
  */
 public class InterpolatedDiscountCurveTest {
-  private static final Interpolator1D LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D STEP = new StepInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel> STEP = new StepInterpolator1D();
   private static final Map<Double, Double> DATA = new HashMap<Double, Double>();
   private static final Map<Double, Double> DF_DATA = new HashMap<Double, Double>();
   private static final double SHIFT = 0.001;
@@ -49,7 +51,7 @@ public class InterpolatedDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithInsufficientData() {
-    new InterpolatedDiscountCurve(Collections.<Double, Double> singletonMap(3., 2.), LINEAR);
+    new InterpolatedDiscountCurve(Collections.<Double, Double>singletonMap(3., 2.), LINEAR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -57,7 +59,7 @@ public class InterpolatedDiscountCurveTest {
     final Map<Double, Double> map = new HashMap<Double, Double>();
     map.put(1., 1.);
     map.put(2., 2.);
-    new InterpolatedDiscountCurve(map, (Interpolator1D) null);
+    new InterpolatedDiscountCurve(map, (Interpolator1D<Interpolator1DModel>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -70,17 +72,17 @@ public class InterpolatedDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNullInterpolatorMap() {
-    new InterpolatedDiscountCurve(DATA, (Map<Double, Interpolator1D>) null);
+    new InterpolatedDiscountCurve(DATA, (Map<Double, Interpolator1D<Interpolator1DModel>>) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithEmptyInterpolatorMap() {
-    new InterpolatedDiscountCurve(DATA, Collections.<Double, Interpolator1D> emptyMap());
+    new InterpolatedDiscountCurve(DATA, Collections.<Double, Interpolator1D<Interpolator1DModel>>emptyMap());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNullInInterpolatorMap() {
-    final Map<Double, Interpolator1D> map = new HashMap<Double, Interpolator1D>();
+    final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
     map.put(3., LINEAR);
     map.put(6., null);
     new InterpolatedDiscountCurve(DATA, map);
@@ -133,14 +135,14 @@ public class InterpolatedDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetMultipleShiftWithNegativeTime() {
-    CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(-T, SHIFT));
+    CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(-T, SHIFT));
   }
 
   @Test
   public void test() {
     final Double df = CURVE.getDiscountFactor(T);
-    assertEquals(LINEAR.interpolate(DF_DATA, T).getResult(), df, EPS);
-    assertEquals(-Math.log(LINEAR.interpolate(DF_DATA, T).getResult()) / T, CURVE.getInterestRate(T), EPS);
+    assertEquals(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), T).getResult(), df, EPS);
+    assertEquals(-Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), T).getResult()) / T, CURVE.getInterestRate(T), EPS);
   }
 
   @Test
@@ -178,7 +180,7 @@ public class InterpolatedDiscountCurveTest {
 
   @Test
   public void testTwoLinearInterpolators() {
-    final Map<Double, Interpolator1D> map = new HashMap<Double, Interpolator1D>();
+    final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
     map.put(2.1, LINEAR);
     map.put(10., LINEAR);
     final DiscountCurve curve1 = new InterpolatedDiscountCurve(DATA, LINEAR);
@@ -189,11 +191,11 @@ public class InterpolatedDiscountCurveTest {
 
   @Test
   public void testMultipleInterpolators() {
-    final Map<Double, Interpolator1D> map = new HashMap<Double, Interpolator1D>();
+    final Map<Double, Interpolator1D<Interpolator1DModel>> map = new HashMap<Double, Interpolator1D<Interpolator1DModel>>();
     map.put(2.1, LINEAR);
     map.put(10., STEP);
     final DiscountCurve curve = new InterpolatedDiscountCurve(DATA, map);
-    assertEquals(curve.getInterestRate(1.5), -Math.log(LINEAR.interpolate(DF_DATA, 1.5).getResult()) / 1.5, EPS);
-    assertEquals(curve.getInterestRate(2.5), -Math.log(STEP.interpolate(DF_DATA, 2.5).getResult()) / 2.5, EPS);
+    assertEquals(curve.getInterestRate(1.5), -Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 1.5).getResult()) / 1.5, EPS);
+    assertEquals(curve.getInterestRate(2.5), -Math.log(STEP.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 2.5).getResult()) / 2.5, EPS);
   }
 }

@@ -13,23 +13,24 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * @author emcleod
  * 
  */
 public class StepInterpolator1DTest {
-  private static final Interpolator1D INTERPOLATOR = new StepInterpolator1D();
-  private static final Map<Double, Double> DATA = new HashMap<Double, Double>();
+  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new StepInterpolator1D();
+  private static final Interpolator1DModel DATA;
   private static final double EPS = 1e-13;
 
   static {
-    DATA.put(1., 4.5);
-    DATA.put(2., 4.3);
-    DATA.put(3., 6.7);
+    final Map<Double, Double> map = new HashMap<Double, Double>();
+    map.put(1., 4.5);
+    map.put(2., 4.3);
+    map.put(3., 6.7);
+    DATA = Interpolator1DModelFactory.fromMap(map);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    INTERPOLATOR.interpolate((Map<Double, Double>)null, 2.);
+    INTERPOLATOR.interpolate((Interpolator1DModel) null, 2.);
   }
 
   @Test(expected = IllegalArgumentException.class)

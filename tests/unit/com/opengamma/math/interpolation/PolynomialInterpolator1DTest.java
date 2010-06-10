@@ -19,20 +19,19 @@ import com.opengamma.math.function.PolynomialFunction1D;
 
 /**
  * 
- * @author emcleod
  */
 public class PolynomialInterpolator1DTest {
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void illegalDegree() {
     new PolynomialInterpolator1D(0);
   }
 
   @Test
   public void testWithBadInputs() {
-    final Interpolator1D interpolator = new PolynomialInterpolator1D(3);
+    final Interpolator1D<Interpolator1DModel> interpolator = new PolynomialInterpolator1D(3);
     try {
-      interpolator.interpolate((Map<Double, Double>)null, 3.);
+      interpolator.interpolate((Interpolator1DModel) null, 3.);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -41,14 +40,14 @@ public class PolynomialInterpolator1DTest {
     data.put(1., 2.);
     data.put(3., 4.);
     try {
-      interpolator.interpolate(data, null);
+      interpolator.interpolate(Interpolator1DModelFactory.fromMap(data), null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     data.put(5., 6.);
     try {
-      interpolator.interpolate(data, 1.4);
+      interpolator.interpolate(Interpolator1DModelFactory.fromMap(data), 1.4);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -56,14 +55,14 @@ public class PolynomialInterpolator1DTest {
     data.put(7., 8.);
     data.put(9., 10.);
     try {
-      interpolator.interpolate(data, 8.5);
+      interpolator.interpolate(Interpolator1DModelFactory.fromMap(data), 8.5);
       fail();
     } catch (final InterpolationException e) {
       // Expected
     }
     data.put(7. + 1e-15, 11.);
     try {
-      interpolator.interpolate(data, 3.);
+      interpolator.interpolate(Interpolator1DModelFactory.fromMap(data), 3.);
       fail();
     } catch (final InterpolationException e) {
       // Expected
@@ -73,26 +72,28 @@ public class PolynomialInterpolator1DTest {
   @Test
   public void testInterpolation() {
     final double eps = 1e-9;
-    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new Double[] { -4., 3., 1. });
-    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new Double[] { -4., 3., 1., 1., 1. });
-    final Map<Double, Double> quadraticData = new HashMap<Double, Double>();
-    final Map<Double, Double> quarticData = new HashMap<Double, Double>();
+    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new Double[] {-4., 3., 1.});
+    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new Double[] {-4., 3., 1., 1., 1.});
+    final Map<Double, Double> quadraticMap = new HashMap<Double, Double>();
+    final Map<Double, Double> quarticMap = new HashMap<Double, Double>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = i / 10.;
-      quadraticData.put(x, quadratic.evaluate(x));
-      quarticData.put(x, quartic.evaluate(x));
+      quadraticMap.put(x, quadratic.evaluate(x));
+      quarticMap.put(x, quartic.evaluate(x));
     }
     x = 0.35;
-    final Interpolator1D quadraticInterpolator = new PolynomialInterpolator1D(2);
+    final Interpolator1DModel quadraticData = Interpolator1DModelFactory.fromMap(quadraticMap);
+    final Interpolator1DModel quarticData = Interpolator1DModelFactory.fromMap(quarticMap);
+    final Interpolator1D<Interpolator1DModel> quadraticInterpolator = new PolynomialInterpolator1D(2);
     final InterpolationResult<Double> quadraticResult = quadraticInterpolator.interpolate(quadraticData, x);
-    final Interpolator1D quarticInterpolator = new PolynomialInterpolator1D(4);
+    final Interpolator1D<Interpolator1DModel> quarticInterpolator = new PolynomialInterpolator1D(4);
     final InterpolationResult<Double> quarticResult = quarticInterpolator.interpolate(quarticData, x);
     assertEquals(quadraticResult.getResult(), quadratic.evaluate(x), eps);
     assertEquals(quarticResult.getResult(), quartic.evaluate(x), eps);
     final InterpolationResult<Double> underFittedEstimate = quadraticInterpolator.interpolate(quarticData, x);
     assertEquals(underFittedEstimate.getResult(), quartic.evaluate(x), Math.abs(underFittedEstimate.getErrorEstimate()));
-    
+
     final InterpolationResult<Double> overFittedEstimate = quarticInterpolator.interpolate(quadraticData, x);
     assertTrue((overFittedEstimate.getErrorEstimate() > 3e-16) && (overFittedEstimate.getErrorEstimate() < 3.2e-16));
     assertEquals(overFittedEstimate.getResult(), quadratic.evaluate(x), eps);

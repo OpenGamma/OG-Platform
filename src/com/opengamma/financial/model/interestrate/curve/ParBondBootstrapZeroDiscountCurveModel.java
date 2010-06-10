@@ -17,19 +17,20 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.model.interestrate.definition.FixedInterestRateInstrumentDefinition;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DModel;
 
 /**
  * 
  * @author emcleod
  */
 public class ParBondBootstrapZeroDiscountCurveModel implements DiscountCurveModel<FixedInterestRateInstrumentDefinition> {
-  private final Map<Double, Interpolator1D> _interpolators;
+  private final Map<Double, Interpolator1D<Interpolator1DModel>> _interpolators;
 
-  public ParBondBootstrapZeroDiscountCurveModel(final Interpolator1D interpolator) {
-    this(Collections.<Double, Interpolator1D> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  public ParBondBootstrapZeroDiscountCurveModel(final Interpolator1D<Interpolator1DModel> interpolator) {
+    this(Collections.<Double, Interpolator1D<Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
-  public ParBondBootstrapZeroDiscountCurveModel(final Map<Double, Interpolator1D> interpolators) {
+  public ParBondBootstrapZeroDiscountCurveModel(final Map<Double, Interpolator1D<Interpolator1DModel>> interpolators) {
     _interpolators = interpolators;
   }
 

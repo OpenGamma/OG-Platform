@@ -29,7 +29,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
   private final SortedMap<Double, Double> _rateData;
   private final Interpolator1DModel _discountFactorModel;
   private final SortedMap<Double, Double> _dfData;
-  private final SortedMap<Double, Interpolator1D> _interpolators;
+  private final SortedMap<Double, Interpolator1D<Interpolator1DModel>> _interpolators;
 
   /**
    * 
@@ -43,8 +43,8 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D interpolator) {
-    this(data, Collections.<Double, Interpolator1D> singletonMap(Double.POSITIVE_INFINITY, interpolator));
+  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Interpolator1D<Interpolator1DModel> interpolator) {
+    this(data, Collections.<Double, Interpolator1D<Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -62,7 +62,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D> interpolators) {
+  public InterpolatedDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<Interpolator1DModel>> interpolators) {
     if (data == null) {
       throw new IllegalArgumentException("Data map was null");
     }
@@ -75,7 +75,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     if (data.size() < 2) {
       throw new IllegalArgumentException("Need to have at least two data points for an interpolated curve");
     }
-    for (final Map.Entry<Double, Interpolator1D> entry : interpolators.entrySet()) {
+    for (final Map.Entry<Double, Interpolator1D<Interpolator1DModel>> entry : interpolators.entrySet()) {
       if (entry.getValue() == null) {
         throw new IllegalArgumentException("Interpolator for time " + entry.getKey() + " was null");
       }
@@ -92,8 +92,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     _rateData = Collections.<Double, Double>unmodifiableSortedMap(sortedRates);
     _dfData = Collections.<Double, Double>unmodifiableSortedMap(sortedDF);
     _discountFactorModel = Interpolator1DModelFactory.fromMap(sortedDF);
-    _interpolators = Collections.<Double, Interpolator1D>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D>(
-        interpolators));
+    _interpolators = Collections.<Double, Interpolator1D<Interpolator1DModel>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<Interpolator1DModel>>(interpolators));
   }
 
   // This constructor was only used by the now removed Fudge functions - they
@@ -135,7 +134,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
    * 
    * @return The interpolator for this curve.
    */
-  public Map<Double, Interpolator1D> getInterpolators() {
+  public Map<Double, Interpolator1D<Interpolator1DModel>> getInterpolators() {
     return _interpolators;
   }
 
@@ -175,7 +174,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     if (_interpolators.size() == 1) {
       return _interpolators.values().iterator().next().interpolate(_discountFactorModel, t).getResult();
     }
-    final Map<Double, Interpolator1D> tail = _interpolators.tailMap(t);
+    final Map<Double, Interpolator1D<Interpolator1DModel>> tail = _interpolators.tailMap(t);
     final Double key = tail.isEmpty() ? _interpolators.lastKey() : _interpolators.tailMap(t).firstKey();
     return _interpolators.get(key).interpolate(_discountFactorModel, t).getResult();
   }
@@ -288,7 +287,7 @@ public class InterpolatedDiscountCurve extends DiscountCurve implements Serializ
     final StringBuilder sb = new StringBuilder();
     sb.append("InterpolatedDiscountCurve[");
     sb.append("interpolators={");
-    for (final Map.Entry<Double, Interpolator1D> e : _interpolators.entrySet()) {
+    for (final Map.Entry<Double, Interpolator1D<Interpolator1DModel>> e : _interpolators.entrySet()) {
       sb.append(e.getKey()).append('=').append(Interpolator1DFactory.getInterpolatorName(e.getValue())).append(',');
     }
     sb.append("},rate_data={");
