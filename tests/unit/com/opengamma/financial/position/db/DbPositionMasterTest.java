@@ -796,6 +796,30 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals(null, test2);
   }
 
+  @Test
+  public void test_removePortfolioNode_removeChildNodes() {
+    final PortfolioImpl base = new PortfolioImpl("Test");
+    final PortfolioNodeImpl node1 = new PortfolioNodeImpl("First");
+    base.getRootNode().addChildNode(node1);
+    final PortfolioNodeImpl node2 = new PortfolioNodeImpl("Second");
+    node1.addChildNode(node2);
+    final PositionImpl position1 = new PositionImpl(BigDecimal.TEN, new IdentifierBundle(Identifier.of("A", "1")));
+    node1.addPosition(position1);
+    final PositionImpl position2 = new PositionImpl(BigDecimal.TEN, new IdentifierBundle(Identifier.of("A", "2"), Identifier.of("A", "3")));
+    node2.addPosition(position2);
+    UniqueIdentifier baseUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    _posMaster.removePortfolioNode(node1.getUniqueIdentifier());
+    
+    // everything should be removed from node1 down
+    assertNotNull(_posMaster.getPortfolio(baseUid.toLatest()));
+    assertNotNull(_posMaster.getPortfolioNode(base.getRootNode().getUniqueIdentifier().toLatest()));
+    assertEquals(null, _posMaster.getPortfolioNode(node1.getUniqueIdentifier().toLatest()));
+    assertEquals(null, _posMaster.getPortfolioNode(node2.getUniqueIdentifier().toLatest()));
+    assertEquals(null, _posMaster.getPosition(position1.getUniqueIdentifier().toLatest()));
+    assertEquals(null, _posMaster.getPosition(position2.getUniqueIdentifier().toLatest()));
+  }
+
   @Test(expected=IllegalArgumentException.class)
   public void test_removePortfolioNode_notVersion() {
     final PortfolioImpl base = buildPortfolio();

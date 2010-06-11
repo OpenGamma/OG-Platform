@@ -354,15 +354,18 @@ public class DbPositionMasterWorker {
             "FROM pos_nodetree AS base, pos_nodetree AS tree, pos_node " +
               "LEFT JOIN pos_position ON (pos_node.oid = pos_position.node_oid AND :version >= pos_position.start_version AND :version < pos_position.end_version) " +
               "LEFT JOIN pos_securitykey ON (pos_position.oid = pos_securitykey.position_oid AND :version >= pos_securitykey.start_version AND :version < pos_securitykey.end_version) " +
-            "WHERE pos_node.portfolio_oid = :portfolio_oid " +
-              "AND base.node_oid = :node_oid " +
-              "AND tree.left_id BETWEEN base.left_id AND base.right_id " +
-              "AND tree.node_oid = pos_node.oid " +
+            "WHERE base.node_oid = :node_oid " +  // filter by desired node
+              "AND tree.left_id BETWEEN base.left_id AND base.right_id " +  // filter children within tree
+              "AND pos_node.oid = tree.node_oid " +  // join pos_node
+              "AND pos_node.portfolio_oid = :portfolio_oid " +  // filter by this portfolio (because tree left_id is not constrained)
               "AND :version >= base.start_version AND :version < base.end_version " +
               "AND :version >= tree.start_version AND :version < tree.end_version " +
               "AND :version >= pos_node.start_version AND :version < pos_node.end_version " +
             "ORDER BY left_id, node_oid, position_oid";
   }
+
+  // TODO: Add portfolio_oid column to tree table
+  // join base.portfolio_oid to tree.portfolio_oid
 
   //-------------------------------------------------------------------------
   /**
@@ -1060,6 +1063,85 @@ public class DbPositionMasterWorker {
                 "SELECT oid FROM pos_node WHERE portfolio_oid = :portfolio_oid" +
               ") " +
               "AND end_version = :search_version";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates the node table to end-version a node for removal.
+   * This updates the tree, node, position and seckey tables.
+   * @param portfolioOid  the portfolio to end
+   * @param nodeOid  the node to end
+   * @param endVersion  the version number to end the rows with
+   */
+  protected void updateNodesAndPositionsForRemovalSetEndVersion(final long portfolioOid, final long nodeOid, final long endVersion) {
+    final MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addValue("node_oid", nodeOid)
+      .addValue("search_version", END_VERSION)
+      .addValue("end_version", endVersion);
+    getTemplate().update(sqlUpdateSecKeysForRemovalSetEndVersion(), args);
+    getTemplate().update(sqlUpdatePositionsForRemovalSetEndVersion(), args);
+    getTemplate().update(sqlUpdateNodesForRemovalSetEndVersion(), args);
+  }
+
+  /**
+   * Gets the SQL for end-versioning nodes from a parent tree node.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateNodesForRemovalSetEndVersion() {
+    return "UPDATE pos_node " +
+            "SET end_version = :end_version " +
+            "WHERE oid IN (" +
+                "SELECT tree.node_oid " +
+                "FROM pos_nodetree AS base, pos_nodetree AS tree, pos_node " +
+                "WHERE base.node_oid = :node_oid " +  // filter by desired node
+                  "AND tree.left_id BETWEEN base.left_id AND base.right_id " +  // filter children within tree
+                  "AND pos_node.oid = tree.node_oid " +  // join pos_node
+                  "AND pos_node.portfolio_oid = :portfolio_oid " +  // filter by this portfolio (because tree left_id is not constrained)
+                  "AND base.end_version = :search_version " +
+                  "AND tree.end_version = :search_version " +
+              ") " +
+              "AND end_version = :search_version ";
+  }
+
+  /**
+   * Gets the SQL for end-versioning positions from a parent tree node.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdatePositionsForRemovalSetEndVersion() {
+    return "UPDATE pos_position " +
+            "SET end_version = :end_version " +
+            "WHERE node_oid IN (" +
+                "SELECT tree.node_oid " +
+                "FROM pos_nodetree AS base, pos_nodetree AS tree, pos_node " +
+                "WHERE base.node_oid = :node_oid " +  // filter by desired node
+                  "AND tree.left_id BETWEEN base.left_id AND base.right_id " +  // filter children within tree
+                  "AND pos_node.oid = tree.node_oid " +  // join pos_node
+                  "AND pos_node.portfolio_oid = :portfolio_oid " +  // filter by this portfolio (because tree left_id is not constrained)
+                  "AND base.end_version = :search_version " +
+                  "AND tree.end_version = :search_version " +
+              ") " +
+              "AND end_version = :search_version ";
+  }
+
+  /**
+   * Gets the SQL for end-versioning security keys from a parent tree node.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateSecKeysForRemovalSetEndVersion() {
+    return "UPDATE pos_securitykey " +
+            "SET end_version = :end_version " +
+            "WHERE position_oid IN (" +
+                "SELECT pos_position.oid FROM pos_nodetree AS base, pos_nodetree AS tree, pos_node, pos_position " +
+                "WHERE pos_position.node_oid = tree.node_oid " +  // join to get the position oid
+                  "AND base.node_oid = :node_oid " +  // filter by desired node
+                  "AND tree.left_id BETWEEN base.left_id AND base.right_id " +  // filter children within tree
+                  "AND pos_node.oid = tree.node_oid " +  // join pos_node
+                  "AND pos_node.portfolio_oid = :portfolio_oid " +  // filter by this portfolio (because tree left_id is not constrained)
+                  "AND base.end_version = :search_version " +
+                  "AND tree.end_version = :search_version " +
+              ") " +
+            "AND end_version = :search_version ";
   }
 
   //-------------------------------------------------------------------------

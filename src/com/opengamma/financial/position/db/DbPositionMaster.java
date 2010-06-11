@@ -479,7 +479,8 @@ public class DbPositionMaster implements ManagablePositionMaster {
     }
     final long newVersion = latestVersion + 1;
     getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
-    getWorker().updateTreeSetEndVersion(portfolioOid, newVersion);  // end old version
+    getWorker().updateNodesAndPositionsForRemovalSetEndVersion(portfolioOid, nodeOid, newVersion);  // end old nodes
+    getWorker().updateTreeSetEndVersion(portfolioOid, newVersion);  // end old nodes in whole tree
     getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
     getWorker().insertTree(root, portfolioOid, newVersion);  // insert tree with removed child
     return getWorker().createNodeUniqueIdentifier(portfolioOid, nodeOid, newVersion);
