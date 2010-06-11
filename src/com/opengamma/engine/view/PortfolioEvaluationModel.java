@@ -445,6 +445,13 @@ public class PortfolioEvaluationModel {
           requirements.add(new ValueRequirement(requiredOutput, portfolioNode));
         }
         _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, portfolioNode), requirements);
+        for (Position position : portfolioNode.getPositions()) {
+          requirements.clear();
+          for (String requiredOutput : requiredOutputs) {
+            requirements.add(new ValueRequirement(requiredOutput, position));
+          }
+          _dependencyGraphBuilder.addTarget(new ComputationTarget(ComputationTargetType.POSITION, position), requirements);
+        }
       }
     }
         
