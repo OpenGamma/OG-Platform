@@ -216,6 +216,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * @param positionUid  the unique identifier, not null
    * @return the position, null if not found
    * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the position is not found
    */
   PositionSummary getPositionSummary(final UniqueIdentifier positionUid);
 
@@ -236,6 +237,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * @param request  the request, not null
    * @return the unique identifier of the created position, not null
    * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the parent node is not found
    */
   UniqueIdentifier addPosition(final AddPositionRequest request);
 

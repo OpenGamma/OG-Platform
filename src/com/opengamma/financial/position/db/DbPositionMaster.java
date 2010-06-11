@@ -464,7 +464,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     final Instant instant = Instant.now(getTimeSource());
     final long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
     if (oldVersion != latestVersion) {
-      throw new DataIntegrityViolationException("Unable to update PortfolioNode " + nodeUid + "  as version is not the latest version " + latestVersion);
+      throw new DataIntegrityViolationException("Unable to remove node " + nodeUid + "  as version is not the latest version " + latestVersion);
     }
     final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, true, false);
     if (portfolio == null) {
@@ -472,10 +472,10 @@ public class DbPositionMaster implements ManagablePositionMaster {
     }
     final PortfolioNodeImpl root = portfolio.getRootNode();
     if (root.getUniqueIdentifier().equals(nodeUid)) {
-      throw new DataNotFoundException("Unable to remove PortfolioNode " + nodeUid + " as it is the root node in a portfolio");
+      throw new DataNotFoundException("Unable to remove node " + nodeUid + " as it is the root node in a portfolio");
     }
     if (removeNode(root, nodeUid) == null) {
-      throw new DataNotFoundException("Unable to remove PortfolioNode " + nodeUid + " as no parent node could not be found");
+      throw new DataNotFoundException("Unable to remove node " + nodeUid + " as no parent node could not be found");
     }
     final long newVersion = latestVersion + 1;
     getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
@@ -586,13 +586,25 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public UniqueIdentifier removePosition(final UniqueIdentifier positionUid) {
-    // TODO
-    // check node version is non-null, ours and latest for that node
-    // check position uid is non-null, ours and latest for that node
-    // add latest row to portfolio
-    // remove position
-    // update node uid and position uid (in memory)
-    throw new UnsupportedOperationException();
+    Validate.notNull(positionUid, "UniqueIdentifier must not be null");
+    checkIdentifier(positionUid, TYPE_POSITION);
+    final long portfolioOid = extractPortfolioOid(positionUid);
+    final long positionOid = extractOtherOid(positionUid);
+    final long oldVersion = extractVersion(positionUid);
+    final Instant instant = Instant.now(getTimeSource());
+    final long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, true);  // find latest version
+    if (oldVersion != latestVersion) {
+      throw new DataIntegrityViolationException("Unable to remove position " + positionUid + "  as version is not the latest version " + latestVersion);
+    }
+    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, true, false);
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant);
+    }
+    final long newVersion = latestVersion + 1;
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    getWorker().updatePositionSetEndVersion(portfolioOid, positionOid, newVersion);  // end old version
+    getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
+    return getWorker().createNodeUniqueIdentifier(portfolioOid, positionOid, newVersion);
   }
 
   @Override

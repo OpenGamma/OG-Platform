@@ -870,6 +870,16 @@ public class DbPositionMasterTest extends DBTest {
     assertEquals(uid, test.getUniqueIdentifier());
   }
 
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getPositionSummary_invalidUid() {
+    _posMaster.getPositionSummary(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "N1"));
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_getPositionSummary_notFound() {
+    _posMaster.getPositionSummary(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "P1"));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_addPosition() {
@@ -892,33 +902,10 @@ public class DbPositionMasterTest extends DBTest {
     assertNotNull(testNewParent);
     assertEquals(baseNode.getPositions().size() + 1, testNewParent.getPositions().size());
     
-    final Position testPosition = _posMaster.getPosition(positionUid);
+    final PositionSummary testPosition = _posMaster.getPositionSummary(positionUid);
     assertNotNull(testPosition);
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     assertEquals(new IdentifierBundle(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
-  }
-
-  @Test(expected=DataIntegrityViolationException.class)
-  public void test_addPosition_notLatestVersion() {
-    final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    AddPositionRequest request = new AddPositionRequest();
-    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N1-1", "0"));  // version 0
-    request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
-    _posMaster.addPosition(request);
-  }
-
-  @Test(expected=DataNotFoundException.class)
-  public void test_addPosition_notFound() {
-    final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    
-    AddPositionRequest request = new AddPositionRequest();
-    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N123456-123456", "1"));  // invalid id
-    request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
-    _posMaster.addPosition(request);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -942,6 +929,29 @@ public class DbPositionMasterTest extends DBTest {
     AddPositionRequest request = new AddPositionRequest();
     request.setParentNode(UniqueIdentifier.of("DbPos", "N1-1", "1"));
     request.setQuantity(BigDecimal.TEN);
+    _posMaster.addPosition(request);
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_addPosition_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N1-1", "0"));  // version 0
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.addPosition(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_addPosition_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N123456-123456", "1"));  // invalid id
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
     _posMaster.addPosition(request);
   }
 
@@ -974,42 +984,19 @@ public class DbPositionMasterTest extends DBTest {
   @Test(expected=IllegalArgumentException.class)
   public void test_updatePosition_notVersion() {
     final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    UpdatePositionRequest request = new UpdatePositionRequest();
+    final UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(uid.toLatest());  // latest
     request.setQuantity(BigDecimal.TEN);
     request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
   }
 
-  @Test(expected=DataIntegrityViolationException.class)
-  public void test_updatePosition_notLatestVersion() {
-    final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    UpdatePositionRequest request = new UpdatePositionRequest();
-    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P1-1", "0"));  // version 0
-    request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
-    _posMaster.updatePosition(request);
-  }
-
-  @Test(expected=DataNotFoundException.class)
-  public void test_updatePosition_notFound() {
-    final PortfolioImpl base = buildPortfolio();
-    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    
-    UpdatePositionRequest request = new UpdatePositionRequest();
-    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P123456-123456", "1"));  // invalid id
-    request.setQuantity(BigDecimal.TEN);
-    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
-    _posMaster.updatePosition(request);
-  }
-
   @Test(expected=IllegalArgumentException.class)
-  public void test_updatePosition_noUniqueIdentifeir() {
+  public void test_updatePosition_noUniqueIdentifier() {
     final PortfolioImpl base = buildPortfolio();
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    UpdatePositionRequest request = new UpdatePositionRequest();
+    final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setQuantity(BigDecimal.TEN);
     request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
@@ -1019,7 +1006,7 @@ public class DbPositionMasterTest extends DBTest {
   public void test_updatePosition_noQuantity() {
     final PortfolioImpl base = buildPortfolio();
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    UpdatePositionRequest request = new UpdatePositionRequest();
+    final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "P1-1", "1"));
     request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
     _posMaster.updatePosition(request);
@@ -1029,10 +1016,106 @@ public class DbPositionMasterTest extends DBTest {
   public void test_updatePosition_noSecurityKey() {
     final PortfolioImpl base = buildPortfolio();
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    UpdatePositionRequest request = new UpdatePositionRequest();
+    final UpdatePositionRequest request = new UpdatePositionRequest();
     request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "P1-1", "1"));
     request.setQuantity(BigDecimal.TEN);
     _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePosition_notPositionUid() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "N1-1", "1"));
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_updatePosition_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P1-1", "0"));  // version 0
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_updatePosition_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    final UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    final UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P123456-123456", "1"));  // invalid id
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_removePosition() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final Position basePosition = baseNode.getPositions().get(0);
+    final UniqueIdentifier removedUid = basePosition.getUniqueIdentifier();
+    
+    _posMaster.removePosition(removedUid);
+    
+    // retrieving latest doesn't find it
+    final PositionSummary test1 = _posMaster.getPositionSummary(removedUid.toLatest());
+    assertEquals(null, test1);
+    
+    // still able to retrieve node
+    final PortfolioNode test2 = _posMaster.getPortfolioNode(baseNode.getUniqueIdentifier());
+    assertNotNull(test2);
+    assertEquals(baseNode.getPositions().size(), test2.getPositions().size());
+    
+    // retrieving latest node doesn't find it
+    final PortfolioNode test3 = _posMaster.getPortfolioNode(baseNode.getUniqueIdentifier().toLatest());
+    assertNotNull(test3);
+    assertEquals(baseNode.getPositions().size() - 1, test3.getPositions().size());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_removePosition_notVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final Position basePosition = base.getRootNode().getChildNodes().get(0).getPositions().get(0);
+    final UniqueIdentifier removedUid = basePosition.getUniqueIdentifier();
+    _posMaster.removePosition(removedUid.toLatest());  // latest
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_removePosition_notPositionUid() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final Position basePosition = base.getRootNode().getChildNodes().get(0).getPositions().get(0);
+    final UniqueIdentifier removedUid = basePosition.getUniqueIdentifier();
+    _posMaster.removePosition(UniqueIdentifier.of(removedUid.getScheme(), "N1-1", "1"));
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_removePosition_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final Position basePosition = base.getRootNode().getChildNodes().get(0).getPositions().get(0);
+    final UniqueIdentifier removedUid = basePosition.getUniqueIdentifier();
+    _posMaster.removePosition(UniqueIdentifier.of(removedUid.getScheme(), removedUid.getValue(), "0"));  // version 0
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_removePosition_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final Position basePosition = base.getRootNode().getChildNodes().get(0).getPositions().get(0);
+    final UniqueIdentifier removedUid = basePosition.getUniqueIdentifier();
+    _posMaster.removePosition(UniqueIdentifier.of(removedUid.getScheme(), "P123456-123", "1"));  // invalid id
   }
 
   //-------------------------------------------------------------------------
