@@ -7,12 +7,15 @@ package com.opengamma.math.statistics.distribution;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+
 import cern.jet.random.ChiSquare;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function2D;
 import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -22,7 +25,6 @@ import com.opengamma.math.function.special.InverseIncompleteGammaFunction;
  * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the
  * cdf, pdf and {@latex.inline $\\chi^2$}-distributed random numbers.
  * 
- * @author emcleod
  */
 public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
@@ -39,8 +41,9 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    *          If the degrees of freedom is less than one
    */
   public ChiSquareDistribution(final double degrees) {
-    if (degrees < 1)
+    if (degrees < 1) {
       throw new IllegalArgumentException("Degrees of freedom must be greater than or equal to one");
+    }
     _chiSquare = new ChiSquare(degrees, _engine);
     _degrees = degrees;
   }
@@ -58,10 +61,10 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    *           If the random number generator was null
    */
   public ChiSquareDistribution(final double degrees, final RandomEngine engine) {
-    if (degrees < 1)
+    if (degrees < 1) {
       throw new IllegalArgumentException("Degrees of freedom must be greater than or equal to one");
-    if (engine == null)
-      throw new IllegalArgumentException("Engine was null");
+    }
+    Validate.notNull(engine);
     _chiSquare = new ChiSquare(degrees, engine);
     _degrees = degrees;
   }
@@ -76,13 +79,16 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * \\end{equation*}}
    * where {@latex.inline $\\gamma(y, z)$} is the lower incomplete Gamma function and {@latex.inline $\\Gamma(y)$} is the Gamma function.
    * 
+   * @param x {@latex.inline $x$}
+   * @return Value of the CDF at {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} is null
    */
   @Override
   public double getCDF(final Double x) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("x was null");
+    }
     return _chiSquare.cdf(x);
   }
 
@@ -96,14 +102,15 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * \\end{equation*}}
    * where {@latex.inline $\\Gamma(y)$} is the Gamma function.
    * 
+   * @param x {@latex.inline $x$}
+   * @return Value of the PDF at {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} is null
    * 
    */
   @Override
   public double getPDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
+    Validate.notNull(x);
     return _chiSquare.pdf(x);
   }
 
@@ -118,6 +125,8 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    * where {@latex.inline $\\gamma^{-1}(y)$} is the inverse incomplete Gamma function.
    * 
    * @see com.opengamma.math.function.special.InverseIncompleteGammaFunction
+   * @param p {@latex.inline $p$}
+   * @return Value of the inverse CDF at {@latex.inline $p$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $p$} is null
    * @throws IllegalArgumentException
@@ -126,10 +135,10 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    */
   @Override
   public double getInverseCDF(final Double p) {
-    if (p == null)
-      throw new IllegalArgumentException("p was null");
-    if (p < 0 || p >= 1)
+    Validate.notNull(p);
+    if (!ArgumentChecker.isInRangeExcludingLow(0, 1, p)) {
       throw new IllegalArgumentException("Probability must lie between 0 and 1: have " + p);
+    }
     return 2 * _inverseFunction.evaluate(0.5 * _degrees, p);
   }
 

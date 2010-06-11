@@ -7,13 +7,14 @@ package com.opengamma.math.statistics.distribution;
 
 import java.util.Date;
 
+import org.apache.commons.lang.Validate;
+
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
- * 
- * 
- * @author emcleod
  * 
  */
 public class LaplaceDistribution implements ProbabilityDistribution<Double> {
@@ -28,12 +29,11 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    *          The location parameter
    * @param b
    *          The scale parameter
-   * @throws IllegalArgumnetException
+   * @throws IllegalArgumentException
    *           If {@latex.inline $b < 0$}
    */
   public LaplaceDistribution(final double mu, final double b) {
-    if (b <= 0)
-      throw new IllegalArgumentException("B must be greater than zero");
+    ArgumentChecker.notNegativeOrZero(b, "b");
     _mu = mu;
     _b = b;
   }
@@ -53,10 +53,8 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    *           If the engine is null
    */
   public LaplaceDistribution(final double mu, final double b, final RandomEngine engine) {
-    if (b <= 0)
-      throw new IllegalArgumentException("B must be greater than zero");
-    if (engine == null)
-      throw new IllegalArgumentException("Engine was null");
+    ArgumentChecker.notNegativeOrZero(b, "b");
+    Validate.notNull(engine);
     _mu = mu;
     _b = b;
     _engine = engine;
@@ -75,13 +73,14 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * \\end{cases}
    * \\end{eqnarray*}}
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
+   * @param x {@latex.inline $x$}
+   * @return The CDF of {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} is null
    */
   @Override
   public double getCDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
+    Validate.notNull(x);
     return 0.5 * (1 + Math.signum(x - _mu) * (1 - Math.exp(-Math.abs(x - _mu) / _b)));
   }
 
@@ -95,6 +94,8 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * \\end{equation*}}
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF
+   * @param p {@latex.inline $p$}
+   * @return The inverse CDF of {@latex.inline $p$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $p$} is null
    * @throws IllegalArgumentException
@@ -102,10 +103,10 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    */
   @Override
   public double getInverseCDF(final Double p) {
-    if (p == null)
-      throw new IllegalArgumentException("p was null");
-    if (p > 1 || p < 0)
-      throw new IllegalArgumentException("Probability must be >= 0 and <= 1");
+    Validate.notNull(p);
+    if (!ArgumentChecker.isInRangeInclusive(0, 1, p)) {
+      throw new IllegalArgumentException("Probability must lie between 0 and 1: have " + p);
+    }
     return _mu - _b * Math.signum(p - 0.5) * Math.log(1 - 2 * Math.abs(p - 0.5));
   }
 
@@ -119,13 +120,14 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * \\end{equation*}}
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
+   * @param x {@latex.inline $x$}
+   * @return The PDF of {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} is null
    */
   @Override
   public double getPDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
+    Validate.notNull(x);
     return Math.exp(-Math.abs(x - _mu) / _b) / (2 * _b);
   }
 
@@ -140,6 +142,7 @@ public class LaplaceDistribution implements ProbabilityDistribution<Double> {
    * \\end{equation*}}
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom
+   * @return The next random number from this distribution
    * 
    */
   @Override

@@ -11,12 +11,11 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class ChiSquareDistributionTest extends ProbabilityDistributionTestCase {
-  private static final double[] X = new double[] { 1.9, 5.8, 9.0, 15.5, 39 };
-  private static final double[] DOF = new double[] { 3, 6, 7, 16, 28 };
-  private static final double[] Q = new double[] { 0.59342, 0.44596, 0.25266, 0.48837, 0.08092 };
+  private static final double[] X = new double[] {1.9, 5.8, 9.0, 15.5, 39};
+  private static final double[] DOF = new double[] {3, 6, 7, 16, 28};
+  private static final double[] Q = new double[] {0.59342, 0.44596, 0.25266, 0.48837, 0.08092};
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeDOF1() {

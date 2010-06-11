@@ -12,7 +12,6 @@ import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
- * @author emcleod
  */
 public class ProbabilityDistributionTestCase {
   protected static final double EPS = 1e-5;

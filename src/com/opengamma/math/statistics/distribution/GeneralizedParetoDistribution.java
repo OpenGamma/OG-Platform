@@ -8,11 +8,12 @@ package com.opengamma.math.statistics.distribution;
 import java.util.Date;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.CompareUtils;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -30,8 +31,6 @@ import com.opengamma.util.CompareUtils;
  * x\\geq\\mu\\quad\\quad\\quad(\\xi\\geq 0)\\\\
  * \\mu\\leq x\\leq\\mu-\\frac{\\sigma}{\\xi}\\quad(\\xi<0)
  * \\end{eqnarray*}}
-
- * @author emcleod
  * 
  */
 public class GeneralizedParetoDistribution implements ProbabilityDistribution<Double> {
@@ -52,12 +51,12 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    *          The shape parameter
    * @throws IllegalArgumentException
    *           If {@latex.inline $\\sigma < 0$}
+   * @throws IllegalArgumentException
+   *           If {@latex.inline $\\ksi = 0$}
    */
   public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi) {
-    if (sigma < 0)
-      throw new IllegalArgumentException("Sigma must be positive");
-    if (CompareUtils.closeEquals(ksi, 0, 1e-15))
-      throw new IllegalArgumentException("Ksi cannot be zero");
+    ArgumentChecker.notNegative(sigma, "sigma");
+    ArgumentChecker.notZero(ksi, 1e-15, "ksi");
     _mu = mu;
     _sigma = sigma;
     _ksi = ksi;
@@ -80,12 +79,9 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    *           If the random number generator was null
    */
   public GeneralizedParetoDistribution(final double mu, final double sigma, final double ksi, final RandomEngine engine) {
-    if (sigma < 0)
-      throw new IllegalArgumentException("Sigma must be positive");
-    if (CompareUtils.closeEquals(ksi, 0, 1e-15))
-      throw new IllegalArgumentException("Ksi cannot be zero");
-    if (engine == null)
-      throw new IllegalArgumentException("Engine cannot be null");
+    ArgumentChecker.notNegative(sigma, "sigma");
+    ArgumentChecker.notNegativeOrZero(ksi, "ksi");
+    Validate.notNull(engine);
     _mu = mu;
     _sigma = sigma;
     _ksi = ksi;
@@ -115,13 +111,14 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * \\end{eqnarray*}}
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
+   * @param x {@latex.inline $x$}
+   * @return The CDF of {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} was null
    */
   @Override
   public double getCDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("Value was null");
+    Validate.notNull(x);
     return 1 - Math.pow(1 + _ksi * getZ(x), -1. / _ksi);
   }
 
@@ -130,6 +127,8 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * This method is not implemented.
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF
+   * @param p {@latex.inline $p$}
+   * @return This method is not implemented
    * @throws NotImplementedException
    */
   @Override
@@ -148,13 +147,14 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   * \\end{eqnarray*}}
   * 
   * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
+  * @param x {@latex.inline $x$}
+  * @return The PDF of {@latex.inline $x$}
   * @throws IllegalArgumentException
   *           If {@latex.inline $x$} was null
   */
   @Override
   public double getPDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("Value was null");
+    Validate.notNull(x);
     return Math.pow(1 + _ksi * getZ(x), -(1. / _ksi + 1)) / _sigma;
   }
 
@@ -167,7 +167,7 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
    * X=\\mu + \\frac{\\sigma\\left(U^{-\\xi}-1\\right)}{\\xi}\\sim GPD(\\mu,\\sigma,\\xi)
    * \\end{equation*}}
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom
-   * 
+   * @return The next random number drawn from the distribution
    */
   @Override
   public double nextRandom() {
@@ -175,10 +175,12 @@ public class GeneralizedParetoDistribution implements ProbabilityDistribution<Do
   }
 
   private double getZ(final double x) {
-    if (_ksi > 0 && x < _mu)
+    if (_ksi > 0 && x < _mu) {
       throw new IllegalArgumentException("Support for GPD is in the range x >= mu if ksi > 0");
-    if (_ksi < 0 && (x <= _mu || x >= _mu - _sigma / _ksi))
+    }
+    if (_ksi < 0 && (x <= _mu || x >= _mu - _sigma / _ksi)) {
       throw new IllegalArgumentException("Support for GPD is in the range mu <= x <= mu - sigma / ksi if ksi < 0");
+    }
     return (x - _mu) / _sigma;
   }
 }
