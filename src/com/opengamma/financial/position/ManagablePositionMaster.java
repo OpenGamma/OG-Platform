@@ -102,6 +102,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param request  the request to add, not null
    * @return the matched portfolios, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
   SearchPortfoliosResult searchPortfolios(final SearchPortfoliosRequest request);
 
@@ -113,7 +114,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param request  the request, not null
    * @return the new unique identifier of the portfolio, not null
-   * @throws IllegalArgumentException if the portfolio is already created in this master
+   * @throws IllegalArgumentException if the request is invalid
    */
   UniqueIdentifier addPortfolio(final AddPortfolioRequest request);
 
@@ -125,7 +126,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param request  the request, not null
    * @return the new unique identifier of the portfolio, not null
-   * @throws IllegalArgumentException if the portfolio is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the portfolio is not found
    */
   UniqueIdentifier updatePortfolio(final UpdatePortfolioRequest request);
@@ -140,7 +141,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param portfolioUid  the portfolio unique identifier to remove, not null
    * @return the new unique identifier of the portfolio, not null
-   * @throws IllegalArgumentException if the portfolio is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the portfolio is not found
    */
   UniqueIdentifier removePortfolio(final UniqueIdentifier portfolioUid);
@@ -152,7 +153,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param portfolioUid  the portfolio unique identifier to reinstate, not null
    * @return the new unique identifier of the portfolio, null if unable to reinstate
-   * @throws IllegalArgumentException if the portfolio is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the portfolio is not found
    */
   UniqueIdentifier reinstatePortfolio(final UniqueIdentifier portfolioUid);
@@ -165,7 +166,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param request  the request, not null
    * @return the unique identifier of the created node, not null
-   * @throws IllegalArgumentException if the node is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    */
   UniqueIdentifier addPortfolioNode(final AddPortfolioNodeRequest request);
 
@@ -177,7 +178,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param request  the request, not null
    * @return the new unique identifier of the node, not null
-   * @throws IllegalArgumentException if the node is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the node is not found
    */
   UniqueIdentifier updatePortfolioNode(final UpdatePortfolioNodeRequest request);
@@ -192,7 +193,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param nodeUid  the node unique identifier to remove, not null
    * @return the new unique identifier of the node, not null
-   * @throws IllegalArgumentException if the node is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the node is not found
    */
   UniqueIdentifier removePortfolioNode(final UniqueIdentifier nodeUid);
@@ -204,7 +205,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param nodeUid  the node unique identifier to reinstate, not null
    * @return the new unique identifier of the node, null if unable to reinstate
-   * @throws IllegalArgumentException if the node is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    */
   UniqueIdentifier reinstatePortfolioNode(final UniqueIdentifier nodeUid);
 
@@ -214,6 +215,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param positionUid  the unique identifier, not null
    * @return the position, null if not found
+   * @throws IllegalArgumentException if the request is invalid
    */
   PositionSummary getPositionSummary(final UniqueIdentifier positionUid);
 
@@ -222,33 +224,32 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param request  the request to add, not null
    * @return the matched positions, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
   SearchPositionsResult searchPositions(final SearchPositionsRequest request);
 
   /**
    * Adds a position to the specified node.
    * <p>
-   * If the position is mutable, the unique identifier will be altered.
+   * This method will add the single position specified in the request.
    * 
-   * @param nodeUid  the node to add to, not null
-   * @param position  the position to add, not null
-   * @return the new unique identifier of the position, not null
-   * @throws IllegalArgumentException if the node is not from this position master
+   * @param request  the request, not null
+   * @return the unique identifier of the created position, not null
+   * @throws IllegalArgumentException if the request is invalid
    */
-  UniqueIdentifier addPosition(final UniqueIdentifier nodeUid, final Position position);
+  UniqueIdentifier addPosition(final AddPositionRequest request);
 
   /**
    * Updates a position, including the security key.
    * <p>
    * The position specified must be the latest version.
-   * If the position is mutable, the unique identifier will be altered.
    * 
-   * @param position  the position to update, not null
+   * @param request  the request, not null
    * @return the new unique identifier of the position, not null
-   * @throws IllegalArgumentException if the node is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the position is not found
    */
-  UniqueIdentifier updatePosition(final Position position);
+  UniqueIdentifier updatePosition(final UpdatePositionRequest request);
 
   /**
    * Removes a position.
@@ -260,7 +261,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param positionUid  the position unique identifier to remove, not null
    * @return the new unique identifier of the position, not null
-   * @throws IllegalArgumentException if the position is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the position is not found
    */
   UniqueIdentifier removePosition(final UniqueIdentifier positionUid);
@@ -272,7 +273,7 @@ public interface ManagablePositionMaster extends PositionMaster {
    * 
    * @param positionUid  the position unique identifier to reinstate, not null
    * @return the new unique identifier of the position, null if unable to reinstate
-   * @throws IllegalArgumentException if the position is not from this position master
+   * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the position is not found
    */
   UniqueIdentifier reinstatePosition(final UniqueIdentifier positionUid);

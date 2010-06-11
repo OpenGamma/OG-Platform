@@ -551,15 +551,15 @@ public class DbPositionMasterWorker {
    * @return the response, null if not found
    */
   protected SearchPortfoliosResult selectPortfolioSummaries(final SearchPortfoliosRequest request, final Instant now) {
-    Instant instant = Objects.firstNonNull(request.getInstant(), now);
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final Instant instant = Objects.firstNonNull(request.getInstant(), now);
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("name", getDbHelper().sqlWildcardAdjustValue(request.getName()))
       .addValue("instant", DateUtil.toSqlTimestamp(instant));
-    PortfolioSummaryMapper mapper = new PortfolioSummaryMapper();
-    String[] selectAndCount = sqlPortfolioSummaries(request);
-    List<PortfolioSummary> result = getTemplate().query(selectAndCount[0], mapper, args);
-    int totalItems = getTemplate().queryForInt(selectAndCount[1], args);
-    Paging paging = new Paging(request.getPagingRequest(), totalItems);
+    final PortfolioSummaryMapper mapper = new PortfolioSummaryMapper();
+    final String[] selectAndCount = sqlPortfolioSummaries(request);
+    final List<PortfolioSummary> result = getTemplate().query(selectAndCount[0], mapper, args);
+    final int totalItems = getTemplate().queryForInt(selectAndCount[1], args);
+    final Paging paging = new Paging(request.getPagingRequest(), totalItems);
     return new SearchPortfoliosResult(paging, result);
   }
 
@@ -596,10 +596,10 @@ public class DbPositionMasterWorker {
   protected final class PortfolioSummaryMapper implements ParameterizedRowMapper<PortfolioSummary> {
     @Override
     public PortfolioSummary mapRow(ResultSet rs, int rowNum) throws SQLException {
-      long portfolioOid = rs.getLong("OID");
-      long version = rs.getLong("VERSION");
-      UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
-      PortfolioSummary summary = new PortfolioSummary(uid);
+      final long portfolioOid = rs.getLong("OID");
+      final long version = rs.getLong("VERSION");
+      final UniqueIdentifier uid = createPortfolioUniqueIdentifier(portfolioOid, version);
+      final PortfolioSummary summary = new PortfolioSummary(uid);
       summary.setName(rs.getString("NAME"));
       summary.setStartInstant(DateUtil.fromSqlTimestamp(rs.getTimestamp("START_INSTANT")));
       summary.setEndInstant(DateUtil.fromSqlTimestamp(rs.getTimestamp("END_INSTANT")));
@@ -618,11 +618,11 @@ public class DbPositionMasterWorker {
    * @return the position, null if not found
    */
   protected PositionSummary selectPositionSummary(final long portfolioOid, final long positionOid, final long version) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("position_oid", positionOid)
       .addValue("version", version);
-    PositionSummaryExtractor extractor = new PositionSummaryExtractor(portfolioOid, version);
-    NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final PositionSummaryExtractor extractor = new PositionSummaryExtractor(portfolioOid, version);
+    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
     return (PositionSummary) namedJdbc.query(sqlPositionSummaryByOidVersion(), args, extractor);
   }
 
@@ -737,7 +737,7 @@ public class DbPositionMasterWorker {
    */
   protected UniqueIdentifier insertPortfolio(
       final Portfolio portfolio, final long portfolioOid, final long version, final Instant instant, boolean active) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("version", version)
       .addValue("status", active ? STATUS_ACTIVE : STATUS_DELETED)
@@ -798,7 +798,7 @@ public class DbPositionMasterWorker {
     final long right = counter[1]++;
     final long nodeOid = counter[0]++;
     // the arguments for inserting into the node table
-    MapSqlParameterSource nodeArgs = new MapSqlParameterSource()
+    final MapSqlParameterSource nodeArgs = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
@@ -806,7 +806,7 @@ public class DbPositionMasterWorker {
       .addValue("name", node.getName());
     nodeList.add(nodeArgs);
     // the arguments for inserting into the tree table
-    MapSqlParameterSource treeArgs = new MapSqlParameterSource()
+    final MapSqlParameterSource treeArgs = new MapSqlParameterSource()
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
       .addValue("end_version", END_VERSION)
@@ -814,7 +814,7 @@ public class DbPositionMasterWorker {
       .addValue("right_id", right);
     treeList.add(treeArgs);
     // set the uid
-    UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
+    final UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
     setUniqueIdentifier(node, uid);
   }
 
@@ -851,7 +851,7 @@ public class DbPositionMasterWorker {
     }
     final long right = counter[0]++;
     final long nodeOid = getParent().extractOtherOid(node.getUniqueIdentifier());
-    MapSqlParameterSource treeArgs = new MapSqlParameterSource()
+    final MapSqlParameterSource treeArgs = new MapSqlParameterSource()
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
       .addValue("end_version", END_VERSION)
@@ -859,7 +859,7 @@ public class DbPositionMasterWorker {
       .addValue("right_id", right);
     treeList.add(treeArgs);
     // set the uid
-    UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
+    final UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
     setUniqueIdentifier(node, uid);
   }
 
@@ -874,14 +874,14 @@ public class DbPositionMasterWorker {
    */
   protected UniqueIdentifier insertNode(
       final PortfolioNode node, final long portfolioOid, final long nodeOid, final long version, final Instant instant) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("node_oid", nodeOid)
       .addValue("start_version", version)
       .addValue("end_version", END_VERSION)
       .addValue("name", node.getName());
     getTemplate().update(sqlInsertNode(), args);
-    UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
+    final UniqueIdentifier uid = createNodeUniqueIdentifier(portfolioOid, nodeOid, version);
     setUniqueIdentifier(node, uid);
     return uid;
   }
@@ -910,7 +910,7 @@ public class DbPositionMasterWorker {
 
   //-------------------------------------------------------------------------
   /**
-   * Inserts a row into the portfolio table.
+   * Inserts a row into the tree/node tables.
    * @param rootNode  the root node, not null
    * @param portfolioOid  the portfolio object identifier, not null
    * @param version  the version, not null
@@ -936,8 +936,8 @@ public class DbPositionMasterWorker {
    * @param secKeyList  the list of security-key arguments to build, not null
    */
   protected void insertTreePositionsBuildArgs(
-      final PortfolioNode node, final Long portfolioOid, long[] counter, final Long version,
-      List<MapSqlParameterSource> positionList, List<MapSqlParameterSource> secKeyList) {
+      final PortfolioNode node, final long portfolioOid, final long[] counter, final Long version,
+      final List<MapSqlParameterSource> positionList, final List<MapSqlParameterSource> secKeyList) {
     // depth first
     for (PortfolioNode childNode : node.getChildNodes()) {
       insertTreePositionsBuildArgs(childNode, portfolioOid, counter, version, positionList, secKeyList);
@@ -946,7 +946,7 @@ public class DbPositionMasterWorker {
     for (Position position : node.getPositions()) {
       final long positionOid = counter[0]++;
       // the arguments for inserting into the position table
-      MapSqlParameterSource positionArgs = new MapSqlParameterSource()
+      final MapSqlParameterSource positionArgs = new MapSqlParameterSource()
         .addValue("node_oid", nodeOid)
         .addValue("position_oid", positionOid)
         .addValue("start_version", version)
@@ -956,7 +956,7 @@ public class DbPositionMasterWorker {
       // the arguments for inserting into the seckey table
       for (Identifier id : position.getSecurityKey()) {
         final long secKeyOid = counter[1]++;
-        MapSqlParameterSource treeArgs = new MapSqlParameterSource()
+        final MapSqlParameterSource treeArgs = new MapSqlParameterSource()
           .addValue("position_oid", positionOid)
           .addValue("seckey_oid", secKeyOid)
           .addValue("start_version", version)
@@ -966,9 +966,26 @@ public class DbPositionMasterWorker {
         secKeyList.add(treeArgs);
       }
       // set the uid
-      UniqueIdentifier uid = createPositionUniqueIdentifier(portfolioOid, positionOid, version);
+      final UniqueIdentifier uid = createPositionUniqueIdentifier(portfolioOid, positionOid, version);
       setUniqueIdentifier(position, uid);
     }
+  }
+
+  /**
+   * Inserts a row into the tree/node tables.
+   * @param position  the position data, not null
+   * @param portfolioOid  the portfolio object identifier, not null
+   * @param parentNodeOid  the parent node object identifier, not null
+   * @param version  the version, not null
+   * @return the unique identifier of the inserted position, not null
+   */
+  protected UniqueIdentifier insertPosition(
+      final Position position, final long portfolioOid, final long parentNodeOid, final long version) {
+    final UniqueIdentifier parentUid = createNodeUniqueIdentifier(portfolioOid, parentNodeOid, version);
+    final PortfolioNodeImpl tempRoot = new PortfolioNodeImpl(parentUid, "Temp");
+    tempRoot.addPosition(position);
+    insertTreePositions(tempRoot, portfolioOid, version);
+    return position.getUniqueIdentifier();
   }
 
   /**
@@ -1000,7 +1017,7 @@ public class DbPositionMasterWorker {
    * @param instant  the instant to use, not null
    */
   protected void updatePortfolioSetEndInstant(final long portfolioOid, final Instant instant) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("search_instant", END_INSTANT)
       .addValue("end_instant", DateUtil.toSqlTimestamp(instant));
@@ -1025,7 +1042,7 @@ public class DbPositionMasterWorker {
    * @param endVersion  the version number to end the rows with
    */
   protected void updateTreeSetEndVersion(final long portfolioOid, final long endVersion) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("portfolio_oid", portfolioOid)
       .addValue("search_version", END_VERSION)
       .addValue("end_version", endVersion);
@@ -1053,7 +1070,7 @@ public class DbPositionMasterWorker {
    * @param endVersion  the version number to end the rows with
    */
   protected void updateNodeSetEndVersion(final long portfolioOid, final long nodeOid, final long endVersion) {
-    MapSqlParameterSource args = new MapSqlParameterSource()
+    final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("node_oid", nodeOid)
       .addValue("search_version", END_VERSION)
       .addValue("end_version", endVersion);
@@ -1068,6 +1085,44 @@ public class DbPositionMasterWorker {
     return "UPDATE pos_node " +
             "SET end_version = :end_version " +
             "WHERE oid = :node_oid " +
+              "AND end_version = :search_version";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Updates the position table to end-version a position and associated seckeys.
+   * @param portfolioOid  the portfolio to end
+   * @param positionOid  the position to end
+   * @param endVersion  the version number to end the rows with
+   */
+  protected void updatePositionSetEndVersion(final long portfolioOid, final long positionOid, final long endVersion) {
+    final MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("position_oid", positionOid)
+      .addValue("search_version", END_VERSION)
+      .addValue("end_version", endVersion);
+    getTemplate().update(sqlUpdatePositionSetEndVersion(), args);
+    getTemplate().update(sqlUpdateSecKeySetEndVersion(), args);
+  }
+
+  /**
+   * Gets the SQL for end-versioning a position.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdatePositionSetEndVersion() {
+    return "UPDATE pos_position " +
+            "SET end_version = :end_version " +
+            "WHERE oid = :position_oid " +
+              "AND end_version = :search_version";
+  }
+
+  /**
+   * Gets the SQL for end-versioning a position.
+   * @return the SQL, not null
+   */
+  protected String sqlUpdateSecKeySetEndVersion() {
+    return "UPDATE pos_securitykey " +
+            "SET end_version = :end_version " +
+            "WHERE position_oid = :position_oid " +
               "AND end_version = :search_version";
   }
 

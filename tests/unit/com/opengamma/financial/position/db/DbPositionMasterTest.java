@@ -36,12 +36,14 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
+import com.opengamma.financial.position.AddPositionRequest;
 import com.opengamma.financial.position.PortfolioSummary;
 import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
 import com.opengamma.financial.position.UpdatePortfolioRequest;
+import com.opengamma.financial.position.UpdatePositionRequest;
 import com.opengamma.id.IdentificationScheme;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -866,6 +868,171 @@ public class DbPositionMasterTest extends DBTest {
     final PositionSummary test = _posMaster.getPositionSummary(uid.toLatest());
     assertNotNull(test);
     assertEquals(uid, test.getUniqueIdentifier());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_addPosition() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier parentUid = baseNode.getUniqueIdentifier();
+    
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(parentUid);
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    UniqueIdentifier positionUid = _posMaster.addPosition(request);
+    
+    final PortfolioNode testOldParent = _posMaster.getPortfolioNode(parentUid);
+    assertNotNull(testOldParent);
+    assertEquals(baseNode.getPositions().size(), testOldParent.getPositions().size());
+    
+    final PortfolioNode testNewParent = _posMaster.getPortfolioNode(UniqueIdentifier.of(parentUid.getScheme(), parentUid.getValue(), positionUid.getVersion()));
+    assertNotNull(testNewParent);
+    assertEquals(baseNode.getPositions().size() + 1, testNewParent.getPositions().size());
+    
+    final Position testPosition = _posMaster.getPosition(positionUid);
+    assertNotNull(testPosition);
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    assertEquals(new IdentifierBundle(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_addPosition_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N1-1", "0"));  // version 0
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.addPosition(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_addPosition_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(UniqueIdentifier.of(uid.getScheme(), "N123456-123456", "1"));  // invalid id
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.addPosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addPosition_noParent() {
+    AddPositionRequest request = new AddPositionRequest();
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.addPosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addPosition_noQuantity() {
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(UniqueIdentifier.of("DbPos", "N1-1", "1"));
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.addPosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_addPosition_noSecurityKey() {
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(UniqueIdentifier.of("DbPos", "N1-1", "1"));
+    request.setQuantity(BigDecimal.TEN);
+    _posMaster.addPosition(request);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_updatePosition() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final Position baseNode = base.getRootNode().getChildNodes().get(0).getPositions().get(0);
+    final UniqueIdentifier uid1 = baseNode.getUniqueIdentifier();
+    
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(uid1);
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    final UniqueIdentifier uid2 = _posMaster.updatePosition(request);
+    
+    final PositionSummary testOld = _posMaster.getPositionSummary(uid1);
+    assertNotNull(testOld);
+    assertEquals(baseNode.getQuantity(), testOld.getQuantity());
+    assertEquals(baseNode.getSecurityKey(), testOld.getSecurityKey());
+    
+    final PositionSummary testPosition = _posMaster.getPositionSummary(uid2);
+    assertNotNull(testPosition);
+    assertNotNull(testPosition);
+    assertEquals(BigDecimal.TEN, testPosition.getQuantity());
+    assertEquals(new IdentifierBundle(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePosition_notVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(uid.toLatest());  // latest
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=DataIntegrityViolationException.class)
+  public void test_updatePosition_notLatestVersion() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P1-1", "0"));  // version 0
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_updatePosition_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier uid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of(uid.getScheme(), "P123456-123456", "1"));  // invalid id
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePosition_noUniqueIdentifeir() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setQuantity(BigDecimal.TEN);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePosition_noQuantity() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "P1-1", "1"));
+    request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
+    _posMaster.updatePosition(request);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_updatePosition_noSecurityKey() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UpdatePositionRequest request = new UpdatePositionRequest();
+    request.setUniqueIdentifier(UniqueIdentifier.of("DbPos", "P1-1", "1"));
+    request.setQuantity(BigDecimal.TEN);
+    _posMaster.updatePosition(request);
   }
 
   //-------------------------------------------------------------------------
