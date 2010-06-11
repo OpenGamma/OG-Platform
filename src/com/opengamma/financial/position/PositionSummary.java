@@ -19,6 +19,10 @@ import com.opengamma.id.UniqueIdentifier;
 public final class PositionSummary {
 
   /**
+   * The portfolio unique identifier.
+   */
+  private UniqueIdentifier _portfolioUid;
+  /**
    * The parent node unique identifier.
    */
   private UniqueIdentifier _parentNodeUid;
@@ -45,12 +49,21 @@ public final class PositionSummary {
   public PositionSummary() {
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
-   * @param uid  the unique identifier, not null
+   * Gets the portfolio unique identifier of the position.
+   * @return the portfolio unique identifier
    */
-  public PositionSummary(UniqueIdentifier uid) {
-    setUniqueIdentifier(uid);
+  public UniqueIdentifier getPortfolioUid() {
+    return _portfolioUid;
+  }
+
+  /**
+   * Sets the portfolio unique identifier of the position.
+   * @param uid  the portfolio unique identifier
+   */
+  public void setPortfolioUid(UniqueIdentifier uid) {
+    _portfolioUid = uid;
   }
 
   //-------------------------------------------------------------------------
@@ -58,7 +71,7 @@ public final class PositionSummary {
    * Gets the parent node unique identifier of the position.
    * @return the parent node unique identifier
    */
-  public UniqueIdentifier getParentNode() {
+  public UniqueIdentifier getParentNodeUid() {
     return _parentNodeUid;
   }
 
@@ -66,7 +79,7 @@ public final class PositionSummary {
    * Sets the parent node unique identifier of the position.
    * @param uid  the parent node unique identifier
    */
-  public void setParentNode(UniqueIdentifier uid) {
+  public void setParentNodeUid(UniqueIdentifier uid) {
     _parentNodeUid = uid;
   }
 

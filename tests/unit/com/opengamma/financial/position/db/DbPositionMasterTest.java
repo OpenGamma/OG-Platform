@@ -37,6 +37,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.PortfolioSummary;
+import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
@@ -818,6 +819,53 @@ public class DbPositionMasterTest extends DBTest {
     final PortfolioNode baseNode = base.getRootNode().getChildNodes().get(0);
     final UniqueIdentifier removedUid = baseNode.getUniqueIdentifier();
     _posMaster.removePortfolioNode(UniqueIdentifier.of(removedUid.getScheme(), "N123456-123", "1"));  // invalid id
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getPositionSummary_oneSecurityKey() {
+    final PortfolioImpl base = buildPortfolio();
+    final List<Position> expectedPositions = buildExpectedPositions(base);
+    final Position expectedPosition = expectedPositions.get(0);
+    final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UniqueIdentifier positionUid = expectedPosition.getUniqueIdentifier();
+    
+    final PositionSummary test = _posMaster.getPositionSummary(positionUid);
+    assertNotNull(test);
+    assertEquals(expectedPosition.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(expectedPosition.getSecurityKey(), test.getSecurityKey());
+    assertEquals(expectedPosition.getQuantity(), test.getQuantity());
+    assertEquals(portfolioUid, test.getPortfolioUid());
+    assertEquals(base.getRootNode().getChildNodes().get(0).getUniqueIdentifier(), test.getParentNodeUid());
+  }
+
+  @Test
+  public void test_getPositionSummary_twoSecurityKeys() {
+    final PortfolioImpl base = buildPortfolio();
+    final List<Position> expectedPositions = buildExpectedPositions(base);
+    final Position expectedPosition = expectedPositions.get(expectedPositions.size() - 1);
+    final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UniqueIdentifier positionUid = expectedPosition.getUniqueIdentifier();
+    
+    final PositionSummary test = _posMaster.getPositionSummary(positionUid);
+    assertEquals(expectedPosition.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(expectedPosition.getSecurityKey(), test.getSecurityKey());
+    assertEquals(expectedPosition.getQuantity(), test.getQuantity());
+    assertEquals(portfolioUid, test.getPortfolioUid());
+    assertEquals(base.getRootNode().getChildNodes().get(1).getUniqueIdentifier(), test.getParentNodeUid());
+  }
+
+  @Test
+  public void test_getPositionSummary_latest() {
+    final PortfolioImpl base = buildPortfolio();
+    final List<Position> expectedPositions = buildExpectedPositions(base);
+    final Position position = expectedPositions.get(0);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UniqueIdentifier uid = position.getUniqueIdentifier();
+    
+    final PositionSummary test = _posMaster.getPositionSummary(uid.toLatest());
+    assertNotNull(test);
+    assertEquals(uid, test.getUniqueIdentifier());
   }
 
   //-------------------------------------------------------------------------

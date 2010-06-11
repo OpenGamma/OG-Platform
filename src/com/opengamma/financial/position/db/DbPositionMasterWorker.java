@@ -673,10 +673,10 @@ public class DbPositionMasterWorker {
       final long positionOid = rs.getLong("POSITION_OID");
       final long parentOid = rs.getLong("NODE_OID");
       final BigDecimal quantity = rs.getBigDecimal("QUANTITY");
-      final UniqueIdentifier postionUid = createPositionUniqueIdentifier(_portfolioOid, positionOid, _version);
-      final UniqueIdentifier parentUid = createNodeUniqueIdentifier(_portfolioOid, parentOid, _version);
-      _summary = new PositionSummary(postionUid);
-      _summary.setParentNode(parentUid);
+      _summary = new PositionSummary();
+      _summary.setPortfolioUid(createPortfolioUniqueIdentifier(_portfolioOid, _version));
+      _summary.setParentNodeUid(createNodeUniqueIdentifier(_portfolioOid, parentOid, _version));
+      _summary.setUniqueIdentifier(createPositionUniqueIdentifier(_portfolioOid, positionOid, _version));
       _summary.setQuantity(quantity);
       _summary.setSecurityKey(IdentifierBundle.EMPTY);
     }

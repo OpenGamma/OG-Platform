@@ -110,7 +110,7 @@ public class PortfolioNodeResource {
       "<h2>Node - " + node.getUniqueIdentifier().toLatest() + "</h2>" +
       "<p>Name: " + node.getName() + "<br />\n" +
       "Version: " + node.getUniqueIdentifier().getVersion() + "</p>\n";
-    html += "<p><table border=\"1\">" +
+    html += "<p>Child nodes:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Nodes</th><th>Positions</th><th>Actions</th></tr>";
     for (PortfolioNode child : node.getChildNodes()) {
       URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), child.getUniqueIdentifier().toLatest());
@@ -122,7 +122,7 @@ public class PortfolioNodeResource {
       html += "</tr>";
     }
     html += "</table></p>\n";
-    html += "<p><table border=\"1\">";
+    html += "<p>Positions:<br /><table border=\"1\">";
     for (Position position : node.getPositions()) {
       URI positionUri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier().toLatest());
       html += "<tr><td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td></tr>";
@@ -147,6 +147,13 @@ public class PortfolioNodeResource {
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
+    
+    html += "<h2>Links</h2>" +
+      "<p>" +
+      "<a href=\"" + PortfolioResource.uri(getUriInfo(), getPortfolioUid().toLatest()) + "\">Portfolio</a><br />" +
+      "<a href=\"" + PortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
+      "</p>";
+//      "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), summary.getPortfolioUid(), summary.getParentNodeUid().toLatest()) + "\">Parent node</a><br />";
     html += "</body>\n</html>\n";
     return html;
   }

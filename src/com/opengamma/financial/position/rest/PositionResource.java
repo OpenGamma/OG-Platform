@@ -13,8 +13,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.engine.position.Position;
 import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -91,15 +91,23 @@ public class PositionResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {
-    Position position = getPositionMaster().getPosition(_positionUid);
-    if (position == null) {
+    PositionSummary summary = getPositionMaster().getPositionSummary(_positionUid);
+    if (summary == null) {
       return null;
     }
     String html = "<html>" +
-      "<head><title>Position - " + position.getUniqueIdentifier() + "</title></head>" +
+      "<head><title>Position - " + summary.getUniqueIdentifier().toLatest() + "</title></head>" +
       "<body>" +
-      "<h2>Position - " + position.getUniqueIdentifier() + "</h2>" +
-      "<p>" + position.getQuantity() + " " + position.getSecurityKey() + "</p>" +
+      "<h2>Position - " + summary.getUniqueIdentifier().toLatest() + "</h2>" +
+      "<p>" +
+      "Version: " + summary.getUniqueIdentifier().getVersion() + "<br />" +
+      "Quantity: " + summary.getQuantity() + "<br />" +
+      "Security: " + summary.getSecurityKey() + "</p>" +
+      "<h2>Links</h2>" +
+      "<p>" +
+      "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), summary.getPortfolioUid(), summary.getParentNodeUid().toLatest()) + "\">Parent node</a><br />" +
+      "<a href=\"" + PortfolioResource.uri(getUriInfo(), summary.getPortfolioUid().toLatest()) + "\">Portfolio</a><br />" +
+      "<a href=\"" + PortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
       "</body>" +
       "</html>";
     return html;
