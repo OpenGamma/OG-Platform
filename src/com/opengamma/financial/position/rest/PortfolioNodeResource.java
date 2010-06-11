@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.position.rest;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
@@ -18,12 +19,16 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.Position;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
+import com.opengamma.financial.position.AddPositionRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
@@ -144,11 +149,20 @@ public class PortfolioNodeResource {
       "</form>\n";
     html += "<h2>Add node</h2>\n" +
       "<form method=\"POST\" action=\"" + uri + "\">" +
+      "<input type=\"hidden\" name=\"post\" value=\"N\" /><br />" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
+    html += "<h2>Add position</h2>\n" +
+      "<form method=\"POST\" action=\"" + uri + "\">" +
+      "<input type=\"hidden\" name=\"post\" value=\"P\" /><br />" +
+      "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
+      "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" /><br />" +
+      "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
+      "<input type=\"submit\" value=\"Add\" />" +
+      "</form>\n";
     
-    html += "<h2>Links</h2>" +
+    html += "<h2>Links</h2>\n" +
       "<p>" +
       "<a href=\"" + PortfolioResource.uri(getUriInfo(), getPortfolioUid().toLatest()) + "\">Portfolio</a><br />" +
       "<a href=\"" + PortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
@@ -160,28 +174,62 @@ public class PortfolioNodeResource {
 
   @POST  // TODO: should be PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response post(@FormParam("method") String method, @FormParam("name") String name, @FormParam("status") String status) {
+  public Response post(@FormParam("method") String method, @FormParam("post") String post,
+      @FormParam("name") String name, @FormParam("status") String status,
+      @FormParam("quantity") String quantity, @FormParam("scheme") String scheme, @FormParam("schemevalue") String schemeValue) {
     if ("PUT".equals(method)) {
       if ("D".equals(status)) {
         return remove();
       } else if ("A".equals(status)) {
         return reinstate();
       } else {
-        return update(name);
+        return update(StringUtils.trim(name));
       }
     }
-    return add(name);
+    if ("P".equals(post)) {
+      return addPosition(new BigDecimal(quantity), StringUtils.trim(scheme), StringUtils.trim(schemeValue));
+    } else {
+      return addNode(name);
+    }
   }
 
-  public Response add(String name) {
+  public Response addPosition(BigDecimal quantity, String scheme, String schemeValue) {
+    if (quantity == null || scheme == null || schemeValue == null) {
+      URI uri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), getPortfolioNodeUid());
+      String html = "<html>\n" +
+        "<head><title>Add position</title></head>\n" +
+        "<body>\n" +
+        "<h2>Add position</h2>\n" +
+        "<p>All details must be entered!</p>\n" +
+        "<form method=\"POST\" action=\"" + uri + "\">" +
+        "<input type=\"hidden\" name=\"quantity\" value=\"P\" /><br />" +
+        "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
+        "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" /><br />" +
+        "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
+        "<input type=\"submit\" value=\"Add\" />" +
+        "</form>\n" +
+        "</body>\n</html>\n";
+      return Response.ok(html).build();
+    }
+    AddPositionRequest request = new AddPositionRequest();
+    request.setParentNode(getPortfolioNodeUid());
+    request.setQuantity(quantity);
+    request.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
+    UniqueIdentifier uid = getPositionMaster().addPosition(request);
+    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), uid.toLatest());
+    return Response.seeOther(uri).build();
+  }
+
+  public Response addNode(String name) {
     if (name == null) {
       URI uri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), getPortfolioNodeUid());
       String html = "<html>\n" +
-        "<head><title>Portfolios</title></head>\n" +
+        "<head><title>Add node</title></head>\n" +
         "<body>\n" +
         "<h2>Add node</h2>\n" +
         "<p>The name must be entered!</p>\n" +
         "<form method=\"POST\" action=\"" + uri + "\">" +
+        "<input type=\"hidden\" name=\"quantity\" value=\"N\" /><br />" +
         "Name: <input type=\"text\" size=\"30\" name=\"name\" value=\"" + StringEscapeUtils.escapeHtml(name) + "\" /><br />" +
         "<input type=\"submit\" value=\"Add\" />" +
         "</form>\n" +
