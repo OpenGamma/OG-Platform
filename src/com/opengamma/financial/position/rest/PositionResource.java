@@ -118,13 +118,19 @@ public class PositionResource {
     
     URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), summary.getUniqueIdentifier());
     Identifier identifier = summary.getSecurityKey().getIdentifiers().iterator().next();
-    html += "<h2>Update node</h2>\n" +
+    html += "<h2>Update position</h2>\n" +
       "<form method=\"POST\" action=\"" + uri + "\">" +
       "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
       "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" value=\"" + StringEscapeUtils.escapeHtml(summary.getQuantity().toPlainString()) + "\" /><br />" +
       "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" value=\"" + StringEscapeUtils.escapeHtml(identifier.getScheme().getName()) + "\" /><br />" +
       "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" value=\"" + StringEscapeUtils.escapeHtml(identifier.getValue()) + "\" /><br />" +
       "<input type=\"submit\" value=\"Update\" />" +
+      "</form>\n";
+    html += "<h2>Delete position</h2>\n" +
+      "<form method=\"POST\" action=\"" + uri + "\">" +
+      "<input type=\"hidden\" name=\"method\" value=\"PUT\" />" +
+      "<input type=\"hidden\" name=\"status\" value=\"D\" />" +
+      "<input type=\"submit\" value=\"Delete\" />" +
       "</form>\n";
     
     html += "<h2>Links</h2>\n" +
@@ -139,10 +145,16 @@ public class PositionResource {
 
   @POST  // TODO: should be PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response post(@FormParam("method") String method,
+  public Response post(@FormParam("method") String method, @FormParam("status") String status,
       @FormParam("quantity") String quantity, @FormParam("scheme") String scheme, @FormParam("schemevalue") String schemeValue) {
     if ("PUT".equals(method)) {
-      return update(new BigDecimal(quantity), StringUtils.trim(scheme), StringUtils.trim(schemeValue));
+      if ("D".equals(status)) {
+        return remove();
+      } else if ("A".equals(status)) {
+        return reinstate();
+      } else {
+        return update(new BigDecimal(quantity), StringUtils.trim(scheme), StringUtils.trim(schemeValue));
+      }
     }
     return Response.status(Status.BAD_REQUEST).build();
   }
@@ -154,6 +166,19 @@ public class PositionResource {
     request.setSecurityKey(new IdentifierBundle(Identifier.of(scheme, schemeValue)));
     UniqueIdentifier uid = getPositionMaster().updatePosition(request);
     URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), uid.toLatest());
+    return Response.seeOther(uri).build();
+  }
+
+  public Response remove() {
+    PositionSummary summary = getPositionMaster().getPositionSummary(getPositionUid());
+    getPositionMaster().removePosition(getPositionUid());
+    URI uri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), summary.getParentNodeUid().toLatest());
+    return Response.seeOther(uri).build();
+  }
+
+  public Response reinstate() {
+    UniqueIdentifier positionUid = getPositionMaster().reinstatePosition(getPositionUid());
+    URI uri = PositionResource.uri(getUriInfo(), getPortfolioUid(), positionUid.toLatest());
     return Response.seeOther(uri).build();
   }
 
