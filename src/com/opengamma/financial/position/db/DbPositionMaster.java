@@ -500,8 +500,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     } else {
       version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
     }
-    return null;
-//    return getWorker().selectPositionSummary(portfolioOid, extractOtherOid(positionUid), version);
+    return getWorker().selectPositionSummary(portfolioOid, extractOtherOid(positionUid), version);
   }
 
   @Override
