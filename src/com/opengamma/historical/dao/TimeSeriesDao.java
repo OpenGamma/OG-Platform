@@ -17,72 +17,71 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * 
  *
- * @author yomi
  */
 public interface TimeSeriesDao extends HistoricalDataProvider {
   
-  public int createDomain(String domain, String description);
+  int createDomain(String domain, String description);
   
-  public String findDomainByID(int id);
+  String findDomainByID(int id);
   
-  public int getDomainID(String name);
+  int getDomainID(String name);
   
-  public Set<String> getAllDomains();
+  Set<String> getAllDomains();
   
-  public int createDataSource(String dataSource, String description);
+  int createDataSource(String dataSource, String description);
   
-  public String findDataSourceByID(int id);
+  String findDataSourceByID(int id);
   
-  public int getDataSourceID(String name);
+  int getDataSourceID(String name);
   
-  public Set<String> getAllDataSources();
+  Set<String> getAllDataSources();
   
-  public int createDataProvider(String dataProvider, String description);
+  int createDataProvider(String dataProvider, String description);
   
-  public String findDataProviderByID(int id);
+  String findDataProviderByID(int id);
   
-  public int getDataProviderID(String name);
+  int getDataProviderID(String name);
   
-  public Set<String> getAllDataProviders();
+  Set<String> getAllDataProviders();
   
-  public int createDataField(String field, String description);
+  int createDataField(String field, String description);
   
-  public String findDataFieldByID(int id);
+  String findDataFieldByID(int id);
   
-  public int getDataFieldID(String name);
+  int getDataFieldID(String name);
   
-  public Set<String> getAllTimeSeriesFields();
+  Set<String> getAllTimeSeriesFields();
   
-  public int createObservationTime(String observationTime, String description);
+  int createObservationTime(String observationTime, String description);
   
-  public int getObservationTimeID(String name);
+  int getObservationTimeID(String name);
   
-  public String findObservationTimeByID(int id);
+  String findObservationTimeByID(int id);
   
-  public Set<String> getAllObservationTimes();
+  Set<String> getAllObservationTimes();
   
-  public int createQuotedObject(String name, String description);
+  int createQuotedObject(String name, String description);
   
-  public int getQuotedObjectID(String name);
+  int getQuotedObjectID(String name);
   
-  public String findQuotedObjectByID(int id);
+  String findQuotedObjectByID(int id);
   
-  public Set<String> getAllQuotedObjects();
+  Set<String> getAllQuotedObjects();
   
-  public void createDomainSpecIdentifiers(IdentifierBundle identifiers, String quotedObj);
+  void createDomainSpecIdentifiers(IdentifierBundle identifiers, String quotedObj);
   
-  public void createTimeSeriesKey(String quotedObject, String dataSource, String dataProvider, String dataField, String observationTime);
+  void createTimeSeriesKey(String quotedObject, String dataSource, String dataProvider, String dataField, String observationTime);
   
-  public IdentifierBundle findDomainSpecIdentifiersByQuotedObject(String name);
+  IdentifierBundle findDomainSpecIdentifiersByQuotedObject(String name);
 
-  public void addTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
+  void addTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDateDoubleTimeSeries timeSeries);
   
-  public void deleteTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime);
+  void deleteTimeSeries(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime);
   
-  public void updateDataPoint (IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date, Double value);
+  void updateDataPoint(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date, Double value);
   
-  public void deleteDataPoint(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date);
+  void deleteDataPoint(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, LocalDate date);
   
-  public LocalDateDoubleTimeSeries getTimeSeriesSnapShot(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
+  LocalDateDoubleTimeSeries getTimeSeriesSnapShot(IdentifierBundle identifiers, String dataSource, String dataProvider, String field,  String observationTime, ZonedDateTime timeStamp);
 
 }

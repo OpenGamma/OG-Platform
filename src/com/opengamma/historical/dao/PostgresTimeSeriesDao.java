@@ -12,15 +12,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 /**
  * 
  *
- * @author yomi
  */
 public class PostgresTimeSeriesDao extends RowStoreJdbcDao {
   
   private Map<String, String> _namedSQLMap;
 
-  /**
-   * @param transactionManager
-   */
   public PostgresTimeSeriesDao(DataSourceTransactionManager transactionManager) {
     super(transactionManager);
   }
