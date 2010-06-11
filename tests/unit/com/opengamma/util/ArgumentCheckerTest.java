@@ -352,10 +352,37 @@ public class ArgumentCheckerTest {
   }
   
   @Test
-  public void testHashNegativeElement() {
+  public void testHasNegativeElement() {
     Collection<Double> c = Sets.newHashSet(4., -5., -6.);
     assertTrue(ArgumentChecker.hasNegativeElement(c));
     c = Sets.newHashSet(1., 2., 3.);
     assertFalse(ArgumentChecker.hasNegativeElement(c));
+  }
+  
+  @Test
+  public void testIsInRange() {
+    double low = 0;
+    double high = 1;    
+    assertTrue(ArgumentChecker.isInRangeExclusive(low, high, 0.5));
+    assertFalse(ArgumentChecker.isInRangeExclusive(low, high, -high));
+    assertFalse(ArgumentChecker.isInRangeExclusive(low, high, 2 * high));
+    assertFalse(ArgumentChecker.isInRangeExclusive(low, high, low));
+    assertFalse(ArgumentChecker.isInRangeExclusive(low, high, high));
+    assertTrue(ArgumentChecker.isInRangeInclusive(low, high, 0.5));
+    assertFalse(ArgumentChecker.isInRangeInclusive(low, high, -high));
+    assertFalse(ArgumentChecker.isInRangeInclusive(low, high, 2 * high));
+    assertTrue(ArgumentChecker.isInRangeInclusive(low, high, low));
+    assertTrue(ArgumentChecker.isInRangeInclusive(low, high, high));
+    assertTrue(ArgumentChecker.isInRangeExcludingLow(low, high, 0.5));
+    assertFalse(ArgumentChecker.isInRangeExcludingLow(low, high, -high));
+    assertFalse(ArgumentChecker.isInRangeExcludingLow(low, high, 2 * high));
+    assertFalse(ArgumentChecker.isInRangeExcludingLow(low, high, low));
+    assertTrue(ArgumentChecker.isInRangeExcludingLow(low, high, high));
+    assertTrue(ArgumentChecker.isInRangeExcludingHigh(low, high, 0.5));
+    assertFalse(ArgumentChecker.isInRangeExcludingHigh(low, high, -high));
+    assertFalse(ArgumentChecker.isInRangeExcludingHigh(low, high, 2 * high));
+    assertTrue(ArgumentChecker.isInRangeExcludingHigh(low, high, low));
+    assertFalse(ArgumentChecker.isInRangeExcludingHigh(low, high, high));
+
   }
 }
