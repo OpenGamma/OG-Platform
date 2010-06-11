@@ -13,7 +13,6 @@ import com.opengamma.math.statistics.ConfidenceInterval;
 
 /**
  * 
- * @author emcleod
  */
 public class LogNormalVolatilityEstimateConfidenceIntervalCalculatorTest {
   private static final LogNormalVolatilityEstimateConfidenceIntervalCalculator CALCULATOR = new LogNormalVolatilityEstimateConfidenceIntervalCalculator();
