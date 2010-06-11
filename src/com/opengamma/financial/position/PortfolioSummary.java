@@ -14,7 +14,7 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A request to search for portfolios.
+ * A summary of a portfolio.
  */
 public final class PortfolioSummary {
 

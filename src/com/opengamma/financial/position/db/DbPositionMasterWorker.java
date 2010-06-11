@@ -39,6 +39,7 @@ import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.PortfolioSummary;
+import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.id.Identifier;
@@ -533,7 +534,7 @@ public class DbPositionMasterWorker {
   /**
    * Maps SQL results to UniqueIdentifier.
    */
-  protected class UniqueIdentifierMapper implements ParameterizedRowMapper<UniqueIdentifier> {
+  protected final class UniqueIdentifierMapper implements ParameterizedRowMapper<UniqueIdentifier> {
     @Override
     public UniqueIdentifier mapRow(ResultSet rs, int rowNum) throws SQLException {
       long portfolioOid = rs.getLong("OID");
@@ -592,7 +593,7 @@ public class DbPositionMasterWorker {
   /**
    * Maps SQL results to PortfolioSummary.
    */
-  protected class PortfolioSummaryMapper implements ParameterizedRowMapper<PortfolioSummary> {
+  protected final class PortfolioSummaryMapper implements ParameterizedRowMapper<PortfolioSummary> {
     @Override
     public PortfolioSummary mapRow(ResultSet rs, int rowNum) throws SQLException {
       long portfolioOid = rs.getLong("OID");
@@ -605,6 +606,79 @@ public class DbPositionMasterWorker {
       summary.setTotalPositions(rs.getInt("TOTAL_POSITIONS"));
       summary.setActive(rs.getString("STATUS").equals(STATUS_ACTIVE));
       return summary;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a position summary by object identifier and version.
+   * @param portfolioOid  the object identifier
+   * @param positionOid  the object identifier
+   * @param version  the version
+   * @return the position, null if not found
+   */
+  protected PositionSummary selectPositionSummary(final long portfolioOid, final long positionOid, final long version) {
+    MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("position_oid", positionOid)
+      .addValue("version", version);
+    PositionSummaryExtractor extractor = new PositionSummaryExtractor(portfolioOid, version);
+    NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    return (PositionSummary) namedJdbc.query(sqlPositionSummaryByOidVersion(), args, extractor);
+  }
+
+  /**
+   * Gets the SQL for getting a position summary by oid and version.
+   * @return the SQL, not null
+   */
+  protected String sqlPositionSummaryByOidVersion() {
+    return "SELECT pos_position.oid AS position_oid, node_oid, quantity, " +
+              "pos_securitykey.id_scheme AS seckey_scheme, pos_securitykey.id_value AS seckey_value " +
+            "FROM pos_node, pos_position " +
+              "LEFT JOIN pos_securitykey ON (pos_position.oid = pos_securitykey.position_oid AND :version >= pos_securitykey.start_version AND :version < pos_securitykey.end_version) " +
+            "WHERE pos_position.oid = :position_oid " +
+              "AND :version >= pos_position.start_version AND :version < pos_position.end_version ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Mapper from SQL rows to a PositionSummary.
+   */
+  protected final class PositionSummaryExtractor implements ResultSetExtractor {
+    private final long _portfolioOid;
+    private final long _version;
+    private PositionSummary _summary;
+
+    protected PositionSummaryExtractor(long portfolioOid, long version) {
+      _portfolioOid = portfolioOid;
+      _version = version;
+    }
+
+    @Override
+    public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+      while (rs.next()) {
+        if (_summary == null) {
+          buildSummary(rs);
+        }
+        final String idScheme = rs.getString("SECKEY_SCHEME");
+        final String idValue = rs.getString("SECKEY_VALUE");
+        if (idScheme != null && idValue != null) {
+          final Identifier id = Identifier.of(idScheme, idValue);
+          _summary.setSecurityKey(_summary.getSecurityKey().withIdentifier(id));
+        }
+      }
+      return _summary;
+    }
+
+    private void buildSummary(ResultSet rs) throws SQLException {
+      final long positionOid = rs.getLong("POSITION_OID");
+      final long parentOid = rs.getLong("NODE_OID");
+      final BigDecimal quantity = rs.getBigDecimal("QUANTITY");
+      final UniqueIdentifier postionUid = createUniqueIdentifier(_portfolioOid, positionOid, _version);
+      final UniqueIdentifier parentUid = createUniqueIdentifier(_portfolioOid, parentOid, _version);
+      _summary = new PositionSummary(postionUid);
+      _summary.setParentNode(parentUid);
+      _summary.setQuantity(quantity);
+      _summary.setSecurityKey(IdentifierBundle.EMPTY);
     }
   }
 

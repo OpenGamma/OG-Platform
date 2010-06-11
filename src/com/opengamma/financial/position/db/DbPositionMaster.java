@@ -29,6 +29,7 @@ import com.opengamma.engine.position.Position;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.financial.position.SearchPositionsRequest;
@@ -426,7 +427,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public UniqueIdentifier updatePortfolioNode(final UpdatePortfolioNodeRequest request) {
-    Validate.notNull(request, "PortfolioNode must not be null");
+    Validate.notNull(request, "UpdatePortfolioNodeRequest must not be null");
     request.checkValid();
     final Instant instant = Instant.now(getTimeSource());
     final UniqueIdentifier nodeUid = request.getUniqueIdentifier();
@@ -507,6 +508,19 @@ public class DbPositionMaster implements ManagablePositionMaster {
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public PositionSummary getPositionSummary(final UniqueIdentifier positionUid) {
+    checkIdentifierScheme(positionUid);
+    final long portfolioOid = extractPortfolioOid(positionUid);
+    long version;
+    if (positionUid.isVersioned()) {
+      version = extractVersion(positionUid);
+    } else {
+      version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
+    }
+    return getWorker().selectPositionSummary(portfolioOid, extractOtherOid(positionUid), version);
+  }
+
   @Override
   public SearchPositionsResult searchPositions(final SearchPositionsRequest request) {
     throw new UnsupportedOperationException();
