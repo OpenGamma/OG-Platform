@@ -7,6 +7,8 @@ package com.opengamma.financial.model.future.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -18,8 +20,7 @@ public class FXFutureDataBundle extends FutureDataBundle {
 
   public FXFutureDataBundle(final YieldAndDiscountCurve domesticCurve, final YieldAndDiscountCurve foreignCurve, final double spot, final ZonedDateTime date) {
     super(domesticCurve, spot, date);
-    if (foreignCurve == null)
-      throw new IllegalArgumentException("Foreign curve was null");
+    Validate.notNull(foreignCurve, "Foreign curve must not be null.");
     _foreignCurve = foreignCurve;
   }
 
@@ -29,28 +30,24 @@ public class FXFutureDataBundle extends FutureDataBundle {
 
   @Override
   public FXFutureDataBundle withDiscountCurve(final YieldAndDiscountCurve newCurve) {
-    if (newCurve == null)
-      throw new IllegalArgumentException("New curve was null");
+    Validate.notNull(newCurve, "New curve was null");
     return new FXFutureDataBundle(newCurve, getForeignCurve(), getSpot(), getDate());
   }
 
   public FXFutureDataBundle withForeignCurve(final YieldAndDiscountCurve newCurve) {
-    if (newCurve == null)
-      throw new IllegalArgumentException("New curve was null");
+    Validate.notNull(newCurve, "New curve was null");
     return new FXFutureDataBundle(getDiscountCurve(), newCurve, getSpot(), getDate());
   }
 
   @Override
   public FXFutureDataBundle withSpot(final double newSpot) {
-    if (newSpot < 0)
-      throw new IllegalArgumentException("New spot was negative");
+    Validate.isTrue(newSpot >= 0, "New spot was negative", newSpot);
     return new FXFutureDataBundle(getDiscountCurve(), getForeignCurve(), newSpot, getDate());
   }
 
   @Override
   public FXFutureDataBundle withDate(final ZonedDateTime newDate) {
-    if (newDate == null)
-      throw new IllegalArgumentException("New date was null");
+    Validate.notNull(newDate, "New date was null");
     return new FXFutureDataBundle(getDiscountCurve(), getForeignCurve(), getSpot(), newDate);
   }
 
@@ -74,18 +71,23 @@ public class FXFutureDataBundle extends FutureDataBundle {
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final FXFutureDataBundle other = (FXFutureDataBundle) obj;
     if (_foreignCurve == null) {
-      if (other._foreignCurve != null)
+      if (other._foreignCurve != null) {
         return false;
-    } else if (!_foreignCurve.equals(other._foreignCurve))
+      }
+    } else if (!_foreignCurve.equals(other._foreignCurve)) {
       return false;
+    }
     return true;
   }
 
