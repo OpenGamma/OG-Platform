@@ -285,7 +285,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     StringBuilder sqlBuffer = new StringBuilder(selectQuoted).append(" AND (");
     int orCounter = 1;
-    Object[] parameters = new Object[size*2];
+    Object[] parameters = new Object[size * 2];
     int paramIndex = 0;
     for (Identifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
       sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
@@ -305,7 +305,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     }
     if (queryForList.size() == 1) {
       Map<String, Object> row = queryForList.get(0);
-      result = (String)row.get("name");
+      result = (String) row.get("name");
     }
     return result;
   }
