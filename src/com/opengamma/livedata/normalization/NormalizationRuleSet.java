@@ -31,12 +31,12 @@ public class NormalizationRuleSet {
   private final String _jmsTopicSuffix;
   private final List<NormalizationRule> _rules;
   
-  /** Useful for tests */
+  /* Useful for tests */
   public NormalizationRuleSet(String id) {
     this(id, id, Collections.<NormalizationRule>emptyList()); 
   }
   
-  /** Also useful for tests */
+  /* Also useful for tests */
   public NormalizationRuleSet(String id, NormalizationRule... rules) {
     this(id, id, Lists.newArrayList(rules));
   }
@@ -64,7 +64,7 @@ public class NormalizationRuleSet {
     MutableFudgeFieldContainer normalizedMsg = FUDGE_CONTEXT.newMessage(msg);
     for (NormalizationRule rule : _rules) {
       normalizedMsg = rule.apply(normalizedMsg, fieldHistory);
-      if(normalizedMsg == null) {
+      if (normalizedMsg == null) {
         // One of the rules rejected the message entirely.
         break;
       }
@@ -78,7 +78,9 @@ public class NormalizationRuleSet {
   
   /**
    * Return value, if non-empty, will always start with {@link JmsTopicNameResolver#SEPARATOR}.
-   * However, an empty string is also a possibility.  
+   * However, an empty string is also a possibility.
+   * 
+   * @return the JMS topic suffix
    */
   public String getJmsTopicSuffix() {
     return _jmsTopicSuffix;
@@ -94,18 +96,23 @@ public class NormalizationRuleSet {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     NormalizationRuleSet other = (NormalizationRuleSet) obj;
     if (_id == null) {
-      if (other._id != null)
+      if (other._id != null) {
         return false;
-    } else if (!_id.equals(other._id))
+      }
+    } else if (!_id.equals(other._id)) {
       return false;
+    }
     return true;
   }
   

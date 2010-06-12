@@ -71,17 +71,20 @@ public class HeartbeatSender {
     return _fudgeContext;
   }
 
+  /**
+   * The task which actually sends the heartbeat messages.
+   */
   public class HeartbeatSendingTask extends TimerTask {
     @Override
     public void run() {
       Set<LiveDataSpecification> liveDataSpecs = getValueDistributor().getActiveSpecifications();
-      if(liveDataSpecs.isEmpty()) {
+      if (liveDataSpecs.isEmpty()) {
         return;
       }
       s_logger.debug("Sending heartbeat message with {} specs", liveDataSpecs.size());
       Heartbeat heartbeat = new Heartbeat(liveDataSpecs);
       FudgeFieldContainer heartbeatMsg = heartbeat.toFudgeMsg(new FudgeSerializationContext(getFudgeContext()));
-      byte[] bytes = getFudgeContext ().toByteArray (heartbeatMsg);
+      byte[] bytes = getFudgeContext().toByteArray(heartbeatMsg);
       getMessageSender().send(bytes);
     }
   }

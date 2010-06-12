@@ -27,11 +27,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author pietari
  */
 public class DistributedSpecificationResolver {
-  
-  public static final long TIMEOUT_MS = 5 * 60 * 100l;
+  private static final long TIMEOUT_MS = 5 * 60 * 100L;
   private static final Logger s_logger = LoggerFactory.getLogger(DistributedSpecificationResolver.class);
   private final FudgeRequestSender _requestSender;
   private final FudgeContext _fudgeContext;
@@ -69,13 +67,13 @@ public class DistributedSpecificationResolver {
       }
     });
     long start = System.currentTimeMillis();
-    while(!responseReceived.get()) {
+    while (!responseReceived.get()) {
       try {
-        Thread.sleep(100l);
+        Thread.sleep(100L);
       } catch (InterruptedException e) {
         Thread.interrupted();
       }
-      if((System.currentTimeMillis() - start) >= TIMEOUT_MS) {
+      if ((System.currentTimeMillis() - start) >= TIMEOUT_MS) {
         throw new OpenGammaRuntimeException("Timeout. Waited for entitlement response for " + TIMEOUT_MS + " with no response.");
       }
     }

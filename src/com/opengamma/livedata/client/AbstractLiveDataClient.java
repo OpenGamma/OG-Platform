@@ -49,7 +49,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   // Running State:
   private final ValueDistributor _valueDistributor = new ValueDistributor();
   private final Timer _timer = new Timer("LiveDataClient Timer");
-  private HeartbeatSender _heartbeatSender = null;
+  private HeartbeatSender _heartbeatSender;
   private final Lock _subscriptionLock = new ReentrantLock();
   private final Set<SubscriptionHandle> _pendingSubscriptions =
     new HashSet<SubscriptionHandle>();
@@ -316,12 +316,12 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       LiveDataListener listener) {
     for (LiveDataSpecification fullyQualifiedSpecification : fullyQualifiedSpecifications) {
       s_logger.info("Unsubscribing by {} to {} delivered to {}",
-          new Object[] {user, fullyQualifiedSpecification, listener} );
+          new Object[] {user, fullyQualifiedSpecification, listener});
       boolean unsubscribeToSpec = false;
       _subscriptionLock.lock();
       try {
         boolean stillActiveSubs = getValueDistributor().removeListener(fullyQualifiedSpecification, listener);
-        if(!stillActiveSubs) {
+        if (!stillActiveSubs) {
           unsubscribeToSpec = true;
           _activeSubscriptionSpecifications.remove(fullyQualifiedSpecification);
         }
@@ -331,7 +331,7 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       
       // REVIEW kirk 2009-09-29 -- Potential race condition with multiple
       // subscribers and unsubscribers here.... do something about it?
-      if(unsubscribeToSpec) {
+      if (unsubscribeToSpec) {
         cancelPublication(fullyQualifiedSpecification);
       }
       listener.subscriptionStopped(fullyQualifiedSpecification);

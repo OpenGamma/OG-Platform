@@ -32,19 +32,19 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @author pietari
  */
-abstract public class AbstractPersistentSubscriptionManager implements Lifecycle {
+public abstract class AbstractPersistentSubscriptionManager implements Lifecycle {
 
   private static final Logger s_logger = LoggerFactory
       .getLogger(AbstractPersistentSubscriptionManager.class);
 
-  public static final long DEFAULT_SAVE_PERIOD = 60000;
+  public static final long DEFAULT_SAVE_PERIOD = 60000L;
 
   private final AbstractLiveDataServer _server;
   private final Timer _timer;
   private final long _savePeriod;
   private volatile SaveTask _saveTask;
 
-  private Set<PersistentSubscription> _previousSavedState = null;
+  private Set<PersistentSubscription> _previousSavedState;
   private Set<PersistentSubscription> _persistentSubscriptions = new HashSet<PersistentSubscription>();
 
   public AbstractPersistentSubscriptionManager(AbstractLiveDataServer server) {

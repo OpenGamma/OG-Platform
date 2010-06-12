@@ -52,10 +52,10 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
   public FudgeFieldContainer toFudgeMsg(FudgeMessageFactory fudgeMessageFactory) {
     MutableFudgeFieldContainer msg = fudgeMessageFactory.newMessage();
     msg.add(SEQUENCE_NUMBER_FIELD_NAME, getSequenceNumber());
-    if(getSpecification() != null) {
+    if (getSpecification() != null) {
       msg.add(SPECIFICATION_FIELD_NAME, getSpecification().toFudgeMsg(fudgeMessageFactory));
     }
-    if(getFields() != null) {
+    if (getFields() != null) {
       msg.add(FIELDS_FIELD_NAME, getFields());
     }
     return msg;
@@ -66,13 +66,13 @@ public class LiveDataValueUpdateBean implements LiveDataValueUpdate,
     FudgeFieldContainer specificationFields = msg.getMessage(SPECIFICATION_FIELD_NAME);
     FudgeFieldContainer fields = msg.getMessage(FIELDS_FIELD_NAME);
     // REVIEW kirk 2009-10-28 -- Right thing to do here?
-    if(sequenceNumber == null) {
+    if (sequenceNumber == null) {
       return null;
     }
-    if(specificationFields == null) {
+    if (specificationFields == null) {
       return null;
     }
-    if(fields == null) {
+    if (fields == null) {
       return null;
     }
     LiveDataSpecification spec = LiveDataSpecification.fromFudgeMsg(specificationFields);
