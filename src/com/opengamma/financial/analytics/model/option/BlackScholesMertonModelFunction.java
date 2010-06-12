@@ -44,10 +44,12 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof Option)
+    }
+    if (target.getSecurity() instanceof Option) {
       return true;
+    }
     return false;
   }
 

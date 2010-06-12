@@ -37,7 +37,6 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author emcleod
  */
 public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> _model = new GramCharlierModel();
@@ -53,7 +52,7 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO
+    final double b = discountCurve.getInterestRate(t); // TODO
     final double skew = (Double) inputs.getValue(getSkewRequirement(optionID));
     final double kurtosis = (Double) inputs.getValue(getKurtosisRequirement(optionID));
     return new SkewKurtosisOptionDataBundle(discountCurve, b, volatilitySurface, spot, now, skew, kurtosis);
@@ -71,10 +70,12 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption)
+    }
+    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption) {
       return true;
+    }
     return false;
   }
 
