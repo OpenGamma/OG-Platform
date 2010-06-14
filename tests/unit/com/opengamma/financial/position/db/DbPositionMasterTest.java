@@ -37,6 +37,7 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
+import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.ManagedPosition;
 import com.opengamma.financial.position.PortfolioSummary;
@@ -508,6 +509,46 @@ public class DbPositionMasterTest extends DBTest {
     PortfolioSummary summary3 = test.getPortfolioSummaries().get(1);
     assertEquals(uid3, summary3.getUniqueIdentifier());
     assertEquals("Test 22", summary3.getName());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_getManagedPortfolio() {
+    final PortfolioImpl base = buildPortfolio();
+    final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    PortfolioNode baseRoot = base.getRootNode();
+    final UniqueIdentifier rootNodeUid = baseRoot.getUniqueIdentifier();
+    
+    final ManagedPortfolio test = _posMaster.getManagedPortfolio(portfolioUid);
+    assertNotNull(test);
+    assertEquals(portfolioUid, test.getUniqueIdentifier());
+    assertEquals(base.getName(), test.getName());
+    assertEquals(rootNodeUid.getUniqueIdentifier(), test.getRootNode().getUniqueIdentifier());
+    assertEquals(baseRoot.getName(), test.getRootNode().getName());
+    assertEquals(baseRoot.getChildNodes().size(), test.getRootNode().getChildNodes().size());
+    assertEquals(baseRoot.getPositions().size(), test.getRootNode().getPositions().size());
+    assertEquals(portfolioUid, test.getRootNode().getPortfolioUid());
+    assertEquals(null, test.getRootNode().getParentNodeUid());
+  }
+
+  @Test
+  public void test_getManagedPortfolio_latest() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    
+    final ManagedPortfolio test = _posMaster.getManagedPortfolio(portfolioUid.toLatest());
+    assertNotNull(test);
+    assertEquals(portfolioUid, test.getUniqueIdentifier());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getManagedPortfolio_invalidUid() {
+    _posMaster.getManagedPortfolio(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "N1-1"));
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_getManagedPortfolio_notFound() {
+    _posMaster.getManagedPortfolio(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "F1456467586"));
   }
 
   //-------------------------------------------------------------------------
@@ -1197,6 +1238,46 @@ public class DbPositionMasterTest extends DBTest {
     final Position basePosition = base.getRootNode().getChildNodes().get(0).getPositions().get(0);
     final UniqueIdentifier removedUid = basePosition.getUniqueIdentifier();
     _posMaster.removePosition(UniqueIdentifier.of(removedUid.getScheme(), "P123456-123", "1"));  // invalid id
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_reinstatePosition() {
+    final PortfolioImpl base = buildPortfolio();
+    final PortfolioNode parentNode = base.getRootNode().getChildNodes().get(0);
+    final Position position = parentNode.getPositions().get(0);
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UniqueIdentifier parentNodeUid = parentNode.getUniqueIdentifier();
+    final UniqueIdentifier positionUid = position.getUniqueIdentifier();
+    _posMaster.removePosition(positionUid);
+    
+    // not returned
+    final ManagedPortfolioNode afterRemoveNode = _posMaster.getManagedPortfolioNode(parentNodeUid.toLatest());
+    assertNotNull(afterRemoveNode);
+    assertEquals(parentNode.getPositions().size() - 1, afterRemoveNode.getPositions().size());
+    
+    // reinstate
+    final UniqueIdentifier reinstatedUid = _posMaster.reinstatePosition(positionUid.toLatest());
+    assertEquals(positionUid.toLatest(), reinstatedUid.toLatest());
+    
+    // now its found
+    final ManagedPortfolioNode afterReinstateNode = _posMaster.getManagedPortfolioNode(parentNodeUid.toLatest());
+    assertNotNull(afterRemoveNode);
+    assertEquals(parentNode.getPositions().size(), afterReinstateNode.getPositions().size());
+    
+    // check it
+    ManagedPosition reinstated = _posMaster.getManagedPosition(reinstatedUid);
+    assertEquals(position.getQuantity(), reinstated.getQuantity());
+    assertEquals(position.getSecurityKey(), reinstated.getSecurityKey());
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_reinstatePosition_notFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier realUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UniqueIdentifier fakeUid = UniqueIdentifier.of(realUid.getScheme(), "P123456789-1");
+    
+    _posMaster.reinstatePosition(fakeUid);
   }
 
   //-------------------------------------------------------------------------

@@ -31,6 +31,7 @@ import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.ManagedPosition;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
@@ -336,6 +337,19 @@ public class DbPositionMaster implements ManagablePositionMaster {
   }
 
   @Override
+  public ManagedPortfolio getManagedPortfolio(final UniqueIdentifier portfolioUid) {
+    checkIdentifier(portfolioUid, TYPE_PORTFOLIO);
+    final long portfolioOid = extractPortfolioOid(portfolioUid);
+    final long version;
+    if (portfolioUid.isVersioned()) {
+      version = extractVersion(portfolioUid);
+    } else {
+      version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
+    }
+    return getWorker().selectManagedPortfolio(portfolioOid, version);
+  }
+
+  @Override
   public UniqueIdentifier addPortfolio(final AddPortfolioRequest request) {
     Validate.notNull(request, "AddPortfolioRequest must not be null");
     request.checkValid();
@@ -527,6 +541,11 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
+  public SearchPositionsResult searchPositions(final SearchPositionsRequest request) {
+    throw new UnsupportedOperationException();  // TODO
+  }
+
+  @Override
   public ManagedPosition getManagedPosition(final UniqueIdentifier positionUid) {
     checkIdentifier(positionUid, TYPE_POSITION);
     final long portfolioOid = extractPortfolioOid(positionUid);
@@ -537,11 +556,6 @@ public class DbPositionMaster implements ManagablePositionMaster {
       version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
     }
     return getWorker().selectManagedPosition(portfolioOid, extractOtherOid(positionUid), version);
-  }
-
-  @Override
-  public SearchPositionsResult searchPositions(final SearchPositionsRequest request) {
-    throw new UnsupportedOperationException();  // TODO
   }
 
   @Override
@@ -611,7 +625,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     if (oldVersion != latestVersion) {
       throw new DataIntegrityViolationException("Unable to remove position " + positionUid + "  as version is not the latest version " + latestVersion);
     }
-    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, true, false);
+    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, false, false);
     if (portfolio == null) {
       throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant);
     }
@@ -624,7 +638,20 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public UniqueIdentifier reinstatePosition(final UniqueIdentifier positionUid) {
-    throw new UnsupportedOperationException();  // TODO
+    Validate.notNull(positionUid, "UniqueIdentifier must not be null");
+    checkIdentifier(positionUid, TYPE_POSITION);
+    final long portfolioOid = extractPortfolioOid(positionUid);
+    final long positionOid = extractPortfolioOid(positionUid);
+    final Instant instant = Instant.now(getTimeSource());
+    final long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, false);  // find latest version
+    final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, false, false);
+    if (portfolio == null) {
+      throw new DataNotFoundException("Portfolio not found: " + portfolioOid + " at " + instant);
+    }
+    final long newVersion = latestVersion + 1;
+    getWorker().updatePortfolioSetEndInstant(portfolioOid, instant);  // end old version
+    getWorker().insertPortfolio(portfolio, portfolioOid, newVersion, instant, true);  // insert new version
+    return getWorker().insertReinstatePosition(portfolioOid, positionOid, newVersion);
   }
 
   //-------------------------------------------------------------------------

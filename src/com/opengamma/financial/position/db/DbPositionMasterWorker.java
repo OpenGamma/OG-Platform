@@ -39,6 +39,7 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.ManagedPortfolio;
 import com.opengamma.financial.position.ManagedPortfolioNode;
 import com.opengamma.financial.position.ManagedPosition;
 import com.opengamma.financial.position.PortfolioNodeSummary;
@@ -613,7 +614,40 @@ public class DbPositionMasterWorker {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a managed position by object identifier and version.
+   * Gets a managed portfolio by object identifier and version.
+   * @param portfolioOid  the object identifier
+   * @param version  the version
+   * @return the position, null if not found
+   */
+  protected ManagedPortfolio selectManagedPortfolio(final long portfolioOid, final long version) {
+    final MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addValue("version", version);
+    final PortfolioImpl portfolio = selectPortfolioByOidVersion(portfolioOid, version, true, true, false);
+    final ManagedPortfolio mp = new ManagedPortfolio();
+    mp.setUniqueIdentifier(portfolio.getUniqueIdentifier());
+    mp.setName(portfolio.getName());
+    long nodeOid = getTemplate().queryForLong(sqlRootNodeByOidVersion(), args);  // find root node
+    ManagedPortfolioNode root = selectManagedPortfolioNode(portfolioOid, nodeOid, version);  // select root/children/positions
+    mp.setRootNode(root);
+    return mp;
+  }
+
+  /**
+   * Gets the SQL for getting the root node.
+   * @return the SQL, not null
+   */
+  protected String sqlRootNodeByOidVersion() {
+    return "SELECT node_oid " +
+            "FROM pos_nodetree " +
+            "WHERE portfolio_oid = :portfolio_oid " +
+              "AND left_id = 1 " +
+              "AND :version >= start_version AND :version < end_version ";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a managed node by object identifier and version.
    * @param portfolioOid  the object identifier
    * @param nodeOid  the object identifier
    * @param version  the version
@@ -658,7 +692,8 @@ public class DbPositionMasterWorker {
             "WHERE pos_nodetree.node_oid = pos_node.oid " +  // join
               "AND :version >= pos_node.start_version AND :version < pos_node.end_version " +
               "AND :version >= pos_nodetree.start_version AND :version < pos_nodetree.end_version " +
-              "AND (pos_nodetree.node_oid = :node_oid OR pos_nodetree.parent_node_oid = :node_oid) ";  // select node and children
+              "AND (pos_nodetree.node_oid = :node_oid OR pos_nodetree.parent_node_oid = :node_oid) " +  // select node and children
+            "ORDER BY node_name, node_oid";
   }
 
   /**
@@ -669,7 +704,8 @@ public class DbPositionMasterWorker {
     return "SELECT oid AS position_oid, quantity " +
             "FROM pos_position " +
             "WHERE node_oid = :node_oid " +
-              "AND :version >= start_version AND :version < end_version";
+              "AND :version >= start_version AND :version < end_version " +
+            "ORDER BY position_oid";
   }
 
   //-------------------------------------------------------------------------
@@ -770,7 +806,8 @@ public class DbPositionMasterWorker {
             "FROM pos_node, pos_position " +
               "LEFT JOIN pos_securitykey ON (pos_securitykey.position_oid = pos_position.oid AND pos_securitykey.position_version = pos_position.start_version) " +
             "WHERE pos_position.oid = :position_oid " +
-              "AND :version >= pos_position.start_version AND :version < pos_position.end_version ";
+              "AND :version >= pos_position.start_version AND :version < pos_position.end_version " +
+            "ORDER BY seckey_scheme, seckey_value ";
   }
 
   //-------------------------------------------------------------------------
@@ -1137,6 +1174,62 @@ public class DbPositionMasterWorker {
               "(position_oid, position_version, id_scheme, id_value) " +
             "VALUES " +
               "(:position_oid, :position_version, :id_scheme, :id_value)";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Inserts a row into the tree/node tables.
+   * @param portfolioOid  the portfolio object identifier, not null
+   * @param positionOid  the position object identifier, not null
+   * @param version  the new version, not null
+   * @return the unique identifier of the inserted position, not null
+   */
+  protected UniqueIdentifier insertReinstatePosition(final long portfolioOid, final long positionOid, final long version) {
+    final MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("position_oid", positionOid)
+      .addValue("start_version", version)
+      .addValue("end_version", END_VERSION);
+    long lastPositionVersion = getTemplate().queryForLong(sqlMaxPosition(), args);
+    args.addValue("reinstate_version", lastPositionVersion);
+    getTemplate().update(sqlReinstatePosition(), args);
+    getTemplate().update(sqlReinstateSecKey(), args);
+    return createPositionUniqueIdentifier(portfolioOid, positionOid, version);
+  }
+
+  /**
+   * Gets the SQL for finding the last position.
+   * @return the SQL, not null
+   */
+  protected String sqlMaxPosition() {
+    return "SELECT MAX(start_version) AS max_start FROM pos_position WHERE oid = :position_oid";
+  }
+
+  /**
+   * Gets the SQL for reinstating a position.
+   * @return the SQL, not null
+   */
+  protected String sqlReinstatePosition() {
+    return "INSERT INTO pos_position " +
+              "(portfolio_oid, node_oid, oid, start_version, end_version, quantity) " +
+            "SELECT " +
+              "portfolio_oid, node_oid, oid, :start_version, :end_version, quantity " +
+            "FROM pos_position " +
+            "WHERE oid = :position_oid " +
+              "AND start_version = :reinstate_version";
+  }
+
+  /**
+   * Gets the SQL for reinstating a position.
+   * @return the SQL, not null
+   */
+  protected String sqlReinstateSecKey() {
+    return "INSERT INTO pos_securitykey " +
+              "(position_oid, position_version, id_scheme, id_value) " +
+            "SELECT " +
+              "position_oid, :start_version, id_scheme, id_value " +
+            "FROM pos_securitykey " +
+            "WHERE position_oid = :position_oid " +
+              "AND position_version = :reinstate_version";
   }
 
   //-------------------------------------------------------------------------

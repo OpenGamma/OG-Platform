@@ -69,7 +69,7 @@ public final class ManagedPortfolioNode {
   //-------------------------------------------------------------------------
   /**
    * Gets the parent node unique identifier of the position.
-   * @return the parent node unique identifier
+   * @return the parent node unique identifier, null if no parent
    */
   public UniqueIdentifier getParentNodeUid() {
     return _parentNodeUid;
@@ -77,7 +77,7 @@ public final class ManagedPortfolioNode {
 
   /**
    * Sets the parent node unique identifier of the position.
-   * @param uid  the parent node unique identifier
+   * @param uid  the parent node unique identifier, null if no parent
    */
   public void setParentNodeUid(UniqueIdentifier uid) {
     _parentNodeUid = uid;

@@ -116,6 +116,7 @@ public class PortfolioNodeResource {
       "<h2>Node - " + node.getUniqueIdentifier().toLatest() + "</h2>" +
       "<p>Name: " + node.getName() + "<br />\n" +
       "Version: " + node.getUniqueIdentifier().getVersion() + "</p>\n";
+    
     html += "<p>Child nodes:<br /><table border=\"1\">" +
       "<tr><th>Name</th><th>Positions</th><th>Actions</th></tr>\n";
     for (PortfolioNodeSummary child : node.getChildNodes()) {
