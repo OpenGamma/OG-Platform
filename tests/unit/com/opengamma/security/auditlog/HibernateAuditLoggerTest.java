@@ -19,9 +19,8 @@ import org.junit.Test;
 import com.opengamma.util.test.HibernateTest;
 
 /**
- * 
  *
- * @author pietari
+ * 
  */
 public class HibernateAuditLoggerTest extends HibernateTest {
   
@@ -39,16 +38,15 @@ public class HibernateAuditLoggerTest extends HibernateTest {
     HibernateAuditLogger logger = new HibernateAuditLogger(5, 1);
     logger.setSessionFactory(getSessionFactory());
     
-    logger.log("jake", "/Portfolio/XYZ123", "View", true);
-    logger.log("jake", "/Portfolio/XYZ345", "Modify", "User has no Modify permission on this portfolio", false);
-    
-    // not flushed yet
     Collection<AuditLogEntry> logEntries = logger.findAll();
     assertEquals(0, logEntries.size()); 
     
-    Thread.sleep(2000);
+    logger.log("jake", "/Portfolio/XYZ123", "View", true);
+    logger.log("jake", "/Portfolio/XYZ345", "Modify", "User has no Modify permission on this portfolio", false);
     
-    // flushed
+    logger.flushCache();
+    logger.flushCache();
+    
     logEntries = logger.findAll();
     assertEquals(2, logEntries.size()); 
     

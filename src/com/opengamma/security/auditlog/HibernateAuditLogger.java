@@ -27,13 +27,12 @@ import com.opengamma.util.ArgumentChecker;
  * entries stored in memory that have not yet been committed into
  * the database may be lost. 
  *
- * @author pietari
  */
 public class HibernateAuditLogger extends AbstractAuditLogger {
   
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateAuditLogger.class);
   
-  private HibernateTemplate _hibernateTemplate = null;
+  private HibernateTemplate _hibernateTemplate;
 
   private final int _batchSize;
   
