@@ -34,7 +34,7 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   
   private static final Logger s_logger = LoggerFactory.getLogger(MongoDBPersistentSubscriptionManager.class);
   
-  public static final String MONGO_COLLECTION = "PersistentSubscription";
+  private static final String MONGO_COLLECTION = "PersistentSubscription";
   
   private final Mongo _mongo;
   private final DB _mongoDB;
@@ -42,10 +42,10 @@ public class MongoDBPersistentSubscriptionManager extends AbstractPersistentSubs
   public MongoDBPersistentSubscriptionManager(AbstractLiveDataServer server, MongoDBConnectionSettings mongoSettings) {
     super(server);
     
-    s_logger.info ("Connecting to {}", mongoSettings);
+    s_logger.info("Connecting to {}", mongoSettings);
     try {
       _mongo = new Mongo(mongoSettings.getHost(), mongoSettings.getPort());
-      _mongoDB = _mongo.getDB(mongoSettings.getDatabase ());
+      _mongoDB = _mongo.getDB(mongoSettings.getDatabase());
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Unable to connect to MongoDB at " + mongoSettings, e);
     }

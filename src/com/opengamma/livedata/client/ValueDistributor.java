@@ -33,10 +33,10 @@ public class ValueDistributor {
   public void addListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     Set<LiveDataListener> freshListeners = new HashSet<LiveDataListener>();
     Set<LiveDataListener> actualListeners = _listenersBySpec.putIfAbsent(fullyQualifiedSpecification, freshListeners);
-    if(actualListeners == null) {
+    if (actualListeners == null) {
       actualListeners = freshListeners;
     }
-    synchronized(actualListeners) {
+    synchronized (actualListeners) {
       actualListeners.add(listener);
     }
   }
@@ -49,14 +49,14 @@ public class ValueDistributor {
    */
   public boolean removeListener(LiveDataSpecification fullyQualifiedSpecification, LiveDataListener listener) {
     Set<LiveDataListener> actualListeners = _listenersBySpec.get(fullyQualifiedSpecification);
-    if(actualListeners == null) {
+    if (actualListeners == null) {
       return false;
     }
-    synchronized(actualListeners) {
+    synchronized (actualListeners) {
       actualListeners.remove(listener);
-      if(actualListeners.isEmpty()) {
+      if (actualListeners.isEmpty()) {
         boolean removed = _listenersBySpec.remove(fullyQualifiedSpecification, actualListeners);
-        if(removed) {
+        if (removed) {
           return false;
         } else {
           // Someone else added a new one in addListener.
@@ -72,10 +72,10 @@ public class ValueDistributor {
   // invoke the updates asynchronously.
   public void notifyListeners(LiveDataValueUpdateBean updateBean) {
     Set<LiveDataListener> listeners = _listenersBySpec.get(updateBean.getSpecification());
-    if(listeners == null) {
+    if (listeners == null) {
       return;
     }
-    for(LiveDataListener listener : listeners) {
+    for (LiveDataListener listener : listeners) {
       listener.valueUpdate(updateBean);
     }
   }

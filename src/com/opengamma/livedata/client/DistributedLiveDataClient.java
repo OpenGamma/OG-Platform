@@ -151,7 +151,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     public void messageReceived(FudgeContext fudgeContext, FudgeMsgEnvelope envelope) {
       try {
         
-        if((envelope == null) || (envelope.getMessage() == null)) {
+        if ((envelope == null) || (envelope.getMessage() == null)) {
           throw new OpenGammaRuntimeException("Got a message that can't be deserialized from a Fudge message.");
         }
         FudgeFieldContainer msg = envelope.getMessage();

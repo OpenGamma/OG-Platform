@@ -20,11 +20,10 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  *
- * @author pietari
  */
 @ManagedResource(
-    objectName="com.opengamma:name=LiveDataServer",
-    description="LiveData server attributes and operations that can be managed via JMX"
+    objectName = "com.opengamma:name=LiveDataServer",
+    description = "LiveData server attributes and operations that can be managed via JMX"
     )
 public class LiveDataServerMBean {
   
@@ -36,7 +35,7 @@ public class LiveDataServerMBean {
     _server = server;
   }
   
-  @ManagedAttribute(description="How many different tickers the server subscribes to.")
+  @ManagedAttribute(description = "How many different tickers the server subscribes to.")
   public int getNumActiveSubscriptions() {
     try {
       return _server.getNumActiveSubscriptions();
@@ -46,9 +45,9 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedAttribute(description="Security IDs the server subscribes to." +
-   " The form of the IDs is dependent on the source system" +
-   " - Reuters RICs, Bloomberg unique IDs, etc.")
+  @ManagedAttribute(description = "Security IDs the server subscribes to."
+      + " The form of the IDs is dependent on the source system"
+      + " - Reuters RICs, Bloomberg unique IDs, etc.")
   public Set<String> getActiveSubscriptionIds() {
     try {
       return _server.getActiveSubscriptionIds();
@@ -58,7 +57,7 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedAttribute(description="JMS topics the server publishes to.")
+  @ManagedAttribute(description = "JMS topics the server publishes to.")
   public Set<String> getActiveDistributionSpecs() {
     try {
       return _server.getActiveDistributionSpecs();
@@ -68,7 +67,7 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedAttribute(description="The number of market data updates the server has processed in its lifetime.")
+  @ManagedAttribute(description = "The number of market data updates the server has processed in its lifetime.")
   public long getNumMarketDataUpdatesReceived() {
     try {
       return _server.getNumMarketDataUpdatesReceived();
@@ -78,7 +77,7 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedAttribute(description="# of market data updates/sec, calculated over the last 60 seconds")
+  @ManagedAttribute(description = "# of market data updates/sec, calculated over the last 60 seconds")
   public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
     try {
       return _server.getNumLiveDataUpdatesSentPerSecondOverLastMinute();            
@@ -88,11 +87,11 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedOperation(description="Subscribes to market data. The subscription will be non-persistent."
-   + " If the server already subscribes to the given market data, this method is a "
-   + " no-op. Returns the name of the JMS topic market data will be published on.")
+  @ManagedOperation(description = "Subscribes to market data. The subscription will be non-persistent."
+      + " If the server already subscribes to the given market data, this method is a "
+      + " no-op. Returns the name of the JMS topic market data will be published on.")
   @ManagedOperationParameters({
-      @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)")})
+      @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String subscribe(String securityUniqueId) {
     try {
       SubscriptionResult result = _server.subscribe(securityUniqueId);
@@ -107,19 +106,19 @@ public class LiveDataServerMBean {
     }
   }
   
-  @ManagedOperation(description="Unsubscribes from market data. " +
-  		"Works even if the subscription is persistent. " +
-  		"Returns true if a market data subscription was actually removed," +
-  		" false otherwise.")
-   @ManagedOperationParameters({
-       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)")})
-   public boolean unsubscribe(String securityUniqueId) {
-     try {
-       return _server.unsubscribe(securityUniqueId); 
-     } catch (RuntimeException e) {
-       s_logger.error("unsubscribe(" + securityUniqueId + ") failed", e);
-       throw new RuntimeException(e.getMessage());
-     }
-   }
+  @ManagedOperation(description = "Unsubscribes from market data. "
+      + "Works even if the subscription is persistent. "
+      + "Returns true if a market data subscription was actually removed,"
+      + " false otherwise.")
+  @ManagedOperationParameters({
+       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
+  public boolean unsubscribe(String securityUniqueId) {
+    try {
+      return _server.unsubscribe(securityUniqueId); 
+    } catch (RuntimeException e) {
+      s_logger.error("unsubscribe(" + securityUniqueId + ") failed", e);
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 
 }

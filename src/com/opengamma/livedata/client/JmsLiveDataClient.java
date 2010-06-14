@@ -63,7 +63,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   public synchronized void startReceivingTicks(String tickDistributionSpecification) {
     super.startReceivingTicks(tickDistributionSpecification);
     
-    if(_listenerContainersBySpec.containsKey(tickDistributionSpecification)) {
+    if (_listenerContainersBySpec.containsKey(tickDistributionSpecification)) {
       // Already receiving for that tick. Ignore it.
       return;
     }
@@ -110,7 +110,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
 
   @Override
   public synchronized void stop() {
-    for(Map.Entry<String, DefaultMessageListenerContainer> entry : _listenerContainersBySpec.entrySet()) {
+    for (Map.Entry<String, DefaultMessageListenerContainer> entry : _listenerContainersBySpec.entrySet()) {
       s_logger.info("Shutting down listener container on topic {}", entry.getKey());
       entry.getValue().stop();
       entry.getValue().destroy();

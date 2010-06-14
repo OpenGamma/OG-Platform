@@ -19,8 +19,8 @@ import com.opengamma.livedata.server.FieldHistoryStore;
  */
 public class IndicativeValueCalculator implements NormalizationRule {
   
-  private final static double TOLERANCE = 0.00001;
-  private final static double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.05;
+  private static final double TOLERANCE = 0.00001;
+  private static final double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.05;
 
   @Override
   public MutableFudgeFieldContainer apply(

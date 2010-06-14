@@ -8,6 +8,7 @@ package com.opengamma.livedata.normalization;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.MutableFudgeFieldContainer;
@@ -20,21 +21,36 @@ import com.opengamma.util.ArgumentChecker;
  * Strips all fields out of the message except the ones you want to explicitly accept.
  * <p>
  * If no field is accepted, the message is extinguished. 
- *
- * @author pietari
  */
 public class FieldFilter implements NormalizationRule {
   
   private final Collection<String> _fieldsToAccept;
-  private final FudgeContext CONTEXT = FudgeContext.GLOBAL_DEFAULT;
+  private final FudgeContext _context;
   
   public FieldFilter(String... fieldsToAccept) {
-    this(Sets.newHashSet(fieldsToAccept));
+    this(FudgeContext.GLOBAL_DEFAULT, fieldsToAccept);
+  }
+  
+  public FieldFilter(FudgeContext context, String... fieldsToAccept) {
+    this(Sets.newHashSet(fieldsToAccept), context);
   }
   
   public FieldFilter(Collection<String> fieldsToAccept) {
-    ArgumentChecker.notNull(fieldsToAccept, "List of accepted fields");    
+    this(fieldsToAccept, FudgeContext.GLOBAL_DEFAULT);
+  }
+
+  public FieldFilter(Collection<String> fieldsToAccept, FudgeContext context) {
+    ArgumentChecker.notNull(fieldsToAccept, "List of accepted fields");
+    Validate.notNull(context, "Must provide a FudgeContext");
     _fieldsToAccept = new HashSet<String>(fieldsToAccept);
+    _context = context;
+  }
+
+  /**
+   * @return the context
+   */
+  public FudgeContext getContext() {
+    return _context;
   }
 
   @Override
@@ -42,17 +58,17 @@ public class FieldFilter implements NormalizationRule {
       MutableFudgeFieldContainer msg,
       FieldHistoryStore fieldHistory) {
     
-    MutableFudgeFieldContainer normalizedMsg = CONTEXT.newMessage();
+    MutableFudgeFieldContainer normalizedMsg = getContext().newMessage();
     // REVIEW kirk 2010-04-15 -- Run through the fields in the order of the
     // original message and check for containment in _fieldsToAccept as it's
     // faster for large messages.
     // It also supports multiple values with the same name.
-    for (FudgeField field: msg.getAllFields()) {
-      if(field.getName() == null) {
+    for (FudgeField field : msg.getAllFields()) {
+      if (field.getName() == null) {
         // Don't allow non-named fields.
         continue;
       }
-      if(!_fieldsToAccept.contains(field.getName())) {
+      if (!_fieldsToAccept.contains(field.getName())) {
         continue;
       }
       normalizedMsg.add(field);

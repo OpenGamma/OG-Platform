@@ -21,13 +21,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Specifies what data you want, in what format.
  * Used on the client side.
- *
- * @author pietari
  */
 public class LiveDataSpecification {
   
-  private final static String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "NormalizationRuleSetId";
-  private final static String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
+  private static final String NORMALIZATION_RULE_SET_ID_FIELD_NAME = "NormalizationRuleSetId";
+  private static final String DOMAIN_SPECIFIC_IDS_FIELD_NAME = "DomainSpecificIdentifiers";
   
   /** A set of IDs for a single ticker **/
   private final IdentifierBundle _domainSpecificIdentifiers;
@@ -106,24 +104,30 @@ public class LiveDataSpecification {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     LiveDataSpecification other = (LiveDataSpecification) obj;
     if (_domainSpecificIdentifiers == null) {
-      if (other._domainSpecificIdentifiers != null)
+      if (other._domainSpecificIdentifiers != null) {
         return false;
-    } else if (!_domainSpecificIdentifiers
-        .equals(other._domainSpecificIdentifiers))
+      }
+    } else if (!_domainSpecificIdentifiers.equals(other._domainSpecificIdentifiers)) {
       return false;
+    }
     if (_normalizationRuleSetId == null) {
-      if (other._normalizationRuleSetId != null)
+      if (other._normalizationRuleSetId != null) {
         return false;
-    } else if (!_normalizationRuleSetId.equals(other._normalizationRuleSetId))
+      }
+    } else if (!_normalizationRuleSetId.equals(other._normalizationRuleSetId)) {
       return false;
+    }
     return true;
   }
 

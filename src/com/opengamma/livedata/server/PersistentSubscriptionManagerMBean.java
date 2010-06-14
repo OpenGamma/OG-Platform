@@ -20,12 +20,11 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  * 
- * @author pietari
  */
 @ManagedResource(
-    objectName="com.opengamma:name=PersistentSubscriptionManager",
-    description="This MBean is used to manage persistent market data subscriptions on a Live Data server." +
-		" Persistent subscriptions do not expire, and survive even server restarts.")
+    objectName = "com.opengamma:name=PersistentSubscriptionManager",
+    description = "This MBean is used to manage persistent market data subscriptions on a Live Data server."
+      + " Persistent subscriptions do not expire, and survive even server restarts.")
 public class PersistentSubscriptionManagerMBean {
   
   private static final Logger s_logger = LoggerFactory.getLogger(PersistentSubscriptionManagerMBean.class);
@@ -36,7 +35,7 @@ public class PersistentSubscriptionManagerMBean {
     _manager = manager;
   }
   
-  @ManagedAttribute(description="Returns the list of securities for which a persistent subscription is currently active.")
+  @ManagedAttribute(description = "Returns the list of securities for which a persistent subscription is currently active.")
   public Set<String> getPersistentSubscriptions() {
     try {
       return _manager.getPersistentSubscriptions();
@@ -69,7 +68,7 @@ public class PersistentSubscriptionManagerMBean {
   
   @ManagedOperation(description = "Adds a persistent subscription. If the subscription already exists, makes it persistent.")
   @ManagedOperationParameters({
-      @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)")})
+      @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public void addPersistentSubscription(String securityUniqueId) {
     try {
       _manager.addPersistentSubscription(securityUniqueId);
@@ -79,10 +78,10 @@ public class PersistentSubscriptionManagerMBean {
     }
   }
   
-  @ManagedOperation(description = "Removes a persistent subscription by making the subscription non-persistent." +
-  		" Returns true if a subscription was actually made non-persistent, false otherwise.")
-	@ManagedOperationParameters({
-      @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)")})
+  @ManagedOperation(description = "Removes a persistent subscription by making the subscription non-persistent."
+      + " Returns true if a subscription was actually made non-persistent, false otherwise.")
+  @ManagedOperationParameters({
+      @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public boolean removePersistentSubscription(String securityUniqueId) {
     try {
       return _manager.removePersistentSubscription(securityUniqueId);

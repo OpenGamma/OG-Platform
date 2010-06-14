@@ -41,7 +41,7 @@ public class RequiredFieldFilter implements NormalizationRule {
   public MutableFudgeFieldContainer apply(MutableFudgeFieldContainer msg,
       FieldHistoryStore fieldHistory) {
     Set<String> namesFromMsg = msg.getAllFieldNames();
-    if(namesFromMsg.containsAll(getRequiredFieldNames())) {
+    if (namesFromMsg.containsAll(getRequiredFieldNames())) {
       return msg;
     }
     return null;

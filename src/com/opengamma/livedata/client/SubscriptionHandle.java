@@ -97,14 +97,14 @@ public class SubscriptionHandle {
         s_logger.info("Got snapshot {}", getRequestedSpecification());
       } else {
         s_logger.info("Failed to snapshot {}. Result was {}, msg = {}", 
-            new Object[] { getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage() });
+            new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage()});
       }
     } else {
       if (response.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
         s_logger.info("Established subscription to {}", getRequestedSpecification());
       } else {
         s_logger.info("Failed to establish subscription to {}. Result was {}, msg = {}", 
-            new Object[] { getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage() });
+            new Object[] {getRequestedSpecification(), response.getSubscriptionResult(), response.getUserMessage()});
       }
     }
     
@@ -128,7 +128,7 @@ public class SubscriptionHandle {
    * the client needs to get a snapshot from the server. This method is used 
    * to store that snapshot.
    * 
-   * @param snapshot
+   * @param snapshot The snapshot to be placed on hold
    */
   public synchronized void addSnapshotOnHold(LiveDataValueUpdateBean snapshot) {
     if (_snapshotOnHold != null) {
@@ -166,7 +166,7 @@ public class SubscriptionHandle {
     
     if (resetIndex == null) {
       s_logger.info("{}: Sending snapshot and {} ticks on hold to {}", 
-          new Object[] { getRequestedSpecification(), _ticksOnHold.size(), getListener() });
+          new Object[] {getRequestedSpecification(), _ticksOnHold.size(), getListener()});
       
       // No resets. This is the normal case. Use the snapshot
       // and any subsequent ticks. The subsequent ticks
@@ -181,7 +181,7 @@ public class SubscriptionHandle {
       }
     } else {
       s_logger.info("{}: Reset detected. Sending {} ticks on hold to {}", 
-          new Object[] { getRequestedSpecification(), _ticksOnHold.size() - resetIndex, getListener() });
+          new Object[] {getRequestedSpecification(), _ticksOnHold.size() - resetIndex, getListener()});
       
       // This happens when the server is reset (rebooted/migrated) while subscribing.
       // We assume that the tick with sequence number = 0
