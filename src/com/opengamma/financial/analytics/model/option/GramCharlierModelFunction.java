@@ -20,7 +20,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.SkewKurtosisOptionDataBundle;
@@ -40,7 +40,6 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author emcleod
  */
 public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> _model = new GramCharlierModel();
@@ -52,12 +51,12 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()))))
         .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
-    final DiscountCurve discountCurve = (DiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
+    final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(optionID));
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO
+    final double b = discountCurve.getInterestRate(t); // TODO
     final double skew = (Double) inputs.getValue(getSkewRequirement(optionID));
     final double kurtosis = (Double) inputs.getValue(getKurtosisRequirement(optionID));
     return new SkewKurtosisOptionDataBundle(discountCurve, b, volatilitySurface, spot, now, skew, kurtosis);
@@ -75,10 +74,12 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption)
+    }
+    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption) {
       return true;
+    }
     return false;
   }
 

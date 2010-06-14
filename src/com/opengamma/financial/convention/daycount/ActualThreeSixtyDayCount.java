@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -10,14 +10,13 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * Definition for the Actual/360 day count convention. The day count fraction is
- * the actual number of days in the calculation period divided by 360.
+ * The Actual/360 day count convention.
+ * <p>
+ * The day count fraction is the actual number of days in the calculation period
+ * divided by 360.
  * <p>
  * This convention is also known as "Act/360" or "A/360".
- * 
- * @author emcleod
  */
-
 public class ActualThreeSixtyDayCount extends StatelessDayCount {
 
   @Override
@@ -29,9 +28,9 @@ public class ActualThreeSixtyDayCount extends StatelessDayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     return DateUtil.getDaysBetween(firstDate, false, secondDate, true) / getBasis(firstDate);
   }
-  
+
   @Override
-  public String getConventionName () {
+  public String getConventionName() {
     return "Actual/360";
   }
 

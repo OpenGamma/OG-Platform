@@ -15,25 +15,20 @@ import com.opengamma.util.time.Expiry;
  */
 public class InterestRateFutureSecurity extends FutureSecurity {
   
-  private final String _cashRateType;
+  private final String _cashRateType; // REVIEW: jim 28-May-2010 -- we might want to make this UniqueIdentifier like FloatingInterestRateLeg...
   
-  /**
-   * @param expiry
-   * @param tradingExchange
-   * @param settlementExchange
-   */
   public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, String cashRateType) {
     super(expiry, tradingExchange, settlementExchange, currency);
     _cashRateType = cashRateType;
   }
   
-  public String getCashRateType () {
+  public String getCashRateType() {
     return _cashRateType;
   }
 
   @Override
   public <T> T accept(FutureSecurityVisitor<T> visitor) {
-    return visitor.visitInterestRateFutureSecurity (this);
+    return visitor.visitInterestRateFutureSecurity(this);
   }
 
 }

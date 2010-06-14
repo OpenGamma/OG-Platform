@@ -12,27 +12,28 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.InterpolatedDiscountCurve;
+import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
+import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 public class ModelInterestRateCurveTest extends AnalyticsTestBase {
   
   @Test
   public void testConstantInterestRateDiscountCurve () {
-    ConstantInterestRateDiscountCurve dc1 = new ConstantInterestRateDiscountCurve (0.05);
-    ConstantInterestRateDiscountCurve dc2 = cycleObject (ConstantInterestRateDiscountCurve.class, dc1);
+    ConstantYieldCurve dc1 = new ConstantYieldCurve (0.05);
+    ConstantYieldCurve dc2 = cycleObject (ConstantYieldCurve.class, dc1);
     assertEquals (dc1, dc2);
   }
   
+  @SuppressWarnings("unchecked")
   @Test
   public void testInterpolatedDiscountCurve () {
     final Map<Double,Double> map = new HashMap<Double,Double> ();
     map.put(1., 0.03);
     map.put(2., 0.04);
     map.put(3., 0.05);
-    InterpolatedDiscountCurve dc1 = new InterpolatedDiscountCurve (map, Interpolator1DFactory.getInterpolator ("Linear"));
-    InterpolatedDiscountCurve dc2 = cycleObject (InterpolatedDiscountCurve.class, dc1);
+    InterpolatedYieldCurve dc1 = new InterpolatedYieldCurve (map, Interpolator1DFactory.getInterpolator ("Linear"));
+    InterpolatedYieldCurve dc2 = cycleObject (InterpolatedYieldCurve.class, dc1);
     assertEquals (dc1, dc2);
   }
   

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  * 
  * Please see distribution for license.
  */
@@ -11,8 +11,9 @@ import javax.time.calendar.MonthOfYear;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * Definition for the 30E/360 (ISDA) day count convention. The day count
- * fraction is defined as:<br>
+ * The 30E/360 (ISDA) day count convention.
+ * <p>
+ * The day count fraction is defined as:<br>
  * <i>fraction = 360(Y<sub>2</sub> - Y<sub>1</sub> + 30(M<sub>2</sub> -
  * M<sub>1</sub> + (D<sub>2</sub> - D<sub>1</sub> / 360</i><br>
  * where:<br>
@@ -28,8 +29,6 @@ import com.opengamma.util.time.DateUtil;
  * <i>D<sub>2</sub></i> is the year in which the day immediately following the
  * last day of the period falls unless (i) the day number is 31 or (ii) it is
  * the last day of February, in which case it is adjusted to 30.<br>
- * 
- * @author emcleod
  */
 public class ThirtyEThreeSixtyISDADayCount extends StatelessDayCount {
 
@@ -56,16 +55,16 @@ public class ThirtyEThreeSixtyISDADayCount extends StatelessDayCount {
       day = 30;
     } else if (month == MonthOfYear.FEBRUARY) {
       if (DateUtil.isLeapYear(date)) {
-        day = day == 29 ? 30 : day;
+        day = (day == 29 ? 30 : day);
       } else {
-        day = day == 28 ? 30 : day;
+        day = (day == 28 ? 30 : day);
       }
     }
     return day;
   }
-  
+
   @Override
-  public String getConventionName () {
+  public String getConventionName() {
     return "30E/360 (ISDA)";
   }
 
