@@ -27,6 +27,12 @@ public class ViewDefinition implements Serializable {
   private final UniqueIdentifier _portfolioId;
   private final UserPrincipal _liveDataUser;
   
+  // NOTE: jim 14-June-2010 -- put these back in as we're going to use them now.
+  private boolean _computePortfolioNodeCalculations = true;
+  private boolean _computePositionNodeCalculations = true;
+  private boolean _computeSecurityNodeCalculations /*= false*/;
+  private boolean _computePrimitiveNodeCalculations /*= false*/;
+  
   /** 
    * A delta recomputation of the view should be performed at this interval.
    * Milliseconds.
@@ -163,6 +169,62 @@ public class ViewDefinition implements Serializable {
   public void setFullRecalculationPeriod(Long fullRecalculationPeriod) {
     _fullRecalculationPeriod = fullRecalculationPeriod;
   }
-  
+
+  /**
+   * @return whether or not to compute all portfolio nodes, rather than just those required
+   */
+  public boolean isComputePortfolioNodeCalculations() {
+    return _computePortfolioNodeCalculations;
+  }
+
+  /**
+   * @param computePortfolioNodeCalculations whether or not to compute all portfolio nodes, rather than just those required
+   */
+  public void setComputePortfolioNodeCalculations(boolean computePortfolioNodeCalculations) {
+    _computePortfolioNodeCalculations = computePortfolioNodeCalculations;
+  }
+
+  /**
+   * @return whether or not to compute all position nodes, rather than just those required
+   */
+  public boolean isComputePositionNodeCalculations() {
+    return _computePositionNodeCalculations;
+  }
+
+  /**
+   * @param computePositionNodeCalculations whether or not to compute all position nodes, rather than just those required
+   */
+  public void setComputePositionNodeCalculations(boolean computePositionNodeCalculations) {
+    _computePositionNodeCalculations = computePositionNodeCalculations;
+  }
+
+  /**
+   * @return whether or not to compute all security nodes, rather than just those required
+   */
+  public boolean isComputeSecurityNodeCalculations() {
+    return _computeSecurityNodeCalculations;
+  }
+
+  /**
+   * @param computeSecurityNodeCalculations whether or not to compute all security nodes, rather than just those required
+   */
+  public void setComputeSecurityNodeCalculations(boolean computeSecurityNodeCalculations) {
+    _computeSecurityNodeCalculations = computeSecurityNodeCalculations;
+  }
+
+  /**
+   * @return whether or not to compute all primitive nodes, rather than just those required
+   */
+  public boolean isComputePrimitiveNodeCalculations() {
+    return _computePrimitiveNodeCalculations;
+  }
+
+  /**
+   * @param computePrimitiveNodeCalculations whether or not to compute all primitive nodes, rather than just those required
+   */
+  public void setComputePrimitiveNodeCalculations(boolean computePrimitiveNodeCalculations) {
+    _computePrimitiveNodeCalculations = computePrimitiveNodeCalculations;
+  }
+
 
 }
