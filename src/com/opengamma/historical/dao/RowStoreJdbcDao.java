@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +52,6 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  * 
- * @author yomi
  */
 public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private static final Logger s_logger = LoggerFactory.getLogger(RowStoreJdbcDao.class);
@@ -94,7 +94,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private static final String NAME_COLUMN = "name";
   private static final String IDENTIFIER_COLUMN = "identifier";
 
-  private static final long MILLIS_IN_DAY = 86400000l;
+  private static final long MILLIS_IN_DAY = 86400000L;
 
   private static final String SELECT_DATA_SOURCE_ID = "selectDataSourceID";
   private static final String SELECT_DATA_FIELD_ID = "selectDataFieldID";
@@ -107,7 +107,9 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
   private static final Object SELECT_DOMAIN_ID = "selectDomainID";
   private static final Object LOAD_ALL_DOMAIN = "loadAllDomain";
   
-  private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
+  // REVIEW kirk 2010-06-11 -- This needs to be made thread-local if it's used for anything
+  // other than debugging, as SimpleDateFormat isn't thread-safe.
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
 
   private DataSourceTransactionManager _transactionManager;
   private SimpleJdbcTemplate _simpleJdbcTemplate;
@@ -283,7 +285,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     
     StringBuilder sqlBuffer = new StringBuilder(selectQuoted).append(" AND (");
     int orCounter = 1;
-    Object[] parameters = new Object[size*2];
+    Object[] parameters = new Object[size * 2];
     int paramIndex = 0;
     for (Identifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
       sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
@@ -303,7 +305,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     }
     if (queryForList.size() == 1) {
       Map<String, Object> row = queryForList.get(0);
-      result = (String)row.get("name");
+      result = (String) row.get("name");
     }
     return result;
   }
@@ -324,7 +326,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         String selectQuoted = sqlQueries.get(SELECT_QUOTED_OBJECT_FROM_IDENTIFIERS);
         StringBuilder sqlBuffer = new StringBuilder(selectQuoted).append(" AND (");
         int orCounter = 1;
-        Object[] parameters = new Object[size*2];
+        Object[] parameters = new Object[size * 2];
         int paramIndex = 0;
         for (Identifier domainSpecificIdentifier : domainIdentifiers.getIdentifiers()) {
           sqlBuffer.append("(d.name = ? AND dsi.identifier = ?)");
@@ -344,7 +346,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
         }
         if (queryForList.size() == 1) {
           Map<String, Object> row = queryForList.get(0);
-          String loadedQuotedObject = (String)row.get("name");
+          String loadedQuotedObject = (String) row.get("name");
           if (!loadedQuotedObject.equals(quotedObject)) {
             s_logger.warn("{} has been associated already with {}", loadedQuotedObject, domainIdentifiers);
             throw new OpenGammaRuntimeException(loadedQuotedObject + " has been associated already with " + domainIdentifiers);
@@ -508,7 +510,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     int result = INVALID_KEY;
     try {
       result = _simpleJdbcTemplate.queryForInt(sql, parameters);
-    } catch(EmptyResultDataAccessException e) {
+    } catch (EmptyResultDataAccessException e) {
       s_logger.debug("Empty row return for name = {} from sql = {}", name, sql);
       result = INVALID_KEY;
     }
@@ -562,8 +564,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     SqlParameterSource parameterSource = new MapSqlParameterSource("quotedObject", name);
     List<Identifier> queryResult = _simpleJdbcTemplate.query(sql, new ParameterizedRowMapper<Identifier>() {
       @Override
-      public Identifier mapRow(ResultSet rs, int rowNum)
-          throws SQLException {
+      public Identifier mapRow(ResultSet rs, int rowNum) throws SQLException {
         String domain = rs.getString(NAME_COLUMN);
         String identifier = rs.getString(IDENTIFIER_COLUMN);
         return new Identifier(domain, identifier);
@@ -643,23 +644,24 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     Set<Identifier> identifiers = identifierBundle.getIdentifiers();
     for (Identifier identifier : identifiers) {
       MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("identifier", identifier.getValue())
-      .addValue("domain", identifier.getScheme().getName(), Types.VARCHAR)
-      .addValue("dataSource", dataSource, Types.VARCHAR)
-      .addValue("dataField", dataField, Types.VARCHAR)
-      .addValue("dataProvider", dataProvider, Types.VARCHAR)
-      .addValue("observationTime", observationTime, Types.VARCHAR);
+        .addValue("domain", identifier.getScheme().getName(), Types.VARCHAR)
+        .addValue("dataSource", dataSource, Types.VARCHAR)
+        .addValue("dataField", dataField, Types.VARCHAR)
+        .addValue("dataProvider", dataProvider, Types.VARCHAR)
+        .addValue("observationTime", observationTime, Types.VARCHAR);
       
       List<Map<String, Object>> resultList = _simpleJdbcTemplate.queryForList(sql, parameters);
       if (!resultList.isEmpty()) {
         //get the 1st returned timeserieskey
         Map<String, Object> firstRow = resultList.iterator().next();
-        result = (Integer)firstRow.get("id");
+        result = (Integer) firstRow.get("id");
         if (result != INVALID_KEY) {
           s_logger.debug("timeSeriesKeyID = {}", result);
           return result;
         }
       } else {
-        s_logger.debug("Empty timeserieskey  returned for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}", new Object[]{identifier, dataSource, dataProvider, dataField, observationTime});
+        s_logger.debug("Empty timeserieskey  returned for identifier={} dataSource={} dataProvider={} dataField={} observationTime={}",
+            new Object[]{identifier, dataSource, dataProvider, dataField, observationTime});
       }
     }
     //no timeseries key found
@@ -684,15 +686,15 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     String sql = sqlQueries.get(GET_TIME_SERIES_KEY_ID_BY_QUOTED_OBJECT);
      
     SqlParameterSource parameterSource = new MapSqlParameterSource()
-    .addValue("quotedObject", quotedObject, Types.VARCHAR)
-    .addValue("dataSource", dataSource, Types.VARCHAR)
-    .addValue("dataProvider", dataProvider, Types.VARCHAR)
-    .addValue("dataField", dataField, Types.VARCHAR)
-    .addValue("observationTime", observationTime, Types.VARCHAR);
+      .addValue("quotedObject", quotedObject, Types.VARCHAR)
+      .addValue("dataSource", dataSource, Types.VARCHAR)
+      .addValue("dataProvider", dataProvider, Types.VARCHAR)
+      .addValue("dataField", dataField, Types.VARCHAR)
+      .addValue("observationTime", observationTime, Types.VARCHAR);
     
     try {
       result = _simpleJdbcTemplate.queryForInt(sql, parameterSource);
-    } catch(EmptyResultDataAccessException e) {
+    } catch (EmptyResultDataAccessException e) {
       s_logger.debug("Empty row returned for timeSeriesKeyID");
       result = INVALID_KEY;
     }
@@ -723,8 +725,7 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     List<Pair<Date, Double>> queryResult = _simpleJdbcTemplate.query(selectTSSQL, new ParameterizedRowMapper<Pair<Date, Double>>() {
 
       @Override
-      public Pair<Date, Double> mapRow(ResultSet rs, int rowNum)
-          throws SQLException {
+      public Pair<Date, Double> mapRow(ResultSet rs, int rowNum) throws SQLException {
         double tsValue = rs.getDouble("value");
         Date tsDate = rs.getDate("ts_date");
         return Pair.of(tsDate, tsValue);
@@ -809,8 +810,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
       parameters.addValue("endDate", toSQLDate(end), Types.DATE);
     }
     
-    final List<Date> dates = new ArrayList<Date>();
-    final List<Double> values = new ArrayList<Double>();
+    final List<Date> dates = new LinkedList<Date>();
+    final List<Double> values = new LinkedList<Double>();
     
     NamedParameterJdbcOperations parameterJdbcOperations = _simpleJdbcTemplate.getNamedParameterJdbcOperations();
     parameterJdbcOperations.query(sql, parameters, new RowCallbackHandler() {
@@ -847,8 +848,8 @@ public abstract class RowStoreJdbcDao implements TimeSeriesDao {
     String selectSQL = sqlQueries.get(FIND_DATA_POINT_BY_DATE_AND_ID);
     
     MapSqlParameterSource parameters = new MapSqlParameterSource()
-    .addValue("tsID", tsID, Types.INTEGER)
-    .addValue("date", toSQLDate(date), Types.DATE);
+      .addValue("tsID", tsID, Types.INTEGER)
+      .addValue("date", toSQLDate(date), Types.DATE);
     
     Double oldValue = _simpleJdbcTemplate.queryForObject(selectSQL, Double.class, parameters);
     
