@@ -32,7 +32,8 @@ create table pos_node (
     start_version bigint not null,
     end_version bigint not null,
     name varchar(255),
-    primary key (oid, start_version)
+    primary key (oid, start_version),
+    foreign key (portfolio_oid, start_version) references pos_portfolio(oid, version)
 );
 
 create table pos_nodetree (
@@ -43,7 +44,8 @@ create table pos_nodetree (
     end_version bigint not null,
     left_id bigint not null,
     right_id bigint not null,
-    primary key (node_oid, start_version)
+    primary key (node_oid, start_version),
+    foreign key (portfolio_oid, start_version) references pos_portfolio(oid, version)
 );
 -- portfolio_oid is an optimization
 -- parent_node_oid is an optimization (left_id/right_id hold all the tree structure)
@@ -55,7 +57,8 @@ create table pos_position (
     start_version bigint not null,
     end_version bigint not null,
     quantity decimal not null,
-    primary key (oid, start_version)
+    primary key (oid, start_version),
+    foreign key (portfolio_oid, start_version) references pos_portfolio(oid, version)
 );
 -- portfolio_oid is an optimization
 
