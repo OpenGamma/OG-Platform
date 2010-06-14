@@ -37,8 +37,9 @@ import com.opengamma.engine.position.PositionImpl;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
+import com.opengamma.financial.position.ManagedPortfolioNode;
+import com.opengamma.financial.position.ManagedPosition;
 import com.opengamma.financial.position.PortfolioSummary;
-import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
@@ -654,6 +655,62 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_getManagedPortfolioNode_root() {
+    final PortfolioImpl base = buildPortfolio();
+    final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    PortfolioNode baseRoot = base.getRootNode();
+    final UniqueIdentifier rootNodeUid = baseRoot.getUniqueIdentifier();
+    
+    final ManagedPortfolioNode test = _posMaster.getManagedPortfolioNode(rootNodeUid);
+    assertNotNull(test);
+    assertEquals(rootNodeUid.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(baseRoot.getName(), test.getName());
+    assertEquals(baseRoot.getChildNodes().size(), test.getChildNodes().size());
+    assertEquals(baseRoot.getPositions().size(), test.getPositions().size());
+    assertEquals(portfolioUid, test.getPortfolioUid());
+    assertEquals(null, test.getParentNodeUid());
+  }
+
+  @Test
+  public void test_getManagedPortfolioNode_child() {
+    final PortfolioImpl base = buildPortfolio();
+    final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    PortfolioNode node = base.getRootNode().getChildNodes().get(0);
+    final UniqueIdentifier rootNodeUid = node.getUniqueIdentifier();
+    
+    final ManagedPortfolioNode test = _posMaster.getManagedPortfolioNode(rootNodeUid);
+    assertNotNull(test);
+    assertEquals(rootNodeUid.getUniqueIdentifier(), test.getUniqueIdentifier());
+    assertEquals(node.getName(), test.getName());
+    assertEquals(node.getChildNodes().size(), test.getChildNodes().size());
+    assertEquals(node.getPositions().size(), test.getPositions().size());
+    assertEquals(portfolioUid, test.getPortfolioUid());
+    assertEquals(base.getRootNode().getUniqueIdentifier(), test.getParentNodeUid());
+  }
+
+  @Test
+  public void test_getManagedPortfolioNode_latest() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    final UniqueIdentifier rootNodeUid = base.getRootNode().getUniqueIdentifier();
+    
+    final ManagedPortfolioNode test = _posMaster.getManagedPortfolioNode(rootNodeUid.toLatest());
+    assertNotNull(test);
+    assertEquals(rootNodeUid, test.getUniqueIdentifier());
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void test_getManagedPortfolioNode_invalidUid() {
+    _posMaster.getManagedPortfolioNode(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "P1-1"));
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_getManagedPortfolioNode_notFound() {
+    _posMaster.getManagedPortfolioNode(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "N1456467586-1"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_addPortfolioNode() {
     final PortfolioImpl base = buildPortfolio();
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
@@ -849,14 +906,14 @@ public class DbPositionMasterTest extends DBTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_getPositionSummary_oneSecurityKey() {
+  public void test_getManagedPosition_oneSecurityKey() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
     final Position expectedPosition = expectedPositions.get(0);
     final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     final UniqueIdentifier positionUid = expectedPosition.getUniqueIdentifier();
     
-    final PositionSummary test = _posMaster.getPositionSummary(positionUid);
+    final ManagedPosition test = _posMaster.getManagedPosition(positionUid);
     assertNotNull(test);
     assertEquals(expectedPosition.getUniqueIdentifier(), test.getUniqueIdentifier());
     assertEquals(expectedPosition.getSecurityKey(), test.getSecurityKey());
@@ -866,14 +923,14 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_getPositionSummary_twoSecurityKeys() {
+  public void test_getManagedPosition_twoSecurityKeys() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
     final Position expectedPosition = expectedPositions.get(expectedPositions.size() - 1);
     final UniqueIdentifier portfolioUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
     final UniqueIdentifier positionUid = expectedPosition.getUniqueIdentifier();
     
-    final PositionSummary test = _posMaster.getPositionSummary(positionUid);
+    final ManagedPosition test = _posMaster.getManagedPosition(positionUid);
     assertEquals(expectedPosition.getUniqueIdentifier(), test.getUniqueIdentifier());
     assertEquals(expectedPosition.getSecurityKey(), test.getSecurityKey());
     assertEquals(expectedPosition.getQuantity(), test.getQuantity());
@@ -882,26 +939,26 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test
-  public void test_getPositionSummary_latest() {
+  public void test_getManagedPosition_latest() {
     final PortfolioImpl base = buildPortfolio();
     final List<Position> expectedPositions = buildExpectedPositions(base);
     final Position position = expectedPositions.get(0);
     _posMaster.addPortfolio(new AddPortfolioRequest(base));
     final UniqueIdentifier uid = position.getUniqueIdentifier();
     
-    final PositionSummary test = _posMaster.getPositionSummary(uid.toLatest());
+    final ManagedPosition test = _posMaster.getManagedPosition(uid.toLatest());
     assertNotNull(test);
     assertEquals(uid, test.getUniqueIdentifier());
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void test_getPositionSummary_invalidUid() {
-    _posMaster.getPositionSummary(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "N1"));
+  public void test_getManagedPosition_invalidUid() {
+    _posMaster.getManagedPosition(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "N1"));
   }
 
   @Test(expected=DataNotFoundException.class)
-  public void test_getPositionSummary_notFound() {
-    _posMaster.getPositionSummary(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "P1"));
+  public void test_getManagedPosition_notFound() {
+    _posMaster.getManagedPosition(UniqueIdentifier.of(_posMaster.getIdentifierScheme(), "P1"));
   }
 
   //-------------------------------------------------------------------------
@@ -926,7 +983,7 @@ public class DbPositionMasterTest extends DBTest {
     assertNotNull(testNewParent);
     assertEquals(baseNode.getPositions().size() + 1, testNewParent.getPositions().size());
     
-    final PositionSummary testPosition = _posMaster.getPositionSummary(positionUid);
+    final ManagedPosition testPosition = _posMaster.getManagedPosition(positionUid);
     assertNotNull(testPosition);
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
     assertEquals(new IdentifierBundle(Identifier.of("TEST", "1")), testPosition.getSecurityKey());
@@ -993,12 +1050,12 @@ public class DbPositionMasterTest extends DBTest {
     request.setSecurityKey(new IdentifierBundle(Identifier.of("TEST", "1")));
     final UniqueIdentifier uid2 = _posMaster.updatePosition(request);
     
-    final PositionSummary testOld = _posMaster.getPositionSummary(uid1);
+    final ManagedPosition testOld = _posMaster.getManagedPosition(uid1);
     assertNotNull(testOld);
     assertEquals(baseNode.getQuantity(), testOld.getQuantity());
     assertEquals(baseNode.getSecurityKey(), testOld.getSecurityKey());
     
-    final PositionSummary testPosition = _posMaster.getPositionSummary(uid2);
+    final ManagedPosition testPosition = _posMaster.getManagedPosition(uid2);
     assertNotNull(testPosition);
     assertNotNull(testPosition);
     assertEquals(BigDecimal.TEN, testPosition.getQuantity());
@@ -1092,7 +1149,7 @@ public class DbPositionMasterTest extends DBTest {
     _posMaster.removePosition(removedUid);
     
     // retrieving latest doesn't find it
-    final PositionSummary test1 = _posMaster.getPositionSummary(removedUid.toLatest());
+    final ManagedPosition test1 = _posMaster.getManagedPosition(removedUid.toLatest());
     assertEquals(null, test1);
     
     // still able to retrieve node

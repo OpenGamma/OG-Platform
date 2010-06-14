@@ -160,6 +160,16 @@ public interface ManagablePositionMaster extends PositionMaster {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets a managed portfolio node.
+   * 
+   * @param nodeUid  the unique identifier, not null
+   * @return the portfolio node, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the position is not found
+   */
+  ManagedPortfolioNode getManagedPortfolioNode(final UniqueIdentifier nodeUid);
+
+  /**
    * Adds a portfolio node to the specified node.
    * <p>
    * This method will add the single node specified in the request.
@@ -211,14 +221,14 @@ public interface ManagablePositionMaster extends PositionMaster {
 
   //-------------------------------------------------------------------------
   /**
-   * Searches for positions matching the request.
+   * Gets a managed position.
    * 
    * @param positionUid  the unique identifier, not null
    * @return the position, null if not found
    * @throws IllegalArgumentException if the request is invalid
    * @throws DataNotFoundException if the position is not found
    */
-  PositionSummary getPositionSummary(final UniqueIdentifier positionUid);
+  ManagedPosition getManagedPosition(final UniqueIdentifier positionUid);
 
   /**
    * Searches for positions matching the request.

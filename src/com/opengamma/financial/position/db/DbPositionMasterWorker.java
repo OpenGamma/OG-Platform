@@ -23,6 +23,7 @@ import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -38,6 +39,9 @@ import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.position.PortfolioNodeImpl;
 import com.opengamma.engine.position.Position;
 import com.opengamma.engine.position.PositionImpl;
+import com.opengamma.financial.position.ManagedPortfolioNode;
+import com.opengamma.financial.position.ManagedPosition;
+import com.opengamma.financial.position.PortfolioNodeSummary;
 import com.opengamma.financial.position.PortfolioSummary;
 import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
@@ -357,7 +361,7 @@ public class DbPositionMasterWorker {
             "WHERE tree.node_oid = pos_node.oid " +  // join
               "AND base.node_oid = :node_oid " +  // filter by desired node
               "AND tree.left_id BETWEEN base.left_id AND base.right_id " +  // filter children within tree
-              "AND pos_node.portfolio_oid = :portfolio_oid " +  // constrain tree to be within portfolio (as left_id is duplicated in each portfolio)
+              "AND tree.portfolio_oid = :portfolio_oid " +  // constrain tree to be within portfolio (as left_id is duplicated in each portfolio)
               "AND :version >= base.start_version AND :version < base.end_version " +
               "AND :version >= tree.start_version AND :version < tree.end_version " +
               "AND :version >= pos_node.start_version AND :version < pos_node.end_version " +
@@ -609,26 +613,158 @@ public class DbPositionMasterWorker {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets a position summary by object identifier and version.
+   * Gets a managed position by object identifier and version.
+   * @param portfolioOid  the object identifier
+   * @param nodeOid  the object identifier
+   * @param version  the version
+   * @return the position, null if not found
+   */
+  protected ManagedPortfolioNode selectManagedPortfolioNode(final long portfolioOid, final long nodeOid, final long version) {
+    final MapSqlParameterSource args = new MapSqlParameterSource()
+      .addValue("portfolio_oid", portfolioOid)
+      .addValue("node_oid", nodeOid)
+      .addValue("version", version);
+    final ManagedPortfolioNodeExtractor extractor = new ManagedPortfolioNodeExtractor(portfolioOid, nodeOid, version);
+    final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
+    final ManagedPortfolioNode node = (ManagedPortfolioNode) namedJdbc.query(sqlManagedPortfolioNodeByOidVersion(), args, extractor);
+    if (node != null) {
+      final PositionSummaryMapper mapper = new PositionSummaryMapper(portfolioOid, version);
+      List<PositionSummary> positions = getTemplate().query(sqlManagedPortfolioNodePositionsByOidVersion(), mapper, args);
+      node.getPositions().addAll(positions);
+    }
+    return node;
+  }
+
+  /**
+   * Gets the SQL for getting a position by oid and version.
+   * @return the SQL, not null
+   */
+  protected String sqlManagedPortfolioNodeByOidVersion() {
+    String selectTotalPositions =
+          "SELECT COUNT(*) " +
+          "FROM pos_position " +
+          "WHERE pos_position.node_oid IN (" +
+              "SELECT tree.node_oid " +
+              "FROM pos_nodetree AS base, pos_nodetree AS tree " +
+              "WHERE base.node_oid = pos_node.oid " +  // filter by desired node
+                "AND tree.left_id BETWEEN base.left_id AND base.right_id " +  // filter children within tree
+                "AND tree.portfolio_oid = :portfolio_oid " +  // constrain tree to be within portfolio (as left_id is duplicated in each portfolio)
+                "AND :version >= base.start_version AND :version < base.end_version " +
+                "AND :version >= tree.start_version AND :version < tree.end_version " +
+            ")" +
+            "AND :version >= pos_position.start_version AND :version < pos_position.end_version ";
+    return "SELECT pos_node.oid AS node_oid, parent_node_oid, pos_node.name AS node_name, (" + selectTotalPositions + ") AS total_positions " +
+            "FROM pos_nodetree, pos_node " +
+            "WHERE pos_nodetree.node_oid = pos_node.oid " +  // join
+              "AND :version >= pos_node.start_version AND :version < pos_node.end_version " +
+              "AND :version >= pos_nodetree.start_version AND :version < pos_nodetree.end_version " +
+              "AND (pos_nodetree.node_oid = :node_oid OR pos_nodetree.parent_node_oid = :node_oid) ";  // select node and children
+  }
+
+  /**
+   * Gets the SQL for getting a position by oid and version.
+   * @return the SQL, not null
+   */
+  protected String sqlManagedPortfolioNodePositionsByOidVersion() {
+    return "SELECT oid AS position_oid, quantity " +
+            "FROM pos_position " +
+            "WHERE node_oid = :node_oid " +
+              "AND :version >= start_version AND :version < end_version";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Mapper from SQL rows to a ManagedPortfolioNode.
+   */
+  protected final class ManagedPortfolioNodeExtractor implements ResultSetExtractor {
+    private final long _portfolioOid;
+    private final long _nodeOid;
+    private final long _version;
+
+    protected ManagedPortfolioNodeExtractor(long portfolioOid, long nodeOid, long version) {
+      _portfolioOid = portfolioOid;
+      _nodeOid = nodeOid;
+      _version = version;
+    }
+
+    @Override
+    public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
+      ManagedPortfolioNode node = null;
+      List<PortfolioNodeSummary> children = new ArrayList<PortfolioNodeSummary>();
+      while (rs.next()) {
+        final Long parentOid = (Long) rs.getObject("PARENT_NODE_OID");
+        final long nodeOid = rs.getLong("NODE_OID");
+        final String name = rs.getString("NODE_NAME");
+        if (nodeOid == _nodeOid) {
+          node = new ManagedPortfolioNode();
+          node.setPortfolioUid(createPortfolioUniqueIdentifier(_portfolioOid, _version));
+          if (parentOid != null) {
+            node.setParentNodeUid(createNodeUniqueIdentifier(_portfolioOid, parentOid, _version));
+          }
+          node.setUniqueIdentifier(createNodeUniqueIdentifier(_portfolioOid, nodeOid, _version));
+          node.setName(name);
+        } else if (parentOid != null && parentOid == _nodeOid) {
+          PortfolioNodeSummary child = new PortfolioNodeSummary();
+          child.setUniqueIdentifier(createNodeUniqueIdentifier(_portfolioOid, nodeOid, _version));
+          child.setName(name);
+          child.setTotalPositions(rs.getInt("TOTAL_POSITIONS"));
+          children.add(child);
+        } else {
+          throw new DataIntegrityViolationException("SQL statement returned invalid data");
+        }
+      }
+      if (node == null) {
+        return null;
+      }
+      node.getChildNodes().addAll(children);
+      return node;
+    }
+  }
+
+  /**
+   * Maps SQL results to PositionSummary.
+   */
+  protected final class PositionSummaryMapper implements ParameterizedRowMapper<PositionSummary> {
+    private final long _portfolioOid;
+    private final long _version;
+
+    protected PositionSummaryMapper(long portfolioOid, long version) {
+      _portfolioOid = portfolioOid;
+      _version = version;
+    }
+
+    @Override
+    public PositionSummary mapRow(ResultSet rs, int rowNum) throws SQLException {
+      final long positionOid = rs.getLong("POSITION_OID");
+      final PositionSummary summary = new PositionSummary();
+      summary.setUniqueIdentifier(createPositionUniqueIdentifier(_portfolioOid, positionOid, _version));
+      summary.setQuantity(rs.getBigDecimal("QUANTITY"));
+      return summary;
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a managed position by object identifier and version.
    * @param portfolioOid  the object identifier
    * @param positionOid  the object identifier
    * @param version  the version
    * @return the position, null if not found
    */
-  protected PositionSummary selectPositionSummary(final long portfolioOid, final long positionOid, final long version) {
+  protected ManagedPosition selectManagedPosition(final long portfolioOid, final long positionOid, final long version) {
     final MapSqlParameterSource args = new MapSqlParameterSource()
       .addValue("position_oid", positionOid)
       .addValue("version", version);
-    final PositionSummaryExtractor extractor = new PositionSummaryExtractor(portfolioOid, version);
+    final ManagedPositionExtractor extractor = new ManagedPositionExtractor(portfolioOid, version);
     final NamedParameterJdbcOperations namedJdbc = getTemplate().getNamedParameterJdbcOperations();
-    return (PositionSummary) namedJdbc.query(sqlPositionSummaryByOidVersion(), args, extractor);
+    return (ManagedPosition) namedJdbc.query(sqlManagedPositionByOidVersion(), args, extractor);
   }
 
   /**
-   * Gets the SQL for getting a position summary by oid and version.
+   * Gets the SQL for getting a position by oid and version.
    * @return the SQL, not null
    */
-  protected String sqlPositionSummaryByOidVersion() {
+  protected String sqlManagedPositionByOidVersion() {
     return "SELECT pos_position.oid AS position_oid, node_oid, quantity, " +
               "pos_securitykey.id_scheme AS seckey_scheme, pos_securitykey.id_value AS seckey_value " +
             "FROM pos_node, pos_position " +
@@ -639,14 +775,14 @@ public class DbPositionMasterWorker {
 
   //-------------------------------------------------------------------------
   /**
-   * Mapper from SQL rows to a PositionSummary.
+   * Mapper from SQL rows to a ManagedPosition.
    */
-  protected final class PositionSummaryExtractor implements ResultSetExtractor {
+  protected final class ManagedPositionExtractor implements ResultSetExtractor {
     private final long _portfolioOid;
     private final long _version;
-    private PositionSummary _summary;
+    private ManagedPosition _object;
 
-    protected PositionSummaryExtractor(long portfolioOid, long version) {
+    protected ManagedPositionExtractor(long portfolioOid, long version) {
       _portfolioOid = portfolioOid;
       _version = version;
     }
@@ -654,29 +790,29 @@ public class DbPositionMasterWorker {
     @Override
     public Object extractData(ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
-        if (_summary == null) {
-          buildSummary(rs);
+        if (_object == null) {
+          buildObject(rs);
         }
         final String idScheme = rs.getString("SECKEY_SCHEME");
         final String idValue = rs.getString("SECKEY_VALUE");
         if (idScheme != null && idValue != null) {
           final Identifier id = Identifier.of(idScheme, idValue);
-          _summary.setSecurityKey(_summary.getSecurityKey().withIdentifier(id));
+          _object.setSecurityKey(_object.getSecurityKey().withIdentifier(id));
         }
       }
-      return _summary;
+      return _object;
     }
 
-    private void buildSummary(ResultSet rs) throws SQLException {
+    private void buildObject(ResultSet rs) throws SQLException {
       final long positionOid = rs.getLong("POSITION_OID");
       final long parentOid = rs.getLong("NODE_OID");
       final BigDecimal quantity = rs.getBigDecimal("QUANTITY");
-      _summary = new PositionSummary();
-      _summary.setPortfolioUid(createPortfolioUniqueIdentifier(_portfolioOid, _version));
-      _summary.setParentNodeUid(createNodeUniqueIdentifier(_portfolioOid, parentOid, _version));
-      _summary.setUniqueIdentifier(createPositionUniqueIdentifier(_portfolioOid, positionOid, _version));
-      _summary.setQuantity(quantity);
-      _summary.setSecurityKey(IdentifierBundle.EMPTY);
+      _object = new ManagedPosition();
+      _object.setPortfolioUid(createPortfolioUniqueIdentifier(_portfolioOid, _version));
+      _object.setParentNodeUid(createNodeUniqueIdentifier(_portfolioOid, parentOid, _version));
+      _object.setUniqueIdentifier(createPositionUniqueIdentifier(_portfolioOid, positionOid, _version));
+      _object.setQuantity(quantity);
+      _object.setSecurityKey(IdentifierBundle.EMPTY);
     }
   }
 

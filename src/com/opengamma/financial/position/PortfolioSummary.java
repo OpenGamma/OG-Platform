@@ -35,7 +35,7 @@ public final class PortfolioSummary {
    */
   private String _name;
   /**
-   * The portfolio name.
+   * The total number of positions at any depth.
    */
   private int _totalPositions;
   /**
@@ -128,7 +128,7 @@ public final class PortfolioSummary {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the total number of positions.
+   * Gets the total number of positions at any depth.
    * @return the total number of positions
    */
   public int getTotalPositions() {
@@ -136,7 +136,7 @@ public final class PortfolioSummary {
   }
 
   /**
-   * Sets the total number of positions.
+   * Sets the total number of positions at any depth.
    * @param totalPositions  the total number of positions
    */
   public void setTotalPositions(int totalPositions) {

@@ -106,7 +106,7 @@ public class PortfoliosResource {
       
       html += "<h2>Portfolio results</h2>\n" +
         "<p><table border=\"1\">" +
-        "<tr><th>Name</th><th>Positions</th><th>Last updated</th><th>Status</th><th>Actions</th></tr>";
+        "<tr><th>Name</th><th>Positions</th><th>Last updated</th><th>Status</th><th>Actions</th></tr>\n";
       for (PortfolioSummary summary : result.getPortfolioSummaries()) {
         URI uri = getUriInfo().getBaseUriBuilder().path(PortfolioResource.class).build(summary.getUniqueIdentifier().toLatest());
         html += "<tr>";
@@ -131,7 +131,7 @@ public class PortfoliosResource {
             "</form>" +
             "</td>";
         }
-        html += "</tr>";
+        html += "</tr>\n";
       }
       html += "</table></p>\n";
     }

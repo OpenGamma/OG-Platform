@@ -31,7 +31,8 @@ import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.AddPositionRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
-import com.opengamma.financial.position.PositionSummary;
+import com.opengamma.financial.position.ManagedPortfolioNode;
+import com.opengamma.financial.position.ManagedPosition;
 import com.opengamma.financial.position.SearchPortfoliosRequest;
 import com.opengamma.financial.position.SearchPortfoliosResult;
 import com.opengamma.financial.position.SearchPositionsRequest;
@@ -398,6 +399,19 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   //-------------------------------------------------------------------------
   @Override
+  public ManagedPortfolioNode getManagedPortfolioNode(final UniqueIdentifier nodeUid) {
+    checkIdentifier(nodeUid, TYPE_NODE);
+    final long portfolioOid = extractPortfolioOid(nodeUid);
+    final long version;
+    if (nodeUid.isVersioned()) {
+      version = extractVersion(nodeUid);
+    } else {
+      version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
+    }
+    return getWorker().selectManagedPortfolioNode(portfolioOid, extractOtherOid(nodeUid), version);
+  }
+
+  @Override
   public UniqueIdentifier addPortfolioNode(final AddPortfolioNodeRequest request) {
     Validate.notNull(request, "AddPortfolioNodeRequest must not be null");
     request.checkValid();
@@ -508,12 +522,12 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public UniqueIdentifier reinstatePortfolioNode(final UniqueIdentifier nodeUid) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException();  // TODO
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public PositionSummary getPositionSummary(final UniqueIdentifier positionUid) {
+  public ManagedPosition getManagedPosition(final UniqueIdentifier positionUid) {
     checkIdentifier(positionUid, TYPE_POSITION);
     final long portfolioOid = extractPortfolioOid(positionUid);
     final long version;
@@ -522,12 +536,12 @@ public class DbPositionMaster implements ManagablePositionMaster {
     } else {
       version = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, Instant.now(getTimeSource()), true);  // find latest version
     }
-    return getWorker().selectPositionSummary(portfolioOid, extractOtherOid(positionUid), version);
+    return getWorker().selectManagedPosition(portfolioOid, extractOtherOid(positionUid), version);
   }
 
   @Override
   public SearchPositionsResult searchPositions(final SearchPositionsRequest request) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException();  // TODO
   }
 
   @Override
@@ -572,7 +586,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     if (oldVersion != latestVersion) {
       throw new DataIntegrityViolationException("Unable to update position " + positionUid + " as the version is not the latest version " + latestVersion);
     }
-    final PositionSummary position = getWorker().selectPositionSummary(portfolioOid, positionOid, latestVersion);
+    final ManagedPosition position = getWorker().selectManagedPosition(portfolioOid, positionOid, latestVersion);
     if (position == null) {
       throw new DataNotFoundException("Position not found: " + portfolioOid + " at " + instant);
     }
@@ -610,7 +624,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
 
   @Override
   public UniqueIdentifier reinstatePosition(final UniqueIdentifier positionUid) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException();  // TODO
   }
 
   //-------------------------------------------------------------------------

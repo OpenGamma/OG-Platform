@@ -102,7 +102,7 @@ public class PortfolioResource {
       "<p>Name: " + portfolio.getName() + "<br />\n" +
       "Version: " + portfolio.getUniqueIdentifier().getVersion() + "</p>\n";
     html += "<p>Child nodes: <table border=\"1\">" +
-      "<tr><th>Name</th><th>Nodes</th><th>Positions</th><th>Actions</th></tr>";
+      "<tr><th>Name</th><th>Nodes</th><th>Positions</th><th>Actions</th></tr>\n";
     for (PortfolioNode node : portfolio.getRootNode().getChildNodes()) {
       URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), node.getUniqueIdentifier().toLatest());
       html += "<tr>";
@@ -110,7 +110,7 @@ public class PortfolioResource {
       html += "<td>" + node.getChildNodes().size() + "</td>";
       html += "<td>" + node.getPositions().size() + "</td>";
       html += "<td><br /></td>";
-      html += "</tr>";
+      html += "</tr>\n";
     }
     html += "</table></p>\n";
     
