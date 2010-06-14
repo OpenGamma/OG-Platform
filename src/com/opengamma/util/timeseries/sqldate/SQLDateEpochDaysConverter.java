@@ -38,7 +38,8 @@ import com.opengamma.util.tuple.Pair;
  */
 public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
   private static final Logger s_logger = LoggerFactory.getLogger(SQLDateEpochDaysConverter.class);
-  public static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
+  // REVIEW kirk 2010-06-11 -- This doesn't really belong here. DateUtils or something?
+  private static final long MILLIS_PER_DAY = 1000 * 3600 * 24;
   private ThreadLocal<Calendar> _calendar = new ThreadLocal<Calendar>() {
     @Override
     protected Calendar initialValue() {
@@ -137,12 +138,14 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     final int[] dates = new int[dts.size()];
     final double[] values = new double[dts.size()];
     int i = 0;
+    boolean alreadyWarnedDeveloper = false;
     while (iterator.hasNext()) {
       final Entry<Date, Double> entry = iterator.next();
       final int epochDays = (int) (entry.getKey().getTime() / MILLIS_PER_DAY);
       if (s_logger.isDebugEnabled()) {
-        if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (entry.getKey().getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+          alreadyWarnedDeveloper = true;
         }
       }
       dates[i] = epochDays;
@@ -160,12 +163,14 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     final int[] dates = new int[dts.size()];
     final T[] values = (T[]) new Object[dts.size()];
     int i = 0;
+    boolean alreadyWarnedDeveloper = false;
     while (iterator.hasNext()) {
       final Entry<Date, T> entry = iterator.next();
       final int epochDays = (int) (entry.getKey().getTime() / MILLIS_PER_DAY);
       if (s_logger.isDebugEnabled()) {
-        if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (entry.getKey().getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+          alreadyWarnedDeveloper = true;
         }
       }
       dates[i] = epochDays;
@@ -188,10 +193,12 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
   @Override
   public IntList convertToInt(final List<Date> dateTimes) {
     final IntList result = new IntArrayList(dateTimes.size());
+    boolean alreadyWarnedDeveloper = false;
     for (final Date date : dateTimes) {
       if (s_logger.isDebugEnabled()) {
-        if (date.getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (date.getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+          alreadyWarnedDeveloper = true;
         }
       }
       result.add((int) (date.getTime() / MILLIS_PER_DAY));
@@ -202,9 +209,10 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
   @Override
   public int[] convertToInt(final Date[] dateTimes) {
     final int[] results = new int[dateTimes.length];
+    boolean alreadyWarnedDeveloper = false;
     for (int i = 0; i < dateTimes.length; i++) {
       if (s_logger.isDebugEnabled()) {
-        if (dateTimes[i].getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (dateTimes[i].getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
         }
       }
@@ -256,10 +264,12 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
   @Override
   public LongList convertToLong(final List<Date> dateTimes) {
     final LongList result = new LongArrayList(dateTimes.size());
+    boolean alreadyWarnedDeveloper = false;
     for (final Date date : dateTimes) {
       if (s_logger.isDebugEnabled()) {
-        if (date.getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (date.getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+          alreadyWarnedDeveloper = true;
         }
       }
       result.add(date.getTime() / MILLIS_PER_DAY);
@@ -330,12 +340,14 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     final long[] dateTimes = new long[dts.size()];
     final double[] values = new double[dts.size()];
     int i = 0;
+    boolean alreadyWarnedDeveloper = false;
     while (iterator.hasNext()) {
       final Entry<Date, Double> entry = iterator.next();
       final long epochDays = entry.getKey().getTime() / MILLIS_PER_DAY;
       if (s_logger.isDebugEnabled()) {
-        if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (entry.getKey().getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+          alreadyWarnedDeveloper = true;
         }
       }
       dateTimes[i] = epochDays;
@@ -352,12 +364,14 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     final long[] dateTimes = new long[dts.size()];
     final T[] values = (T[]) new Object[dts.size()];
     int i = 0;
+    boolean alreadyWarnedDeveloper = false;
     while (iterator.hasNext()) {
       final Entry<Date, T> entry = iterator.next();
       final long epochDays = entry.getKey().getTime() / MILLIS_PER_DAY;
       if (s_logger.isDebugEnabled()) {
-        if (entry.getKey().getTime() % MILLIS_PER_DAY != 0) {
+        if (!alreadyWarnedDeveloper && (entry.getKey().getTime() % MILLIS_PER_DAY != 0)) {
           s_logger.warn("losing precision on conversion of dates to ints (epoch days)");
+          alreadyWarnedDeveloper = true;
         }
       }
       dateTimes[i] = epochDays;

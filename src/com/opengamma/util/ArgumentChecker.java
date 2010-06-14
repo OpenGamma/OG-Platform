@@ -199,6 +199,25 @@ public final class ArgumentChecker {
     }
   }
   
+  /**
+   * Checks that the argument is not equal to zero to within an accuracy eps
+   * @param x The value to check
+   * @param eps The accuracy
+   * @param name The name to use in the error message
+   * @throws IllegalArgumentException If the absolute value of the argument is less than eps
+   */
+  public static void notZero(double x, double eps, String name) throws IllegalArgumentException {
+    if (CompareUtils.closeEquals(x, 0, eps)) {
+      throw new IllegalArgumentException("Input parameter '" + name + "' must not be zero");
+    }
+  }
+
+  /**
+   * Checks a collection for null elements
+   * @param collection The collection to test
+   * @return true if the collection contains a null element
+   * @throws IllegalArgumentException If the collection is null
+   */
   public static boolean hasNullElement(Collection<?> collection) {    
     notNull(collection, "collection");
     for (Object o : collection) {
@@ -209,6 +228,13 @@ public final class ArgumentChecker {
     return false;
   }
   
+  /**
+   * Checks a collection of doubles for negative elements
+   * @param collection The collection to test
+   * @return true if the collection contains a negative element
+   * @throws IllegalArgumentException If the collection is null
+   */
+  
   public static boolean hasNegativeElement(Collection<Double> collection) {
     notNull(collection, "collection");
     for (Double d : collection) {
@@ -218,4 +244,63 @@ public final class ArgumentChecker {
     }
     return false;
   }
+    
+  /**
+   * Checks that a value is within the range low < x < high
+   * @param low Low value of the range
+   * @param high High value of the range
+   * @param x The value
+   * @return true if low < x < high
+   */
+  public static boolean isInRangeExclusive(double low, double high, double x) {
+    if (x > low && x < high) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks that a value is within the range low <= x <= high
+   * @param low Low value of the range
+   * @param high High value of the range
+   * @param x The value
+   * @return true if low <= x <= high
+   */
+  public static boolean isInRangeInclusive(double low, double high, double x) {
+    if (x >= low && x <= high) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks that a value is within the range low < x <= high
+   * @param low Low value of the range
+   * @param high High value of the range
+   * @param x The value
+   * @return true if low < x <= high
+   */
+
+  public static boolean isInRangeExcludingLow(double low, double high, double x) {
+    if (x > low && x <= high) {
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * Checks that a value is within the range low <= x < high
+   * @param low Low value of the range
+   * @param high High value of the range
+   * @param x The value
+   * @return true if low <= x < high
+   */
+
+  public static boolean isInRangeExcludingHigh(double low, double high, double x) {
+    if (x >= low && x < high) {
+      return true;
+    }
+    return false;
+  }
+
 }
