@@ -35,6 +35,10 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FXFutureSecurity;
 import com.opengamma.id.UniqueIdentifier;
 
+/**
+ * 
+ * 
+ */
 public class FXFutureAsForwardModelFunction extends AbstractFunction implements FunctionInvoker {
   private final FutureModel<FXFutureDataBundle> _model = new FXFutureAsForwardModel();
   private static final Map<String, Greek> AVAILABLE_GREEKS;
@@ -50,17 +54,18 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
       final Set<ValueRequirement> desiredValues) {
     final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
-    final YieldAndDiscountCurve domesticCurve = null;// getDiscountCurveMarketDataRequirement();
-    final YieldAndDiscountCurve foreignCurve = null;// getDiscountCurveMarketDataRequirement();
-    final double spot = 0;// getUnderlyingMarketDataRequirement();
+    final YieldAndDiscountCurve domesticCurve = null; // getDiscountCurveMarketDataRequirement();
+    final YieldAndDiscountCurve foreignCurve = null; // getDiscountCurveMarketDataRequirement();
+    final double spot = 0; // getUnderlyingMarketDataRequirement();
     final FXFutureDataBundle data = new FXFutureDataBundle(domesticCurve, foreignCurve, spot, now);
     final FutureDefinition definition = new FutureDefinition(future.getExpiry());
     final Set<Greek> requiredGreeks = new HashSet<Greek>();
     Greek greek;
     for (final ValueRequirement v : desiredValues) {
       greek = AVAILABLE_GREEKS.get(v.getValueName());
-      if (greek == null)
+      if (greek == null) {
         throw new IllegalArgumentException("Told to calculate " + v + " but could not be mapped to a greek");
+      }
       requiredGreeks.add(greek);
     }
     final GreekResultCollection greeks = _model.getGreeks(definition, data, requiredGreeks);
@@ -78,10 +83,12 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof FXFutureSecurity)
+    }
+    if (target.getSecurity() instanceof FXFutureSecurity) {
       return true;
+    }
     return false;
   }
 
@@ -90,7 +97,7 @@ public class FXFutureAsForwardModelFunction extends AbstractFunction implements 
     if (canApplyTo(context, target)) {
       final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      final UniqueIdentifier fx = null;//
+      final UniqueIdentifier fx = null;
       requirements.add(getUnderlyingMarketDataRequirement(fx));
       requirements.add(getDiscountCurveMarketDataRequirement(future.getNumerator().getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(future.getDenominator().getUniqueIdentifier()));

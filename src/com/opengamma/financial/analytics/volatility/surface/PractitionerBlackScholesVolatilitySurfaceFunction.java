@@ -59,10 +59,10 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
     final double spotPrice = underlyingData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO cost-of-carry model
+    final double b = discountCurve.getInterestRate(t); // TODO cost-of-carry model
     final StandardOptionDataBundle data = new StandardOptionDataBundle(discountCurve, b, null, spotPrice, now);
     // TODO Map<OptionDefinition, Double> of options that will be used to form surface
-    final VolatilitySurface surface = null;// TODO
+    final VolatilitySurface surface = null; // TODO
     final ValueSpecification specification = createResultSpecification(option);
     final ComputedValue result = new ComputedValue(specification, surface);
     return Collections.singleton(result);
@@ -70,10 +70,12 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof OptionSecurity)
+    }
+    if (target.getSecurity() instanceof OptionSecurity) {
       return true;
+    }
     return false;
   }
 
