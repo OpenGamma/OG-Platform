@@ -11,43 +11,43 @@ import com.opengamma.engine.security.Security;
 
 /**
  * Partial implementation of BeanOperation for simple cases.
- * 
- * @author Andrew Griffin
+ * @param <S> Security
+ * @param <SBean> SecurityBean
  */
-/* package */ abstract class AbstractBeanOperation<S extends Security, SBean extends SecurityBean> implements BeanOperation<S, SBean> {
+public abstract class AbstractBeanOperation<S extends Security, SBean extends SecurityBean> implements BeanOperation<S, SBean> {
   
   private final Class<? extends SBean> _beanClass;
   private final Class<? extends S> _securityClass;
   private final String _securityType;
   
-  protected AbstractBeanOperation (final String securityType, final Class<? extends S> securityClass, final Class<? extends SBean> beanClass) {
+  protected AbstractBeanOperation(final String securityType, final Class<? extends S> securityClass, final Class<? extends SBean> beanClass) {
     _securityType = securityType;
     _securityClass = securityClass;
     _beanClass = beanClass;
   }
   
   @Override
-  public Class<? extends SBean> getBeanClass () {
+  public Class<? extends SBean> getBeanClass() {
     return _beanClass;
   }
   
   @Override
-  public Class<? extends S> getSecurityClass () {
+  public Class<? extends S> getSecurityClass() {
     return _securityClass;
   }
   
   @Override
-  public String getSecurityType () {
+  public String getSecurityType() {
     return _securityType;
   }
   
   @Override
-  public SBean resolve (HibernateSecurityMasterSession secMasterSession, Date now, SBean bean) {
+  public SBean resolve(HibernateSecurityMasterDao secMasterSession, Date now, SBean bean) {
     return bean;
   }
   
   @Override
-  public void postPersistBean (HibernateSecurityMasterSession secMasterSession, Date effectiveDate, SBean bean) {
+  public void postPersistBean(HibernateSecurityMasterDao secMasterSession, Date effectiveDate, SBean bean) {
     // No op
   }
   

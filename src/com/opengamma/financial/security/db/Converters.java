@@ -41,17 +41,21 @@ import com.opengamma.util.time.ExpiryAccuracy;
 /* package */ final class Converters {
 
   protected static Currency currencyBeanToCurrency(CurrencyBean currencyBean) {
-    if (currencyBean == null) return null;
+    if (currencyBean == null) {
+      return null;
+    }
     return Currency.getInstance(currencyBean.getName());
   }
   
   protected static Identifier identifierBeanToIdentifier(IdentifierBean identifierBean) {
-    if (identifierBean == null) return null;
+    if (identifierBean == null) {
+      return null;
+    }
     return new Identifier(identifierBean.getScheme(), identifierBean.getIdentifier());
   }
   
-  protected static IdentifierBean identifierToIdentifierBean (final Identifier identifier) {
-    return new IdentifierBean (identifier.getScheme ().getName (), identifier.getValue ());
+  protected static IdentifierBean identifierToIdentifierBean(final Identifier identifier) {
+    return new IdentifierBean(identifier.getScheme().getName(), identifier.getValue());
   }
   
   protected static Expiry dateToExpiry(Date date) {

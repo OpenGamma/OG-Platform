@@ -135,7 +135,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
     return (Security) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(now, uid);
         // we use the DefaultSecurity interface because we need access to setIdentifiers
         if (security != null) {
@@ -167,7 +167,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
     return (Security) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(now, bundle);
         // we use the DefaultSecurity interface because we need access to setIdentifiers
         if (security != null) {
@@ -237,7 +237,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
         List<ExchangeBean> exchangeBeans = secMasterSession.getExchangeBeans();
         List<String> exchanges = new ArrayList<String>();
         if (exchangeBeans != null) {
@@ -256,7 +256,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
       @Override
       public Object doInHibernate(Session session) throws HibernateException,
           SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
         List<CurrencyBean> currencyBeans = secMasterSession.getCurrencyBeans();
         List<Currency> currencies = new ArrayList<Currency>();
         if (currencyBeans != null) {
@@ -284,7 +284,7 @@ public class HibernateSecurityMaster implements WritableSecurityMaster {
     return (Security) _hibernateTemplate.execute(new HibernateCallback() {
       @Override
       public Object doInHibernate(Session session) throws HibernateException, SQLException {
-        HibernateSecurityMasterSession secMasterSession = new HibernateSecurityMasterSession(session);
+        HibernateSecurityMasterDao secMasterSession = new HibernateSecurityMasterSession(session);
         SecurityBean security = secMasterSession.getSecurityBean(uid);
         // we use the DefaultSecurity interface because we need access to setIdentifiers
         if (security != null) {

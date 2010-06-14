@@ -23,8 +23,8 @@ public enum OptionSecurityType {
   FX,
   POWERED_EQUITY;
   
-  public static OptionSecurityType identify (OptionSecurity object) {
-    return object.accept (new OptionSecurityVisitor<OptionSecurityType> () {
+  public static OptionSecurityType identify(OptionSecurity object) {
+    return object.accept(new OptionSecurityVisitor<OptionSecurityType>() {
 
       @Override
       public OptionSecurityType visitAmericanVanillaEquityOptionSecurity(

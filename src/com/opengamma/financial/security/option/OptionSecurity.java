@@ -8,7 +8,7 @@ package com.opengamma.financial.security.option;
 import com.opengamma.financial.Currency;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -19,7 +19,7 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
   private final OptionType _optionType;
   private final double _strike;
   private final Expiry _expiry;
-  private final UniqueIdentifier _underlyingIdentifier;
+  private final Identifier _underlyingIdentifier;
   private final Currency _currency;
 
   /**
@@ -28,11 +28,11 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
    * @param optionType
    * @param strike
    * @param expiry
-   * @param underlyingIdentityKey
+   * @param underlyingIdentifier
    * @param currency
    */
   public OptionSecurity(final String securityType, final OptionType optionType,
-      final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier, final Currency currency) {
+      final double strike, final Expiry expiry, final Identifier underlyingIdentifier, final Currency currency) {
     super(securityType);
     _optionType = optionType;
     _strike = strike;
@@ -63,7 +63,7 @@ public abstract class OptionSecurity extends FinancialSecurity implements Option
     return _expiry;
   }
 
-  public UniqueIdentifier getUnderlyingSecurity() {
+  public Identifier getUnderlyingIdentifier() {
     return _underlyingIdentifier;
   }
 

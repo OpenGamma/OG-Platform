@@ -22,6 +22,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -30,6 +31,7 @@ import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
@@ -50,8 +52,10 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity option = (OptionSecurity) target.getSecurity();
+    SecurityMaster securityMaster = executionContext.getSecurityMaster();
+    Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
     final ValueRequirement optionDataRequirement = getOptionMarketDataRequirement(option.getUniqueIdentifier());
-    final ValueRequirement underlyingDataRequirement = getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity());
+    final ValueRequirement underlyingDataRequirement = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveDataRequirement = getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier());
     final FudgeFieldContainer optionData = (FudgeFieldContainer) inputs.getValue(optionDataRequirement);
     final FudgeFieldContainer underlyingData = (FudgeFieldContainer) inputs.getValue(underlyingDataRequirement);
@@ -87,7 +91,9 @@ public class PractitionerBlackScholesVolatilitySurfaceFunction extends AbstractF
       // TODO: the surface need only be calculated once per _underlying_, not individual option (as long as point 2
       // above holds)
       final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
-      optionRequirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
+      SecurityMaster securityMaster = context.getSecurityMaster();
+      Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      optionRequirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       optionRequirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       // TODO: add the other stuff
       return optionRequirements;

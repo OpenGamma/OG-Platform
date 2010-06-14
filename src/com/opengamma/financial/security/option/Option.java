@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.security.option;
 
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -17,24 +17,24 @@ public interface Option {
    * Gets the option type.
    * @return the option type
    */
-  public OptionType getOptionType();
+  OptionType getOptionType();
 
   /**
    * Gets the strike.
    * @return the strike
    */
-  public double getStrike();
+  double getStrike();
 
   /**
    * Gets the expiry.
    * @return the expiry
    */
-  public Expiry getExpiry();
+  Expiry getExpiry();
 
   /**
    * Gets the underlying security.
    * @return the underlying security
    */
-  public UniqueIdentifier getUnderlyingSecurity();
+  Identifier getUnderlyingIdentifier();
 
 }

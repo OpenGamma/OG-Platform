@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -23,7 +23,7 @@ public class FXOptionSecurity extends OTCOptionSecurity {
   private final Currency _callCurrency;
 
   public FXOptionSecurity(final OptionType optionType,
-      final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier,
+      final double strike, final Expiry expiry, final Identifier underlyingIdentifier,
       final Currency domesticCurrency, final String counterparty, final Currency putCurrency, final Currency callCurrency) {
     super(FX_OPTION_TYPE, optionType, strike, expiry, underlyingIdentifier, domesticCurrency, counterparty);
     _putCurrency = putCurrency;
@@ -46,8 +46,8 @@ public class FXOptionSecurity extends OTCOptionSecurity {
   }
 
   @Override
-  public <T> T accept (final OTCOptionSecurityVisitor<T> visitor) {
-    return visitor.visitFXOptionSecurity (this);
+  public <T> T accept(final OTCOptionSecurityVisitor<T> visitor) {
+    return visitor.visitFXOptionSecurity(this);
   }
 
 }

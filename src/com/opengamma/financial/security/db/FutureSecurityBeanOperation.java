@@ -148,7 +148,7 @@ import com.opengamma.id.Identifier;
   }
 
   @Override
-  public FutureSecurityBean resolve(final HibernateSecurityMasterSession secMasterSession, final Date now, final FutureSecurityBean bean) {
+  public FutureSecurityBean resolve(final HibernateSecurityMasterDao secMasterSession, final Date now, final FutureSecurityBean bean) {
     return bean.getFutureType().accept(new FutureType.Visitor<FutureSecurityBean>() {
       
       private FutureSecurityBean resolveFutureType() {
@@ -206,7 +206,7 @@ import com.opengamma.id.Identifier;
   }
   
   @Override
-  public void postPersistBean(final HibernateSecurityMasterSession secMasterSession, final Date now, final FutureSecurityBean bean) {
+  public void postPersistBean(final HibernateSecurityMasterDao secMasterSession, final Date now, final FutureSecurityBean bean) {
     bean.getFutureType().accept(new FutureType.Visitor<Object>() {
       
       private void postPersistFuture() {
@@ -366,7 +366,7 @@ import com.opengamma.id.Identifier;
   }
 
   @Override
-  public FutureSecurityBean createBean(final HibernateSecurityMasterSession secMasterSession, final FutureSecurity security) {
+  public FutureSecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final FutureSecurity security) {
     return security.accept(new FutureSecurityVisitor<FutureSecurityBean>() {
       
       private FutureSecurityBean createFutureBean(final FutureSecurity security) {
@@ -425,7 +425,10 @@ import com.opengamma.id.Identifier;
       public FutureSecurityBean visitEnergyFutureSecurity(
           EnergyFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentityKey()));
+        Identifier underlying = security.getUnderlyingIdentityKey();
+        if (underlying != null) {
+          bean.setUnderlying(identifierToIdentifierBean(underlying));
+        }
         return bean;
       }
 
@@ -450,7 +453,10 @@ import com.opengamma.id.Identifier;
       public FutureSecurityBean visitMetalFutureSecurity(
           MetalFutureSecurity security) {
         final FutureSecurityBean bean = createCommodityFutureBean(security);
-        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentityKey()));
+        Identifier underlying = security.getUnderlyingIdentityKey();
+        if (underlying != null) {
+          bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentityKey()));
+        }
         return bean;
       }
 

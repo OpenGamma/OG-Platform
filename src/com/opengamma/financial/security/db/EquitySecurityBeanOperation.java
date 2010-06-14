@@ -23,7 +23,7 @@ import com.opengamma.financial.security.EquitySecurity;
   }
 
   @Override
-  public EquitySecurityBean createBean(final HibernateSecurityMasterSession secMasterSession, final EquitySecurity security) {
+  public EquitySecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final EquitySecurity security) {
     GICSCodeBean gicsCodeBean = null;
     if (security.getGICSCode () != null) {
       gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean (security.getGICSCode ().toString (), "");
@@ -45,7 +45,7 @@ import com.opengamma.financial.security.EquitySecurity;
   }
   
   /* package */ EquitySecurityBean createBean (
-      final HibernateSecurityMasterSession secMasterSession,
+      final HibernateSecurityMasterDao secMasterSession,
       final Date effectiveDateTime,
       final boolean deleted,
       final Date lastModified,
@@ -57,7 +57,15 @@ import com.opengamma.financial.security.EquitySecurity;
       final CurrencyBean currency,
       final GICSCodeBean gicsCode) {
     final EquitySecurityBean equity = createBean (exchange, companyName, currency, gicsCode);
-    secMasterSession.persistSecurityBean (effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, displayName, equity);
+    // base properties
+    equity.setEffectiveDateTime(effectiveDateTime);
+    equity.setDeleted(deleted);
+    equity.setLastModifiedDateTime(lastModified);
+    equity.setLastModifiedBy(modifiedBy);
+    equity.setDisplayName(displayName);
+    // first version
+    equity.setFirstVersion(firstVersion);
+    secMasterSession.persistSecurityBean (equity);
     return equity;
   }
 

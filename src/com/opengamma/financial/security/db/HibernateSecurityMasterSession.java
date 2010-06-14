@@ -8,11 +8,9 @@ import java.util.Set;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.security.Security;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -20,23 +18,23 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * 
+ * HibernateSecurityMaster session and utility methods implementation
  * 
  */
-public class HibernateSecurityMasterSession {
+public class HibernateSecurityMasterSession implements HibernateSecurityMasterDao {
   private static final Logger s_logger = LoggerFactory.getLogger(HibernateSecurityMasterSession.class);
+  
   private Session _session;
-
-  protected Session getSession() {
-    return _session;
-  }
 
   public HibernateSecurityMasterSession(Session session) {
     _session = session;
   }
+  
+  public Session getSession() {
+    return _session;
+  }
 
   // UTILITY METHODS
-
   private Set<String> getListOfSchemes(
       Collection<Identifier> identifiers) {
     Set<String> schemes = new HashSet<String>();
@@ -65,9 +63,9 @@ public class HibernateSecurityMasterSession {
   }
   
   // SESSION LEVEL METHODS
-
   // Exchanges
-  protected ExchangeBean getOrCreateExchangeBean(String name,
+  @Override
+  public ExchangeBean getOrCreateExchangeBean(String name,
       String description) {
     Query query = getSession().getNamedQuery("ExchangeBean.one");
     query.setString("name", name);
@@ -87,13 +85,15 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings("unchecked")
-  protected List<ExchangeBean> getExchangeBeans() {
+  @Override
+  public List<ExchangeBean> getExchangeBeans() {
     Query query = getSession().getNamedQuery("ExchangeBean.all");
     return query.list();
   }
 
   // Currencies
-  protected CurrencyBean getOrCreateCurrencyBean(String name) {
+  @Override
+  public CurrencyBean getOrCreateCurrencyBean(String name) {
     Query query = getSession().getNamedQuery("CurrencyBean.one");
     query.setString("name", name);
     CurrencyBean currency = (CurrencyBean) query.uniqueResult();
@@ -104,13 +104,15 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings("unchecked")
-  protected List<CurrencyBean> getCurrencyBeans() {
+  @Override
+  public List<CurrencyBean> getCurrencyBeans() {
     Query query = getSession().getNamedQuery("CurrencyBean.all");
     return query.list();
   }
 
   // GICS codes
-  protected GICSCodeBean getOrCreateGICSCodeBean(final String name,
+  @Override
+  public GICSCodeBean getOrCreateGICSCodeBean(final String name,
       final String description) {
     Query query = getSession().getNamedQuery("GICSCodeBean.one");
     query.setString("name", name);
@@ -130,13 +132,15 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings("unchecked")
-  protected List<GICSCodeBean> getGICSCodeBeans() {
+  @Override
+  public List<GICSCodeBean> getGICSCodeBeans() {
     Query query = getSession().getNamedQuery("GICSCodeBean.all");
     return query.list();
   }
   
   // Daycount conventions
-  protected DayCountBean getOrCreateDayCountBean(final String convention) {
+  @Override
+  public DayCountBean getOrCreateDayCountBean(final String convention) {
     final Query query = getSession().getNamedQuery("DayCountBean.one");
     query.setString("name", convention);
     DayCountBean bean = (DayCountBean) query.uniqueResult();
@@ -147,13 +151,15 @@ public class HibernateSecurityMasterSession {
   }
   
   @SuppressWarnings ("unchecked")
-  protected List<DayCountBean> getDayCountBeans() {
+  @Override
+  public List<DayCountBean> getDayCountBeans() {
     final Query query = getSession().getNamedQuery("DayCountBean.all");
     return query.list();
   }
   
   // Business day conventions
-  protected BusinessDayConventionBean getOrCreateBusinessDayConventionBean(final String convention) {
+  @Override
+  public BusinessDayConventionBean getOrCreateBusinessDayConventionBean(final String convention) {
     final Query query = getSession().getNamedQuery("BusinessDayConventionBean.one");
     query.setString("name", convention);
     BusinessDayConventionBean bean = (BusinessDayConventionBean) query.uniqueResult();
@@ -163,14 +169,21 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
 
-  @SuppressWarnings ("unchecked")
-  protected List<BusinessDayConventionBean> getBusinessDayConventionBeans() {
-    final Query query = getSession().getNamedQuery("BusinessDayConventionBean.all");
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<BusinessDayConventionBean> getBusinessDayConventionBeans() {
+    return getBeansFromNamedQuery("BusinessDayConventionBean.all");
+  }
+
+  @SuppressWarnings("unchecked")
+  private List getBeansFromNamedQuery(String namedQuery) {
+    final Query query = getSession().getNamedQuery(namedQuery);
     return query.list();
   }
 
   // Frequencies
-  protected FrequencyBean getOrCreateFrequencyBean(final String convention) {
+  @Override
+  public FrequencyBean getOrCreateFrequencyBean(final String convention) {
     final Query query = getSession().getNamedQuery("FrequencyBean.one");
     query.setString("name", convention);
     FrequencyBean bean = (FrequencyBean) query.uniqueResult();
@@ -181,14 +194,14 @@ public class HibernateSecurityMasterSession {
   }
 
   @SuppressWarnings ("unchecked")
-  protected List<FrequencyBean> getFrequencyBeans() {
-    final Query query = getSession().getNamedQuery("FrequencyBean.all");
-    return query.list();
+  @Override
+  public List<FrequencyBean> getFrequencyBeans() {
+    return getBeansFromNamedQuery("FrequencyBean.all");
   }
   
   // CommodityFutureTypes
-  
-  protected CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean(final String type) {
+  @Override
+  public CommodityFutureTypeBean getOrCreateCommodityFutureTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("CommodityFutureTypeBean.one");
     query.setString("name", type);
     CommodityFutureTypeBean bean = (CommodityFutureTypeBean) query.uniqueResult();
@@ -198,9 +211,16 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // BondFutureType
   
-  protected BondFutureTypeBean getOrCreateBondFutureTypeBean(final String type) {
+  @SuppressWarnings ("unchecked")
+  @Override
+  public List<CommodityFutureTypeBean> getCommodityFutureTypeBeans() {
+    return getBeansFromNamedQuery("CommodityFutureTypeBean.all");
+  }
+
+  // BondFutureType
+  @Override
+  public BondFutureTypeBean getOrCreateBondFutureTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("BondFutureTypeBean.one");
     query.setString("name", type);
     BondFutureTypeBean bean = (BondFutureTypeBean) query.uniqueResult();
@@ -210,9 +230,15 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
+  @SuppressWarnings ("unchecked")
+  @Override
+  public List<BondFutureTypeBean> getBondFutureTypeBeans() {
+    return getBeansFromNamedQuery("BondFutureTypeBean.all");
+  }
+
   // UnitName
-  
-  protected UnitBean getOrCreateUnitNameBean(final String unitName) {
+  @Override
+  public UnitBean getOrCreateUnitNameBean(final String unitName) {
     final Query query = getSession().getNamedQuery("UnitBean.one");
     query.setString("name", unitName);
     UnitBean bean = (UnitBean) query.uniqueResult();
@@ -222,9 +248,15 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
+  @SuppressWarnings ("unchecked")
+  @Override
+  public List<UnitBean> getUnitNameBeans() {
+    return getBeansFromNamedQuery("UnitBean.all");
+  }
+
   // CashRateType
-  
-  protected CashRateTypeBean getOrCreateCashRateTypeBean(final String type) {
+  @Override
+  public CashRateTypeBean getOrCreateCashRateTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("CashRateTypeBean.one");
     query.setString("name", type);
     CashRateTypeBean bean = (CashRateTypeBean) query.uniqueResult();
@@ -233,10 +265,16 @@ public class HibernateSecurityMasterSession {
     }
     return bean;
   }
-  
+
+  @SuppressWarnings ("unchecked")
+  @Override
+  public List<CashRateTypeBean> getCashRateTypeBeans() {
+    return getBeansFromNamedQuery("CashRateTypeBean.all");
+  }
+
   // IssuerTypeBean
-  
-  protected IssuerTypeBean getOrCreateIssuerTypeBean(final String type) {
+  @Override
+  public IssuerTypeBean getOrCreateIssuerTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("IssuerTypeBean.one");
     query.setString("name", type);
     IssuerTypeBean bean = (IssuerTypeBean) query.uniqueResult();
@@ -246,9 +284,16 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // MarketBean
+  @SuppressWarnings ("unchecked")
+  @Override
+  public List<IssuerTypeBean> getIssuerTypeBeans() {
+    return getBeansFromNamedQuery("IssuerTypeBean.all");
+  }
   
-  protected MarketBean getOrCreateMarketBean(final String market) {
+
+  // MarketBean
+  @Override
+  public MarketBean getOrCreateMarketBean(final String market) {
     final Query query = getSession().getNamedQuery("MarketBean.one");
     query.setString("name", market);
     MarketBean bean = (MarketBean) query.uniqueResult();
@@ -258,9 +303,15 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // YieldConventionBean
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<MarketBean> getMarketBeans() {
+    return getBeansFromNamedQuery("MarketBean.all");
+  }
   
-  protected YieldConventionBean getOrCreateYieldConventionBean(final String convention) {
+  // YieldConventionBean
+  @Override
+  public YieldConventionBean getOrCreateYieldConventionBean(final String convention) {
     final Query query = getSession().getNamedQuery("YieldConventionBean.one");
     query.setString("name", convention);
     YieldConventionBean bean = (YieldConventionBean) query.uniqueResult();
@@ -270,9 +321,15 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // GuaranteeTypeBean
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<YieldConventionBean> getYieldConventionBeans() {
+    return getBeansFromNamedQuery("YieldConventionBean.all");
+  }
   
-  protected GuaranteeTypeBean getOrCreateGuaranteeTypeBean(final String type) {
+  // GuaranteeTypeBean
+  @Override
+  public GuaranteeTypeBean getOrCreateGuaranteeTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("GuaranteeTypeBean.one");
     query.setString("name", type);
     GuaranteeTypeBean bean = (GuaranteeTypeBean) query.uniqueResult();
@@ -282,9 +339,16 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // CouponTypeBean
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<GuaranteeTypeBean> getGuaranteeTypeBeans() {
+    return getBeansFromNamedQuery("GuaranteeTypeBean.all");
+  }
+
   
-  protected CouponTypeBean getOrCreateCouponTypeBean(final String type) {
+  // CouponTypeBean
+  @Override
+  public CouponTypeBean getOrCreateCouponTypeBean(final String type) {
     final Query query = getSession().getNamedQuery("CouponTypeBean.one");
     query.setString("name", type);
     CouponTypeBean bean = (CouponTypeBean) query.uniqueResult();
@@ -294,41 +358,39 @@ public class HibernateSecurityMasterSession {
     return bean;
   }
   
-  // Identifiers
+  @SuppressWarnings ("unchecked")
+  @Override
+  public List<CouponTypeBean> getCouponTypeBeans() {
+    return getBeansFromNamedQuery("CouponTypeBean.all");
+  }
   
+  // Identifiers
   private IdentifierAssociationBean createIdentifierAssociationBean(Date now, String scheme, String identifier, SecurityBean security) {
     final IdentifierAssociationBean association = new IdentifierAssociationBean(security, new IdentifierBean(scheme, identifier));
-    final Transaction transaction = getSession().beginTransaction();
-    try {
-      transaction.begin();
-      Query query = getSession().getNamedQuery("IdentifierAssociationBean.one.previousAssociation");
-      query.setString("scheme", scheme);
-      query.setString("identifier", identifier);
-      query.setDate("now", now);
-      IdentifierAssociationBean other = (IdentifierAssociationBean) query.uniqueResult();
-      if (other != null) {
-        association.setValidStartDate(other.getValidEndDate());
-      }
-      query = getSession().getNamedQuery("IdentifierAssociationBean.one.nextAssociation");
-      query.setString("scheme", scheme);
-      query.setString("identifier", identifier);
-      query.setDate("now", now);
-      other = (IdentifierAssociationBean) query.uniqueResult();
-      if (other != null) {
-        association.setValidEndDate(other.getValidEndDate());
-      }
-      Long id = (Long) getSession().save(association);
-      association.setId(id);
-      transaction.commit();
-    } catch (Exception e) {
-      transaction.rollback();
-      throw new OpenGammaRuntimeException("transaction rolled back", e);
+    Query query = getSession().getNamedQuery("IdentifierAssociationBean.one.previousAssociation");
+    query.setString("scheme", scheme);
+    query.setString("identifier", identifier);
+    query.setDate("now", now);
+    IdentifierAssociationBean other = (IdentifierAssociationBean) query.uniqueResult();
+    if (other != null) {
+      association.setValidStartDate(other.getValidEndDate());
     }
+    query = getSession().getNamedQuery("IdentifierAssociationBean.one.nextAssociation");
+    query.setString("scheme", scheme);
+    query.setString("identifier", identifier);
+    query.setDate("now", now);
+    other = (IdentifierAssociationBean) query.uniqueResult();
+    if (other != null) {
+      association.setValidEndDate(other.getValidEndDate());
+    }
+    Long id = (Long) getSession().save(association);
+    association.setId(id);
     getSession().flush();
     return association;
   }
   
-  protected IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(
+  @Override
+  public IdentifierAssociationBean getCreateOrUpdateIdentifierAssociationBean(
       Date now, String scheme, String identifier, SecurityBean security) {
     Query query = getSession().getNamedQuery(
         "IdentifierAssociationBean.one.byDateIdentifier");
@@ -358,7 +420,8 @@ public class HibernateSecurityMasterSession {
     return query.list();
   }
 
-  protected void associateOrUpdateIdentifierWithSecurity(Date now,
+  @Override
+  public void associateOrUpdateIdentifierWithSecurity(Date now,
       Identifier identifier, SecurityBean security) {
     getCreateOrUpdateIdentifierAssociationBean(now, identifier
         .getScheme().getName(), identifier.getValue(), security
@@ -366,8 +429,8 @@ public class HibernateSecurityMasterSession {
   }
   
   // Generic Securities
-
-  protected SecurityBean getSecurityBean(final UniqueIdentifier uid) {
+  @Override
+  public SecurityBean getSecurityBean(final UniqueIdentifier uid) {
     if (uid.isLatest()) {
       return getSecurityBean(new Date(), uid);
     }
@@ -377,7 +440,8 @@ public class HibernateSecurityMasterSession {
     return security;
   }
 
-  protected SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
+  @Override
+  public SecurityBean getSecurityBean(Date now, final UniqueIdentifier uid) {
     Query query = getSession().getNamedQuery("SecurityBean.one.byDateOid");
     query.setLong("securityOid", Long.valueOf(uid.getValue()));
     query.setDate("now", now);
@@ -385,7 +449,8 @@ public class HibernateSecurityMasterSession {
     return security;
   }
 
-  protected SecurityBean getSecurityBean(Date now, IdentifierBundle bundle) {
+  @Override
+  public SecurityBean getSecurityBean(Date now, IdentifierBundle bundle) {
     Collection<Identifier> identifiers = bundle.getIdentifiers();
     Set<String> schemes = getListOfSchemes(identifiers);
     for (String scheme : schemes) {
@@ -403,8 +468,8 @@ public class HibernateSecurityMasterSession {
   }
   
   // Specific securities through BeanOperation
-  
-  protected <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
+  @Override
+  public <S extends Security, SBean extends SecurityBean> SBean createSecurityBean(
       final BeanOperation<S, SBean> beanOperation,
       final Date effectiveDateTime,
       final boolean deleted,
@@ -413,59 +478,45 @@ public class HibernateSecurityMasterSession {
       final SBean firstVersion,
       final S security) {
     final SBean bean = beanOperation.createBean(this, security);
-    persistSecurityBean(effectiveDateTime, deleted, lastModified, modifiedBy, firstVersion, security.getName(), bean);
-    beanOperation.postPersistBean(this, effectiveDateTime, bean);
-    return bean;
-  }
-  
-  protected void persistSecurityBean(
-      final Date effectiveDateTime,
-      final boolean deleted,
-      final Date lastModified,
-      final String modifiedBy,
-      final SecurityBean firstVersion,
-      final String displayName,
-      final SecurityBean bean) {
-    // base properties
     bean.setEffectiveDateTime(effectiveDateTime);
     bean.setDeleted(deleted);
     bean.setLastModifiedDateTime(lastModified);
     bean.setLastModifiedBy(modifiedBy);
-    bean.setDisplayName(displayName);
-    // first version
     bean.setFirstVersion(firstVersion);
-    if (firstVersion == null) {
+    bean.setDisplayName(security.getName());
+    persistSecurityBean(bean);
+    beanOperation.postPersistBean(this, effectiveDateTime, bean);
+    return bean;
+  }
+  
+  @Override
+  public SecurityBean persistSecurityBean(final SecurityBean bean) {
+    if (bean.getFirstVersion() == null) {
       // link to itself as a parent
-      final Transaction transaction = getSession().beginTransaction();
-      try {
-        transaction.begin();
-        final Long id = (Long) getSession().save(bean);
-        bean.setId(id);
-        bean.setFirstVersion(bean);
-        getSession().update(bean);
-        transaction.commit();
-      } catch (Exception e) {
-        transaction.rollback();
-        throw new OpenGammaRuntimeException("transaction rolled back", e);
-      }
+      final Long id = (Long) getSession().save(bean);
+      bean.setId(id);
+      bean.setFirstVersion(bean);
+      getSession().update(bean);
     } else {
       final Long id = (Long) getSession().save(bean);
       bean.setId(id);
     }    
     getSession().flush();
+    return bean;
   }
 
   // Equities
-
   // Internal query methods for equities
   @SuppressWarnings("unchecked")
-  protected List<EquitySecurityBean> getEquitySecurityBeans() {
+  @Override
+  public List<EquitySecurityBean> getEquitySecurityBeans() {
     Query query = getSession().getNamedQuery("EquitySecurityBean.all");
     return query.list();
   }
 
   @SuppressWarnings("unchecked")
-  protected List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(
+  @Override
+  public List<EquitySecurityBean> getAllVersionsOfEquitySecurityBean(
       EquitySecurityBean firstVersion) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.many.allVersionsByFirstVersion");
@@ -473,7 +524,8 @@ public class HibernateSecurityMasterSession {
     return query.list();
   }
 
-  protected EquitySecurityBean getCurrentEquitySecurityBean(Date now,
+  @Override
+  public EquitySecurityBean getCurrentEquitySecurityBean(Date now,
       ExchangeBean exchange, String companyName, CurrencyBean currency) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.byExchangeCompanyNameCurrencyDate");
@@ -484,7 +536,8 @@ public class HibernateSecurityMasterSession {
     return (EquitySecurityBean) query.uniqueResult();
   }
 
-  protected EquitySecurityBean getCurrentEquitySecurityBean(Date now,
+  @Override
+  public EquitySecurityBean getCurrentEquitySecurityBean(Date now,
       EquitySecurityBean firstVersion) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.byFirstVersionDate");
@@ -493,7 +546,8 @@ public class HibernateSecurityMasterSession {
     return (EquitySecurityBean) query.uniqueResult();
   }
 
-  protected EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
+  @Override
+  public EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
       ExchangeBean exchange, String companyName, CurrencyBean currency) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.liveByExchangeCompanyNameCurrencyDate");
@@ -504,7 +558,8 @@ public class HibernateSecurityMasterSession {
     return (EquitySecurityBean) query.uniqueResult();
   }
 
-  protected EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
+  @Override
+  public EquitySecurityBean getCurrentLiveEquitySecurityBean(Date now,
       EquitySecurityBean firstVersion) {
     Query query = getSession().getNamedQuery(
         "EquitySecurityBean.one.liveByFirstVersionDate");
@@ -514,17 +569,25 @@ public class HibernateSecurityMasterSession {
   }
 
   // Equity options
-
   @SuppressWarnings("unchecked")
-  protected List<OptionSecurityBean> getEquityOptionSecurityBeans() {
+  @Override
+  public List<OptionSecurityBean> getEquityOptionSecurityBeans() {
     Query query = getSession().getNamedQuery("EquityOptionSecurityBean.all");
+    return query.list();
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public List<OptionSecurityBean> getOptionSecurityBeans() {
+    Query query = getSession().getNamedQuery("OptionSecurityBean.all");
     return query.list();
   }
   
   // Futures
   
   @SuppressWarnings("unchecked")
-  protected List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future) {
+  @Override
+  public List<FutureBundleBean> getFutureBundleBeans(Date now, FutureSecurityBean future) {
     Query query;
     if (now != null) {
       query = getSession().getNamedQuery("FutureBundleBean.many.byDateFuture");
@@ -536,14 +599,16 @@ public class HibernateSecurityMasterSession {
     return query.list();
   }
   
-  protected FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future) {
+  @Override
+  public FutureBundleBean nextFutureBundleBean(Date now, FutureSecurityBean future) {
     Query query = getSession().getNamedQuery("FutureBundleBean.one.nextBundle");
     query.setDate("now", now);
     query.setParameter("future", future);
     return (FutureBundleBean) query.uniqueResult();
   }
   
-  protected void persistFutureBundleBeans(final Date now, final FutureSecurityBean future) {
+  @Override
+  public void persistFutureBundleBeans(final Date now, final FutureSecurityBean future) {
     OperationTimer timer = new OperationTimer(s_logger, "persistFutureBundleBeans");
     final Set<FutureBundleBean> beanBasket = future.getBasket();
     final List<FutureBundleBean> dbBasket = getFutureBundleBeans(now, future);
@@ -621,5 +686,7 @@ public class HibernateSecurityMasterSession {
     }
     timer.finished();
   }
+
+  
   
 }

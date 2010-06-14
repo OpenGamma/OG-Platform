@@ -152,7 +152,7 @@ import com.opengamma.financial.security.MunicipalBondSecurity;
   }
 
   @Override
-  public BondSecurityBean createBean(final HibernateSecurityMasterSession secMasterSession, final BondSecurity security) {
+  public BondSecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final BondSecurity security) {
     final BondSecurityBean bond = new BondSecurityBean();
     bond.setBondType(BondType.identify(security));
     bond.setIssuerName(security.getIssuerName());

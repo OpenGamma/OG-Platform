@@ -19,6 +19,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -30,6 +32,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
@@ -55,8 +58,12 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
+      
+      SecurityMaster secMaster = context.getSecurityMaster();
+      Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
+      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
       // ValueRequirement costOfCarryRequirement = getCostOfCarryMarketDataRequirement();
@@ -81,12 +88,13 @@ public class BlackScholesMertonModelFunction extends AnalyticOptionModelFunction
   }
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+  protected StandardOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
+    Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final FudgeFieldContainer underlyingLiveData = (FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
     final Double spotAsObject = underlyingLiveData.getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     if (spotAsObject == null) {
-      s_logger.warn("Didn't have indicative value for {}, did have {}", option.getUnderlyingSecurity(), underlyingLiveData);
+      s_logger.warn("Didn't have indicative value for {}, did have {}", option.getUnderlyingIdentifier(), underlyingLiveData);
       throw new NullPointerException("No spot value for underlying instrument.");
     }
     final double spot = spotAsObject;

@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -25,7 +25,7 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
    * @param currency
    * @param exchange
    */
-  public PoweredEquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final double power, final UniqueIdentifier underlyingIdentifier,
+  public PoweredEquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final double power, final Identifier underlyingIdentifier,
       final Currency currency, final double pointValue, final String exchange) {
     super(optionType, strike, expiry, underlyingIdentifier, currency, pointValue, exchange);
     _power = power;
@@ -35,7 +35,7 @@ public class PoweredEquityOptionSecurity extends EquityOptionSecurity implements
     return _power;
   }
 
-  //-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------o
   @Override
   public <T> T accept(final OptionVisitor<T> visitor) {
     return visitor.visitPoweredOption(this);

@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -30,7 +30,7 @@ public abstract class EquityOptionSecurity extends ExchangeTradedOptionSecurity 
    * @param currency
    * @param exchange
    */
-  public EquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier, final Currency currency,
+  public EquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentifier, final Currency currency,
       final double pointValue, final String exchange) {
     super(EQUITY_OPTION_TYPE, optionType, strike, expiry, underlyingIdentifier, currency, pointValue, exchange);
   }

@@ -27,6 +27,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -41,6 +42,7 @@ import com.opengamma.financial.model.volatility.surface.VolatilitySurfaceModel;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
@@ -80,8 +82,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       return null;
     }
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
+    SecurityMaster securityMaster = context.getSecurityMaster();
+    Security underlying = securityMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
     final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getUniqueIdentifier());
-    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(optionSec.getUnderlyingSecurity());
+    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
     // TODO will need a cost-of-carry model as well
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
@@ -104,10 +108,13 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
       final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime today = Clock.system(TimeZone.UTC).zonedDateTime();
     final OptionSecurity optionSec = (OptionSecurity) target.getSecurity();
+    
+    SecurityMaster secMaster = executionContext.getSecurityMaster();
+    Security underlying = secMaster.getSecurity(new IdentifierBundle(optionSec.getUnderlyingIdentifier()));
 
     // Get inputs:
     final ValueRequirement optionMarketDataReq = getOptionMarketDataRequirement(optionSec.getUniqueIdentifier());
-    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(optionSec.getUnderlyingSecurity());
+    final ValueRequirement underlyingMarketDataReq = getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency().getUniqueIdentifier());
 
     final FudgeFieldContainer optionMarketData = (FudgeFieldContainer) inputs.getValue(optionMarketDataReq);

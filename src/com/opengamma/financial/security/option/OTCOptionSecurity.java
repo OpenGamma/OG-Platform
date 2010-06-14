@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -16,7 +16,7 @@ public abstract class OTCOptionSecurity extends OptionSecurity {
 
   private final String _counterparty;
 
-  public OTCOptionSecurity(final String securityType, final OptionType optionType, final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier,
+  public OTCOptionSecurity(final String securityType, final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentifier,
       final Currency currency, final String counterparty) {
     super(securityType, optionType, strike, expiry, underlyingIdentifier, currency);
     _counterparty = counterparty;
