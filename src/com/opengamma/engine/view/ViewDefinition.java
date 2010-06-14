@@ -28,16 +28,19 @@ public class ViewDefinition implements Serializable {
   private final UserPrincipal _liveDataUser;
   
   /** 
-   * View cannot be recalculated more frequently than this.
+   * A delta recomputation of the view should be performed at this interval.
    * Milliseconds.
-   * Null = view can be recalculated as frequently as you want.
+   * 0 = can be performed as often as there is CPU resources for.
+   * Null = delta recomputation only needs to be performed if underlying
+   * market data changes.  
    */
-  private Long _minimumRecalculationPeriod;
+  private Long _deltaRecalculationPeriod;
   
   /** 
    * A full recomputation of the view should be performed at this interval 
    * (i.e., no delta vs. previous result should be used).
    * Milliseconds.
+   * 0 = each computation should be a full recomputation.
    * Null = no full recomputation needs to be performed - previous result can always be used
    */ 
   private Long _fullRecalculationPeriod;
@@ -126,21 +129,29 @@ public class ViewDefinition implements Serializable {
   }
 
   /**
-   * @return Minimum recalculation period, milliseconds
+   * @return A delta recomputation of the view should be performed at this interval.
+   * Milliseconds.
+   * 0 = can be performed as often as there is CPU resources for.
+   * Null = delta recomputation only needs to be performed if underlying
+   * market data changes.
    */
-  public Long getMinimumRecalculationPeriod() {
-    return _minimumRecalculationPeriod;
+  public Long getDeltaRecalculationPeriod() {
+    return _deltaRecalculationPeriod;
   }
 
   /**
    * @param minimumRecalculationPeriod the minimumRecalculationPeriod to set, milliseconds
    */
-  public void setMinimumRecalculationPeriod(Long minimumRecalculationPeriod) {
-    _minimumRecalculationPeriod = minimumRecalculationPeriod;
+  public void setDeltaRecalculationPeriod(Long minimumRecalculationPeriod) {
+    _deltaRecalculationPeriod = minimumRecalculationPeriod;
   }
 
   /**
-   * @return Full recalculation period, milliseconds
+   * @return A full recomputation of the view should be performed at this interval 
+   * (i.e., no delta vs. previous result should be used).
+   * Milliseconds.
+   * 0 = each computation should be a full recomputation.
+   * Null = no full recomputation needs to be performed - previous result can always be used
    */
   public Long getFullRecalculationPeriod() {
     return _fullRecalculationPeriod;

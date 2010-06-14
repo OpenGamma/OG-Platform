@@ -16,6 +16,8 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * @author kirk
  */
 public interface LiveDataSnapshotProvider {
+  
+  void addListener(LiveDataSnapshotListener listener);
 
   void addSubscription(UserPrincipal user, ValueRequirement valueRequirement);
   void addSubscription(UserPrincipal user, Set<ValueRequirement> valueRequirements);

@@ -25,7 +25,7 @@ import com.opengamma.livedata.msg.UserPrincipal;
  * It is primarily useful for mock, testing, or demo scenarios.
  * 
  */
-public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, LiveDataAvailabilityProvider {
+public class InMemoryLKVSnapshotProvider extends AbstractLiveDataSnapshotProvider implements LiveDataAvailabilityProvider {
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVSnapshotProvider.class);
   private final Map<ValueRequirement, ComputedValue> _lastKnownValues =
     new ConcurrentHashMap<ValueRequirement, ComputedValue>();
@@ -85,6 +85,7 @@ public class InMemoryLKVSnapshotProvider implements LiveDataSnapshotProvider, Li
   
   public void addValue(ComputedValue value) {
     _lastKnownValues.put(value.getSpecification().getRequirementSpecification(), value);
+    super.valueChanged(value.getSpecification().getRequirementSpecification());    
   }
   
   public Collection<ValueRequirement> getAllValueKeys() {

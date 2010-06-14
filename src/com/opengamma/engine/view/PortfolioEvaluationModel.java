@@ -7,6 +7,7 @@ package com.opengamma.engine.view;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -73,6 +74,7 @@ public class PortfolioEvaluationModel {
   // REVIEW kirk 2009-09-14 -- HashSet is almost certainly the wrong set here.
   private final Set<Position> _populatedPositions = new HashSet<Position>();
   private final Set<Security> _securities = new HashSet<Security>();
+  private final Set<ValueRequirement> _liveDataRequirements = new HashSet<ValueRequirement>();
   
   public PortfolioEvaluationModel(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "Portfolio");
@@ -201,6 +203,7 @@ public class PortfolioEvaluationModel {
     if (OUTPUT_DEPENDENCY_GRAPHS) {
       outputDependencyGraphs();
     }
+    refreshLiveDataRequirements();
   }
   
   private void outputDependencyGraphs() {
@@ -386,13 +389,15 @@ public class PortfolioEvaluationModel {
     timer.finished();
   }
   
-  public Set<ValueRequirement> getAllLiveDataRequirements() {
-    Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+  public synchronized Set<ValueRequirement> getAllLiveDataRequirements() {
+    return Collections.unmodifiableSet(_liveDataRequirements);    
+  }
+  
+  public synchronized void refreshLiveDataRequirements() {
     for (DependencyGraph dependencyGraph : _graphsByConfiguration.values()) {
       Set<ValueRequirement> requiredLiveData = dependencyGraph.getAllRequiredLiveData();
-      result.addAll(requiredLiveData);
+      _liveDataRequirements.addAll(requiredLiveData);
     }
-    return result;
   }
   
   /**
