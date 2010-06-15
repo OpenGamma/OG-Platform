@@ -21,16 +21,21 @@ public class BondYieldCalculator {
   private final RealSingleRootFinder _root = new VanWijngaardenDekkerBrentSingleRootFinder();
 
   public double calculate(final DoubleTimeSeries<Long> cashFlows, final Double price, final Long date, final PresentValueCalculator pvCalculator) {
-    if (cashFlows == null)
+    if (cashFlows == null) {
       throw new IllegalArgumentException("Cash flow time series was null");
-    if (cashFlows.isEmpty())
+    }
+    if (cashFlows.isEmpty()) {
       throw new IllegalArgumentException("Cash flow time series was empty");
-    if (price <= 0)
+    }
+    if (price <= 0) {
       throw new IllegalArgumentException("Price must be positive");
-    if (date == null)
+    }
+    if (date == null) {
       throw new IllegalArgumentException("Date was null");
-    if (pvCalculator == null)
+    }
+    if (pvCalculator == null) {
       throw new IllegalArgumentException("Present value calculator was null");
+    }
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override

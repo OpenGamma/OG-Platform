@@ -6,31 +6,26 @@
 package com.opengamma.math.statistics.distribution;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 /**
  * 
- * @author emcleod
  */
-public class BivariateNormalDistribution implements ProbabilityDistribution<Double[]> {
+public class BivariateNormalDistribution implements ProbabilityDistribution<double[]> {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final double TWO_PI = 2 * Math.PI;
-  private static final double[] X = new double[] { 0.04691008, 0.23076534, 0.5, 0.76923466, 0.95308992 };
-  private static final double[] Y = new double[] { 0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042 };
+  private static final double[] X = new double[] {0.04691008, 0.23076534, 0.5, 0.76923466, 0.95308992};
+  private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042};
 
   @Override
-  public double getCDF(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
-    if (x.length != 3)
+  public double getCDF(final double[] x) {
+    Validate.notNull(x);
+    if (x.length != 3) {
       throw new IllegalArgumentException("Need a, b and rho values");
-    if (x[0] == null)
-      throw new IllegalArgumentException("a was null");
-    if (x[1] == null)
-      throw new IllegalArgumentException("b was null");
-    if (x[2] == null)
-      throw new IllegalArgumentException("rho was null");
-    if (x[2] < -1 || x[2] > 1)
+    }
+    if (x[2] < -1 || x[2] > 1) {
       throw new IllegalArgumentException("Correlation must be >= -1 and <= 1");
+    }
     final double a = x[0];
     double b = x[1];
     final double rho = x[2];
@@ -81,16 +76,16 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<Doub
   }
 
   @Override
-  public double getInverseCDF(final Double p) {
+  public double getInverseCDF(final double[] p) {
     throw new NotImplementedException();
   }
 
   @Override
-  public double getPDF(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
-    if (x.length != 3)
+  public double getPDF(final double[] x) {
+    Validate.notNull(x);
+    if (x.length != 3) {
       throw new IllegalArgumentException("Need a, b and rho values");
+    }
     final double denom = 1 - x[2] * x[2];
     return Math.exp(-(x[0] * x[0] - 2 * x[2] * x[0] * x[1] + x[1] * x[1]) / (2 * denom)) / (TWO_PI * Math.sqrt(denom));
   }

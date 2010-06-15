@@ -15,7 +15,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.math.function.Function1D;
 
 /**
- * @author emcleod
  * 
  */
 public class StudentTOneTailedCriticalValueCalculatorTest {

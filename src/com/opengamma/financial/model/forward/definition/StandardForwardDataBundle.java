@@ -7,6 +7,8 @@ package com.opengamma.financial.model.forward.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
@@ -19,8 +21,7 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
 
   public StandardForwardDataBundle(final double yield, final YieldAndDiscountCurve discountCurve, final double spot, final ZonedDateTime date, final double storageCost) {
     super(discountCurve, spot, date);
-    if (storageCost < 0)
-      throw new IllegalArgumentException("Storage cost cannot be negative");
+    Validate.isTrue(storageCost >= 0, "Storage cost cannot be negative", storageCost);
     _yield = yield;
     _storageCost = storageCost;
   }
@@ -40,8 +41,7 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public ForwardDataBundle withDate(final ZonedDateTime newDate) {
-    if (newDate == null)
-      throw new IllegalArgumentException("New date was null");
+    Validate.notNull(newDate, "New date was null");
     return new StandardForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), newDate, getStorageCost());
   }
 
@@ -54,8 +54,7 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public ForwardDataBundle withDiscountCurve(final YieldAndDiscountCurve newCurve) {
-    if (newCurve == null)
-      throw new IllegalArgumentException("New curve was null");
+    Validate.notNull(newCurve, "New curve was null");
     return new StandardForwardDataBundle(getYield(), newCurve, getSpot(), getDate(), getStorageCost());
   }
 
@@ -66,14 +65,12 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public ForwardDataBundle withSpot(final double newSpot) {
-    if (newSpot < 0)
-      throw new IllegalArgumentException("New spot was negative");
+    Validate.isTrue(newSpot >= 0, "New spot was negative");
     return new StandardForwardDataBundle(getYield(), getDiscountCurve(), newSpot, getDate(), getStorageCost());
   }
 
   public ForwardDataBundle withStorageCost(final double newStorageCost) {
-    if (newStorageCost < 0)
-      throw new IllegalArgumentException("New storage cost was negative");
+    Validate.isTrue(newStorageCost >= 0, "New storage cost was negative");
     return new StandardForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), getDate(), newStorageCost);
   }
 
@@ -105,17 +102,22 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final StandardForwardDataBundle other = (StandardForwardDataBundle) obj;
-    if (Double.doubleToLongBits(_storageCost) != Double.doubleToLongBits(other._storageCost))
+    if (Double.doubleToLongBits(_storageCost) != Double.doubleToLongBits(other._storageCost)) {
       return false;
-    if (Double.doubleToLongBits(_yield) != Double.doubleToLongBits(other._yield))
+    }
+    if (Double.doubleToLongBits(_yield) != Double.doubleToLongBits(other._yield)) {
       return false;
+    }
     return true;
   }
 

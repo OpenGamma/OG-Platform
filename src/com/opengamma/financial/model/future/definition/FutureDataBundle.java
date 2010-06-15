@@ -19,12 +19,15 @@ public abstract class FutureDataBundle {
   private final ZonedDateTime _date;
 
   public FutureDataBundle(final YieldAndDiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
-    if (discountCurve == null)
+    if (discountCurve == null) {
       throw new IllegalArgumentException("Discount curve was null");
-    if (spot < 0)
+    }
+    if (spot < 0) {
       throw new IllegalArgumentException("Spot was negative");
-    if (date == null)
+    }
+    if (date == null) {
       throw new IllegalArgumentException("Date was null");
+    }
     _discountCurve = discountCurve;
     _spot = spot;
     _date = date;
@@ -72,25 +75,33 @@ public abstract class FutureDataBundle {
    */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final FutureDataBundle other = (FutureDataBundle) obj;
     if (_date == null) {
-      if (other._date != null)
+      if (other._date != null) {
         return false;
-    } else if (!_date.equals(other._date))
+      }
+    } else if (!_date.equals(other._date)) {
       return false;
+    }
     if (_discountCurve == null) {
-      if (other._discountCurve != null)
+      if (other._discountCurve != null) {
         return false;
-    } else if (!_discountCurve.equals(other._discountCurve))
+      }
+    } else if (!_discountCurve.equals(other._discountCurve)) {
       return false;
-    if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot))
+    }
+    if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot)) {
       return false;
+    }
     return true;
   }
 

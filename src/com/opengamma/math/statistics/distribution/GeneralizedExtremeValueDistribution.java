@@ -6,7 +6,9 @@
 package com.opengamma.math.statistics.distribution;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -32,9 +34,7 @@ import com.opengamma.util.CompareUtils;
  * \\left(-\\infty, \\mu - \\frac{\\sigma}{\\xi}\\right] & \\text{when } \\xi < 0
  * \\end{cases}
  * \\end{eqnarray*}}
- * 
- * @author emcleod
- * 
+ *  
  */
 // TODO accent on Frechet
 public class GeneralizedExtremeValueDistribution implements ProbabilityDistribution<Double> {
@@ -55,8 +55,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    *           If {@latex.inline $\\sigma < 0$}
    */
   public GeneralizedExtremeValueDistribution(final double mu, final double sigma, final double ksi) {
-    if (sigma < 0)
-      throw new IllegalArgumentException("Sigma must be positive");
+    ArgumentChecker.notNegative(sigma, "sigma");
     _mu = mu;
     _sigma = sigma;
     _ksi = ksi;
@@ -77,6 +76,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * \\end{eqnarray*}}
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getCDF
+   * @param x {@latex.inline $x$}
+   * @return The CDF for {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} was null
    * @throws IllegalArgumentException
@@ -84,8 +85,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    */
   @Override
   public double getCDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("Value was null");
+    Validate.notNull(x);
     return Math.exp(-getT(x));
   }
 
@@ -94,6 +94,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * This method is not implemented
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getInverseCDF(java.lang.Double)
+   * @param p {@latex.inline $p$}
+   * @return Method is not implemented
    * @throws NotImplementedException
    */
   @Override
@@ -116,6 +118,8 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * \\end{eqnarray*}}
    *  
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#getPDF
+   * @param x {@latex.inline $x$}
+   * @return The PDF for {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} was null
    * @throws IllegalArgumentException
@@ -123,8 +127,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    */
   @Override
   public double getPDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("Value was null");
+    Validate.notNull(x);
     final double t = getT(x);
     return Math.pow(t, _ksi + 1) * Math.exp(-t) / _sigma;
   }
@@ -134,6 +137,7 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
    * This method is not implemented.
    * 
    * @see com.opengamma.math.statistics.distribution.ProbabilityDistribution#nextRandom()
+   * @return This method is not implemented
    * @throws NotImplementedException
    */
   @Override
@@ -154,12 +158,15 @@ public class GeneralizedExtremeValueDistribution implements ProbabilityDistribut
   }
 
   private double getT(final double x) {
-    if (_ksiIsZero)
+    if (_ksiIsZero) {
       return Math.exp(-(x - _mu) / _sigma);
-    if (_ksi < 0 && x > _mu - _sigma / _ksi)
+    }
+    if (_ksi < 0 && x > _mu - _sigma / _ksi) {
       throw new IllegalArgumentException("Support for GEV is in the range -infinity -> mu - sigma / ksi when ksi < 0");
-    if (_ksi > 0 && x < _mu - _sigma / _ksi)
+    }
+    if (_ksi > 0 && x < _mu - _sigma / _ksi) {
       throw new IllegalArgumentException("Support for GEV is in the range mu - sigma / ksi -> +infinity when ksi > 0");
+    }
     return Math.pow(1 + _ksi * (x - _mu) / _sigma, -1. / _ksi);
   }
 

@@ -8,10 +8,13 @@ package com.opengamma.math.statistics.distribution;
 import java.util.Date;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 import cern.jet.random.Gamma;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A Gamma distribution with shape parameter {@latex.inline $k$} and scale parameter {@latex.inline $\\theta$}.
@@ -19,7 +22,6 @@ import cern.jet.random.engine.RandomEngine;
  * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the cdf, pdf
  * and {@latex.inline $\\Gamma$}-distributed random numbers.
  * 
- * @author emcleod
  */
 public class GammaDistribution implements ProbabilityDistribution<Double> {
   private final Gamma _gamma;
@@ -38,10 +40,8 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    *           If {@latex.inline $\\theta \\leq 0$}
    */
   public GammaDistribution(final double k, final double theta) {
-    if (k <= 0)
-      throw new IllegalArgumentException("k must be positive");
-    if (theta <= 0)
-      throw new IllegalArgumentException("Theta must be positive");
+    ArgumentChecker.notNegativeOrZero(k, "k");
+    ArgumentChecker.notNegativeOrZero(theta, "theta");
     // TODO better seed
     _gamma = new Gamma(k, 1. / theta, new MersenneTwister(new Date()));
     _k = k;
@@ -65,12 +65,9 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    *           If the random number generator was null
    */
   public GammaDistribution(final double k, final double theta, final RandomEngine engine) {
-    if (k <= 0)
-      throw new IllegalArgumentException("k must be positive");
-    if (theta <= 0)
-      throw new IllegalArgumentException("Theta must be positive");
-    if (engine == null)
-      throw new IllegalArgumentException("Random engine was null");
+    ArgumentChecker.notNegativeOrZero(k, "k");
+    ArgumentChecker.notNegativeOrZero(theta, "theta");
+    Validate.notNull(engine);
     _gamma = new Gamma(k, 1. / theta, engine);
     _k = k;
     _theta = theta;
@@ -85,19 +82,22 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * F(x; k; \\theta)=\\frac{\\gamma\\left(k, \\frac{x}{\\theta}\\right)}{\\Gamma(k)}
    * \\end{equation*}}
    * 
+   * @param x {@latex.inline $x$}
+   * @return The CDF for {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} was null
    */
   @Override
   public double getCDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
+    Validate.notNull(x);
     return _gamma.cdf(x);
   }
 
   /**
    * The inverse cdf has not been implemented
    * 
+   * @param p {@latex.inline $p$}
+   * @return Nothing
    * @throws NotImplementedException
    */
   @Override
@@ -114,13 +114,14 @@ public class GammaDistribution implements ProbabilityDistribution<Double> {
    * f(x; k; \\theta)=\\frac{x^{k-1}e^{-\\frac{x}{\\theta}}}{\\Gamma{k}\\theta^k}
    * \\end{equation*}}
    * 
+   * @param x {@latex.inline $x$}
+   * @return The PDF for {@latex.inline $x$}
    * @throws IllegalArgumentException
    *           If {@latex.inline $x$} was null
    */
   @Override
   public double getPDF(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
+    Validate.notNull(x);
     return _gamma.pdf(x);
   }
 

@@ -24,7 +24,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * 
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
-  private static final ProbabilityDistribution<Double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 
@@ -129,8 +129,8 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double rho = Math.sqrt(t1 / t2);
     return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
-        * (BIVARIATE_NORMAL.getCDF(new Double[] {d1, e1, rho}) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new Double[] {d2, e2, rho}) - Math.pow(x1 / s, kappa)
-            * BIVARIATE_NORMAL.getCDF(new Double[] {d3, e3, -rho}) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new Double[] {d4, e4, -rho}));
+        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho}) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho}) - Math.pow(x1 / s, kappa)
+            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho}) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho}));
   }
 
   private double getLambda(final double r, final double gamma, final double b, final double sigmaSq) {

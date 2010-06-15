@@ -6,18 +6,16 @@
 package com.opengamma.math.statistics.distribution;
 
 /**
- * 
- * @author emcleod
+ * @param <T> Type of the random number
  */
-
 public interface ProbabilityDistribution<T> {
 
-  public double nextRandom();
+  double nextRandom();
 
-  public double getPDF(T x);
+  double getPDF(T x);
 
-  public double getCDF(T x);
+  double getCDF(T x);
 
-  public double getInverseCDF(Double p);
+  double getInverseCDF(T p);
 
 }
