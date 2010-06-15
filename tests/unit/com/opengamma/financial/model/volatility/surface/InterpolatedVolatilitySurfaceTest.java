@@ -15,17 +15,17 @@ import org.junit.Test;
 
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
+import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
  */
 public class InterpolatedVolatilitySurfaceTest {
   private static final double SIGMA = 0.4;
-  private static final Interpolator1D LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
   private static final Interpolator2D INTERPOLATOR = new GridInterpolator2D(LINEAR, LINEAR);
   private static final Map<Pair<Double, Double>, Double> DATA = new HashMap<Pair<Double, Double>, Double>();
   private static final VolatilitySurface SURFACE;
@@ -53,7 +53,7 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithEmptyMap() {
-    new InterpolatedVolatilitySurface(Collections.<Pair<Double, Double>, Double> emptyMap(), INTERPOLATOR);
+    new InterpolatedVolatilitySurface(Collections.<Pair<Double, Double>, Double>emptyMap(), INTERPOLATOR);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -110,17 +110,17 @@ public class InterpolatedVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullX() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of((Double) null, 2.), 2.));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of((Double) null, 2.), 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullY() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of(2., (Double) null), 2.));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of(2., (Double) null), 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullShift() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of(2., 2.), null));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of(2., 2.), null));
   }
 
   @Test

@@ -5,88 +5,102 @@
  */
 package com.opengamma.math.interpolation;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
+import org.apache.commons.math.MathException;
+import org.apache.commons.math.analysis.interpolation.NevilleInterpolator;
+import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeForm;
+
+import com.opengamma.math.util.wrapper.CommonsMathWrapper;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Interpolates between data points using a polynomial. The method used is
  * Neville's algorithm.
  */
 public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel> {
+  private final NevilleInterpolator _interpolator = new NevilleInterpolator();
   private final int _degree;
+  private final int _offset;
 
-  /**
-   * 
-   * @param degree
-   *          Degree of the interpolating polynomial.
-   * @throws IllegalArgumentException
-   *           If the degree is less than 1.
-   */
   public PolynomialInterpolator1D(final int degree) {
-    if (degree < 1) {
-      throw new IllegalArgumentException("Need a degree of at least 1 to perform polynomial interpolation");
+    ArgumentChecker.notNegativeOrZero(degree, "degree");
+    _degree = degree;
+    _offset = 0;
+  }
+
+  public PolynomialInterpolator1D(final int degree, final int offset) {
+    ArgumentChecker.notNegativeOrZero(degree, "degree");
+    ArgumentChecker.notNegative(offset, "offset");
+    if (offset >= degree) {
+      throw new IllegalArgumentException("Offset cannot be greater than the degree");
     }
     _degree = degree;
+    _offset = offset;
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+  public Double interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
-    if (model.size() < _degree + 1) {
-      throw new IllegalArgumentException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
+    checkValue(model, value);
+    final int n = model.size();
+    final double[] keys = model.getKeys();
+    final double[] values = model.getValues();
+    if (n <= _degree) {
+      throw new InterpolationException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
+    }
+    if (model.getLowerBoundIndex(value) == n - 1) {
+      return values[n - 1];
     }
     final int lower = model.getLowerBoundIndex(value);
-    if (lower == model.size() - 1) {
-      return new InterpolationResult<Double>(model.lastValue());
+    final int lowerBound = lower - _offset;
+    final int upperBound = _degree + 1 + lowerBound;
+    if (lowerBound < 0) {
+      throw new InterpolationException("Could not get lower bound: index " + lowerBound + " must be greater than or equal to zero");
     }
-    final double[] xArray = model.getKeys();
-    final double[] yArray = model.getValues();
-    final double[] c = new double[_degree + 1];
-    final double[] d = new double[_degree + 1];
-    if (lower + _degree >= model.size()) {
-      throw new InterpolationException("Lower bound index of x (=" + lower + ") is within " + _degree + " data points of end of series (length = " + model.size() + ")");
+    if (upperBound > n + 1) {
+      throw new InterpolationException("Could not get upper bound: index " + upperBound + " must be less than or equal to " + (n + 1));
     }
-    int ns = Math.abs(value - xArray[lower]) < Math.abs(value - xArray[lower + 1]) ? 0 : 1;
-    for (int i = 0; i <= _degree; i++) {
-      c[i] = yArray[i + lower];
-      d[i] = c[i];
+    final double[] x = Arrays.copyOfRange(keys, lowerBound, upperBound);
+    final double[] y = Arrays.copyOfRange(values, lowerBound, upperBound);
+    try {
+      final PolynomialFunctionLagrangeForm lagrange = _interpolator.interpolate(x, y);
+      return CommonsMathWrapper.wrap(lagrange).evaluate(value);
+    } catch (final MathException e) {
+      throw new InterpolationException(e);
     }
-    double y = yArray[lower + ns--];
-    double dy = 0;
-    double diff = 0;
-    for (int i = 1; i <= _degree; i++) {
-      for (int j = 0, k = lower; j <= _degree - i; j++, k++) {
-        if (Math.abs(xArray[k] - xArray[k + 1]) < EPS) {
-          throw new InterpolationException("Two values of x were within " + EPS + ": " + xArray[k] + " " + xArray[k + i]);
-        }
-        diff = (c[j + 1] - d[j]) / (xArray[k] - xArray[k + i]);
-        d[j] = (xArray[k + i] - value) * diff;
-        c[j] = (xArray[k] - value) * diff;
-      }
-      dy = 2 * (ns + 1) <= _degree - i ? c[ns + 1] : d[ns--];
-      y += dy;
-    }
-    return new InterpolationResult<Double>(y, dy);
   }
 
   @Override
-  public boolean equals(final Object o) {
-    if (o == null) {
-      return false;
-    }
-    if (o == this) {
+  public boolean equals(final Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (!(o instanceof PolynomialInterpolator1D)) {
+    if (!super.equals(obj)) {
       return false;
     }
-    final PolynomialInterpolator1D other = (PolynomialInterpolator1D) o;
-    return _degree == other._degree;
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final PolynomialInterpolator1D other = (PolynomialInterpolator1D) obj;
+    if (_degree != other._degree) {
+      return false;
+    }
+    if (_offset != other._offset) {
+      return false;
+    }
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return getClass().hashCode() * 17 + _degree;
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _degree;
+    result = prime * result + _offset;
+    return result;
   }
 
 }

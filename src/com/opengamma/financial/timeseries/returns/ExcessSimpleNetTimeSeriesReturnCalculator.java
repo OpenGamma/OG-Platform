@@ -47,11 +47,12 @@ public class ExcessSimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnC
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
     ArgumentChecker.notNull(x, "x");
-    System.out.println(x.length + " " + (x.length < 4));
-    if (x.length < 4)
+    if (x.length < 4) {
       throw new TimeSeriesException("Time series array must contain at least four elements");
-    if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size())
+    }
+    if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size()) {
       throw new TimeSeriesException("Asset price series and reference price series were not the same size");
+    }
     final DoubleTimeSeries<?> assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 0, 2));
     final DoubleTimeSeries<?> referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(Arrays.copyOfRange(x, 2, 4));
     return assetReturn.toFastLongDoubleTimeSeries().subtract(referenceReturn.toFastLongDoubleTimeSeries());

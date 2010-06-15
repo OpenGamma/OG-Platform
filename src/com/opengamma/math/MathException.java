@@ -7,7 +7,6 @@ package com.opengamma.math;
 
 /**
  * 
- * @author emcleod
  */
 public class MathException extends RuntimeException {
 
@@ -15,15 +14,15 @@ public class MathException extends RuntimeException {
     super();
   }
 
-  public MathException(String s) {
+  public MathException(final String s) {
     super(s);
   }
 
-  public MathException(String s, Throwable cause) {
+  public MathException(final String s, final Throwable cause) {
     super(s, cause);
   }
 
-  public MathException(Throwable cause) {
+  public MathException(final Throwable cause) {
     super(cause);
   }
 }

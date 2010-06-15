@@ -7,7 +7,6 @@ package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +27,16 @@ public class NaturalCubicSplineInterpolator1DTest {
   private static final Interpolator1D<Interpolator1DWithSecondDerivativeModel> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Function1D<Double, Double> CUBIC = new PolynomialFunction1D(COEFF);
   private static final double EPS = 1e-1;
+  private static final Interpolator1DWithSecondDerivativeModel MODEL;
+
+  static {
+    final Map<Double, Double> data = new HashMap<Double, Double>();
+    for (int i = 0; i < 12; i++) {
+      final double x = i / 10.;
+      data.put(x, CUBIC.evaluate(x));
+    }
+    MODEL = (Interpolator1DWithSecondDerivativeModel) Interpolator1DModelFactory.fromMap(data, INTERPOLATOR);
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void nullInputMap() {
@@ -35,28 +44,25 @@ public class NaturalCubicSplineInterpolator1DTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void emptyInputMap() {
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.toModelWithSecondDerivative(Interpolator1DModelFactory.fromMap(Collections.<Double, Double>emptyMap())), 3.);
+  public void nullInterpolateValue() {
+    INTERPOLATOR.interpolate(MODEL, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void nullInterpolateValue() {
-    final Map<Double, Double> map = new HashMap<Double, Double>();
-    map.put(1., 2.);
-    map.put(2., 4.);
-    INTERPOLATOR.interpolate(Interpolator1DModelFactory.toModelWithSecondDerivative(Interpolator1DModelFactory.fromMap(map)), null);
+  @Test(expected = InterpolationException.class)
+  public void testHighValue() {
+    INTERPOLATOR.interpolate(MODEL, 15.);
+  }
+
+  @Test(expected = InterpolationException.class)
+  public void testLowValue() {
+    INTERPOLATOR.interpolate(MODEL, -12.);
   }
 
   @Test
   public void test() {
-    final Map<Double, Double> data = new HashMap<Double, Double>();
-    for (int i = 0; i < 12; i++) {
-      final double x = i / 10.;
-      data.put(x, CUBIC.evaluate(x));
-    }
     for (int i = 0; i < 100; i++) {
       final double x = RANDOM.nextDouble();
-      assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DModelFactory.toModelWithSecondDerivative(Interpolator1DModelFactory.fromMap(data)), x).getResult(), EPS);
+      assertEquals(CUBIC.evaluate(x), INTERPOLATOR.interpolate(MODEL, x), EPS);
     }
   }
 }

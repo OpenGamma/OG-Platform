@@ -21,9 +21,8 @@ public abstract class Interpolator2D implements Interpolator<Map<Pair<Double, Do
    * @param value
    *          The (x, y) value for which an interpolated value for z is to be
    *          found.
-   * @return An InterpolationResult containing the interpolated value of z and
-   *         (if appropriate) the estimated error of this value.
+   * @return The value of z
    */
   @Override
-  public abstract InterpolationResult<Double> interpolate(Map<Pair<Double, Double>, Double> data, Pair<Double, Double> value);
+  public abstract Double interpolate(Map<Pair<Double, Double>, Double> data, Pair<Double, Double> value);
 }

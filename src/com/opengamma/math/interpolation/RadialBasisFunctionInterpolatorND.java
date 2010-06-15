@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import cern.colt.matrix.DoubleFactory1D;
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix1D;
@@ -26,20 +28,16 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
   private final LUDecompositionQuick _luDecomposition = new LUDecompositionQuick();
 
   public RadialBasisFunctionInterpolatorND(final Function1D<Double, Double> basisFunction, final boolean useNormalized) {
-    if (basisFunction == null) {
-      throw new IllegalArgumentException("Basis function was null");
-    }
+    Validate.notNull(basisFunction, "basis function");
     _basisFunction = basisFunction;
     _useNormalized = useNormalized;
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
+  public Double interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
+    Validate.notNull(value);
     checkData(data);
     final int dimension = getDimension(data.keySet());
-    if (value == null) {
-      throw new IllegalArgumentException("Value was null");
-    }
     if (value.size() != dimension) {
       throw new IllegalArgumentException("The value has dimension " + value.size() + "; the dimension of the data was " + dimension);
     }
@@ -56,7 +54,7 @@ public class RadialBasisFunctionInterpolatorND extends InterpolatorND {
       weightedSum += w[i] * f;
       sum += f;
     }
-    return new InterpolationResult<Double>(_useNormalized ? weightedSum / sum : weightedSum);
+    return _useNormalized ? weightedSum / sum : weightedSum;
   }
 
   private double[] getWeights(final Map<List<Double>, Double> data) {

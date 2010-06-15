@@ -6,9 +6,7 @@
 package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,21 +26,36 @@ public class LinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
+  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6});
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullModel() {
+    INTERPOLATOR.interpolate(null, 2.3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullValue() {
+    INTERPOLATOR.interpolate(MODEL, null);
+  }
+
+  @Test(expected = InterpolationException.class)
+  public void testLowValue() {
+    INTERPOLATOR.interpolate(MODEL, -4.);
+  }
+
+  @Test(expected = InterpolationException.class)
+  public void testHighValue() {
+    INTERPOLATOR.interpolate(MODEL, 10.);
+  }
 
   @Test
   public void test() {
-    try {
-      INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
     final Map<Double, Double> data = new HashMap<Double, Double>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);
       data.put(x, FUNCTION.evaluate(x));
     }
-    assertEquals(INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), 3.4), new InterpolationResult<Double>(FUNCTION.evaluate(3.4)));
+    assertEquals(INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), 3.4), FUNCTION.evaluate(3.4));
   }
 }

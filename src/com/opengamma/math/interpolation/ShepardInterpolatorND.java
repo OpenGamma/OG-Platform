@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 
 /**
@@ -22,12 +24,10 @@ public class ShepardInterpolatorND extends InterpolatorND {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
+  public Double interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
+    Validate.notNull(value);
     checkData(data);
     final int dimension = getDimension(data.keySet());
-    if (value == null) {
-      throw new IllegalArgumentException("Value was null");
-    }
     if (value.size() != dimension) {
       throw new IllegalArgumentException("The value has dimension " + value.size() + "; the dimension of the data was " + dimension);
     }
@@ -39,12 +39,12 @@ public class ShepardInterpolatorND extends InterpolatorND {
       entry = iter.next();
       r = getRadius(value, entry.getKey());
       if (r == 0) {
-        return new InterpolationResult<Double>(entry.getValue());
+        return entry.getValue();
       }
       w = _basisFunction.evaluate(r);
       sum += w;
       weightedSum += w * entry.getValue();
     }
-    return new InterpolationResult<Double>(weightedSum / sum);
+    return weightedSum / sum;
   }
 }

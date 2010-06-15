@@ -17,7 +17,7 @@ public class InterpolationResultWithSensitivities extends InterpolationResult<Do
   /**
    * @param result
    */
-  public InterpolationResultWithSensitivities(Double result, double[] sensitivities) {
+  public InterpolationResultWithSensitivities(final Double result, final double[] sensitivities) {
     super(result);
     _sensitivities = sensitivities;
   }

@@ -38,27 +38,29 @@ public class StepInterpolator1DTest {
     INTERPOLATOR.interpolate(DATA, null);
   }
 
-  @Test
-  public void test() {
-    double value = -1;
-    test(INTERPOLATOR.interpolate(DATA, value), 4.5);
-    value = 10;
-    test(INTERPOLATOR.interpolate(DATA, value), 6.7);
-    value = 1;
-    test(INTERPOLATOR.interpolate(DATA, value), 4.5);
-    value = 1.1;
-    test(INTERPOLATOR.interpolate(DATA, value), 4.5);
-    value = 2 - EPS * 10;
-    test(INTERPOLATOR.interpolate(DATA, value), 4.5);
-    value = 2 - EPS / 10;
-    test(INTERPOLATOR.interpolate(DATA, value), 4.3);
-    value = 2;
-    test(INTERPOLATOR.interpolate(DATA, value), 4.3);
-    value = 3;
-    test(INTERPOLATOR.interpolate(DATA, value), 6.7);
+  @Test(expected = InterpolationException.class)
+  public void testLowValue() {
+    INTERPOLATOR.interpolate(DATA, -3.);
   }
 
-  private void test(final InterpolationResult<Double> result, final double expected) {
-    assertEquals(result.getResult(), expected, EPS);
+  @Test(expected = InterpolationException.class)
+  public void testHighValue() {
+    INTERPOLATOR.interpolate(DATA, 15.);
+  }
+
+  @Test
+  public void test() {
+    double value = 1;
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.5, EPS);
+    value = 1.1;
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.5, EPS);
+    value = 2 - EPS * 10;
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.5, EPS);
+    value = 2 + EPS / 10;
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.3, EPS);
+    value = 2;
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 4.3, EPS);
+    value = 3;
+    assertEquals(INTERPOLATOR.interpolate(DATA, value), 6.7, EPS);
   }
 }

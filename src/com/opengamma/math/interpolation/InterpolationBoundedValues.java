@@ -13,39 +13,42 @@ import java.io.Serializable;
 public final class InterpolationBoundedValues implements Serializable {
   private final Double _lowerBoundKey;
   private final Double _lowerBoundValue;
-  private final Double _higherKey;
-  private final Double _higherValue;
-  
-  public InterpolationBoundedValues(Double lowerBoundKey, Double lowerBoundValue, Double higherKey, Double higherValue) {
+  private final Double _higherBoundKey;
+  private final Double _higherBoundValue;
+
+  public InterpolationBoundedValues(final Double lowerBoundKey, final Double lowerBoundValue, final Double higherKey, final Double higherValue) {
     _lowerBoundKey = lowerBoundKey;
     _lowerBoundValue = lowerBoundValue;
-    _higherKey = higherKey;
-    _higherValue = higherValue;
+    _higherBoundKey = higherKey;
+    _higherBoundValue = higherValue;
   }
-  
+
   /**
    * @return the _lowerBoundKey
    */
   public Double getLowerBoundKey() {
     return _lowerBoundKey;
   }
+
   /**
    * @return the _lowerBoundValue
    */
   public Double getLowerBoundValue() {
     return _lowerBoundValue;
   }
+
   /**
-   * @return the _nextKey
+   * @return the higherBoundKey
    */
-  public Double getHigherKey() {
-    return _higherKey;
+  public Double getHigherBoundKey() {
+    return _higherBoundKey;
   }
+
   /**
-   * @return the _nextValue
+   * @return the higherBoundValue
    */
-  public Double getHigherValue() {
-    return _higherValue;
+  public Double getHigherBoundValue() {
+    return _higherBoundValue;
   }
 
 }

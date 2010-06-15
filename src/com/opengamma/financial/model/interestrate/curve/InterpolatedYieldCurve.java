@@ -72,12 +72,12 @@ public class InterpolatedYieldCurve extends InterpolatedYieldAndDiscountCurve {
     ArgumentChecker.notNegative(t, "time");
     if (getInterpolators().size() == 1) {
       final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) getInterpolators().values().iterator().next();
-      return interpolator.interpolate(getModels().values().iterator().next(), t).getResult();
+      return interpolator.interpolate(getModels().values().iterator().next(), t);
     }
     final Map<Double, Interpolator1D<? extends Interpolator1DModel>> tail = getInterpolators().tailMap(t);
     final Double key = tail.isEmpty() ? getInterpolators().lastKey() : getInterpolators().tailMap(t).firstKey();
     final Interpolator1D<Interpolator1DModel> interpolator = (Interpolator1D<Interpolator1DModel>) getInterpolators().get(key);
-    return interpolator.interpolate(getModels().get(key), t).getResult();
+    return interpolator.interpolate(getModels().get(key), t);
   }
 
   /**

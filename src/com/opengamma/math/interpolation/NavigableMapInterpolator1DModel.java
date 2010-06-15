@@ -18,19 +18,19 @@ import org.apache.commons.lang.Validate;
  */
 public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
   private final NavigableMap<Double, Double> _backingMap;
-  
-  public NavigableMapInterpolator1DModel(NavigableMap<Double, Double> backingMap) {
+
+  public NavigableMapInterpolator1DModel(final NavigableMap<Double, Double> backingMap) {
     Validate.notNull(backingMap, "Backing map");
     _backingMap = backingMap;
   }
 
   @Override
-  public Double getLowerBoundKey(Double value) {
+  public Double getLowerBoundKey(final Double value) {
     return _backingMap.floorKey(value);
   }
 
   @Override
-  public int getLowerBoundIndex(Double value) {
+  public int getLowerBoundIndex(final Double value) {
     final Double lower = getLowerBoundKey(value);
     int i = 0;
     final Iterator<Double> iter = _backingMap.keySet().iterator();
@@ -43,7 +43,7 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public Double get(Double key) {
+  public Double get(final Double key) {
     return _backingMap.get(key);
   }
 
@@ -58,13 +58,13 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public Double higherKey(Double key) {
+  public Double higherKey(final Double key) {
     return _backingMap.higherKey(key);
   }
 
   @Override
-  public Double higherValue(Double key) {
-    Map.Entry<Double, Double> entry = _backingMap.higherEntry(key);
+  public Double higherValue(final Double key) {
+    final Map.Entry<Double, Double> entry = _backingMap.higherEntry(key);
     if (entry == null) {
       return null;
     }
@@ -78,9 +78,9 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
 
   @Override
   public double[] getKeys() {
-    double[] result = new double[size()];
+    final double[] result = new double[size()];
     int i = 0;
-    for (Double d : _backingMap.keySet()) {
+    for (final Double d : _backingMap.keySet()) {
       result[i++] = d;
     }
     assert i == size();
@@ -89,9 +89,9 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
 
   @Override
   public double[] getValues() {
-    double[] result = new double[size()];
+    final double[] result = new double[size()];
     int i = 0;
-    for (Double d : _backingMap.values()) {
+    for (final Double d : _backingMap.values()) {
       result[i++] = d;
     }
     assert i == size();
@@ -109,16 +109,19 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public boolean containsKey(Double key) {
+  public boolean containsKey(final Double key) {
     return _backingMap.containsKey(key);
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.interpolation.Interpolator1DModel#getBoundedValues(java.lang.Double)
-   */
   @Override
-  public InterpolationBoundedValues getBoundedValues(Double key) {
-    Double lowerBoundKey = getLowerBoundKey(key);
+  public InterpolationBoundedValues getBoundedValues(final Double key) {
+    final Double lowerBoundKey = getLowerBoundKey(key);
+    if (lowerBoundKey == null) {
+      throw new IllegalArgumentException(key + " was less than lowest value of data " + firstKey());
+    }
+    if (higherKey(key) == null) {
+      throw new IllegalArgumentException(key + " was greater than highest value of data " + lastKey());
+    }
     return new InterpolationBoundedValues(lowerBoundKey, get(lowerBoundKey), higherKey(key), higherValue(key));
   }
 

@@ -7,6 +7,8 @@ package com.opengamma.math.interpolation;
 
 import java.io.Serializable;
 
+import com.opengamma.util.CompareUtils;
+
 /**
  * A base class for interpolation in one dimension.
  * @param <T> Type of Interpolator1DModel
@@ -16,7 +18,29 @@ public abstract class Interpolator1D<T extends Interpolator1DModel> implements I
   /**
    * Default accuracy
    */
-  protected static final double EPS = 1e-12;
+  private final double _eps;
+
+  public Interpolator1D() {
+    _eps = 1e-12;
+  }
+
+  public Interpolator1D(final double eps) {
+    _eps = eps;
+  }
+
+  public double getEPS() {
+    return _eps;
+  }
+
+  protected void checkValue(final T model, final Double value) {
+    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    if ((boundedValues.getHigherBoundKey() == null || boundedValues.getHigherBoundKey() < 0) && !CompareUtils.closeEquals(value, model.lastKey(), _eps)) {
+      throw new InterpolationException(value + " was greater than maximum value of the data " + model.lastKey());
+    }
+    if ((boundedValues.getLowerBoundKey() == null || boundedValues.getLowerBoundKey() < 0) && !CompareUtils.closeEquals(value, model.firstKey(), _eps)) {
+      throw new InterpolationException(value + " was less than minimum value of the data " + model.firstKey());
+    }
+  }
 
   @Override
   public int hashCode() {
@@ -40,7 +64,7 @@ public abstract class Interpolator1D<T extends Interpolator1DModel> implements I
     return true;
   }
 
-  public abstract InterpolationResult<Double> interpolate(T model, Double value);
+  public abstract Double interpolate(T model, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {

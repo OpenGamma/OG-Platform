@@ -6,7 +6,6 @@
 package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,29 +28,19 @@ public class BarycentricRationalFunctionInterpolator1DTest {
   private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
   private static final double EPS = 1;
 
-  @Test
-  public void testInputs() {
-    try {
-      INTERPOLATOR.interpolate((Interpolator1DModel) null, 2.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(Collections.<Double, Double>emptyMap()), 0.);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    final Map<Double, Double> map = new HashMap<Double, Double>();
-    map.put(1., 2.);
-    map.put(3., 4.);
-    try {
-      INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(map), 1.5);
-      fail();
-    } catch (final InterpolationException e) {
-      // Expected
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullModel() {
+    INTERPOLATOR.interpolate(null, 2.);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullValue() {
+    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(Collections.<Double, Double>emptyMap()), null);
+  }
+
+  @Test(expected = InterpolationException.class)
+  public void testInsufficentData() {
+    INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromArrays(new double[] {1, 2}, new double[] {3, 4}), 1.5);
   }
 
   @Test
@@ -63,7 +52,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
       data.put(x, F.evaluate(x));
     }
     x = 0.9;
-    assertEquals(F.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x).getResult(), EPS);
+    assertEquals(F.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x), EPS);
   }
 
 }

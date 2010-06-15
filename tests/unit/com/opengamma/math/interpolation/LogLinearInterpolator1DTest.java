@@ -6,7 +6,6 @@
 package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,16 +27,11 @@ public class LogLinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
+  private static final Interpolator1DModel MODEL;
+  private static final Interpolator1DModel TRANSFORMED_MODEL;
   private static final double EPS = 1e-9;
 
-  @Test
-  public void test() {
-    try {
-      INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(new HashMap<Double, Double>()), null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  static {
     final Map<Double, Double> data = new HashMap<Double, Double>();
     final Map<Double, Double> transformedData = new HashMap<Double, Double>();
     double x;
@@ -46,8 +40,32 @@ public class LogLinearInterpolator1DTest {
       data.put(x, FUNCTION.evaluate(x));
       transformedData.put(x, Math.log(FUNCTION.evaluate(x)));
     }
-    x = 3.4;
-    assertEquals(Math.exp(INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x).getResult()), LINEAR.interpolate(Interpolator1DModelFactory.fromMap(transformedData), x).getResult(),
-        EPS);
+    MODEL = Interpolator1DModelFactory.fromMap(data);
+    TRANSFORMED_MODEL = Interpolator1DModelFactory.fromMap(transformedData);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullModel() {
+    INTERPOLATOR.interpolate(null, 3.4);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullData() {
+    INTERPOLATOR.interpolate(MODEL, null);
+  }
+
+  @Test(expected = InterpolationException.class)
+  public void testLowValue() {
+    INTERPOLATOR.interpolate(MODEL, -2.);
+  }
+
+  @Test(expected = InterpolationException.class)
+  public void testHgihValue() {
+    INTERPOLATOR.interpolate(MODEL, 12.);
+  }
+
+  @Test
+  public void test() {
+    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
   }
 }

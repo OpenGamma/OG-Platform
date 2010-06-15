@@ -27,6 +27,6 @@ public class HoLeeInterestRateModelTest {
     final ZonedDateTime time = DateUtil.getDateOffsetWithYearFraction(date, 1);
     final HoLeeDataBundle data = new HoLeeDataBundle(date, new ConstantYieldCurve(0.05), new ConstantVolatilityCurve(0.01));
     final HoLeeInterestRateModel model = new HoLeeInterestRateModel();
-    System.out.println(model.getInterestRateFunction(time, maturity).evaluate(data));
+    //System.out.println(model.getInterestRateFunction(time, maturity).evaluate(data));
   }
 }

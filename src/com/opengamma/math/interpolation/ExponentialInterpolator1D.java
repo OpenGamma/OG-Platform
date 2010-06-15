@@ -14,19 +14,20 @@ import org.apache.commons.lang.Validate;
 public class ExponentialInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
-  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+  public Double interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
+    checkValue(model, value);
     final Double x1 = model.getLowerBoundKey(value);
-    if (x1.equals(model.lastKey())) {
-      return new InterpolationResult<Double>(model.lastValue());
+    final Double y1 = model.get(x1);
+    if (model.getLowerBoundIndex(value) == model.size() - 1) {
+      return y1;
     }
     final Double x2 = model.higherKey(x1);
-    final Double y1 = model.get(x1);
     final Double y2 = model.get(x2);
     final double xDiff = x2 - x1;
     final double result = Math.pow(y1, value * (x2 - value) / xDiff / x1) * Math.pow(y2, value * (value - x1) / xDiff / x2);
-    return new InterpolationResult<Double>(result);
+    return result;
   }
 
 }

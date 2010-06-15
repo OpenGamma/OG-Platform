@@ -6,12 +6,14 @@
 package com.opengamma.math.util.wrapper;
 
 import org.apache.commons.math.analysis.UnivariateRealFunction;
+import org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeForm;
 import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.ArrayRealVector;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -65,5 +67,20 @@ public final class CommonsMathWrapper {
 
   public static Complex wrap(final ComplexNumber z) {
     return new Complex(z.getReal(), z.getImaginary());
+  }
+
+  public static Function1D<Double, Double> wrap(final PolynomialFunctionLagrangeForm lagrange) {
+    return new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double x) {
+        try {
+          return lagrange.value(x);
+        } catch (final org.apache.commons.math.MathException e) {
+          throw new MathException(e);
+        }
+      }
+
+    };
   }
 }

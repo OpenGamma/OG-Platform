@@ -59,6 +59,7 @@ public class YieldCurveBootStrapTest {
   protected static YieldAndDiscountCurve FORWARD_CURVE;
 
   static {
+
     final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
     SPOT_RATE = 0.005;
     double[] fwdTimes = new double[] { 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0 };
@@ -127,6 +128,7 @@ public class YieldCurveBootStrapTest {
   }
 
   private void doTest(final VectorRootFinder rootFinder) {
+
     Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE,
         TIME_GRID, CUBIC);
     DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
@@ -139,6 +141,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testTickingSwapRates() {
+
     NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
     final VectorRootFinder rootFinder = new NewtonVectorRootFinder(EPS, EPS, STEPS);
     double[] swapRates = SWAP_VALUES.clone();
@@ -150,8 +153,10 @@ public class YieldCurveBootStrapTest {
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
       }
+
       Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(SWAPS, swapRates, SPOT_RATE,
           TIME_GRID, CUBIC);
+
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
 
@@ -245,8 +250,9 @@ public class YieldCurveBootStrapTest {
     protected final Interpolator1D<? extends Interpolator1DModel> _interpolator;
     int n;
 
-    public SingleCurveFinder(List<ToySwap> swaps, double[] swapValues, double spotRate, double[] timeGrid,
-        Interpolator1D<? extends Interpolator1DModel> interpolator) {
+    public SingleCurveFinder(final List<ToySwap> swaps, final double[] swapValues, final double spotRate,
+        final double[] timeGrid, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
+
       _swaps = swaps;
       _swapValues = swapValues;
       _spotRate = spotRate;
@@ -257,7 +263,7 @@ public class YieldCurveBootStrapTest {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
       final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
       data.put(0.0, _spotRate);
       for (int i = 0; i < _timeGrid.length; i++) {

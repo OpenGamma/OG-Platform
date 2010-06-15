@@ -21,27 +21,32 @@ public class BarycentricRationalFunctionInterpolator1D extends Interpolator1D<In
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+  public Double interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
+    checkValue(model, value);
     if (model.size() < _degree) {
       throw new InterpolationException("Cannot interpolate " + model.size() + " data points with rational functions of degree " + _degree);
     }
+    final int m = model.size();
     final double[] x = model.getKeys();
     final double[] y = model.getValues();
+    if (model.getLowerBoundIndex(value) == m - 1) {
+      return y[m - 1];
+    }
     final double[] w = getWeights(x);
     final int n = x.length;
     double delta, temp, num = 0, den = 0;
     for (int i = 0; i < n; i++) {
       delta = value - x[i];
-      if (Math.abs(delta) < EPS) {
-        return new InterpolationResult<Double>(y[i]);
+      if (Math.abs(delta) < getEPS()) {
+        return y[i];
       }
       temp = w[i] / delta;
       num += temp * y[i];
       den += temp;
     }
-    return new InterpolationResult<Double>(num / den);
+    return num / den;
   }
 
   private double[] getWeights(final double[] x) {

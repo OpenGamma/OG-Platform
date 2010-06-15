@@ -24,9 +24,9 @@ public class VasicekInterestRateModelTest {
     ZonedDateTime maturity = DateUtil.getDateOffsetWithYearFraction(date, 1);
     VasicekDataBundle data = new VasicekDataBundle(0.05, 0.05, 0.15, 0.01, date);
     final VasicekInterestRateModel model = new VasicekInterestRateModel();
-    System.out.println(model.getInterestRateFunction(date, maturity).evaluate(data));
+    //System.out.println(model.getInterestRateFunction(date, maturity).evaluate(data));
     data = new VasicekDataBundle(0.08, 0.09, 0.05, 0.03, date);
     maturity = DateUtil.getDateOffsetWithYearFraction(date, 2);
-    System.out.println(model.getInterestRateFunction(date, maturity).evaluate(data));
+    //System.out.println(model.getInterestRateFunction(date, maturity).evaluate(data));
   }
 }
