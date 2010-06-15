@@ -33,12 +33,12 @@ public class GridInterpolator2D extends Interpolator2D {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Pair<Double, Double>, Double> data, final Pair<Double, Double> value) {
+  public Double interpolate(final Map<Pair<Double, Double>, Double> data, final Pair<Double, Double> value) {
     Validate.notNull(value);
     final Map<Double, Interpolator1DModel> sorted = testData(data);
     final Map<Double, Double> xData = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Interpolator1DModel> entry : sorted.entrySet()) {
-      xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()).getResult());
+      xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
     }
     return _xInterpolator.interpolate(Interpolator1DModelFactory.fromMap(xData, _xInterpolator), value.getKey());
   }

@@ -136,8 +136,8 @@ public class InterpolatedDiscountCurveTest {
   @Test
   public void test() {
     final Double df = CURVE.getDiscountFactor(T);
-    assertEquals(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), T).getResult(), df, EPS);
-    assertEquals(-Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), T).getResult()) / T, CURVE.getInterestRate(T), EPS);
+    assertEquals(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), T), df, EPS);
+    assertEquals(-Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), T)) / T, CURVE.getInterestRate(T), EPS);
   }
 
   @Test
@@ -190,7 +190,7 @@ public class InterpolatedDiscountCurveTest {
     map.put(2.1, LINEAR);
     map.put(10., STEP);
     final YieldAndDiscountCurve curve = new InterpolatedDiscountCurve(DF_DATA, map);
-    assertEquals(curve.getInterestRate(1.5), -Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 1.5).getResult()) / 1.5, EPS);
-    assertEquals(curve.getInterestRate(2.5), -Math.log(STEP.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 2.5).getResult()) / 2.5, EPS);
+    assertEquals(curve.getInterestRate(1.5), -Math.log(LINEAR.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 1.5)) / 1.5, EPS);
+    assertEquals(curve.getInterestRate(2.5), -Math.log(STEP.interpolate(Interpolator1DModelFactory.fromMap(DF_DATA), 2.5)) / 2.5, EPS);
   }
 }

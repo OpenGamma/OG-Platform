@@ -62,7 +62,7 @@ public class PolynomialInterpolator1DTest {
 
   @Test(expected = InterpolationException.class)
   public void testOutOfRange() {
-    INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 0.);
+    INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 0.);
   }
 
   @Test(expected = InterpolationException.class)
@@ -72,12 +72,12 @@ public class PolynomialInterpolator1DTest {
 
   @Test(expected = InterpolationException.class)
   public void testHighOutOfRange() {
-    INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 10.);
+    INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 10.);
   }
 
   @Test(expected = InterpolationException.class)
   public void testHighOutOfRangeWithOffset() {
-    INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 4.5);
+    INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 4.5);
   }
 
   @Test
@@ -107,16 +107,16 @@ public class PolynomialInterpolator1DTest {
     final Interpolator1DModel quadraticData = Interpolator1DModelFactory.fromMap(quadraticMap);
     final Interpolator1DModel quarticData = Interpolator1DModelFactory.fromMap(quarticMap);
     Interpolator1D<Interpolator1DModel> quadraticInterpolator = new PolynomialInterpolator1D(2);
-    InterpolationResult<Double> quadraticResult = quadraticInterpolator.interpolate(quadraticData, x);
+    Double quadraticResult = quadraticInterpolator.interpolate(quadraticData, x);
     Interpolator1D<Interpolator1DModel> quarticInterpolator = new PolynomialInterpolator1D(4);
-    InterpolationResult<Double> quarticResult = quarticInterpolator.interpolate(quarticData, x);
-    assertEquals(quadraticResult.getResult(), quadratic.evaluate(x), EPS);
-    assertEquals(quarticResult.getResult(), quartic.evaluate(x), EPS);
+    Double quarticResult = quarticInterpolator.interpolate(quarticData, x);
+    assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
+    assertEquals(quarticResult, quartic.evaluate(x), EPS);
     quadraticInterpolator = new PolynomialInterpolator1D(2, 1);
     quadraticResult = quadraticInterpolator.interpolate(quadraticData, x);
     quarticInterpolator = new PolynomialInterpolator1D(4, 1);
     quarticResult = quarticInterpolator.interpolate(quarticData, x);
-    assertEquals(quadraticResult.getResult(), quadratic.evaluate(x), EPS);
-    assertEquals(quarticResult.getResult(), quartic.evaluate(x), EPS);
+    assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
+    assertEquals(quarticResult, quartic.evaluate(x), EPS);
   }
 }

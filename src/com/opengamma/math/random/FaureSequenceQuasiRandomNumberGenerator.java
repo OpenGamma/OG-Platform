@@ -17,10 +17,12 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
-    if (dimension < 2)
+    if (dimension < 2) {
       throw new IllegalArgumentException("Dimension must be greater than one");
-    if (n < 0)
+    }
+    if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
+    }
     final int base = PrimeNumbers.getNextPrime(dimension);
     final int[][] a = getFirstDimension(n, dimension, base);
     final int m = (int) Math.floor(Math.log(dimension) / Math.log(base));
@@ -35,9 +37,7 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
     }
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < dimension; j++) {
-        System.out.print(a[i][j] + " ");
       }
-      System.out.println();
     }
     return null;
   }

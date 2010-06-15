@@ -21,18 +21,19 @@ import org.apache.commons.lang.Validate;
 public class LogLinearInterpolator1D extends Interpolator1D<Interpolator1DModel> {
 
   @Override
-  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+  public Double interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
-    final Double x1 = model.getLowerBoundKey(value);
-    if (x1.equals(model.lastKey())) {
-      return new InterpolationResult<Double>(model.lastValue());
+    checkValue(model, value);
+    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    final Double x1 = boundedValues.getLowerBoundKey();
+    final Double y1 = boundedValues.getLowerBoundValue();
+    if (model.getLowerBoundIndex(value) == model.size() - 1) {
+      return y1;
     }
-    final Double x2 = model.higherKey(x1);
-    final Double y1 = model.get(x1);
-    final Double y2 = model.get(x2);
+    final Double x2 = boundedValues.getHigherBoundKey();
+    final Double y2 = boundedValues.getHigherBoundValue();
     final double result = Math.pow(y2 / y1, (value - x1) / (x2 - x1)) * y1;
-    return new InterpolationResult<Double>(result);
+    return result;
   }
-
 }

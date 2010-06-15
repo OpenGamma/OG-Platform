@@ -8,13 +8,11 @@ package com.opengamma.financial.model.volatility.surface;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
  */
 public class VolatilityInterpolator2D extends Interpolator2D {
   private final Interpolator2D _interpolator;
@@ -24,13 +22,12 @@ public class VolatilityInterpolator2D extends Interpolator2D {
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<Pair<Double, Double>, Double> data, final Pair<Double, Double> value) {
+  public Double interpolate(final Map<Pair<Double, Double>, Double> data, final Pair<Double, Double> value) {
     final Map<Pair<Double, Double>, Double> variances = new HashMap<Pair<Double, Double>, Double>();
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
       variances.put(entry.getKey(), entry.getValue() * entry.getValue());
     }
-    final InterpolationResult<Double> squaredResult = _interpolator.interpolate(variances, value);
-    return new InterpolationResult<Double>(Math.sqrt(squaredResult.getResult()), Math.sqrt(squaredResult.getErrorEstimate()));
+    return Math.sqrt(_interpolator.interpolate(variances, value));
   }
 
 }

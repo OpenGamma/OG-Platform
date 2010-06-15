@@ -6,7 +6,6 @@
 package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 
@@ -14,39 +13,34 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class KrigingInterpolatorNDTest extends InterpolatorNDTestCase {
+  private static final InterpolatorND INTERPOLATOR = new KrigingInterpolatorND(1.5);
   private static final double EPS = 1e-4;
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testLowBeta() {
+    new KrigingInterpolatorND(-1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighBeta() {
+    new KrigingInterpolatorND(2);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullValue() {
+    INTERPOLATOR.interpolate(FLAT_DATA, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testBadData() {
+    INTERPOLATOR.interpolate(FLAT_DATA, Arrays.asList(2., 3., 4., 5.));
+
+  }
 
   @Test
   public void testInputs() {
-    try {
-      new KrigingInterpolatorND(-1);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      new KrigingInterpolatorND(2);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    final InterpolatorND interpolator = new KrigingInterpolatorND(1.5);
-    super.testData(interpolator);
-    try {
-      interpolator.interpolate(FLAT_DATA, null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      interpolator.interpolate(FLAT_DATA, Arrays.asList(2., 3., 4., 5.));
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    assertEquals(interpolator.interpolate(FLAT_DATA, Arrays.asList(2., 3.4, 5.)).getResult(), VALUE, EPS);
+    assertEquals(INTERPOLATOR.interpolate(FLAT_DATA, Arrays.asList(2., 3.4, 5.)), VALUE, EPS);
   }
 }

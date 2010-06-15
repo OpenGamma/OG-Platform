@@ -102,7 +102,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
     if (xy.getSecond() == null) {
       throw new IllegalArgumentException("y-value was null");
     }
-    return Math.sqrt(_interpolator.interpolate(_varianceData, xy).getResult());
+    return Math.sqrt(_interpolator.interpolate(_varianceData, xy));
   }
 
   @Override

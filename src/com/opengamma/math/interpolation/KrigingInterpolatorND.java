@@ -35,7 +35,7 @@ public class KrigingInterpolatorND extends InterpolatorND {
   // refactor later.
 
   @Override
-  public InterpolationResult<Double> interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
+  public Double interpolate(final Map<List<Double>, Double> data, final List<Double> value) {
     checkData(data);
     final int dimension = getDimension(data.keySet());
     if (value == null) {
@@ -57,12 +57,11 @@ public class KrigingInterpolatorND extends InterpolatorND {
     v[n] = 1;
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(v);
     _luDecomposition.solve(vector);
-    double sum = 0, errorSum = 0;
+    double sum = 0;
     for (int i = 0; i <= n; i++) {
       sum += y[i] * v[i];
-      errorSum += v[i] * vector.get(i);
     }
-    return new InterpolationResult<Double>(sum, Math.sqrt(Math.max(0, errorSum)));
+    return sum;
   }
 
   private double[] getLUSolution(final Map<List<Double>, Double> data, final int n, final Function1D<Double, Double> variogram) {

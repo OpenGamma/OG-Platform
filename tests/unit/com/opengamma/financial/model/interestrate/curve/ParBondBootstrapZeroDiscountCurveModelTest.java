@@ -33,6 +33,6 @@ public class ParBondBootstrapZeroDiscountCurveModelTest {
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 4)), 0.08));
     data.add(new ParBondInstrumentDefinition(new Expiry(DateUtil.getDateOffsetWithYearFraction(date, 5)), 0.085));
     final InterpolatedYieldAndDiscountCurve curve = new ParBondBootstrapZeroDiscountCurveModel(new LinearInterpolator1D()).getCurve(data, date);
-    System.out.println(curve.getData());
+    //System.out.println(curve.getData());
   }
 }

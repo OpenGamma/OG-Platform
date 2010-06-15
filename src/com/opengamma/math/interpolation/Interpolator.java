@@ -13,5 +13,5 @@ package com.opengamma.math.interpolation;
 
 public interface Interpolator<S, T, U> {
 
-  InterpolationResult<U> interpolate(S data, T value);
+  U interpolate(S data, T value);
 }

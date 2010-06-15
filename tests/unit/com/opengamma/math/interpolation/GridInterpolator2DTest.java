@@ -6,7 +6,6 @@
 package com.opengamma.math.interpolation;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,79 +51,57 @@ public class GridInterpolator2DTest {
     FLAT_DATA.put(Pair.of(5., 7.), 0.);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullXInterpolator() {
+    new GridInterpolator2D(null, INTERPOLATOR_1D);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullYInterpolator() {
+    new GridInterpolator2D(INTERPOLATOR_1D, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullModel() {
+    INTERPOLATOR_2D.interpolate(null, Pair.of(2., 4.));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullValue() {
+    INTERPOLATOR_2D.interpolate(FLAT_DATA, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullPair() {
+    final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>();
+    map.put(Pair.of(1., 0.), null);
+    INTERPOLATOR_2D.interpolate(map, Pair.of(0.5, 0.5));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testInputs() {
-    try {
-      new GridInterpolator2D(null, INTERPOLATOR_1D);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      new GridInterpolator2D(INTERPOLATOR_1D, null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      INTERPOLATOR_2D.interpolate(FLAT_DATA, null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    final Pair<Double, Double> zeroes = Pair.of(0., 0.);
-    try {
-      INTERPOLATOR_2D.interpolate(null, zeroes);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
     final Map<Pair<Double, Double>, Double> data = new HashMap<Pair<Double, Double>, Double>();
-    data.put(zeroes, null);
-    try {
-      INTERPOLATOR_2D.interpolate(data, zeroes);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
     data.put(Pair.of(0., 5.), 2.);
     data.put(Pair.of(0., 4.), 3.);
     data.put(Pair.of(0., -3.), 4.);
-    try {
-      INTERPOLATOR_2D.interpolate(data, zeroes);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    data.put(zeroes, 3.);
-    try {
-      INTERPOLATOR_2D.interpolate(data, zeroes);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    INTERPOLATOR_2D.interpolate(data, Pair.of(0., 2.));
   }
 
-  @Test
+  @Test(expected = InterpolationException.class)
   public void testNonGrid() {
     final Map<Pair<Double, Double>, Double> nonGrid = new HashMap<Pair<Double, Double>, Double>(FLAT_DATA);
     nonGrid.put(Pair.of(5., 8.), 0.);
-    try {
-      INTERPOLATOR_2D.interpolate(nonGrid, Pair.of(1.5, 4.));
-      fail();
-    } catch (final InterpolationException e) {
-      // Expected
-    }
+    INTERPOLATOR_2D.interpolate(nonGrid, Pair.of(1.5, 4.));
   }
 
   @Test
   public void test() {
-    assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA, Pair.of(2.5, 5.4)).getResult(), 0., EPS);
+    assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA, Pair.of(2.5, 5.4)), 0., EPS);
     final Map<Pair<Double, Double>, Double> nonTrivial = new HashMap<Pair<Double, Double>, Double>();
     for (final Pair<Double, Double> pair : FLAT_DATA.keySet()) {
       nonTrivial.put(pair, F.evaluate(pair.getKey(), pair.getValue()));
     }
     final Pair<Double, Double> pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
-    assertEquals(INTERPOLATOR_2D.interpolate(nonTrivial, pair).getResult(), F.evaluate(pair.getKey(), pair.getValue()), EPS);
+    assertEquals(INTERPOLATOR_2D.interpolate(nonTrivial, pair), F.evaluate(pair.getKey(), pair.getValue()), EPS);
   }
 }

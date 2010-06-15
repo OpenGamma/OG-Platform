@@ -19,7 +19,6 @@ import cern.jet.random.engine.RandomEngine;
 
 /**
  * 
- * @author emcleod
  */
 public class InterpolatorNDTestCase {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);

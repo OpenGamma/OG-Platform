@@ -52,8 +52,8 @@ public class YieldCurveBootStrapTest {
   protected static final DoubleMatrix1D X0;
 
   static {
-    final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
-    SWAP_VALUES = new double[] { 0.03, 0.035, 0.04, 0.043, 0.045, 0.045, 0.04, 0.035, 0.033, 0.034, 0.036, 0.039, 0.042 };
+    final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
+    SWAP_VALUES = new double[] {0.03, 0.035, 0.04, 0.043, 0.045, 0.045, 0.04, 0.035, 0.033, 0.034, 0.036, 0.039, 0.042};
     SPOT_RATE = 0.03;
     final int n = payments.length;
     TIME_GRID = new double[n];
@@ -104,9 +104,8 @@ public class YieldCurveBootStrapTest {
   }
 
   private void doTest(final VectorRootFinder rootFinder) {
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new RootFunctor(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID,
-        CUBIC);
-    DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new RootFunctor(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
     final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     data.put(0.0, SPOT_RATE);
     for (int i = 0; i < TIME_GRID.length; i++) {
@@ -120,18 +119,17 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testTickingSwapRates() {
-    NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
+    final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    double[] swapRates = SWAP_VALUES.clone();
+    final double[] swapRates = SWAP_VALUES.clone();
     DoubleMatrix1D yieldCurveNodes = X0;
-    double sigma = 0.03;
+    final double sigma = 0.03;
 
     for (int t = 0; t < 100; t++) {
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
       }
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new RootFunctor(SWAPS, swapRates, SPOT_RATE, TIME_GRID,
-          CUBIC);
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new RootFunctor(SWAPS, swapRates, SPOT_RATE, TIME_GRID, CUBIC);
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
 
       final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
@@ -157,8 +155,7 @@ public class YieldCurveBootStrapTest {
     protected final Interpolator1D<? extends Interpolator1DModel> _interpolator;
     int n;
 
-    public RootFunctor(List<ToySwap> swaps, double[] swapValues, double spotRate, double[] timeGrid,
-        Interpolator1D<? extends Interpolator1DModel> cubic) {
+    public RootFunctor(final List<ToySwap> swaps, final double[] swapValues, final double spotRate, final double[] timeGrid, Interpolator1D<? extends Interpolator1DModel> cubic) {
       _swaps = swaps;
       _swapValues = swapValues;
       _spotRate = spotRate;
@@ -169,7 +166,7 @@ public class YieldCurveBootStrapTest {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
       final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
       data.put(0.0, _spotRate);
       for (int i = 0; i < _timeGrid.length; i++) {
@@ -197,8 +194,7 @@ public class YieldCurveBootStrapTest {
       if (i % 2 == 0) {
         floating[i] = 0.25 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
       }
-      final Pair<Double, Double> temp = new DoublesPair(0.25 * i + 0.01 * RANDOM.nextDouble(), 0.25 * (i + 1) + 0.01
-          * RANDOM.nextDouble());
+      final Pair<Double, Double> temp = new DoublesPair(0.25 * i + 0.01 * RANDOM.nextDouble(), 0.25 * (i + 1) + 0.01 * RANDOM.nextDouble());
       liborSetResetTimes.add(temp);
     }
 
@@ -210,8 +206,7 @@ public class YieldCurveBootStrapTest {
     double[] _floatPaymentTimes;
     LinkedList<Pair<Double, Double>> _liborSetResetTimes;
 
-    public ToySwap(final double[] fixedPaymentDates, final double[] floatingPaymentDates,
-        final LinkedList<Pair<Double, Double>> liborSetResetTimes) {
+    public ToySwap(final double[] fixedPaymentDates, final double[] floatingPaymentDates, final LinkedList<Pair<Double, Double>> liborSetResetTimes) {
       _fixedPaymentTimes = fixedPaymentDates;
       if (floatingPaymentDates.length != liborSetResetTimes.size()) {
         throw new IllegalArgumentException("list of floatingPaymentDates not the same length as liborSetResetTimes");

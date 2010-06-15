@@ -41,20 +41,18 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel
   }
 
   @Override
-  public InterpolationResult<Double> interpolate(final Interpolator1DModel model, final Double value) {
+  public Double interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
+    checkValue(model, value);
     final int n = model.size();
     final double[] keys = model.getKeys();
     final double[] values = model.getValues();
-    if (value < keys[0]) {
-      throw new InterpolationException(value + " was less than minimum x value " + keys[0]);
-    }
-    if (value > keys[n - 1]) {
-      throw new InterpolationException(value + " was greater than maximum x value " + keys[n - 1]);
-    }
     if (n <= _degree) {
       throw new InterpolationException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
+    }
+    if (model.getLowerBoundIndex(value) == n - 1) {
+      return values[n - 1];
     }
     final int lower = model.getLowerBoundIndex(value);
     final int lowerBound = lower - _offset;
@@ -69,7 +67,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel
     final double[] y = Arrays.copyOfRange(values, lowerBound, upperBound);
     try {
       final PolynomialFunctionLagrangeForm lagrange = _interpolator.interpolate(x, y);
-      return new InterpolationResult<Double>(CommonsMathWrapper.wrap(lagrange).evaluate(value));
+      return CommonsMathWrapper.wrap(lagrange).evaluate(value);
     } catch (final MathException e) {
       throw new InterpolationException(e);
     }

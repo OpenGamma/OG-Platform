@@ -25,8 +25,8 @@ public class HullWhiteTwoFactorInterestRateModelTest {
     final ZonedDateTime date = DateUtil.getUTCDate(2009, 1, 1);
     final ZonedDateTime time = DateUtil.getDateOffsetWithYearFraction(date, 1);
     final ZonedDateTime maturity = DateUtil.getDateOffsetWithYearFraction(date, 5);
-    final HullWhiteTwoFactorInterestRateDataBundle data = new HullWhiteTwoFactorInterestRateDataBundle(date, new ConstantYieldCurve(0.05), 0.1, 1.4, 0.01, 0.05,
-        new ConstantVolatilityCurve(0.01), new ConstantVolatilityCurve(0.008), 0.7);
-    System.out.println(new HullWhiteTwoFactorInterestRateModel().getInterestRateFunction(time, maturity).evaluate(data));
+    final HullWhiteTwoFactorInterestRateDataBundle data = new HullWhiteTwoFactorInterestRateDataBundle(date, new ConstantYieldCurve(0.05), 0.1, 1.4, 0.01, 0.05, new ConstantVolatilityCurve(0.01),
+        new ConstantVolatilityCurve(0.008), 0.7);
+    // System.out.println(new HullWhiteTwoFactorInterestRateModel().getInterestRateFunction(time, maturity).evaluate(data));
   }
 }
