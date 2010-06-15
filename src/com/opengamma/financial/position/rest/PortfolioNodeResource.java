@@ -21,11 +21,12 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.Position;
 import com.opengamma.financial.position.AddPortfolioNodeRequest;
 import com.opengamma.financial.position.AddPositionRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManagedPortfolioNode;
+import com.opengamma.financial.position.PortfolioNodeSummary;
+import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.UpdatePortfolioNodeRequest;
 import com.opengamma.id.Identifier;
 import com.opengamma.id.IdentifierBundle;
@@ -105,7 +106,7 @@ public class PortfolioNodeResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {
-    PortfolioNode node = getPositionMaster().getPortfolioNode(_nodeUid);
+    ManagedPortfolioNode node = getPositionMaster().getManagedPortfolioNode(_nodeUid);
     if (node == null) {
       return null;
     }
@@ -115,22 +116,27 @@ public class PortfolioNodeResource {
       "<h2>Node - " + node.getUniqueIdentifier().toLatest() + "</h2>" +
       "<p>Name: " + node.getName() + "<br />\n" +
       "Version: " + node.getUniqueIdentifier().getVersion() + "</p>\n";
+    
     html += "<p>Child nodes:<br /><table border=\"1\">" +
-      "<tr><th>Name</th><th>Nodes</th><th>Positions</th><th>Actions</th></tr>";
-    for (PortfolioNode child : node.getChildNodes()) {
+      "<tr><th>Name</th><th>Positions</th><th>Actions</th></tr>\n";
+    for (PortfolioNodeSummary child : node.getChildNodes()) {
       URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), child.getUniqueIdentifier().toLatest());
       html += "<tr>";
       html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
-      html += "<td>" + child.getChildNodes().size() + "</td>";
-      html += "<td>" + child.getPositions().size() + "</td>";
-      html += "<td><br /></td>";
-      html += "</tr>";
+      html += "<td>" + child.getTotalPositions() + "</td>";
+      html += "<td><a href=\"" + nodeUri + "\">View</a></td>";
+      html += "</tr>\n";
     }
     html += "</table></p>\n";
-    html += "<p>Positions:<br /><table border=\"1\">";
-    for (Position position : node.getPositions()) {
+    html += "<p>Positions:<br /><table border=\"1\">" +
+      "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
+    for (PositionSummary position : node.getPositions()) {
       URI positionUri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier().toLatest());
-      html += "<tr><td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td></tr>";
+      html += "<tr>";
+      html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";
+      html += "<td>" + position.getQuantity() + "</td>";
+      html += "<td><a href=\"" + positionUri + "\">View</a></td>";
+      html += "</tr>\n";
     }
     html += "</table></p>\n";
     
@@ -163,11 +169,13 @@ public class PortfolioNodeResource {
       "</form>\n";
     
     html += "<h2>Links</h2>\n" +
-      "<p>" +
-      "<a href=\"" + PortfolioResource.uri(getUriInfo(), getPortfolioUid().toLatest()) + "\">Portfolio</a><br />" +
+      "<p>";
+    if (node.getParentNodeUid() != null) {
+      html += "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), node.getParentNodeUid().toLatest()) + "\">Parent node</a><br />";
+    }
+    html += "<a href=\"" + PortfolioResource.uri(getUriInfo(), node.getPortfolioUid().toLatest()) + "\">Portfolio</a><br />" +
       "<a href=\"" + PortfoliosResource.uri(getUriInfo()) + "\">Portfolio search</a><br />" +
       "</p>";
-//      "<a href=\"" + PortfolioNodeResource.uri(getUriInfo(), summary.getPortfolioUid(), summary.getParentNodeUid().toLatest()) + "\">Parent node</a><br />";
     html += "</body>\n</html>\n";
     return html;
   }

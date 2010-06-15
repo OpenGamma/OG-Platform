@@ -5,31 +5,33 @@
  */
 package com.opengamma.financial.position;
 
-import java.math.BigDecimal;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A summary of a position.
+ * A summary of a node.
  */
-public final class PositionSummary {
+public final class PortfolioNodeSummary {
 
   /**
    * The unique identifier.
    */
   private UniqueIdentifier _uid;
   /**
-   * The amount of the position.
+   * The node name.
    */
-  private BigDecimal _quantity;
+  private String _name;
+  /**
+   * The total number of positions at any depth.
+   */
+  private int _totalPositions;
 
   /**
    * Creates an instance.
    */
-  public PositionSummary() {
+  public PortfolioNodeSummary() {
   }
 
   //-------------------------------------------------------------------------
@@ -51,19 +53,36 @@ public final class PositionSummary {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the amount of the position held in terms of the security.
-   * @return the amount of the position
+   * Gets the name.
+   * @return the name
    */
-  public BigDecimal getQuantity() {
-    return _quantity;
+  public String getName() {
+    return _name;
   }
 
   /**
-   * Sets the amount of the position held in terms of the security.
-   * @param quantity  the amount of the position
+   * Sets the name.
+   * @param name  the name
    */
-  public void setQuantity(BigDecimal quantity) {
-    _quantity = quantity;
+  public void setName(String name) {
+    _name = name;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the total number of positions at any depth.
+   * @return the total number of positions
+   */
+  public int getTotalPositions() {
+    return _totalPositions;
+  }
+
+  /**
+   * Sets the total number of positions at any depth.
+   * @param totalPositions  the total number of positions
+   */
+  public void setTotalPositions(int totalPositions) {
+    _totalPositions = totalPositions;
   }
 
   //-------------------------------------------------------------------------

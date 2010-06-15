@@ -107,6 +107,16 @@ public interface ManagablePositionMaster extends PositionMaster {
   SearchPortfoliosResult searchPortfolios(final SearchPortfoliosRequest request);
 
   /**
+   * Gets a managed portfolio.
+   * 
+   * @param portfolioUid  the unique identifier, not null
+   * @return the portfolio, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the portfolio is not found
+   */
+  ManagedPortfolio getManagedPortfolio(final UniqueIdentifier portfolioUid);
+
+  /**
    * Adds a portfolio to the data store, including all nodes and positions.
    * <p>
    * This method will add the whole tree of nodes and positions if they are specified.
@@ -159,6 +169,16 @@ public interface ManagablePositionMaster extends PositionMaster {
   UniqueIdentifier reinstatePortfolio(final UniqueIdentifier portfolioUid);
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets a managed portfolio node.
+   * 
+   * @param nodeUid  the unique identifier, not null
+   * @return the portfolio node, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the node is not found
+   */
+  ManagedPortfolioNode getManagedPortfolioNode(final UniqueIdentifier nodeUid);
+
   /**
    * Adds a portfolio node to the specified node.
    * <p>
@@ -213,21 +233,21 @@ public interface ManagablePositionMaster extends PositionMaster {
   /**
    * Searches for positions matching the request.
    * 
-   * @param positionUid  the unique identifier, not null
-   * @return the position, null if not found
-   * @throws IllegalArgumentException if the request is invalid
-   * @throws DataNotFoundException if the position is not found
-   */
-  PositionSummary getPositionSummary(final UniqueIdentifier positionUid);
-
-  /**
-   * Searches for positions matching the request.
-   * 
    * @param request  the request to add, not null
    * @return the matched positions, not null
    * @throws IllegalArgumentException if the request is invalid
    */
   SearchPositionsResult searchPositions(final SearchPositionsRequest request);
+
+  /**
+   * Gets a managed position.
+   * 
+   * @param positionUid  the unique identifier, not null
+   * @return the position, null if not found
+   * @throws IllegalArgumentException if the request is invalid
+   * @throws DataNotFoundException if the position is not found
+   */
+  ManagedPosition getManagedPosition(final UniqueIdentifier positionUid);
 
   /**
    * Adds a position to the specified node.

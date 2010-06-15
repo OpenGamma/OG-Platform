@@ -19,9 +19,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.financial.position.ManagablePositionMaster;
+import com.opengamma.financial.position.ManagedPortfolio;
+import com.opengamma.financial.position.PortfolioNodeSummary;
+import com.opengamma.financial.position.PositionSummary;
 import com.opengamma.financial.position.UpdatePortfolioRequest;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -91,7 +92,7 @@ public class PortfolioResource {
   @GET
   @Produces(MediaType.TEXT_HTML)
   public String getAsHtml() {
-    Portfolio portfolio = getPositionMaster().getPortfolio(_portfolioUid);
+    ManagedPortfolio portfolio = getPositionMaster().getManagedPortfolio(_portfolioUid);
     if (portfolio == null) {
       return null;
     }
@@ -101,16 +102,27 @@ public class PortfolioResource {
       "<h2>Portfolio - " + portfolio.getUniqueIdentifier().toLatest() + "</h2>\n" +
       "<p>Name: " + portfolio.getName() + "<br />\n" +
       "Version: " + portfolio.getUniqueIdentifier().getVersion() + "</p>\n";
-    html += "<p>Child nodes: <table border=\"1\">" +
-      "<tr><th>Name</th><th>Nodes</th><th>Positions</th><th>Actions</th></tr>";
-    for (PortfolioNode node : portfolio.getRootNode().getChildNodes()) {
-      URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), node.getUniqueIdentifier().toLatest());
+    
+    html += "<p>Child nodes:<br /><table border=\"1\">" +
+      "<tr><th>Name</th><th>Positions</th><th>Actions</th></tr>\n";
+    for (PortfolioNodeSummary child : portfolio.getRootNode().getChildNodes()) {
+      URI nodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), child.getUniqueIdentifier().toLatest());
       html += "<tr>";
-      html += "<td><a href=\"" + nodeUri + "\">" + node.getName() + "</a></td>";
-      html += "<td>" + node.getChildNodes().size() + "</td>";
-      html += "<td>" + node.getPositions().size() + "</td>";
-      html += "<td><br /></td>";
-      html += "</tr>";
+      html += "<td><a href=\"" + nodeUri + "\">" + child.getName() + "</a></td>";
+      html += "<td>" + child.getTotalPositions() + "</td>";
+      html += "<td><a href=\"" + nodeUri + "\">View</a></td>";
+      html += "</tr>\n";
+    }
+    html += "</table></p>\n";
+    html += "<p>Positions:<br /><table border=\"1\">" +
+      "<tr><th>Name</th><th>Quantity</th><th>Actions</th></tr>\n";
+    for (PositionSummary position : portfolio.getRootNode().getPositions()) {
+      URI positionUri = PositionResource.uri(getUriInfo(), getPortfolioUid(), position.getUniqueIdentifier().toLatest());
+      html += "<tr>";
+      html += "<td><a href=\"" + positionUri + "\">" + position.getUniqueIdentifier().toLatest() + "</a></td>";
+      html += "<td>" + position.getQuantity() + "</td>";
+      html += "<td><a href=\"" + positionUri + "\">View</a></td>";
+      html += "</tr>\n";
     }
     html += "</table></p>\n";
     
@@ -127,10 +139,19 @@ public class PortfolioResource {
       "<input type=\"hidden\" name=\"status\" value=\"D\" />" +
       "<input type=\"submit\" value=\"Delete\" />" +
       "</form>\n";
+    
     URI rootNodeUri = PortfolioNodeResource.uri(getUriInfo(), getPortfolioUid(), portfolio.getRootNode().getUniqueIdentifier());
     html += "<h2>Add node</h2>\n" +
       "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
       "Name: <input type=\"text\" size=\"30\" name=\"name\" /><br />" +
+      "<input type=\"submit\" value=\"Add\" />" +
+      "</form>\n";
+    html += "<h2>Add position</h2>\n" +
+      "<form method=\"POST\" action=\"" + rootNodeUri + "\">" +
+      "<input type=\"hidden\" name=\"post\" value=\"P\" /><br />" +
+      "Quantity: <input type=\"text\" size=\"10\" name=\"quantity\" /><br />" +
+      "Scheme: <input type=\"text\" size=\"30\" name=\"scheme\" /><br />" +
+      "Scheme Id: <input type=\"text\" size=\"30\" name=\"schemevalue\" /><br />" +
       "<input type=\"submit\" value=\"Add\" />" +
       "</form>\n";
     

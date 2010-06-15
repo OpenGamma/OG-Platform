@@ -5,31 +5,33 @@
  */
 package com.opengamma.financial.position;
 
-import java.math.BigDecimal;
-
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.id.UniqueIdentifier;
 
 /**
- * A summary of a position.
+ * A portfolio that can be managed.
  */
-public final class PositionSummary {
+public final class ManagedPortfolio {
 
   /**
    * The unique identifier.
    */
   private UniqueIdentifier _uid;
   /**
-   * The amount of the position.
+   * The node name.
    */
-  private BigDecimal _quantity;
+  private String _name;
+  /**
+   * The root node.
+   */
+  private ManagedPortfolioNode _rootNode;
 
   /**
    * Creates an instance.
    */
-  public PositionSummary() {
+  public ManagedPortfolio() {
   }
 
   //-------------------------------------------------------------------------
@@ -51,19 +53,36 @@ public final class PositionSummary {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the amount of the position held in terms of the security.
-   * @return the amount of the position
+   * Gets the name.
+   * @return the name
    */
-  public BigDecimal getQuantity() {
-    return _quantity;
+  public String getName() {
+    return _name;
   }
 
   /**
-   * Sets the amount of the position held in terms of the security.
-   * @param quantity  the amount of the position
+   * Sets the name.
+   * @param name  the name
    */
-  public void setQuantity(BigDecimal quantity) {
-    _quantity = quantity;
+  public void setName(String name) {
+    _name = name;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the root node.
+   * @return the root node
+   */
+  public ManagedPortfolioNode getRootNode() {
+    return _rootNode;
+  }
+
+  /**
+   * Sets the root node.
+   * @param rootNode  the root node, not null
+   */
+  public void setRootNode(ManagedPortfolioNode rootNode) {
+    _rootNode = rootNode;
   }
 
   //-------------------------------------------------------------------------
