@@ -42,7 +42,8 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
    * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
    * @return the vector root of the collection of functions 
    */
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobian = new JacobianCalculator(function);
     return getRoot(function, jacobian, startPosition);
@@ -55,7 +56,8 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
   * @param jacobian A function that returns the Jacobian at a given position, i.e  J<sub>i,j,</sub> = dF<sub>i</sub>/dx<sub>j</sub>
   * @return the vector root of the collection of functions 
    */
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobian, final DoubleMatrix1D startPosition) {
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobian, final DoubleMatrix1D startPosition) {
     checkInputs(function, jacobian, startPosition);
     _function = function;
     _jacobian = jacobian;
@@ -109,16 +111,17 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
     }
     updatePosition(p);
 
-    if (_g1 > _g0 * (1 - ALPHA * _lambda1)) {
+    //the function is invalid at the new position, try to recover
+    if (Double.isInfinite(_g1) || Double.isNaN(_g1)) {
+      bisectBacktrack(p);
+    }
 
-      if (Double.isInfinite(_g1)) {
-        bisectBacktrack(p);
-      }
+    if (_g1 > _g0 / (1 + ALPHA * _lambda1)) {
 
       quadraticBacktrack(p);
 
       int count = 0;
-      while (_g1 > _g0 * (1 - ALPHA * _lambda1)) {
+      while (_g1 > _g0 / (1 + ALPHA * _lambda1)) {
         if (count > 5) {
           return false;
         }
@@ -153,7 +156,7 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
     do {
       _lambda1 *= 0.1;
       updatePosition(p);
-    } while (Double.isInfinite(_g1) || Double.isInfinite(_g2));
+    } while (Double.isNaN(_g1) || Double.isInfinite(_g1) || Double.isNaN(_g2) || Double.isInfinite(_g2));
   }
 
   private void quadraticBacktrack(final DoubleMatrix1D p) {
