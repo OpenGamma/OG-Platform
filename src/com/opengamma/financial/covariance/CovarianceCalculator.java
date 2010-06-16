@@ -7,31 +7,41 @@ package com.opengamma.financial.covariance;
 
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function2D;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
 
+/**
+ * 
+ */
 public abstract class CovarianceCalculator extends Function2D<DoubleTimeSeries<?>, Double> {
 
   protected void testTimeSeries(final DoubleTimeSeries<?> ts1, final DoubleTimeSeries<?> ts2) {
-    ArgumentChecker.notNull(ts1, "ts1");
-    ArgumentChecker.notNull(ts2, "ts2");
-    if (ts1.isEmpty())
+    Validate.notNull(ts1, "ts1");
+    Validate.notNull(ts2, "ts2");
+    if (ts1.isEmpty()) {
       throw new IllegalArgumentException("First time series was empty");
-    if (ts2.isEmpty())
+    }
+    if (ts2.isEmpty()) {
       throw new IllegalArgumentException("Second time series was empty");
-    if (ts1.size() < 2)
+    }
+    if (ts1.size() < 2) {
       throw new IllegalArgumentException("First time series had fewer than two points");
-    if (ts2.size() < 2)
+    }
+    if (ts2.size() < 2) {
       throw new IllegalArgumentException("Second time series had fewer than two points");
-    if (ts1.size() != ts2.size())
+    }
+    if (ts1.size() != ts2.size()) {
       throw new IllegalArgumentException("Time series were not the same length");
+    }
     final List<?> times1 = ts1.times();
     final List<?> times2 = ts2.times();
     for (final Object t : times1) {
-      if (!times2.contains(t))
+      if (!times2.contains(t)) {
         throw new TimeSeriesException("Time series did not contain the same dates");
+      }
     }
   }
 }

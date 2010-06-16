@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
  * 
  */
 public class CovarianceMatrixCalculatorTest {
-  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] { 1, 2, 3, 4 }, new double[] { -1, 1, -1, 1 });
+  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4}, new double[] {-1, 1, -1, 1});
   private static final DoubleTimeSeries<?> TS2 = TS1.multiply(-1);
   private static final TimeSeriesReturnCalculator RETURNS = new TimeSeriesReturnCalculator(CalculationMode.STRICT) {
 
@@ -34,12 +34,12 @@ public class CovarianceMatrixCalculatorTest {
   private static final Function<DoubleTimeSeries<?>, DoubleMatrix2D> CALCULATOR = new CovarianceMatrixCalculator(COVARIANCE);
   private static final double EPS = 1e-9;
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     new CovarianceMatrixCalculator(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTSArray() {
     CALCULATOR.evaluate((DoubleTimeSeries<?>[]) null);
   }

@@ -21,17 +21,17 @@ public class CovarianceCalculatorTest {
     }
 
   };
-  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] { 2 }, new double[] { 1 });
-  private static final DoubleTimeSeries<?> TS2 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] { 2, 3 }, new double[] { 1, 2 });
-  private static final DoubleTimeSeries<?> TS3 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] { 4, 5 }, new double[] { 1, 2 });
-  private static final DoubleTimeSeries<?> TS4 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] { 4, 5, 6 }, new double[] { 1, 2, 3 });
+  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {2}, new double[] {1});
+  private static final DoubleTimeSeries<?> TS2 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {2, 3}, new double[] {1, 2});
+  private static final DoubleTimeSeries<?> TS3 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {4, 5}, new double[] {1, 2});
+  private static final DoubleTimeSeries<?> TS4 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_SECONDS, new int[] {4, 5, 6}, new double[] {1, 2, 3});
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTS1() {
     CALCULATOR.testTimeSeries(null, TS1);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTS2() {
     CALCULATOR.testTimeSeries(TS2, null);
   }

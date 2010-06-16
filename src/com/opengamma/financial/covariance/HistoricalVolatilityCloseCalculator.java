@@ -18,7 +18,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCalculator {
-  private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityCloseCalculator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityCloseCalculator.class);
   private final TimeSeriesReturnCalculator _returnCalculator;
 
   public HistoricalVolatilityCloseCalculator(final TimeSeriesReturnCalculator returnCalculator) {
@@ -40,7 +40,7 @@ public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCal
   public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     if (x.length > 1) {
-      s_Log.info("Time series array contained more than one series; only using the first one");
+      s_logger.info("Time series array contained more than one series; only using the first one");
     }
     testTimeSeries(x, 2);
     final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(x);

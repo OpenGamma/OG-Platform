@@ -19,7 +19,7 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
  * 
  */
 public class HistoricalCovarianceCalculatorTest {
-  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] { 1, 2, 3, 4, 5 }, new double[] { 1, 1, 1, 1, 1 });
+  private static final DoubleTimeSeries<?> TS1 = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
   private static final TimeSeriesReturnCalculator RETURNS = new TimeSeriesReturnCalculator(CalculationMode.STRICT) {
 
     @Override
@@ -29,7 +29,7 @@ public class HistoricalCovarianceCalculatorTest {
   };
   private static final CovarianceCalculator CALCULATOR = new HistoricalCovarianceCalculator(RETURNS);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     new HistoricalCovarianceCalculator(null);
   }
