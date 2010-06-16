@@ -4,8 +4,28 @@
 drop table pos_securitykey;
 drop table pos_position;
 drop table pos_nodetree;
+drop table pos_node;
+drop table pos_portfolio;
 
-alter table pos_node add constraint pos_fk_node2portfolio foreign key (portfolio_oid, start_version) references pos_portfolio (oid, version);
+create table pos_portfolio (
+    oid bigint not null,
+    version bigint not null,
+    status char(1) not null,
+    start_instant timestamp,
+    end_instant timestamp,
+    name varchar(255) not null,
+    primary key (oid, version)
+);
+
+create table pos_node (
+    portfolio_oid bigint not null,
+    oid bigint not null,
+    start_version bigint not null,
+    end_version bigint not null,
+    name varchar(255),
+    primary key (oid, start_version),
+    constraint pos_fk_node2portfolio foreign key (portfolio_oid, start_version) references pos_portfolio (oid, version)
+);
 
 create table pos_nodetree (
     portfolio_oid bigint not null,
