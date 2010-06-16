@@ -33,7 +33,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
       parallelBinarySort();
     }
   }
-
+  
   /**
    * Sort the content of _keys and _values simultaneously so that
    * both match the correct ordering.
@@ -44,7 +44,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
 
   private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
     if (right > left) {
-      final int pivot = keys.length / 2;
+      final int pivot = (left + right) >> 1;
       final int pivotNewIndex = partition(keys, values, left, right, pivot);
       dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
       dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
