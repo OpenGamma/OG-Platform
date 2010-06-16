@@ -60,7 +60,7 @@ public class LinearInterpolator1DWithSensitivitiesTest {
   @Test
   public void test() {
 
-    InterpolationResultWithSensitivities result = INTERPOLATOR.interpolate(MODEL, 3.4);
+    InterpolationResultWithSensitivities1 result = INTERPOLATOR.interpolate(MODEL, 3.4);
     assertEquals(result.getResult(), FUNCTION.evaluate(3.4), EPS);
     double[] sense = result.getSensitivities();
     assertEquals(0.0, sense[2], EPS);

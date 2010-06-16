@@ -16,7 +16,7 @@ public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSen
    * @see com.opengamma.math.interpolation.Interpolator1DWithSensitivities#interpolate(com.opengamma.math.interpolation.Interpolator1DModel, java.lang.Double)
    */
   @Override
-  public InterpolationResultWithSensitivities interpolate(Interpolator1DModel model, Double value) {
+  public InterpolationResultWithSensitivities1 interpolate(Interpolator1DModel model, Double value) {
 
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
@@ -37,7 +37,7 @@ public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSen
         throw new InterpolationException("value out of range - too large");
       }
       sense[index] = 1.0;
-      return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), sense);
+      return new InterpolationResultWithSensitivities1(boundedValues.getLowerBoundValue(), sense);
     }
 
     final double x1 = boundedValues.getLowerBoundKey();
@@ -51,7 +51,7 @@ public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSen
     sense[index] = a;
     sense[index + 1] = b;
 
-    return new InterpolationResultWithSensitivities(result, sense);
+    return new InterpolationResultWithSensitivities1(result, sense);
   }
 
 }

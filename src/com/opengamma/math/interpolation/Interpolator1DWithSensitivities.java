@@ -9,9 +9,9 @@ package com.opengamma.math.interpolation;
  * 
  */
 abstract public class Interpolator1DWithSensitivities<T extends Interpolator1DModel> implements
-    Interpolator<T, Double, InterpolationResultWithSensitivities> {
+    Interpolator<T, Double, InterpolationResultWithSensitivities1> {
 
   @Override
-  abstract public InterpolationResultWithSensitivities interpolate(T model, Double value);
+  abstract public InterpolationResultWithSensitivities1 interpolate(T model, Double value);
 
 }

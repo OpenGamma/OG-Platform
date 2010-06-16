@@ -20,11 +20,11 @@ import com.opengamma.util.tuple.Pair;
  */
 public class GridInterpolator2D extends Interpolator2D {
   //TODO this is really inefficient - needs to be changed in a similar way to 1D interpolation
-  private final Interpolator1D<Interpolator1DModel> _xInterpolator;
-  private final Interpolator1D<Interpolator1DModel> _yInterpolator;
+  private final Interpolator1D<Interpolator1DModel, InterpolationResult> _xInterpolator;
+  private final Interpolator1D<Interpolator1DModel, InterpolationResult> _yInterpolator;
   private final FirstThenSecondPairComparator<Double, Double> _comparator;
 
-  public GridInterpolator2D(final Interpolator1D<Interpolator1DModel> xInterpolator, final Interpolator1D<Interpolator1DModel> yInterpolator) {
+  public GridInterpolator2D(final Interpolator1D<Interpolator1DModel, InterpolationResult> xInterpolator, final Interpolator1D<Interpolator1DModel, InterpolationResult> yInterpolator) {
     Validate.notNull(xInterpolator);
     Validate.notNull(yInterpolator);
     _xInterpolator = xInterpolator;
@@ -38,9 +38,9 @@ public class GridInterpolator2D extends Interpolator2D {
     final Map<Double, Interpolator1DModel> sorted = testData(data);
     final Map<Double, Double> xData = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Interpolator1DModel> entry : sorted.entrySet()) {
-      xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
+      xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()).getResult());
     }
-    return _xInterpolator.interpolate(Interpolator1DModelFactory.fromMap(xData, _xInterpolator), value.getKey());
+    return _xInterpolator.interpolate(Interpolator1DModelFactory.fromMap(xData, _xInterpolator), value.getKey()).getResult();
   }
 
   private Map<Double, Interpolator1DModel> testData(final Map<Pair<Double, Double>, Double> data) {
@@ -85,11 +85,11 @@ public class GridInterpolator2D extends Interpolator2D {
     return result;
   }
 
-  public Interpolator1D<Interpolator1DModel> getXInterpolator() {
+  public Interpolator1D<Interpolator1DModel, InterpolationResult> getXInterpolator() {
     return _xInterpolator;
   }
 
-  public Interpolator1D<Interpolator1DModel> getYInterpolator() {
+  public Interpolator1D<Interpolator1DModel, InterpolationResult> getYInterpolator() {
     return _yInterpolator;
   }
 

@@ -26,6 +26,7 @@ import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.InterpolatedYieldCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.math.interpolation.Interpolator1DWithSecondDerivativeModel;
@@ -46,8 +47,8 @@ public class YieldCurveBootStrapTest {
   private static final int HOTSPOT_WARMUP_CYCLES = 0;
   private static final int BENCHMARK_CYCLES = 1;
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  protected static final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel> CUBIC = new NaturalCubicSplineInterpolator1D();
-  protected static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
+  protected static final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel, InterpolationResult> CUBIC = new NaturalCubicSplineInterpolator1D();
+  protected static final Interpolator1D<Interpolator1DModel, InterpolationResult> LINEAR = new LinearInterpolator1D();
   protected static List<ToySwap> SWAPS;
   protected static double[] SWAP_VALUES;
   protected static final double[] TIME_GRID;
@@ -60,12 +61,12 @@ public class YieldCurveBootStrapTest {
 
   static {
 
-    final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
+    final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60};
     SPOT_RATE = 0.005;
-    double[] fwdTimes = new double[] { 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0 };
-    double[] fwdYields = new double[] { 0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045 };
-    double[] fundTimes = new double[] { 1.0, 2.0, 5.0, 10.0, 20.0, 31.0 };
-    double[] fundYields = new double[] { 0.021, 0.036, 0.06, 0.054, 0.049, 0.044 };
+    final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
+    final double[] fwdYields = new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045};
+    final double[] fundTimes = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
+    final double[] fundYields = new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044};
 
     FORWARD_CURVE = makeYieldCurve(fwdYields, fwdTimes, CUBIC);
     FUNDING_CURVE = makeYieldCurve(fundYields, fundTimes, CUBIC);
@@ -129,9 +130,8 @@ public class YieldCurveBootStrapTest {
 
   private void doTest(final VectorRootFinder rootFinder) {
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE,
-        TIME_GRID, CUBIC);
-    DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, CUBIC);
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
     final YieldAndDiscountCurve curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
 
     for (int i = 0; i < SWAP_VALUES.length; i++) {
@@ -142,20 +142,19 @@ public class YieldCurveBootStrapTest {
   @Test
   public void testTickingSwapRates() {
 
-    NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
+    final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
     final VectorRootFinder rootFinder = new NewtonVectorRootFinder(EPS, EPS, STEPS);
-    double[] swapRates = SWAP_VALUES.clone();
+    final double[] swapRates = SWAP_VALUES.clone();
     DoubleMatrix1D yieldCurveNodes = X0;
     YieldAndDiscountCurve curve;
-    double sigma = 0.03;
+    final double sigma = 0.03;
 
     for (int t = 0; t < 100; t++) {
       for (int i = 0; i < SWAP_VALUES.length; i++) {
         swapRates[i] *= Math.exp(-0.5 * sigma * sigma + sigma * normDist.nextRandom());
       }
 
-      Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(SWAPS, swapRates, SPOT_RATE,
-          TIME_GRID, CUBIC);
+      final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new SingleCurveFinder(SWAPS, swapRates, SPOT_RATE, TIME_GRID, CUBIC);
 
       yieldCurveNodes = rootFinder.getRoot(functor, yieldCurveNodes);
       curve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
@@ -169,12 +168,11 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testForwardCurveOnly() {
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE,
-        TIME_GRID, null, null, FUNDING_CURVE, CUBIC, null);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, TIME_GRID, null, null, FUNDING_CURVE, CUBIC, null);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
 
-    YieldAndDiscountCurve fwdCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
+    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
 
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAPS.get(i).getSwapRate(fwdCurve, FUNDING_CURVE), EPS);
@@ -184,13 +182,12 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testFundingCurveOnly() {
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, null,
-        TIME_GRID, FORWARD_CURVE, null, null, CUBIC);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, null, TIME_GRID, FORWARD_CURVE, null, null, CUBIC);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
 
-    DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
+    final DoubleMatrix1D yieldCurveNodes = rootFinder.getRoot(functor, X0);
 
-    YieldAndDiscountCurve fundCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
+    final YieldAndDiscountCurve fundCurve = makeYieldCurve(yieldCurveNodes.getData(), TIME_GRID, CUBIC);
 
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAPS.get(i).getSwapRate(FORWARD_CURVE, fundCurve), EPS);
@@ -199,17 +196,16 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testFindingTwoCurves() {
-    double[] fwdTimes = new double[] { 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0 };
-    double[] fundTimes = new double[] { 1.0, 2.0, 5.0, 10.0, 20.0, 31.0 };
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, fwdTimes,
-        fundTimes, null, null, CUBIC, CUBIC);
+    final double[] fwdTimes = new double[] {0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
+    final double[] fundTimes = new double[] {1.0, 2.0, 5.0, 10.0, 20.0, 31.0};
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> functor = new DoubleCurveFinder(SWAPS, SWAP_VALUES, SPOT_RATE, fwdTimes, fundTimes, null, null, CUBIC, CUBIC);
     final VectorRootFinder rootFinder = new BroydenVectorRootFinder(EPS, EPS, STEPS);
-    double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
+    final double[] yieldCurveNodes = rootFinder.getRoot(functor, X0).getData();
 
-    double[] fwdYields = Arrays.copyOfRange(yieldCurveNodes, 0, fwdTimes.length);
-    YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, fwdTimes, CUBIC);
-    double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, fwdTimes.length, yieldCurveNodes.length);
-    YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, fundTimes, CUBIC);
+    final double[] fwdYields = Arrays.copyOfRange(yieldCurveNodes, 0, fwdTimes.length);
+    final YieldAndDiscountCurve fwdCurve = makeYieldCurve(fwdYields, fwdTimes, CUBIC);
+    final double[] fundYields = Arrays.copyOfRange(yieldCurveNodes, fwdTimes.length, yieldCurveNodes.length);
+    final YieldAndDiscountCurve fundCurve = makeYieldCurve(fundYields, fundTimes, CUBIC);
 
     for (int i = 0; i < SWAP_VALUES.length; i++) {
       assertEquals(SWAP_VALUES[i], SWAPS.get(i).getSwapRate(fwdCurve, fundCurve), EPS);
@@ -218,8 +214,8 @@ public class YieldCurveBootStrapTest {
   }
 
   private static YieldAndDiscountCurve makeYieldCurve(final double[] yields, final double[] times,
-      final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel> interpolator) {
-    int n = yields.length;
+      final Interpolator1D<? extends Interpolator1DWithSecondDerivativeModel, InterpolationResult> interpolator) {
+    final int n = yields.length;
     if (n != times.length) {
       throw new IllegalArgumentException("rates and times different lengths");
     }
@@ -231,7 +227,7 @@ public class YieldCurveBootStrapTest {
     return new InterpolatedYieldCurve(data, interpolator);
   }
 
-  public void checkConverged(DoubleMatrix1D yieldCurveNodes, double[] fwdTimes, double[] fundTimes) {
+  public void checkConverged(final DoubleMatrix1D yieldCurveNodes, final double[] fwdTimes, final double[] fundTimes) {
 
     final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
     data.put(0.0, SPOT_RATE);
@@ -247,11 +243,11 @@ public class YieldCurveBootStrapTest {
     protected double[] _swapValues;
     protected double _spotRate;
     protected final double[] _timeGrid;
-    protected final Interpolator1D<? extends Interpolator1DModel> _interpolator;
+    protected final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> _interpolator;
     int n;
 
-    public SingleCurveFinder(final List<ToySwap> swaps, final double[] swapValues, final double spotRate,
-        final double[] timeGrid, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
+    public SingleCurveFinder(final List<ToySwap> swaps, final double[] swapValues, final double spotRate, final double[] timeGrid,
+        final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> interpolator) {
 
       _swaps = swaps;
       _swapValues = swapValues;
@@ -288,8 +284,8 @@ public class YieldCurveBootStrapTest {
     protected YieldAndDiscountCurve _fwdCurve;
     protected YieldAndDiscountCurve _fundCurve;
 
-    protected final Interpolator1D<? extends Interpolator1DModel> _forwardInterpolator;
-    protected final Interpolator1D<? extends Interpolator1DModel> _fundingInterpolator;
+    protected final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> _forwardInterpolator;
+    protected final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> _fundingInterpolator;
     int nSwaps, nFwdNodes, nFundNodes;
 
     /**
@@ -304,10 +300,9 @@ public class YieldCurveBootStrapTest {
      * @param forwardInterpolator
      * @param fundingInterpolator
      */
-    public DoubleCurveFinder(List<ToySwap> swaps, double[] swapValues, double spotRate, double[] forwardTimeGrid,
-        double[] fundingTimeGrid, YieldAndDiscountCurve forwardCurve, YieldAndDiscountCurve fundCurve,
-        Interpolator1D<? extends Interpolator1DModel> forwardInterpolator,
-        Interpolator1D<? extends Interpolator1DModel> fundingInterpolator) {
+    public DoubleCurveFinder(final List<ToySwap> swaps, final double[] swapValues, final double spotRate, final double[] forwardTimeGrid, final double[] fundingTimeGrid,
+        final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundCurve, final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> forwardInterpolator,
+        final Interpolator1D<? extends Interpolator1DModel, InterpolationResult> fundingInterpolator) {
       _swaps = swaps;
       _swapValues = swapValues;
       _spotRate = spotRate;
@@ -328,7 +323,7 @@ public class YieldCurveBootStrapTest {
     }
 
     @Override
-    public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+    public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
       if (nFwdNodes == 0) {
         if (_fwdCurve == null) {
@@ -377,8 +372,7 @@ public class YieldCurveBootStrapTest {
       if (i % 2 == 0) {
         floating[i] = 0.25 * (1 + i) + 0.02 * (RANDOM.nextDouble() - 0.5);
       }
-      final Pair<Double, Double> temp = new DoublesPair(0.25 * i + 0.01 * RANDOM.nextDouble(), 0.25 * (i + 1) + 0.01
-          * RANDOM.nextDouble());
+      final Pair<Double, Double> temp = new DoublesPair(0.25 * i + 0.01 * RANDOM.nextDouble(), 0.25 * (i + 1) + 0.01 * RANDOM.nextDouble());
       liborSetResetTimes.add(temp);
     }
 
@@ -409,8 +403,8 @@ public class YieldCurveBootStrapTest {
      * @see com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve#getDiscountFactor(java.lang.Double)
      */
     @Override
-    public double getDiscountFactor(Double t) {
-      double rate = getInterestRate(t);
+    public double getDiscountFactor(final Double t) {
+      final double rate = getInterestRate(t);
       return Math.exp(-rate * t);
     }
 
@@ -418,7 +412,7 @@ public class YieldCurveBootStrapTest {
      * @see com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve#getInterestRate(java.lang.Double)
      */
     @Override
-    public double getInterestRate(Double t) {
+    public double getInterestRate(final Double t) {
       return (_a + _b * t) * Math.exp(-_c * t) + _d;
     }
 
@@ -435,7 +429,7 @@ public class YieldCurveBootStrapTest {
      * @see com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve#withMultipleShifts(java.util.Map)
      */
     @Override
-    public YieldAndDiscountCurve withMultipleShifts(Map<Double, Double> shifts) {
+    public YieldAndDiscountCurve withMultipleShifts(final Map<Double, Double> shifts) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -444,7 +438,7 @@ public class YieldCurveBootStrapTest {
      * @see com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve#withParallelShift(java.lang.Double)
      */
     @Override
-    public YieldAndDiscountCurve withParallelShift(Double shift) {
+    public YieldAndDiscountCurve withParallelShift(final Double shift) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -453,7 +447,7 @@ public class YieldCurveBootStrapTest {
      * @see com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve#withSingleShift(java.lang.Double, java.lang.Double)
      */
     @Override
-    public YieldAndDiscountCurve withSingleShift(Double t, Double shift) {
+    public YieldAndDiscountCurve withSingleShift(final Double t, final Double shift) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -465,8 +459,7 @@ public class YieldCurveBootStrapTest {
     double[] _floatPaymentTimes;
     LinkedList<Pair<Double, Double>> _liborSetResetTimes;
 
-    public ToySwap(final double[] fixedPaymentDates, final double[] floatingPaymentDates,
-        final LinkedList<Pair<Double, Double>> liborSetResetTimes) {
+    public ToySwap(final double[] fixedPaymentDates, final double[] floatingPaymentDates, final LinkedList<Pair<Double, Double>> liborSetResetTimes) {
       _fixedPaymentTimes = fixedPaymentDates;
       if (floatingPaymentDates.length != liborSetResetTimes.size()) {
         throw new IllegalArgumentException("list of floatingPaymentDates not the same length as liborSetResetTimes");
@@ -484,8 +477,7 @@ public class YieldCurveBootStrapTest {
     public double getSwapRate(final YieldAndDiscountCurve forwardCurve, final YieldAndDiscountCurve fundingCurve) {
       double fixed = _fixedPaymentTimes[0] * fundingCurve.getDiscountFactor(_fixedPaymentTimes[0]);
       for (int i = 1; i < _fixedPaymentTimes.length; i++) {
-        fixed += (_fixedPaymentTimes[i] - _fixedPaymentTimes[i - 1])
-            * fundingCurve.getDiscountFactor(_fixedPaymentTimes[i]);
+        fixed += (_fixedPaymentTimes[i] - _fixedPaymentTimes[i - 1]) * fundingCurve.getDiscountFactor(_fixedPaymentTimes[i]);
       }
       double floating = 0.0;
       double libor, ta, tb;
