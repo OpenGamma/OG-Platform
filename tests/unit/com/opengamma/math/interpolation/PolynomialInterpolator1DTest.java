@@ -20,9 +20,12 @@ import com.opengamma.math.function.PolynomialFunction1D;
  * 
  */
 public class PolynomialInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(3);
-  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR_WITH_OFFSET = new PolynomialInterpolator1D(3, 2);
-  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(new double[] {1, 2, 3, 4, 5}, new double[] {6, 7, 8, 9, 10});
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(
+      3);
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR_WITH_OFFSET = new PolynomialInterpolator1D(
+      3, 2);
+  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(
+      new double[] { 1, 2, 3, 4, 5 }, new double[] { 6, 7, 8, 9, 10 });
   private static final double EPS = 1e-15;
 
   @Test(expected = IllegalArgumentException.class)
@@ -57,7 +60,8 @@ public class PolynomialInterpolator1DTest {
 
   @Test(expected = InterpolationException.class)
   public void testInsufficientData() {
-    INTERPOLATOR_WITH_OFFSET.interpolate(Interpolator1DModelFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6}), 1.5);
+    INTERPOLATOR_WITH_OFFSET.interpolate(Interpolator1DModelFactory.fromArrays(new double[] { 1, 2, 3 }, new double[] {
+        4, 5, 6 }), 1.5);
   }
 
   @Test(expected = InterpolationException.class)
@@ -75,11 +79,6 @@ public class PolynomialInterpolator1DTest {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 10.);
   }
 
-  @Test(expected = InterpolationException.class)
-  public void testHighOutOfRangeWithOffset() {
-    INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 4.5);
-  }
-
   @Test
   public void testHashCodeAndEquals() {
     assertEquals(INTERPOLATOR_NO_OFFSET, new PolynomialInterpolator1D(3));
@@ -93,8 +92,8 @@ public class PolynomialInterpolator1DTest {
 
   @Test
   public void testInterpolation() {
-    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new Double[] {-4., 3., 1.});
-    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new Double[] {-4., 3., 1., 1., 1.});
+    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new Double[] { -4., 3., 1. });
+    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new Double[] { -4., 3., 1., 1., 1. });
     final Map<Double, Double> quadraticMap = new HashMap<Double, Double>();
     final Map<Double, Double> quarticMap = new HashMap<Double, Double>();
     double x;
@@ -119,4 +118,5 @@ public class PolynomialInterpolator1DTest {
     assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
     assertEquals(quarticResult, quartic.evaluate(x), EPS);
   }
+
 }
