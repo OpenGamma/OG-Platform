@@ -7,7 +7,6 @@
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
 
-
 -- upgrade-db-position.sql: Position Master
 
 drop table pos_nodeinclusion;
@@ -64,8 +63,6 @@ create table pos_securitykey (
     primary key (oid, start_version)
 );
 
-
 -- upgrade-db-common.sql: Standard Hibernate required by Security Master and Position Master
   
 -- No action
-

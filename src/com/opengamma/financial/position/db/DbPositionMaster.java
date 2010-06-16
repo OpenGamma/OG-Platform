@@ -240,9 +240,6 @@ public class DbPositionMaster implements ManagablePositionMaster {
   //-------------------------------------------------------------------------
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid) {
-    if (uid.getValue().startsWith("" + TYPE_PORTFOLIO) == false) {
-      return null;  // TODO: better solution/exception
-    }
     checkIdentifier(uid, TYPE_PORTFOLIO);
     if (uid.isVersioned()) {
       return getWorker().selectPortfolioByOidVersion(extractPortfolioOid(uid), extractVersion(uid), true, true, true);
@@ -253,9 +250,6 @@ public class DbPositionMaster implements ManagablePositionMaster {
   @Override
   public Portfolio getPortfolio(final UniqueIdentifier uid, final InstantProvider instantProvider) {
     checkIdentifier(uid, TYPE_PORTFOLIO);
-    if (uid.getValue().contains("-")) {
-      return null;  // TODO: better solution/exception
-    }
     Instant instant = Instant.of(instantProvider);
     long portfolioOid = extractPortfolioOid(uid);
     return getWorker().selectPortfolioByOidInstant(portfolioOid, instant);
@@ -641,7 +635,7 @@ public class DbPositionMaster implements ManagablePositionMaster {
     Validate.notNull(positionUid, "UniqueIdentifier must not be null");
     checkIdentifier(positionUid, TYPE_POSITION);
     final long portfolioOid = extractPortfolioOid(positionUid);
-    final long positionOid = extractPortfolioOid(positionUid);
+    final long positionOid = extractOtherOid(positionUid);
     final Instant instant = Instant.now(getTimeSource());
     final long latestVersion = getWorker().selectVersionByPortfolioOidInstant(portfolioOid, instant, false);  // find latest version
     final PortfolioImpl portfolio = getWorker().selectPortfolioByOidVersion(portfolioOid, latestVersion, true, false, false);

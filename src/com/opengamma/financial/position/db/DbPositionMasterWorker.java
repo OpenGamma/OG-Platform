@@ -1189,7 +1189,12 @@ public class DbPositionMasterWorker {
       .addValue("position_oid", positionOid)
       .addValue("start_version", version)
       .addValue("end_version", END_VERSION);
-    long lastPositionVersion = getTemplate().queryForLong(sqlMaxPosition(), args);
+    Map<String, Object> map = getTemplate().queryForMap(sqlCheckResinstatePosition(), args);
+    long count = ((Number) map.get("COUNT_START")).longValue();
+    if (count == 0) {
+      throw new DataNotFoundException("Position not found, or parent node removed");
+    }
+    long lastPositionVersion = ((Number) map.get("MAX_START")).longValue();
     args.addValue("reinstate_version", lastPositionVersion);
     getTemplate().update(sqlReinstatePosition(), args);
     getTemplate().update(sqlReinstateSecKey(), args);
@@ -1197,11 +1202,16 @@ public class DbPositionMasterWorker {
   }
 
   /**
-   * Gets the SQL for finding the last position.
+   * Gets the SQL for checking the reinstate.
+   * This finds the last position and ensures that the parent is active.
    * @return the SQL, not null
    */
-  protected String sqlMaxPosition() {
-    return "SELECT MAX(start_version) AS max_start FROM pos_position WHERE oid = :position_oid";
+  protected String sqlCheckResinstatePosition() {
+    return "SELECT MAX(pos_position.start_version) AS max_start, COUNT(pos_position.start_version) AS count_start " +
+            "FROM pos_position, pos_node " +
+            "WHERE pos_position.oid = :position_oid " +
+              "AND pos_node.oid = pos_position.node_oid " +
+              "AND pos_node.end_version = :end_version";
   }
 
   /**

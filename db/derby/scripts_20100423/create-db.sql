@@ -7,7 +7,6 @@
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
 
-
 -- create-db-security.sql: Security Master
 
 create table sec_currency (
@@ -327,7 +326,6 @@ create table pos_portfolio (
     unique (identifier, startDate, endDate)
 );
 
-
 -- create-db-common.sql: Standard Hibernate required by Security Master and Position Master
   
 create table hibernate_sequence (
@@ -335,5 +333,3 @@ create table hibernate_sequence (
 );
 
 insert into hibernate_sequence values ( 1 );
-
-

@@ -1272,12 +1272,33 @@ public class DbPositionMasterTest extends DBTest {
   }
 
   @Test(expected=DataNotFoundException.class)
-  public void test_reinstatePosition_notFound() {
+  public void test_reinstatePosition_portfolioNotFound() {
     final PortfolioImpl base = buildPortfolio();
     UniqueIdentifier realUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
-    UniqueIdentifier fakeUid = UniqueIdentifier.of(realUid.getScheme(), "P123456789-1");
+    UniqueIdentifier fakeUid = UniqueIdentifier.of(realUid.getScheme(), "P123456-123456");
     
     _posMaster.reinstatePosition(fakeUid);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_reinstatePosition_positionNotFound() {
+    final PortfolioImpl base = buildPortfolio();
+    UniqueIdentifier realUid = _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    UniqueIdentifier fakeUid = UniqueIdentifier.of(realUid.getScheme(), "P1-123456");
+    
+    _posMaster.reinstatePosition(fakeUid);
+  }
+
+  @Test(expected=DataNotFoundException.class)
+  public void test_reinstatePosition_parentNodeRemoved() {
+    final PortfolioImpl base = buildPortfolio();
+    _posMaster.addPortfolio(new AddPortfolioRequest(base));
+    PortfolioNode node = base.getRootNode().getChildNodes().get(0);
+    UniqueIdentifier positionUid = node.getPositions().get(0).getUniqueIdentifier();
+    _posMaster.removePosition(positionUid);
+    _posMaster.removePortfolioNode(_posMaster.getManagedPortfolioNode(node.getUniqueIdentifier().toLatest()).getUniqueIdentifier());
+    
+    _posMaster.reinstatePosition(positionUid);
   }
 
   //-------------------------------------------------------------------------

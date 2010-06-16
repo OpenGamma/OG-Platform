@@ -28,7 +28,7 @@ import com.opengamma.financial.security.RegionRepository;
 import com.opengamma.financial.security.RegionType;
 
 /**
- * Unit tests for the InMemoryRegionRepository
+ * Test InMemoryRegionRepository.
  */
 public class InMemoryRegionRepositoryTest {
 
@@ -56,7 +56,8 @@ public class InMemoryRegionRepositoryTest {
     System.err.println("more getHierarchyNode");
   }
 
-  @Test(expected=OpenGammaRuntimeException.class)  // TODO: check if this should throw exception or return null
+  @Test(expected = OpenGammaRuntimeException.class)
+  // TODO: check if this should throw exception or return null
   public void test_getHierarchyNode_unknownName() throws URISyntaxException {
     URL countryCSV = Resources.getResource("com/opengamma/financial/securities/countrylist_test.csv");
     RegionRepository regionRepository = new InMemoryRegionRepository(new File(countryCSV.toURI()));
