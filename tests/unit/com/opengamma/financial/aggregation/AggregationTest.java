@@ -1,54 +1,25 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
 package com.opengamma.financial.aggregation;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
-import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.engine.position.Portfolio;
-import com.opengamma.engine.position.PortfolioImpl;
-import com.opengamma.engine.position.PortfolioNode;
-import com.opengamma.engine.position.PortfolioNodeImpl;
-import com.opengamma.engine.position.Position;
-import com.opengamma.engine.position.PositionImpl;
-import com.opengamma.financial.Currency;
-import com.opengamma.financial.security.EquitySecurity;
-import com.opengamma.financial.security.option.AmericanVanillaEquityOptionSecurity;
-import com.opengamma.financial.security.option.EuropeanVanillaEquityOptionSecurity;
-import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.util.time.Expiry;
-
 
 /**
- * 
- *
- * @author jim
+ * Test aggregation.
  */
 public class AggregationTest {
-  private static final Logger s_logger = LoggerFactory.getLogger(AggregationTest.class);
-  private List<Position> _equities;
-  private List<Position> _americanOptions;
-  private List<Position> _europeanOptions;
-  private List<Position> _allOptions;
-  private ArrayList<Position> _usd;
-  private ArrayList<Position> _gbp;
-  private List<Position> _gbpEquities;
-  private ArrayList<Position> _usdEquities;
+//  private static final Logger s_logger = LoggerFactory.getLogger(AggregationTest.class);
+//  private List<Position> _equities;
+//  private List<Position> _americanOptions;
+//  private List<Position> _europeanOptions;
+//  private List<Position> _allOptions;
+//  private ArrayList<Position> _usd;
+//  private ArrayList<Position> _gbp;
+//  private List<Position> _gbpEquities;
+//  private ArrayList<Position> _usdEquities;
   
   // TODO kirk 2009-11-03 -- Bring this up to date with the new security identity keys.
 

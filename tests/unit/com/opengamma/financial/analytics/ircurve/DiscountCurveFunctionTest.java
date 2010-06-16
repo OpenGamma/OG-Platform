@@ -26,12 +26,10 @@ import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 
 /**
- * 
- *
- * @author kirk
+ * Test DiscountCurveFunction.
  */
 public class DiscountCurveFunctionTest {
-  
+
   protected static DiscountCurveDefinition constructDefinition() {
     Currency currency = Currency.getInstance("USD");
     String name = "Test Curve";
@@ -41,7 +39,7 @@ public class DiscountCurveFunctionTest {
     definition.addStrip(new FixedIncomeStrip(3, UniqueIdentifier.of("Test", "USSW3 Curncy")));
     return definition;
   }
-  
+
   @Test
   public void requirements() {
     DiscountCurveDefinition definition = constructDefinition();
@@ -58,7 +56,7 @@ public class DiscountCurveFunctionTest {
     assertNotNull(requirements);
     assertEquals(3, requirements.size());
     Set<UniqueIdentifier> foundKeys = new TreeSet<UniqueIdentifier>();
-    for(ValueRequirement requirement : requirements) {
+    for (ValueRequirement requirement : requirements) {
       assertNotNull(requirement);
       assertEquals(ValueRequirementNames.MARKET_DATA_HEADER, requirement.getValueName());
       assertNotNull(requirement.getTargetSpecification());
@@ -67,11 +65,11 @@ public class DiscountCurveFunctionTest {
     }
     assertEquals(3, foundKeys.size());
     
-    for(FixedIncomeStrip strip : definition.getStrips()) {
+    for (FixedIncomeStrip strip : definition.getStrips()) {
       assertTrue(foundKeys.contains(strip.getMarketDataKey()));
     }
   }
-  
+
   @Test
   public void notMatchingRequirements() {
     DiscountCurveDefinition definition = constructDefinition();
@@ -86,7 +84,7 @@ public class DiscountCurveFunctionTest {
     
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.PRIMITIVE, Currency.getInstance("EUR")));
     assertNull(requirements);
-
+    
     requirements = function.getRequirements(context, new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioNodeImpl()));
     assertNull(requirements);
   }
