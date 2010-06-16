@@ -10,20 +10,25 @@ import java.util.Arrays;
 /**
  * 
  */
-public class InterpolationResultWithSensitivities extends InterpolationResult<Double> {
+public class InterpolationResultWithSensitivities {
 
+  private final double _result;
   private final double[] _sensitivities;
 
   /**
    * @param result
    */
-  public InterpolationResultWithSensitivities(final Double result, final double[] sensitivities) {
-    super(result);
+  public InterpolationResultWithSensitivities(final double result, final double[] sensitivities) {
+    _result = result;
     _sensitivities = sensitivities;
   }
 
   public double[] getSensitivities() {
     return _sensitivities;
+  }
+
+  public double getResult() {
+    return _result;
   }
 
   /* (non-Javadoc)

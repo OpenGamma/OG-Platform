@@ -25,20 +25,25 @@ public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSen
     double[] sense = new double[nNodes];
 
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    if (boundedValues.getLowerBoundKey() == null) {
+      throw new InterpolationException("value out of range - too small");
+    }
+
     int index = model.getLowerBoundIndex(value);
 
-    if (boundedValues.getHigherKey() == null) {
+    //in this case we are at the last node 
+    if (boundedValues.getHigherBoundKey() == null) {
+      if (value > boundedValues.getLowerBoundKey()) {
+        throw new InterpolationException("value out of range - too large");
+      }
       sense[index] = 1.0;
       return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), sense);
     }
-    if (boundedValues.getLowerBoundKey() == null) {
-      throw new InterpolationException("");
-    }
 
     final double x1 = boundedValues.getLowerBoundKey();
-    final double x2 = boundedValues.getHigherKey();
+    final double x2 = boundedValues.getHigherBoundKey();
     final double y1 = boundedValues.getLowerBoundValue();
-    final double y2 = boundedValues.getHigherValue();
+    final double y2 = boundedValues.getHigherBoundValue();
     final double dx = x2 - x1;
     final double a = (x2 - value) / dx;
     final double b = 1.0 - a;

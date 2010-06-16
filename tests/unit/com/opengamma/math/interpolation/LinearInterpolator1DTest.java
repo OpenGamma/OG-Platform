@@ -26,7 +26,8 @@ public class LinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
-  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6});
+  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(new double[] { 1, 2, 3 },
+      new double[] { 4, 5, 6 });
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullModel() {
