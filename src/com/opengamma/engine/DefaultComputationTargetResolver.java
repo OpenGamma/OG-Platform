@@ -130,16 +130,19 @@ public class DefaultComputationTargetResolver implements ComputationTargetResolv
         return new ComputationTarget(ComputationTargetType.POSITION, position);
       }
       case MULTIPLE_POSITIONS: {
-        final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
-        if (portfolio != null) {
-          s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
-          final PortfolioNode node = portfolio.getRootNode();
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
-        }
-        final PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
-        if (node != null) {
-          s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
-          return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
+        try {
+          final PortfolioNode node = getPositionMaster().getPortfolioNode(uid);
+          if (node != null) {
+            s_logger.info("Resolved multiple-position UID {} to portfolio node {}", uid, node);
+            return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, resolvePortfolioNode(uid, node));
+          }
+        } catch (IllegalArgumentException ex) {
+          final Portfolio portfolio = getPositionMaster().getPortfolio(uid);
+          if (portfolio != null) {
+            s_logger.info("Resolved multiple-position UID {} to portfolio {}", uid, portfolio);
+            final PortfolioNode node = portfolio.getRootNode();
+            return new ComputationTarget(ComputationTargetType.MULTIPLE_POSITIONS, new PortfolioImpl(portfolio.getUniqueIdentifier(), portfolio.getName(), resolvePortfolioNode(uid, node)));
+          }
         }
         s_logger.info("Unable to resolve multiple-position UID {}", uid);
         return null;
