@@ -11,13 +11,10 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.math.statistics.descriptive.robust.SampleMedianAbsoluteDeviationCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
- * @author emcleod
  */
 public class SampleMedianAbsoluteDeviationCalculatorTest {
   private static final double MEAN = 3.5;
@@ -40,7 +37,7 @@ public class SampleMedianAbsoluteDeviationCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    MAD_CALC.evaluate(new Double[] { 3. });
+    MAD_CALC.evaluate(new Double[] {3.});
   }
 
   @Test

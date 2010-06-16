@@ -36,20 +36,20 @@ public class InterquartileRangeCalculatorTest {
     }
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     IQR.evaluate((Double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    IQR.evaluate(new Double[] { 1., 2. });
+    IQR.evaluate(new Double[] {1., 2.});
   }
 
   @Test
   public void test() {
-    final Double[] x1 = new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
-    final Double[] x2 = new Double[] { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13. };
+    final Double[] x1 = new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.};
+    final Double[] x2 = new Double[] {1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13.};
     assertEquals(IQR.evaluate(x1), 5, 1e-15);
     assertEquals(IQR.evaluate(x2), 6, 1e-15);
     assertEquals(IQR.evaluate(UNIFORM_DATA), 0.5, EPS);

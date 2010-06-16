@@ -32,7 +32,7 @@ public class TrimmedMeanCalculatorTest {
     new WinsorizedMeanCalculator(1.3);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullArray() {
     CALCULATOR.evaluate((Double[]) null);
   }

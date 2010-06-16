@@ -7,9 +7,10 @@ package com.opengamma.math.statistics.descriptive.robust;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -19,9 +20,10 @@ public class InterquartileRangeCalculator extends Function1D<Double[], Double> {
 
   @Override
   public Double evaluate(final Double[] x) {
-    ArgumentChecker.notNull(x, "x");
-    if (x.length < 4)
+    Validate.notNull(x, "x");
+    if (x.length < 4) {
       throw new IllegalArgumentException("Need at least four points to calculate IQR");
+    }
     final int n = x.length;
     final Double[] copy = Arrays.copyOf(x, n);
     Arrays.sort(copy);

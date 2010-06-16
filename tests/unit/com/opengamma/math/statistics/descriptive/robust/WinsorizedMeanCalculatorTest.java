@@ -15,7 +15,6 @@ import com.opengamma.math.statistics.descriptive.MeanCalculator;
 
 /**
  * 
- * @author emcleod
  */
 public class WinsorizedMeanCalculatorTest {
   private static final int N = 100;
@@ -25,12 +24,12 @@ public class WinsorizedMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testLowGamma() {
-    new WinsorizedMeanCalculator(0);
+    new WinsorizedMeanCalculator(-0.0001);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testHighGamma() {
-    new WinsorizedMeanCalculator(1);
+    new WinsorizedMeanCalculator(1.0001);
   }
 
   @Test(expected = IllegalArgumentException.class)
