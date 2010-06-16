@@ -16,9 +16,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class TrimmedMeanCalculator extends Function1D<Double[], Double> {
+public class TrimmedMeanCalculator extends Function1D<double[], Double> {
   private final double _gamma;
-  private final Function1D<Double[], Double> _meanCalculator = new MeanCalculator();
+  private final Function1D<double[], Double> _meanCalculator = new MeanCalculator();
 
   public TrimmedMeanCalculator(final double gamma) {
     if (!ArgumentChecker.isInRangeInclusive(0, 1, gamma)) {
@@ -28,14 +28,14 @@ public class TrimmedMeanCalculator extends Function1D<Double[], Double> {
   }
 
   @Override
-  public Double evaluate(final Double[] x) {
+  public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
     final int length = x.length;
     final int value = (int) Math.round(length * _gamma);
-    final Double[] copy = Arrays.copyOf(x, length);
+    final double[] copy = Arrays.copyOf(x, length);
     Arrays.sort(copy);
-    final Double[] trimmed = new Double[length - 2 * value];
+    final double[] trimmed = new double[length - 2 * value];
     for (int i = 0; i < trimmed.length; i++) {
       trimmed[i] = x[i + value];
     }

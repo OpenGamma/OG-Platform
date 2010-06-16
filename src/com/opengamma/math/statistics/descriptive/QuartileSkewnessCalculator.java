@@ -7,32 +7,29 @@ package com.opengamma.math.statistics.descriptive;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 
 /**
- * @author emcleod
  * 
  */
-public class QuartileSkewnessCalculator extends Function1D<Double[], Double> {
-  private final Function1D<Double[], Double> _median = new MedianCalculator();
+public class QuartileSkewnessCalculator extends Function1D<double[], Double> {
+  private final Function1D<double[], Double> _median = new MedianCalculator();
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
-  public Double evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length < 3)
+  public Double evaluate(final double[] x) {
+    Validate.notNull(x, "x");
+    if (x.length < 3) {
       throw new IllegalArgumentException("Need at least three points to calculate IQR");
+    }
     final int n = x.length;
-    if (n == 3)
+    if (n == 3) {
       return (x[2] - 2 * x[1] + x[0]) / 2.;
-    final Double[] copy = Arrays.copyOf(x, n);
+    }
+    final double[] copy = Arrays.copyOf(x, n);
     Arrays.sort(copy);
-    Double[] lower, upper;
+    double[] lower, upper;
     if (n % 2 == 0) {
       lower = Arrays.copyOfRange(copy, 0, n / 2);
       upper = Arrays.copyOfRange(copy, n / 2, n);

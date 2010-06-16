@@ -18,16 +18,15 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class QuartileSkewnessCalculatorTest {
   private static final double STD = 2.;
-  private static final Function1D<Double[], Double> SKEW = new QuartileSkewnessCalculator();
+  private static final Function1D<double[], Double> SKEW = new QuartileSkewnessCalculator();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
   private static final ProbabilityDistribution<Double> CHI_SQ = new ChiSquareDistribution(4);
-  private static final Double[] NORMAL_DATA = new Double[50000];
-  private static final Double[] CHI_SQ_DATA = new Double[50000];
+  private static final double[] NORMAL_DATA = new double[50000];
+  private static final double[] CHI_SQ_DATA = new double[50000];
   static {
     for (int i = 0; i < 50000; i++) {
       NORMAL_DATA[i] = NORMAL.nextRandom();
@@ -37,12 +36,12 @@ public class QuartileSkewnessCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
-    SKEW.evaluate((Double[]) null);
+    SKEW.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty() {
-    SKEW.evaluate(new Double[0]);
+    SKEW.evaluate(new double[0]);
   }
 
   @Test

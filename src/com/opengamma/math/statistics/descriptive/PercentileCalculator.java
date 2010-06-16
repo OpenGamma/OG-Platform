@@ -13,33 +13,37 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PercentileCalculator extends Function1D<Double[], Double> {
+public class PercentileCalculator extends Function1D<double[], Double> {
   private double _percentile;
 
   public PercentileCalculator(final double percentile) {
-    if (percentile <= 0 || percentile >= 1)
+    if (!ArgumentChecker.isInRangeExclusive(0, 1, percentile)) {
       throw new IllegalArgumentException("Percentile must be between 0 and 1");
+    }
     _percentile = percentile;
   }
 
   public void setPercentile(final double percentile) {
-    if (percentile <= 0 || percentile >= 1)
+    if (!ArgumentChecker.isInRangeExclusive(0, 1, percentile)) {
       throw new IllegalArgumentException("Percentile must be between 0 and 1");
+    }
     _percentile = percentile;
   }
 
   @Override
-  public Double evaluate(final Double[] x) {
+  public Double evaluate(final double[] x) {
     ArgumentChecker.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
     final int length = x.length;
-    final Double[] copy = Arrays.copyOf(x, length);
+    final double[] copy = Arrays.copyOf(x, length);
     Arrays.sort(copy);
     final double n = _percentile * (length - 1) + 1;
-    if (Math.round(n) == 1)
+    if (Math.round(n) == 1) {
       return copy[0];
-    if (Math.round(n) == length)
+    }
+    if (Math.round(n) == length) {
       return copy[length - 1];
+    }
     final double d = n % 1;
     final int k = (int) Math.round(n - d);
     return copy[k - 1] + d * (copy[k] - copy[k - 1]);

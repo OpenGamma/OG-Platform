@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics.estimation;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.special.GammaFunction;
 import com.opengamma.math.minimization.GoldenSectionMinimizer1D;
@@ -13,32 +15,26 @@ import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.PopulationStandardDeviationCalculator;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.StudentTDistribution;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @author emcleod
  * 
  */
 public class StudentTDistributionMaximumLikelihoodEstimator extends DistributionParameterEstimator<Double> {
   // TODO add error estimates
   private final Minimizer1D _minimizer = new GoldenSectionMinimizer1D();
-  protected final Function1D<Double, Double> _gamma = new GammaFunction();
-  private final Function1D<Double[], Double> _mean = new MeanCalculator();
-  private final Function1D<Double[], Double> _std = new PopulationStandardDeviationCalculator();
+  private final Function1D<Double, Double> _gamma = new GammaFunction();
+  private final Function1D<double[], Double> _mean = new MeanCalculator();
+  private final Function1D<double[], Double> _std = new PopulationStandardDeviationCalculator();
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
-  public ProbabilityDistribution<Double> evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length == 0)
-      throw new IllegalArgumentException("Array was empty");
-    final Double[] standardized = getStandardizedData(x);
+  public ProbabilityDistribution<Double> evaluate(final double[] x) {
+    Validate.notNull(x, "x");
+    ArgumentChecker.notEmpty(x, "x");
+    final double[] standardized = getStandardizedData(x);
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double nu) {
         double sum = 0;
@@ -49,13 +45,13 @@ public class StudentTDistributionMaximumLikelihoodEstimator extends Distribution
       }
 
     };
-    return new StudentTDistribution(_minimizer.minimize(f, new Double[] { 3., 10. })[0]);
+    return new StudentTDistribution(_minimizer.minimize(f, new Double[] {3., 10.})[0]);
   }
 
-  protected Double[] getStandardizedData(final Double[] x) {
+  protected double[] getStandardizedData(final double[] x) {
     final double mean = _mean.evaluate(x);
     final double std = _std.evaluate(x);
-    final Double[] z = new Double[x.length];
+    final double[] z = new double[x.length];
     for (int i = 0; i < x.length; i++) {
       z[i] = (x[i] - mean) / std;
     }

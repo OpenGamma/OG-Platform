@@ -59,12 +59,12 @@ public class GeneralizedParetoDistributionTest extends ProbabilityDistributionTe
 
   @Test
   public void testDistribution() {
-    final Function1D<Double[], Double> meanCalculator = new MeanCalculator();
-    final Function1D<Double[], Double> medianCalculator = new MedianCalculator();
-    final Function1D<Double[], Double> varianceCalculator = new PopulationVarianceCalculator();
+    final Function1D<double[], Double> meanCalculator = new MeanCalculator();
+    final Function1D<double[], Double> medianCalculator = new MedianCalculator();
+    final Function1D<double[], Double> varianceCalculator = new PopulationVarianceCalculator();
     final int n = 1000000;
     final double eps = 0.1;
-    final Double[] data = new Double[n];
+    final double[] data = new double[n];
     for (int i = 0; i < n; i++) {
       data[i] = DIST.nextRandom();
     }

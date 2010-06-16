@@ -15,7 +15,6 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.StudentTDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class StudentTDistributionMaximumLikelihoodEstimatorTest {
@@ -23,12 +22,12 @@ public class StudentTDistributionMaximumLikelihoodEstimatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
-    ESTIMATOR.evaluate((Double[]) null);
+    ESTIMATOR.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty() {
-    ESTIMATOR.evaluate(new Double[0]);
+    ESTIMATOR.evaluate(new double[0]);
   }
 
   @Test
@@ -37,7 +36,7 @@ public class StudentTDistributionMaximumLikelihoodEstimatorTest {
     final double eps = 5e-2;
     final double nu = 5.4;
     final ProbabilityDistribution<Double> p1 = new StudentTDistribution(nu, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
-    final Double[] x = new Double[n];
+    final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();
     }

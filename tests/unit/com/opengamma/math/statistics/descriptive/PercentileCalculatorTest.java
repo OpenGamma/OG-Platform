@@ -21,7 +21,7 @@ public class PercentileCalculatorTest {
   private static final PercentileCalculator CALCULATOR = new PercentileCalculator(0.1);
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final int N = 100;
-  private static final Double[] X = new Double[N];
+  private static final double[] X = new double[N];
 
   static {
     for (int i = 0; i < N; i++) {
@@ -51,17 +51,17 @@ public class PercentileCalculatorTest {
 
   @Test(expected = NullPointerException.class)
   public void testNullArray() {
-    CALCULATOR.evaluate((Double[]) null);
+    CALCULATOR.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyArray() {
-    CALCULATOR.evaluate(new Double[0]);
+    CALCULATOR.evaluate(new double[0]);
   }
 
   @Test
   public void testExtremes() {
-    final Double[] y = Arrays.copyOf(X, X.length);
+    final double[] y = Arrays.copyOf(X, X.length);
     Arrays.sort(y);
     CALCULATOR.setPercentile(1e-15);
     assertEquals(CALCULATOR.evaluate(X), y[0], 0);
@@ -76,8 +76,8 @@ public class PercentileCalculatorTest {
     testResult(X, 50);
   }
 
-  private void testResult(final Double[] x, final int percentile) {
-    final Double[] copy = Arrays.copyOf(x, N);
+  private void testResult(final double[] x, final int percentile) {
+    final double[] copy = Arrays.copyOf(x, N);
     Arrays.sort(copy);
     int count = 0;
     CALCULATOR.setPercentile(((double) percentile) / N);

@@ -86,9 +86,7 @@ public class ChiSquareDistribution implements ProbabilityDistribution<Double> {
    */
   @Override
   public double getCDF(final Double x) {
-    if (x == null) {
-      throw new IllegalArgumentException("x was null");
-    }
+    Validate.notNull(x);
     return _chiSquare.cdf(x);
   }
 

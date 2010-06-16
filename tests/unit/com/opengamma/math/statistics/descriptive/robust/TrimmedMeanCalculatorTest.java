@@ -18,8 +18,8 @@ import com.opengamma.math.statistics.descriptive.MeanCalculator;
  */
 public class TrimmedMeanCalculatorTest {
   private static final int N = 100;
-  private static final Function1D<Double[], Double> CALCULATOR = new TrimmedMeanCalculator(0.1);
-  private static final Function1D<Double[], Double> MEAN = new MeanCalculator();
+  private static final Function1D<double[], Double> CALCULATOR = new TrimmedMeanCalculator(0.1);
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
@@ -34,18 +34,18 @@ public class TrimmedMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullArray() {
-    CALCULATOR.evaluate((Double[]) null);
+    CALCULATOR.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyArray() {
-    CALCULATOR.evaluate(new Double[0]);
+    CALCULATOR.evaluate(new double[0]);
   }
 
   @Test
   public void test() {
-    final Double[] x = new Double[N];
-    final Double[] y = new Double[N - 20];
+    final double[] x = new double[N];
+    final double[] y = new double[N - 20];
     for (int i = 0; i < 10; i++) {
       x[i] = 0.;
     }

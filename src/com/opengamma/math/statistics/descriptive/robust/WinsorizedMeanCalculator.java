@@ -16,23 +16,23 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class WinsorizedMeanCalculator extends Function1D<Double[], Double> {
+public class WinsorizedMeanCalculator extends Function1D<double[], Double> {
   private final double _gamma;
-  private final Function1D<Double[], Double> _meanCalculator = new MeanCalculator();
+  private final Function1D<double[], Double> _meanCalculator = new MeanCalculator();
 
   public WinsorizedMeanCalculator(final double gamma) {
-    if (!ArgumentChecker.isInRangeInclusive(0, 1, gamma)) {
+    if (!ArgumentChecker.isInRangeExclusive(0, 1, gamma)) {
       throw new IllegalArgumentException("Gamma must be between 0 and 1, have " + gamma);
     }
     _gamma = gamma > 0.5 ? 1 - gamma : gamma;
   }
 
   @Override
-  public Double evaluate(final Double[] x) {
+  public Double evaluate(final double[] x) {
     Validate.notNull(x, "x");
-    Validate.notEmpty(x, "x");
+    ArgumentChecker.notEmpty(x, "x");
     final int length = x.length;
-    final Double[] winsorized = Arrays.copyOf(x, length);
+    final double[] winsorized = Arrays.copyOf(x, length);
     Arrays.sort(winsorized);
     final int value = (int) Math.round(length * _gamma);
     final double x1 = winsorized[value];

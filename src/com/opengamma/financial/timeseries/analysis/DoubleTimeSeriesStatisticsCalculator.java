@@ -13,9 +13,9 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class DoubleTimeSeriesStatisticsCalculator extends Function1D<DoubleTimeSeries<?>, Double> {
-  private final Function1D<Double[], Double> _statistic;
+  private final Function1D<double[], Double> _statistic;
 
-  public DoubleTimeSeriesStatisticsCalculator(final Function1D<Double[], Double> statistic) {
+  public DoubleTimeSeriesStatisticsCalculator(final Function1D<double[], Double> statistic) {
     ArgumentChecker.notNull(statistic, "statistic");
     _statistic = statistic;
   }
@@ -23,9 +23,10 @@ public class DoubleTimeSeriesStatisticsCalculator extends Function1D<DoubleTimeS
   @Override
   public Double evaluate(final DoubleTimeSeries<?> x) {
     ArgumentChecker.notNull(x, "x");
-    if (x.isEmpty())
+    if (x.isEmpty()) {
       throw new IllegalArgumentException("Time series was empty");
-    return _statistic.evaluate(x.valuesArray());
+    }
+    return _statistic.evaluate(x.toFastLongDoubleTimeSeries().valuesArrayFast());
   }
 
 }

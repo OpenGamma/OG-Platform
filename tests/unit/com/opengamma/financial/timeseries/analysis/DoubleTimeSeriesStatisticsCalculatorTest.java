@@ -19,10 +19,10 @@ import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
  * 
  */
 public class DoubleTimeSeriesStatisticsCalculatorTest {
-  private static final Function1D<Double[], Double> MEAN = new MeanCalculator();
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
   private static final Function1D<DoubleTimeSeries<?>, Double> CALC = new DoubleTimeSeriesStatisticsCalculator(MEAN);
   private static final double X = 1.23;
-  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] { 1, 2, 3, 4, 5 }, new double[] { X, X, X, X, X });
+  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 5}, new double[] {X, X, X, X, X});
 
   @Test(expected = NullPointerException.class)
   public void testConstructor() {
@@ -41,6 +41,6 @@ public class DoubleTimeSeriesStatisticsCalculatorTest {
 
   @Test
   public void test() {
-    assertEquals(CALC.evaluate(TS), MEAN.evaluate(TS.valuesArray()), 1e-15);
+    assertEquals(CALC.evaluate(TS), MEAN.evaluate(TS.toFastLongDoubleTimeSeries().valuesArrayFast()), 1e-15);
   }
 }
