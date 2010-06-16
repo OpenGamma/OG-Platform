@@ -383,6 +383,16 @@ public class ArgumentCheckerTest {
     assertFalse(ArgumentChecker.isInRangeExcludingHigh(low, high, 2 * high));
     assertTrue(ArgumentChecker.isInRangeExcludingHigh(low, high, low));
     assertFalse(ArgumentChecker.isInRangeExcludingHigh(low, high, high));
-
+  }
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testNotEmptyDoubleArray() {
+    double[] d = new double[0];
+    try {
+      ArgumentChecker.notEmpty(d, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
   }
 }
