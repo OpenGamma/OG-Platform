@@ -16,11 +16,11 @@ import org.apache.commons.lang.Validate;
 public class ArrayInterpolator1DModel implements Interpolator1DModel {
   private final double[] _keys;
   private final double[] _values;
-  
+
   public ArrayInterpolator1DModel(double[] keys, double[] values) {
     this(keys, values, false);
   }
-  
+
   public ArrayInterpolator1DModel(double[] keys, double[] values, boolean inputsSorted) {
     Validate.notNull(keys, "Keys must not be null.");
     Validate.notNull(values, "Values must not be null.");
@@ -28,12 +28,12 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
     Validate.isTrue((keys.length > 0), "Must not have empty arrays.");
     _keys = Arrays.copyOf(keys, keys.length);
     _values = Arrays.copyOf(values, values.length);
-    
+
     if (!inputsSorted) {
       parallelBinarySort();
     }
   }
-
+  
   /**
    * Sort the content of _keys and _values simultaneously so that
    * both match the correct ordering.
@@ -41,10 +41,10 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   private void parallelBinarySort() {
     dualArrayQuickSort(_keys, _values, 0, _keys.length - 1);
   }
-  
+
   private static void dualArrayQuickSort(double[] keys, double[] values, int left, int right) {
     if (right > left) {
-      int pivot = keys.length / 2;
+      int pivot = (left + right) >> 1;
       int pivotNewIndex = partition(keys, values, left, right, pivot);
       dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
       dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
@@ -69,7 +69,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
     double t = keys[first];
     keys[first] = keys[second];
     keys[second] = t;
-    
+
     t = values[first];
     values[first] = values[second];
     values[second] = t;
@@ -172,7 +172,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
     }
     return _values[index];
   }
-  
+
   protected int getHigherIndex(Double key) {
     int index = Arrays.binarySearch(_keys, key);
     if (index >= 0) {
