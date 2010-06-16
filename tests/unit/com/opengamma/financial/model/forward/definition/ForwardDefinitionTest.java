@@ -18,7 +18,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class ForwardDefinitionTest {
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     new ForwardDefinition(null);
   }

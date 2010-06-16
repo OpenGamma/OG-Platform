@@ -24,8 +24,13 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNu() {
+  public void testNu1() {
     new StudentTOneTailedCriticalValueCalculator(-3);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNu2() {
+    new StudentTOneTailedCriticalValueCalculator(-3, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
