@@ -104,9 +104,9 @@
 			rebuildAll="${fudge.proto.rebuildall}"
 			gitIgnore="${fudge.proto.gitIgnore}">
 			<fileHeader>///CLOVER:OFF
-                        // CSOFF: Generated File</fileHeader>
+// CSOFF: Generated File</fileHeader>
 			<fileFooter>///CLOVER:ON
-                        // CSON: Generated File</fileFooter>
+// CSON: Generated File</fileFooter>
 		</fudgeproto>
 	</target>
 
