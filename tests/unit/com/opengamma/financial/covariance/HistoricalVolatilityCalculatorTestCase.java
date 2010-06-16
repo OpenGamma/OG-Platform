@@ -66,6 +66,11 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
   }
 
   @Test(expected = IllegalArgumentException.class)
+  public void testNullInInput() {
+    getCalculator().testInput(null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testEmptyArray() {
     getCalculator().evaluate(new DoubleTimeSeries[0]);
   }
