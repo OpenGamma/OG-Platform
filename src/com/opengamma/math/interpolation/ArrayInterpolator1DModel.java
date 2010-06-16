@@ -16,19 +16,19 @@ import org.apache.commons.lang.Validate;
 public class ArrayInterpolator1DModel implements Interpolator1DModel {
   private final double[] _keys;
   private final double[] _values;
-  
-  public ArrayInterpolator1DModel(double[] keys, double[] values) {
+
+  public ArrayInterpolator1DModel(final double[] keys, final double[] values) {
     this(keys, values, false);
   }
-  
-  public ArrayInterpolator1DModel(double[] keys, double[] values, boolean inputsSorted) {
+
+  public ArrayInterpolator1DModel(final double[] keys, final double[] values, final boolean inputsSorted) {
     Validate.notNull(keys, "Keys must not be null.");
     Validate.notNull(values, "Values must not be null.");
     Validate.isTrue((keys.length == values.length), "keys and values must be same length.");
     Validate.isTrue((keys.length > 0), "Must not have empty arrays.");
     _keys = Arrays.copyOf(keys, keys.length);
     _values = Arrays.copyOf(values, values.length);
-    
+
     if (!inputsSorted) {
       parallelBinarySort();
     }
@@ -41,18 +41,18 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   private void parallelBinarySort() {
     dualArrayQuickSort(_keys, _values, 0, _keys.length - 1);
   }
-  
-  private static void dualArrayQuickSort(double[] keys, double[] values, int left, int right) {
+
+  private static void dualArrayQuickSort(final double[] keys, final double[] values, final int left, final int right) {
     if (right > left) {
-      int pivot = keys.length / 2;
-      int pivotNewIndex = partition(keys, values, left, right, pivot);
+      final int pivot = keys.length / 2;
+      final int pivotNewIndex = partition(keys, values, left, right, pivot);
       dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
       dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
     }
   }
 
-  private static int partition(double[] keys, double[] values, int left, int right, int pivot) {
-    double pivotValue = keys[pivot];
+  private static int partition(final double[] keys, final double[] values, final int left, final int right, final int pivot) {
+    final double pivotValue = keys[pivot];
     swap(keys, values, pivot, right);
     int storeIndex = left;
     for (int i = left; i < right; i++) {
@@ -65,18 +65,18 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
     return storeIndex;
   }
 
-  private static void swap(double[] keys, double[] values, int first, int second) {
+  private static void swap(final double[] keys, final double[] values, final int first, final int second) {
     double t = keys[first];
     keys[first] = keys[second];
     keys[second] = t;
-    
+
     t = values[first];
     values[first] = values[second];
     values[second] = t;
   }
 
   @Override
-  public boolean containsKey(Double key) {
+  public boolean containsKey(final Double key) {
     if (key == null) {
       return false;
     }
@@ -94,8 +94,8 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public Double get(Double key) {
-    int index = Arrays.binarySearch(_keys, key);
+  public Double get(final Double key) {
+    final int index = Arrays.binarySearch(_keys, key);
     if (index < 0) {
       return null;
     }
@@ -103,8 +103,8 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public InterpolationBoundedValues getBoundedValues(Double key) {
-    int index = getLowerBoundIndex(key);
+  public InterpolationBoundedValues getBoundedValues(final Double key) {
+    final int index = getLowerBoundIndex(key);
     if (index < 0) {
       return new InterpolationBoundedValues(null, null, _keys[0], _values[0]);
     }
@@ -120,7 +120,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public int getLowerBoundIndex(Double value) {
+  public int getLowerBoundIndex(final Double value) {
     int index = Arrays.binarySearch(_keys, value);
     if (index >= 0) {
       // Fast break out if it's an exact match.
@@ -134,7 +134,7 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public Double getLowerBoundKey(Double value) {
+  public Double getLowerBoundKey(final Double value) {
     int index = Arrays.binarySearch(_keys, value);
     if (index >= 0) {
       // Fast break out if it's an exact match.
@@ -156,8 +156,8 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public Double higherKey(Double key) {
-    int index = getHigherIndex(key);
+  public Double higherKey(final Double key) {
+    final int index = getHigherIndex(key);
     if (index >= _keys.length) {
       return null;
     }
@@ -165,15 +165,15 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   }
 
   @Override
-  public Double higherValue(Double key) {
-    int index = getHigherIndex(key);
+  public Double higherValue(final Double key) {
+    final int index = getHigherIndex(key);
     if (index >= _keys.length) {
       return null;
     }
     return _values[index];
   }
-  
-  protected int getHigherIndex(Double key) {
+
+  protected int getHigherIndex(final Double key) {
     int index = Arrays.binarySearch(_keys, key);
     if (index >= 0) {
       // Fast break out if it's an exact match.
@@ -199,6 +199,36 @@ public class ArrayInterpolator1DModel implements Interpolator1DModel {
   @Override
   public int size() {
     return _keys.length;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_keys);
+    result = prime * result + Arrays.hashCode(_values);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ArrayInterpolator1DModel other = (ArrayInterpolator1DModel) obj;
+    if (!Arrays.equals(_keys, other._keys)) {
+      return false;
+    }
+    if (!Arrays.equals(_values, other._values)) {
+      return false;
+    }
+    return true;
   }
 
 }

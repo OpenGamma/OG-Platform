@@ -38,10 +38,8 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data,
-      final Interpolator1D<? extends Interpolator1DModel> interpolator) {
-    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DModel>> singletonMap(
-        Double.POSITIVE_INFINITY, interpolator));
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel> interpolator) {
+    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -59,8 +57,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data,
-      final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
     Validate.notNull(data);
     Validate.notNull(interpolators);
     Validate.notEmpty(interpolators);
@@ -72,10 +69,8 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     assert ArgumentChecker.hasNegativeElement(data.keySet()) == false;
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
-    _data = Collections.<Double, Double> unmodifiableSortedMap(new TreeMap<Double, Double>(data));
-    _interpolators = Collections
-        .<Double, Interpolator1D<? extends Interpolator1DModel>> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel>>(
-            interpolators));
+    _data = Collections.<Double, Double>unmodifiableSortedMap(new TreeMap<Double, Double>(data)); //TODO can remove the sorted map when Andrew has finished fixing quicksort
+    _interpolators = Collections.<Double, Interpolator1D<? extends Interpolator1DModel>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel>>(interpolators));
     final SortedMap<Double, Interpolator1DModel> models = new TreeMap<Double, Interpolator1DModel>();
     for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel>> entry : _interpolators.entrySet()) {
       models.put(entry.getKey(), Interpolator1DModelFactory.fromMap(data, entry.getValue()));

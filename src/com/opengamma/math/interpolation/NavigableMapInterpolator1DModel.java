@@ -125,4 +125,34 @@ public class NavigableMapInterpolator1DModel implements Interpolator1DModel {
     return new InterpolationBoundedValues(lowerBoundKey, get(lowerBoundKey), higherKey(key), higherValue(key));
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_backingMap == null) ? 0 : _backingMap.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final NavigableMapInterpolator1DModel other = (NavigableMapInterpolator1DModel) obj;
+    if (_backingMap == null) {
+      if (other._backingMap != null) {
+        return false;
+      }
+    } else if (!_backingMap.equals(other._backingMap)) {
+      return false;
+    }
+    return true;
+  }
+
 }
