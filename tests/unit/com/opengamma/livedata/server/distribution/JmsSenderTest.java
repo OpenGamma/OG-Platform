@@ -6,6 +6,7 @@
 package com.opengamma.livedata.server.distribution;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
@@ -67,8 +68,16 @@ public class JmsSenderTest {
     _collectingReceiver.clearMessages();
   }
   
+  private void ensureStarted() {
+    assertTrue(_container.isActive());
+    assertTrue(_container.isRunning());
+    assertEquals(1, _container.getActiveConsumerCount());
+  }
+  
   @Test(timeout=30000)
   public void simpleScenario() throws Exception {
+    ensureStarted();
+    
     MutableFudgeFieldContainer msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg.add("name", "ruby");
     
@@ -91,6 +100,8 @@ public class JmsSenderTest {
   
   @Test(timeout=30000)
   public void reconnectionScenario() throws Exception {
+    ensureStarted();
+    
     MutableFudgeFieldContainer msg1 = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msg1.add("name", "olivia");
     
