@@ -28,8 +28,8 @@ public class LinearInterpolator1DWithSensitivitiesTest {
   private static final Interpolator1DModel MODEL;
 
   static {
-    double[] x = new double[10];
-    double[] y = new double[10];
+    final double[] x = new double[10];
+    final double[] y = new double[10];
     for (int i = 0; i < 10; i++) {
       x[i] = Double.valueOf(i);
       y[i] = FUNCTION.evaluate(x[i]);
@@ -59,8 +59,7 @@ public class LinearInterpolator1DWithSensitivitiesTest {
 
   @Test
   public void test() {
-
-    InterpolationResultWithSensitivities1 result = INTERPOLATOR.interpolate(MODEL, 3.4);
+    InterpolationResultWithSensitivities result = INTERPOLATOR.interpolate(MODEL, 3.4);
     assertEquals(result.getResult(), FUNCTION.evaluate(3.4), EPS);
     double[] sense = result.getSensitivities();
     assertEquals(0.0, sense[2], EPS);
