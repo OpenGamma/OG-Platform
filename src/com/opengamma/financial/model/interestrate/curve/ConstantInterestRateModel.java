@@ -6,7 +6,6 @@
 package com.opengamma.financial.model.interestrate.curve;
 
 import com.opengamma.financial.model.interestrate.InterestRateModel;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -15,13 +14,11 @@ public class ConstantInterestRateModel implements InterestRateModel<Double> {
   private final double _r;
 
   public ConstantInterestRateModel(final double r) {
-    ArgumentChecker.notNegative(r, "rate");
     _r = r;
   }
 
   @Override
   public double getInterestRate(final Double t) {
-    ArgumentChecker.notNegative(t, "time");
     return _r;
   }
 

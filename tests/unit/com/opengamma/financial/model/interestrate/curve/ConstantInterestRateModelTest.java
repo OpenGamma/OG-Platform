@@ -20,16 +20,6 @@ public class ConstantInterestRateModelTest {
   private static final double RATE = 0.05;
   private static final InterestRateModel<Double> CURVE = new ConstantInterestRateModel(RATE);
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testInput() {
-    new ConstantInterestRateModel(-RATE);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetInterestRate() {
-    CURVE.getInterestRate(-0.5);
-  }
-
   @Test
   public void test() {
     assertEquals(RATE, CURVE.getInterestRate(0.5), EPS);
