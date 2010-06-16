@@ -18,7 +18,7 @@ public class ConstantInterestRateModel implements InterestRateModel<Double> {
   }
 
   @Override
-  public double getInterestRate(final Double x) {
+  public double getInterestRate(final Double t) {
     return _r;
   }
 

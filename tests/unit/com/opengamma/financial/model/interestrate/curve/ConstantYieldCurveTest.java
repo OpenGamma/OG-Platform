@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.interestrate.curve;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
 
@@ -13,9 +14,8 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
-public class ConstantInterestRateDiscountCurveTest {
+public class ConstantYieldCurveTest {
   private static final double EPS = 1e-15;
   private static final double RATE = 0.05;
   private static final double T = 4;
@@ -69,12 +69,12 @@ public class ConstantInterestRateDiscountCurveTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetMultipleShiftWithNegativeTime() {
-    CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(-T, RATE));
+    CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(-T, RATE));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testGetMultipleShiftWithNullShift() {
-    CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(T, null));
+    CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(T, null));
   }
 
   @Test
@@ -87,8 +87,25 @@ public class ConstantInterestRateDiscountCurveTest {
     curve = CURVE.withSingleShift(T, SHIFT);
     assertEquals(RATE + SHIFT, curve.getInterestRate(T), EPS);
     assertEquals(Math.exp(-T * (RATE + SHIFT)), curve.getDiscountFactor(T), EPS);
-    curve = CURVE.withMultipleShifts(Collections.<Double, Double> singletonMap(T, SHIFT));
+    curve = CURVE.withMultipleShifts(Collections.<Double, Double>singletonMap(T, SHIFT));
     assertEquals(RATE + SHIFT, curve.getInterestRate(T), EPS);
     assertEquals(Math.exp(-T * (RATE + SHIFT)), curve.getDiscountFactor(T), EPS);
+  }
+
+  @Test
+  public void testHashCodeAndEquals() {
+    YieldAndDiscountCurve curve = new ConstantYieldCurve(RATE);
+    assertEquals(CURVE, curve);
+    assertEquals(CURVE.hashCode(), curve.hashCode());
+    curve = new ConstantYieldCurve(RATE + 0.01);
+    assertFalse(CURVE.equals(curve));
+    curve = CURVE.withMultipleShifts(Collections.<Double, Double>emptyMap());
+    assertEquals(curve, CURVE);
+    curve = CURVE.withMultipleShifts(Collections.singletonMap(1., 0.001));
+    assertFalse(curve.equals(CURVE));
+    curve = CURVE.withParallelShift(0.002);
+    assertFalse(curve.equals(CURVE));
+    curve = CURVE.withSingleShift(0.1, 0.01);
+    assertFalse(curve.equals(CURVE));
   }
 }

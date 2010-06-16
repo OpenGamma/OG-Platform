@@ -12,9 +12,10 @@ import com.opengamma.util.CompareUtils;
 /**
  * A base class for interpolation in one dimension.
  * @param <T> Type of Interpolator1DModel
+ * @param <U> Type of InterpolationResult
  */
 
-public abstract class Interpolator1D<T extends Interpolator1DModel> implements Interpolator<T, Double, Double>, Serializable {
+public abstract class Interpolator1D<T extends Interpolator1DModel, U extends InterpolationResult> implements Interpolator<T, Double, U>, Serializable {
   /**
    * Default accuracy
    */
@@ -64,7 +65,7 @@ public abstract class Interpolator1D<T extends Interpolator1DModel> implements I
     return true;
   }
 
-  public abstract Double interpolate(T model, Double value);
+  public abstract U interpolate(T model, Double value);
 
   protected boolean classEquals(final Object o) {
     if (o == null) {

@@ -10,16 +10,11 @@ import java.util.Arrays;
 /**
  * 
  */
-public class InterpolationResultWithSensitivities {
-
-  private final double _result;
+public class InterpolationResultWithSensitivities extends InterpolationResult {
   private final double[] _sensitivities;
 
-  /**
-   * @param result
-   */
   public InterpolationResultWithSensitivities(final double result, final double[] sensitivities) {
-    _result = result;
+    super(result);
     _sensitivities = sensitivities;
   }
 
@@ -27,13 +22,6 @@ public class InterpolationResultWithSensitivities {
     return _sensitivities;
   }
 
-  public double getResult() {
-    return _result;
-  }
-
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -42,11 +30,8 @@ public class InterpolationResultWithSensitivities {
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -56,7 +41,7 @@ public class InterpolationResultWithSensitivities {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterpolationResultWithSensitivities other = (InterpolationResultWithSensitivities) obj;
+    final InterpolationResultWithSensitivities other = (InterpolationResultWithSensitivities) obj;
     if (!Arrays.equals(_sensitivities, other._sensitivities)) {
       return false;
     }
