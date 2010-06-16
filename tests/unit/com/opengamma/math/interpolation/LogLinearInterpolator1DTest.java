@@ -18,8 +18,8 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class LogLinearInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DModel> LINEAR = new LinearInterpolator1D();
-  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new LogLinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> LINEAR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new LogLinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
@@ -66,6 +66,6 @@ public class LogLinearInterpolator1DTest {
 
   @Test
   public void test() {
-    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4)), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4), EPS);
+    assertEquals(Math.exp(INTERPOLATOR.interpolate(MODEL, 3.4).getResult()), LINEAR.interpolate(TRANSFORMED_MODEL, 3.4).getResult(), EPS);
   }
 }

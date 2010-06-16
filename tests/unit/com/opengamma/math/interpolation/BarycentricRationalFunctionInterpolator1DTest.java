@@ -24,8 +24,9 @@ import com.opengamma.math.function.PolynomialFunction1D;
  */
 public class BarycentricRationalFunctionInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new Double[] {RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble()});
-  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
+  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new Double[] {RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble(),
+      RANDOM.nextDouble()});
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new BarycentricRationalFunctionInterpolator1D(5);
   private static final double EPS = 1;
 
   @Test(expected = IllegalArgumentException.class)
@@ -52,7 +53,7 @@ public class BarycentricRationalFunctionInterpolator1DTest {
       data.put(x, F.evaluate(x));
     }
     x = 0.9;
-    assertEquals(F.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x), EPS);
+    assertEquals(F.evaluate(x), INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), x).getResult(), EPS);
   }
 
 }

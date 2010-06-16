@@ -10,7 +10,7 @@ import org.apache.commons.lang.Validate;
 /**
  * 
  */
-public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DModel> {
+public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
   private final int _degree;
 
   public RationalFunctionInterpolator1D(final int degree) {
@@ -21,7 +21,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
   }
 
   @Override
-  public Double interpolate(final Interpolator1DModel model, final Double value) {
+  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
     checkValue(model, value);
@@ -33,11 +33,11 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
     final double[] yArray = model.getValues();
     final int n = model.size() - 1;
     if (model.getLowerBoundIndex(value) == n) {
-      return yArray[n];
+      return new InterpolationResult(yArray[n]);
     }
     double diff = Math.abs(value - xArray[0]);
     if (Math.abs(diff) < getEPS()) {
-      return yArray[0];
+      return new InterpolationResult(yArray[0]);
     }
     double diff1;
     final double[] c = new double[m];
@@ -46,7 +46,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
     for (int i = 0; i < m; i++) {
       diff1 = Math.abs(value - xArray[i]);
       if (diff < getEPS()) {
-        return yArray[i];
+        return new InterpolationResult(yArray[i]);
       } else if (diff1 < diff) {
         ns = i;
         diff = diff1;
@@ -71,7 +71,7 @@ public class RationalFunctionInterpolator1D extends Interpolator1D<Interpolator1
       }
       y += 2 * (ns + 1) < m - i ? c[ns + 1] : d[ns--];
     }
-    return y;
+    return new InterpolationResult(y);
   }
 
   @Override

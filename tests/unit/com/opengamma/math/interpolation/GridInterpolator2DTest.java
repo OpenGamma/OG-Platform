@@ -32,7 +32,7 @@ public class GridInterpolator2DTest {
     }
 
   };
-  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR_1D = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR_1D = new LinearInterpolator1D();
   private static final Interpolator2D INTERPOLATOR_2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
   private static final double EPS = 1e-9;
 

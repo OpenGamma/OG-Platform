@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.interpolation.InterpolationResult;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DModel;
 import com.opengamma.math.interpolation.Interpolator1DModelFactory;
@@ -21,9 +22,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscountCurve {
+public abstract class InterpolatedYieldAndDiscountCurve
+    extends YieldAndDiscountCurve {
   private final SortedMap<Double, Double> _data;
-  private final SortedMap<Double, Interpolator1D<? extends Interpolator1DModel>> _interpolators;
+  private final SortedMap<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> _interpolators;
   private final SortedMap<Double, Interpolator1DModel> _models;
 
   /**
@@ -38,10 +40,8 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data,
-      final Interpolator1D<? extends Interpolator1DModel> interpolator) {
-    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DModel>> singletonMap(
-        Double.POSITIVE_INFINITY, interpolator));
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
+    this(data, Collections.<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>>singletonMap(Double.POSITIVE_INFINITY, interpolator));
   }
 
   /**
@@ -59,8 +59,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    *           Thrown if the data map is null or empty, or if it contains a
    *           negative time to maturity.
    */
-  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data,
-      final Map<Double, Interpolator1D<? extends Interpolator1DModel>> interpolators) {
+  public InterpolatedYieldAndDiscountCurve(final Map<Double, Double> data, final Map<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> interpolators) {
     Validate.notNull(data);
     Validate.notNull(interpolators);
     Validate.notEmpty(interpolators);
@@ -72,12 +71,12 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
     assert ArgumentChecker.hasNegativeElement(data.keySet()) == false;
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
-    _data = Collections.<Double, Double> unmodifiableSortedMap(new TreeMap<Double, Double>(data));
+    _data = Collections.<Double, Double>unmodifiableSortedMap(new TreeMap<Double, Double>(data)); //TODO can remove the sorted map when Andrew has finished fixing quicksort
     _interpolators = Collections
-        .<Double, Interpolator1D<? extends Interpolator1DModel>> unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel>>(
+        .<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>>(
             interpolators));
     final SortedMap<Double, Interpolator1DModel> models = new TreeMap<Double, Interpolator1DModel>();
-    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel>> entry : _interpolators.entrySet()) {
+    for (final Map.Entry<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> entry : _interpolators.entrySet()) {
       models.put(entry.getKey(), Interpolator1DModelFactory.fromMap(data, entry.getValue()));
     }
     _models = Collections.unmodifiableSortedMap(models);
@@ -95,7 +94,7 @@ public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscount
    * 
    * @return The interpolator for this curve.
    */
-  public SortedMap<Double, Interpolator1D<? extends Interpolator1DModel>> getInterpolators() {
+  public SortedMap<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> getInterpolators() {
     return _interpolators;
   }
 

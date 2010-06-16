@@ -18,7 +18,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class LinearInterpolator1DTest {
-  private static final Interpolator1D<Interpolator1DModel> INTERPOLATOR = new LinearInterpolator1D();
+  private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new LinearInterpolator1D();
   private static final Function1D<Double, Double> FUNCTION = new Function1D<Double, Double>() {
 
     @Override
@@ -26,8 +26,7 @@ public class LinearInterpolator1DTest {
       return 2 * x - 7;
     }
   };
-  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(new double[] { 1, 2, 3 },
-      new double[] { 4, 5, 6 });
+  private static final Interpolator1DModel MODEL = Interpolator1DModelFactory.fromArrays(new double[] {1, 2, 3}, new double[] {4, 5, 6});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullModel() {
@@ -57,6 +56,6 @@ public class LinearInterpolator1DTest {
       x = Double.valueOf(i);
       data.put(x, FUNCTION.evaluate(x));
     }
-    assertEquals(INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), 3.4), FUNCTION.evaluate(3.4));
+    assertEquals(INTERPOLATOR.interpolate(Interpolator1DModelFactory.fromMap(data), 3.4).getResult(), FUNCTION.evaluate(3.4), 1e-15);
   }
 }

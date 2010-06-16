@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * Interpolates between data points using a polynomial. The method used is
  * Neville's algorithm.
  */
-public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel> {
+public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel, InterpolationResult> {
   private final NevilleInterpolator _interpolator = new NevilleInterpolator();
   private final int _degree;
   private final int _offset;
@@ -41,7 +41,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel
   }
 
   @Override
-  public Double interpolate(final Interpolator1DModel model, final Double value) {
+  public InterpolationResult interpolate(final Interpolator1DModel model, final Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
     checkValue(model, value);
@@ -52,7 +52,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel
       throw new InterpolationException("Need at least " + (_degree + 1) + " data points to perform polynomial interpolation of degree " + _degree);
     }
     if (model.getLowerBoundIndex(value) == n - 1) {
-      return values[n - 1];
+      return new InterpolationResult(values[n - 1]);
     }
     final int lower = model.getLowerBoundIndex(value);
     final int lowerBound = lower - _offset;
@@ -67,7 +67,7 @@ public class PolynomialInterpolator1D extends Interpolator1D<Interpolator1DModel
     final double[] y = Arrays.copyOfRange(values, lowerBound, upperBound);
     try {
       final PolynomialFunctionLagrangeForm lagrange = _interpolator.interpolate(x, y);
-      return CommonsMathWrapper.wrap(lagrange).evaluate(value);
+      return new InterpolationResult(CommonsMathWrapper.wrap(lagrange).evaluate(value));
     } catch (final MathException e) {
       throw new InterpolationException(e);
     }

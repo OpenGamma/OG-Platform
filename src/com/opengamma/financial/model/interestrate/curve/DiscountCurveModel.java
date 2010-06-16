@@ -10,9 +10,9 @@ import java.util.Set;
 import javax.time.calendar.ZonedDateTime;
 
 /**
- * 
+ * @param <T> Type of the data 
  */
 public interface DiscountCurveModel<T> {
 
-  public YieldAndDiscountCurve getCurve(Set<T> data, ZonedDateTime date);
+  YieldAndDiscountCurve getCurve(Set<T> data, ZonedDateTime date);
 }
