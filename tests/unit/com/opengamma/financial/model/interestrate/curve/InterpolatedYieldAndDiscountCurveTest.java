@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.interestrate.curve;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -269,5 +270,24 @@ public class InterpolatedYieldAndDiscountCurveTest {
     curve = new InterpolatedYieldCurve(RATE_DATA, map);
     assertEquals(curve.getInterestRate(1.5), LINEAR.interpolate(YIELD_MODEL, 1.5), EPS);
     assertEquals(curve.getInterestRate(2.5), STEP.interpolate(YIELD_MODEL, 2.5), EPS);
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    YieldAndDiscountCurve curve = new InterpolatedDiscountCurve(DF_DATA, LINEAR);
+    assertEquals(curve, DISCOUNT_CURVE);
+    assertEquals(curve.hashCode(), DISCOUNT_CURVE.hashCode());
+    curve = new InterpolatedDiscountCurve(DF_DATA, STEP);
+    assertFalse(curve.equals(DISCOUNT_CURVE));
+    curve = new InterpolatedDiscountCurve(RATE_DATA, LINEAR);
+    assertFalse(curve.equals(DISCOUNT_CURVE));
+    assertFalse(DISCOUNT_CURVE.equals(YIELD_CURVE));
+    curve = new InterpolatedYieldCurve(RATE_DATA, LINEAR);
+    assertEquals(curve, YIELD_CURVE);
+    assertEquals(curve.hashCode(), YIELD_CURVE.hashCode());
+    curve = new InterpolatedYieldCurve(RATE_DATA, STEP);
+    assertFalse(curve.equals(YIELD_CURVE));
+    curve = new InterpolatedYieldCurve(DF_DATA, LINEAR);
+    assertFalse(curve.equals(YIELD_CURVE));
   }
 }
