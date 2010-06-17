@@ -314,6 +314,7 @@ public class ViewProcessor implements Lifecycle {
     }
     // NOTE kirk 2010-03-02 -- We construct a bespoke ViewProcessingContext because the resolvers
     // might be based on the view definition (particularly for functions and the like).
+    getCompilationContext().setSecurityMaster(getSecurityMaster());
     ViewProcessingContext vpc = new ViewProcessingContext(
         getLiveDataClient(),
         getLiveDataAvailabilityProvider(),

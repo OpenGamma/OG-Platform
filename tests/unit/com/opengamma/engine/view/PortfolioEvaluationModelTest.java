@@ -126,6 +126,7 @@ public class PortfolioEvaluationModelTest {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     
     FunctionCompilationContext functionCompilationContext = new FunctionCompilationContext();
+    functionCompilationContext.setSecurityMaster(secMaster);
     
     ViewCompilationServices vcs = new ViewCompilationServices(snapshotProvider, functionResolver, positionMaster, secMaster, functionCompilationContext, computationTargetResolver, executorService);
     
