@@ -18,9 +18,11 @@ public class FrequencyBean extends EnumBean {
     super(frequency);
   }
   
-  /* package */ Frequency toFrequency () {
-    final Frequency f = FrequencyFactory.INSTANCE.getFrequency (getName ());
-    if (f == null) throw new OpenGammaRuntimeException ("Bad value for frequencyBean (" + getName () + ")");
+  /* package */ Frequency toFrequency() {
+    final Frequency f = FrequencyFactory.INSTANCE.getFrequency(getName());
+    if (f == null) {
+      throw new OpenGammaRuntimeException("Bad value for frequencyBean (" + getName() + ")");
+    }
     return f;
   }
   

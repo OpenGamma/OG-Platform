@@ -17,13 +17,13 @@ public class BondTypeUserType extends EnumUserType<BondType> {
   private static final String GOVERNMENT_BOND_TYPE = "Government";
   private static final String MUNICIPAL_BOND_TYPE = "Municipal";
 
-  public BondTypeUserType () {
-    super (BondType.class, BondType.values ());
+  public BondTypeUserType() {
+    super(BondType.class, BondType.values());
   }
 
   @Override
   protected String enumToStringNoCache(BondType value) {
-    return value.accept (new BondType.Visitor<String> () {
+    return value.accept(new BondType.Visitor<String>() {
 
       @Override
       public String visitCorporateBondType() {

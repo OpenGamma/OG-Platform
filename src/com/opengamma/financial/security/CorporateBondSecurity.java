@@ -61,7 +61,7 @@ public class CorporateBondSecurity extends BondSecurity {
         announcementDate, interestAccrualDate, settlementDate, firstCouponDate,
         issuancePrice, totalAmountIssued, minimumAmount,
         minimumIncrement, parAmount, redemptionValue);
-    throw new OpenGammaRuntimeException ("not implemented");
+    throw new OpenGammaRuntimeException("not implemented");
   }
 
   //-------------------------------------------------------------------------

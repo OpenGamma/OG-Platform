@@ -17,19 +17,19 @@ import com.opengamma.util.time.Expiry;
 public class EnergyFutureSecurity extends CommodityFutureSecurity {
   private final Identifier _underlyingIdentifier;
   
-  public EnergyFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, final Double unitNumber, final String unitName, Identifier underlyingIdentifier) {
-    super (expiry, tradingExchange, settlementExchange, currency, type, unitNumber, unitName);
+  public EnergyFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, final Double unitNumber, final String unitName, Identifier underlyingIdentifier) {
+    super(expiry, tradingExchange, settlementExchange, currency, type, unitNumber, unitName);
     _underlyingIdentifier = underlyingIdentifier;
   }
   
-  public EnergyFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, Identifier underlyingIdentifier) {
-    super (expiry, tradingExchange, settlementExchange, currency, type);
+  public EnergyFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, Identifier underlyingIdentifier) {
+    super(expiry, tradingExchange, settlementExchange, currency, type);
     _underlyingIdentifier = underlyingIdentifier;
   }
 
   @Override
   public <T> T accept(FutureSecurityVisitor<T> visitor) {
-    return visitor.visitEnergyFutureSecurity (this);
+    return visitor.visitEnergyFutureSecurity(this);
   }
   
   public Identifier getUnderlyingIdentityKey() {

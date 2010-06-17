@@ -16,35 +16,35 @@ import com.opengamma.financial.security.EquitySecurity;
 
 /* package */ class EquitySecurityBeanOperation extends AbstractBeanOperation<EquitySecurity, EquitySecurityBean> {
   
-  public static final EquitySecurityBeanOperation INSTANCE = new EquitySecurityBeanOperation ();
+  public static final EquitySecurityBeanOperation INSTANCE = new EquitySecurityBeanOperation();
   
-  private EquitySecurityBeanOperation () {
-    super ("EQUITY", EquitySecurity.class, EquitySecurityBean.class);
+  private EquitySecurityBeanOperation() {
+    super("EQUITY", EquitySecurity.class, EquitySecurityBean.class);
   }
 
   @Override
   public EquitySecurityBean createBean(final HibernateSecurityMasterDao secMasterSession, final EquitySecurity security) {
     GICSCodeBean gicsCodeBean = null;
-    if (security.getGICSCode () != null) {
-      gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean (security.getGICSCode ().toString (), "");
+    if (security.getGICSCode() != null) {
+      gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean(security.getGICSCode().toString(), "");
     }
-    return createBean (secMasterSession.getOrCreateExchangeBean (security.getExchangeCode(), security.getExchange()), security.getCompanyName (), secMasterSession.getOrCreateCurrencyBean (security.getCurrency ().getISOCode ()), gicsCodeBean);
+    return createBean(secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()), security.getCompanyName(), secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()), gicsCodeBean);
   }
   
-  /* package */ EquitySecurityBean createBean (
+  /* package */ EquitySecurityBean createBean(
       final ExchangeBean exchange,
       final String companyName,
       final CurrencyBean currency,
       final GICSCodeBean gicsCode) {
-    final EquitySecurityBean equity = new EquitySecurityBean ();
-    equity.setExchange (exchange);
-    equity.setCompanyName (companyName);
-    equity.setCurrency (currency);
-    equity.setGICSCode (gicsCode);
+    final EquitySecurityBean equity = new EquitySecurityBean();
+    equity.setExchange(exchange);
+    equity.setCompanyName(companyName);
+    equity.setCurrency(currency);
+    equity.setGICSCode(gicsCode);
     return equity;
   }
   
-  /* package */ EquitySecurityBean createBean (
+  /* package */ EquitySecurityBean createBean(
       final HibernateSecurityMasterDao secMasterSession,
       final Date effectiveDateTime,
       final boolean deleted,
@@ -56,7 +56,7 @@ import com.opengamma.financial.security.EquitySecurity;
       final String companyName,
       final CurrencyBean currency,
       final GICSCodeBean gicsCode) {
-    final EquitySecurityBean equity = createBean (exchange, companyName, currency, gicsCode);
+    final EquitySecurityBean equity = createBean(exchange, companyName, currency, gicsCode);
     // base properties
     equity.setEffectiveDateTime(effectiveDateTime);
     equity.setDeleted(deleted);
@@ -65,7 +65,7 @@ import com.opengamma.financial.security.EquitySecurity;
     equity.setDisplayName(displayName);
     // first version
     equity.setFirstVersion(firstVersion);
-    secMasterSession.persistSecurityBean (equity);
+    secMasterSession.persistSecurityBean(equity);
     return equity;
   }
 
@@ -77,7 +77,7 @@ import com.opengamma.financial.security.EquitySecurity;
     result.setExchange(bean.getExchange().getDescription());
     result.setExchangeCode(bean.getExchange().getName());
     //result.setTicker(id);  // TODO: not in the db bean...
-    result.setGICSCode(gicsCodeBeanToGICSCode (bean.getGICSCode ()));
+    result.setGICSCode(gicsCodeBeanToGICSCode(bean.getGICSCode()));
     return result;
   }
 
@@ -85,8 +85,8 @@ import com.opengamma.financial.security.EquitySecurity;
   public boolean beanEquals(EquitySecurityBean bean, EquitySecurity security) {
     return ObjectUtils.equals(bean.getCompanyName(), security.getCompanyName()) &&
         ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency()) &&
-        ObjectUtils.equals(bean.getExchange().getName (), security.getExchange()) &&
-        ObjectUtils.equals(gicsCodeBeanToGICSCode (bean.getGICSCode ()), security.getGICSCode ());
+        ObjectUtils.equals(bean.getExchange().getName(), security.getExchange()) &&
+        ObjectUtils.equals(gicsCodeBeanToGICSCode(bean.getGICSCode()), security.getGICSCode());
   }
 
 }

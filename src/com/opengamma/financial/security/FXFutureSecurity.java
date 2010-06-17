@@ -37,21 +37,21 @@ public class FXFutureSecurity extends FutureSecurity {
     this (expiry, tradingExchange, settlementExchange, domesticCurrency, numerator, denominator, 1.0);
   }
   
-  public Currency getNumerator () {
+  public Currency getNumerator() {
     return _numerator;
   }
   
-  public Currency getDenominator () {
+  public Currency getDenominator() {
     return _denominator;
   }
   
-  public double getMultiplicationFactor () {
+  public double getMultiplicationFactor() {
     return _multiplicationFactor;
   }
 
   @Override
   public <T> T accept(FutureSecurityVisitor<T> visitor) {
-    return visitor.visitFXFutureSecurity (this);
+    return visitor.visitFXFutureSecurity(this);
   }
 
 }

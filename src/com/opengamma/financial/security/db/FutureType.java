@@ -27,8 +27,8 @@ public enum FutureType {
   STOCK,
   INDEX;
   
-  public static FutureType identify (final FutureSecurity object) {
-    return object.accept (new FutureSecurityVisitor<FutureType> () {
+  public static FutureType identify(final FutureSecurity object) {
+    return object.accept(new FutureSecurityVisitor<FutureType>() {
 
       @Override
       public FutureType visitBondFutureSecurity(BondFutureSecurity security) {
@@ -77,27 +77,27 @@ public enum FutureType {
   }
   
   public static interface Visitor<T> {
-    public T visitAgricultureFutureType ();
-    public T visitBondFutureType ();
-    public T visitFXFutureType ();
-    public T visitEnergyFutureType ();
-    public T visitInterestRateFutureType ();
-    public T visitMetalFutureType ();
-    public T visitIndexFutureType();
-    public T visitStockFutureType();
+    T visitAgricultureFutureType();
+    T visitBondFutureType();
+    T visitFXFutureType();
+    T visitEnergyFutureType();
+    T visitInterestRateFutureType();
+    T visitMetalFutureType();
+    T visitIndexFutureType();
+    T visitStockFutureType();
   }
   
-  public <T> T accept (final Visitor<T> visitor) {
+  public <T> T accept(final Visitor<T> visitor) {
     switch (this) {
-    case AGRICULTURE : return visitor.visitAgricultureFutureType ();
-    case BOND : return visitor.visitBondFutureType ();
-    case ENERGY : return visitor.visitEnergyFutureType ();
-    case FX : return visitor.visitFXFutureType ();
-    case INTEREST_RATE : return visitor.visitInterestRateFutureType ();
-    case METAL : return visitor.visitMetalFutureType ();
+    case AGRICULTURE : return visitor.visitAgricultureFutureType();
+    case BOND : return visitor.visitBondFutureType();
+    case ENERGY : return visitor.visitEnergyFutureType();
+    case FX : return visitor.visitFXFutureType();
+    case INTEREST_RATE : return visitor.visitInterestRateFutureType();
+    case METAL : return visitor.visitMetalFutureType();
     case INDEX : return visitor.visitIndexFutureType();
     case STOCK : return visitor.visitStockFutureType();
-    default : throw new OpenGammaRuntimeException ("unexpected FutureType: " + this);
+    default : throw new OpenGammaRuntimeException("unexpected FutureType: " + this);
     }
   }
   

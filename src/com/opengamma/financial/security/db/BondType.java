@@ -17,8 +17,8 @@ public enum BondType {
   MUNICIPAL,
   GOVERNMENT;
   
-  public static BondType identify (final BondSecurity object) {
-    return object.accept (new BondSecurityVisitor<BondType> () {
+  public static BondType identify(final BondSecurity object) {
+    return object.accept(new BondSecurityVisitor<BondType>() {
 
       @Override
       public BondType visitCorporateBondSecurity(CorporateBondSecurity security) {
@@ -40,17 +40,17 @@ public enum BondType {
   }
   
   public static interface Visitor<T> {
-    public T visitCorporateBondType ();
-    public T visitGovernmentBondType ();
-    public T visitMunicipalBondType ();
+    T visitCorporateBondType();
+    T visitGovernmentBondType();
+    T visitMunicipalBondType();
   }
   
-  public <T> T accept (final Visitor<T> visitor) {
+  public <T> T accept(final Visitor<T> visitor) {
     switch (this) {
-    case CORPORATE : return visitor.visitCorporateBondType ();
-    case GOVERNMENT : return visitor.visitGovernmentBondType ();
-    case MUNICIPAL : return visitor.visitMunicipalBondType ();
-    default : throw new OpenGammaRuntimeException ("unexpected BondType: " + this);
+      case CORPORATE : return visitor.visitCorporateBondType();
+      case GOVERNMENT : return visitor.visitGovernmentBondType();
+      case MUNICIPAL : return visitor.visitMunicipalBondType();
+      default : throw new OpenGammaRuntimeException("unexpected BondType: " + this);
     } 
   }
   
