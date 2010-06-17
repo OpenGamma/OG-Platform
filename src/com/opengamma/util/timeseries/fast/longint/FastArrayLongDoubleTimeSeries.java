@@ -536,18 +536,18 @@ public class FastArrayLongDoubleTimeSeries extends AbstractFastLongDoubleTimeSer
   
   // Temporary hack to get the remote view client working
   @Override
-  public MutableFudgeFieldContainer toFudgeMsg (final FudgeMessageFactory messageFactory) {
-    final MutableFudgeFieldContainer message = super.toFudgeMsg (messageFactory);
+  public MutableFudgeFieldContainer toFudgeMsg(final FudgeMessageFactory messageFactory) {
+    final MutableFudgeFieldContainer message = super.toFudgeMsg(messageFactory);
     //message.add ("times", _times);
-    message.add ("times", new long[0]); // [ENG-103] THIS IS WRONG! IT IS BECAUSE THE TS ISN'T NEEDED AT THE MOMENT BUT IS SENT AS PART OF A HUGE RESULT MODEL TO THE REMOTE VIEW CLIENT
+    message.add("times", new long[0]); // [ENG-103] THIS IS WRONG! IT IS BECAUSE THE TS ISN'T NEEDED AT THE MOMENT BUT IS SENT AS PART OF A HUGE RESULT MODEL TO THE REMOTE VIEW CLIENT
     //message.add ("values", _values);
-    message.add ("values", new double[0]); // [ENG-103] THIS IS WRONG! IT IS BECAUSE THE TS ISN'T NEEDED AT THE MOMENT BUT IS SENT AS PART OF A HUGE RESULT MODEL TO THE REMOTE VIEW CLIENT
+    message.add("values", new double[0]); // [ENG-103] THIS IS WRONG! IT IS BECAUSE THE TS ISN'T NEEDED AT THE MOMENT BUT IS SENT AS PART OF A HUGE RESULT MODEL TO THE REMOTE VIEW CLIENT
     return message;
   }
   
   // Temporary hack to get the remote view client working
-  public static FastArrayLongDoubleTimeSeries fromFudgeMsg (final FudgeFieldContainer message) {
-    return new FastArrayLongDoubleTimeSeries (message.getValue (DateTimeNumericEncoding.class, "encoding"), (long[])message.getValue ("times"), (double[])message.getValue ("values"));
+  public static FastArrayLongDoubleTimeSeries fromFudgeMsg(final FudgeFieldContainer message) {
+    return new FastArrayLongDoubleTimeSeries(message.getValue(DateTimeNumericEncoding.class, "encoding"), (long[]) message.getValue ("times"), (double[]) message.getValue("values"));
   }
 
 }
