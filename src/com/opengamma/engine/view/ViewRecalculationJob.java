@@ -23,10 +23,10 @@ public class ViewRecalculationJob extends TerminatableJob {
   private SingleComputationCycle _previousCycle;
   
   /** Nanoseconds */
-  private long _nextDeltaRecalculationTime;
+  private long _nextDeltaRecalculationTime = Long.MIN_VALUE;
   
   /** Nanoseconds */
-  private long _nextFullRecalculationTime;
+  private long _nextFullRecalculationTime = Long.MIN_VALUE;
   
   /**
    * Nanoseconds
@@ -68,13 +68,14 @@ public class ViewRecalculationJob extends TerminatableJob {
     
     boolean doFullRecalc = false;
     long currentTime = System.nanoTime();
-    if (currentTime > _nextFullRecalculationTime) {
+    if (currentTime >= _nextFullRecalculationTime) {
       doFullRecalc = true;
       setNextFullRecalculationTime(currentTime);
+      setNextDeltaRecalculationTime(currentTime); // make sure delta and full are in sync
     }
     
     boolean doDeltaRecalc = false;
-    if (currentTime > _nextDeltaRecalculationTime) {
+    if (currentTime >= _nextDeltaRecalculationTime) {
       doDeltaRecalc = true;
       setNextDeltaRecalculationTime(currentTime);
     }
@@ -84,12 +85,13 @@ public class ViewRecalculationJob extends TerminatableJob {
       long delay = nextTimeToCheck - currentTime;
       delay = Math.max(0, delay);
       delay /= NANOS_PER_MILLISECOND;
+      delay += 1; // round up a bit to make sure it'll be enough
       s_logger.info("Waiting for {} ms", delay);
       try {
         synchronized (this) {
           // This could wait until end of time if both minimum and full recalc periods are null.
-          // In this case, you need to call liveDataChanged() to wake it up 
-          wait(delay); 
+          // In this case, you need to call liveDataChanged() to wake it up
+          wait(delay);
         }
       } catch (InterruptedException e) {
         Thread.interrupted();
@@ -108,6 +110,7 @@ public class ViewRecalculationJob extends TerminatableJob {
     if (doFullRecalc) {  
       s_logger.info("Performing full recalculation");
     } else {
+      s_logger.info("Performing delta recalculation");
       cycle.computeDelta(_previousCycle);
     }
     
@@ -135,6 +138,7 @@ public class ViewRecalculationJob extends TerminatableJob {
   }
   
   public void liveDataChanged() {
+    s_logger.debug("Live Data changed");
     synchronized (this) {
       notifyAll();
     }
