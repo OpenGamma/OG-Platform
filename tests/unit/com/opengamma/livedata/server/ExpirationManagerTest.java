@@ -23,7 +23,6 @@ import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 /**
  * 
  *
- * @author pietari
  */
 public class ExpirationManagerTest {
   
@@ -33,8 +32,8 @@ public class ExpirationManagerTest {
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     dataServer.connect();
-    ExpirationManager pubManager = new ExpirationManager(dataServer, 100, 500);
-    HeartbeatReceiver receiver = new HeartbeatReceiver(pubManager);
+    ExpirationManager expirationManager = new ExpirationManager(dataServer, 100, 500);
+    HeartbeatReceiver receiver = new HeartbeatReceiver(expirationManager);
     DirectInvocationByteArrayMessageSender conduit = new DirectInvocationByteArrayMessageSender(receiver);
     ValueDistributor valueDistributor = new ValueDistributor();
     Timer t = new Timer("HeartbeatConduitTest");
@@ -57,7 +56,9 @@ public class ExpirationManagerTest {
     valueDistributor.removeListener(subscription, listener);
     
     // Wait for expiry
-    Thread.sleep(1000);
+    Thread.sleep(150);
+    
+    expirationManager.expirationCheck();
     
     assertEquals(1, dataServer.getActualSubscriptions().size());
     assertEquals(1, dataServer.getActualUnsubscriptions().size());
@@ -71,7 +72,7 @@ public class ExpirationManagerTest {
     
     MockLiveDataServer dataServer = new MockLiveDataServer(identificationDomain);
     dataServer.connect();
-    new ExpirationManager(dataServer, 100, 500);
+    ExpirationManager expirationManager = new ExpirationManager(dataServer, 100, 500);
     
     // subscribe on the server side
     LiveDataSpecification subscription = new LiveDataSpecification(
@@ -83,11 +84,12 @@ public class ExpirationManagerTest {
     assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualSubscriptions().get(0));
     
     // Wait for expiry
-    Thread.sleep(1000);
+    Thread.sleep(150);
+    
+    expirationManager.expirationCheck();
     
     assertEquals(1, dataServer.getActualUnsubscriptions().size());
     assertEquals(subscription.getIdentifier(identificationDomain), dataServer.getActualUnsubscriptions().get(0));
-    
   }
 
 }

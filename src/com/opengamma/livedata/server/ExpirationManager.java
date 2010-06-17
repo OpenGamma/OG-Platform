@@ -94,7 +94,7 @@ public class ExpirationManager implements SubscriptionListener {
     }
   }
     
-  private void expirationCheck() {
+  void expirationCheck() {
     s_logger.debug("Checking for data specifications to time out");
     int nExpired = 0;
     for (Subscription subscription : _dataServer.getSubscriptions()) {
