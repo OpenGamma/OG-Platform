@@ -12,9 +12,8 @@ import org.apache.commons.lang.Validate;
  */
 public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSensitivities<Interpolator1DModel> {
 
-  @SuppressWarnings("unchecked")
   public LinearInterpolator1DWithSensitivities() {
-    super(Interpolator1DFactory.getInterpolator(Interpolator1DFactory.LINEAR));
+    super(new LinearInterpolator1D());
   }
 
   @Override
@@ -25,7 +24,7 @@ public class LinearInterpolator1DWithSensitivities extends Interpolator1DWithSen
     final int n = model.size();
     final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
     if (boundedValues.getHigherBoundKey() == null) {
-      return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), new double[] {1.});
+      return new InterpolationResultWithSensitivities(boundedValues.getLowerBoundValue(), new double[] { 1. });
     }
     final int index = model.getLowerBoundIndex(value);
     final double[] sensitivities = new double[n];

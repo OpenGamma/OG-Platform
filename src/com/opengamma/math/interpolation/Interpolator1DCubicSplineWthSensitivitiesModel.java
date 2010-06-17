@@ -14,7 +14,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class Interpolator1DCublicSplineWthSensitivitiesModel implements Interpolator1DWithSensitivitiesModel {
+public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator1DWithSecondDerivativeModel {
 
   private final Interpolator1DModel _underlyingData;
   private final DoubleMatrix1D _secondDerivatives;
@@ -25,7 +25,8 @@ public class Interpolator1DCublicSplineWthSensitivitiesModel implements Interpol
   private final Boolean leftNatural = true;
   private final Boolean rightNatural = true;
 
-  public Interpolator1DCublicSplineWthSensitivitiesModel(Interpolator1DModel underlyingData) {
+  public Interpolator1DCubicSplineWthSensitivitiesModel(Interpolator1DWithSecondDerivativeModel underlyingData) {
+    super(underlyingData);
     _underlyingData = underlyingData;
 
     final double[] x = underlyingData.getKeys();
@@ -120,82 +121,12 @@ public class Interpolator1DCublicSplineWthSensitivitiesModel implements Interpol
     return new DoubleMatrix1D(res);
   }
 
-  public DoubleMatrix1D getSecondDerivatives() {
-    return _secondDerivatives;
+  @Override
+  public double[] getSecondDerivatives() {
+    return _secondDerivatives.getData();
   }
 
   public DoubleMatrix2D getSecondDerivativiesSensitivities() {
     return _secondDevSensitivities;
   }
-
-  @Override
-  public boolean containsKey(final Double key) {
-    return _underlyingData.containsKey(key);
-  }
-
-  @Override
-  public Double firstKey() {
-    return _underlyingData.firstKey();
-  }
-
-  @Override
-  public Double firstValue() {
-    return _underlyingData.firstValue();
-  }
-
-  @Override
-  public Double get(final Double key) {
-    return _underlyingData.get(key);
-  }
-
-  @Override
-  public InterpolationBoundedValues getBoundedValues(final Double key) {
-    return _underlyingData.getBoundedValues(key);
-  }
-
-  @Override
-  public double[] getKeys() {
-    return _underlyingData.getKeys();
-  }
-
-  @Override
-  public int getLowerBoundIndex(final Double value) {
-    return _underlyingData.getLowerBoundIndex(value);
-  }
-
-  @Override
-  public Double getLowerBoundKey(final Double value) {
-    return _underlyingData.getLowerBoundKey(value);
-  }
-
-  @Override
-  public double[] getValues() {
-    return _underlyingData.getValues();
-  }
-
-  @Override
-  public Double higherKey(final Double key) {
-    return _underlyingData.higherKey(key);
-  }
-
-  @Override
-  public Double higherValue(final Double key) {
-    return _underlyingData.higherValue(key);
-  }
-
-  @Override
-  public Double lastKey() {
-    return _underlyingData.lastKey();
-  }
-
-  @Override
-  public Double lastValue() {
-    return _underlyingData.lastValue();
-  }
-
-  @Override
-  public int size() {
-    return _underlyingData.size();
-  }
-
 }

@@ -48,28 +48,36 @@ public final class Interpolator1DModelFactory {
     }
   }
 
-  public static Interpolator1DWithSecondDerivativeModel toModelWithSecondDerivative(final Interpolator1DModel model) {
-    return new Interpolator1DWithSecondDerivativeModel(model);
+  private static Interpolator1DModel augmentModel(
+      final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator,
+      Interpolator1DModel baseModel) {
+
+    if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
+      return new Interpolator1DWithSecondDerivativeModel(baseModel);
+    } else if (interpolator.getClass().equals(CubicSplineInterpolatorWithSensitivities1D.class)) {
+      return new Interpolator1DCubicSplineWthSensitivitiesModel(new Interpolator1DWithSecondDerivativeModel(baseModel));
+    }
+    return baseModel;
   }
 
-  public static Interpolator1DModel fromArrays(final double[] keys, final double[] values, final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
-    if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
-      return toModelWithSecondDerivative(fromArrays(keys, values));
-    }
-    return fromArrays(keys, values);
+  public static Interpolator1DModel fromArrays(final double[] keys, final double[] values,
+      final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
+    Interpolator1DModel baseModel = fromArrays(keys, values);
+    return augmentModel(interpolator, baseModel);
+
   }
 
-  public static Interpolator1DModel fromSortedArrays(final double[] keys, final double[] values, final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
-    if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
-      return toModelWithSecondDerivative(fromSortedArrays(keys, values));
-    }
-    return fromSortedArrays(keys, values);
+  public static Interpolator1DModel fromSortedArrays(final double[] keys, final double[] values,
+      final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
+    Interpolator1DModel baseModel = fromSortedArrays(keys, values);
+    return augmentModel(interpolator, baseModel);
+
   }
 
-  public static Interpolator1DModel fromMap(final Map<Double, Double> data, final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
-    if (interpolator.getClass().equals(NaturalCubicSplineInterpolator1D.class)) {
-      return toModelWithSecondDerivative(fromMap(data));
-    }
-    return fromMap(data);
+  public static Interpolator1DModel fromMap(final Map<Double, Double> data,
+      final Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult> interpolator) {
+    Interpolator1DModel baseModel = fromMap(data);
+    return augmentModel(interpolator, baseModel);
+
   }
 }

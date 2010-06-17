@@ -21,6 +21,8 @@ public final class Interpolator1DFactory {
   public static final LogLinearInterpolator1D LOG_LINEAR_INSTANCE = new LogLinearInterpolator1D();
   public static final String NATURAL_CUBIC_SPLINE = "NaturalCubicSpline";
   public static final NaturalCubicSplineInterpolator1D NATURAL_CUBIC_SPLINE_INSTANCE = new NaturalCubicSplineInterpolator1D();
+  public static final String CUBIC_SPLINE_WITH_SENSITIVITIES = "CubicSplineWithSensitivities";
+  public static final CubicSplineInterpolatorWithSensitivities1D CUBIC_SPLINE_WITH_SENSITIVITIES_INSTANCE = new CubicSplineInterpolatorWithSensitivities1D();
 
   public static final String BARYCENTRIC_RATIONAL_FUNCTION = "BarycentricRationalFunction";
   public static final String POLYNOMIAL = "Polynomial";
@@ -40,6 +42,8 @@ public final class Interpolator1DFactory {
     instanceNames.put(LogLinearInterpolator1D.class, LOG_LINEAR);
     staticInstances.put(NATURAL_CUBIC_SPLINE, NATURAL_CUBIC_SPLINE_INSTANCE);
     instanceNames.put(NaturalCubicSplineInterpolator1D.class, NATURAL_CUBIC_SPLINE);
+    staticInstances.put(CUBIC_SPLINE_WITH_SENSITIVITIES, CUBIC_SPLINE_WITH_SENSITIVITIES_INSTANCE);
+    instanceNames.put(CubicSplineInterpolatorWithSensitivities1D.class, CUBIC_SPLINE_WITH_SENSITIVITIES);
     s_staticInstances = new HashMap<String, Interpolator1D>(staticInstances);
     s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
   }
@@ -48,8 +52,10 @@ public final class Interpolator1DFactory {
   }
 
   public static Interpolator1D getInterpolator(final String interpolatorName) {
+    System.out.println("trying to get a " + interpolatorName + " " + s_staticInstances + " " + s_instanceNames);
     final Interpolator1D interpolator = s_staticInstances.get(interpolatorName);
     if (interpolator != null) {
+      System.out.println("got interpolator " + interpolator.toString());
       return interpolator;
     }
     // TODO kirk 2009-12-30 -- Deal with degree for Barycentric, Polynomial, and
