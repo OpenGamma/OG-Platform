@@ -18,7 +18,6 @@ import com.opengamma.math.function.PolynomialFunction1D;
 
 /**
  * 
- * @author emcleod
  */
 public class EigenvaluePolynomialRootFinderTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
@@ -31,16 +30,16 @@ public class EigenvaluePolynomialRootFinderTest {
 
   @Test
   public void test() {
-    final Double[] r = new Double[] { -RANDOM.nextDouble(), -RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble() };
+    final double[] r = new double[] {-RANDOM.nextDouble(), -RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble()};
     final double a0 = r[0] * r[1] * r[2] * r[3];
     final double a1 = r[0] * r[1] * r[2] + r[0] * r[1] * r[3] + r[0] * r[2] * r[3] + r[1] * r[2] * r[3];
     final double a2 = r[0] * r[1] + r[0] * r[2] + r[0] * r[3] + r[1] * r[2] + r[1] * r[3] + r[2] * r[3];
     final double a3 = r[0] + r[1] + r[2] + r[3];
     final double a4 = 1;
-    final PolynomialFunction1D f = new PolynomialFunction1D(new Double[] { a0, a1, a2, a3, a4 });
+    final PolynomialFunction1D f = new PolynomialFunction1D(new double[] {a0, a1, a2, a3, a4});
     final Double[] roots = FINDER.getRoots(f);
     Arrays.sort(roots);
-    final Double[] expected = new Double[r.length];
+    final double[] expected = new double[r.length];
     for (int i = 0; i < r.length; i++) {
       expected[i] = -r[i];
     }

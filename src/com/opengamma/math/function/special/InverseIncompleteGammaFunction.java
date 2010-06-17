@@ -7,18 +7,22 @@ package com.opengamma.math.function.special;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.Function2D;
+import com.opengamma.util.ArgumentChecker;
 
+/**
+ * 
+ */
 //TODO either find another implementation or delete this class
 public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
   private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
-  private final double EPS = 1e-8;
+  private static final double EPS = 1e-8;
 
   @Override
   public Double evaluate(final Double a, final Double p) {
-    if (a <= 0)
-      throw new IllegalArgumentException("a must be positive");
-    if (p >= 1 || p <= 0)
+    ArgumentChecker.notNegativeOrZero(a, "a");
+    if (!ArgumentChecker.isInRangeExclusive(0, 1, p)) {
       throw new IllegalArgumentException("p must lie between 0 and 1: have " + p);
+    }
     double x;
     double err;
     double t;
@@ -46,8 +50,9 @@ public class InverseIncompleteGammaFunction extends Function2D<Double, Double> {
       }
     }
     for (int i = 0; i < 12; i++) {
-      if (x <= 0)
+      if (x <= 0) {
         return 0.;
+      }
       err = gammaIncomplete.evaluate(x) - p;
       if (a > 1) {
         t = afac * Math.exp(-(x - a1) + a1 * (Math.log(x) - lna1));

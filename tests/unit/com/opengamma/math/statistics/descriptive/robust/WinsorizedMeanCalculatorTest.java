@@ -15,12 +15,11 @@ import com.opengamma.math.statistics.descriptive.MeanCalculator;
 
 /**
  * 
- * @author emcleod
  */
 public class WinsorizedMeanCalculatorTest {
   private static final int N = 100;
-  private static final Function1D<Double[], Double> CALCULATOR = new WinsorizedMeanCalculator(0.1);
-  private static final Function1D<Double[], Double> MEAN = new MeanCalculator();
+  private static final Function1D<double[], Double> CALCULATOR = new WinsorizedMeanCalculator(0.1);
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
   private static final double EPS = 1e-12;
 
   @Test(expected = IllegalArgumentException.class)
@@ -35,17 +34,17 @@ public class WinsorizedMeanCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullArray() {
-    CALCULATOR.evaluate((Double[]) null);
+    CALCULATOR.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyArray() {
-    CALCULATOR.evaluate(new Double[0]);
+    CALCULATOR.evaluate(new double[0]);
   }
 
   @Test
   public void test() {
-    final Double[] x = new Double[N];
+    final double[] x = new double[N];
     for (int i = 0; i < 10; i++) {
       x[i] = Double.valueOf(10);
     }

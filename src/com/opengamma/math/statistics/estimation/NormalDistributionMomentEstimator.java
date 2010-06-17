@@ -5,30 +5,25 @@
  */
 package com.opengamma.math.statistics.estimation;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleMomentCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @author emcleod
  * 
  */
 public class NormalDistributionMomentEstimator extends DistributionParameterEstimator<Double> {
-  private final Function1D<Double[], Double> _first = new SampleMomentCalculator(1);
-  private final Function1D<Double[], Double> _second = new SampleMomentCalculator(2);
+  private final Function1D<double[], Double> _first = new SampleMomentCalculator(1);
+  private final Function1D<double[], Double> _second = new SampleMomentCalculator(2);
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
-  public ProbabilityDistribution<Double> evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length == 0)
-      throw new IllegalArgumentException("Array was empty");
+  public ProbabilityDistribution<Double> evaluate(final double[] x) {
+    Validate.notNull(x, "x");
+    ArgumentChecker.notEmpty(x, "x");
     final double m1 = _first.evaluate(x);
     return new NormalDistribution(m1, Math.sqrt(_second.evaluate(x) - m1 * m1));
   }

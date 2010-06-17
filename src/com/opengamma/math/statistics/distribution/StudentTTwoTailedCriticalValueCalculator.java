@@ -5,42 +5,34 @@
  */
 package com.opengamma.math.statistics.distribution;
 
+import org.apache.commons.lang.Validate;
+
 import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @author emcleod
  * 
  */
 public class StudentTTwoTailedCriticalValueCalculator extends Function1D<Double, Double> {
   private final Function1D<Double, Double> _calc;
 
   public StudentTTwoTailedCriticalValueCalculator(final double nu) {
-    if (nu < 0)
-      throw new IllegalArgumentException("Degrees of freedom must be positive");
+    ArgumentChecker.notNegative(nu, "nu");
     _calc = new StudentTOneTailedCriticalValueCalculator(nu);
   }
 
   public StudentTTwoTailedCriticalValueCalculator(final double nu, final RandomEngine engine) {
-    if (nu < 0)
-      throw new IllegalArgumentException("Degrees of freedom must be positive");
-    if (engine == null)
-      throw new IllegalArgumentException("Engine was null");
+    ArgumentChecker.notNegative(nu, "nu");
+    Validate.notNull(engine);
     _calc = new StudentTOneTailedCriticalValueCalculator(nu, engine);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public Double evaluate(final Double x) {
-    if (x == null)
-      throw new IllegalArgumentException("x was null");
-    if (x < 0)
-      throw new IllegalArgumentException("x must be positive");
+    Validate.notNull(x, "x");
+    ArgumentChecker.notNegative(x, "x");
     return _calc.evaluate(0.5 + 0.5 * x);
   }
 }

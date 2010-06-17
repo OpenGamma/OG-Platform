@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.model.forward.definition;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -15,7 +16,7 @@ public class ForwardDefinition {
   private final Expiry _expiry;
 
   public ForwardDefinition(final Expiry expiry) {
-    ArgumentChecker.notNull(expiry, "expiry");
+    Validate.notNull(expiry, "expiry");
     _expiry = expiry;
   }
 
@@ -23,9 +24,6 @@ public class ForwardDefinition {
     return _expiry;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -34,23 +32,25 @@ public class ForwardDefinition {
     return result;
   }
 
-  /* (non-Javadoc)
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final ForwardDefinition other = (ForwardDefinition) obj;
     if (_expiry == null) {
-      if (other._expiry != null)
+      if (other._expiry != null) {
         return false;
-    } else if (!_expiry.equals(other._expiry))
+      }
+    } else if (!_expiry.equals(other._expiry)) {
       return false;
+    }
     return true;
   }
 }

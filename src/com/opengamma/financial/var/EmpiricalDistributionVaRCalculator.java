@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.var;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.PercentileCalculator;
@@ -18,7 +17,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class EmpiricalDistributionVaRCalculator extends VaRCalculator<DoubleTimeSeries<?>> {
   private double _mult;
-  private Function1D<Double[], Double> _percentileCalculator;
+  private Function1D<double[], Double> _percentileCalculator;
 
   public EmpiricalDistributionVaRCalculator(final double horizon, final double periods, final double quantile) {
     super(horizon, periods, quantile);
@@ -56,11 +55,12 @@ public class EmpiricalDistributionVaRCalculator extends VaRCalculator<DoubleTime
    */
   @Override
   public Double evaluate(final DoubleTimeSeries<?> ts) {
-    if (ts == null)
+    if (ts == null) {
       throw new IllegalArgumentException("Time series was null");
-    final List<Double> data = ts.values();
-    Collections.sort(data);
-    return _mult * _percentileCalculator.evaluate(data.toArray(new Double[0]));
+    }
+    final double[] data = ts.toFastLongDoubleTimeSeries().valuesArrayFast();
+    Arrays.sort(data);
+    return _mult * _percentileCalculator.evaluate(data);
   }
 
 }

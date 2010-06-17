@@ -15,7 +15,6 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class NormalDistributionMaximumLikelihoodEstimatorTest {
@@ -23,12 +22,12 @@ public class NormalDistributionMaximumLikelihoodEstimatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
-    ESTIMATOR.evaluate((Double[]) null);
+    ESTIMATOR.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty() {
-    ESTIMATOR.evaluate(new Double[0]);
+    ESTIMATOR.evaluate(new double[0]);
   }
 
   @Test
@@ -38,7 +37,7 @@ public class NormalDistributionMaximumLikelihoodEstimatorTest {
     final double mu = -1.3;
     final double sigma = 0.4;
     final ProbabilityDistribution<Double> p1 = new NormalDistribution(mu, sigma, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
-    final Double[] x = new Double[n];
+    final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();
     }

@@ -9,9 +9,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * @author emcleod
- * 
+ * @param <T> Parameter for the probability distribution
  */
-public abstract class DistributionParameterEstimator<T> extends Function1D<Double[], ProbabilityDistribution<T>> {
+public abstract class DistributionParameterEstimator<T> extends Function1D<double[], ProbabilityDistribution<T>> {
 
 }

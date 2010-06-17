@@ -13,13 +13,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
  */
 public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityCalculator {
-  private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityHighLowCalculator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityHighLowCalculator.class);
   private final RelativeTimeSeriesReturnCalculator _returnCalculator;
 
   public HistoricalVolatilityHighLowCalculator(final RelativeTimeSeriesReturnCalculator returnCalculator) {
@@ -41,17 +40,17 @@ public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityC
   public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     if (x.length < 2) {
-      throw new TimeSeriesException("Need high and low time series to calculate high-low volatility");
+      throw new IllegalArgumentException("Need high and low time series to calculate high-low volatility");
     }
     if (x.length > 2) {
-      s_Log.info("Time series array contained more than two series; only using the first two");
+      s_logger.info("Time series array contained more than two series; only using the first two");
     }
     testTimeSeries(x, 1);
     testDatesCoincide(x);
     final DoubleTimeSeries<?> high = x[0];
     final DoubleTimeSeries<?> low = x[1];
     testHighLow(high, low);
-    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(new DoubleTimeSeries<?>[] { high, low });
+    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(new DoubleTimeSeries<?>[] {high, low});
     final int n = returnTS.size();
     final Iterator<Double> iter = returnTS.valuesIterator();
     double sum = 0;

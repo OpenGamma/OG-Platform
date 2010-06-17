@@ -19,11 +19,11 @@ public class LaplaceDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 0.7;
   private static final double B = 0.5;
   private static final ProbabilityDistribution<Double> LAPLACE = new LaplaceDistribution(MU, B, ENGINE);
-  private static final Double[] DATA;
+  private static final double[] DATA;
   private static final double EPS1 = 0.05;
   static {
     final int n = 500000;
-    DATA = new Double[n];
+    DATA = new double[n];
     for (int i = 0; i < n; i++) {
       DATA[i] = LAPLACE.nextRandom();
     }

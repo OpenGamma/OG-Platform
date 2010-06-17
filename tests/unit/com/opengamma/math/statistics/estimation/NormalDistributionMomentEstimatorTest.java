@@ -16,20 +16,19 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class NormalDistributionMomentEstimatorTest {
-  private static final Function1D<Double[], ProbabilityDistribution<Double>> CALCULATOR = new NormalDistributionMomentEstimator();
+  private static final Function1D<double[], ProbabilityDistribution<Double>> CALCULATOR = new NormalDistributionMomentEstimator();
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
-    CALCULATOR.evaluate((Double[]) null);
+    CALCULATOR.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmpty() {
-    CALCULATOR.evaluate(new Double[0]);
+    CALCULATOR.evaluate(new double[0]);
   }
 
   @Test
@@ -38,7 +37,7 @@ public class NormalDistributionMomentEstimatorTest {
     final double mu = 4.5;
     final double sigma = 0.86;
     final ProbabilityDistribution<Double> p1 = new NormalDistribution(mu, sigma, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
-    final Double[] x = new Double[n];
+    final double[] x = new double[n];
     for (int i = 0; i < n; i++) {
       x[i] = p1.nextRandom();
     }

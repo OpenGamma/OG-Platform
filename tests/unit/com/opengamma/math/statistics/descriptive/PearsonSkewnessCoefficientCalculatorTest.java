@@ -20,10 +20,10 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class PearsonSkewnessCoefficientCalculatorTest {
   private static final double STD = 2.;
-  private static final Function1D<Double[], Double> FIRST = new PearsonFirstSkewnessCoefficientCalculator();
-  private static final Function1D<Double[], Double> SECOND = new PearsonSecondSkewnessCoefficientCalculator();
+  private static final Function1D<double[], Double> FIRST = new PearsonFirstSkewnessCoefficientCalculator();
+  private static final Function1D<double[], Double> SECOND = new PearsonSecondSkewnessCoefficientCalculator();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
-  private static final Double[] NORMAL_DATA = new Double[50000];
+  private static final double[] NORMAL_DATA = new double[50000];
   static {
     for (int i = 0; i < 50000; i++) {
       NORMAL_DATA[i] = ((int) (100 * NORMAL.nextRandom())) / 100.;
@@ -32,22 +32,22 @@ public class PearsonSkewnessCoefficientCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFirst() {
-    FIRST.evaluate((Double[]) null);
+    FIRST.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullSecond() {
-    SECOND.evaluate((Double[]) null);
+    SECOND.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyFirst() {
-    FIRST.evaluate(new Double[0]);
+    FIRST.evaluate(new double[0]);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptySecond() {
-    SECOND.evaluate(new Double[0]);
+    SECOND.evaluate(new double[0]);
   }
 
   @Test

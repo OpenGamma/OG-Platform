@@ -83,37 +83,37 @@ public class MatrixAlgebraTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testsubtractWrongSize() {
+  public void testSubtractWrongSize() {
     ALGEBRA.subtract(M1, M3);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testsubtractDifferentRowNumber1D() {
+  public void testSubtractDifferentRowNumber1D() {
     ALGEBRA.subtract(M1, new DoubleMatrix1D(new double[] {1, 2, 3}));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testsubtractDifferentRowNumber2D() {
+  public void testSubtractDifferentRowNumber2D() {
     ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2}, new double[] {3, 4}, new double[] {5, 6}}));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testsubtractDifferentColumnNumber2D() {
+  public void testSubtractDifferentColumnNumber2D() {
     ALGEBRA.subtract(M3, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}}));
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testsubtractWrongType1() {
+  public void testSubtractWrongType1() {
     ALGEBRA.subtract(M1, M5);
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testsubtractWrongType2() {
+  public void testSubtractWrongType2() {
     ALGEBRA.subtract(M3, M5);
   }
 
   @Test(expected = NotImplementedException.class)
-  public void testsubtractWrongType3() {
+  public void testSubtractWrongType3() {
     ALGEBRA.subtract(M5, M5);
   }
 
@@ -125,6 +125,11 @@ public class MatrixAlgebraTest {
     m = ALGEBRA.subtract(M3, M4);
     assertTrue(m instanceof DoubleMatrix2D);
     assertMatrixEquals(m, new DoubleMatrix2D(new double[][] {new double[] {-4, -4}, new double[] {-4, -4}}));
+  }
+
+  @Test(expected = NotImplementedException.class)
+  public void testScaleWrongType() {
+    ALGEBRA.scale(M5, 0.5);
   }
 
   @Test
@@ -239,12 +244,8 @@ public class MatrixAlgebraTest {
       return null;
     }
 
-    /* (non-Javadoc)
-     * @see com.opengamma.math.matrix.MatrixAlgebra#getPower(com.opengamma.math.matrix.Matrix, double)
-     */
     @Override
     public DoubleMatrix2D getPower(final Matrix<?> m, final double p) {
-      // TODO Auto-generated method stub
       return null;
     }
 

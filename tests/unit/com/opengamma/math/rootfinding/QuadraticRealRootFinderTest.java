@@ -14,11 +14,10 @@ import com.opengamma.math.function.PolynomialFunction1D;
 
 /**
  * 
- * @author emcleod
  */
 public class QuadraticRealRootFinderTest {
   private static final double EPS = 1e-9;
-  private static final PolynomialFunction1D F = new PolynomialFunction1D(new Double[] { 12., 7., 1. });
+  private static final PolynomialFunction1D F = new PolynomialFunction1D(new double[] {12., 7., 1.});
   private static final Polynomial1DRootFinder<Double> FINDER = new QuadraticRealRootFinder();
 
   @Test
@@ -30,13 +29,13 @@ public class QuadraticRealRootFinderTest {
       // Expected
     }
     try {
-      FINDER.getRoots(new PolynomialFunction1D(new Double[] { 1., 2., 3., 4. }));
+      FINDER.getRoots(new PolynomialFunction1D(new double[] {1., 2., 3., 4.}));
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
     try {
-      FINDER.getRoots(new PolynomialFunction1D(new Double[] { 12., 1., 12. }));
+      FINDER.getRoots(new PolynomialFunction1D(new double[] {12., 1., 12.}));
       fail();
     } catch (final RootNotFoundException e) {
       // Expected

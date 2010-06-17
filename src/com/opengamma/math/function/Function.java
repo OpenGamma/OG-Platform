@@ -15,7 +15,6 @@ package com.opengamma.math.function;
  *          Type of the arguments
  * @param <T>
  *          Return type of function
- * @author emcleod
  */
 public interface Function<S, T> {
 
@@ -25,5 +24,5 @@ public interface Function<S, T> {
    *          The list of inputs into the function
    * @return The value of the function
    */
-  public T evaluate(S... x);
+  T evaluate(S... x);
 }

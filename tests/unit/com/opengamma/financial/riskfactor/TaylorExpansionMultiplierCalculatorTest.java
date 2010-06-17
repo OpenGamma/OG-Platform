@@ -74,17 +74,17 @@ public class TaylorExpansionMultiplierCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyMap() {
-    TaylorExpansionMultiplierCalculator.getMultiplier(Collections.<Object, Double> emptyMap(), FIRST_ORDER);
+    TaylorExpansionMultiplierCalculator.getMultiplier(Collections.<Object, Double>emptyMap(), FIRST_ORDER);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testUnderlyingType2() {
-    TaylorExpansionMultiplierCalculator.getMultiplier(NEW_TYPE);
+    TaylorExpansionMultiplierCalculator.getMultiplier(UNDERLYING_DATA, NEW_TYPE);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
-    TaylorExpansionMultiplierCalculator.getMultiplier(Collections.<Object, Double> singletonMap(UnderlyingType.SPOT_PRICE, null), FIFTH_ORDER);
+    TaylorExpansionMultiplierCalculator.getMultiplier(Collections.<Object, Double>singletonMap(UnderlyingType.SPOT_PRICE, null), FIFTH_ORDER);
   }
 
   @Test

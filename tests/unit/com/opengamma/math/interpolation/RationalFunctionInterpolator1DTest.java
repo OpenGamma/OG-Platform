@@ -20,7 +20,7 @@ import com.opengamma.math.function.PolynomialFunction1D;
  */
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
-  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new Double[] {-0.87, 3.4, 1., -5.});
+  private static final Function1D<Double, Double> F = new PolynomialFunction1D(new double[] {-0.87, 3.4, 1., -5.});
   private static final Interpolator1D<Interpolator1DModel, InterpolationResult> INTERPOLATOR = new RationalFunctionInterpolator1D(3);
   private static final Interpolator1DModel MODEL;
   private static final double EPS = 1;

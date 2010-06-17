@@ -6,38 +6,27 @@
 package com.opengamma.financial.covariance;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
- * @author emcleod
  */
 public class HistoricalVolatilityHighLowCalculatorTest extends HistoricalVolatilityCalculatorTestCase {
   private static final HistoricalVolatilityCalculator CALCULATOR = new HistoricalVolatilityHighLowCalculator(RELATIVE_RETURN_CALCULATOR);
 
-  @Test
-  public void test() {
-    try {
-      CALCULATOR.evaluate(new DoubleTimeSeries[] { HIGH_TS });
-      fail();
-    } catch (final TimeSeriesException e) {
-      // Expected
-    }
-    assertEquals(CALCULATOR.evaluate(new DoubleTimeSeries[] { HIGH_TS, LOW_TS }), 0.0126, EPS);
+  @Test(expected = IllegalArgumentException.class)
+  public void testHighTS() {
+    CALCULATOR.evaluate(new DoubleTimeSeries[] {HIGH_TS});
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.financial.covariance.HistoricalVolatilityCalculatorTestCase
-   * #getCalculator()
-   */
+  @Test
+  public void test() {
+    assertEquals(CALCULATOR.evaluate(new DoubleTimeSeries[] {HIGH_TS, LOW_TS}), 0.0126, EPS);
+  }
+
   @Override
   protected HistoricalVolatilityCalculator getCalculator() {
     return CALCULATOR;

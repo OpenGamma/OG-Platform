@@ -5,21 +5,22 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
-public class PopulationVarianceCalculator extends Function1D<Double[], Double> {
-  private final Function1D<Double[], Double> _variance = new SampleVarianceCalculator();
+public class PopulationVarianceCalculator extends Function1D<double[], Double> {
+  private final Function1D<double[], Double> _variance = new SampleVarianceCalculator();
 
   @Override
-  public Double evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length < 2)
+  public Double evaluate(final double[] x) {
+    Validate.notNull(x, "x");
+    if (x.length < 2) {
       throw new IllegalArgumentException("Need at least two points to calculate variance");
+    }
     final int n = x.length;
     return _variance.evaluate(x) * (n - 1) / n;
   }

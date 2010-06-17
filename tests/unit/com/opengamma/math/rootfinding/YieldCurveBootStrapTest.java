@@ -144,7 +144,7 @@ public class YieldCurveBootStrapTest {
 
     final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
     final VectorRootFinder rootFinder = new NewtonVectorRootFinder(EPS, EPS, STEPS);
-    final double[] swapRates = SWAP_VALUES.clone();
+    final double[] swapRates = Arrays.copyOf(SWAP_VALUES, SWAP_VALUES.length);
     DoubleMatrix1D yieldCurveNodes = X0;
     YieldAndDiscountCurve curve;
     final double sigma = 0.03;

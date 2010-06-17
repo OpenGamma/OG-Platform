@@ -21,27 +21,26 @@ import com.opengamma.math.statistics.distribution.StudentTDistribution;
 
 /**
  * 
- * @author emcleod
  */
 public class MomentCalculatorTest {
   private static final double STD = 2.;
   private static final double DOF = 10;
-  private static final Function1D<Double[], Double> MEAN = new MeanCalculator();
-  private static final Function1D<Double[], Double> SAMPLE_VARIANCE = new SampleVarianceCalculator();
-  private static final Function1D<Double[], Double> POPULATION_VARIANCE = new PopulationVarianceCalculator();
-  private static final Function1D<Double[], Double> SAMPLE_STD = new SampleStandardDeviationCalculator();
-  private static final Function1D<Double[], Double> POPULATION_STD = new PopulationStandardDeviationCalculator();
-  private static final Function1D<Double[], Double> SAMPLE_SKEWNESS = new SampleSkewnessCalculator();
-  private static final Function1D<Double[], Double> SAMPLE_PEARSON_KURTOSIS = new SamplePearsonKurtosisCalculator();
-  private static final Function1D<Double[], Double> SAMPLE_FISHER_KURTOSIS = new SampleFisherKurtosisCalculator();
-  private static final Function1D<Double[], Double> SAMPLE_CENTRAL_MOMENT = new SampleCentralMomentCalculator(1);
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
+  private static final Function1D<double[], Double> SAMPLE_VARIANCE = new SampleVarianceCalculator();
+  private static final Function1D<double[], Double> POPULATION_VARIANCE = new PopulationVarianceCalculator();
+  private static final Function1D<double[], Double> SAMPLE_STD = new SampleStandardDeviationCalculator();
+  private static final Function1D<double[], Double> POPULATION_STD = new PopulationStandardDeviationCalculator();
+  private static final Function1D<double[], Double> SAMPLE_SKEWNESS = new SampleSkewnessCalculator();
+  private static final Function1D<double[], Double> SAMPLE_PEARSON_KURTOSIS = new SamplePearsonKurtosisCalculator();
+  private static final Function1D<double[], Double> SAMPLE_FISHER_KURTOSIS = new SampleFisherKurtosisCalculator();
+  private static final Function1D<double[], Double> SAMPLE_CENTRAL_MOMENT = new SampleCentralMomentCalculator(1);
   private static final RandomEngine ENGINE = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, STD, ENGINE);
   private static final ProbabilityDistribution<Double> STUDENT_T = new StudentTDistribution(DOF, ENGINE);
   private static final ProbabilityDistribution<Double> CHI_SQ = new ChiSquareDistribution(DOF, ENGINE);
-  private static final Double[] NORMAL_DATA = new Double[500000];
-  private static final Double[] STUDENT_T_DATA = new Double[500000];
-  private static final Double[] CHI_SQ_DATA = new Double[500000];
+  private static final double[] NORMAL_DATA = new double[500000];
+  private static final double[] STUDENT_T_DATA = new double[500000];
+  private static final double[] CHI_SQ_DATA = new double[500000];
   private static final double EPS = 0.1;
   static {
     for (int i = 0; i < 500000; i++) {
@@ -73,18 +72,18 @@ public class MomentCalculatorTest {
     testInsufficientData(SAMPLE_CENTRAL_MOMENT);
   }
 
-  private void testNull(final Function1D<Double[], Double> f) {
+  private void testNull(final Function1D<double[], Double> f) {
     try {
-      f.evaluate((Double[]) null);
+      f.evaluate((double[]) null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
-  private void testInsufficientData(final Function1D<Double[], Double> f) {
+  private void testInsufficientData(final Function1D<double[], Double> f) {
     try {
-      f.evaluate(new Double[] { 1. });
+      f.evaluate(new double[] {1.});
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -137,7 +136,7 @@ public class MomentCalculatorTest {
   }
 
   public void testCentralMoments() {
-    Function1D<Double[], Double> calculator = new SampleCentralMomentCalculator(0);
+    Function1D<double[], Double> calculator = new SampleCentralMomentCalculator(0);
     assertEquals(calculator.evaluate(NORMAL_DATA), 1, EPS);
     assertEquals(calculator.evaluate(CHI_SQ_DATA), 1, EPS);
     assertEquals(calculator.evaluate(STUDENT_T_DATA), 1, EPS);
@@ -153,7 +152,7 @@ public class MomentCalculatorTest {
 
   @Test
   public void testNormalizedCentralMoments() {
-    Function1D<Double[], Double> calculator = new SampleNormalizedCentralMomentCalculator(0);
+    Function1D<double[], Double> calculator = new SampleNormalizedCentralMomentCalculator(0);
     assertEquals(calculator.evaluate(NORMAL_DATA), 1, EPS);
     assertEquals(calculator.evaluate(CHI_SQ_DATA), 1, EPS);
     assertEquals(calculator.evaluate(STUDENT_T_DATA), 1, EPS);

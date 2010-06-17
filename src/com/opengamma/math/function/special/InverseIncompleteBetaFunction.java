@@ -7,20 +7,22 @@ package com.opengamma.math.function.special;
 
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
+/**
+ * 
+ */
 //TODO either find another implementation or delete this class
 public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
   private final double _a;
   private final double _b;
   private final Function1D<Double, Double> _lnGamma = new NaturalLogGammaFunction();
   private final Function1D<Double, Double> _beta;
-  private final double EPS = 1e-9;
+  private static final double EPS = 1e-9;
 
   public InverseIncompleteBetaFunction(final double a, final double b) {
-    if (a <= 0)
-      throw new IllegalArgumentException("a must be positive");
-    if (b <= 0)
-      throw new IllegalArgumentException("b must be positive");
+    ArgumentChecker.notNegativeOrZero(a, "a");
+    ArgumentChecker.notNegativeOrZero(b, "b");
     _a = a;
     _b = b;
     _beta = new IncompleteBetaFunction(a, b);
@@ -28,8 +30,9 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    if (x < 0 || x > 1)
+    if (!ArgumentChecker.isInRangeInclusive(0, 1, x)) {
       throw new IllegalArgumentException("x must lie in the range 0 to 1");
+    }
     double pp, p, t, h, w, lnA, lnB, u, a1 = _a - 1;
     final double b1 = _b - 1;
     if (_a >= 1 && _b >= 1) {
@@ -60,8 +63,9 @@ public class InverseIncompleteBetaFunction extends Function1D<Double, Double> {
     final double afac = -_lnGamma.evaluate(_a) - _lnGamma.evaluate(_b) + _lnGamma.evaluate(_a + _b);
     double error;
     for (int j = 0; j < 10; j++) {
-      if (p == 0 || p == 1)
+      if (p == 0 || p == 1) {
         throw new MathException("a or b too small for accurate evaluation");
+      }
       error = _beta.evaluate(p) - x;
       t = Math.exp(a1 * Math.log(p) + b1 * Math.log(1 - p) + afac);
       u = error / t;

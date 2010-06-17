@@ -14,13 +14,12 @@ import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalcul
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.TimeSeriesException;
 
 /**
  * 
  */
 public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolatilityCalculator {
-  private static final Logger s_Log = LoggerFactory.getLogger(HistoricalVolatilityHighLowCloseCalculator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityHighLowCloseCalculator.class);
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final RelativeTimeSeriesReturnCalculator _relativeReturnCalculator;
 
@@ -48,10 +47,10 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
   public Double evaluate(final DoubleTimeSeries<?>... x) {
     testInput(x);
     if (x.length < 3) {
-      throw new TimeSeriesException("Need high, low and close time series to calculate high-low-close volatility");
+      throw new IllegalArgumentException("Need high, low and close time series to calculate high-low-close volatility");
     }
     if (x.length > 3) {
-      s_Log.info("Time series array contained more than three series; only using the first three");
+      s_logger.info("Time series array contained more than three series; only using the first three");
     }
     testTimeSeries(x, 2);
     testDatesCoincide(x);
@@ -60,7 +59,7 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
     final DoubleTimeSeries<?> close = x[2];
     testHighLowClose(high, low, close);
     final DoubleTimeSeries<?> closeReturns = _returnCalculator.evaluate(close);
-    final DoubleTimeSeries<?> highLowReturns = _relativeReturnCalculator.evaluate(new DoubleTimeSeries<?>[] { high, low });
+    final DoubleTimeSeries<?> highLowReturns = _relativeReturnCalculator.evaluate(new DoubleTimeSeries<?>[] {high, low});
     final Iterator<Double> highLowIterator = highLowReturns.valuesIterator();
     final Iterator<Double> closeReturnIterator = closeReturns.valuesIterator();
     double value, highLowValue;

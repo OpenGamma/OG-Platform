@@ -17,13 +17,12 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class AverageCalculatorTest {
-  private static final Double[] DATA = { 1., 1., 3., 2.5, 5.7, 3.7, 5.7, 5.7, -4., 9. };
-  private static final Function1D<Double[], Double> MEAN = new MeanCalculator();
-  private static final Function1D<Double[], Double> MEDIAN = new MedianCalculator();
-  private static final Function1D<Double[], Double> MODE = new ModeCalculator();
+  private static final double[] DATA = {1., 1., 3., 2.5, 5.7, 3.7, 5.7, 5.7, -4., 9.};
+  private static final Function1D<double[], Double> MEAN = new MeanCalculator();
+  private static final Function1D<double[], Double> MEDIAN = new MedianCalculator();
+  private static final Function1D<double[], Double> MODE = new ModeCalculator();
   private static final double EPS = 1e-15;
 
   @Test
@@ -43,7 +42,7 @@ public class AverageCalculatorTest {
   @Test
   public void testSingleValue() {
     final double value = 3.;
-    final Double[] x = { value };
+    final double[] x = {value};
     assertEquals(value, MEAN.evaluate(x), EPS);
     assertEquals(value, MEDIAN.evaluate(x), EPS);
     assertEquals(value, MODE.evaluate(x), EPS);
@@ -57,13 +56,13 @@ public class AverageCalculatorTest {
   @Test
   public void testMedian() {
     assertEquals(MEDIAN.evaluate(DATA), 3.35, EPS);
-    final Double[] x = Arrays.copyOf(DATA, DATA.length - 1);
+    final double[] x = Arrays.copyOf(DATA, DATA.length - 1);
     assertEquals(MEDIAN.evaluate(x), 3, EPS);
   }
 
   @Test
   public void testMode() {
-    final Double[] x = { 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. };
+    final double[] x = {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.};
     try {
       MODE.evaluate(x);
       fail();
@@ -73,17 +72,17 @@ public class AverageCalculatorTest {
     assertEquals(MODE.evaluate(DATA), 5.7, EPS);
   }
 
-  private void testNull(final Function1D<Double[], Double> calculator) {
+  private void testNull(final Function1D<double[], Double> calculator) {
     try {
-      calculator.evaluate((Double[]) null);
+      calculator.evaluate((double[]) null);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
     }
   }
 
-  private void testEmpty(final Function1D<Double[], Double> calculator) {
-    final Double[] x = new Double[0];
+  private void testEmpty(final Function1D<double[], Double> calculator) {
+    final double[] x = new double[0];
     try {
       calculator.evaluate(x);
       fail();

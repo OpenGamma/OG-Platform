@@ -7,25 +7,27 @@ package com.opengamma.math.statistics.descriptive.robust;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.MedianCalculator;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class InterquartileRangeCalculator extends Function1D<Double[], Double> {
-  private final Function1D<Double[], Double> _median = new MedianCalculator();
+public class InterquartileRangeCalculator extends Function1D<double[], Double> {
+  private final Function1D<double[], Double> _median = new MedianCalculator();
 
   @Override
-  public Double evaluate(final Double[] x) {
-    ArgumentChecker.notNull(x, "x");
-    if (x.length < 4)
+  public Double evaluate(final double[] x) {
+    Validate.notNull(x, "x");
+    if (x.length < 4) {
       throw new IllegalArgumentException("Need at least four points to calculate IQR");
+    }
     final int n = x.length;
-    final Double[] copy = Arrays.copyOf(x, n);
+    final double[] copy = Arrays.copyOf(x, n);
     Arrays.sort(copy);
-    Double[] lower, upper;
+    double[] lower, upper;
     if (n % 2 == 0) {
       lower = Arrays.copyOfRange(copy, 0, n / 2);
       upper = Arrays.copyOfRange(copy, n / 2, n);

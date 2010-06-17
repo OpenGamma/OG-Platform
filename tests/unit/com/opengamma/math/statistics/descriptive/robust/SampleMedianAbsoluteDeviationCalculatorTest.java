@@ -11,21 +11,18 @@ import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.SampleStandardDeviationCalculator;
-import com.opengamma.math.statistics.descriptive.robust.SampleMedianAbsoluteDeviationCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
- * @author emcleod
  */
 public class SampleMedianAbsoluteDeviationCalculatorTest {
   private static final double MEAN = 3.5;
   private static final double STD = 0.2;
-  private static final Function1D<Double[], Double> MAD_CALC = new SampleMedianAbsoluteDeviationCalculator();
-  private static final Function1D<Double[], Double> STD_CALC = new SampleStandardDeviationCalculator();
+  private static final Function1D<double[], Double> MAD_CALC = new SampleMedianAbsoluteDeviationCalculator();
+  private static final Function1D<double[], Double> STD_CALC = new SampleStandardDeviationCalculator();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(MEAN, STD);
-  private static final Double[] NORMAL_DATA = new Double[50000];
+  private static final double[] NORMAL_DATA = new double[50000];
   private static final double EPS = 1e-2;
   static {
     for (int i = 0; i < 50000; i++) {
@@ -35,12 +32,12 @@ public class SampleMedianAbsoluteDeviationCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
-    MAD_CALC.evaluate((Double[]) null);
+    MAD_CALC.evaluate((double[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    MAD_CALC.evaluate(new Double[] { 3. });
+    MAD_CALC.evaluate(new double[] {3.});
   }
 
   @Test

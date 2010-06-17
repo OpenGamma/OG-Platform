@@ -18,7 +18,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator extends HistoricalVolatilityCalculator {
-  private static final Logger s_Log = LoggerFactory.getLogger(ExponentialWeightedMovingAverageHistoricalVolatilityCalculator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExponentialWeightedMovingAverageHistoricalVolatilityCalculator.class);
   private final TimeSeriesReturnCalculator _returnCalculator;
   private final double _lambda;
   private final double _lambdaM1;
@@ -42,10 +42,10 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
 
   private void checkLambda(final double lambda) {
     if (lambda < 0) {
-      s_Log.warn("Weight for EWMA series is less than zero; this is probably not what was intended");
+      s_logger.warn("Weight for EWMA series is less than zero; this is probably not what was intended");
     }
     if (lambda > 1) {
-      s_Log.warn("Weight for EWMA series is greater than one; this is probably not what was intended");
+      s_logger.warn("Weight for EWMA series is greater than one; this is probably not what was intended");
     }
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.math.function.special;
 import org.apache.commons.math.special.Gamma;
 
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -21,8 +22,7 @@ public class NaturalLogGammaFunction extends Function1D<Double, Double> {
 
   @Override
   public Double evaluate(final Double x) {
-    if (x <= 0)
-      throw new IllegalArgumentException("x must be greater than zero");
+    ArgumentChecker.notNegativeOrZero(x, "x");
     return Gamma.logGamma(x);
   }
 }

@@ -75,11 +75,6 @@ public class PolynomialInterpolator1DTest {
     INTERPOLATOR_NO_OFFSET.interpolate(MODEL, 10.);
   }
 
-  @Test(expected = InterpolationException.class)
-  public void testHighOutOfRangeWithOffset() {
-    INTERPOLATOR_WITH_OFFSET.interpolate(MODEL, 4.5);
-  }
-
   @Test
   public void testHashCodeAndEquals() {
     assertEquals(INTERPOLATOR_NO_OFFSET, new PolynomialInterpolator1D(3));
@@ -93,8 +88,8 @@ public class PolynomialInterpolator1DTest {
 
   @Test
   public void testInterpolation() {
-    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new Double[] {-4., 3., 1.});
-    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new Double[] {-4., 3., 1., 1., 1.});
+    final Function1D<Double, Double> quadratic = new PolynomialFunction1D(new double[] {-4., 3., 1.});
+    final Function1D<Double, Double> quartic = new PolynomialFunction1D(new double[] {-4., 3., 1., 1., 1.});
     final Map<Double, Double> quadraticMap = new HashMap<Double, Double>();
     final Map<Double, Double> quarticMap = new HashMap<Double, Double>();
     double x;
@@ -119,4 +114,5 @@ public class PolynomialInterpolator1DTest {
     assertEquals(quadraticResult, quadratic.evaluate(x), EPS);
     assertEquals(quarticResult, quartic.evaluate(x), EPS);
   }
+
 }

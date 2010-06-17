@@ -7,13 +7,16 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.function.PolynomialFunction1D;
 
+/**
+ * 
+ */
 public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
 
   public Double[] getRoots(final PolynomialFunction1D function) {
     if (function == null) {
       throw new IllegalArgumentException("Function was null");
     }
-    final Double[] coefficients = function.getCoefficients();
+    final double[] coefficients = function.getCoefficients();
     if (coefficients.length != 3) {
       throw new IllegalArgumentException("Function is not a quadratic");
     }
@@ -25,6 +28,6 @@ public class QuadraticRealRootFinder implements Polynomial1DRootFinder<Double> {
       throw new RootNotFoundException("No real roots for quadratic");
     }
     final double q = -0.5 * (b + Math.signum(b) * discriminant);
-    return new Double[] { q / a, c / q };
+    return new Double[] {q / a, c / q};
   }
 }

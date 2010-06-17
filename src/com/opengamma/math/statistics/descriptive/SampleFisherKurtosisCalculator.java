@@ -5,22 +5,23 @@
  */
 package com.opengamma.math.statistics.descriptive;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
-public class SampleFisherKurtosisCalculator extends Function1D<Double[], Double> {
-  private final Function1D<Double[], Double> _mean = new MeanCalculator();
-  private final Function1D<Double[], Double> _variance = new PopulationVarianceCalculator();
+public class SampleFisherKurtosisCalculator extends Function1D<double[], Double> {
+  private final Function1D<double[], Double> _mean = new MeanCalculator();
+  private final Function1D<double[], Double> _variance = new PopulationVarianceCalculator();
 
   @Override
-  public Double evaluate(final Double[] x) {
-    if (x == null)
-      throw new IllegalArgumentException("Array was null");
-    if (x.length < 4)
+  public Double evaluate(final double[] x) {
+    Validate.notNull(x, "x");
+    if (x.length < 4) {
       throw new IllegalArgumentException("Need at least four points to calculate kurtosis");
+    }
     double sum = 0;
     final double mean = _mean.evaluate(x);
     final double variance = _variance.evaluate(x);

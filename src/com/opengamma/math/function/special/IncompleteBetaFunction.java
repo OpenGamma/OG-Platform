@@ -10,6 +10,7 @@ import org.apache.commons.math.special.Beta;
 
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -31,15 +32,13 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
 
   /**
    * 
-   * @param a
-   * @param b
+   * @param a a
+   * @param b b
    * @throws IllegalArgumentException If {@latex.inline $a \\leq 0$} or {@latex.inline $b \\leq 0$}
    */
   public IncompleteBetaFunction(final double a, final double b) {
-    if (a <= 0)
-      throw new IllegalArgumentException("a must be greater than or equal to zero");
-    if (b <= 0)
-      throw new IllegalArgumentException("b must be greater than or equal to zero");
+    ArgumentChecker.notNegativeOrZero(a, "a");
+    ArgumentChecker.notNegativeOrZero(b, "b");
     _a = a;
     _b = b;
     _maxIter = 10000;
@@ -48,10 +47,10 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
 
   /**
    * 
-   * @param a
-   * @param b
-   * @param eps
-   * @param maxIter
+   * @param a a
+   * @param b b
+   * @param eps epsilon
+   * @param maxIter maximum number of iterations
    * @throws IllegalArgumentException If: 
    * <ul>
    * <li>{@latex.inline $a \\leq 0$}; 
@@ -61,14 +60,12 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
    * </ul>
    */
   public IncompleteBetaFunction(final double a, final double b, final double eps, final int maxIter) {
-    if (a <= 0)
-      throw new IllegalArgumentException("a must be greater than or equal to zero");
-    if (b <= 0)
-      throw new IllegalArgumentException("b must be greater than or equal to zero");
-    if (eps < 0)
-      throw new IllegalArgumentException("Epsilon must be greater than zero");
-    if (maxIter < 1)
+    ArgumentChecker.notNegativeOrZero(a, "a");
+    ArgumentChecker.notNegativeOrZero(b, "b");
+    ArgumentChecker.notNegative(eps, "eps");
+    if (maxIter < 1) {
       throw new IllegalArgumentException("Maximum number of iterations must be greater than zero");
+    }
     _a = a;
     _b = b;
     _eps = eps;
@@ -76,13 +73,15 @@ public class IncompleteBetaFunction extends Function1D<Double, Double> {
   }
 
   /**
-   * @param x
+   * @param x x
+   * @return the value of the function
    * @throws IllegalArgumentException If {@latex.inline $x < 0$} or {@latex.inline $x > 1$}
    */
   @Override
   public Double evaluate(final Double x) {
-    if (x < 0 || x > 1)
+    if (!ArgumentChecker.isInRangeInclusive(0, 1, x)) {
       throw new IllegalArgumentException("x must be in the range 0 to 1");
+    }
     try {
       return Beta.regularizedBeta(x, _a, _b, _eps, _maxIter);
     } catch (final MathException e) {

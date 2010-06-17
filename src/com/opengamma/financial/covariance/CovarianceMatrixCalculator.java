@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.covariance;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
@@ -17,13 +19,13 @@ public class CovarianceMatrixCalculator implements Function<DoubleTimeSeries<?>,
   private final CovarianceCalculator _calculator;
 
   public CovarianceMatrixCalculator(final CovarianceCalculator calculator) {
-    ArgumentChecker.notNull(calculator, "covariance calculator");
+    Validate.notNull(calculator, "covariance calculator");
     _calculator = calculator;
   }
 
   @Override
   public DoubleMatrix2D evaluate(final DoubleTimeSeries<?>... x) {
-    ArgumentChecker.notNull(x, "x");
+    Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
     final int n = x.length;
     final double[][] covariance = new double[n][n];
