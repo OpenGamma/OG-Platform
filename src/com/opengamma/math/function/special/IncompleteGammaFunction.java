@@ -10,6 +10,7 @@ import org.apache.commons.math.special.Gamma;
 
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -29,20 +30,18 @@ public class IncompleteGammaFunction extends Function1D<Double, Double> {
   private final double _a;
 
   public IncompleteGammaFunction(final double a) {
-    if (a <= 0)
-      throw new IllegalArgumentException("a must be positive");
+    ArgumentChecker.notNegativeOrZero(a, "a");
     _maxIter = 100000;
     _eps = 1e-12;
     _a = a;
   }
 
   public IncompleteGammaFunction(final double a, final int maxIter, final double eps) {
-    if (a <= 0)
-      throw new IllegalArgumentException("a must be positive");
-    if (maxIter < 1)
+    ArgumentChecker.notNegativeOrZero(a, "a");
+    ArgumentChecker.notNegative(eps, "eps");
+    if (maxIter < 1) {
       throw new IllegalArgumentException("Must have at least one iteration");
-    if (eps < 0)
-      throw new IllegalArgumentException("Epsilon must be positive");
+    }
     _maxIter = maxIter;
     _eps = eps;
     _a = a;

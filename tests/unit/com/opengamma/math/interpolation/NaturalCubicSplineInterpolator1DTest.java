@@ -23,7 +23,7 @@ import com.opengamma.math.function.PolynomialFunction1D;
  */
 public class NaturalCubicSplineInterpolator1DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Double[] COEFF = new Double[] {-0.4, 0.05, 0.2, 1.};
+  private static final double[] COEFF = new double[] {-0.4, 0.05, 0.2, 1.};
   private static final Interpolator1D<Interpolator1DWithSecondDerivativeModel, InterpolationResult> INTERPOLATOR = new NaturalCubicSplineInterpolator1D();
   private static final Function1D<Double, Double> CUBIC = new PolynomialFunction1D(COEFF);
   private static final double EPS = 1e-1;

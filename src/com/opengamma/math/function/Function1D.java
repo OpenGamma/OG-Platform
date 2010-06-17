@@ -25,11 +25,9 @@ public abstract class Function1D<S, T> implements Function<S, T> {
     ArgumentChecker.notNull(x, "Null parameter list");
     ArgumentChecker.notEmpty(x, "Parameter list");
     ArgumentChecker.noNulls(x, "Parameter list");
-    
     if (x.length > 1) {
       s_logger.info("Array had more than one element; only using the first");
     }
-    
     return evaluate(x[0]);
   }
 

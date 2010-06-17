@@ -7,7 +7,6 @@ package com.opengamma.math.function;
 
 /**
  * 
- * @author emcleod
  * 
  * @param <S>
  * @param <T>
@@ -20,8 +19,9 @@ public abstract class FunctionND<S, T> implements Function<S, T> {
   }
 
   public T evaluate(final S... x) {
-    if (x.length != _dimension)
+    if (x.length != _dimension) {
       throw new IllegalArgumentException("Number of variables " + x.length + " does not match dimension of function " + _dimension);
+    }
     return evaluateFunction(x);
   }
 

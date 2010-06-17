@@ -5,28 +5,27 @@
  */
 package com.opengamma.math.function;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * @author emcleod
+ * @param <S> Type of variable
+ * @param <T> Return type of function 
  */
 public abstract class Function2D<S, T> implements Function<S, T> {
-  private static final Logger s_Log = LoggerFactory.getLogger(Function2D.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(Function2D.class);
 
   public T evaluate(final S... x) {
-    if (x == null)
-      throw new IllegalArgumentException("Null argument");
-    if (x.length < 2)
+    Validate.notNull(x);
+    if (x.length < 2) {
       throw new IllegalArgumentException("Need two arguments");
-    if (x.length > 2) {
-      s_Log.info("Array had more than two elements; only using the first two.");
     }
-    if (x[0] == null)
-      throw new IllegalArgumentException("First argument was null");
-    if (x[1] == null)
-      throw new IllegalArgumentException("Second argument was null");
+    if (x.length > 2) {
+      s_logger.info("Array had more than two elements; only using the first two.");
+    }
+    Validate.notNull(x[0], "first argument");
+    Validate.notNull(x[1], "second argument");
     return evaluate(x[0], x[1]);
   }
 

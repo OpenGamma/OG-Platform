@@ -5,13 +5,10 @@
  */
 package com.opengamma.math.function;
 
-import static org.junit.Assert.fail;
-
 import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class Function2DTest {
   private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
@@ -23,37 +20,28 @@ public class Function2DTest {
 
   };
 
-  @Test
-  public void test() {
-    try {
-      F.evaluate((Double[]) null);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      F.evaluate(new Double[0]);
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      F.evaluate(new Double[] { 1. });
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      F.evaluate(new Double[] { null, 1. });
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      F.evaluate(new Double[] { 1., null });
-      fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullArray() {
+    F.evaluate((Double[]) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptyArray() {
+    F.evaluate(new Double[0]);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testShortArray() {
+    F.evaluate(new Double[] {1.});
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullFirst() {
+    F.evaluate(new Double[] {null, 1.});
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSecond() {
+    F.evaluate(new Double[] {1., null});
   }
 }

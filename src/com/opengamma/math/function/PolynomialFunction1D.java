@@ -5,12 +5,13 @@
  */
 package com.opengamma.math.function;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * 
- * @author emcleod
  */
 public class PolynomialFunction1D extends Function1D<Double, Double> {
-  private final Double[] _coefficients;
+  private final double[] _coefficients;
 
   /**
    * 
@@ -22,31 +23,28 @@ public class PolynomialFunction1D extends Function1D<Double, Double> {
    *          If a coefficient is zero, the value in the array must be zero; a
    *          null value will throw an exception.
    */
-  public PolynomialFunction1D(final Double[] coefficients) {
-    if (coefficients == null)
-      throw new IllegalArgumentException("Coefficient array was null");
-    if (coefficients.length == 0)
+  public PolynomialFunction1D(final double[] coefficients) {
+    Validate.notNull(coefficients);
+    if (coefficients.length == 0) {
       throw new IllegalArgumentException("Coefficient array was empty");
-    for (int i = 0; i < coefficients.length; i++) {
-      if (coefficients[i] == null)
-        throw new IllegalArgumentException("There was a null value in the coefficient array at element " + i);
     }
     _coefficients = coefficients;
   }
 
   @Override
   public Double evaluate(final Double x) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("Null argument");
+    }
     final int n = _coefficients.length;
-    double y = _coefficients[n - 1].doubleValue();
+    double y = _coefficients[n - 1];
     for (int i = n - 2; i >= 0; i--) {
       y = x * y + _coefficients[i];
     }
     return y;
   }
 
-  public Double[] getCoefficients() {
+  public double[] getCoefficients() {
     return _coefficients;
   }
 }

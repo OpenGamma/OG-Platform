@@ -11,6 +11,9 @@ import cern.colt.matrix.linalg.EigenvalueDecomposition;
 
 import com.opengamma.math.function.PolynomialFunction1D;
 
+/**
+ * 
+ */
 public class EigenvaluePolynomialRootFinder implements Polynomial1DRootFinder<Double> {
 
   @Override
@@ -18,7 +21,7 @@ public class EigenvaluePolynomialRootFinder implements Polynomial1DRootFinder<Do
     if (function == null) {
       throw new IllegalArgumentException("Function was null");
     }
-    final Double[] coeffs = function.getCoefficients();
+    final double[] coeffs = function.getCoefficients();
     final int l = coeffs.length - 1;
     final DoubleMatrix2D hessian = DoubleFactory2D.dense.make(l, l);
     for (int i = 0; i < l; i++) {
