@@ -54,7 +54,7 @@ public class DoubleMatrix1D implements Matrix<Double> {
    * @return array containing a copy of vector elements
    */
   public double[] toArray() {
-    return _data.clone();
+    return Arrays.copyOf(_data, _elements);
   }
 
   @Override
