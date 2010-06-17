@@ -22,9 +22,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public abstract class InterpolatedYieldAndDiscountCurve
-    extends YieldAndDiscountCurve {
-  private final SortedMap<Double, Double> _data;
+public abstract class InterpolatedYieldAndDiscountCurve extends YieldAndDiscountCurve {
+  private final Map<Double, Double> _data;
   private final SortedMap<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>> _interpolators;
   private final SortedMap<Double, Interpolator1DModel> _models;
 
@@ -71,7 +70,7 @@ public abstract class InterpolatedYieldAndDiscountCurve
     assert ArgumentChecker.hasNegativeElement(data.keySet()) == false;
     assert ArgumentChecker.hasNegativeElement(interpolators.keySet()) == false;
     assert ArgumentChecker.hasNullElement(interpolators.values()) == false;
-    _data = Collections.<Double, Double>unmodifiableSortedMap(new TreeMap<Double, Double>(data)); //TODO can remove the sorted map when Andrew has finished fixing quicksort
+    _data = Collections.<Double, Double>unmodifiableMap(data);
     _interpolators = Collections
         .<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>>unmodifiableSortedMap(new TreeMap<Double, Interpolator1D<? extends Interpolator1DModel, ? extends InterpolationResult>>(
             interpolators));
