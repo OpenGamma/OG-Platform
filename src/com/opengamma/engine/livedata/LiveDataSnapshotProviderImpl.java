@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, LiveDataListener 
+public class LiveDataSnapshotProviderImpl extends AbstractLiveDataSnapshotProvider implements LiveDataListener 
 {
   private static final Logger s_logger = LoggerFactory.getLogger(LiveDataSnapshotProviderImpl.class);
   
@@ -125,21 +125,20 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
   @Override
   public void subscriptionResultReceived(
       LiveDataSubscriptionResponse subscriptionResult) {
-    if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-      
-      Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getRequestedSpecification());
-      if (valueRequirements == null) {
-        s_logger.warn("Received subscription result for which no corresponding set of value requirements was found: {}", subscriptionResult);
-        return;
-      }
-      
-      _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
-      _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
-      
-      s_logger.info("Subscription made to {}", subscriptionResult.getRequestedSpecification());
+    Set<ValueRequirement> valueRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getRequestedSpecification());
+    if (valueRequirements == null) {
+      s_logger.warn("Received subscription result for which no corresponding set of value requirements was found: {}", subscriptionResult);
+      return;
+    }
+    _liveDataSpec2ValueRequirements.remove(subscriptionResult.getRequestedSpecification());
     
+    if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+      _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
+      s_logger.info("Subscription made to {}", subscriptionResult.getRequestedSpecification());
+      super.subscriptionSucceeded(valueRequirements);
     } else {
-      s_logger.error("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);      
+      s_logger.error("Subscription to {} failed: {}", subscriptionResult.getRequestedSpecification(), subscriptionResult);
+      super.subscriptionFailed(valueRequirements, subscriptionResult.getUserMessage());
     }
   }
 
@@ -167,6 +166,8 @@ public class LiveDataSnapshotProviderImpl implements LiveDataSnapshotProvider, L
       ComputedValue value = new ComputedValue(new ValueSpecification(valueRequirement), msg);
       getUnderlyingProvider().addValue(value);
     }
+    
+    super.valueChanged(valueRequirements);
   }
   
 }

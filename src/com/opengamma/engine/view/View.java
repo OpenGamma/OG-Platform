@@ -17,6 +17,8 @@ import org.springframework.context.Lifecycle;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.livedata.LiveDataSnapshotListener;
+import com.opengamma.engine.livedata.LiveDataSnapshotProvider;
 import com.opengamma.engine.position.Portfolio;
 import com.opengamma.engine.position.PortfolioNode;
 import com.opengamma.engine.value.ComputedValue;
@@ -30,7 +32,7 @@ import com.opengamma.util.monitor.OperationTimer;
 /**
  * The base implementation of the {@link View} interface.
  */
-public class View implements Lifecycle {
+public class View implements Lifecycle, LiveDataSnapshotListener {
   private static final Logger s_logger = LoggerFactory.getLogger(View.class);
   // Injected dependencies:
   private final ViewDefinition _definition;
@@ -185,8 +187,31 @@ public class View implements Lifecycle {
   private void addLiveDataSubscriptions() {
     Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
     OperationTimer timer = new OperationTimer(s_logger, "Adding {} live data subscriptions for portfolio {}", liveDataRequirements.size(), getDefinition().getPortfolioId());
-    getProcessingContext().getLiveDataSnapshotProvider().addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
+    LiveDataSnapshotProvider snapshotProvider = getProcessingContext().getLiveDataSnapshotProvider();
+    snapshotProvider.addListener(this);
+    snapshotProvider.addSubscription(getDefinition().getLiveDataUser(), liveDataRequirements);
     timer.finished();
+  }
+  
+  @Override
+  public void subscriptionFailed(ValueRequirement requirement, String msg) {
+  }
+
+  @Override
+  public void subscriptionStopped(ValueRequirement requirement) {
+  }
+
+  @Override
+  public void subscriptionSucceeded(ValueRequirement requirement) {
+  }
+
+  @Override
+  public void valueChanged(ValueRequirement requirement) {
+    Set<ValueRequirement> liveDataRequirements = getPortfolioEvaluationModel().getAllLiveDataRequirements();
+    ViewRecalculationJob recalcJob = getRecalcJob();
+    if (recalcJob != null && liveDataRequirements.contains(requirement)) {
+      recalcJob.liveDataChanged();      
+    }
   }
 
   public synchronized ViewComputationResultModel getMostRecentResult() {
@@ -309,15 +334,17 @@ public class View implements Lifecycle {
   }
   
   public synchronized void runOneCycle() {
-    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
-    recalcJob.runOneCycle();
-    recalcJob.postRunCycle();
+    long snapshotTime = getProcessingContext().getLiveDataSnapshotProvider().snapshot();
+    runOneCycle(snapshotTime);
   }
   
   public synchronized void runOneCycle(long snapshotTime) {
-    ViewRecalculationJob recalcJob = new ViewRecalculationJob(this);
-    recalcJob.runOneCycle(snapshotTime);
-    recalcJob.postRunCycle();
+    SingleComputationCycle cycle = createCycle(snapshotTime);
+    cycle.prepareInputs();
+    cycle.executePlans();
+    cycle.populateResultModel();
+    recalculationPerformed(cycle.getResultModel());
+    cycle.releaseResources();
   }
 
   @Override
@@ -489,6 +516,24 @@ public class View implements Lifecycle {
   @Override
   public String toString() {
     return "View[" + getDefinition().getName() + "]";
+  }
+  
+  /*package*/ SingleComputationCycle createCycle(long snapshotTime) {
+    PortfolioEvaluationModel portfolioEvaluationModel = getPortfolioEvaluationModel();
+    ViewComputationResultModelImpl result = new ViewComputationResultModelImpl();
+    // REVIEW kirk 2010-03-29 -- Order here is important. This is lame and should be refactored into
+    // the constructor.
+    result.setCalculationConfigurationNames(portfolioEvaluationModel.getAllCalculationConfigurationNames());
+    result.setPortfolio(portfolioEvaluationModel.getPortfolio());
+    
+    SingleComputationCycle cycle = new SingleComputationCycle(
+        getDefinition().getName(),
+        getProcessingContext(),
+        portfolioEvaluationModel,
+        result, 
+        getDefinition(),
+        snapshotTime);
+    return cycle;
   }
 
 }

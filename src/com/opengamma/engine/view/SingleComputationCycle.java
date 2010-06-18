@@ -347,6 +347,9 @@ public class SingleComputationCycle {
   // --------------------------------------------------------------------------
 
   public void populateResultModel() {
+    Instant resultTimestamp = Instant.nowSystemClock();
+    getResultModel().setResultTimestamp(resultTimestamp);
+
     for (String calcConfigurationName : getPortfolioEvaluationModel().getAllCalculationConfigurationNames()) {
       DependencyGraph depGraph = getPortfolioEvaluationModel().getDependencyGraph(calcConfigurationName);
 
