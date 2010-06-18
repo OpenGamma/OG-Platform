@@ -103,6 +103,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    */
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
+      
     _portfolios.put(portfolio.getUniqueIdentifier(), portfolio);
     addToCache(portfolio.getUniqueIdentifier().getValue(), portfolio.getRootNode());
   }
