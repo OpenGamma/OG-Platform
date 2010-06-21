@@ -24,7 +24,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.security.BondFutureDeliverable;
@@ -100,7 +100,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
     if (frequencyBean == null) {
       return null;
     }
-    final Frequency f = FrequencyFactory.INSTANCE.getFrequency(frequencyBean.getName());
+    final Frequency f = SimpleFrequencyFactory.INSTANCE.getFrequency(frequencyBean.getName());
     if (f == null) {
       throw new OpenGammaRuntimeException("Bad value for frequencyBean (" + frequencyBean.getName() + ")");
     }
