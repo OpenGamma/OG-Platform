@@ -81,7 +81,7 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     if (this == obj) {
       return true;
     }
-    if(obj instanceof FixedIncomeStrip) {
+    if (obj instanceof FixedIncomeStrip) {
       FixedIncomeStrip other = (FixedIncomeStrip) obj;
       return CompareUtils.closeEquals(_numYears, other._numYears) &&
         ObjectUtils.equals(_marketDataKey, other._marketDataKey);
@@ -94,7 +94,7 @@ public class FixedIncomeStrip implements Comparable<FixedIncomeStrip>, Serializa
     int prime = 37;
     int result = 1;
     long numYearsBits = Double.doubleToLongBits(getNumYears());
-    result = (result * prime) + ((int)(numYearsBits ^ (numYearsBits >>> 32)));
+    result = (result * prime) + ((int) (numYearsBits ^ (numYearsBits >>> 32)));
     result = (result * prime) + getMarketDataKey().hashCode();
     return result;
   }
