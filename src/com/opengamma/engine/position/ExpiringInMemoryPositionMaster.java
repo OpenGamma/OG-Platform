@@ -37,7 +37,7 @@ import com.opengamma.util.ehcache.ExpiryTaskExtension;
  * 
  * @param <O>  the type of the owner to be associated with each {@link Portfolio}
  */
-public class ExpiringInMemoryPositionMaster<O> implements PositionMaster {
+public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> {
   
   /**
    * The scheme to use for {@link UniqueIdentifier}s assigned to portfolio structures which are added to this
@@ -54,6 +54,17 @@ public class ExpiringInMemoryPositionMaster<O> implements PositionMaster {
   private final InMemoryPositionMaster _underlying = new InMemoryPositionMaster(UID_SCHEME);
   private final Ehcache _expiringOwnerCache;
   private long _nextPortfolioUidValue;
+  
+  /**
+   * Constructs a new {@link ExpiringInMemoryPositionMaster} using the default period for removing expired
+   * {@link Portfolio}s, the {@link CacheManager} singleton, and a new {@link Timer} instance.
+   * 
+   * @param expireAfterSeconds  the period after which {@link Portfolio}s are eligible to be removed if the owner has
+   *                            failed to heartbeat
+   */
+  public ExpiringInMemoryPositionMaster(long expireAfterSeconds) {
+    this(expireAfterSeconds, new Timer("ExpiringInMemoryPositionMaster timer", true));
+  }
   
   /**
    * Constructs a new {@link ExpiringInMemoryPositionMaster} using the default period for removing expired
@@ -125,13 +136,7 @@ public class ExpiringInMemoryPositionMaster<O> implements PositionMaster {
   //--------------------------------------------------------------------------
   // PositionMaster mutability
 
-  /**
-   * Adds a {@link Portfolio} to the master.
-   * 
-   * @param owner  the owner with which to associate the portfolio. This owner must remain alive in order for the
-   *               portfolio to be retained in the master.
-   * @param portfolio  the portfolio to add, not null
-   */
+  @Override
   @SuppressWarnings("unchecked")
   public void addPortfolio(O owner, Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
@@ -162,15 +167,10 @@ public class ExpiringInMemoryPositionMaster<O> implements PositionMaster {
   //--------------------------------------------------------------------------
   // Expiry-related
   
-  /**
-   * Indicates that the specified owner is alive. If the owner is not known to the {@link PositionMaster} then this
-   * has no effect.
-   * 
-   * @param owner  the owner
-   * @return <code>false</code> if the specified owner is not known to the {@link PositionMaster} (or has already been
-   *         expired), <code>true</code> otherwise.
-   */
+  @Override
   public boolean heartbeat(O owner) {
+    ArgumentChecker.notNull(owner, "owner");
+    
     // Force the last access time to be updated
     return _expiringOwnerCache.get(owner) != null;
   }
