@@ -14,6 +14,9 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.UniqueIdentifier;
+
 /**
  * Implementation of a Region.  This version is specifically mutable.
  */
@@ -25,7 +28,8 @@ public class RegionNode implements Region {
   private Set<Region> _subRegions;
   private Region _superRegion;
   private FudgeFieldContainer _data;
-
+  private UniqueIdentifier _uniqueIdentifier;
+  private IdentifierBundle _identifiers;
   
   public RegionNode(FudgeContext fudgeContext, String name, RegionType regionType, Region superRegion, Set<Region> subRegions, FudgeFieldContainer data) {
     _fudgeContext = fudgeContext;
@@ -168,7 +172,23 @@ public class RegionNode implements Region {
     }
     return true;
   }
-
   
+  /*package*/ void setIdentifiers(IdentifierBundle identifiers) {
+    _identifiers = identifiers;
+  }
+
+  @Override
+  public IdentifierBundle getIdentifiers() {
+    return _identifiers;
+  }
+  
+  /*package*/ void setUniqueIdentifier(UniqueIdentifier uniqueIdentifier) {
+    _uniqueIdentifier = uniqueIdentifier;
+  }
+
+  @Override
+  public UniqueIdentifier getUniqueIdentifier() {
+    return _uniqueIdentifier;
+  }
 
 }

@@ -25,18 +25,42 @@ import org.fudgemsg.MutableFudgeFieldContainer;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.IdentificationScheme;
+import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
+import com.opengamma.id.IdentifierBundleMapper;
+import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.tuple.Pair;
 
 /**
  * In memory implementation of a region repository.  Repository is populated from a CSV file.
  */
 public class InMemoryRegionRepository implements RegionRepository {
+
   private static final String HIERARCHY_COLUMN = "Hierarchy";
-  private static final String NAME_COLUMN = "Name";
-  private static final String TYPE_COLUMN = "Type";
+  /**
+   * Name of the pseudo-field used to hold the name of the region so it can be passed into getHierarchyNodes 
+   */
+  public static final String NAME_COLUMN = "Name";
+  /**
+   * Name of the pseudo-field used to hold the type (RegionType) of the region so it can be passed into getHierarchyNodes 
+   */
+  public static final String TYPE_COLUMN = "Type";
+  /**
+   * Name of the field used to hold the 2 letter ISO 3166-1 Country Code
+   */
+  public static final String ISO_COUNTRY_2 = "ISO 3166-1 2 Letter Code";
+  /**
+   * Name of the hierarchy used for basic political geographic regions (countries, dependencies, etc)
+   */
+  public static final String POLITICAL_HIERARCHY_NAME = "Political";
+  
   private static final String SUB_REGIONS_COLUMN = "Sub Regions";
+  private static final IdentificationScheme DEFAULT_SCHEME = new IdentificationScheme("REGION_FILE_SCHEME");
+  
   private FudgeContext _fudgeContext;
   private Map<String, Region> _roots = new HashMap<String, Region>();
+  private Map<String, IdentifierBundleMapper<Region>> _uniqueIdFactories = new HashMap<String, IdentifierBundleMapper<Region>>();
   private Map<String, Map<Pair<String, Object>, Set<Region>>> _fieldIndex = new HashMap<String, Map<Pair<String, Object>, Set<Region>>>();
     
   public InMemoryRegionRepository(File file) {
@@ -49,14 +73,17 @@ public class InMemoryRegionRepository implements RegionRepository {
       // Hierarchy Name -> (Region Name -> Region Defintion (Super/Sub name + data))
       Map<String, Map<String, RegionDefinition>> roots = new HashMap<String, Map<String, RegionDefinition>>();
       
+      // Open CSV file
       CSVReader reader = new CSVReader(new FileReader(file));
       List<String> columns = Arrays.asList(reader.readNext());
 
+      // Special columns that don't go in fudge field container.
       final int hierarchyColumnNum = columns.indexOf(HIERARCHY_COLUMN);
       final int nameColumnNum = columns.indexOf(NAME_COLUMN);
       final int typeColumnNum = columns.indexOf(TYPE_COLUMN);
       final int subRegionsColumnNum = columns.indexOf(SUB_REGIONS_COLUMN);
       
+      // build up map of name->definition, avoiding the step of building the tree so ordering is not needed.
       String[] row = null;
       while ((row = reader.readNext()) != null) {
         String hierarchy = row[hierarchyColumnNum].trim();
@@ -84,6 +111,7 @@ public class InMemoryRegionRepository implements RegionRepository {
         RegionNode incompleteRegion = new RegionNode(_fudgeContext, name, type, data);
         roots.get(hierarchy).put(name, new RegionDefinition(incompleteRegion, subRegions));
       }
+      // now turn the definitions into proper tree reference links.
       for (String hierarchyName : roots.keySet()) {
         Map<String, RegionDefinition> nameToDef = roots.get(hierarchyName);
         Set<String> regionDefinitions = new HashSet<String>(nameToDef.keySet());
@@ -98,8 +126,12 @@ public class InMemoryRegionRepository implements RegionRepository {
                                               hierarchyName + ": " + regionDefinitions.toString());
         } else {
           String rootName = regionDefinitions.iterator().next();
-          Region root = walkTree(rootName, nameToDef);
+          IdentifierBundleMapper<Region> bundleMapper = new IdentifierBundleMapper<Region>("REGION_SCHEME_" + hierarchyName);
+          // Walk down, converting the name references in the definition into object references.  
+          // At the same time, populating the identifiers and unique identifier fields from the bundleMapper.
+          Region root = walkTree(rootName, nameToDef, bundleMapper);
           _roots.put(hierarchyName, root);
+          _uniqueIdFactories.put(hierarchyName, bundleMapper);
           indexHierarchy(hierarchyName, root);
         }
       }
@@ -108,8 +140,25 @@ public class InMemoryRegionRepository implements RegionRepository {
     }
   }
   
+  private RegionNode walkTree(String currentName, Map<String, RegionDefinition> definitions, IdentifierBundleMapper<Region> bundleMapper) {
+    RegionDefinition regionDefinition = definitions.get(currentName);
+    RegionNode regionNode = regionDefinition.getRegion();
+    
+    Set<Region> subRegions = new HashSet<Region>();
+    for (String subRegionName : regionDefinition.getSubRegionNames()) {
+      RegionNode subRegion = walkTree(subRegionName, definitions, bundleMapper);
+      subRegion.setSuperRegion(regionNode);
+      subRegions.add(subRegion);
+    }
+    regionNode.setSubRegions(subRegions);
+    regionNode.setIdentifiers(new IdentifierBundle(new Identifier(DEFAULT_SCHEME, currentName)));
+    UniqueIdentifier uniqueId = bundleMapper.add(regionNode.getIdentifiers(), regionNode);
+    regionNode.setUniqueIdentifier(uniqueId);
+    return regionNode;
+  }
+  
   private void indexHierarchy(String hierarchyName, Region root) {
-    System.err.println("indexing "+hierarchyName+" : "+root.getName());
+    System.err.println("indexing " + hierarchyName + " : " + root.getName());
     if (!(_fieldIndex.containsKey(hierarchyName))) {
       _fieldIndex.put(hierarchyName, new HashMap<Pair<String, Object>, Set<Region>>());
     }
@@ -149,20 +198,6 @@ public class InMemoryRegionRepository implements RegionRepository {
     return result;
   }
   
-  private RegionNode walkTree(String currentName, Map<String, RegionDefinition> definitions) {
-    RegionDefinition regionDefinition = definitions.get(currentName);
-    RegionNode regionNode = regionDefinition.getRegion();
-    
-    Set<Region> subRegions = new HashSet<Region>();
-    for (String subRegionName : regionDefinition.getSubRegionNames()) {
-      RegionNode subRegion = walkTree(subRegionName, definitions);
-      subRegion.setSuperRegion(regionNode);
-      subRegions.add(subRegion);
-    }
-    regionNode.setSubRegions(subRegions);
-    return regionNode;
-  }
-  
   /*package*/ Object classifyValue(String value) {
     if (value.matches("^TRUE|FALSE|T|F|True|False|true|false|Y|N$")) {
       if (value.equals("Y") || value.equals("T") || value.toLowerCase().equals("true")) {
@@ -171,7 +206,7 @@ public class InMemoryRegionRepository implements RegionRepository {
         return Boolean.FALSE;
       }
       throw new OpenGammaRuntimeException("Invalid boolean");
-    } else if (value.matches("^\\d+$")) {
+    } else if (value.matches("^[+-]?\\d+$")) {
       return Integer.parseInt(value);
     } else {
       try {
@@ -208,10 +243,47 @@ public class InMemoryRegionRepository implements RegionRepository {
     }
   }
   
+  
+  public Set<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, Pair<String, Object>... fieldNameValuePairs) {
+    Set<Region> result = new HashSet<Region>();
+    for (Pair<String, Object> keyValuePair : fieldNameValuePairs) {
+      String fieldName = keyValuePair.getKey();
+      Object value = keyValuePair.getValue();
+      if (result.isEmpty()) {
+        result.addAll(getHierarchyNodes(asOf, hierarchyName, fieldName, value));
+      } else {
+        result.retainAll(getHierarchyNodes(asOf, hierarchyName, fieldName, value));
+      }
+    } 
+    return result;
+  }
+
+  
+  @Override
+  public Region getHierarchyNode(LocalDate asOf, String hierarchyName, Identifier nodeId) {
+    return _uniqueIdFactories.get(hierarchyName).get(nodeId);
+  }
+
+  @Override
+  public Region getHierarchyNode(LocalDate asOf, UniqueIdentifier uniqueId) {
+    // scheme encodes which hierarchy to look in.
+    if (uniqueId.getScheme().startsWith(DEFAULT_SCHEME.getName())) {
+      String hierarchyName = uniqueId.getScheme().substring(DEFAULT_SCHEME.getName().length());
+      if (_uniqueIdFactories.containsKey(hierarchyName)) {
+        return _uniqueIdFactories.get(hierarchyName).get(uniqueId);
+      } else {
+        return null;
+      }
+    } else {
+      throw new OpenGammaRuntimeException("Scheme of supplied uniqueId not provided by this system: " + uniqueId);
+    }
+  }
+  
   @Override
   public Region getHierarchyRoot(LocalDate asOf, String hierarchyName) {
     return _roots.get(hierarchyName);
   }
+  
   
   /**
    * This method updates the internal indices, and should be called if the Region graph is modified in any way.
@@ -220,5 +292,7 @@ public class InMemoryRegionRepository implements RegionRepository {
   public void updateIndex(String hierarchyName) {
     indexHierarchy(hierarchyName, _roots.get(hierarchyName));
   }
+
+
 
 }

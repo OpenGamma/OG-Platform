@@ -5,9 +5,14 @@
  */
 package com.opengamma.financial.security;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
+
+import com.opengamma.id.Identifier;
+import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Interface for retrieving Region hierarchies.
@@ -17,7 +22,7 @@ public interface RegionRepository {
    * Return the root node of the named region hierarchy
    * @param asOf the data returned is that considered correct as of the provided date 
    * @param hierarchyName the name of the hierarchy
-   * @return the root node of the hierarchy
+   * @return the root node of the hierarchy or null if no match
    */
   Region getHierarchyRoot(final LocalDate asOf, final String hierarchyName);
   
@@ -25,10 +30,28 @@ public interface RegionRepository {
    * Get the region information of the named node in the hierarchy with the supplied name.
    * @param asOf the data returned is that considered correct as of the provided date 
    * @param hierarchyName the name of the hierarchy
-   * @param nodeName the name of that Region
-   * @return the matching region
+   * @param nodeName the display name associated with that Region
+   * @return the matching region or null if none found
    */
   Region getHierarchyNode(final LocalDate asOf, final String hierarchyName, final String nodeName);
+  
+  /**
+   * Get the region information of the named node in the hierarchy with the supplied name.
+   * @param asOf the data returned is that considered correct as of the provided date 
+   * @param hierarchyName the name of the hierarchy
+   * @param nodeId an Identifier associated with the desired region
+   * @return the matching region or null if none is found
+   */
+  Region getHierarchyNode(final LocalDate asOf, final String hierarchyName, final Identifier nodeId);
+
+  /**
+   * Get the region information using the unique id assigned to a region/hierarchy combination.
+   * @param asOf the data returned is that considered correct as of the provided date 
+   * @param nodeId an Identifier associated with the desired region
+   * @return the matching region or null if none is found
+   */
+  Region getHierarchyNode(final LocalDate asOf, final UniqueIdentifier uniqueId);
+  
   
   /**
    * Get all region nodes of a particular type
@@ -42,9 +65,17 @@ public interface RegionRepository {
   /**
    * @param asOf the data returned is that considered correct as of the provided date
    * @param hierarchyName the name of the hierarchy
-   * @param fieldName the name of the field to find
+   * @param fieldId the name of the field to find
    * @param value the value that the field must have to be returned
    * @return a set of Regions which have the appropriate field with the appropriate value
    */
   Set<Region> getHierarchyNodes(final LocalDate asOf, final String hierarchyName, final String fieldName, final Object value);
+
+  /**
+   * @param asOf the data returned is that considered correct as of the provided date
+   * @param hierarchyName the name of the hierarchy
+   * @param fieldNameValuePairs 0..n name->value pairs that should match
+   * @return a set of Regions which have the appropriate fields with the appropriate values
+   */
+  Set<Region> getHierarchyNodes(LocalDate asOf, String hierarchyName, Pair<String, Object>... fieldNameValuePairs);
 }
