@@ -24,20 +24,18 @@ import com.opengamma.util.ehcache.AbstractCacheEventListener;
 import com.opengamma.util.ehcache.ExpiryTaskExtension;
 
 /**
- * A mutable {@link PositionMaster} which associates each {Portfolio} with an owner, an arbitrary object of type
- * <code>O</code>. Multiple {@link Portfolio}s may be associated with the same owner.
+ * A mutable {@link PositionMaster} which associates each {Portfolio} with an owner. Multiple {@link Portfolio}s may
+ * be associated with the same owner.
  * <p>
  * The {@link Portfolio} structures associated with a particular owner will eventually expire unless their lifetime is
  * periodically extended by providing a heartbeat for the owner. Internally uses an {@link Ehcache} and a
  * {@link Timer}; a {@link CacheManager} and the {@link Timer} may be specified in the constructor. 
  * <p>
  * For example, this could be used where external clients need to work with temporary {@link Portfolio}s. The owner
- * would identify a client, and the onus would be on the client to keep its session alive by providing heartbeats. If a
+ * would be a client, and the onus would be on the client to keep its session alive by providing heartbeats. If a
  * client dies then its associated {@link Portfolio} structures will be eventually removed automatically.
- * 
- * @param <O>  the type of the owner to be associated with each {@link Portfolio}
  */
-public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> {
+public class ExpiringInMemoryPositionMaster implements UserPositionMaster {
   
   /**
    * The scheme to use for {@link UniqueIdentifier}s assigned to portfolio structures which are added to this
@@ -102,7 +100,7 @@ public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> 
       @SuppressWarnings("unchecked")
       @Override
       public void notifyElementExpired(Ehcache cache, Element element) {
-        expired((O) element.getObjectKey(), (Collection<Portfolio>) element.getObjectValue());
+        expired((UniqueIdentifier) element.getObjectKey(), (Collection<Portfolio>) element.getObjectValue());
       }
       
     });
@@ -138,7 +136,8 @@ public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> 
 
   @Override
   @SuppressWarnings("unchecked")
-  public void addPortfolio(O owner, Portfolio portfolio) {
+  public void addPortfolio(UniqueIdentifier ownerId, Portfolio portfolio) {
+    ArgumentChecker.notNull(ownerId, "ownerId");
     ArgumentChecker.notNull(portfolio, "portfolio");
     
     if (portfolio.getUniqueIdentifier() != null) {
@@ -153,9 +152,9 @@ public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> 
         UniqueIdentifier portfolioUid = UniqueIdentifier.of(UID_SCHEME, Long.toString(_nextPortfolioUidValue++));
         portfolioImpl.setUniqueIdentifier(portfolioUid);
       }
-      Element cacheElement = _expiringOwnerCache.get(owner);
+      Element cacheElement = _expiringOwnerCache.get(ownerId);
       if (cacheElement == null) {
-        cacheElement = new Element(owner, new ArrayList<Portfolio>());
+        cacheElement = new Element(ownerId, new ArrayList<Portfolio>());
         _expiringOwnerCache.put(cacheElement);
       }
       Collection<Portfolio> portfolios = (Collection<Portfolio>) cacheElement.getObjectValue();
@@ -168,11 +167,11 @@ public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> 
   // Expiry-related
   
   @Override
-  public boolean heartbeat(O owner) {
-    ArgumentChecker.notNull(owner, "owner");
+  public boolean heartbeat(UniqueIdentifier ownerId) {
+    ArgumentChecker.notNull(ownerId, "ownerId");
     
     // Force the last access time to be updated
-    return _expiringOwnerCache.get(owner) != null;
+    return _expiringOwnerCache.get(ownerId) != null;
   }
   
   /**
@@ -181,7 +180,7 @@ public class ExpiringInMemoryPositionMaster<O> implements UserPositionMaster<O> 
    * @param owner  the expired owner
    * @param portfolios  the list of portfolios associated with the expired owner
    */
-  private void expired(O owner, Collection<Portfolio> portfolios) {
+  private void expired(UniqueIdentifier ownerId, Collection<Portfolio> portfolios) {
     // No need to synchronize with addPortfolio because we can't be adding one of the expired portfolios again
     // concurrently (they already have IDs) and the underlying PositionMaster is thread-safe.
     for (Portfolio portfolio : portfolios) {

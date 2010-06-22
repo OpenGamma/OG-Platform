@@ -5,15 +5,19 @@
  */
 package com.opengamma.engine.position.server;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.PUT;
+import static com.opengamma.engine.position.server.UserPositionMasterServiceNames.USER_POSITION_MASTER_ADD_PORTFOLIO;
+import static com.opengamma.engine.position.server.UserPositionMasterServiceNames.USER_POSITION_MASTER_FIELD_OWNER;
+import static com.opengamma.engine.position.server.UserPositionMasterServiceNames.USER_POSITION_MASTER_FIELD_PORTFOLIO;
+import static com.opengamma.engine.position.server.UserPositionMasterServiceNames.USER_POSITION_MASTER_FIELD_RESULT;
+import static com.opengamma.engine.position.server.UserPositionMasterServiceNames.USER_POSITION_MASTER_HEARTBEAT;
+
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeDeserializationContext;
 
 import com.opengamma.engine.position.Portfolio;
@@ -27,31 +31,36 @@ import com.opengamma.util.ArgumentChecker;
 public class UserPositionMasterResource {
 
   private final FudgeContext _fudgeContext;
-  private final UserPositionMaster<UniqueIdentifier> _userPositionMaster;
+  private final UserPositionMaster _userPositionMaster;
   
-  public UserPositionMasterResource(FudgeContext fudgeContext, UserPositionMaster<UniqueIdentifier> userPositionMaster) {
+  public UserPositionMasterResource(FudgeContext fudgeContext, UserPositionMaster userPositionMaster) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(userPositionMaster, "userPositionMaster");    
     _fudgeContext = fudgeContext;
     _userPositionMaster = userPositionMaster;
   }
   
-  @PUT
-  @Path("addPortfolio")
-  public void addPortfolio(@FormParam("uid") String ownerUid, FudgeMsgEnvelope portfolioEnvelope) {
-    UniqueIdentifier owner = UniqueIdentifier.parse(ownerUid); 
-    FudgeFieldContainer portfolioMsg = portfolioEnvelope.getMessage();
-    FudgeDeserializationContext deserializationContext = new FudgeDeserializationContext(_fudgeContext);
-    Portfolio portfolio = deserializationContext.fudgeMsgToObject(Portfolio.class, portfolioMsg);
+  @POST
+  @Path(USER_POSITION_MASTER_ADD_PORTFOLIO)
+  public void addPortfolio(FudgeMsgEnvelope envelope) {        
+    FudgeFieldContainer msg = envelope.getMessage();
+    FudgeDeserializationContext context = new FudgeDeserializationContext(_fudgeContext);
+    UniqueIdentifier owner = context.fieldValueToObject(UniqueIdentifier.class, msg.getByName(USER_POSITION_MASTER_FIELD_OWNER));
+    Portfolio portfolio = context.fieldValueToObject(Portfolio.class, msg.getByName(USER_POSITION_MASTER_FIELD_PORTFOLIO));
     _userPositionMaster.addPortfolio(owner, portfolio);
   }
   
-  @PUT
-  @Path("heartbeat")
-  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public boolean heartbeat(@FormParam("uid") String ownerUid) {
-    UniqueIdentifier owner = UniqueIdentifier.parse(ownerUid);
-    return _userPositionMaster.heartbeat(owner);
+  @POST
+  @Path(USER_POSITION_MASTER_HEARTBEAT)
+  public FudgeMsgEnvelope heartbeat(FudgeMsgEnvelope envelope) {
+    FudgeFieldContainer msg = envelope.getMessage();
+    FudgeDeserializationContext context = new FudgeDeserializationContext(_fudgeContext);
+    UniqueIdentifier owner = context.fieldValueToObject(UniqueIdentifier.class, msg.getByName(USER_POSITION_MASTER_FIELD_OWNER));
+    boolean result = _userPositionMaster.heartbeat(owner);
+    
+    MutableFudgeFieldContainer response = _fudgeContext.newMessage();
+    response.add(USER_POSITION_MASTER_FIELD_RESULT, result);
+    return new FudgeMsgEnvelope(response);
   }
   
 }

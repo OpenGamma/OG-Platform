@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.position.server;
 
+import static com.opengamma.engine.position.server.UserPositionMasterServiceNames.DEFAULT_USER_POSITION_MASTER_NAME;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -15,38 +17,27 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.engine.position.RemoteUserPositionMaster;
 import com.opengamma.engine.position.UserPositionMaster;
-import com.opengamma.id.UniqueIdentifier;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
 
 /**
  * RESTful back-end for {@link RemoteUserPositionMaster}.
  */
 @Path("userPositionMaster")
 public class UserPositionMasterService {
-  
-  /**
-   * The name used when a {@link UserPositionMaster} is added through
-   * {@link #setUserPositionMaster(UserPositionMaster)}.
-   */
-  public static final String DEFAULT_USER_POSITION_MASTER_NAME = "0";
-  
+   
   private final ConcurrentMap<String, UserPositionMasterResource> _userPositionMasterMap = new ConcurrentHashMap<String, UserPositionMasterResource>();
   private final FudgeContext _fudgeContext;
   
   public UserPositionMasterService() {
-    this(FudgeContext.GLOBAL_DEFAULT);
+    _fudgeContext = new FudgeContext();
+    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
   }
   
-  public UserPositionMasterService(FudgeContext fudgeContext) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    _fudgeContext = fudgeContext;
-  }
-  
-  public void setUserPositionMaster(UserPositionMaster<UniqueIdentifier> userPositionMaster) {
+  public void setUserPositionMaster(UserPositionMaster userPositionMaster) {
     addUserPositionMaster(DEFAULT_USER_POSITION_MASTER_NAME, userPositionMaster);
   }
   
-  private void addUserPositionMaster(String name, UserPositionMaster<UniqueIdentifier> userPositionMaster) {
+  private void addUserPositionMaster(String name, UserPositionMaster userPositionMaster) {
     _userPositionMasterMap.put(name, new UserPositionMasterResource(_fudgeContext, userPositionMaster));
   }
   

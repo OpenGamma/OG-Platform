@@ -24,14 +24,14 @@ import com.opengamma.id.UniqueIdentifier;
 public class ExpiringInMemoryPositionMasterTest {
 
   @Test
-  public void TestPortfolioExpiry() throws InterruptedException {
+  public void testPortfolioExpiry() throws InterruptedException {
     final UniqueIdentifier ownerA = UniqueIdentifier.of("Owner", "A");
     final Portfolio portfolioA1 = PositionMasterTestUtil.constructTestPortfolio(null, "Portfolio A1");
     final Portfolio portfolioA2 = PositionMasterTestUtil.constructTestPortfolio(null, "Portfolio A2");
     final UniqueIdentifier ownerB = UniqueIdentifier.of("Owner", "B");
     final Portfolio portfolioB = PositionMasterTestUtil.constructTestPortfolio(null, "Portfolio B");
     
-    final ExpiringInMemoryPositionMaster<UniqueIdentifier> pm = new ExpiringInMemoryPositionMaster<UniqueIdentifier>(1, 1, new CacheManager(), new Timer());
+    final ExpiringInMemoryPositionMaster pm = new ExpiringInMemoryPositionMaster(1, 1, new CacheManager(), new Timer());
     pm.addPortfolio(ownerA, portfolioA1);
     pm.addPortfolio(ownerA, portfolioA2);
     pm.addPortfolio(ownerB, portfolioB);
@@ -68,8 +68,8 @@ public class ExpiringInMemoryPositionMasterTest {
   }
   
   @Test(expected=OpenGammaRuntimeException.class)
-  public void TestAddOldPortfolio() {
-    ExpiringInMemoryPositionMaster<UniqueIdentifier> pm = new ExpiringInMemoryPositionMaster<UniqueIdentifier>(1, 1, new CacheManager(), new Timer());
+  public void testAddOldPortfolio() {
+    ExpiringInMemoryPositionMaster pm = new ExpiringInMemoryPositionMaster(1, 1, new CacheManager(), new Timer());
     Portfolio portfolio = PositionMasterTestUtil.constructTestPortfolio(UniqueIdentifier.of("Test", "portA"), "Portfolio A");
     pm.addPortfolio(UniqueIdentifier.of("Owner", "A"), portfolio);
   }
