@@ -71,9 +71,14 @@ public class PortfolioNodeBuilder implements FudgeBuilder<PortfolioNode> {
 
   @Override
   public PortfolioNode buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    final UniqueIdentifier id = context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER));
+    FudgeField idField = message.getByName(FIELD_IDENTIFIER);
+    final UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
     final String name = message.getFieldValue(String.class, message.getByName(FIELD_NAME));
-    final PortfolioNodeImpl node = new PortfolioNodeImpl(id, name);
+    
+    final PortfolioNodeImpl node = new PortfolioNodeImpl(name);
+    if (id != null) {
+      node.setUniqueIdentifier(id);
+    }
     readPositions(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_POSITIONS)), node);
     readSubNodes(context, message.getFieldValue(FudgeFieldContainer.class, message.getByName(FIELD_SUBNODES)), node);
     return node;
