@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.rootfinding;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -17,12 +19,16 @@ public class JacobianCalculator extends Function1D<DoubleMatrix1D, DoubleMatrix2
   private final Function1D<DoubleMatrix1D, DoubleMatrix1D> _f;
   private static final double EPS = 1e-8;
 
+  //TODO eliminate state
   public JacobianCalculator(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+    Validate.notNull(function);
     _f = function;
   }
 
+  //TODO not a Function1D any more
   @Override
   public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+    Validate.notNull(x);
     final double[] pos = x.toArray();
     final int m = pos.length;
     final double twoEPS = 2.0 * EPS;
