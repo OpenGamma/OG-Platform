@@ -5,6 +5,8 @@
  */
 package com.opengamma.math.statistics;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * 
  */
@@ -15,14 +17,18 @@ public class ConfidenceInterval {
   private final double _value;
 
   public ConfidenceInterval(final double value, final double lower, final double upper, final double confidenceLevel) {
-    if (confidenceLevel < 0 || confidenceLevel > 1)
+    if (!ArgumentChecker.isInRangeInclusive(0, 1, confidenceLevel)) {
       throw new IllegalArgumentException("Confidence level must be in the range 0 <= x <= 1");
-    if (lower >= upper)
+    }
+    if (lower >= upper) {
       throw new IllegalArgumentException("Lower bound must be less than upper bound");
-    if (value < lower)
+    }
+    if (value < lower) {
       throw new IllegalArgumentException("Lower bound must be less than the value");
-    if (value > upper)
+    }
+    if (value > upper) {
       throw new IllegalArgumentException("Upper bound must be greater than the value");
+    }
     _value = value;
     _lower = lower;
     _upper = upper;
@@ -67,21 +73,28 @@ public class ConfidenceInterval {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final ConfidenceInterval other = (ConfidenceInterval) obj;
-    if (Double.doubleToLongBits(_confidenceLevel) != Double.doubleToLongBits(other._confidenceLevel))
+    if (Double.doubleToLongBits(_confidenceLevel) != Double.doubleToLongBits(other._confidenceLevel)) {
       return false;
-    if (Double.doubleToLongBits(_lower) != Double.doubleToLongBits(other._lower))
+    }
+    if (Double.doubleToLongBits(_lower) != Double.doubleToLongBits(other._lower)) {
       return false;
-    if (Double.doubleToLongBits(_upper) != Double.doubleToLongBits(other._upper))
+    }
+    if (Double.doubleToLongBits(_upper) != Double.doubleToLongBits(other._upper)) {
       return false;
-    if (Double.doubleToLongBits(_value) != Double.doubleToLongBits(other._value))
+    }
+    if (Double.doubleToLongBits(_value) != Double.doubleToLongBits(other._value)) {
       return false;
+    }
     return true;
   }
 }
