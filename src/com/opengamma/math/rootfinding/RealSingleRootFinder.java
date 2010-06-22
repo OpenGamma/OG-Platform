@@ -5,19 +5,18 @@
  */
 package com.opengamma.math.rootfinding;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 
+/**
+ * 
+ */
 public abstract class RealSingleRootFinder implements SingleRootFinder<Double, Double, Double, Double> {
 
   protected void checkInputs(final Function1D<Double, Double> function, final Double x1, final Double x2) {
-    if (function == null) {
-      throw new IllegalArgumentException("Function was null");
-    }
-    if (x1 == null) {
-      throw new IllegalArgumentException("First bound was null");
-    }
-    if (x2 == null) {
-      throw new IllegalArgumentException("Second bound was null");
-    }
+    Validate.notNull(function);
+    Validate.notNull(x1);
+    Validate.notNull(x2);
   }
 }

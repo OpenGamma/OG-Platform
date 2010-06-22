@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.rootfinding;
 
+/**
+ * 
+ */
 public class RootNotFoundException extends RuntimeException {
 
   public RootNotFoundException() {

@@ -8,6 +8,9 @@ package com.opengamma.math.rootfinding;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
+/**
+ * 
+ */
 public class RidderSingleRootFinder extends RealSingleRootFinder {
   private final double _accuracy;
   private static final int MAX_ITER = 10000;
