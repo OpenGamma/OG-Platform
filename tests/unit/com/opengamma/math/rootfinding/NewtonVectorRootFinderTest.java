@@ -13,8 +13,8 @@ import com.opengamma.math.linearalgebra.SVDecompositionCommons;
  * 
  */
 public class NewtonVectorRootFinderTest extends VectorRootFinderTest {
-  private static final VectorRootFinder DEFAULT = new NewtonVectorRootFinder(EPS, EPS, MAXSTEPS);
-  private static final VectorRootFinder SV = new NewtonVectorRootFinder(EPS, EPS, MAXSTEPS, new SVDecompositionCommons());
+  private static final NewtonRootFinderImpl DEFAULT = new NewtonVectorRootFinder(EPS, EPS, MAXSTEPS);
+  private static final NewtonRootFinderImpl SV = new NewtonVectorRootFinder(EPS, EPS, MAXSTEPS, new SVDecompositionCommons());
 
   @Test
   public void test() {

@@ -9,6 +9,7 @@ import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
@@ -47,18 +48,19 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
   }
 
   @Override
-  protected DoubleMatrix1D getDirection() {
+  protected DoubleMatrix1D getDirection(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     final DecompositionResult res = _decomp.evaluate(_jacobianEstimate);
     return res.solve(_y);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  protected void initializeMatrices() {
-    _jacobianEstimate = _jacobian.evaluate(_x);
+  protected void initializeMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+    _jacobianEstimate = _jacobian.evaluate(_x, function);
   }
 
   @Override
-  protected void updateMatrices() {
+  protected void updateMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     final double length2 = OG_ALGEBRA.getInnerProduct(_deltaX, _deltaX);
     Matrix<?> temp = OG_ALGEBRA.subtract(_deltaY, OG_ALGEBRA.multiply(_jacobianEstimate, _deltaX));
     temp = OG_ALGEBRA.scale(temp, 1.0 / length2);

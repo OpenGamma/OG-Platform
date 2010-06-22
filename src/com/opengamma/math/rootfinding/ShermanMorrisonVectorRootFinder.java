@@ -9,6 +9,7 @@ import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
@@ -47,19 +48,20 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
   }
 
   @Override
-  protected DoubleMatrix1D getDirection() {
+  protected DoubleMatrix1D getDirection(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     return (DoubleMatrix1D) OG_ALGEBRA.multiply(_inverseJacobianEstimate, _y);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  protected void initializeMatrices() {
-    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
+  protected void initializeMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x, function);
     final DecompositionResult deconResult = _decomp.evaluate(jacobianEst);
     _inverseJacobianEstimate = deconResult.solve(DoubleMatrixUtils.getIdentityMatrix2D(_x.getNumberOfElements()));
   }
 
   @Override
-  protected void updateMatrices() {
+  protected void updateMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     DoubleMatrix1D vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.multiply(_deltaX, _inverseJacobianEstimate);
     final double length2 = OG_ALGEBRA.getInnerProduct(vtemp1, _deltaY);
     vtemp1 = (DoubleMatrix1D) OG_ALGEBRA.scale(vtemp1, 1.0 / length2);

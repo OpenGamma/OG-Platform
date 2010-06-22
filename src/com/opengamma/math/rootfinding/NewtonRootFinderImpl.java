@@ -7,9 +7,10 @@ package com.opengamma.math.rootfinding;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -22,7 +23,7 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
   protected final double _absoluteTol, _relativeTol;
   protected final int _maxSteps;
   protected Function1D<DoubleMatrix1D, DoubleMatrix1D> _function;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix2D> _jacobian;
+  protected JacobianCalculator _jacobian;
   protected DoubleMatrix1D _y, _x, _deltaX, _deltaY;
   protected double _lambda1, _lambda2;
   protected double _g0, _g1, _g2;
@@ -42,10 +43,10 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
    * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
    * @return the vector root of the collection of functions 
    */
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      final DoubleMatrix1D startPosition) {
+  @Override
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobian = new JacobianCalculator(function);
+    final JacobianCalculator jacobian = new FiniteDifferenceJacobianCalculator();
     return getRoot(function, jacobian, startPosition);
   }
 
@@ -56,9 +57,9 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
   * @param jacobian A function that returns the Jacobian at a given position, i.e  J<sub>i,j,</sub> = dF<sub>i</sub>/dx<sub>j</sub>
   * @return the vector root of the collection of functions 
    */
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobian, final DoubleMatrix1D startPosition) {
-    checkInputs(function, jacobian, startPosition);
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final JacobianCalculator jacobian, final DoubleMatrix1D startPosition) {
+    checkInputs(function, startPosition);
+    Validate.notNull(jacobian);
     _function = function;
     _jacobian = jacobian;
 
@@ -66,9 +67,9 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
     _y = _function.evaluate(_x);
     _g0 = OG_ALGEBRA.getInnerProduct(_y, _y);
 
-    initializeMatrices();
+    initializeMatrices(function);
 
-    if (!getNextPosition()) {
+    if (!getNextPosition(function)) {
       throw new RootNotFoundException("Cannot work with this starting position. Please choose another point");
     }
 
@@ -77,17 +78,17 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
     while (!isConverged()) {
       //Want to reset the Jacobian every so often even if backtracking is working 
       if ((jacReconCount) % FULL_JACOBIAN_RECAL_FREQ == 0) {
-        initializeMatrices();
+        initializeMatrices(function);
         jacReconCount = 1;
       } else {
-        updateMatrices();
+        updateMatrices(function);
         jacReconCount++;
       }
       //if backtracking fails, could be that Jacobian estimate has drifted too far  
-      if (!getNextPosition()) {
-        initializeMatrices();
+      if (!getNextPosition(function)) {
+        initializeMatrices(function);
         jacReconCount = 1;
-        if (!getNextPosition()) {
+        if (!getNextPosition(function)) {
           throw new RootNotFoundException("Failed to converge in backtracking, even after a Jacobian recalculation");
         }
       }
@@ -100,9 +101,9 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
     return _x;
   }
 
-  private boolean getNextPosition() {
+  private boolean getNextPosition(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
 
-    final DoubleMatrix1D p = getDirection();
+    final DoubleMatrix1D p = getDirection(function);
 
     if (_lambda1 < 1.0) {
       _lambda1 = 1.0;
@@ -136,11 +137,11 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
     return true;
   }
 
-  protected abstract DoubleMatrix1D getDirection();
+  protected abstract DoubleMatrix1D getDirection(Function1D<DoubleMatrix1D, DoubleMatrix1D> function);
 
-  protected abstract void initializeMatrices();
+  protected abstract void initializeMatrices(Function1D<DoubleMatrix1D, DoubleMatrix1D> function);
 
-  protected abstract void updateMatrices();
+  protected abstract void updateMatrices(Function1D<DoubleMatrix1D, DoubleMatrix1D> function);
 
   protected void updatePosition(final DoubleMatrix1D p) {
     _deltaX = (DoubleMatrix1D) OG_ALGEBRA.scale(p, -_lambda1);

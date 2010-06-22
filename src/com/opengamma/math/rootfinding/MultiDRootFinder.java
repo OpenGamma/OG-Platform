@@ -11,10 +11,9 @@ import com.opengamma.math.function.Function1D;
  * 
  * @param <S> The type of the function input 
  * @param <T> The type of the function output 
- * @param <U> The type of Jacobian of the function
  */
-public interface MultiDRootFinder<S, T, U> {
+public interface MultiDRootFinder<S, T> {
+
   S getRoot(Function1D<S, T> function, S x);
 
-  S getRoot(Function1D<S, T> function, Function1D<S, U> jacobian, S x);
 }

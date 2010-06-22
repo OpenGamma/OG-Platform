@@ -16,7 +16,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class JacobianCalculatorTest {
+public class FiniteDifferenceJacobianCalculatorTest {
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> F = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
@@ -33,7 +33,7 @@ public class JacobianCalculatorTest {
     }
 
   };
-  private static final JacobianCalculator CALCULATOR = new JacobianCalculator(F);
+  private static final JacobianCalculator CALCULATOR = new FiniteDifferenceJacobianCalculator();
   private static final Function1D<DoubleMatrix1D, DoubleMatrix2D> JACOBIAN = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
     @Override
@@ -50,7 +50,7 @@ public class JacobianCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullFunction() {
-    new JacobianCalculator(null);
+    CALCULATOR.evaluate(new DoubleMatrix1D(new double[] {2, 3, 4}), (Function1D<DoubleMatrix1D, DoubleMatrix1D>[]) null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -58,10 +58,18 @@ public class JacobianCalculatorTest {
     CALCULATOR.evaluate((DoubleMatrix1D) null);
   }
 
+  @SuppressWarnings("unchecked")
+  @Test(expected = IllegalArgumentException.class)
+  public void testEmptyMatrix() {
+    CALCULATOR.evaluate(new DoubleMatrix1D(new double[] {1, 2, 3}), new Function1D[] {});
+  }
+
+  @SuppressWarnings("unchecked")
   @Test
   public void test() {
     final DoubleMatrix1D v = new DoubleMatrix1D(new double[] {0.1, 0.2, 0.3, 0.4});
-    assertMatrixEquals(CALCULATOR.evaluate(v), JACOBIAN.evaluate(v));
+    assertMatrixEquals(CALCULATOR.evaluate(v, F), JACOBIAN.evaluate(v));
+    assertEquals(CALCULATOR.evaluate(v, F), CALCULATOR.evaluate(v, F, F));
   }
 
   private void assertMatrixEquals(final DoubleMatrix2D m1, final DoubleMatrix2D m2) {

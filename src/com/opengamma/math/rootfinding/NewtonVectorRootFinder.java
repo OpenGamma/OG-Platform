@@ -7,6 +7,7 @@ package com.opengamma.math.rootfinding;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
@@ -49,20 +50,21 @@ public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
     _decomp = decompMethod;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  protected DoubleMatrix1D getDirection() {
-    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x);
+  protected DoubleMatrix1D getDirection(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
+    final DoubleMatrix2D jacobianEst = _jacobian.evaluate(_x, function);
     final DecompositionResult res = _decomp.evaluate(jacobianEst);
     return res.solve(_y);
   }
 
   @Override
-  protected void initializeMatrices() {
+  protected void initializeMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     // no need to do anything
   }
 
   @Override
-  protected void updateMatrices() {
+  protected void updateMatrices(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     // no need to do anything
   }
 
