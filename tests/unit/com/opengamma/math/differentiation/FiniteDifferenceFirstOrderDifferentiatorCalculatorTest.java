@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.opengamma.math.differentiation.FiniteDifferenceDifferentiationCalculator.DifferenceType;
+import com.opengamma.math.differentiation.FiniteDifferenceFirstOrderDifferentiator.DifferenceType;
 import com.opengamma.math.function.Function1D;
 
-public class FiniteDifferenceDifferentiationCalculatorTest {
+public class FiniteDifferenceFirstOrderDifferentiatorCalculatorTest {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {
 
     @Override
@@ -25,13 +25,13 @@ public class FiniteDifferenceDifferentiationCalculatorTest {
 
   };
   private static final double EPS = 1e-5;
-  private static final FiniteDifferenceDifferentiationCalculator FORWARD = new FiniteDifferenceDifferentiationCalculator(DifferenceType.FORWARD, EPS * EPS);
-  private static final FiniteDifferenceDifferentiationCalculator CENTRAL = new FiniteDifferenceDifferentiationCalculator(DifferenceType.CENTRAL, EPS * EPS);
-  private static final FiniteDifferenceDifferentiationCalculator BACKWARD = new FiniteDifferenceDifferentiationCalculator(DifferenceType.BACKWARD, EPS * EPS);
+  private static final FiniteDifferenceFirstOrderDifferentiator FORWARD = new FiniteDifferenceFirstOrderDifferentiator(DifferenceType.FORWARD, EPS * EPS);
+  private static final FiniteDifferenceFirstOrderDifferentiator CENTRAL = new FiniteDifferenceFirstOrderDifferentiator(DifferenceType.CENTRAL, EPS * EPS);
+  private static final FiniteDifferenceFirstOrderDifferentiator BACKWARD = new FiniteDifferenceFirstOrderDifferentiator(DifferenceType.BACKWARD, EPS * EPS);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullDifferenceType() {
-    new FiniteDifferenceDifferentiationCalculator(null);
+    new FiniteDifferenceFirstOrderDifferentiator(null);
   }
 
   @Test(expected = IllegalArgumentException.class)

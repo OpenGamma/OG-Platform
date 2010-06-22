@@ -13,7 +13,7 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 
-public class FiniteDifferenceDifferentiationCalculator extends Function1D<Function1D<Double, Double>, Function1D<Double, Double>> {
+public class FiniteDifferenceFirstOrderDifferentiator extends Function1D<Function1D<Double, Double>, Function1D<Double, Double>> {
   /**
    * Differencing type:
    * <p>
@@ -42,14 +42,14 @@ public class FiniteDifferenceDifferentiationCalculator extends Function1D<Functi
   private final double _twoEps;
   private final DifferenceType _differenceType;
 
-  public FiniteDifferenceDifferentiationCalculator(final DifferenceType differenceType) {
+  public FiniteDifferenceFirstOrderDifferentiator(final DifferenceType differenceType) {
     Validate.notNull(differenceType);
     _differenceType = differenceType;
     _eps = 1e-9;
     _twoEps = 2e-9;
   }
 
-  public FiniteDifferenceDifferentiationCalculator(final DifferenceType differenceType, final double eps) {
+  public FiniteDifferenceFirstOrderDifferentiator(final DifferenceType differenceType, final double eps) {
     Validate.notNull(differenceType);
     _differenceType = differenceType;
     _eps = eps;
