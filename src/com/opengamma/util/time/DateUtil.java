@@ -433,6 +433,15 @@ public class DateUtil {
     timestamp.setNanos(instant.getNanoOfSecond());
     return timestamp;
   }
+  
+  /**
+   * Creates a time-stamp from a ZonedDateTime.
+   * @param zonedDateTime  the ZonedDateTime to convert, not null
+   * @return the time-stamp, not null
+   */
+  public static Timestamp toSqlTimestamp(ZonedDateTime zonedDateTime) {
+    return toSqlTimestamp(zonedDateTime.toInstant());
+  }
 
   /**
    * Creates an instant from a time-stamp.
@@ -443,6 +452,15 @@ public class DateUtil {
     long seconds = timestamp.getTime() / 1000;
     int nanos = timestamp.getNanos();
     return Instant.ofSeconds(seconds, nanos);
+  }
+  
+  /**
+   * Creates a SQL date from a LocalDate.
+   * @param date  the date to convert, not null
+   * @return the SQL date, not null
+   */
+  public static java.sql.Date toSqlDate(LocalDate date) {
+    return new java.sql.Date(date.atStartOfDayInZone(TimeZone.UTC).toInstant().toEpochMillisLong());
   }
 
 }
