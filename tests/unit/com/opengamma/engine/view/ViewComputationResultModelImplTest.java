@@ -37,10 +37,10 @@ public class ViewComputationResultModelImplTest {
   }
 
   public static void checkModel(ViewComputationResultModelImpl model) {
-    model.setInputDataTimestamp(Instant.ofMillis(400));
-    assertEquals(Instant.ofMillis(400), model.getInputDataTimestamp());
-    model.setResultTimestamp(Instant.ofMillis(500));
-    assertEquals(Instant.ofMillis(500), model.getResultTimestamp());
+    model.setInputDataTimestamp(Instant.ofEpochMillis(400));
+    assertEquals(Instant.ofEpochMillis(400), model.getInputDataTimestamp());
+    model.setResultTimestamp(Instant.ofEpochMillis(500));
+    assertEquals(Instant.ofEpochMillis(500), model.getResultTimestamp());
     
     Set<String> calcConfigNames = Sets.newHashSet("configName1", "configName2");
     model.setCalculationConfigurationNames(calcConfigNames);
