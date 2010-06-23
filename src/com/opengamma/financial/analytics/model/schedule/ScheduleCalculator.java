@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
-import javax.time.period.Period;
 
 import org.apache.commons.lang.Validate;
 
