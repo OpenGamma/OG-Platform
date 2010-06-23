@@ -25,7 +25,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
 
+import com.opengamma.engine.position.Portfolio;
+import com.opengamma.engine.view.server.EngineFudgeContextConfiguration;
+import com.opengamma.financial.FinancialFudgeContextConfiguration;
 import com.opengamma.financial.position.AddPortfolioRequest;
 import com.opengamma.financial.position.ManagablePositionMaster;
 import com.opengamma.financial.position.PortfolioSummary;
@@ -48,6 +55,10 @@ public class PortfoliosResource {
    */
   private final ManagablePositionMaster _posMaster;
   /**
+   * The fudge context to use when deserialising objects from Fudge-based requests 
+   */
+  private final FudgeContext _fudgeContext;
+  /**
    * Information about the URI injected by JSR-311.
    */
   @Context
@@ -60,6 +71,16 @@ public class PortfoliosResource {
   public PortfoliosResource(final ManagablePositionMaster posMaster) {
     ArgumentChecker.notNull(posMaster, "PositionMaster");
     _posMaster = posMaster;
+    
+    _fudgeContext = new FudgeContext();
+    EngineFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
+    FinancialFudgeContextConfiguration.INSTANCE.configureFudgeContext(_fudgeContext);
+  }
+  
+  public PortfoliosResource(UriInfo uriInfo, final ManagablePositionMaster posMaster) {
+    this(posMaster);
+    ArgumentChecker.notNull(uriInfo, "uriInfo");
+    _uriInfo = uriInfo;
   }
 
   //-------------------------------------------------------------------------
@@ -143,10 +164,25 @@ public class PortfoliosResource {
     html += "</body>\n</html>";
     return html;
   }
+  
+  private Response addPortfolio(AddPortfolioRequest request) {
+    UniqueIdentifier uid = getPositionMaster().addPortfolio(request);
+    URI uri = getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
+    return Response.seeOther(uri).build();
+  }
 
   @POST
+  @Consumes("application/vnd.fudgemsg")
+  public Response postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
+    FudgeDeserializationContext context = new FudgeDeserializationContext(_fudgeContext);
+    AddPortfolioRequest request = context.fudgeMsgToObject(AddPortfolioRequest.class, addPortfolioRequestMsg.getMessage());
+    request.checkValid();
+    return addPortfolio(request);
+  }
+  
+  @POST
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  public Response post(@FormParam("name") String name) {
+  public Response postForm(@FormParam("name") String name) {
     AddPortfolioRequest request = new AddPortfolioRequest();
     request.setName(name);
     try {
@@ -164,9 +200,7 @@ public class PortfoliosResource {
         "</body>\n</html>";
       return Response.ok(html).build();
     }
-    UniqueIdentifier uid = getPositionMaster().addPortfolio(request);
-    URI uri = getUriInfo().getAbsolutePathBuilder().path(uid.toString()).build();
-    return Response.seeOther(uri).build();
+    return addPortfolio(request);
   }
 
   //-------------------------------------------------------------------------
