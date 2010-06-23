@@ -72,7 +72,7 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
   
   public ZonedDateTime getZonedOffset() {
-    return ZonedDateTime.ofInstant(Instant.ofMillis(_offset), _timeZone);
+    return ZonedDateTime.ofInstant(Instant.ofEpochMillis(_offset), _timeZone);
   }
 
   @Override
