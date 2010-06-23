@@ -392,7 +392,7 @@ public class DateUtil {
    * @return the clock, not null
    */
   public static Clock epochFixedClockDefaultZone(long epochMilliseconds) {
-    Instant instant = Instant.ofMillis(epochMilliseconds);
+    Instant instant = Instant.ofEpochMillis(epochMilliseconds);
     TimeSource timeSource = TimeSource.fixed(instant);
     Clock clock = Clock.clockDefaultZone(timeSource);
     return clock;
@@ -405,7 +405,7 @@ public class DateUtil {
    * @return the clock, not null
    */
   public static Clock epochFixedClockUTC(long epochMilliseconds) {
-    Instant instant = Instant.ofMillis(epochMilliseconds);
+    Instant instant = Instant.ofEpochMillis(epochMilliseconds);
     TimeSource timeSource = TimeSource.fixed(instant);
     Clock clock = Clock.clock(timeSource, TimeZone.UTC);
     return clock;
@@ -442,7 +442,7 @@ public class DateUtil {
   public static Instant fromSqlTimestamp(Timestamp timestamp) {
     long seconds = timestamp.getTime() / 1000;
     int nanos = timestamp.getNanos();
-    return Instant.ofSeconds(seconds, nanos);
+    return Instant.ofEpochSeconds(seconds, nanos);
   }
 
 }
