@@ -7,7 +7,7 @@ package com.opengamma.financial.convention.frequency;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.time.period.Period;
+import javax.time.calendar.Period;
 
 import org.junit.Test;
 

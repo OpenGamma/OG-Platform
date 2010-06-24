@@ -22,7 +22,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.*;
@@ -54,18 +55,18 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
   private static final String TEST_STR = "TEST-STR";
   private Random _random = new Random();
   private StringBuffer _debugMsg = new StringBuffer();
-  private SynchronousQueue<String> _q = new SynchronousQueue<String>();
+  private BlockingQueue<String> _q = new ArrayBlockingQueue<String>(500);
   
   class Watchdog implements Runnable {
-    private SynchronousQueue<String> _queue;
-    public Watchdog(SynchronousQueue<String> queue) {
+    private BlockingQueue<String> _queue;
+    public Watchdog(BlockingQueue<String> queue) {
       _queue = queue;
     }
     
     private void sendMail() {
-      final String smtpServer = "mail.opengamma.com";
+      final String smtpServer = "localhost";
       final String to = "jim@opengamma.com";
-      final String from = "root@bamboo.opengamma.com";
+      final String from = "jim@opengamma.com";
       final String subject = "Test failure";
       Properties props = new Properties();
       props.put("mail.smtp.host", smtpServer);
@@ -89,7 +90,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
         msg.setSentDate(new Date());
         // -- Send the message --
         Transport.send(msg);
-        System.out.println("Message sent OK.");
       } catch (Exception ex) {
         ex.printStackTrace();
       }
@@ -99,9 +99,10 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     public void run() {
       try {
         while (true) {
-          String message = _queue.poll(60, TimeUnit.SECONDS);
+          String message = _queue.poll(160, TimeUnit.SECONDS);
           if (message != null) {
-            if (message.length() == 0) {
+            if ((message.length() == 0) || (message.contains("finished"))) {
+
               return;
             } else {
               _debugMsg.append(message + "\n");
@@ -109,13 +110,16 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
           } else {
             Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
             for (Thread thread : allStackTraces.keySet()) {
-              StackTraceElement[] stackTraceElements = allStackTraces.get(thread);
-              _debugMsg.append("Thread:"+thread.getName()+"("+thread.getId()+")\n");
-              for (StackTraceElement stackTraceElement : stackTraceElements) {
-                _debugMsg.append("  "+stackTraceElement.toString()+'n');
+              if (thread != Thread.currentThread()) {
+                StackTraceElement[] stackTraceElements = allStackTraces.get(thread);
+                _debugMsg.append("Thread:"+thread.getName()+"("+thread.getId()+")"+thread.getState()+"\n");
+                for (StackTraceElement stackTraceElement : stackTraceElements) {
+                  _debugMsg.append("\t"+stackTraceElement.toString()+'\n');
+                }
               }
             }
             sendMail();
+            System.exit(1);
           }
         }
       } catch (InterruptedException e) {
@@ -143,7 +147,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     Thread watchDog = new Thread(new Watchdog(_q));
     watchDog.start();
     s_logger.info("running test for databaseType={} databaseVersion={}", databaseType, databaseVersion);
-    log("running test for databaseType=" + databaseType + " databaseVersion=" + databaseVersion);
+    //log("running test for databaseType=" + databaseType + " databaseVersion=" + databaseVersion);
   }
 
   private HibernateSecurityMasterDao _hibernateSecurityMasterDao;
@@ -164,6 +168,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
   @After
   public void tearDown() throws Exception {
     super.tearDown();
+    log("finished");
     _hibernateSecurityMasterDao = null;
   }
 
@@ -1041,7 +1046,6 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertEquals(dsiab2.getValidEndDate(), dsiab3.getValidStartDate());
     assertEquals(dsiab3.getValidEndDate(), dsiab4.getValidStartDate());
     log("testDomainSpecificIdentifierAssociationDateRanges: finished");
-    log(""); // tell watchDog thread to quit.
   }
   
 
