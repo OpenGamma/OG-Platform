@@ -1,0 +1,148 @@
+/**
+ * Copyright (C) 2009 - 2010 by OpenGamma Inc.
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.analytics.model.swap;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Set;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
+import org.fudgemsg.FudgeFieldContainer;
+import org.junit.Test;
+
+import com.opengamma.financial.convention.businessday.ModifiedBusinessDayConvention;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.security.Region;
+import com.opengamma.financial.security.RegionType;
+import com.opengamma.financial.security.swap.Notional;
+import com.opengamma.financial.security.swap.SwapLeg;
+import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.time.DateUtil;
+
+/**
+ * 
+ */
+@SuppressWarnings("synthetic-access")
+public class SwapScheduleCalculatorTest {
+  private static final ZonedDateTime EFFECTIVE = DateUtil.getUTCDate(2010, 6, 1);
+  private static final ZonedDateTime MATURITY = DateUtil.getUTCDate(2020, 6, 1);
+  private static final Region REGION = new MyRegion();
+  private static final Notional NOTIONAL = new Notional() {
+    //don't need anything
+  };
+  private static final DayCount DAY_COUNT = new DayCount() {
+
+    @Override
+    public double getBasis(final ZonedDateTime date) {
+      return 0;
+    }
+
+    @Override
+    public String getConventionName() {
+      return "";
+    }
+
+    @Override
+    public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+      return secondDate.getYear() - firstDate.getYear()
+          + ((double) secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue()) / 12.;
+    }
+
+  };
+  private static final SwapLeg PAY_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION,
+      new ModifiedBusinessDayConvention(), NOTIONAL);
+  private static final SwapLeg RECEIVE_LEG = new SwapLeg(DAY_COUNT, PeriodFrequency.SEMI_ANNUAL, REGION,
+      new ModifiedBusinessDayConvention(), NOTIONAL);
+  private static final Calendar CALENDAR = new Calendar() {
+
+    @Override
+    public String getConventionName() {
+      return "";
+    }
+
+    @Override
+    public boolean isWorkingDay(final LocalDate date) {
+      return true;
+    }
+
+  };
+  private static final SwapSecurity SECURITY = new SwapSecurity(EFFECTIVE, MATURITY, "", PAY_LEG, RECEIVE_LEG);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSecurity1() {
+    SwapScheduleCalculator.getPayLegPaymentTimes(null, CALENDAR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCalendar1() {
+    SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullSecurity2() {
+    SwapScheduleCalculator.getReceiveLegPaymentTimes(null, CALENDAR);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullCalendar2() {
+    SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullEffectiveDate() {
+    SwapScheduleCalculator.getPaymentTimes(null, MATURITY, PAY_LEG, CALENDAR);
+  }
+
+  @Test
+  public void test() {
+    final double[] payTimes = SwapScheduleCalculator.getPayLegPaymentTimes(SECURITY, CALENDAR);
+    final double[] receiveTimes = SwapScheduleCalculator.getReceiveLegPaymentTimes(SECURITY, CALENDAR);
+    assertEquals(payTimes.length, 19);
+    assertEquals(payTimes.length, receiveTimes.length);
+    for (int i = 0; i < payTimes.length; i++) {
+      assertEquals(payTimes[i], receiveTimes[i], 1e-15);
+      assertEquals(payTimes[i], 0.5, 1e-15);
+    }
+  }
+
+  private static final class MyRegion implements Region {
+
+    @Override
+    public FudgeFieldContainer getData() {
+      return null;
+    }
+
+    @Override
+    public FudgeFieldContainer getDataUp() {
+      return null;
+    }
+
+    @Override
+    public String getName() {
+      return null;
+    }
+
+    @Override
+    public RegionType getRegionType() {
+      return null;
+    }
+
+    @Override
+    public Set<Region> getSubRegions() {
+      return null;
+    }
+
+    @Override
+    public Region getSuperRegion() {
+      return null;
+    }
+
+  }
+}

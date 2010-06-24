@@ -18,8 +18,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
+
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -45,6 +55,88 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
   
   private static final String TEST_STR = "TEST-STR";
   private Random _random = new Random();
+  private StringBuffer _debugMsg = new StringBuffer();
+  private BlockingQueue<String> _q = new ArrayBlockingQueue<String>(500);
+  
+  class Watchdog implements Runnable {
+    private BlockingQueue<String> _queue;
+    public Watchdog(BlockingQueue<String> queue) {
+      _queue = queue;
+    }
+    
+    private void sendMail() {
+      final String smtpServer = "localhost";
+      final String to = "jim@opengamma.com";
+      final String from = "jim@opengamma.com";
+      final String subject = "Test failure";
+      Properties props = new Properties();
+      props.put("mail.smtp.host", smtpServer);
+      try {
+        Session session = Session.getDefaultInstance(props, null);
+        // -- Create a new message --
+        Message msg = new MimeMessage(session);
+        // -- Set the FROM and TO fields --
+        msg.setFrom(new InternetAddress(from));
+        msg.setRecipients(Message.RecipientType.TO,
+          InternetAddress.parse(to, false));
+        // -- We could include CC recipients too --
+        // if (cc != null)
+        // msg.setRecipients(Message.RecipientType.CC
+        // ,InternetAddress.parse(cc, false));
+        // -- Set the subject and body text --
+        msg.setSubject(subject);
+        msg.setText(_debugMsg.toString());
+        // -- Set some other header information --
+        msg.setHeader("X-Mailer", "LOTONtechEmail");
+        msg.setSentDate(new Date());
+        // -- Send the message --
+        Transport.send(msg);
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    }
+    
+    @Override
+    public void run() {
+      try {
+        while (true) {
+          String message = _queue.poll(160, TimeUnit.SECONDS);
+          if (message != null) {
+            if ((message.length() == 0) || (message.contains("finished"))) {
+              return;
+            } else {
+              _debugMsg.append(message + "\n");
+            }
+          } else {
+            Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
+            for (Thread thread : allStackTraces.keySet()) {
+              if (thread != Thread.currentThread()) {
+                StackTraceElement[] stackTraceElements = allStackTraces.get(thread);
+                _debugMsg.append("Thread:"+thread.getName()+"("+thread.getId()+")"+thread.getState()+"\n");
+                for (StackTraceElement stackTraceElement : stackTraceElements) {
+                  _debugMsg.append("\t"+stackTraceElement.toString()+'\n');
+                }
+              }
+            }
+            sendMail();
+            System.exit(1);
+          }
+        }
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+  }
+  
+  private void log(String message) {
+    try {
+      _q.put(message);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
   
   /**
    * @param databaseType
@@ -52,7 +144,10 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
    */
   public HibernateSecurityMasterDaoTest(String databaseType, String databaseVersion) {
     super(databaseType, databaseVersion);
+    Thread watchDog = new Thread(new Watchdog(_q));
+    watchDog.start();
     s_logger.info("running test for databaseType={} databaseVersion={}", databaseType, databaseVersion);
+    //log("running test for databaseType=" + databaseType + " databaseVersion=" + databaseVersion);
   }
 
   private HibernateSecurityMasterDao _hibernateSecurityMasterDao;
@@ -73,6 +168,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
   @After
   public void tearDown() throws Exception {
     super.tearDown();
+    log("finished");
     _hibernateSecurityMasterDao = null;
   }
 
@@ -86,6 +182,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
   
   @Test
   public void getOrCreateExchangeBean() throws Exception {
+    log("getOrCreateExchangeBean: started");
     List<ExchangeBean> exchangeBeans = _hibernateSecurityMasterDao.getExchangeBeans();
     assertNotNull(exchangeBeans);
     assertTrue(exchangeBeans.isEmpty());
@@ -110,11 +207,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertTrue(exchangeBeans.contains(ruyBean));
     final ExchangeBean usdBean2 = _hibernateSecurityMasterDao.getOrCreateExchangeBean("UKX", "FTSE 100");
     assertEquals(ukxId, usdBean2.getId());
-   
+    log("getOrCreateExchangeBean: finished");
   }
   
   @Test
   public void getOrCreateCurrencyBean() throws Exception {
+    log("getOrCreateCurrencyBean: started");
     List<CurrencyBean> currencyBeans = _hibernateSecurityMasterDao.getCurrencyBeans();
     assertNotNull(currencyBeans);
     assertTrue(currencyBeans.isEmpty());
@@ -138,10 +236,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertTrue(currencyBeans.contains(nzdBean));
     final CurrencyBean usdBean2 = _hibernateSecurityMasterDao.getOrCreateCurrencyBean("USD");
     assertEquals(usdId, usdBean2.getId());
+    log("getOrCreateCurrencyBean: finished");
   }
   
   @Test
   public void getOrCreateGICSCodeBean() throws Exception {
+    log("getOrCreateGICSCodeBean: started");
     List<GICSCodeBean> gicsCodeBeans = _hibernateSecurityMasterDao.getGICSCodeBeans();
     assertNotNull(gicsCodeBeans);
     assertTrue(gicsCodeBeans.isEmpty());
@@ -167,11 +267,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     
     //test it doesnt create another bean
     gicsBean = _hibernateSecurityMasterDao.getOrCreateGICSCodeBean("10", "Energy");
-    assertEquals(energyId, gicsBean.getId()); 
+    assertEquals(energyId, gicsBean.getId());
+    log("getOrCreateGICSBean: finished");
   }
   
-  @Test
   public void getOrCreateDayCountBean() throws Exception {
+    log("getOrCreateDayCountBean: started");
     List<DayCountBean> dayCountBeans = _hibernateSecurityMasterDao.getDayCountBeans();
     assertNotNull(dayCountBeans);
     assertTrue(dayCountBeans.isEmpty());
@@ -200,10 +301,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     //test it doesnt create another bean
     DayCountBean dayCountBean = _hibernateSecurityMasterDao.getOrCreateDayCountBean("Act/360");
     assertEquals(actual360Id, dayCountBean.getId());
+    log("getOrCreateDaycountBean: finished");
   }
   
   @Test
   public void getOrCreateBusinessDayConventionBean() throws Exception {
+    log("getOrCreateBusinessDayConventionBean: started");
     List<BusinessDayConventionBean> businessDayConventionBeans = _hibernateSecurityMasterDao.getBusinessDayConventionBeans();
     assertNotNull(businessDayConventionBeans);
     assertTrue(businessDayConventionBeans.isEmpty());
@@ -227,10 +330,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     businessDayConventionBeans = _hibernateSecurityMasterDao.getBusinessDayConventionBeans();
     assertNotNull(businessDayConventionBeans);
     assertEquals(previousSize, businessDayConventionBeans.size());
+    log("getOrCreateBusinessDayConventionBean: finished");
   }
   
   @Test
   public void getOrCreateFrequencyBean() throws Exception {
+    log("getOrCreateFrequencyBean: started");
     List<FrequencyBean> frequencyBeans = _hibernateSecurityMasterDao.getFrequencyBeans();
     assertNotNull(frequencyBeans);
     assertTrue(frequencyBeans.isEmpty());
@@ -270,11 +375,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     } catch (Throwable ex) {
       //ok
     }
-    
+    log("getOrCreateFrequencyBean: finished");
   }
   
   @Test
   public void getOrCreateCommodityFutureTypeBean() throws Exception {
+    log("getOrCreateCommdityFutureTypeBean: started");
     List<CommodityFutureTypeBean> commodityFutureTypeBeans = _hibernateSecurityMasterDao.getCommodityFutureTypeBeans();
     assertNotNull(commodityFutureTypeBeans);
     assertTrue(commodityFutureTypeBeans.isEmpty());
@@ -298,10 +404,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     commodityFutureTypeBeans = _hibernateSecurityMasterDao.getCommodityFutureTypeBeans();
     assertNotNull(commodityFutureTypeBeans);
     assertEquals(previousSize, commodityFutureTypeBeans.size());
+    log("getOrCreateCommodityFutureTypeBean: finished");
   }
   
   @Test
   public void getOrCreateBondFutureTypeBean() throws Exception {
+    log("getOrCreateBondFutureTypeBean: started");
     List<BondFutureTypeBean> bondFutureTypeBeans = _hibernateSecurityMasterDao.getBondFutureTypeBeans();
     assertNotNull(bondFutureTypeBeans);
     assertTrue(bondFutureTypeBeans.isEmpty());
@@ -325,10 +433,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     bondFutureTypeBeans = _hibernateSecurityMasterDao.getBondFutureTypeBeans();
     assertNotNull(bondFutureTypeBeans);
     assertEquals(previousSize, bondFutureTypeBeans.size());
+    log("getOrCreateBondFutureTypeBean: finished");
   }
   
   @Test
   public void getOrCreateUnitNameBean() throws Exception {
+    log("getOrCreateUnitNameBean: started");
     List<UnitBean> unitNameBeans = _hibernateSecurityMasterDao.getUnitNameBeans();
     assertNotNull(unitNameBeans);
     assertTrue(unitNameBeans.isEmpty());
@@ -352,10 +462,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     unitNameBeans = _hibernateSecurityMasterDao.getUnitNameBeans();
     assertNotNull(unitNameBeans);
     assertEquals(previousSize, unitNameBeans.size());
+    log("getOrCreateUnitNameBean: finished");
   }
   
   @Test
   public void getOrCreateCashRateTypeBean() throws Exception {
+    log("getOrCreateCashRateTypeBean: started");
     List<CashRateTypeBean> cashRateTypeBeans = _hibernateSecurityMasterDao.getCashRateTypeBeans();
     assertNotNull(cashRateTypeBeans);
     assertTrue(cashRateTypeBeans.isEmpty());
@@ -379,10 +491,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     cashRateTypeBeans = _hibernateSecurityMasterDao.getCashRateTypeBeans();
     assertNotNull(cashRateTypeBeans);
     assertEquals(previousSize, cashRateTypeBeans.size());
+    log("getOrCreateCashRateTypeBean: finished");
   }
   
   @Test
   public void getOrCreateIssuerTypeBean() throws Exception {
+    log("getOrCreateIssuerTypeBean: started");
     List<IssuerTypeBean> issuerTypeBeans = _hibernateSecurityMasterDao.getIssuerTypeBeans();
     assertNotNull(issuerTypeBeans);
     assertTrue(issuerTypeBeans.isEmpty());
@@ -406,10 +520,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     issuerTypeBeans = _hibernateSecurityMasterDao.getIssuerTypeBeans();
     assertNotNull(issuerTypeBeans);
     assertEquals(previousSize, issuerTypeBeans.size());
+    log("getOrCreateIssuerTypeBean: finished");
   }
   
   @Test
   public void getOrCreateMarketBean() throws Exception {
+    log("getOrCreateMarketBean: started");
     List<MarketBean> marketBeans = _hibernateSecurityMasterDao.getMarketBeans();
     assertNotNull(marketBeans);
     assertTrue(marketBeans.isEmpty());
@@ -433,10 +549,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     marketBeans = _hibernateSecurityMasterDao.getMarketBeans();
     assertNotNull(marketBeans);
     assertEquals(previousSize, marketBeans.size());
+    log("getOrCreateMarketBean: finished");
   }
   
   @Test
   public void getOrCreateYieldConventionBean() throws Exception {
+    log("getOrCreateYieldConventionBean: started");
     List<YieldConventionBean> yieldConventionBeans = _hibernateSecurityMasterDao.getYieldConventionBeans();
     assertNotNull(yieldConventionBeans);
     assertTrue(yieldConventionBeans.isEmpty());
@@ -460,10 +578,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     yieldConventionBeans = _hibernateSecurityMasterDao.getYieldConventionBeans();
     assertNotNull(yieldConventionBeans);
     assertEquals(previousSize, yieldConventionBeans.size());
+    log("getOrCreateYieldConventionBean: finished");
   }
   
   @Test
   public void getOrCreateGuaranteeTypeBean() throws Exception {
+    log("getOrCreateGuaranteeTypeBean: started");
     List<GuaranteeTypeBean> guaranteeTypeBeans = _hibernateSecurityMasterDao.getGuaranteeTypeBeans();
     assertNotNull(guaranteeTypeBeans);
     assertTrue(guaranteeTypeBeans.isEmpty());
@@ -487,10 +607,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     guaranteeTypeBeans = _hibernateSecurityMasterDao.getGuaranteeTypeBeans();
     assertNotNull(guaranteeTypeBeans);
     assertEquals(previousSize, guaranteeTypeBeans.size());
+    log("getOrCreateGuaranteeTypeBean: finished");
   }
   
   @Test
   public void getOrCreateCouponTypeBean() throws Exception {
+    log("getOrCreateCouponTypeBean: started");
     List<CouponTypeBean> couponTypeBeans = _hibernateSecurityMasterDao.getCouponTypeBeans();
     assertNotNull(couponTypeBeans);
     assertTrue(couponTypeBeans.isEmpty());
@@ -514,6 +636,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     couponTypeBeans = _hibernateSecurityMasterDao.getCouponTypeBeans();
     assertNotNull(couponTypeBeans);
     assertEquals(previousSize, couponTypeBeans.size());
+    log("getOrCreateCouponTypeBean: finished");
   }
   
 //  @Test
@@ -530,6 +653,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
    */
   @Test
   public void optionSecurityBean() throws Exception {
+    log("optionSecurityBean: started");
     assertNoPersistedOptions();
     
     OptionSecurityType[] optionSecurityTypes = OptionSecurityType.values();
@@ -640,13 +764,14 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     List<OptionSecurityBean> optionSecurityBeans = _hibernateSecurityMasterDao.getOptionSecurityBeans();
     assertNotNull(optionSecurityBeans);
     assertTrue(optionSecurityBeans.size() == optionSecurityTypes.length * 2);
-      
+    log("optionSecurityBean: finished");
   }
 
   @Test
   public void futureSecurityBean() throws Exception {
+    log("futureSecurityBean: started");
     // TODO Auto-generated method stub
-    
+    log("futureSecurityBean: finished");
   }
 
   @Test
@@ -656,6 +781,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
 
   @Test
   public void equitySecurityBean() throws Exception {
+    log("equitySecurityBean: started");
     assertNoPersistedEquites();
     
     final Calendar cal = Calendar.getInstance();
@@ -765,10 +891,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertEquals(secondVersion, result);
     result = _hibernateSecurityMasterDao.getCurrentEquitySecurityBean(cal.getTime(), secondVersion.getExchange(), secondVersion.getCompanyName(), secondVersion.getCurrency());
     assertEquals(secondVersion, result);
+    log("equitySecurityBean: finished");
   }
 
   @Test
   public void associateOrUpdateIdentifierWithSecurity() {
+    log("associateOrUpdateIdentifierWithSecurity: started");
     //test associating security with identifiers
     assertNoPersistedEquites();
     int randomSize = 2;
@@ -867,10 +995,12 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertNotNull(equitySecurityBeans);
     assertTrue(equitySecurityBeans.contains(persistSecurityBean));
     assertTrue(equitySecurityBeans.contains(persistedSecondVersion));
+    log("associateOrUpdateIdentifierWithSecurity: finished");
   }
   
   @Test
   public void testDomainSpecificIdentifierAssociationDateRanges() {
+    log("testDomainSpecificIdentifierAssociationDateRanges: started");
     final ExchangeBean tpxBean = _hibernateSecurityMasterDao.getOrCreateExchangeBean("TPX", "Topix");
     final CurrencyBean jpyBean = _hibernateSecurityMasterDao.getOrCreateCurrencyBean("JPY");
     final GICSCodeBean banksBean = _hibernateSecurityMasterDao.getOrCreateGICSCodeBean("4010", "Banks");
@@ -915,6 +1045,7 @@ public class HibernateSecurityMasterDaoTest  extends HibernateTest {
     assertNull(dsiab4.getValidEndDate());
     assertEquals(dsiab2.getValidEndDate(), dsiab3.getValidStartDate());
     assertEquals(dsiab3.getValidEndDate(), dsiab4.getValidStartDate());
+    log("testDomainSpecificIdentifierAssociationDateRanges: finished");
   }
   
 

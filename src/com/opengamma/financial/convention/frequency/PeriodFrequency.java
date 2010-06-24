@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.frequency;
 
-import javax.time.period.Period;
+import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
 
