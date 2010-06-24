@@ -12,8 +12,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 /**
  * 
  */
-public class CubicSplineInterpolatorWithSensitivities1D extends
-    Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> {
+public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWithSensitivities<Interpolator1DCubicSplineWthSensitivitiesModel> {
 
   /**
    * @param interpolator
@@ -23,12 +22,15 @@ public class CubicSplineInterpolatorWithSensitivities1D extends
     // TODO Auto-generated constructor stub
   }
 
-  /* (non-Javadoc)
-   * @see com.opengamma.math.interpolation.Interpolator1DWithSensitivities#interpolate(com.opengamma.math.interpolation.Interpolator1DModel, java.lang.Double)
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.opengamma.math.interpolation.Interpolator1DWithSensitivities#interpolate
+   * (com.opengamma.math.interpolation.Interpolator1DModel, java.lang.Double)
    */
   @Override
-  public InterpolationResultWithSensitivities interpolate(Interpolator1DCubicSplineWthSensitivitiesModel model,
-      Double value) {
+  public InterpolationResultWithSensitivities interpolate(Interpolator1DCubicSplineWthSensitivitiesModel model, Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");
     Validate.notNull(model, "Model must not be null");
     checkValue(model, value);
@@ -60,8 +62,7 @@ public class CubicSplineInterpolatorWithSensitivities1D extends
     sense[low] += a;
     sense[high] += b;
 
-    return new InterpolationResultWithSensitivities(getUnderlyingInterpolator().interpolate(model, value).getResult(),
-        sense);
+    return new InterpolationResultWithSensitivities(getUnderlyingInterpolator().interpolate(model, value).getResult(), sense);
 
   }
 

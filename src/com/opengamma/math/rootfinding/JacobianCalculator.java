@@ -15,7 +15,7 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class JacobianCalculator extends Function1D<DoubleMatrix1D, DoubleMatrix2D> {
 
   private final Function1D<DoubleMatrix1D, DoubleMatrix1D> _f;
-  private static final double EPS = 1e-8;
+  private static final double EPS = 1e-7;
 
   public JacobianCalculator(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     _f = function;
