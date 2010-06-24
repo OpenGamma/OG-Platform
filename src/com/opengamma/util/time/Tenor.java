@@ -5,7 +5,7 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.period.Period;
+import javax.time.calendar.Period;
 
 /**
  * A tenor.
