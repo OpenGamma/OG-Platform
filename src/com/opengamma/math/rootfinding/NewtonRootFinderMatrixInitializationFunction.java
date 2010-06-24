@@ -5,13 +5,14 @@
  */
 package com.opengamma.math.rootfinding;
 
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * 
  */
-public interface NewtonRootFinderDirectionFunction {
+public interface NewtonRootFinderMatrixInitializationFunction {
 
-  DoubleMatrix1D getDirection(DoubleMatrix2D estimate, DoubleMatrix1D y);
+  DoubleMatrix2D getInitializedMatrix(Function1D<DoubleMatrix1D, DoubleMatrix1D> f, DoubleMatrix1D x);
 }

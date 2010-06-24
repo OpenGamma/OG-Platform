@@ -5,90 +5,77 @@
  */
 package com.opengamma.math.rootfinding;
 
-import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.matrix.MatrixAlgebra;
+import com.opengamma.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Base implementation for for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
  */
-public abstract class NewtonRootFinderImpl extends VectorRootFinder {
-  protected static final double ALPHA = 1e-4;
-  protected static final double BETA = 1.5;
-  protected static final int FULL_JACOBIAN_RECAL_FREQ = 20;
-  protected final double _absoluteTol, _relativeTol;
-  protected final int _maxSteps;
-  protected Function1D<DoubleMatrix1D, DoubleMatrix1D> _function;
-  protected JacobianCalculator _jacobian;
-  protected DoubleMatrix1D _y, _x, _deltaX, _deltaY;
-  protected double _lambda1, _lambda2;
-  protected double _g0, _g1, _g2;
+public class NewtonRootFinderImpl extends VectorRootFinder {
+  private static final double ALPHA = 1e-4;
+  private static final double BETA = 1.5;
+  private static final int FULL_JACOBIAN_RECAL_FREQ = 20;
+  private final double _absoluteTol, _relativeTol;
+  private final int _maxSteps;
+  private final NewtonRootFinderDirectionFunction _directionFunction;
+  private final NewtonRootFinderMatrixInitializationFunction _initializationFunction;
+  private final NewtonRootFinderMatrixUpdateFunction _updateFunction;
+  private final MatrixAlgebra _algebra = new OGMatrixAlgebra();
 
-  public NewtonRootFinderImpl(final double absoluteTol, final double relativeTol, final int maxSteps) {
+  public NewtonRootFinderImpl(final double absoluteTol, final double relativeTol, final int maxSteps, final NewtonRootFinderDirectionFunction directionFunction,
+      final NewtonRootFinderMatrixInitializationFunction initializationFunction, final NewtonRootFinderMatrixUpdateFunction updateFunction) {
     ArgumentChecker.notNegative(absoluteTol, "absolute tolerance");
     ArgumentChecker.notNegative(relativeTol, "relative tolerance");
     ArgumentChecker.notNegative(maxSteps, "maxSteps");
     _absoluteTol = absoluteTol;
     _relativeTol = relativeTol;
     _maxSteps = maxSteps;
-  }
-
-  /**
-   * Use this if you do NOT have access to an analytic Jacobian
-   * @param function a vector function (i.e. vector to vector) 
-   * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
-   * @return the vector root of the collection of functions 
-   */
-  @Override
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
-    checkInputs(function, startPosition);
-    final JacobianCalculator jacobian = new FiniteDifferenceJacobianCalculator();
-    return getRoot(function, jacobian, startPosition);
+    _directionFunction = directionFunction;
+    _initializationFunction = initializationFunction;
+    _updateFunction = updateFunction;
   }
 
   /**
    * Use this if you DO have access to an analytic Jacobian
    *@param function a vector function (i.e. vector to vector) 
   * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
-  * @param jacobian A function that returns the Jacobian at a given position, i.e  J<sub>i,j,</sub> = dF<sub>i</sub>/dx<sub>j</sub>
   * @return the vector root of the collection of functions 
    */
-  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final JacobianCalculator jacobian, final DoubleMatrix1D startPosition) {
+  @SuppressWarnings("synthetic-access")
+  public DoubleMatrix1D getRoot(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D startPosition) {
     checkInputs(function, startPosition);
-    Validate.notNull(jacobian);
-    _function = function;
-    _jacobian = jacobian;
 
-    _x = startPosition;
-    _y = _function.evaluate(_x);
-    _g0 = OG_ALGEBRA.getInnerProduct(_y, _y);
+    final DataBundle data = new DataBundle();
+    final DoubleMatrix1D y = function.evaluate(startPosition);
+    data.setX(startPosition);
+    data.setY(y);
+    data.setG0(_algebra.getInnerProduct(y, y));
+    DoubleMatrix2D estimate = _initializationFunction.getInitializedMatrix(function, startPosition);
 
-    initializeMatrices(function);
-
-    if (!getNextPosition(function)) {
+    if (!getNextPosition(function, estimate, data)) {
       throw new RootNotFoundException("Cannot work with this starting position. Please choose another point");
     }
 
     int count = 0;
     int jacReconCount = 1;
-    while (!isConverged()) {
+    while (!isConverged(data)) {
       //Want to reset the Jacobian every so often even if backtracking is working 
       if ((jacReconCount) % FULL_JACOBIAN_RECAL_FREQ == 0) {
-        initializeMatrices(function);
+        estimate = _initializationFunction.getInitializedMatrix(function, data.getX());
         jacReconCount = 1;
       } else {
-        updateMatrices(function);
+        estimate = _updateFunction.getUpdatedMatrix(function, data.getDeltaX(), data.getDeltaY(), estimate);
         jacReconCount++;
       }
       //if backtracking fails, could be that Jacobian estimate has drifted too far  
-      if (!getNextPosition(function)) {
-        initializeMatrices(function);
+      if (!getNextPosition(function, estimate, data)) {
+        estimate = _initializationFunction.getInitializedMatrix(function, data.getX());
         jacReconCount = 1;
-        if (!getNextPosition(function)) {
+        if (!getNextPosition(function, estimate, data)) {
           throw new RootNotFoundException("Failed to converge in backtracking, even after a Jacobian recalculation");
         }
       }
@@ -97,109 +84,182 @@ public abstract class NewtonRootFinderImpl extends VectorRootFinder {
         throw new RootNotFoundException("Failed to converge");
       }
     }
-
-    return _x;
+    return data.getX();
   }
 
-  private boolean getNextPosition(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
-
-    final DoubleMatrix1D p = getDirection(function);
-
-    if (_lambda1 < 1.0) {
-      _lambda1 = 1.0;
+  private boolean getNextPosition(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix2D estimate, final DataBundle data) {
+    final DoubleMatrix1D p = _directionFunction.getDirection(estimate, data.getY());
+    if (data.getLambda0() < 1.0) {
+      data.setLambda0(1.0);
     } else {
-      _lambda1 *= BETA;
+      data.setLambda0(data.getLambda0() * BETA);
     }
-    updatePosition(p);
-
+    updatePosition(p, function, data);
+    final double g1 = data.getG1();
     //the function is invalid at the new position, try to recover
-    if (Double.isInfinite(_g1) || Double.isNaN(_g1)) {
-      bisectBacktrack(p);
+    if (Double.isInfinite(g1) || Double.isNaN(g1)) {
+      bisectBacktrack(p, function, data);
     }
-
-    if (_g1 > _g0 / (1 + ALPHA * _lambda1)) {
-
-      quadraticBacktrack(p);
-
+    if (data.getG1() > data.getG0() / (1 + ALPHA * data.getLambda0())) {
+      quadraticBacktrack(p, function, data);
       int count = 0;
-      while (_g1 > _g0 / (1 + ALPHA * _lambda1)) {
+      while (data.getG1() > data.getG0() / (1 + ALPHA * data.getLambda0())) {
         if (count > 5) {
           return false;
         }
-        cubicBacktrack(p);
+        cubicBacktrack(p, function, data);
         count++;
       }
     }
-
-    _g0 = _g1;
-    _x = (DoubleMatrix1D) OG_ALGEBRA.add(_x, _deltaX);
-    _y = (DoubleMatrix1D) OG_ALGEBRA.add(_y, _deltaY);
+    final DoubleMatrix1D deltaX = data.getDeltaX();
+    final DoubleMatrix1D deltaY = data.getDeltaY();
+    data.setG0(data.getG1());
+    data.setX((DoubleMatrix1D) _algebra.add(data.getX(), deltaX));
+    data.setY((DoubleMatrix1D) _algebra.add(data.getY(), deltaY));
     return true;
   }
 
-  protected abstract DoubleMatrix1D getDirection(Function1D<DoubleMatrix1D, DoubleMatrix1D> function);
-
-  protected abstract void initializeMatrices(Function1D<DoubleMatrix1D, DoubleMatrix1D> function);
-
-  protected abstract void updateMatrices(Function1D<DoubleMatrix1D, DoubleMatrix1D> function);
-
-  protected void updatePosition(final DoubleMatrix1D p) {
-    _deltaX = (DoubleMatrix1D) OG_ALGEBRA.scale(p, -_lambda1);
-    final DoubleMatrix1D xNew = (DoubleMatrix1D) OG_ALGEBRA.add(_x, _deltaX);
-    final DoubleMatrix1D yNew = _function.evaluate(xNew);
-    _deltaY = (DoubleMatrix1D) OG_ALGEBRA.subtract(yNew, _y);
-
-    _g2 = _g1;
-    _g1 = OG_ALGEBRA.getInnerProduct(yNew, yNew);
+  protected void updatePosition(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
+    final double lambda0 = data.getLambda0();
+    final DoubleMatrix1D deltaX = (DoubleMatrix1D) _algebra.scale(p, -lambda0);
+    final DoubleMatrix1D xNew = (DoubleMatrix1D) _algebra.add(data.getX(), deltaX);
+    final DoubleMatrix1D yNew = function.evaluate(xNew);
+    data.setDeltaX(deltaX);
+    data.setDeltaY((DoubleMatrix1D) _algebra.subtract(yNew, data.getY()));
+    data.setG2(data.getG1());
+    data.setG1(_algebra.getInnerProduct(yNew, yNew));
   }
 
-  private void bisectBacktrack(final DoubleMatrix1D p) {
+  private void bisectBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
     do {
-      _lambda1 *= 0.1;
-      updatePosition(p);
-    } while (Double.isNaN(_g1) || Double.isInfinite(_g1) || Double.isNaN(_g2) || Double.isInfinite(_g2));
+      data.setLambda0(data.getLambda0() * 0.1);
+      updatePosition(p, function, data);
+    } while (Double.isNaN(data.getG1()) || Double.isInfinite(data.getG1()) || Double.isNaN(data.getG2()) || Double.isInfinite(data.getG2()));
   }
 
-  private void quadraticBacktrack(final DoubleMatrix1D p) {
-    final double lambda = _g0 * _lambda1 * _lambda1 / (_g1 + _g0 * (2 * _lambda1 - 1));
-    _lambda2 = _lambda1;
-    _lambda1 = Math.max(_lambda1 * 0.01, lambda); //don't make the linear guess too small
-    updatePosition(p);
+  private void quadraticBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
+    final double lambda0 = data.getLambda0();
+    final double g0 = data.getG0();
+    final double lambda = g0 * lambda0 * lambda0 / (data.getG1() + g0 * (2 * lambda0 - 1));
+    data.swapLambdaAndReplace(lambda);
+    updatePosition(p, function, data);
   }
 
-  private void cubicBacktrack(final DoubleMatrix1D p) {
-
+  private void cubicBacktrack(final DoubleMatrix1D p, final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DataBundle data) {
     double temp1, temp2, temp3, temp4, temp5;
-
-    temp1 = 1.0 / _lambda1 / _lambda1;
-    temp2 = 1.0 / _lambda2 / _lambda2;
-    temp3 = _g1 + _g0 * (2 * _lambda1 - 1.0);
-    temp4 = _g2 + _g0 * (2 * _lambda2 - 1.0);
-    temp5 = 1.0 / (_lambda1 - _lambda2);
+    final double lambda0 = data.getLambda0();
+    final double lambda1 = data.getLambda1();
+    final double g0 = data.getG0();
+    temp1 = 1.0 / lambda0 / lambda0;
+    temp2 = 1.0 / lambda1 / lambda1;
+    temp3 = data.getG1() + g0 * (2 * lambda0 - 1.0);
+    temp4 = data.getG2() + g0 * (2 * lambda1 - 1.0);
+    temp5 = 1.0 / (lambda0 - lambda1);
     final double a = temp5 * (temp1 * temp3 - temp2 * temp4);
-    final double b = temp5 * (-_lambda2 * temp1 * temp3 + _lambda1 * temp2 * temp4);
-
-    double lambda = (-b + Math.sqrt(b * b + 6 * a * _g0)) / 3 / a;
-    lambda = Math.min(Math.max(lambda, 0.01 * _lambda1), 0.75 * _lambda2); //make sure new lambda is between 1% & 75% of old value 
-
-    _lambda2 = _lambda1;
-    _lambda1 = lambda;
-    updatePosition(p);
+    final double b = temp5 * (-lambda1 * temp1 * temp3 + lambda0 * temp2 * temp4);
+    double lambda = (-b + Math.sqrt(b * b + 6 * a * g0)) / 3 / a;
+    lambda = Math.min(Math.max(lambda, 0.01 * lambda0), 0.75 * lambda1); //make sure new lambda is between 1% & 75% of old value
+    data.swapLambdaAndReplace(lambda);
+    updatePosition(p, function, data);
   }
 
-  private boolean isConverged() {
-
-    final int n = _deltaX.getNumberOfElements();
-
+  private boolean isConverged(final DataBundle data) {
+    final DoubleMatrix1D deltaX = data.getDeltaX();
+    final DoubleMatrix1D x = data.getX();
+    final int n = deltaX.getNumberOfElements();
     double diff, scale;
     for (int i = 0; i < n; i++) {
-      diff = Math.abs(_deltaX.getEntry(i));
-      scale = Math.abs(_x.getEntry(i));
+      diff = Math.abs(deltaX.getEntry(i));
+      scale = Math.abs(x.getEntry(i));
       if (diff > _absoluteTol + scale * _relativeTol) {
         return false;
       }
     }
-    return (Math.sqrt(_g0) < _absoluteTol);
+    return (Math.sqrt(data.getG0()) < _absoluteTol);
   }
 
+  private class DataBundle {
+    private double _g0;
+    private double _g1;
+    private double _g2;
+    private double _lambda0;
+    private double _lambda1;
+    private DoubleMatrix1D _deltaY;
+    private DoubleMatrix1D _y;
+    private DoubleMatrix1D _deltaX;
+    private DoubleMatrix1D _x;
+
+    public double getG0() {
+      return _g0;
+    }
+
+    public double getG1() {
+      return _g1;
+    }
+
+    public double getG2() {
+      return _g2;
+    }
+
+    public double getLambda0() {
+      return _lambda0;
+    }
+
+    public double getLambda1() {
+      return _lambda1;
+    }
+
+    public DoubleMatrix1D getDeltaY() {
+      return _deltaY;
+    }
+
+    public DoubleMatrix1D getY() {
+      return _y;
+    }
+
+    public DoubleMatrix1D getDeltaX() {
+      return _deltaX;
+    }
+
+    public DoubleMatrix1D getX() {
+      return _x;
+    }
+
+    public void setG0(final double g0) {
+      _g0 = g0;
+    }
+
+    public void setG1(final double g1) {
+      _g1 = g1;
+    }
+
+    public void setG2(final double g2) {
+      _g2 = g2;
+    }
+
+    public void setLambda0(final double lambda0) {
+      _lambda0 = lambda0;
+    }
+
+    public void setDeltaY(final DoubleMatrix1D deltaY) {
+      _deltaY = deltaY;
+    }
+
+    public void setY(final DoubleMatrix1D y) {
+      _y = y;
+    }
+
+    public void setDeltaX(final DoubleMatrix1D deltaX) {
+      _deltaX = deltaX;
+    }
+
+    public void setX(final DoubleMatrix1D x) {
+      _x = x;
+    }
+
+    public void swapLambdaAndReplace(final double lambda0) {
+      _lambda1 = _lambda0;
+      _lambda0 = lambda0;
+    }
+  }
 }
