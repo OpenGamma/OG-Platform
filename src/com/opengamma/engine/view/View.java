@@ -151,7 +151,11 @@ public class View implements Lifecycle, LiveDataSnapshotListener {
     ArgumentChecker.notNull(deltaListener, "Delta listener");
     _deltaListeners.remove(deltaListener);
   }
-
+  
+  public String getName() {
+    return getDefinition().getName();
+  }
+  
   public synchronized void init() {
     OperationTimer timer = new OperationTimer(s_logger, "Initializing view {}", getDefinition().getName());
     setCalculationState(ViewCalculationState.INITIALIZING);
