@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.user.rest;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -22,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 public class ClientsResource {
 
   private final UserResource _userResource;
-  private final Map<String, ClientResource> _clientMap = new HashMap<String, ClientResource>();
+  private final ConcurrentHashMap<String, ClientResource> _clientMap = new ConcurrentHashMap<String, ClientResource>();
   
   public ClientsResource(final UserResource userResource) {
     _userResource = userResource;
@@ -42,12 +41,12 @@ public class ClientsResource {
   
   @Path("{clientUid}")
   public ClientResource get(@PathParam("clientUid") String clientName) {
-    ClientResource client = _clientMap.get(clientName);
-    if (client == null) {
-      client = new ClientResource(this, clientName);
-      _clientMap.put(clientName, client);
+    ClientResource freshClient = new ClientResource(this, clientName);
+    ClientResource actualClient = _clientMap.putIfAbsent(clientName, freshClient);
+    if (actualClient == null) {
+      actualClient = freshClient;
     }
-    return client;
+    return actualClient;
   }
   
 }
