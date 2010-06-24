@@ -21,8 +21,8 @@ public class ViewDeltaResultModelImplTest {
     ViewDeltaResultModelImpl model = new ViewDeltaResultModelImpl();
     ViewComputationResultModelImplTest.checkModel(model);
     
-    model.setPreviousResultTimestamp(Instant.ofMillis(200));
-    assertEquals(Instant.ofMillis(200), model.getPreviousResultTimestamp());
+    model.setPreviousResultTimestamp(Instant.ofEpochMillis(200));
+    assertEquals(Instant.ofEpochMillis(200), model.getPreviousResultTimestamp());
   }
 
 }

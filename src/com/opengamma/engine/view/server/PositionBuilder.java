@@ -7,6 +7,7 @@ package com.opengamma.engine.view.server;
 
 import java.math.BigDecimal;
 
+import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -38,10 +39,16 @@ public class PositionBuilder implements FudgeBuilder<Position> {
 
   @Override
   public Position buildObject(FudgeDeserializationContext context, FudgeFieldContainer message) {
-    return new PositionImpl(
-        context.fieldValueToObject(UniqueIdentifier.class, message.getByName(FIELD_IDENTIFIER)),
-        message.getFieldValue(BigDecimal.class, message.getByName(FIELD_QUANTITY)),
-        context.fieldValueToObject(IdentifierBundle.class, message.getByName(FIELD_SECURITYKEY)));
+    FudgeField idField = message.getByName(FIELD_IDENTIFIER);
+    UniqueIdentifier id = idField != null ? context.fieldValueToObject(UniqueIdentifier.class, idField) : null;
+    BigDecimal quantity = message.getFieldValue(BigDecimal.class, message.getByName(FIELD_QUANTITY));
+    IdentifierBundle securityKey = context.fieldValueToObject(IdentifierBundle.class, message.getByName(FIELD_SECURITYKEY));
+    
+    PositionImpl position = new PositionImpl(quantity, securityKey);
+    if (id != null) {
+      position.setUniqueIdentifier(id);
+    }
+    return position;
   }
 
 }

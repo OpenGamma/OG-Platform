@@ -165,7 +165,7 @@ public class SingleComputationCycle {
       throw new IllegalStateException("State must be " + State.CREATED);
     }
     
-    getResultModel().setInputDataTimestamp(Instant.ofMillis(getSnapshotTime()));
+    getResultModel().setInputDataTimestamp(Instant.ofEpochMillis(getSnapshotTime()));
     
     createAllCaches();
     

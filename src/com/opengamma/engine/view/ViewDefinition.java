@@ -85,7 +85,7 @@ public class ViewDefinition implements Serializable {
   public String getName() {
     return _name;
   }
-
+  
   public UniqueIdentifier getPortfolioId() {
     return _portfolioId;
   }

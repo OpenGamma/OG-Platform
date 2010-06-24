@@ -19,6 +19,10 @@ import com.opengamma.util.ArgumentChecker;
 public class InMemoryPositionMaster implements PositionMaster {
 
   /**
+   * The default scheme used for any {@link UniqueIdentifier}s created by this {@link PositionMaster}.
+   */
+  public static final String DEFAULT_UID_SCHEME = "Memory";
+  /**
    * The portfolios.
    */
   private final Map<UniqueIdentifier, Portfolio> _portfolios = new ConcurrentHashMap<UniqueIdentifier, Portfolio>();
@@ -34,11 +38,26 @@ public class InMemoryPositionMaster implements PositionMaster {
    * The next index for the identifier.
    */
   private final AtomicLong _nextIdentityKey = new AtomicLong();
+  /**
+   * The scheme to use in any UniqueIdentifiers created by this {@link PositionMaster}.
+   */
+  private final String _scheme;
 
   /**
-   * Creates an empty position master.
+   * Creates an empty position master using the default scheme for any {@link UniqueIdentifier}s created.
    */
   public InMemoryPositionMaster() {
+    this(DEFAULT_UID_SCHEME);
+  }
+  
+  /**
+   * Creates an empty position master using the specified scheme for any {@link UniqueIdentifier}s created.
+   * 
+   * @param uidScheme  the scheme to use for any {@link UniqueIdentifier}s created
+   */
+  public InMemoryPositionMaster(String uidScheme) {
+    ArgumentChecker.notNull(uidScheme, "Scheme");
+    _scheme = uidScheme;
   }
 
   //-------------------------------------------------------------------------
@@ -84,6 +103,7 @@ public class InMemoryPositionMaster implements PositionMaster {
    */
   public void addPortfolio(Portfolio portfolio) {
     ArgumentChecker.notNull(portfolio, "portfolio");
+      
     _portfolios.put(portfolio.getUniqueIdentifier(), portfolio);
     addToCache(portfolio.getUniqueIdentifier().getValue(), portfolio.getRootNode());
   }
@@ -97,7 +117,7 @@ public class InMemoryPositionMaster implements PositionMaster {
     // node
     if (node instanceof PortfolioNodeImpl) {
       PortfolioNodeImpl nodeImpl = (PortfolioNodeImpl) node;
-      UniqueIdentifier identifier = UniqueIdentifier.of("Memory", portfolioId + "-" + _nextIdentityKey.incrementAndGet());
+      UniqueIdentifier identifier = UniqueIdentifier.of(_scheme, portfolioId + "-" + _nextIdentityKey.incrementAndGet());
       nodeImpl.setUniqueIdentifier(identifier);
     }
     _nodes.put(node.getUniqueIdentifier(), node);
@@ -106,7 +126,7 @@ public class InMemoryPositionMaster implements PositionMaster {
     for (Position position : node.getPositions()) {
       if (position instanceof PositionImpl) {
         PositionImpl positionImpl = (PositionImpl) position;
-        UniqueIdentifier identifier = UniqueIdentifier.of("Memory", portfolioId + "-" + _nextIdentityKey.incrementAndGet());
+        UniqueIdentifier identifier = UniqueIdentifier.of(_scheme, portfolioId + "-" + _nextIdentityKey.incrementAndGet());
         positionImpl.setUniqueIdentifier(identifier);
       }
       _positions.put(position.getUniqueIdentifier(), position);
@@ -115,6 +135,33 @@ public class InMemoryPositionMaster implements PositionMaster {
     // recurse
     for (PortfolioNode child : node.getChildNodes()) {
       addToCache(portfolioId, child);
+    }
+  }
+  
+  /**
+   * Removes a portfolio from the master.
+   * 
+   * @param portfolio  the portfolio to add, not null
+   */
+  public void removePortfolio(Portfolio portfolio) {
+    ArgumentChecker.notNull(portfolio, "portfolio");
+    _portfolios.remove(portfolio.getUniqueIdentifier());
+    removeFromCache(portfolio.getRootNode());
+  }
+  
+  /**
+   * Removes a node from the cache
+   * 
+   * @param node  the node to remove, not null
+   */
+  private void removeFromCache(PortfolioNode node) {
+    _nodes.remove(node.getUniqueIdentifier());
+    for (Position position : node.getPositions()) {
+      _positions.remove(position.getUniqueIdentifier());
+    }
+    
+    for (PortfolioNode child : node.getChildNodes()) {
+      removeFromCache(child);
     }
   }
 

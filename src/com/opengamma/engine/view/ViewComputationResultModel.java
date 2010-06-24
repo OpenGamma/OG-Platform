@@ -20,8 +20,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
  */
 public interface ViewComputationResultModel {
   
-  // REVIEW kirk 2009-09-03 -- Should these be JSR-310 instants? Probably.
-  
   Instant getInputDataTimestamp();
   
   Instant getResultTimestamp();
