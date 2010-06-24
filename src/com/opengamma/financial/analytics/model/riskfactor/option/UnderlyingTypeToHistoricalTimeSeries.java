@@ -12,6 +12,7 @@ import com.opengamma.engine.security.Security;
 import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.OptionSecurity;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 public class UnderlyingTypeToHistoricalTimeSeries {
@@ -28,7 +29,7 @@ public class UnderlyingTypeToHistoricalTimeSeries {
       final OptionSecurity option = (OptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          Security underlyingSecurity = secMaster.getSecurity(option.getUnderlyingSecurity());
+          Security underlyingSecurity = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
           LocalDateDoubleTimeSeries timeSeries = dataProvider.getHistoricalTimeSeries(underlyingSecurity.getIdentifiers(), DATA_SOURCE, DATA_PROVIDER, LAST_PRICE);
           return timeSeries;
         default:

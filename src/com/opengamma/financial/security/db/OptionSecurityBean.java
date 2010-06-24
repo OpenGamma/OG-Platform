@@ -25,15 +25,15 @@ public class OptionSecurityBean extends SecurityBean {
   private OptionType _optionType;
   private double _strike;
   private Date _expiry;
-  private String _underlyingIdentityKey;
-  private CurrencyBean _currency1;
-  private CurrencyBean _currency2;
-  private CurrencyBean _currency3;
+  private CurrencyBean _currency;
+  private CurrencyBean _putCurrency;
+  private CurrencyBean _callCurrency;
   private ExchangeBean _exchange;
   private String _counterparty;
   private Double _power;
   private Boolean _margined;
   private Double _pointValue;
+  private IdentifierBean _underlying;
 
   public OptionSecurityBean() {
     super();
@@ -93,49 +93,47 @@ public class OptionSecurityBean extends SecurityBean {
   }
 
   /**
-   * @return the underlyingIdentityKey
+   * @return the underlyingIdentifier
    */
-  public String getUnderlyingIdentityKey() {
-    return _underlyingIdentityKey;
+  public IdentifierBean getUnderlying() {
+    return _underlying;
   }
 
   /**
-   * @param underlyingIdentityKey
-   *          the underlyingIdentityKey to set
+   * @param underlying the underlyingIdentifier to set
    */
-  public void setUnderlyingIdentityKey(String underlyingIdentityKey) {
-    _underlyingIdentityKey = underlyingIdentityKey;
+  public void setUnderlying(IdentifierBean underlying) {
+    _underlying = underlying;
   }
 
   /**
    * @return the currency
    */
-  public CurrencyBean getCurrency1() {
-    return _currency1;
+  public CurrencyBean getCurrency() {
+    return _currency;
   }
 
   /**
-   * @param currency
-   *          the currency to set
+   * @param currency the currency to set
    */
-  public void setCurrency1(CurrencyBean currency) {
-    _currency1 = currency;
+  public void setCurrency(CurrencyBean currency) {
+    _currency = currency;
   }
   
-  public CurrencyBean getCurrency2 () {
-    return _currency2;
+  public CurrencyBean getPutCurrency() {
+    return _putCurrency;
   }
   
-  public void setCurrency2 (final CurrencyBean currency) {
-    _currency2 = currency;
+  public void setPutCurrency(final CurrencyBean currency) {
+    _putCurrency = currency;
   }
   
-  public CurrencyBean getCurrency3 () {
-    return _currency3;
+  public CurrencyBean getCallCurrency() {
+    return _callCurrency;
   }
   
-  public void setCurrency3 (final CurrencyBean currency) {
-    _currency3 = currency;
+  public void setCallCurrency(final CurrencyBean currency) {
+    _callCurrency = currency;
   }
 
   /**
@@ -145,11 +143,11 @@ public class OptionSecurityBean extends SecurityBean {
     return _exchange;
   }
   
-  public void setCounterparty (final String counterparty) {
+  public void setCounterparty(final String counterparty) {
     _counterparty = counterparty;
   }
   
-  public String getCounterparty () {
+  public String getCounterparty() {
     return _counterparty;
   }
 
@@ -161,19 +159,19 @@ public class OptionSecurityBean extends SecurityBean {
     _exchange = exchange;
   }
   
-  public Double getPower () {
+  public Double getPower() {
     return _power;
   }
   
-  public void setPower (final Double power) {
+  public void setPower(final Double power) {
     _power = power;
   }
   
-  public Boolean isMargined () {
+  public Boolean isMargined() {
     return _margined;
   }
   
-  public void setMargined (final Boolean margined) {
+  public void setMargined(final Boolean margined) {
     _margined = margined;
   }
 
@@ -191,22 +189,23 @@ public class OptionSecurityBean extends SecurityBean {
       return false;
     }
     OptionSecurityBean option = (OptionSecurityBean) other;
-    if (getId() != -1 && option.getId() != -1) {
-      return getId().longValue() == option.getId().longValue();
-    }
+//    if (getId() != -1 && option.getId() != -1) {
+//      return getId().longValue() == option.getId().longValue();
+//    }
     return new EqualsBuilder()
+        .append(getId(), option.getId())
         .append(getOptionType(), option.getOptionType())
         .append(getStrike(), option.getStrike())
         .append(getExpiry(), option.getExpiry())
-        .append(getUnderlyingIdentityKey(), option.getUnderlyingIdentityKey())
-        .append(getCurrency1(), option.getCurrency1())
-        .append(getCurrency2(), option.getCurrency2())
-        .append(getCurrency3(), option.getCurrency3())
+        .append(getUnderlying(), option.getUnderlying())
+        .append(getCurrency(), option.getCurrency())
+        .append(getPutCurrency(), option.getPutCurrency())
+        .append(getCallCurrency(), option.getCallCurrency())
         .append(getExchange(), option.getExchange())
         .append(getCounterparty(), option.getCounterparty())
-        .append(getPower(),option.getPower ())
-        .append(isMargined (), option.isMargined ())
-        .append (getPointValue (), option.getPointValue ())
+        .append(getPower(), option.getPower())
+        .append(isMargined(), option.isMargined())
+        .append(getPointValue(), option.getPointValue())
         .isEquals();
   }
 
@@ -216,15 +215,15 @@ public class OptionSecurityBean extends SecurityBean {
         .append(getOptionType())
         .append(getStrike())
         .append(getExpiry())
-        .append(getUnderlyingIdentityKey())
-        .append(getCurrency1())
-        .append(getCurrency2())
-        .append(getCurrency3())
+        .append(getUnderlying())
+        .append(getCurrency())
+        .append(getPutCurrency())
+        .append(getCallCurrency())
         .append(getExchange())
         .append(getCounterparty())
-        .append (getPower ())
-        .append (isMargined ())
-        .append (getPointValue ())
+        .append(getPower())
+        .append(isMargined())
+        .append(getPointValue())
         .toHashCode();
   }
 

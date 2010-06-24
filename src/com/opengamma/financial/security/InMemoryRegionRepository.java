@@ -21,6 +21,8 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeFieldContainer;
 import org.fudgemsg.MutableFudgeFieldContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -36,6 +38,7 @@ import com.opengamma.util.tuple.Pair;
  * In memory implementation of a region repository.  Repository is populated from a CSV file.
  */
 public class InMemoryRegionRepository implements RegionRepository {
+  private static final Logger s_logger = LoggerFactory.getLogger(InMemoryRegionRepository.class);
 
   private static final String HIERARCHY_COLUMN = "Hierarchy";
   /**
@@ -159,6 +162,7 @@ public class InMemoryRegionRepository implements RegionRepository {
   
   private void indexHierarchy(String hierarchyName, Region root) {
     System.err.println("indexing " + hierarchyName + " : " + root.getName());
+    s_logger.info("Indexing {} : {}", hierarchyName, root.getName());
     if (!(_fieldIndex.containsKey(hierarchyName))) {
       _fieldIndex.put(hierarchyName, new HashMap<Pair<String, Object>, Set<Region>>());
     }

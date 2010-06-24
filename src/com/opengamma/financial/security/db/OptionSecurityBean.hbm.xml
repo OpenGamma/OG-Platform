@@ -8,11 +8,14 @@
     <property name="optionType" column="option_type" type="com.opengamma.financial.security.db.OptionTypeUserType" not-null="true" />
     <property name="strike" type="double" not-null="true" />
     <property name="expiry" type="date" not-null="true" />
-    <property name="underlyingIdentityKey" type="string" not-null="true" />
+    <component name="underlying" class="IdentifierBean">
+      <property name="scheme" column="underlying_scheme" type="string" />
+      <property name="identifier" column="underlying_identifier" type="string" />
+    </component>
     <property name="power" type="double" />
-    <many-to-one name="currency1" column="currency1_id" class="CurrencyBean" not-null="true" />
-    <many-to-one name="currency2" column="currency2_id" class="CurrencyBean" />
-    <many-to-one name="currency3" column="currency3_id" class="CurrencyBean" />
+    <many-to-one name="currency" column="currency_id" class="CurrencyBean" not-null="true" />
+    <many-to-one name="callCurrency" column="call_currency_id" class="CurrencyBean" />
+    <many-to-one name="putCurrency" column="put_currency_id" class="CurrencyBean" />
     <many-to-one name="exchange" column="exchange_id" class="ExchangeBean" />
     <property name="counterparty" type="string" />
     <property name="margined" type="boolean" />

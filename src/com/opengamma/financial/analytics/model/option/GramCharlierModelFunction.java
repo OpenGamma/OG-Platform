@@ -17,6 +17,8 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.security.Security;
+import com.opengamma.engine.security.SecurityMaster;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
@@ -29,6 +31,7 @@ import com.opengamma.financial.security.option.AmericanVanillaOption;
 import com.opengamma.financial.security.option.Option;
 import com.opengamma.financial.security.option.OptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.livedata.normalization.MarketDataFieldNames;
 import com.opengamma.util.time.DateUtil;
@@ -37,23 +40,23 @@ import com.opengamma.util.time.Expiry;
 /**
  * 
  *
- * @author emcleod
  */
 public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
   private final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> _model = new GramCharlierModel();
 
   @Override
-  protected SkewKurtosisOptionDataBundle getDataBundle(final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
+  protected SkewKurtosisOptionDataBundle getDataBundle(final SecurityMaster secMaster, final Clock relevantTime, final OptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
     final UniqueIdentifier optionID = option.getUniqueIdentifier();
-    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()))))
+    Security underlying = secMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+    final double spot = (((FudgeFieldContainer) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()))))
         .getDouble(MarketDataFieldNames.INDICATIVE_VALUE_FIELD);
     final YieldAndDiscountCurve discountCurve = (YieldAndDiscountCurve) inputs.getValue(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
     final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceMarketDataRequirement(optionID));
     // TODO cost of carry model
     final Expiry expiry = option.getExpiry();
     final double t = DateUtil.getDifferenceInYears(now, expiry.getExpiry().toInstant());
-    final double b = discountCurve.getInterestRate(t);// TODO
+    final double b = discountCurve.getInterestRate(t); // TODO
     final double skew = (Double) inputs.getValue(getSkewRequirement(optionID));
     final double kurtosis = (Double) inputs.getValue(getKurtosisRequirement(optionID));
     return new SkewKurtosisOptionDataBundle(discountCurve, b, volatilitySurface, spot, now, skew, kurtosis);
@@ -71,10 +74,12 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY)
+    if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
-    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption)
+    }
+    if (target.getSecurity() instanceof Option && (Option) target.getSecurity() instanceof AmericanVanillaOption) {
       return true;
+    }
     return false;
   }
 
@@ -83,7 +88,9 @@ public class GramCharlierModelFunction extends AnalyticOptionModelFunction {
     if (canApplyTo(context, target)) {
       final OptionSecurity option = (OptionSecurity) target.getSecurity();
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingSecurity()));
+      SecurityMaster securityMaster = context.getSecurityMaster();
+      Security underlying = securityMaster.getSecurity(new IdentifierBundle(option.getUnderlyingIdentifier()));
+      requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueIdentifier()));
       requirements.add(getDiscountCurveMarketDataRequirement(option.getCurrency().getUniqueIdentifier()));
       requirements.add(getVolatilitySurfaceMarketDataRequirement(option.getUniqueIdentifier()));
       requirements.add(getSkewRequirement(option.getUniqueIdentifier()));

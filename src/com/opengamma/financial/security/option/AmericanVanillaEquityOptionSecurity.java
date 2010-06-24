@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -16,14 +16,15 @@ public class AmericanVanillaEquityOptionSecurity extends EquityOptionSecurity im
 
   /**
    * Creates the security.
-   * @param optionType
-   * @param strike
-   * @param expiry
-   * @param underlyingIdentifier
-   * @param currency
-   * @param exchange
+   * @param optionType the type of option CALL or PUT
+   * @param strike the strike price
+   * @param expiry the expire date
+   * @param underlyingIdentifier Identifier for underlying equity
+   * @param currency currency in which it trades
+   * @param pointValue the option point value
+   * @param exchange exchange where the option trades
    */
-  public AmericanVanillaEquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier,
+  public AmericanVanillaEquityOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentifier,
       final Currency currency, final double pointValue, final String exchange) {
     super(optionType, strike, expiry, underlyingIdentifier, currency, pointValue, exchange);
   }

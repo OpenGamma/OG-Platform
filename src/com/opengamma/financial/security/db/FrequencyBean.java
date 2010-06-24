@@ -7,8 +7,12 @@ package com.opengamma.financial.security.db;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.FrequencyFactory;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 
+/**
+ * 
+ *
+ */
 public class FrequencyBean extends EnumBean {
   
   protected FrequencyBean() {
@@ -18,9 +22,11 @@ public class FrequencyBean extends EnumBean {
     super(frequency);
   }
   
-  /* package */ Frequency toFrequency () {
-    final Frequency f = FrequencyFactory.INSTANCE.getFrequency (getName ());
-    if (f == null) throw new OpenGammaRuntimeException ("Bad value for frequencyBean (" + getName () + ")");
+  /* package */ Frequency toFrequency() {
+    final Frequency f = SimpleFrequencyFactory.INSTANCE.getFrequency(getName());
+    if (f == null) {
+      throw new OpenGammaRuntimeException("Bad value for frequencyBean (" + getName() + ")");
+    }
     return f;
   }
   

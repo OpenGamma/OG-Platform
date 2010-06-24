@@ -6,8 +6,9 @@
 package com.opengamma.financial.security.db;
 
 import static com.opengamma.financial.security.db.Converters.currencyBeanToCurrency;
-
 import static com.opengamma.financial.security.db.Converters.dateToExpiry;
+import static com.opengamma.financial.security.db.Converters.identifierBeanToIdentifier;
+import static com.opengamma.financial.security.db.Converters.identifierToIdentifierBean;
 
 import java.util.Date;
 
@@ -44,8 +45,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.getOptionType(), 
             bean.getStrike(), 
             dateToExpiry(bean.getExpiry()), 
-            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
-            currencyBeanToCurrency(bean.getCurrency1()), 
+            identifierBeanToIdentifier(bean.getUnderlying()),
+            currencyBeanToCurrency(bean.getCurrency()), 
             bean.getPointValue(), 
             bean.getExchange().getName());
       }
@@ -56,8 +57,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.getOptionType(), 
             bean.getStrike(), 
             dateToExpiry(bean.getExpiry()), 
-            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
-            currencyBeanToCurrency(bean.getCurrency1()), 
+            identifierBeanToIdentifier(bean.getUnderlying()),
+            currencyBeanToCurrency(bean.getCurrency()), 
             bean.getPointValue(), 
             bean.getExchange().getName());
       }
@@ -69,8 +70,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.getStrike(), 
             dateToExpiry(bean.getExpiry()),
             bean.getPower(), 
-            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
-            currencyBeanToCurrency(bean.getCurrency1()), 
+            identifierBeanToIdentifier(bean.getUnderlying()),
+            currencyBeanToCurrency(bean.getCurrency()), 
             bean.getPointValue(), 
             bean.getExchange().getName());
       }
@@ -81,8 +82,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.getOptionType(), 
             bean.getStrike(), 
             dateToExpiry(bean.getExpiry()), 
-            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
-            currencyBeanToCurrency(bean.getCurrency1()), 
+            identifierBeanToIdentifier(bean.getUnderlying()),
+            currencyBeanToCurrency(bean.getCurrency()), 
             bean.getPointValue(), 
             bean.getExchange().getName(), 
             bean.isMargined());
@@ -94,8 +95,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.getOptionType(), 
             bean.getStrike(), 
             dateToExpiry(bean.getExpiry()), 
-            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
-            currencyBeanToCurrency(bean.getCurrency1()), 
+            identifierBeanToIdentifier(bean.getUnderlying()),
+            currencyBeanToCurrency(bean.getCurrency()), 
             bean.getPointValue(), 
             bean.getExchange().getName(), 
             bean.isMargined());
@@ -107,11 +108,11 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             bean.getOptionType(), 
             bean.getStrike(), 
             dateToExpiry(bean.getExpiry()),
-            HibernateSecurityMaster.createUniqueIdentifier(bean.getUnderlyingIdentityKey()),
-            currencyBeanToCurrency(bean.getCurrency1()), 
+            identifierBeanToIdentifier(bean.getUnderlying()),
+            currencyBeanToCurrency(bean.getCurrency()), 
             bean.getCounterparty(), 
-            currencyBeanToCurrency(bean.getCurrency2()),
-            currencyBeanToCurrency(bean.getCurrency3()));
+            currencyBeanToCurrency(bean.getPutCurrency()),
+            currencyBeanToCurrency(bean.getCallCurrency()));
       }
     });
     return sec;
@@ -126,8 +127,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
             && ObjectUtils.equals(bean.getOptionType(), security.getOptionType())
             && ObjectUtils.equals(bean.getStrike(), security.getStrike())
             && ObjectUtils.equals(dateToExpiry(bean.getExpiry()), security.getExpiry())
-            && ObjectUtils.equals(bean.getUnderlyingIdentityKey(), security.getUnderlyingSecurity())
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency1()), security.getCurrency());
+            && ObjectUtils.equals(bean.getUnderlying(), security.getUnderlyingIdentifier())
+            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency()), security.getCurrency());
       }
 
       private Boolean beanEquals(final ExchangeTradedOptionSecurity security) {
@@ -194,14 +195,14 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         if (!beanEquals(security)) {
           return false;
         }
-        return ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency2()), security.getPutCurrency())
-            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCurrency3()), security.getCallCurrency());
+        return ObjectUtils.equals(currencyBeanToCurrency(bean.getPutCurrency()), security.getPutCurrency())
+            && ObjectUtils.equals(currencyBeanToCurrency(bean.getCallCurrency()), security.getCallCurrency());
       }
     });
   }
 
   @Override
-  public OptionSecurityBean createBean(final HibernateSecurityMasterSession secMasterSession,
+  public OptionSecurityBean createBean(final HibernateSecurityMasterDao secMasterSession,
       final OptionSecurity security) {
     return security.accept(new OptionSecurityVisitor<OptionSecurityBean>() {
 
@@ -211,8 +212,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
         bean.setOptionType(security.getOptionType());
         bean.setStrike(security.getStrike());
         bean.setExpiry(new Date(security.getExpiry().toInstant().toEpochMillisLong()));
-        bean.setUnderlyingIdentityKey(security.getUnderlyingSecurity().getValue());
-        bean.setCurrency1(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
+        bean.setUnderlying(identifierToIdentifierBean(security.getUnderlyingIdentifier()));
+        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getISOCode()));
         return bean;
       }
 
@@ -270,8 +271,8 @@ public final class OptionSecurityBeanOperation extends AbstractBeanOperation<Opt
       @Override
       public OptionSecurityBean visitFXOptionSecurity(FXOptionSecurity security) {
         final OptionSecurityBean bean = createSecurityBean(security);
-        bean.setCurrency2(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getISOCode()));
-        bean.setCurrency3(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getISOCode()));
+        bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getISOCode()));
+        bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getISOCode()));
         return bean;
       }
 

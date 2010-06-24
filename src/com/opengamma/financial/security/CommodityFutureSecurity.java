@@ -19,26 +19,28 @@ public abstract class CommodityFutureSecurity extends FutureSecurity {
   private final Double _unitNumber;
   private final String _unitName;
   
-  public CommodityFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type, final Double unitNumber, final String unitName) {
-    super (expiry, tradingExchange, settlementExchange, currency);
+  public CommodityFutureSecurity(
+      final Expiry expiry, final String tradingExchange, final String settlementExchange,
+      final Currency currency, final String type, final Double unitNumber, final String unitName) {
+    super(expiry, tradingExchange, settlementExchange, currency);
     _commodityType = type;
     _unitNumber = unitNumber;
     _unitName = unitName;
   }
   
-  public CommodityFutureSecurity (final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type) {
-    this (expiry, tradingExchange, settlementExchange, currency, type, null, null);
+  public CommodityFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final String type) {
+    this(expiry, tradingExchange, settlementExchange, currency, type, null, null);
   }
   
-  public String getCommodityType () {
+  public String getCommodityType() {
     return _commodityType;
   }
   
-  public Double getUnitNumber () {
+  public Double getUnitNumber() {
     return _unitNumber;
   }
   
-  public String getUnitName () {
+  public String getUnitName() {
     return _unitName;
   }
   

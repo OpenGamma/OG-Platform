@@ -6,7 +6,7 @@
 package com.opengamma.financial;
 
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.financial.analytics.ircurve.DiscountCurveSource;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldAndDiscountCurveSource;
 
 /**
  * Utility methods to pull standard objects out of a {@link FunctionCompilationContext}.
@@ -15,7 +15,7 @@ import com.opengamma.financial.analytics.ircurve.DiscountCurveSource;
  */
 public final class OpenGammaCompilationContext {
   /**
-   * Name under which an instance of {@link DiscountCurveSource} will be bound
+   * Name under which an instance of {@link InterpolatedYieldAndDiscountCurveSource} will be bound
    * at runtime.
    */
   public static final String DISCOUNT_CURVE_SOURCE_NAME = "discountCurveSource"; 
@@ -23,7 +23,7 @@ public final class OpenGammaCompilationContext {
   private OpenGammaCompilationContext() {
   }
   
-  public static DiscountCurveSource getDiscountCurveSource(FunctionCompilationContext compilationContext) {
-    return (DiscountCurveSource) compilationContext.get(DISCOUNT_CURVE_SOURCE_NAME);
+  public static InterpolatedYieldAndDiscountCurveSource getDiscountCurveSource(FunctionCompilationContext compilationContext) {
+    return (InterpolatedYieldAndDiscountCurveSource) compilationContext.get(DISCOUNT_CURVE_SOURCE_NAME);
   }
 }

@@ -22,13 +22,13 @@ public class FutureTypeUserType extends EnumUserType<FutureType> {
   private static final String INDEX_FUTURE_TYPE = "Index";
   private static final String STOCK_FUTURE_TYPE = "Stock";
 
-  public FutureTypeUserType () {
-    super (FutureType.class, FutureType.values ());
+  public FutureTypeUserType() {
+    super(FutureType.class, FutureType.values());
   }
 
   @Override
   protected String enumToStringNoCache(FutureType value) {
-    return value.accept (new FutureType.Visitor<String> () {
+    return value.accept(new FutureType.Visitor<String>() {
 
       @Override
       public String visitBondFutureType() {

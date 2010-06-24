@@ -29,14 +29,14 @@ public class FutureSecurityBean extends SecurityBean {
   private IdentifierBean _underlying;
   private Set<FutureBundleBean> _basket;
   
-  public FutureSecurityBean () {
-    super ();
+  public FutureSecurityBean() {
+    super();
   }
   
   /**
    * @return the future type
    */
-  public FutureType getFutureType () {
+  public FutureType getFutureType() {
     return _futureType;
   }
 
@@ -201,11 +201,11 @@ public class FutureSecurityBean extends SecurityBean {
     _basket = basket;
   }
   
-  public IdentifierBean getUnderlying () {
+  public IdentifierBean getUnderlying() {
     return _underlying;
   }
   
-  public void setUnderlying (final IdentifierBean underlying) {
+  public void setUnderlying(final IdentifierBean underlying) {
     _underlying = underlying;
   }
 

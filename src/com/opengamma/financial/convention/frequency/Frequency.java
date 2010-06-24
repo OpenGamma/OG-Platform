@@ -9,19 +9,47 @@ package com.opengamma.financial.convention.frequency;
  * Convention for frequency.
  */
 public interface Frequency {
-  // TODO: hold some proper data to get the dates for the cash flows
-  // TODO: consider using PeriodUnit
+  /**
+   * Annual convention name
+   */
+  String ANNUAL_NAME = "Annual";
+  /**
+   * Semi-annual convention name
+   */
+  String SEMI_ANNUAL_NAME = "Semi-annual";
+  /**
+   * Quarterly convention name
+   */
+  String QUARTERLY_NAME = "Quarterly";
+  /**
+   * Bi-monthly convention name
+   */
+  String BIMONTHLY_NAME = "Bi-monthly";
+  /**
+   * Monthly convention name
+   */
+  String MONTHLY_NAME = "Monthly";
+  /**
+   * Bi-weekly convention name
+   */
+  String BIWEEKLY_NAME = "Bi-weekly";
+  /**
+   * Weekly convention name
+   */
+  String WEEKLY_NAME = "Weekly";
+  /**
+   * Daily convention name
+   */
+  String DAILY_NAME = "Daily";
+  /**
+   * Continuous convention name
+   */
+  String CONTINUOUS_NAME = "Continuous";
 
   /**
    * Gets the name of the convention.
    * @return the name, not null
    */
   String getConventionName();
-  
-  /**
-   * Get number of periods in a year
-   * @return number of periods
-   */
-  int getPeriodsPerYear();
 
 }

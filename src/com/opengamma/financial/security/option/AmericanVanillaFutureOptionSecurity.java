@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.option;
 
 import com.opengamma.financial.Currency;
-import com.opengamma.id.UniqueIdentifier;
+import com.opengamma.id.Identifier;
 import com.opengamma.util.time.Expiry;
 
 /**
@@ -24,7 +24,7 @@ public class AmericanVanillaFutureOptionSecurity extends FutureOptionSecurity im
    * @param exchange
    * @param isMargined
    */
-  public AmericanVanillaFutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final UniqueIdentifier underlyingIdentifier,
+  public AmericanVanillaFutureOptionSecurity(final OptionType optionType, final double strike, final Expiry expiry, final Identifier underlyingIdentifier,
       final Currency currency, final double pointValue, final String exchange, final boolean isMargined) {
     super(optionType, strike, expiry, underlyingIdentifier, currency, pointValue, exchange, isMargined);
   }

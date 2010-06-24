@@ -35,62 +35,68 @@ public class FutureBundleBean {
     _id = id;
   }
   
-  public FutureSecurityBean getFuture () {
+  public FutureSecurityBean getFuture() {
     return _future;
   }
   
-  public void setFuture (final FutureSecurityBean future) {
+  public void setFuture(final FutureSecurityBean future) {
     _future = future;
   }
   
-  public Date getStartDate () {
+  public Date getStartDate() {
     return _startDate;
   }
   
-  public void setStartDate (final Date startDate) {
+  public void setStartDate(final Date startDate) {
     _startDate = startDate;
   }
   
-  public Date getEndDate () {
+  public Date getEndDate() {
     return _endDate;
   }
   
-  public void setEndDate (final Date endDate) {
+  public void setEndDate(final Date endDate) {
     _endDate = endDate;
   }
   
-  public double getConversionFactor () {
+  public double getConversionFactor() {
     return _conversionFactor;
   }
   
-  public void setConversionFactor (final double conversionFactor) {
+  public void setConversionFactor(final double conversionFactor) {
     _conversionFactor = conversionFactor;
   }
   
-  public Set<IdentifierBean> getIdentifiers () {
+  public Set<IdentifierBean> getIdentifiers() {
     return _identifiers;
   }
   
-  public void setIdentifiers (final Set<IdentifierBean> identifiers) {
+  public void setIdentifiers(final Set<IdentifierBean> identifiers) {
     _identifiers = identifiers;
   }
   
   @Override
-  public boolean equals (final Object o) {
-    if (o == this) return true;
-    if (o == null) return false;
-    if (!(o instanceof FutureBundleBean)) return false;
-    final FutureBundleBean other = (FutureBundleBean)o;
-    return ObjectUtils.equals (getFuture ().getId (), other.getFuture ().getId ())
-        && ObjectUtils.equals (getConversionFactor (), other.getConversionFactor ())
-        && ObjectUtils.equals (getIdentifiers (), other.getIdentifiers ());
+  public boolean equals(final Object o) {
+    if (o == this) {
+      return true;
+    }
+    if (o == null) {
+      return false;
+    }
+    if (!(o instanceof FutureBundleBean)) {
+      return false;
+    }
+    final FutureBundleBean other = (FutureBundleBean) o;
+    return ObjectUtils.equals(getFuture().getId(), other.getFuture().getId())
+        && ObjectUtils.equals(getConversionFactor(), other.getConversionFactor())
+        && ObjectUtils.equals(getIdentifiers(), other.getIdentifiers());
   }
   
   @Override
-  public int hashCode () {
+  public int hashCode() {
     int hc = 1;
-    hc = hc * 17 + ObjectUtils.hashCode (getConversionFactor ());
-    hc = hc * 17 + ObjectUtils.hashCode (getIdentifiers ());
+    hc = hc * 17 + ObjectUtils.hashCode(getConversionFactor());
+    hc = hc * 17 + ObjectUtils.hashCode(getIdentifiers());
     return hc;
   }
   

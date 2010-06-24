@@ -26,17 +26,17 @@ public class CurrencyTest {
     assertSame(c1, Currency.getInstance("USD"));
   }
 
-  @Test(expected=NullPointerException.class)
+  @Test(expected = NullPointerException.class)
   public void test_factory_null() {
     Currency.getInstance(null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_factory_tooShort() {
     Currency.getInstance("U");
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_factory_tooLong() {
     Currency.getInstance("USD1");
   }
