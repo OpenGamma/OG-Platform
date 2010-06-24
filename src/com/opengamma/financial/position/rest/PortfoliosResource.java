@@ -172,8 +172,6 @@ public class PortfoliosResource {
   }
 
   @POST
-  @Consumes("application/vnd.fudgemsg")
-  @Produces("application/vnd.fudgemsg")
   public FudgeMsgEnvelope postFudge(FudgeMsgEnvelope addPortfolioRequestMsg) {
     AddPortfolioRequest request = _fudgeDeserializationContext.fudgeMsgToObject(AddPortfolioRequest.class, addPortfolioRequestMsg.getMessage());
     request.checkValid();
