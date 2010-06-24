@@ -15,24 +15,17 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
  */
 public class PostgresTimeSeriesDao extends RowStoreJdbcDao {
   
-  private Map<String, String> _namedSQLMap;
-
-  public PostgresTimeSeriesDao(DataSourceTransactionManager transactionManager) {
-    super(transactionManager);
+  /**
+   * @param transactionManager the transactionManager not-null
+   * @param namedSQLMap the map containing the sql queries not-null
+   */
+  public PostgresTimeSeriesDao(DataSourceTransactionManager transactionManager, Map<String, String> namedSQLMap) {
+    super(transactionManager, namedSQLMap);
   }
   
-  public void setNamedSQLMap(Map<String, String> namedSQLMap) {
-    _namedSQLMap = namedSQLMap;
-  }
-
   @Override
   protected boolean isTriggerSupported() {
     return false;
   }
 
-  @Override
-  protected Map<String, String> getSqlQueries() {
-    return _namedSQLMap;
-  }
-  
 }

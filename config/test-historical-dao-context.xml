@@ -23,7 +23,7 @@
 				<property name="dataSource" ref="derbyDataSource"/>
 			</bean>
 		</constructor-arg>
-		<property name="namedSQLMap" ref="tssNamedSQLMap"/>
+		<constructor-arg ref="tssNamedSQLMap"/>
 	</bean>
 	
 	<bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -39,7 +39,7 @@
 				<property name="dataSource" ref="postgresDataSource"/>
 			</bean>
 		</constructor-arg>
-		<property name="namedSQLMap" ref="tssNamedSQLMap"/>
+		<constructor-arg ref="tssNamedSQLMap"/>
 	</bean>
 	
 </beans>
