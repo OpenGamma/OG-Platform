@@ -38,6 +38,7 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
   private final FudgeMessageSender _underlying;
   private final FudgeContext _fudgeContext;
   private final File _outputFile;
+  private final File _temporaryFile;
   private final long _rewritePeriod;
   private final ConcurrentMap<String, Integer> _taxonomyValues = new ConcurrentHashMap<String, Integer>();
   private final AtomicInteger _nextOrdinal = new AtomicInteger(1);
@@ -72,6 +73,11 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
       Validate.isTrue(outputFile.canWrite(), "Must be able to write the output file.");
     }
     _outputFile = outputFile;
+    File temporaryFile = new File(outputFileName + ".tmp");
+    if (temporaryFile.exists()) {
+      Validate.isTrue(temporaryFile.canWrite(), "Must be able to write to a temporary output file.");
+    }
+    _temporaryFile = temporaryFile;
     
     bootstrapTaxonomy();
     
@@ -181,16 +187,26 @@ public class TaxonomyGatheringFudgeMessageSender implements FudgeMessageSender {
       _lastMaxOrdinalWritten.set(_nextOrdinal.get());
       FileOutputStream fos = null;
       try {
-        fos = new FileOutputStream(_outputFile);
+        fos = new FileOutputStream(_temporaryFile);
         props.store(new BufferedOutputStream(fos), "Automatically generated, written " + new Date());
       } catch (IOException ioe) {
-        s_logger.warn("Unable to write taxonomy to file {}", ioe, new Object[] {_outputFile});
+        s_logger.warn("Unable to write taxonomy to file {}", ioe, new Object[] {_temporaryFile});
       } finally {
         if (fos != null) {
           try {
             fos.close();
+            if (!_temporaryFile.renameTo(_outputFile)) {
+              boolean ok = false;
+              if (_outputFile.exists()) {
+                _outputFile.delete();
+                ok = _temporaryFile.renameTo(_outputFile);
+              }
+              if (!ok) {
+                s_logger.warn("Unable to rename temporary file {} to {}", _temporaryFile, _outputFile);
+              }
+            }
           } catch (IOException ioe) {
-            s_logger.warn("Unable to close output file {}", ioe, new Object[] {_outputFile});
+            s_logger.warn("Unable to close output file {}", ioe, new Object[] {_temporaryFile});
           }
         }
       }

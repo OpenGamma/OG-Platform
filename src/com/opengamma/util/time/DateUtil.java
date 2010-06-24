@@ -38,6 +38,7 @@ public class DateUtil {
   /**
    * The number of days in one year (estimated as 365.25).
    */
+  //TODO change this to 365.2425 to be consistent with JSR-310
   public static final double DAYS_PER_YEAR = 365.25;
   /**
    * The number of milliseconds in one day.
@@ -391,7 +392,7 @@ public class DateUtil {
    * @return the clock, not null
    */
   public static Clock epochFixedClockDefaultZone(long epochMilliseconds) {
-    Instant instant = Instant.ofMillis(epochMilliseconds);
+    Instant instant = Instant.ofEpochMillis(epochMilliseconds);
     TimeSource timeSource = TimeSource.fixed(instant);
     Clock clock = Clock.clockDefaultZone(timeSource);
     return clock;
@@ -404,7 +405,7 @@ public class DateUtil {
    * @return the clock, not null
    */
   public static Clock epochFixedClockUTC(long epochMilliseconds) {
-    Instant instant = Instant.ofMillis(epochMilliseconds);
+    Instant instant = Instant.ofEpochMillis(epochMilliseconds);
     TimeSource timeSource = TimeSource.fixed(instant);
     Clock clock = Clock.clock(timeSource, TimeZone.UTC);
     return clock;
@@ -432,6 +433,15 @@ public class DateUtil {
     timestamp.setNanos(instant.getNanoOfSecond());
     return timestamp;
   }
+  
+  /**
+   * Creates a time-stamp from a ZonedDateTime.
+   * @param zonedDateTime  the ZonedDateTime to convert, not null
+   * @return the time-stamp, not null
+   */
+  public static Timestamp toSqlTimestamp(ZonedDateTime zonedDateTime) {
+    return toSqlTimestamp(zonedDateTime.toInstant());
+  }
 
   /**
    * Creates an instant from a time-stamp.
@@ -441,7 +451,16 @@ public class DateUtil {
   public static Instant fromSqlTimestamp(Timestamp timestamp) {
     long seconds = timestamp.getTime() / 1000;
     int nanos = timestamp.getNanos();
-    return Instant.ofSeconds(seconds, nanos);
+    return Instant.ofEpochSeconds(seconds, nanos);
+  }
+  
+  /**
+   * Creates a SQL date from a LocalDate.
+   * @param date  the date to convert, not null
+   * @return the SQL date, not null
+   */
+  public static java.sql.Date toSqlDate(LocalDate date) {
+    return new java.sql.Date(date.atStartOfDayInZone(TimeZone.UTC).toInstant().toEpochMillisLong());
   }
 
 }
