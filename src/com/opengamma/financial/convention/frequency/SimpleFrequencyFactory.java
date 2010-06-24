@@ -10,24 +10,24 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Factory to obtain instances of {@code Frequency}.
+ * Factory to obtain instances of {@code SimpleFrequency}.
  */
-public final class FrequencyFactory {
+public final class SimpleFrequencyFactory {
 
   /**
    * Singleton instance.
    */
-  public static final FrequencyFactory INSTANCE = new FrequencyFactory();
+  public static final SimpleFrequencyFactory INSTANCE = new SimpleFrequencyFactory();
 
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, Frequency> _conventionMap = new HashMap<String, Frequency>();
+  private final Map<String, SimpleFrequency> _conventionMap = new HashMap<String, SimpleFrequency>();
 
   /**
    * Creates the factory.
    */
-  private FrequencyFactory() {
+  private SimpleFrequencyFactory() {
     store(SimpleFrequency.ANNUAL);
     store(SimpleFrequency.SEMI_ANNUAL);
     store(SimpleFrequency.QUARTERLY);
@@ -43,7 +43,7 @@ public final class FrequencyFactory {
    * Stores the convention.
    * @param convention  the convention to store, not null
    */
-  private void store(final Frequency convention) {
+  private void store(final SimpleFrequency convention) {
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
   }
 
@@ -54,7 +54,7 @@ public final class FrequencyFactory {
    * @param name  the name, not null
    * @return the convention, null if not found
    */
-  public Frequency getFrequency(final String name) {
+  public SimpleFrequency getFrequency(final String name) {
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
 

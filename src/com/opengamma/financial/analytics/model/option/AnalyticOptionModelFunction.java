@@ -87,7 +87,7 @@ public abstract class AnalyticOptionModelFunction extends AbstractFunction imple
   }
 
   protected ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, uid);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 
   protected ValueRequirement getCostOfCarryMarketDataRequirement() {

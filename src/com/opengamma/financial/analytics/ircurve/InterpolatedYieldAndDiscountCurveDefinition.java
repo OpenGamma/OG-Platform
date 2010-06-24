@@ -21,27 +21,26 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  *
- * @author kirk
  */
-public class DiscountCurveDefinition implements Serializable {
+public class InterpolatedYieldAndDiscountCurveDefinition implements Serializable {
   private final Currency _currency;
   private final String _name;
   private final String _interpolatorName;
   private final SortedSet<FixedIncomeStrip> _strips = new TreeSet<FixedIncomeStrip>();
   
-  public DiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
+  public InterpolatedYieldAndDiscountCurveDefinition(Currency currency, String name, String interpolatorName) {
     this(currency, name, interpolatorName, null);
   }
   
-  public DiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
+  public InterpolatedYieldAndDiscountCurveDefinition(Currency currency, String name, String interpolatorName, Collection<? extends FixedIncomeStrip> strips) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(interpolatorName, "Interpolator name");
     // Name can be null.
     _currency = currency;
     _name = name;
     _interpolatorName = interpolatorName;
-    if(strips != null) {
-      for(FixedIncomeStrip strip : strips) {
+    if (strips != null) {
+      for (FixedIncomeStrip strip : strips) {
         addStrip(strip);
       }
     }
@@ -82,26 +81,26 @@ public class DiscountCurveDefinition implements Serializable {
 
   @Override
   public boolean equals(Object obj) {
-    if(this == obj) {
+    if (this == obj) {
       return true;
     }
-    if(obj == null) {
+    if (obj == null) {
       return false;
     }
-    if(!(obj instanceof DiscountCurveDefinition)) {
+    if (!(obj instanceof InterpolatedYieldAndDiscountCurveDefinition)) {
       return false;
     }
-    DiscountCurveDefinition other = (DiscountCurveDefinition) obj;
-    if(!ObjectUtils.equals(_currency, other._currency)) {
+    InterpolatedYieldAndDiscountCurveDefinition other = (InterpolatedYieldAndDiscountCurveDefinition) obj;
+    if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
-    if(!ObjectUtils.equals(_name, other._name)) {
+    if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }
-    if(!ObjectUtils.equals(_interpolatorName, other._interpolatorName)) {
+    if (!ObjectUtils.equals(_interpolatorName, other._interpolatorName)) {
       return false;
     }
-    if(!ObjectUtils.equals(_strips, other._strips)) {
+    if (!ObjectUtils.equals(_strips, other._strips)) {
       return false;
     }
     return true;
@@ -112,13 +111,13 @@ public class DiscountCurveDefinition implements Serializable {
     int prime = 37;
     int result = 1;
     result = (result * prime) + _currency.hashCode();
-    if(_name != null) {
+    if (_name != null) {
       result = (result * prime) + _name.hashCode(); 
     }
-    if(_interpolatorName != null) {
+    if (_interpolatorName != null) {
       result = (result * prime) + _interpolatorName.hashCode(); 
     }
-    for(FixedIncomeStrip strip : _strips) {
+    for (FixedIncomeStrip strip : _strips) {
       result = (result * prime) + strip.hashCode();
     }
     return result;

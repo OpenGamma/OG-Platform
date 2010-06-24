@@ -10,8 +10,7 @@ import com.opengamma.financial.Currency;
 /**
  * 
  *
- * @author jim
  */
-public interface DiscountCurveSource {
-  DiscountCurveDefinition getDefinition(Currency currency, String name);
+public interface InterpolatedYieldAndDiscountCurveSource {
+  InterpolatedYieldAndDiscountCurveDefinition getDefinition(Currency currency, String name);
 }

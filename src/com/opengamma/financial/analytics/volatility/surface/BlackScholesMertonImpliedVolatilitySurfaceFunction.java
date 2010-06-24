@@ -165,6 +165,6 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final UniqueIdentifier uid) {
-    return new ValueRequirement(ValueRequirementNames.DISCOUNT_CURVE, ComputationTargetType.PRIMITIVE, uid);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, uid);
   }
 }

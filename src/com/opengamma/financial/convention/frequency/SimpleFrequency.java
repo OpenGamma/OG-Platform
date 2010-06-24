@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.frequency;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -14,68 +16,108 @@ public class SimpleFrequency implements Frequency {
   /**
    * Annual frequency.
    */
-  public static final Frequency ANNUAL = new SimpleFrequency("annual", 1);
+  public static final SimpleFrequency ANNUAL = new SimpleFrequency(ANNUAL_NAME, 1);
   /**
    * Semi-annual frequency.
    */
-  public static final Frequency SEMI_ANNUAL = new SimpleFrequency("semiannual", 2);
+  public static final SimpleFrequency SEMI_ANNUAL = new SimpleFrequency(SEMI_ANNUAL_NAME, 2);
   /**
    * Quarterly frequency.
    */
-  public static final Frequency QUARTERLY = new SimpleFrequency("quarterly", 4);
+  public static final SimpleFrequency QUARTERLY = new SimpleFrequency(QUARTERLY_NAME, 4);
   /**
    * Bi-Monthly frequency.
    */
-  public static final Frequency BIMONTHLY = new SimpleFrequency("bi-monthly", 6);
+  public static final SimpleFrequency BIMONTHLY = new SimpleFrequency(BIMONTHLY_NAME, 6);
   /**
    * Monthly frequency.
    */
-  public static final Frequency MONTHLY = new SimpleFrequency("monthly", 12);
+  public static final SimpleFrequency MONTHLY = new SimpleFrequency(MONTHLY_NAME, 12);
   /**
    * Bi-weekly frequency.
    */
-  public static final Frequency BIWEEKLY = new SimpleFrequency("bi-weekly", 26);
+  public static final SimpleFrequency BIWEEKLY = new SimpleFrequency(BIWEEKLY_NAME, 26);
   /**
    * weekly frequency.
    */
-  public static final Frequency WEEKLY = new SimpleFrequency("weekly", 52);
+  public static final SimpleFrequency WEEKLY = new SimpleFrequency(WEEKLY_NAME, 52);
   /**
    * daily frequency.
    */
-  public static final Frequency DAILY = new SimpleFrequency("daily", 365);
+  public static final SimpleFrequency DAILY = new SimpleFrequency(DAILY_NAME, 365);
 
   /**
    * continuous frequency.
    */
-  //TODO where converting to/from say continuously compounded interest rates, can't use Integer.MAX_VALUE, but need different formula 
-  public static final Frequency CONTINUOUS = new SimpleFrequency("continuous", Integer.MAX_VALUE);
+  //TODO where converting to/from say continuously compounded interest rates, can't use Double.MAX_VALUE, but need different formula 
+  public static final SimpleFrequency CONTINUOUS = new SimpleFrequency(CONTINUOUS_NAME, Double.MAX_VALUE);
 
   /**
    * The convention name.
    */
   private final String _name;
-  private final int _freq;
+  private final double _periodsPerYear;
 
   /**
    * Creates an instance.
    * @param name  the convention name, not null
-   * @param freq the frequency
+   * @param periodsPerYear the number of periods per year
+   * @throws IllegalArgumentException
+   *          If the name is null
+   * @throws IllegalArgumentException
+   *          If the frequency is zero or negative
    */
-  protected SimpleFrequency(final String name, final int freq) {
-    ArgumentChecker.notNull(name, "name");
+  protected SimpleFrequency(final String name, final double periodsPerYear) {
+    Validate.notNull(name, "name");
+    ArgumentChecker.notNegativeOrZero(periodsPerYear, "periods per year");
     _name = name;
-    _freq = freq;
+    _periodsPerYear = periodsPerYear;
   }
 
-  //-------------------------------------------------------------------------
   @Override
   public String getConventionName() {
     return _name;
   }
 
-  @Override
-  public int getPeriodsPerYear() {
-    return _freq;
+  public double getPeriodsPerYear() {
+    return _periodsPerYear;
   }
 
+  @Override
+  public String toString() {
+    return "Frequency[" + "name =  " + _name + " pa = " + _periodsPerYear + "]";
+  }
+
+  // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency, 
+  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely 
+  public PeriodFrequency toPeriodFrequency() {
+    if (_name == ANNUAL_NAME) {
+      return PeriodFrequency.ANNUAL;
+    }
+    if (_name == BIMONTHLY_NAME) {
+      return PeriodFrequency.BIMONTHLY;
+    }
+    if (_name == BIWEEKLY_NAME) {
+      return PeriodFrequency.BIWEEKLY;
+    }
+    if (_name == CONTINUOUS_NAME) {
+      return PeriodFrequency.CONTINUOUS;
+    }
+    if (_name == DAILY_NAME) {
+      return PeriodFrequency.DAILY;
+    }
+    if (_name == MONTHLY_NAME) {
+      return PeriodFrequency.MONTHLY;
+    }
+    if (_name == QUARTERLY_NAME) {
+      return PeriodFrequency.QUARTERLY;
+    }
+    if (_name == SEMI_ANNUAL_NAME) {
+      return PeriodFrequency.SEMI_ANNUAL;
+    }
+    if (_name == WEEKLY_NAME) {
+      return PeriodFrequency.WEEKLY;
+    }
+    throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
+  }
 }
