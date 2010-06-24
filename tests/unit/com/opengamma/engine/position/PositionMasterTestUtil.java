@@ -6,10 +6,14 @@
 package com.opengamma.engine.position;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.opengamma.id.Identifier;
+import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
 
 /**
@@ -65,6 +69,39 @@ public class PositionMasterTestUtil {
     }
     for (PortfolioNode childNode : node.getChildNodes()) {
       testNodeLookup(pm, childNode, isPresent);
+    }
+  }
+  
+  /**
+   * Tests whether two node structures are equivalent, ignoring IDs. Node at each level must have unique names, and 
+   * positions at each level must have unique security keys.
+   * 
+   * @param expected  the expected root portfolio node
+   * @param actual  the actual root portfolio node
+   */
+  public static void equivalentNodeStructures(PortfolioNode expected, PortfolioNode actual) {
+    assertEquals(expected.getName(), actual.getName());
+    assertEquals(expected.getChildNodes().size(), actual.getChildNodes().size());
+    assertEquals(expected.getPositions().size(), actual.getPositions().size());
+    
+    Map<String, PortfolioNode> expectedChildNodeMap = new HashMap<String, PortfolioNode>();
+    for (PortfolioNode expectedChildNode : expected.getChildNodes()) {
+      expectedChildNodeMap.put(expectedChildNode.getName(), expectedChildNode);
+    }
+    for (PortfolioNode actualChildNode : actual.getChildNodes()) {
+      PortfolioNode expectedChildNode = expectedChildNodeMap.get(actualChildNode.getName());
+      assertNotNull(expectedChildNode);
+      equivalentNodeStructures(expectedChildNode, actualChildNode);
+    }
+    
+    Map<IdentifierBundle, Position> expectedPositionMap = new HashMap<IdentifierBundle, Position>();
+    for (Position expectedPosition : expected.getPositions()) {
+      expectedPositionMap.put(expectedPosition.getSecurityKey(), expectedPosition);
+    }
+    for (Position actualPosition : actual.getPositions()) {
+      Position expectedPosition = expectedPositionMap.get(actualPosition.getSecurityKey());
+      assertNotNull(expectedPosition);
+      assertEquals(expectedPosition.getQuantity(), actualPosition.getQuantity());
     }
   }
   
