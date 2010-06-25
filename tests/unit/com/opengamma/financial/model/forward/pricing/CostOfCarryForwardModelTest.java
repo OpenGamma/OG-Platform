@@ -9,13 +9,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
@@ -25,7 +25,6 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  *
  */
 public class CostOfCarryForwardModelTest {
@@ -37,9 +36,8 @@ public class CostOfCarryForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final ForwardModel<StandardForwardDataBundle> MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(D,
-      new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
-  private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
+  private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
+  private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = NullPointerException.class)
   public void testNullDefinition() {
@@ -59,7 +57,7 @@ public class CostOfCarryForwardModelTest {
   @Test
   public void testRequiredGreeks() {
     assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Collections.<Greek> emptySet()));
-    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, EnumSet.of(Greek.DELTA)));
+    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Sets.newHashSet(Greek.DELTA)));
   }
 
   @Test

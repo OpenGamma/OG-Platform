@@ -10,15 +10,20 @@ import java.util.Set;
 
 import com.opengamma.financial.pnl.UnderlyingType;
 
+/**
+ * 
+ */
 public class NthOrderUnderlying implements Underlying {
   private final int _order;
   private final Set<UnderlyingType> _underlying;
 
   public NthOrderUnderlying(final int order, final UnderlyingType underlying) {
-    if (order < 0)
+    if (order < 0) {
       throw new IllegalArgumentException("Order must be greater than or equal to zero");
-    if (underlying == null && order != 0)
+    }
+    if (underlying == null && order != 0) {
       throw new IllegalArgumentException("Underlying type was null");
+    }
     _order = order;
     if (order == 0) {
       _underlying = Collections.emptySet();
@@ -37,7 +42,8 @@ public class NthOrderUnderlying implements Underlying {
     return _order;
   }
 
-  // NOTE: hashCode() and equals() are deliberately not overridden. Please do not implement them unless you want to 
+  // NOTE: hashCode() and equals() are deliberately not overridden. Please do
+  // not implement them unless you want to
   // break a load of code
 
 }

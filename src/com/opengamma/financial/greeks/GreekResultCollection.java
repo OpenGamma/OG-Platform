@@ -20,11 +20,11 @@ import org.apache.commons.lang.StringUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * 
+ */
 public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   // REVIEW kirk 2010-05-20 -- Ideas for speeding up:
-  // - Just store SingleGreekResult instances as a double and convert on result
-  // - Change .put() to allow just providing a double, and avoiding constructing a SingleGreekResult
-  //   in the calling code.
   // - For common cases, store SingleGreekResult in a double[], where the indices are ordinals
   //   for the greek in the enumeration. Super-fast lookup and small objects, but wasted
   //   space for the common case of one greek in a result collection.
@@ -59,6 +59,10 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
     return _backingMap.containsKey(greek);
   }
 
+  /**
+   * @deprecated This will be removed shortly
+   * @return The Greeks in the collection
+   */
   @Deprecated
   public Set<Map.Entry<Greek, Double>> entrySet() {
     return _backingMap.entrySet();
@@ -122,6 +126,9 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
     return new BackingMapGreekIterator(_backingMap.entrySet().iterator());
   }
 
+  /**
+   * Iterates over the backing map
+   */
   protected static class BackingMapGreekIterator implements Iterator<Pair<Greek, Double>> {
     private final Iterator<Map.Entry<Greek, Double>> _backingIterator;
 

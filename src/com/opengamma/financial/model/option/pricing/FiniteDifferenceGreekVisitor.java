@@ -19,7 +19,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * 
+ * @param <S> Type of the option data bundle
+ * @param <T> Type of the option definition
  */
 @SuppressWarnings("unchecked")
 public class FiniteDifferenceGreekVisitor<S extends StandardOptionDataBundle, T extends OptionDefinition> implements GreekVisitor<Double> {

@@ -13,10 +13,9 @@ import com.opengamma.financial.model.future.definition.FutureDataBundle;
 import com.opengamma.financial.model.future.definition.FutureDefinition;
 
 /**
- * @author emcleod
- *
+ * @param <T> Type of the data bundle
  */
 public interface FutureModel<T extends FutureDataBundle> {
 
-  public GreekResultCollection getGreeks(FutureDefinition definition, T data, Set<Greek> requiredGreeks);
+  GreekResultCollection getGreeks(FutureDefinition definition, T data, Set<Greek> requiredGreeks);
 }

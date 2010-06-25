@@ -8,13 +8,13 @@ package com.opengamma.financial.model.future.pricing;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
@@ -36,13 +36,11 @@ public class CostOfCarryFutureAsForwardModelTest {
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.75));
   private static final ForwardModel<StandardForwardDataBundle> FORWARD_MODEL = new CostOfCarryForwardModel();
   private static final ForwardDefinition FORWARD_DEFINITION = new ForwardDefinition(EXPIRY);
-  private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D,
-      new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
+  private static final StandardForwardDataBundle FORWARD_DATA = new StandardForwardDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
   private static final FutureModel<StandardFutureDataBundle> FUTURE_MODEL = new CostOfCarryFutureAsForwardModel();
   private static final FutureDefinition FUTURE_DEFINITION = new FutureDefinition(EXPIRY);
-  private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D,
-      new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
-  private static final Set<Greek> GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA);
+  private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
+  private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
   @Test(expected = NullPointerException.class)
   public void testNullDefinition() {
@@ -61,10 +59,8 @@ public class CostOfCarryFutureAsForwardModelTest {
 
   @Test
   public void testRequiredGreeks() {
-    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections
-        .<Greek> emptySet()));
-    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, EnumSet
-        .of(Greek.DELTA)));
+    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections.<Greek> emptySet()));
+    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Sets.newHashSet(Greek.DELTA)));
   }
 
   @Test

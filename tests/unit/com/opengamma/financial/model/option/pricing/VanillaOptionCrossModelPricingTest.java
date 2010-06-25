@@ -8,7 +8,6 @@ package com.opengamma.financial.model.option.pricing;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -16,6 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.interestrate.curve.ConstantYieldCurve;
@@ -41,13 +41,12 @@ public class VanillaOptionCrossModelPricingTest {
   private static final Double STRIKE = 9.5;
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 0.5));
-  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 10.,
-      DATE);
+  private static final StandardOptionDataBundle DATA = new StandardOptionDataBundle(new ConstantYieldCurve(0.08), 0.08, new ConstantVolatilitySurface(0.3), 10., DATE);
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> CRR = new CoxRossRubinsteinBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> LR = new LeisenReimerBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> RB = new RendlemanBartterBinomialOptionModelDefinition();
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> TRISGEORGIS = new TrisgeorgisBinomialOptionModelDefinition();
-  private static final Set<Greek> REQUIRED_GREEKS = EnumSet.of(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
+  private static final Set<Greek> REQUIRED_GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA, Greek.GAMMA);
   private static final double EPS = 0.02;
 
   @Test

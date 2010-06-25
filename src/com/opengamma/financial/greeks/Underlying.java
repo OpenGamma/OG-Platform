@@ -14,7 +14,7 @@ import com.opengamma.financial.pnl.UnderlyingType;
  */
 public interface Underlying {
 
-  public int getOrder();
+  int getOrder();
 
-  public Set<UnderlyingType> getUnderlyings();
+  Set<UnderlyingType> getUnderlyings();
 }

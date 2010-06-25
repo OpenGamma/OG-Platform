@@ -6,75 +6,75 @@
 package com.opengamma.financial.greeks;
 
 /**
- * 
+ * @param <T> Return type of methods
  */
 public interface GreekVisitor<T> {
 
-  public T visitPrice();
+  T visitPrice();
 
-  public T visitZeta();
+  T visitZeta();
 
-  public T visitCarryRho();
+  T visitCarryRho();
 
-  public T visitDelta();
+  T visitDelta();
 
-  public T visitDriftlessTheta();
+  T visitDriftlessTheta();
 
-  public T visitDZetaDVol();
+  T visitDZetaDVol();
 
-  public T visitElasticity();
+  T visitElasticity();
 
-  public T visitPhi();
+  T visitPhi();
 
-  public T visitRho();
+  T visitRho();
 
-  public T visitStrikeDelta();
+  T visitStrikeDelta();
 
-  public T visitTheta();
+  T visitTheta();
 
-  public T visitVarianceVega();
+  T visitVarianceVega();
 
-  public T visitVega();
+  T visitVega();
 
-  public T visitVegaP();
+  T visitVegaP();
 
-  public T visitZetaBleed();
+  T visitZetaBleed();
 
-  public T visitVarianceVanna();
+  T visitVarianceVanna();
 
-  public T visitDeltaBleed();
+  T visitDeltaBleed();
 
-  public T visitGamma();
+  T visitGamma();
 
-  public T visitGammaP();
+  T visitGammaP();
 
-  public T visitStrikeGamma();
+  T visitStrikeGamma();
 
-  public T visitVanna();
+  T visitVanna();
 
-  public T visitVarianceVomma();
+  T visitVarianceVomma();
 
-  public T visitVegaBleed();
+  T visitVegaBleed();
 
-  public T visitVomma();
+  T visitVomma();
 
-  public T visitVommaP();
+  T visitVommaP();
 
-  public T visitDVannaDVol();
+  T visitDVannaDVol();
 
-  public T visitGammaBleed();
+  T visitGammaBleed();
 
-  public T visitGammaPBleed();
+  T visitGammaPBleed();
 
-  public T visitSpeed();
+  T visitSpeed();
 
-  public T visitSpeedP();
+  T visitSpeedP();
 
-  public T visitUltima();
+  T visitUltima();
 
-  public T visitVarianceUltima();
+  T visitVarianceUltima();
 
-  public T visitZomma();
+  T visitZomma();
 
-  public T visitZommaP();
+  T visitZommaP();
 }

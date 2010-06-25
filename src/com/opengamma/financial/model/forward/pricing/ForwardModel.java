@@ -13,10 +13,9 @@ import com.opengamma.financial.model.forward.definition.ForwardDataBundle;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
 
 /**
- * @author emcleod
- *
+ * @param <T> Type of the data bundle
  */
 public interface ForwardModel<T extends ForwardDataBundle> {
 
-  public GreekResultCollection getGreeks(ForwardDefinition definition, T data, Set<Greek> requiredGreeks);
+  GreekResultCollection getGreeks(ForwardDefinition definition, T data, Set<Greek> requiredGreeks);
 }
