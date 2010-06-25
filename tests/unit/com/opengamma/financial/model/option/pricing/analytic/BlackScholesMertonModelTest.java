@@ -89,8 +89,8 @@ public class BlackScholesMertonModelTest extends AnalyticOptionModelTest {
     return collection;
   }
 
-  private void testPrices(final Set<Greek> greeks, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma,
-      final double spot, final GreekResultCollection expected) {
+  private void testPrices(final Set<Greek> greeks, final double strike, final Expiry expiry, final boolean isCall, final double r, final double b, final double sigma, final double spot,
+      final GreekResultCollection expected) {
     final EuropeanVanillaOptionDefinition definition = new EuropeanVanillaOptionDefinition(strike, expiry, isCall);
     final StandardOptionDataBundle data = new StandardOptionDataBundle(new ConstantYieldCurve(r), b, new ConstantVolatilitySurface(sigma), spot, DATE);
     final GreekResultCollection result = MODEL.getGreeks(definition, data, greeks);

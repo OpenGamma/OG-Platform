@@ -344,7 +344,7 @@ public abstract class Greek implements Comparable<Greek> {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {
-      return visitor.visitVomma();
+      return visitor.visitVommaP();
     }
 
   };
@@ -371,9 +371,9 @@ public abstract class Greek implements Comparable<Greek> {
 
   };
   /**
-   * 
+   * Third-order sensitivity; first with respect to time, second with respect to spot
    */
-  public static final Greek ZOMMA = new Greek(null, "Zomma") {
+  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))), "Zomma") {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {
@@ -414,4 +414,43 @@ public abstract class Greek implements Comparable<Greek> {
   public int compareTo(Greek other) {
     return _name.compareTo(other._name);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_name == null) ? 0 : _name.hashCode());
+    result = prime * result + ((_underlying == null) ? 0 : _underlying.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Greek other = (Greek) obj;
+    if (_name == null) {
+      if (other._name != null) {
+        return false;
+      }
+    } else if (!_name.equals(other._name)) {
+      return false;
+    }
+    if (_underlying == null) {
+      if (other._underlying != null) {
+        return false;
+      }
+    } else if (!_underlying.equals(other._underlying)) {
+      return false;
+    }
+    return true;
+  }
+
 }
