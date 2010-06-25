@@ -10,6 +10,10 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.IdentifierBundle;
 import com.opengamma.id.UniqueIdentifier;
@@ -107,6 +111,53 @@ public final class AddPositionRequest {
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  //-------------------------------------------------------------------------
+  /** Field name. */
+  private static final String PARENT_NODE_FIELD_NAME = "parentNode";
+  /** Field name. */
+  private static final String QUANTITY_FIELD_NAME = "quantity";
+  /** Field name. */
+  private static final String SECURITY_KEY_FIELD_NAME = "securityKey";
+
+  /**
+   * Serializes to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    if (_parentUid != null) {
+      msg.add(PARENT_NODE_FIELD_NAME, _parentUid.toFudgeMsg(context));
+    }
+    if (_quantity != null) {
+      msg.add(QUANTITY_FIELD_NAME, _quantity);
+    }
+    if (_securityKey != null) {
+      msg.add(SECURITY_KEY_FIELD_NAME, _securityKey.toFudgeMsg(context));
+    }
+    return msg;
+  }
+
+  /**
+   * Deserializes from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static AddPositionRequest fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    AddPositionRequest req = new AddPositionRequest();
+    if (msg.hasField(PARENT_NODE_FIELD_NAME)) {
+      req.setParentNode(UniqueIdentifier.fromFudgeMsg(msg.getMessage(PARENT_NODE_FIELD_NAME)));
+    }
+    if (msg.hasField(QUANTITY_FIELD_NAME)) {
+      req.setQuantity(msg.getValue(BigDecimal.class, QUANTITY_FIELD_NAME));
+    }
+    if (msg.hasField(SECURITY_KEY_FIELD_NAME)) {
+      req.setSecurityKey(IdentifierBundle.fromFudgeMsg(msg.getMessage(SECURITY_KEY_FIELD_NAME)));
+    }
+    return req;
   }
 
 }

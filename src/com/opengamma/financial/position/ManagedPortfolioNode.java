@@ -10,6 +10,11 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.UniqueIdentifier;
 
@@ -157,6 +162,77 @@ public final class ManagedPortfolioNode {
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  //-------------------------------------------------------------------------
+  /** Field name. */
+  private static final String UID_FIELD_NAME = "uid";
+  /** Field name. */
+  private static final String PORTFOLIO_UID_FIELD_NAME = "portfolioUid";
+  /** Field name. */
+  private static final String PARENT_NODE_UID_FIELD_NAME = "parentNodeUid";
+  /** Field name. */
+  private static final String NAME_FIELD_NAME = "name";
+  /** Field name. */
+  private static final String CHILD_NODE_FIELD_NAME = "childNode";
+  /** Field name. */
+  private static final String POSITION_FIELD_NAME = "position";
+
+  /**
+   * Serializes to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    if (_uid != null) {
+      msg.add(UID_FIELD_NAME, _uid.toFudgeMsg(context));
+    }
+    if (_portfolioUid != null) {
+      msg.add(PORTFOLIO_UID_FIELD_NAME, _portfolioUid.toFudgeMsg(context));
+    }
+    if (_parentNodeUid != null) {
+      msg.add(PARENT_NODE_UID_FIELD_NAME, _parentNodeUid.toFudgeMsg(context));
+    }
+    if (_name != null) {
+      msg.add(NAME_FIELD_NAME, _name);
+    }
+    for (PortfolioNodeSummary summary : _childNodes) {
+      msg.add(CHILD_NODE_FIELD_NAME, summary.toFudgeMsg(context));
+    }
+    for (PositionSummary summary : _positions) {
+      msg.add(POSITION_FIELD_NAME, summary.toFudgeMsg(context));
+    }
+    return msg;
+  }
+
+  /**
+   * Deserializes from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static ManagedPortfolioNode fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    ManagedPortfolioNode mp = new ManagedPortfolioNode();
+    if (msg.hasField(UID_FIELD_NAME)) {
+      mp.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
+    }
+    if (msg.hasField(PORTFOLIO_UID_FIELD_NAME)) {
+      mp.setPortfolioUid(UniqueIdentifier.fromFudgeMsg(msg.getMessage(PORTFOLIO_UID_FIELD_NAME)));
+    }
+    if (msg.hasField(PARENT_NODE_UID_FIELD_NAME)) {
+      mp.setParentNodeUid(UniqueIdentifier.fromFudgeMsg(msg.getMessage(PARENT_NODE_UID_FIELD_NAME)));
+    }
+    if (msg.hasField(NAME_FIELD_NAME)) {
+      mp.setName(msg.getString(NAME_FIELD_NAME));
+    }
+    for (FudgeField field : msg.getAllByName(CHILD_NODE_FIELD_NAME)) {
+      mp.getChildNodes().add(PortfolioNodeSummary.fromFudgeMsg(context, (FudgeFieldContainer) field.getValue()));
+    }
+    for (FudgeField field : msg.getAllByName(POSITION_FIELD_NAME)) {
+      mp.getPositions().add(PositionSummary.fromFudgeMsg(context, (FudgeFieldContainer) field.getValue()));
+    }
+    return mp;
   }
 
 }

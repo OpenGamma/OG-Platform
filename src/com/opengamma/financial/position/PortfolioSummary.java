@@ -9,6 +9,10 @@ import javax.time.Instant;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.MutableFudgeFieldContainer;
+import org.fudgemsg.mapping.FudgeDeserializationContext;
+import org.fudgemsg.mapping.FudgeSerializationContext;
 
 import com.opengamma.id.UniqueIdentifier;
 import com.opengamma.util.ArgumentChecker;
@@ -164,6 +168,69 @@ public final class PortfolioSummary {
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+
+  //-------------------------------------------------------------------------
+  /** Field name. */
+  private static final String UID_FIELD_NAME = "uid";
+  /** Field name. */
+  private static final String NAME_FIELD_NAME = "name";
+  /** Field name. */
+  private static final String START_INSTANT_FIELD_NAME = "startInstant";
+  /** Field name. */
+  private static final String END_INSTANT_FIELD_NAME = "endInstant";
+  /** Field name. */
+  private static final String TOTAL_POSITIONS_FIELD_NAME = "totalPositions";
+  /** Field name. */
+  private static final String ACTIVE_FIELD_NAME = "active";
+
+  /**
+   * Serializes to a Fudge message.
+   * @param context  the Fudge context, not null
+   * @return the Fudge message, not null
+   */
+  public FudgeFieldContainer toFudgeMsg(final FudgeSerializationContext context) {
+    MutableFudgeFieldContainer msg = context.newMessage();
+    if (_uid != null) {
+      msg.add(UID_FIELD_NAME, _uid.toFudgeMsg(context));
+    }
+    if (_name != null) {
+      msg.add(NAME_FIELD_NAME, _name);
+    }
+    if (_startInstant != null) {
+      msg.add(START_INSTANT_FIELD_NAME, _startInstant);
+    }
+    if (_endInstant != null) {
+      msg.add(END_INSTANT_FIELD_NAME, _endInstant);
+    }
+    msg.add(TOTAL_POSITIONS_FIELD_NAME, _totalPositions);
+    msg.add(ACTIVE_FIELD_NAME, _active);
+    return msg;
+  }
+
+  /**
+   * Deserializes from a Fudge message.
+   * @param context  the Fudge context, not null
+   * @param msg  the Fudge message, not null
+   * @return the pair, not null
+   */
+  public static PortfolioSummary fromFudgeMsg(final FudgeDeserializationContext context, final FudgeFieldContainer msg) {
+    PortfolioSummary summary = new PortfolioSummary();
+    if (msg.hasField(UID_FIELD_NAME)) {
+      summary.setUniqueIdentifier(UniqueIdentifier.fromFudgeMsg(msg.getMessage(UID_FIELD_NAME)));
+    }
+    if (msg.hasField(NAME_FIELD_NAME)) {
+      summary.setName(msg.getString(NAME_FIELD_NAME));
+    }
+    if (msg.hasField(START_INSTANT_FIELD_NAME)) {
+      summary.setStartInstant(msg.getValue(Instant.class, START_INSTANT_FIELD_NAME));
+    }
+    if (msg.hasField(END_INSTANT_FIELD_NAME)) {
+      summary.setEndInstant(msg.getValue(Instant.class, END_INSTANT_FIELD_NAME));
+    }
+    summary.setTotalPositions(msg.getInt(TOTAL_POSITIONS_FIELD_NAME));
+    summary.setActive(msg.getBoolean(ACTIVE_FIELD_NAME));
+    return summary;
   }
 
 }
