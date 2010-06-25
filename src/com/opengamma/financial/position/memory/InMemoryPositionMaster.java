@@ -273,7 +273,6 @@ public class InMemoryPositionMaster implements ManagablePositionMaster {
     }
     
     ManagedPosition managedPosition = new ManagedPosition();
-    managedPosition.setActive(true);
     managedPosition.setUniqueIdentifier(positionUid);
     managedPosition.setPortfolioUid(extractPortfolioUid(positionUid));
     managedPosition.setQuantity(position.getQuantity());
