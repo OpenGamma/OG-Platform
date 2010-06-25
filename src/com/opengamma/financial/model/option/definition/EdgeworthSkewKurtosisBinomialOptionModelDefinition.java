@@ -9,24 +9,27 @@ import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
  * 
- * @author emcleod
  */
-public class EdgeworthSkewKurtosisBinomialOptionModelDefinition extends BinomialOptionModelDefinition<OptionDefinition, SkewKurtosisOptionDataBundle> {
+public class EdgeworthSkewKurtosisBinomialOptionModelDefinition extends
+    BinomialOptionModelDefinition<OptionDefinition, SkewKurtosisOptionDataBundle> {
 
   @Override
-  public double getDownFactor(final OptionDefinition option, final SkewKurtosisOptionDataBundle data, final int n, final int j) {
+  public double getDownFactor(final OptionDefinition option, final SkewKurtosisOptionDataBundle data, final int n,
+      final int j) {
     // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
-  public double getUpFactor(final OptionDefinition option, final SkewKurtosisOptionDataBundle data, final int n, final int j) {
+  public double getUpFactor(final OptionDefinition option, final SkewKurtosisOptionDataBundle data, final int n,
+      final int j) {
     // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
-  public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option, final SkewKurtosisOptionDataBundle data, final int n, final int j) {
+  public RecombiningBinomialTree<Double> getUpProbabilityTree(final OptionDefinition option,
+      final SkewKurtosisOptionDataBundle data, final int n, final int j) {
     // TODO Auto-generated method stub
     return null;
   }

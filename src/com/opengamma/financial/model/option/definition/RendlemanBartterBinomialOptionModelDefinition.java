@@ -10,7 +10,6 @@ import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
  * 
- * @author emcleod
  */
 public class RendlemanBartterBinomialOptionModelDefinition extends BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> {
 

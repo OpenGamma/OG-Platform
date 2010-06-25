@@ -12,21 +12,24 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public abstract class PresentValueCalculator {
 
   public abstract double calculate(final double t, final double c, final InterestRateModel<Double> rates);
 
   public double calculate(final DoubleTimeSeries<Long> cashFlows, final InterestRateModel<Double> rates, final Long date) {
-    if (cashFlows == null)
+    if (cashFlows == null) {
       throw new IllegalArgumentException("Cash flow time series was null");
-    if (cashFlows.isEmpty())
+    }
+    if (cashFlows.isEmpty()) {
       throw new IllegalArgumentException("Cash flow time series was empty");
-    if (rates == null)
+    }
+    if (rates == null) {
       throw new IllegalArgumentException("Interest rate model was null");
-    if (date == null)
+    }
+    if (date == null) {
       throw new IllegalArgumentException("Date was null");
+    }
     final Iterator<Long> iter = cashFlows.timeIterator();
     Long d;
     double sum = 0, c, t;

@@ -22,14 +22,8 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  */
 public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalVolatilityCalculator.class);
-  /**
-   * 
-   */
-  protected static final CalculationMode DEFAULT_CALCULATION_MODE = CalculationMode.STRICT;
-  /**
-   * 
-   */
-  protected static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.001;
+  private static final CalculationMode DEFAULT_CALCULATION_MODE = CalculationMode.STRICT;
+  private static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.001;
   private final CalculationMode _mode;
   private final double _percentBadDataPoints;
 
@@ -52,9 +46,7 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
   protected void testInput(final DoubleTimeSeries<?>[] x) {
     Validate.notNull(x);
     ArgumentChecker.notEmpty(x, "x");
-    if (x[0] == null) {
-      throw new IllegalArgumentException("First time series was null");
-    }
+    Validate.notNull(x[0], "first time series");
   }
 
   protected void testTimeSeries(final DoubleTimeSeries<?>[] x, final int minLength) {
@@ -129,5 +121,13 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
     if (percent > _percentBadDataPoints) {
       throw new TimeSeriesException("Percent " + percent + " of bad data points is greater than " + _percentBadDataPoints);
     }
+  }
+
+  protected static CalculationMode getCalculationMode() {
+    return DEFAULT_CALCULATION_MODE;
+  }
+
+  protected static double getDefaultBadDataPoints() {
+    return DEFAULT_PERCENT_BAD_DATA_POINTS;
   }
 }

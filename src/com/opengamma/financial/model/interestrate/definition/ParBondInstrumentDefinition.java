@@ -11,7 +11,6 @@ import com.opengamma.util.time.Expiry;
  * 
  * Dummy implementation for now.
  * 
- * @author emcleod
  */
 public class ParBondInstrumentDefinition extends FixedInterestRateInstrumentDefinition {
 

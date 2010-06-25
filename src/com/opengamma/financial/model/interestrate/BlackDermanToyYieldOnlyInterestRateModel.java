@@ -17,7 +17,6 @@ import com.opengamma.util.tuple.Triple;
 
 /**
  * 
- * @author emcleod
  */
 public class BlackDermanToyYieldOnlyInterestRateModel {
   protected RealSingleRootFinder _rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
@@ -25,8 +24,9 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
   protected final int _j;
 
   public BlackDermanToyYieldOnlyInterestRateModel(final int n) {
-    if (n < 2)
+    if (n < 2) {
       throw new IllegalArgumentException("Must have more than one node");
+    }
     _n = n;
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }

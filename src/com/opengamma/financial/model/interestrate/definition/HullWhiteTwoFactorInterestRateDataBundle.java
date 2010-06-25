@@ -12,7 +12,6 @@ import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 
 /**
  * 
- * @author emcleod
  */
 public class HullWhiteTwoFactorInterestRateDataBundle {
   private final ZonedDateTime _date;
@@ -25,8 +24,9 @@ public class HullWhiteTwoFactorInterestRateDataBundle {
   private final VolatilityCurve _volatilityCurve2;
   private final Double _rho;
 
-  public HullWhiteTwoFactorInterestRateDataBundle(final ZonedDateTime date, final YieldAndDiscountCurve yieldCurve, final Double speed1, final Double speed2, final Double u,
-      final Double f, final VolatilityCurve volatilityCurve1, final VolatilityCurve volatilityCurve2, final Double rho) {
+  public HullWhiteTwoFactorInterestRateDataBundle(final ZonedDateTime date, final YieldAndDiscountCurve yieldCurve,
+      final Double speed1, final Double speed2, final Double u, final Double f, final VolatilityCurve volatilityCurve1,
+      final VolatilityCurve volatilityCurve2, final Double rho) {
     _date = date;
     _yieldCurve = yieldCurve;
     _speed1 = speed1;

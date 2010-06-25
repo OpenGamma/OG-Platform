@@ -13,22 +13,25 @@ import com.opengamma.util.time.DateUtil;
 
 /**
  * 
- * @author emcleod
  */
 public class HoLeeInterestRateModel {
   private final double _delta = 0.1;
 
-  public Function1D<HoLeeDataBundle, Double> getInterestRateFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
-    if (time == null)
+  public Function1D<HoLeeDataBundle, Double> getInterestRateFunction(final ZonedDateTime time,
+      final ZonedDateTime maturity) {
+    if (time == null) {
       throw new IllegalArgumentException("Time was null");
-    if (maturity == null)
+    }
+    if (maturity == null) {
       throw new IllegalArgumentException("Maturity was null");
+    }
     return new Function1D<HoLeeDataBundle, Double>() {
 
       @Override
       public Double evaluate(final HoLeeDataBundle data) {
-        if (data == null)
+        if (data == null) {
           throw new IllegalArgumentException("Data bundle was null");
+        }
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
         final double s = DateUtil.getDifferenceInYears(data.getDate(), maturity);
         final double b = s - t;

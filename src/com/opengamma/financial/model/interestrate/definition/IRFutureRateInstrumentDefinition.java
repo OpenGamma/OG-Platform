@@ -9,7 +9,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class IRFutureRateInstrumentDefinition extends FixedInterestRateInstrumentDefinition {
 

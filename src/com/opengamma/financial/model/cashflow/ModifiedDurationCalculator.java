@@ -9,7 +9,6 @@ import com.opengamma.financial.model.bond.BondYieldCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * @author emcleod
  * 
  */
 public class ModifiedDurationCalculator {
@@ -18,17 +17,23 @@ public class ModifiedDurationCalculator {
   private final MacaulayDurationCalculator _macaulay = new MacaulayDurationCalculator();
   private final BondYieldCalculator _yield = new BondYieldCalculator();
 
-  public double calculate(final DoubleTimeSeries<Long> cashFlows, final double price, final Long date, final PresentValueCalculator pvCalculator) {
-    if (cashFlows == null)
+  public double calculate(final DoubleTimeSeries<Long> cashFlows, final double price, final Long date,
+      final PresentValueCalculator pvCalculator) {
+    if (cashFlows == null) {
       throw new IllegalArgumentException("Cash flow time series was null");
-    if (cashFlows.isEmpty())
+    }
+    if (cashFlows.isEmpty()) {
       throw new IllegalArgumentException("Cash flow time series was empty");
-    if (price <= 0)
+    }
+    if (price <= 0) {
       throw new IllegalArgumentException("Price must be positive");
-    if (date == null)
+    }
+    if (date == null) {
       throw new IllegalArgumentException("Date was null");
-    if (pvCalculator == null)
+    }
+    if (pvCalculator == null) {
       throw new IllegalArgumentException("Present value calculator was null");
+    }
     final double d = _macaulay.calculate(cashFlows, price, date, pvCalculator);
     final double y = _yield.calculate(cashFlows, price, date, pvCalculator);
     return d / (1 + y);

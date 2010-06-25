@@ -13,7 +13,6 @@ import com.opengamma.util.time.Expiry;
 /**
  * Dummy implementation for now
  * 
- * @author emcleod
  */
 public class FixedInterestRateInstrumentDefinition {
   // TODO have a tenor rather than expiry here

@@ -13,21 +13,24 @@ import com.opengamma.util.time.DateUtil;
 
 /**
  * 
- * @author emcleod
  */
 public class VasicekInterestRateModel {
 
-  public Function1D<VasicekDataBundle, Double> getInterestRateFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
-    if (time == null)
+  public Function1D<VasicekDataBundle, Double> getInterestRateFunction(final ZonedDateTime time,
+      final ZonedDateTime maturity) {
+    if (time == null) {
       throw new IllegalArgumentException("Time was null");
-    if (maturity == null)
+    }
+    if (maturity == null) {
       throw new IllegalArgumentException("Maturity was null");
+    }
     return new Function1D<VasicekDataBundle, Double>() {
 
       @Override
       public Double evaluate(final VasicekDataBundle data) {
-        if (data == null)
+        if (data == null) {
           throw new IllegalArgumentException("Data bundle was null");
+        }
         final double r = data.getShortRate();
         final double lt = data.getLongTermInterestRate();
         final double speed = data.getReversionSpeed();

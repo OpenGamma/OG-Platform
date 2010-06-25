@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 /**
  * 
- * @author emcleod
  */
 public class VasicekDataBundle {
   private final Double _shortRate;
@@ -18,7 +17,8 @@ public class VasicekDataBundle {
   private final Double _shortRateVolatility;
   private final ZonedDateTime _date;
 
-  public VasicekDataBundle(final Double shortRate, final Double longTermInterestRate, final Double reversionSpeed, final Double shortRateVolatility, final ZonedDateTime date) {
+  public VasicekDataBundle(final Double shortRate, final Double longTermInterestRate, final Double reversionSpeed,
+      final Double shortRateVolatility, final ZonedDateTime date) {
     _shortRate = shortRate;
     _longTermInterestRate = longTermInterestRate;
     _reversionSpeed = reversionSpeed;
@@ -60,38 +60,51 @@ public class VasicekDataBundle {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final VasicekDataBundle other = (VasicekDataBundle) obj;
     if (_date == null) {
-      if (other._date != null)
+      if (other._date != null) {
         return false;
-    } else if (!_date.equals(other._date))
+      }
+    } else if (!_date.equals(other._date)) {
       return false;
+    }
     if (_longTermInterestRate == null) {
-      if (other._longTermInterestRate != null)
+      if (other._longTermInterestRate != null) {
         return false;
-    } else if (!_longTermInterestRate.equals(other._longTermInterestRate))
+      }
+    } else if (!_longTermInterestRate.equals(other._longTermInterestRate)) {
       return false;
+    }
     if (_reversionSpeed == null) {
-      if (other._reversionSpeed != null)
+      if (other._reversionSpeed != null) {
         return false;
-    } else if (!_reversionSpeed.equals(other._reversionSpeed))
+      }
+    } else if (!_reversionSpeed.equals(other._reversionSpeed)) {
       return false;
+    }
     if (_shortRate == null) {
-      if (other._shortRate != null)
+      if (other._shortRate != null) {
         return false;
-    } else if (!_shortRate.equals(other._shortRate))
+      }
+    } else if (!_shortRate.equals(other._shortRate)) {
       return false;
+    }
     if (_shortRateVolatility == null) {
-      if (other._shortRateVolatility != null)
+      if (other._shortRateVolatility != null) {
         return false;
-    } else if (!_shortRateVolatility.equals(other._shortRateVolatility))
+      }
+    } else if (!_shortRateVolatility.equals(other._shortRateVolatility)) {
       return false;
+    }
     return true;
   }
 }
