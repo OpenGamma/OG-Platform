@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.var;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.TrigonometricFunctionUtils;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
@@ -31,36 +33,34 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
     _z = _normal.getInverseCDF(quantile);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public Double evaluate(final SkewKurtosisStatistics<?> data) {
-    if (data == null)
-      throw new IllegalArgumentException("Data were null");
+    Validate.notNull(data, "data");
     // TODO if skewness is positive then need to fit to -x and take from upper
     // tail of distribution
     final double t = data.getSkew();
     final double k = data.getKurtosis();
-    if (k < 0)
+    if (k < 0) {
       throw new IllegalArgumentException("Johnson SU distribution cannot be used for data with negative excess kurtosis");
+    }
     final double scale = getHorizon() / getPeriods();
     final double mu = data.getMean() * scale;
     final double sigma = data.getStandardDeviation() * Math.sqrt(scale);
-    if (t == 0 && k == 0)
+    if (t == 0 && k == 0) {
       return _z * sigma - mu;
+    }
     final double wUpper = Math.sqrt(Math.sqrt(2 * (k + 2)) - 1);
     final double wLower = Math.max(getW0(t), getW1(k + 3));
     final double w = _rootFinder.getRoot(getFunction(t, k), wLower, wUpper);
     final double w2 = w * w;
     final double l = 4 + 2 * (w2 - (k + 6) / (w2 + 2 * w + 3));
-    if (l < 0)
+    if (l < 0) {
       throw new IllegalArgumentException("Tried to find the square root of a negative number");
+    }
     final double m = -2 + Math.sqrt(l);
-    if (m == 0 || (m < 0 && w > -1) || (m > 0 && w < -1) || (w - 1 - m) < 0)
+    if (m == 0 || (m < 0 && w > -1) || (m > 0 && w < -1) || (w - 1 - m) < 0) {
       throw new IllegalArgumentException("Invalid parameters");
+    }
     final double sign = Math.signum(t);
     final double u = Math.sqrt(Math.log(w));
     final double v = Math.sqrt((w + 1) * (w - 1 - m) / (2 * w * m));
@@ -97,6 +97,50 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
       }
 
     };
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + ((_normal == null) ? 0 : _normal.hashCode());
+    result = prime * result + ((_rootFinder == null) ? 0 : _rootFinder.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_z);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    JohnsonSUDeltaGammaVaRCalculator other = (JohnsonSUDeltaGammaVaRCalculator) obj;
+    if (_normal == null) {
+      if (other._normal != null) {
+        return false;
+      }
+    } else if (!_normal.equals(other._normal)) {
+      return false;
+    }
+    if (_rootFinder == null) {
+      if (other._rootFinder != null) {
+        return false;
+      }
+    } else if (!_rootFinder.equals(other._rootFinder)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_z) != Double.doubleToLongBits(other._z)) {
+      return false;
+    }
+    return true;
   }
 
 }

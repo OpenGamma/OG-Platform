@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.var;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.statistics.distribution.StudentTDistribution;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @author emcleod
  * 
  */
 public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<?>> {
@@ -20,8 +22,7 @@ public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<
 
   public StudentTLinearVaRCalculator(final double horizon, final double periods, final double quantile, final double dof) {
     super(horizon, periods, quantile);
-    if (dof <= 0)
-      throw new IllegalArgumentException("Degrees of freedom must be greater than 0");
+    ArgumentChecker.notNegativeOrZero(dof, "degrees of freedom");
     _dof = dof;
     _studentT = new StudentTDistribution(dof);
     setMultiplier();
@@ -46,8 +47,7 @@ public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<
   }
 
   public void setDegreesOfFreedom(final double dof) {
-    if (dof <= 0)
-      throw new IllegalArgumentException("Degrees of freedom must be greater than 0");
+    ArgumentChecker.notNegativeOrZero(dof, "degrees of freedom");
     _dof = dof;
     _studentT = new StudentTDistribution(dof);
     setMultiplier();
@@ -60,8 +60,54 @@ public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<
 
   @Override
   public Double evaluate(final NormalStatistics<?> statistics) {
-    if (statistics == null)
-      throw new IllegalArgumentException("Statistics were null");
+    Validate.notNull(statistics, "statistics");
     return _mult * statistics.getStandardDeviation() - _scale * statistics.getMean();
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_dof);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_mult);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_scale);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_studentT == null) ? 0 : _studentT.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    StudentTLinearVaRCalculator other = (StudentTLinearVaRCalculator) obj;
+    if (Double.doubleToLongBits(_dof) != Double.doubleToLongBits(other._dof)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_mult) != Double.doubleToLongBits(other._mult)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_scale) != Double.doubleToLongBits(other._scale)) {
+      return false;
+    }
+    if (_studentT == null) {
+      if (other._studentT != null) {
+        return false;
+      }
+    } else if (!_studentT.equals(other._studentT)) {
+      return false;
+    }
+    return true;
+  }
+
 }

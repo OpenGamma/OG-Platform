@@ -37,8 +37,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Second-order sensitivity with respect to  spot and time
    */
-  public static final Greek DELTA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1, UnderlyingType.TIME))),
-      "DeltaBleed") {
+  public static final Greek DELTA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.SPOT_PRICE), new NthOrderUnderlying(1,
+      UnderlyingType.TIME))), "DeltaBleed") {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {
@@ -60,8 +60,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to implied volatility, second with respect to spot
    */
-  public static final Greek DVANNA_DVOL = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(2,
-      UnderlyingType.SPOT_PRICE))), "DVannaDVol") {
+  public static final Greek DVANNA_DVOL = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(
+      2, UnderlyingType.SPOT_PRICE))), "DVannaDVol") {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {
@@ -116,8 +116,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to time, second with respect to spot
    */
-  public static final Greek GAMMA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))),
-      "GammaBleed") {
+  public static final Greek GAMMA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2,
+      UnderlyingType.SPOT_PRICE))), "GammaBleed") {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {
@@ -306,8 +306,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Second-order sensitivity with respect to implied volatility and time
    */
-  public static final Greek VEGA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY),
-      new NthOrderUnderlying(1, UnderlyingType.TIME))), "VegaBleed") {
+  public static final Greek VEGA_BLEED = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.IMPLIED_VOLATILITY), new NthOrderUnderlying(1,
+      UnderlyingType.TIME))), "VegaBleed") {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {
@@ -373,7 +373,8 @@ public abstract class Greek implements Comparable<Greek> {
   /**
    * Third-order sensitivity; first with respect to time, second with respect to spot
    */
-  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2, UnderlyingType.SPOT_PRICE))), "Zomma") {
+  public static final Greek ZOMMA = new Greek(new MixedOrderUnderlying(Sets.newHashSet(new NthOrderUnderlying(1, UnderlyingType.TIME), new NthOrderUnderlying(2,
+      UnderlyingType.SPOT_PRICE))), "Zomma") {
 
     @Override
     public <T> T accept(GreekVisitor<T> visitor) {

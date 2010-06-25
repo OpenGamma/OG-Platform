@@ -34,6 +34,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   // REVIEW kirk 2010-05-20 -- Is this the best backing map?
   // We might not want to use a Map<> at all, but we can't use an EnumMap<>
   // as Greek is going to be promoted to an Object from an Enum.
+  // REVIEW elaine 2010-06-25 Greek is now an Object 
   private final Map<Greek, Double> _backingMap = new TreeMap<Greek, Double>();
 
   public Double get(final Greek greek) {
@@ -144,7 +145,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
     @Override
     public Pair<Greek, Double> next() {
       final Map.Entry<Greek, Double> nextEntry = _backingIterator.next();
-      return Pair.<Greek, Double> of(nextEntry.getKey(), nextEntry.getValue());
+      return Pair.<Greek, Double>of(nextEntry.getKey(), nextEntry.getValue());
     }
 
     @Override

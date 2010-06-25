@@ -13,14 +13,13 @@ import com.opengamma.financial.var.NormalStatistics;
 import com.opengamma.math.function.Function1D;
 
 /**
- * @author emcleod
  * 
  */
 public class NormalLinearConditionalVaRCalculatorTest {
   private static final double PERIODS = 250;
   private static final double HORIZON = 10;
   private static final double QUANTILE = 0.99;
-  private static final Function1D<NormalStatistics<?>, Double> F = new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, QUANTILE);
+  private static final NormalLinearConditionalVaRCalculator F = new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, QUANTILE);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeHorizon() {
@@ -40,6 +39,26 @@ public class NormalLinearConditionalVaRCalculatorTest {
   @Test(expected = IllegalArgumentException.class)
   public void testHighQuantile() {
     new NormalLinearConditionalVaRCalculator(HORIZON, PERIODS, 1 + QUANTILE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetHorizon() {
+    F.setHorizon(-100);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetPeriods() {
+    F.setPeriods(-10);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetLowQuantile() {
+    F.setQuantile(-0.1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetHighQuantile() {
+    F.setQuantile(1.1);
   }
 
   @Test(expected = IllegalArgumentException.class)

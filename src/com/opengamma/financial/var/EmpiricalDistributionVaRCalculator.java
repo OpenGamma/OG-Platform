@@ -7,12 +7,13 @@ package com.opengamma.financial.var;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.descriptive.PercentileCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * @author emcleod
  *
  */
 public class EmpiricalDistributionVaRCalculator extends VaRCalculator<DoubleTimeSeries<?>> {
@@ -48,19 +49,48 @@ public class EmpiricalDistributionVaRCalculator extends VaRCalculator<DoubleTime
     _mult = Math.sqrt(getHorizon() / getPeriods());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-   */
   @Override
   public Double evaluate(final DoubleTimeSeries<?> ts) {
-    if (ts == null) {
-      throw new IllegalArgumentException("Time series was null");
-    }
+    Validate.notNull(ts, "time series");
     final double[] data = ts.toFastLongDoubleTimeSeries().valuesArrayFast();
     Arrays.sort(data);
     return _mult * _percentileCalculator.evaluate(data);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_mult);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_percentileCalculator == null) ? 0 : _percentileCalculator.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    EmpiricalDistributionVaRCalculator other = (EmpiricalDistributionVaRCalculator) obj;
+    if (Double.doubleToLongBits(_mult) != Double.doubleToLongBits(other._mult)) {
+      return false;
+    }
+    if (_percentileCalculator == null) {
+      if (other._percentileCalculator != null) {
+        return false;
+      }
+    } else if (!_percentileCalculator.equals(other._percentileCalculator)) {
+      return false;
+    }
+    return true;
   }
 
 }
