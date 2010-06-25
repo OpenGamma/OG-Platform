@@ -6,6 +6,7 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -13,7 +14,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class NormalLinearVaRCalculatorTest {
@@ -44,5 +44,20 @@ public class NormalLinearVaRCalculatorTest {
 
     }, 0.);
     assertEquals(CALCULATOR.evaluate(stats), 3 * 0.2 - 0.016, 1e-9);
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    NormalLinearVaRCalculator calculator = new NormalLinearVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(calculator, CALCULATOR);
+    assertEquals(calculator.hashCode(), CALCULATOR.hashCode());
+    calculator.setHorizon(HORIZON - 1);
+    assertFalse(calculator.equals(CALCULATOR));
+    calculator.setHorizon(HORIZON);
+    calculator.setPeriods(PERIODS - 1);
+    assertFalse(calculator.equals(CALCULATOR));
+    calculator.setPeriods(PERIODS);
+    calculator.setQuantile(0.95);
+    assertFalse(calculator.equals(CALCULATOR));
   }
 }

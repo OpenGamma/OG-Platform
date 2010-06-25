@@ -71,11 +71,6 @@ public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<
     long temp;
     temp = Double.doubleToLongBits(_dof);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_mult);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_scale);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_studentT == null) ? 0 : _studentT.hashCode());
     return result;
   }
 
@@ -92,19 +87,6 @@ public class StudentTLinearVaRCalculator extends VaRCalculator<NormalStatistics<
     }
     StudentTLinearVaRCalculator other = (StudentTLinearVaRCalculator) obj;
     if (Double.doubleToLongBits(_dof) != Double.doubleToLongBits(other._dof)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_mult) != Double.doubleToLongBits(other._mult)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_scale) != Double.doubleToLongBits(other._scale)) {
-      return false;
-    }
-    if (_studentT == null) {
-      if (other._studentT != null) {
-        return false;
-      }
-    } else if (!_studentT.equals(other._studentT)) {
       return false;
     }
     return true;

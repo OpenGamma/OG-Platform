@@ -99,48 +99,4 @@ public class JohnsonSUDeltaGammaVaRCalculator extends VaRCalculator<SkewKurtosis
     };
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + ((_normal == null) ? 0 : _normal.hashCode());
-    result = prime * result + ((_rootFinder == null) ? 0 : _rootFinder.hashCode());
-    long temp;
-    temp = Double.doubleToLongBits(_z);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    JohnsonSUDeltaGammaVaRCalculator other = (JohnsonSUDeltaGammaVaRCalculator) obj;
-    if (_normal == null) {
-      if (other._normal != null) {
-        return false;
-      }
-    } else if (!_normal.equals(other._normal)) {
-      return false;
-    }
-    if (_rootFinder == null) {
-      if (other._rootFinder != null) {
-        return false;
-      }
-    } else if (!_rootFinder.equals(other._rootFinder)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_z) != Double.doubleToLongBits(other._z)) {
-      return false;
-    }
-    return true;
-  }
-
 }

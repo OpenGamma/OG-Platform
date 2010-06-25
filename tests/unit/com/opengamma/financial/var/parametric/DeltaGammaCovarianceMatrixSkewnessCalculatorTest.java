@@ -6,6 +6,7 @@
 package com.opengamma.financial.var.parametric;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,9 +27,9 @@ import com.opengamma.math.matrix.MatrixAlgebra;
 public class DeltaGammaCovarianceMatrixSkewnessCalculatorTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
   private static final Function1D<ParametricVaRDataBundle, Double> F = new DeltaGammaCovarianceMatrixSkewnessCalculator(ALGEBRA);
-  private static final DoubleMatrix1D DELTA_VECTOR = new DoubleMatrix1D(new double[] { 1, 5 });
-  private static final DoubleMatrix2D GAMMA_MATRIX = new DoubleMatrix2D(new double[][] { new double[] { 25, -7.5 }, new double[] { -7.5, 125 } });
-  private static final DoubleMatrix2D COVARIANCE_MATRIX = new DoubleMatrix2D(new double[][] { new double[] { 0.0036, -0.0006 }, new double[] { -0.0006, 0.0016 } });
+  private static final DoubleMatrix1D DELTA_VECTOR = new DoubleMatrix1D(new double[] {1, 5});
+  private static final DoubleMatrix2D GAMMA_MATRIX = new DoubleMatrix2D(new double[][] {new double[] {25, -7.5}, new double[] {-7.5, 125}});
+  private static final DoubleMatrix2D COVARIANCE_MATRIX = new DoubleMatrix2D(new double[][] {new double[] {0.0036, -0.0006}, new double[] {-0.0006, 0.0016}});
   private static final Map<Integer, Matrix<?>> SENSITIVITIES = new HashMap<Integer, Matrix<?>>();
   private static final Map<Integer, DoubleMatrix2D> COVARIANCES = new HashMap<Integer, DoubleMatrix2D>();
 
@@ -52,13 +53,22 @@ public class DeltaGammaCovarianceMatrixSkewnessCalculatorTest {
   public void testGammaMatrixSize() {
     final Map<Integer, Matrix<?>> m = new HashMap<Integer, Matrix<?>>();
     m.put(1, DELTA_VECTOR);
-    m.put(2, new DoubleMatrix2D(new double[][] { new double[] { 1, 2, 3 }, new double[] { 4, 5, 6 }, new double[] { 7, 8, 9 } }));
+    m.put(2, new DoubleMatrix2D(new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}}));
     F.evaluate(new ParametricVaRDataBundle(m, COVARIANCES));
   }
 
   @Test
+  public void testEqualsAndHashCode() {
+    Function1D<ParametricVaRDataBundle, Double> f1 = new DeltaGammaCovarianceMatrixSkewnessCalculator(ALGEBRA);
+    Function1D<ParametricVaRDataBundle, Double> f2 = new DeltaGammaCovarianceMatrixSkewnessCalculator(new ColtMatrixAlgebra());
+    assertEquals(f1, F);
+    assertEquals(f1.hashCode(), F.hashCode());
+    assertFalse(f1.equals(f2));
+  }
+
+  @Test
   public void testNoGamma() {
-    final Map<Integer, Matrix<?>> m = Collections.<Integer, Matrix<?>> singletonMap(1, DELTA_VECTOR);
+    final Map<Integer, Matrix<?>> m = Collections.<Integer, Matrix<?>>singletonMap(1, DELTA_VECTOR);
     final ParametricVaRDataBundle data = new ParametricVaRDataBundle(m, COVARIANCES);
     assertEquals(F.evaluate(data), 0, 1e-15);
   }

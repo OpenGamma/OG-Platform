@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.var;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
@@ -19,7 +22,6 @@ import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
- * @author emcleod
  * 
  */
 public class SkewKurtosisStatisticsTest {
@@ -29,8 +31,9 @@ public class SkewKurtosisStatisticsTest {
   private static final Function1D<HistoricalVaRDataBundle, Double> SKEW = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(new SampleSkewnessCalculator()));
   private static final Function1D<HistoricalVaRDataBundle, Double> KURTOSIS = new PnLStatisticsCalculator(new DoubleTimeSeriesStatisticsCalculator(
       new SampleFisherKurtosisCalculator()));
-  private static final HistoricalVaRDataBundle DATA = new HistoricalVaRDataBundle(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new long[] { 1, 2, 3,
-      4 }, new double[] { 3, 3, 3, 3 }));
+  private static final HistoricalVaRDataBundle DATA = new HistoricalVaRDataBundle(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+      new long[] {1, 2, 3, 4}, new double[] {3, 4, 5, 6}));
+  private static final SkewKurtosisStatistics<HistoricalVaRDataBundle> STATISTICS = new SkewKurtosisStatistics<HistoricalVaRDataBundle>(MEAN, STD, SKEW, KURTOSIS, DATA);
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullStd() {
@@ -48,8 +51,36 @@ public class SkewKurtosisStatisticsTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNulData() {
+  public void testNullData() {
     new SkewKurtosisStatistics<HistoricalVaRDataBundle>(MEAN, STD, SKEW, KURTOSIS, null);
   }
 
+  @Test
+  public void testEqualsAndHashCode() {
+    final Function1D<HistoricalVaRDataBundle, Double> skew = new Function1D<HistoricalVaRDataBundle, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(HistoricalVaRDataBundle x) {
+        return SKEW.evaluate(x) + 1;
+      }
+
+    };
+    final Function1D<HistoricalVaRDataBundle, Double> kurtosis = new Function1D<HistoricalVaRDataBundle, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(HistoricalVaRDataBundle x) {
+        return KURTOSIS.evaluate(x) + 1;
+      }
+
+    };
+    SkewKurtosisStatistics<HistoricalVaRDataBundle> statistics = new SkewKurtosisStatistics<HistoricalVaRDataBundle>(MEAN, STD, SKEW, KURTOSIS, DATA);
+    assertEquals(statistics, STATISTICS);
+    assertEquals(statistics.hashCode(), STATISTICS.hashCode());
+    statistics = new SkewKurtosisStatistics<HistoricalVaRDataBundle>(MEAN, STD, skew, KURTOSIS, DATA);
+    assertFalse(statistics.equals(STATISTICS));
+    statistics = new SkewKurtosisStatistics<HistoricalVaRDataBundle>(MEAN, STD, SKEW, kurtosis, DATA);
+    assertFalse(statistics.equals(STATISTICS));
+  }
 }

@@ -6,6 +6,7 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -14,7 +15,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class StudentTLinearVaRCalculatorTest {
@@ -59,5 +59,23 @@ public class StudentTLinearVaRCalculatorTest {
     }, 0.);
     assertEquals(NORMAL.evaluate(stats), HIGH_DOF.evaluate(stats), 1e-6);
     assertTrue(STUDENT_T.evaluate(stats) > NORMAL.evaluate(stats));
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    StudentTLinearVaRCalculator studentT = new StudentTLinearVaRCalculator(HORIZON, PERIODS, QUANTILE, DOF);
+    assertEquals(studentT, STUDENT_T);
+    assertEquals(studentT.hashCode(), STUDENT_T.hashCode());
+    studentT.setHorizon(HORIZON - 1);
+    assertFalse(studentT.equals(STUDENT_T));
+    studentT.setHorizon(HORIZON);
+    studentT.setPeriods(PERIODS - 1);
+    assertFalse(studentT.equals(STUDENT_T));
+    studentT.setPeriods(PERIODS);
+    studentT.setQuantile(0.95);
+    assertFalse(studentT.equals(STUDENT_T));
+    studentT.setQuantile(QUANTILE);
+    studentT.setDegreesOfFreedom(DOF + 1);
+    assertFalse(studentT.equals(STUDENT_T));
   }
 }

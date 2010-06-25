@@ -6,6 +6,7 @@
 package com.opengamma.financial.var.parametric;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
 
@@ -25,8 +26,8 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
   private static final MatrixAlgebra ALGEBRA = new ColtMatrixAlgebra();
   private static final Function1D<ParametricVaRDataBundle, Double> F = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
   private static final DoubleMatrix1D EMPTY_VECTOR = new DoubleMatrix1D(new double[0]);
-  private static final DoubleMatrix1D VECTOR = new DoubleMatrix1D(new double[] { 3 });
-  private static final DoubleMatrix2D MATRIX = new DoubleMatrix2D(new double[][] { new double[] { 5 } });
+  private static final DoubleMatrix1D VECTOR = new DoubleMatrix1D(new double[] {3});
+  private static final DoubleMatrix2D MATRIX = new DoubleMatrix2D(new double[][] {new double[] {5}});
 
   @Test(expected = IllegalArgumentException.class)
   public void testNullAlgebra() {
@@ -40,15 +41,24 @@ public class DeltaCovarianceMatrixStandardDeviationCalculatorTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyValueDeltaVector() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D> singletonMap(1, VECTOR), Collections
-        .<Integer, Matrix<?>> singletonMap(1, EMPTY_VECTOR), Collections.<Integer, DoubleMatrix2D> singletonMap(1, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, VECTOR), Collections
+        .<Integer, Matrix<?>>singletonMap(1, EMPTY_VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
     F.evaluate(data);
   }
 
   @Test
+  public void testEqualsAndHashCode() {
+    Function1D<ParametricVaRDataBundle, Double> f1 = new DeltaCovarianceMatrixStandardDeviationCalculator(ALGEBRA);
+    Function1D<ParametricVaRDataBundle, Double> f2 = new DeltaCovarianceMatrixStandardDeviationCalculator(new ColtMatrixAlgebra());
+    assertEquals(f1, F);
+    assertEquals(f1.hashCode(), F.hashCode());
+    assertFalse(f1.equals(f2));
+  }
+
+  @Test
   public void test() {
-    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D> singletonMap(1, VECTOR), Collections
-        .<Integer, Matrix<?>> singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D> singletonMap(1, MATRIX));
+    final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, VECTOR), Collections
+        .<Integer, Matrix<?>>singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
     assertEquals(F.evaluate(data), Math.sqrt(45), 1e-9);
   }
 }

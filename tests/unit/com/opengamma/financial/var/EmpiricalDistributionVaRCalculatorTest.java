@@ -6,6 +6,7 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -15,7 +16,6 @@ import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
- * @author emcleod
  *
  */
 public class EmpiricalDistributionVaRCalculatorTest {
@@ -40,5 +40,20 @@ public class EmpiricalDistributionVaRCalculatorTest {
     }
     final DoubleTimeSeries<?> ts = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, t, pnl);
     assertEquals(CALCULATOR.evaluate(ts), -0.082, 1e-7);
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    EmpiricalDistributionVaRCalculator calculator = new EmpiricalDistributionVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(calculator, CALCULATOR);
+    assertEquals(calculator.hashCode(), CALCULATOR.hashCode());
+    calculator.setHorizon(HORIZON - 1);
+    assertFalse(calculator.equals(CALCULATOR));
+    calculator.setHorizon(HORIZON);
+    calculator.setPeriods(PERIODS - 1);
+    assertFalse(calculator.equals(CALCULATOR));
+    calculator.setPeriods(PERIODS);
+    calculator.setQuantile(0.95);
+    assertFalse(calculator.equals(CALCULATOR));
   }
 }

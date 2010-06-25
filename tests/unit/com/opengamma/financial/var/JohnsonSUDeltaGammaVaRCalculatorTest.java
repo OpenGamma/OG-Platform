@@ -6,13 +6,13 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
 
 /**
- * @author emcleod
  * 
  */
 public class JohnsonSUDeltaGammaVaRCalculatorTest {
@@ -60,15 +60,25 @@ public class JohnsonSUDeltaGammaVaRCalculatorTest {
       _x = x;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-     */
     @Override
     public Double evaluate(final Double x) {
       return _x;
     }
 
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    JohnsonSUDeltaGammaVaRCalculator f = new JohnsonSUDeltaGammaVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(f, F);
+    assertEquals(f.hashCode(), F.hashCode());
+    f.setHorizon(HORIZON - 1);
+    assertFalse(f.equals(F));
+    f.setHorizon(HORIZON);
+    f.setPeriods(PERIODS - 1);
+    assertFalse(f.equals(F));
+    f.setPeriods(PERIODS);
+    f.setQuantile(0.95);
+    assertFalse(f.equals(F));
   }
 }

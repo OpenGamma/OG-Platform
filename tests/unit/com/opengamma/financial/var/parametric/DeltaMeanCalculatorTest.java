@@ -6,6 +6,7 @@
 package com.opengamma.financial.var.parametric;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.Collections;
 
@@ -59,6 +60,15 @@ public class DeltaMeanCalculatorTest {
     final ParametricWithMeanVaRDataBundle data = new ParametricWithMeanVaRDataBundle(Collections.<Integer, DoubleMatrix1D>singletonMap(1, v), Collections
         .<Integer, Matrix<?>>singletonMap(1, VECTOR), Collections.<Integer, DoubleMatrix2D>singletonMap(1, MATRIX));
     F.evaluate(data);
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    Function1D<ParametricWithMeanVaRDataBundle, Double> f1 = new DeltaMeanCalculator(ALGEBRA);
+    Function1D<ParametricWithMeanVaRDataBundle, Double> f2 = new DeltaMeanCalculator(new ColtMatrixAlgebra());
+    assertEquals(f1, F);
+    assertEquals(f1.hashCode(), F.hashCode());
+    assertFalse(f1.equals(f2));
   }
 
   @Test

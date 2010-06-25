@@ -6,6 +6,7 @@
 package com.opengamma.financial.var;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -14,7 +15,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class CornishFisherDeltaGammaVaRCalculatorTest {
@@ -83,5 +83,20 @@ public class CornishFisherDeltaGammaVaRCalculatorTest {
 
     };
     assertTrue(CF.evaluate(statistics) > NORMAL.evaluate(statistics));
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    CornishFisherDeltaGammaVaRCalculator cf = new CornishFisherDeltaGammaVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(cf, CF);
+    assertEquals(cf.hashCode(), CF.hashCode());
+    cf.setHorizon(HORIZON - 1);
+    assertFalse(cf.equals(CF));
+    cf.setHorizon(HORIZON);
+    cf.setPeriods(PERIODS - 1);
+    assertFalse(cf.equals(CF));
+    cf.setPeriods(PERIODS);
+    cf.setQuantile(0.95);
+    assertFalse(cf.equals(CF));
   }
 }

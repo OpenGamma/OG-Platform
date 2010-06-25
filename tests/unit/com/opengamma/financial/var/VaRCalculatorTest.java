@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.var;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -12,7 +14,6 @@ import org.junit.Test;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
 /**
- * @author emcleod
  * 
  */
 public class VaRCalculatorTest {
@@ -68,17 +69,27 @@ public class VaRCalculatorTest {
     assertTrue(V.getQuantile() == QUANTILE);
   }
 
+  @Test
+  public void testEqualsAndHashCode() {
+    MyVaRCalculator v = new MyVaRCalculator(HORIZON, PERIODS, QUANTILE);
+    assertEquals(v, V);
+    assertEquals(v.hashCode(), V.hashCode());
+    v.setHorizon(HORIZON - 1);
+    assertFalse(v.equals(V));
+    v.setHorizon(HORIZON);
+    v.setPeriods(PERIODS - 1);
+    assertFalse(v.equals(V));
+    v.setPeriods(PERIODS);
+    v.setQuantile(0.95);
+    assertFalse(v.equals(V));
+  }
+
   private static class MyVaRCalculator extends VaRCalculator<NormalStatistics<?>> {
 
     public MyVaRCalculator(final double horizon, final double periods, final double quantile) {
       super(horizon, periods, quantile);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.opengamma.math.function.Function1D#evaluate(java.lang.Object)
-     */
     @Override
     public Double evaluate(final NormalStatistics<?> x) {
       return null;
