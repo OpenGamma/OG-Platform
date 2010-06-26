@@ -5,6 +5,16 @@
  */
 package com.opengamma.financial.pnl;
 
+/**
+ * 
+ */
 public enum TradeData {
-  NUMBER_OF_CONTRACTS, POINT_VALUE
+  /**
+   * Number of contracts
+   */
+  NUMBER_OF_CONTRACTS,
+  /**
+   * Point value
+   */
+  POINT_VALUE
 }

@@ -8,6 +8,8 @@ package com.opengamma.financial.pnl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.riskfactor.RiskFactorResult;
 import com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator;
 import com.opengamma.financial.sensitivity.Sensitivity;
@@ -22,8 +24,7 @@ public class SensitivityPnLCalculator extends Function1D<PnLDataBundle, DoubleTi
 
   @Override
   public DoubleTimeSeries<?> evaluate(final PnLDataBundle data) {
-    if (data == null)
-      throw new IllegalArgumentException("PnL data bundle was null");
+    Validate.notNull(data, "data");
     final Map<Sensitivity<?>, Map<Object, double[]>> returns = data.getTimeSeriesReturns();
     final Map<Sensitivity<?>, RiskFactorResult> sensitivities = data.getSensitivities();
     final long[] times = data.getTimes();

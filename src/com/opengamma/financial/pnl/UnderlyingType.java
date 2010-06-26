@@ -5,6 +5,52 @@
  */
 package com.opengamma.financial.pnl;
 
+/**
+ * 
+ */
 public enum UnderlyingType {
-  SPOT_PRICE, SPOT_VOLATILITY, IMPLIED_VOLATILITY, INTEREST_RATE, COST_OF_CARRY, STRIKE, TIME, IMPLIED_VARIANCE, YIELD, YIELD_CURVE, BOND_YIELD
+  /**
+   * 
+   */
+  SPOT_PRICE,
+  /**
+   * 
+   */
+  SPOT_VOLATILITY,
+  /**
+   * 
+   */
+  IMPLIED_VOLATILITY,
+  /**
+   * 
+   */
+  INTEREST_RATE,
+  /**
+   * 
+   */
+  COST_OF_CARRY,
+  /**
+   * 
+   */
+  STRIKE,
+  /**
+   * 
+   */
+  TIME,
+  /**
+   * 
+   */
+  IMPLIED_VARIANCE,
+  /**
+   * 
+   */
+  YIELD,
+  /**
+   * 
+   */
+  YIELD_CURVE,
+  /**
+   * 
+   */
+  BOND_YIELD
 }
