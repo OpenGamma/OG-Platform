@@ -20,7 +20,6 @@ import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
- * @author emcleod
  * 
  */
 public class PresentValueCalculatorTest {

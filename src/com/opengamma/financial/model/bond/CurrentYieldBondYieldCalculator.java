@@ -5,23 +5,26 @@
  */
 package com.opengamma.financial.model.bond;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 
 /**
- * @author emcleod
  *
  */
 public class CurrentYieldBondYieldCalculator {
 
   public double calculate(final YearOffsetDoubleTimeSeries cashFlows, final double cleanPrice) {
-    if (cashFlows == null)
-      throw new IllegalArgumentException("Cash flow time series was null");
-    if (cashFlows.isEmpty())
+    Validate.notNull(cashFlows, "cash flows");
+    if (cashFlows.isEmpty()) {
       throw new IllegalArgumentException("Cash flow time series was empty");
-    if (cleanPrice <= 0)
+    }
+    if (cleanPrice <= 0) {
       throw new IllegalArgumentException("Clean price must be positive");
-    if (cashFlows.size() < 1)
+    }
+    if (cashFlows.size() < 1) {
       throw new IllegalArgumentException("Need at least one cash flow to calculate current yield");
+    }
     return cashFlows.getEarliestValue() / cleanPrice * 100;
   }
 }

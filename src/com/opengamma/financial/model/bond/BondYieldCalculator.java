@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.bond;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.cashflow.PresentValueCalculator;
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 import com.opengamma.financial.model.interestrate.curve.ConstantInterestRateModel;
@@ -14,28 +16,21 @@ import com.opengamma.math.rootfinding.VanWijngaardenDekkerBrentSingleRootFinder;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * @author emcleod
  * 
  */
 public class BondYieldCalculator {
   private final RealSingleRootFinder _root = new VanWijngaardenDekkerBrentSingleRootFinder();
 
   public double calculate(final DoubleTimeSeries<Long> cashFlows, final Double price, final Long date, final PresentValueCalculator pvCalculator) {
-    if (cashFlows == null) {
-      throw new IllegalArgumentException("Cash flow time series was null");
-    }
+    Validate.notNull(cashFlows, "cash flows");
     if (cashFlows.isEmpty()) {
       throw new IllegalArgumentException("Cash flow time series was empty");
     }
     if (price <= 0) {
       throw new IllegalArgumentException("Price must be positive");
     }
-    if (date == null) {
-      throw new IllegalArgumentException("Date was null");
-    }
-    if (pvCalculator == null) {
-      throw new IllegalArgumentException("Present value calculator was null");
-    }
+    Validate.notNull(date, "date");
+    Validate.notNull(pvCalculator, "presenve value calculator");
     final Function1D<Double, Double> f = new Function1D<Double, Double>() {
 
       @Override

@@ -17,8 +17,7 @@ public class BondDefinition {
   private final int _daysInPeriod;
   private final int _daysInYear;
 
-  public BondDefinition(final YearOffsetDoubleTimeSeries cashFlows, final int paymentsPerYear, final int daysInPeriod,
-      final int daysInYear) {
+  public BondDefinition(final YearOffsetDoubleTimeSeries cashFlows, final int paymentsPerYear, final int daysInPeriod, final int daysInYear) {
     _cashFlows = cashFlows;
     _paymentsPerYear = paymentsPerYear;
     _daysInPeriod = daysInPeriod;

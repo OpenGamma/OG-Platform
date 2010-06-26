@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.cashflow;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.InterestRateModel;
 
 /**
@@ -19,9 +21,7 @@ public class DiscreteCompoundingPresentValueCalculator extends PresentValueCalcu
     if (t < 0) {
       throw new IllegalArgumentException("Time must be positive");
     }
-    if (rates == null) {
-      throw new IllegalArgumentException("Rates model was null");
-    }
+    Validate.notNull(rates, "rates");
     return c * Math.pow(1 + rates.getInterestRate(t), -t);
   }
 }

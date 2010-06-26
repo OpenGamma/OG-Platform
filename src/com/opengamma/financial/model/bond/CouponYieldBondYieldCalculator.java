@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.bond;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 
 /**
@@ -13,9 +15,7 @@ import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 public class CouponYieldBondYieldCalculator {
 
   public double calculate(final YearOffsetDoubleTimeSeries cashFlows, final double faceValue) {
-    if (cashFlows == null) {
-      throw new IllegalArgumentException("Cash flow time series was null");
-    }
+    Validate.notNull(cashFlows, "cash flows");
     if (cashFlows.isEmpty()) {
       throw new IllegalArgumentException("Cash flow time series was empty");
     }

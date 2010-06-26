@@ -39,24 +39,24 @@ public class CostOfCarryForwardModelTest {
   private static final StandardForwardDataBundle DATA = new StandardForwardDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getGreeks(null, DATA, GREEKS);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getGreeks(DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullGreekSet() {
     MODEL.getGreeks(DEFINITION, DATA, null);
   }
 
   @Test
   public void testRequiredGreeks() {
-    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Collections.<Greek> emptySet()));
+    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Collections.<Greek>emptySet()));
     assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Sets.newHashSet(Greek.DELTA)));
   }
 

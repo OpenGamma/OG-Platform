@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
- * @author emcleod
  *
  */
 public class StandardForwardDataBundle extends ForwardDataBundle {
@@ -34,35 +33,18 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
     return _storageCost;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.model.forward.definition.ForwardDataBundle#withDate(javax.time.calendar.ZonedDateTime)
-   */
   @Override
   public ForwardDataBundle withDate(final ZonedDateTime newDate) {
-    Validate.notNull(newDate, "New date was null");
+    Validate.notNull(newDate, "new date");
     return new StandardForwardDataBundle(getYield(), getDiscountCurve(), getSpot(), newDate, getStorageCost());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.financial.model.forward.definition.ForwardDataBundle#withDiscountCurve(com.opengamma.financial.model
-   * .interestrate.curve.DiscountCurve)
-   */
   @Override
   public ForwardDataBundle withDiscountCurve(final YieldAndDiscountCurve newCurve) {
     Validate.notNull(newCurve, "New curve was null");
     return new StandardForwardDataBundle(getYield(), newCurve, getSpot(), getDate(), getStorageCost());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.opengamma.financial.model.forward.definition.ForwardDataBundle#withSpot(double)
-   */
   @Override
   public ForwardDataBundle withSpot(final double newSpot) {
     Validate.isTrue(newSpot >= 0, "New spot was negative");
@@ -78,11 +60,6 @@ public class StandardForwardDataBundle extends ForwardDataBundle {
     return new StandardForwardDataBundle(newYield, getDiscountCurve(), getSpot(), getDate(), getStorageCost());
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;

@@ -6,7 +6,6 @@
 package com.opengamma.financial.model.bond;
 
 /**
- * @author emcleod
  *
  */
 public class YieldToMaturityBondYieldCalculator {

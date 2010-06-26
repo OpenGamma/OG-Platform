@@ -18,7 +18,6 @@ import com.opengamma.util.timeseries.yearoffset.YearOffsetDoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 
 /**
- * @author emcleod
  *
  */
 public class CouponYieldBondYieldCalculatorTest {
@@ -31,9 +30,9 @@ public class CouponYieldBondYieldCalculatorTest {
   private static final double COUPON = 0.07;
 
   static {
-    final DoubleTimeSeries<ZonedDateTime> dts1 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] { DateUtil.getUTCDate(2011, 4, 1) }, new double[] { PAR });
-    final DoubleTimeSeries<ZonedDateTime> dts2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] { DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2012, 4, 1) },
-        new double[] { PAR * COUPON, PAR * (COUPON + 1) });
+    final DoubleTimeSeries<ZonedDateTime> dts1 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1)}, new double[] {PAR});
+    final DoubleTimeSeries<ZonedDateTime> dts2 = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtil.getUTCDate(2011, 4, 1), DateUtil.getUTCDate(2012, 4, 1)},
+        new double[] {PAR * COUPON, PAR * (COUPON + 1)});
     CF1 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts1.toFastLongDoubleTimeSeries());
     CF2 = new ArrayYearOffsetDoubleTimeSeries(DATE, dts2.toFastLongDoubleTimeSeries());
   }

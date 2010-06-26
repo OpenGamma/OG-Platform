@@ -13,7 +13,6 @@ import com.opengamma.math.function.Function2D;
 
 /**
  * 
- * @author emcleod
  * 
  */
 public abstract class StochasticProcess<T, U> {

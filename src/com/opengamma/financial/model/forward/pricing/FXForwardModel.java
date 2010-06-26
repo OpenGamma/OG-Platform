@@ -7,6 +7,7 @@ package com.opengamma.financial.model.forward.pricing;
 
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,19 +15,19 @@ import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.GreekResultCollection;
 import com.opengamma.financial.model.forward.definition.FXForwardDataBundle;
 import com.opengamma.financial.model.forward.definition.ForwardDefinition;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtil;
 
+/**
+ * 
+ */
 public class FXForwardModel implements ForwardModel<FXForwardDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardModel.class);
 
   @Override
-  public GreekResultCollection getGreeks(final ForwardDefinition definition, final FXForwardDataBundle data,
-      final Set<Greek> requiredGreeks) {
-    ArgumentChecker.notNull(definition, "Forward definition");
-    ArgumentChecker.notNull(data, "Data bundle");
-    ArgumentChecker.notNull(requiredGreeks, "Required greeks");
-
+  public GreekResultCollection getGreeks(final ForwardDefinition definition, final FXForwardDataBundle data, final Set<Greek> requiredGreeks) {
+    Validate.notNull(definition, "Forward definition");
+    Validate.notNull(data, "Data bundle");
+    Validate.notNull(requiredGreeks, "Required greeks");
     if (requiredGreeks.isEmpty()) {
       return new GreekResultCollection();
     }
