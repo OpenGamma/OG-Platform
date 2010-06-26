@@ -16,11 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
- * 
  * A YieldAndDiscountCurve that has a constant interest rate for all times in the
  * future.
- * 
  */
 public class ConstantYieldCurve extends YieldAndDiscountCurve {
   private static final Logger s_logger = LoggerFactory.getLogger(ConstantYieldCurve.class);

@@ -7,6 +7,8 @@ package com.opengamma.financial.model.interestrate;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.definition.HoLeeDataBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
@@ -17,21 +19,14 @@ import com.opengamma.util.time.DateUtil;
 public class HoLeeInterestRateModel {
   private final double _delta = 0.1;
 
-  public Function1D<HoLeeDataBundle, Double> getInterestRateFunction(final ZonedDateTime time,
-      final ZonedDateTime maturity) {
-    if (time == null) {
-      throw new IllegalArgumentException("Time was null");
-    }
-    if (maturity == null) {
-      throw new IllegalArgumentException("Maturity was null");
-    }
+  public Function1D<HoLeeDataBundle, Double> getInterestRateFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
+    Validate.notNull(time);
+    Validate.notNull(maturity);
     return new Function1D<HoLeeDataBundle, Double>() {
 
       @Override
       public Double evaluate(final HoLeeDataBundle data) {
-        if (data == null) {
-          throw new IllegalArgumentException("Data bundle was null");
-        }
+        Validate.notNull(data);
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
         final double s = DateUtil.getDifferenceInYears(data.getDate(), maturity);
         final double b = s - t;

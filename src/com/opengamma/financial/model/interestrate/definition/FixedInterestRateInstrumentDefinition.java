@@ -7,6 +7,8 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
@@ -17,9 +19,11 @@ import com.opengamma.util.time.Expiry;
 public class FixedInterestRateInstrumentDefinition {
   // TODO have a tenor rather than expiry here
   private final Expiry _expiry;
-  private final Double _rate;
+  private final double _rate;
 
-  public FixedInterestRateInstrumentDefinition(final Expiry expiry, final Double rate) {
+  public FixedInterestRateInstrumentDefinition(final Expiry expiry, final double rate) {
+    Validate.notNull(expiry);
+
     _expiry = expiry;
     _rate = rate;
   }
@@ -28,7 +32,7 @@ public class FixedInterestRateInstrumentDefinition {
     return _expiry;
   }
 
-  public Double getRate() {
+  public double getRate() {
     return _rate;
   }
 
@@ -41,12 +45,14 @@ public class FixedInterestRateInstrumentDefinition {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((_expiry == null) ? 0 : _expiry.hashCode());
-    result = prime * result + ((_rate == null) ? 0 : _rate.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_rate);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -56,19 +62,15 @@ public class FixedInterestRateInstrumentDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final FixedInterestRateInstrumentDefinition other = (FixedInterestRateInstrumentDefinition) obj;
-    if (getExpiry() == null) {
-      if (other.getExpiry() != null) {
+    FixedInterestRateInstrumentDefinition other = (FixedInterestRateInstrumentDefinition) obj;
+    if (_expiry == null) {
+      if (other._expiry != null) {
         return false;
       }
-    } else if (!getExpiry().equals(other.getExpiry())) {
+    } else if (!_expiry.equals(other._expiry)) {
       return false;
     }
-    if (getRate() == null) {
-      if (other.getRate() != null) {
-        return false;
-      }
-    } else if (!getRate().equals(other.getRate())) {
+    if (Double.doubleToLongBits(_rate) != Double.doubleToLongBits(other._rate)) {
       return false;
     }
     return true;

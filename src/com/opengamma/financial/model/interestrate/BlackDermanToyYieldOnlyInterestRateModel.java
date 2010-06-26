@@ -19,9 +19,9 @@ import com.opengamma.util.tuple.Triple;
  * 
  */
 public class BlackDermanToyYieldOnlyInterestRateModel {
-  protected RealSingleRootFinder _rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
-  protected final int _n;
-  protected final int _j;
+  private final RealSingleRootFinder _rootFinder = new VanWijngaardenDekkerBrentSingleRootFinder();
+  private final int _n;
+  private final int _j;
 
   public BlackDermanToyYieldOnlyInterestRateModel(final int n) {
     if (n < 2) {
@@ -31,11 +31,10 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
     _j = RecombiningBinomialTree.NODES.evaluate(_n);
   }
 
-  public Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(
-      final ZonedDateTime time) {
+  public Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>> getTrees(final ZonedDateTime time) {
     return new Function1D<BlackDermanToyDataBundle, RecombiningBinomialTree<Triple<Double, Double, Double>>>() {
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "synthetic-access" })
       @Override
       public RecombiningBinomialTree<Triple<Double, Double, Double>> evaluate(final BlackDermanToyDataBundle data) {
         final Double[][] r = new Double[_n][_j];
@@ -44,7 +43,7 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
         final Double[] u = new Double[_n];
         final Double[] p = new Double[_n + 1];
         final double t = DateUtil.getDifferenceInYears(data.getDate(), time);
-        final double dt = t / (_n - 1); //yo this was wrong 
+        final double dt = t / (_n - 1);
         final double dtSqrt = Math.sqrt(dt);
         final double r1 = data.getInterestRate(dt);
         final double sigma = data.getVolatility(dt);
@@ -82,18 +81,14 @@ public class BlackDermanToyYieldOnlyInterestRateModel {
     };
   }
 
-  protected Function1D<Double, Double> getMedian(final Double sigma, final int i, final Double dt, final Double[][] q,
-      final Double p) {
-    return new Function1D<Double, Double>() {
-
-      double dtSqrt = Math.sqrt(dt);
+  protected Function1D<Double, Double> getMedian(final Double sigma, final int i, final Double dt, final Double[][] q, final Double p) {
+    return new Function1D<Double, Double>() {      
 
       @Override
       public Double evaluate(final Double u) {
-        Double sum = 0.;
-
+        double sum = 0.;
+        double dtSqrt = Math.sqrt(dt);
         for (int j = -i, k = 0; j <= i; j += 2, k++) {
-          // sum += q[i][k] / (1 + u * Math.exp(sigma * j * dt) * dt);
           sum += q[i][k] * Math.pow(1 + u * Math.exp(sigma * j * dtSqrt), -dt);
 
         }

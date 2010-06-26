@@ -12,12 +12,12 @@ import com.opengamma.util.time.Expiry;
  */
 public class IRFutureRateInstrumentDefinition extends FixedInterestRateInstrumentDefinition {
 
-  public IRFutureRateInstrumentDefinition(final Expiry expiry, final Double rate) {
+  public IRFutureRateInstrumentDefinition(final Expiry expiry, final double rate) {
     super(expiry, rate);
   }
 
   @Override
-  public Double getRate() {
+  public double getRate() {
     return 1 - super.getRate();
   }
 }

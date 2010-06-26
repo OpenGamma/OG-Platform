@@ -7,6 +7,8 @@ package com.opengamma.financial.model.interestrate;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.definition.VasicekDataBundle;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.DateUtil;
@@ -16,21 +18,14 @@ import com.opengamma.util.time.DateUtil;
  */
 public class VasicekInterestRateModel {
 
-  public Function1D<VasicekDataBundle, Double> getInterestRateFunction(final ZonedDateTime time,
-      final ZonedDateTime maturity) {
-    if (time == null) {
-      throw new IllegalArgumentException("Time was null");
-    }
-    if (maturity == null) {
-      throw new IllegalArgumentException("Maturity was null");
-    }
+  public Function1D<VasicekDataBundle, Double> getInterestRateFunction(final ZonedDateTime time, final ZonedDateTime maturity) {
+    Validate.notNull(time);
+    Validate.notNull(maturity);
     return new Function1D<VasicekDataBundle, Double>() {
 
       @Override
       public Double evaluate(final VasicekDataBundle data) {
-        if (data == null) {
-          throw new IllegalArgumentException("Data bundle was null");
-        }
+        Validate.notNull(data);
         final double r = data.getShortRate();
         final double lt = data.getLongTermInterestRate();
         final double speed = data.getReversionSpeed();

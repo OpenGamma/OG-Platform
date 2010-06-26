@@ -7,12 +7,13 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 
 /**
  * 
- * @author emcleod
  */
 public class BlackDermanToyDataBundle {
   private final YieldAndDiscountCurve _yieldCurve;
@@ -20,6 +21,9 @@ public class BlackDermanToyDataBundle {
   private final ZonedDateTime _date;
 
   public BlackDermanToyDataBundle(final YieldAndDiscountCurve yieldCurve, final VolatilityCurve volatilityCurve, final ZonedDateTime date) {
+    Validate.notNull(yieldCurve);
+    Validate.notNull(volatilityCurve);
+    Validate.notNull(date);
     _yieldCurve = yieldCurve;
     _volatilityCurve = volatilityCurve;
     _date = date;

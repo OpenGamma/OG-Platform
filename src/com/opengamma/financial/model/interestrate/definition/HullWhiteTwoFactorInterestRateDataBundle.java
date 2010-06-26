@@ -7,6 +7,8 @@ package com.opengamma.financial.model.interestrate.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 
@@ -16,17 +18,21 @@ import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 public class HullWhiteTwoFactorInterestRateDataBundle {
   private final ZonedDateTime _date;
   private final YieldAndDiscountCurve _yieldCurve;
-  private final Double _speed1;
-  private final Double _speed2;
-  private final Double _u;
-  Double _f;
+  private final double _speed1;
+  private final double _speed2;
+  private final double _u;
+  private final double _f;
   private final VolatilityCurve _volatilityCurve1;
   private final VolatilityCurve _volatilityCurve2;
-  private final Double _rho;
+  private final double _rho;
 
-  public HullWhiteTwoFactorInterestRateDataBundle(final ZonedDateTime date, final YieldAndDiscountCurve yieldCurve,
-      final Double speed1, final Double speed2, final Double u, final Double f, final VolatilityCurve volatilityCurve1,
-      final VolatilityCurve volatilityCurve2, final Double rho) {
+  public HullWhiteTwoFactorInterestRateDataBundle(final YieldAndDiscountCurve yieldCurve, final VolatilityCurve volatilityCurve1,
+      final VolatilityCurve volatilityCurve2, final ZonedDateTime date, final double speed1, final double speed2, final double u, final double f,
+      final double rho) {
+    Validate.notNull(yieldCurve);
+    Validate.notNull(volatilityCurve1);
+    Validate.notNull(volatilityCurve2);
+    Validate.notNull(date);
     _date = date;
     _yieldCurve = yieldCurve;
     _speed1 = speed1;
@@ -42,7 +48,7 @@ public class HullWhiteTwoFactorInterestRateDataBundle {
     return _date;
   }
 
-  public Double getInterestRate(final Double t) {
+  public Double getInterestRate(final double t) {
     return _yieldCurve.getInterestRate(t);
   }
 
@@ -55,20 +61,20 @@ public class HullWhiteTwoFactorInterestRateDataBundle {
   }
 
   // TODO
-  public Double getU(final Double t) {
+  public Double getU() {
     return _u;
   }
 
   // TODO
-  public Double getF(final Double r) {
+  public Double getF() {
     return _f;
   }
 
-  public Double getVolatility1(final Double t) {
+  public Double getVolatility1(final double t) {
     return _volatilityCurve1.getVolatility(t);
   }
 
-  public Double getVolatility2(final Double t) {
+  public Double getVolatility2(final double t) {
     return _volatilityCurve2.getVolatility(t);
   }
 
