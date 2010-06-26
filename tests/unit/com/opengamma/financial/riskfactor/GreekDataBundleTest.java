@@ -37,12 +37,12 @@ public class GreekDataBundleTest {
     DATA = new GreekDataBundle(GREEK_RESULTS, UNDERLYING_DATA);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullRiskFactors() {
     new GreekDataBundle(null, UNDERLYING_DATA);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullUnderlyingData() {
     new GreekDataBundle(GREEK_RESULTS, null);
   }
@@ -54,7 +54,7 @@ public class GreekDataBundleTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyUnderlyingData() {
-    new GreekDataBundle(GREEK_RESULTS, Collections.<Object, Double> emptyMap());
+    new GreekDataBundle(GREEK_RESULTS, Collections.<Object, Double>emptyMap());
   }
 
   @Test(expected = IllegalArgumentException.class)

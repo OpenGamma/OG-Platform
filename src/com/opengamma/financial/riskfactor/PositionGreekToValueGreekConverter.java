@@ -8,6 +8,8 @@ package com.opengamma.financial.riskfactor;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.TradeData;
 import com.opengamma.financial.sensitivity.PositionGreek;
@@ -21,8 +23,7 @@ public class PositionGreekToValueGreekConverter extends Function1D<PositionGreek
 
   @Override
   public Map<ValueGreek, Double> evaluate(final PositionGreekDataBundle data) {
-    if (data == null)
-      throw new IllegalArgumentException("Position greek data bundle was null");
+    Validate.notNull(data, "data");
     final Map<PositionGreek, Double> riskFactors = data.getRiskFactorResults();
     final Map<ValueGreek, Double> result = new HashMap<ValueGreek, Double>();
     final Map<Object, Double> underlyingData = data.getUnderlyingData();

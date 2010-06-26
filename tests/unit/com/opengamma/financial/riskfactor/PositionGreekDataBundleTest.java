@@ -38,24 +38,24 @@ public class PositionGreekDataBundleTest {
     DATA = new PositionGreekDataBundle(RISK_FACTORS, UNDERLYING_DATA);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullRiskFactors() {
     new PositionGreekDataBundle(null, UNDERLYING_DATA);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullUnderlyingData() {
     new PositionGreekDataBundle(RISK_FACTORS, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyRiskFactors() {
-    new PositionGreekDataBundle(Collections.<PositionGreek, Double> emptyMap(), UNDERLYING_DATA);
+    new PositionGreekDataBundle(Collections.<PositionGreek, Double>emptyMap(), UNDERLYING_DATA);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyUnderlyingData() {
-    new PositionGreekDataBundle(RISK_FACTORS, Collections.<Object, Double> emptyMap());
+    new PositionGreekDataBundle(RISK_FACTORS, Collections.<Object, Double>emptyMap());
   }
 
   @Test(expected = IllegalArgumentException.class)

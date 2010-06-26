@@ -52,7 +52,7 @@ public class GreekConverterTest {
     GREEKS_DATA = new GreekDataBundle(GREEKS, map);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull1() {
     G_TO_PG_CONVERTER.evaluate((GreekDataBundle) null);
   }
@@ -67,18 +67,18 @@ public class GreekConverterTest {
     PG_TO_VG_CONVERTER.evaluate((PositionGreekDataBundle) null);
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testGreekResultMissingDataValueGreek() {
     final GreekResultCollection greeks = new GreekResultCollection();
     greeks.put(Greek.DELTA, 5.);
-    final Map<Object, Double> data = Collections.<Object, Double> singletonMap(TradeData.NUMBER_OF_CONTRACTS, N);
+    final Map<Object, Double> data = Collections.<Object, Double>singletonMap(TradeData.NUMBER_OF_CONTRACTS, N);
     G_TO_VG_CONVERTER.evaluate(new GreekDataBundle(greeks, data));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testRiskFactorResultType() {
-    final Map<PositionGreek, Double> riskFactors = Collections.<PositionGreek, Double> singletonMap(new PositionGreek(Greek.DELTA), 5.);
-    final Map<Object, Double> data = Collections.<Object, Double> singletonMap(TradeData.NUMBER_OF_CONTRACTS, N);
+    final Map<PositionGreek, Double> riskFactors = Collections.<PositionGreek, Double>singletonMap(new PositionGreek(Greek.DELTA), 5.);
+    final Map<Object, Double> data = Collections.<Object, Double>singletonMap(TradeData.NUMBER_OF_CONTRACTS, N);
     PG_TO_VG_CONVERTER.evaluate(new PositionGreekDataBundle(riskFactors, data));
   }
 
@@ -88,12 +88,12 @@ public class GreekConverterTest {
     assertEquals(DELTA * N, positionGreeks.get(new PositionGreek(Greek.DELTA)), EPS);
     assertEquals(GAMMA * N, positionGreeks.get(new PositionGreek(Greek.GAMMA)), EPS);
     assertEquals(VANNA * N, positionGreeks.get(new PositionGreek(Greek.VANNA)), EPS);
-    
+
     final Map<ValueGreek, Double> valueGreeks = G_TO_VG_CONVERTER.evaluate(GREEKS_DATA);
     assertEquals(DELTA * N * PV * SPOT_PRICE, valueGreeks.get(new ValueGreek(Greek.DELTA)), EPS);
     assertEquals(GAMMA * N * PV * SPOT_PRICE * SPOT_PRICE, valueGreeks.get(new ValueGreek(Greek.GAMMA)), EPS);
     assertEquals(VANNA * N * PV * SPOT_PRICE * IMPLIED_VOLATILITY, valueGreeks.get(new ValueGreek(Greek.VANNA)), EPS);
-    
+
     final Map<ValueGreek, Double> valueGreeksFromPositionGreeks = PG_TO_VG_CONVERTER.evaluate(new PositionGreekDataBundle(positionGreeks, GREEKS_DATA.getUnderlyingData()));
     for (final Map.Entry<ValueGreek, Double> entry : valueGreeksFromPositionGreeks.entrySet()) {
       assertTrue(valueGreeks.containsKey(entry.getKey()));

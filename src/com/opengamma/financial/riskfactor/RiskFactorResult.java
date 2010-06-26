@@ -11,9 +11,7 @@ package com.opengamma.financial.riskfactor;
 public class RiskFactorResult {
   private final double _result;
 
-  public RiskFactorResult(final Double result) {
-    if (result == null)
-      throw new IllegalArgumentException("Risk factor was null");
+  public RiskFactorResult(final double result) {
     _result = result;
   }
 

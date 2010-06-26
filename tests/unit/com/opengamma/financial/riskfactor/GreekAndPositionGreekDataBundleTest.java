@@ -40,7 +40,7 @@ public class GreekAndPositionGreekDataBundleTest {
     POSITION_GREEKS_DATA = new PositionGreekDataBundle(RISK_FACTOR, UNDERLYING);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullGreeks() {
     new GreekDataBundle(null, UNDERLYING);
   }
@@ -50,7 +50,7 @@ public class GreekAndPositionGreekDataBundleTest {
     new GreekDataBundle(new GreekResultCollection(), UNDERLYING);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullData1() {
     new GreekDataBundle(GREEKS, null);
   }
@@ -65,17 +65,17 @@ public class GreekAndPositionGreekDataBundleTest {
     GREEKS_DATA.getGreekResultForGreek(Greek.CARRY_RHO);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullRiskFactors() {
     new PositionGreekDataBundle(null, UNDERLYING);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyRiskFactors() {
-    new PositionGreekDataBundle(Collections.<PositionGreek, Double> emptyMap(), UNDERLYING);
+    new PositionGreekDataBundle(Collections.<PositionGreek, Double>emptyMap(), UNDERLYING);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullData2() {
     new PositionGreekDataBundle(RISK_FACTOR, null);
   }

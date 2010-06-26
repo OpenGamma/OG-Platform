@@ -11,11 +11,6 @@ import org.junit.Test;
 
 public class RiskFactorResultTest {
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructor() {
-    new RiskFactorResult(null);
-  }
-
   @Test
   public void test() {
     final double value = 1.2;
