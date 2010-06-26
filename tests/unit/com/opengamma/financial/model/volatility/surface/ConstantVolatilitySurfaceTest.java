@@ -15,7 +15,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
  */
 public class ConstantVolatilitySurfaceTest {
   private static final double SIGMA = 0.2;
@@ -23,11 +22,6 @@ public class ConstantVolatilitySurfaceTest {
   private static final double SHIFT = 0.01;
   private static final VolatilitySurface SURFACE = new ConstantVolatilitySurface(SIGMA);
   private static final double EPS = 1e-15;
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructorWithNull() {
-    new ConstantVolatilitySurface(null);
-  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNegativeVolatility() {
@@ -47,11 +41,6 @@ public class ConstantVolatilitySurfaceTest {
   @Test(expected = IllegalArgumentException.class)
   public void testGetVolatilityWithNullY() {
     SURFACE.getVolatility(Pair.of(2., (Double) null));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetParallelShift() {
-    SURFACE.withParallelShift(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -76,23 +65,23 @@ public class ConstantVolatilitySurfaceTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullX() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of((Double) null, 2.), 2.));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of((Double) null, 2.), 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullY() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of(2., (Double) null), 2.));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of(2., (Double) null), 2.));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testMultipleShiftsWithNullShift() {
-    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(Pair.of(2., 2.), null));
+    SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(Pair.of(2., 2.), null));
   }
 
   @Test
   public void test() {
     assertEquals(SIGMA, SURFACE.getVolatility(XY), EPS);
-    assertEquals(Collections.<Pair<Double, Double>> emptySet(), SURFACE.getXYData());
+    assertEquals(Collections.<Pair<Double, Double>>emptySet(), SURFACE.getXYData());
   }
 
   @Test
@@ -109,7 +98,7 @@ public class ConstantVolatilitySurfaceTest {
 
   @Test
   public void testMultipleShift() {
-    final VolatilitySurface surface = SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double> singletonMap(XY, SHIFT));
+    final VolatilitySurface surface = SURFACE.withMultipleShifts(Collections.<Pair<Double, Double>, Double>singletonMap(XY, SHIFT));
     assertEquals(SIGMA + SHIFT, surface.getVolatility(XY), EPS);
   }
 }

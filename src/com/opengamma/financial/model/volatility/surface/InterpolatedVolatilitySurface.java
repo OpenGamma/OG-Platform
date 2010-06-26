@@ -12,10 +12,12 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.interpolation.Interpolator2D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
 
@@ -44,15 +46,9 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    *           Thrown if the data map is null or empty.
    */
   public InterpolatedVolatilitySurface(final Map<Pair<Double, Double>, Double> data, final Interpolator2D interpolator) {
-    if (data == null) {
-      throw new IllegalArgumentException("Data map was null");
-    }
-    if (interpolator == null) {
-      throw new IllegalArgumentException("Interpolator was null");
-    }
-    if (data.isEmpty()) {
-      throw new IllegalArgumentException("Data map was empty");
-    }
+    Validate.notNull(data);
+    Validate.notNull(interpolator);
+    ArgumentChecker.notEmpty(data, "data");
     for (final Double sigma : data.values()) {
       if (sigma < 0) {
         throw new IllegalArgumentException("Cannot have negative volatility");
@@ -93,15 +89,9 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
    */
   @Override
   public Double getVolatility(final Pair<Double, Double> xy) {
-    if (xy == null) {
-      throw new IllegalArgumentException("xy pair was null");
-    }
-    if (xy.getFirst() == null) {
-      throw new IllegalArgumentException("x-value was null");
-    }
-    if (xy.getSecond() == null) {
-      throw new IllegalArgumentException("y-value was null");
-    }
+    Validate.notNull(xy, "xy");
+    Validate.notNull(xy.getFirst(), "x value");
+    Validate.notNull(xy.getSecond(), "y value");
     return Math.sqrt(_interpolator.interpolate(_varianceData, xy));
   }
 
@@ -112,9 +102,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
 
   @Override
   public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
-    if (shifts == null) {
-      throw new IllegalArgumentException("Shift map was null");
-    }
+    Validate.notNull(shifts, "shifts map");
     if (shifts.isEmpty()) {
       s_logger.info("Shift map was empty; returning identical surface");
       return new InterpolatedVolatilitySurface(getData(), getInterpolator());
@@ -138,10 +126,7 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
   }
 
   @Override
-  public VolatilitySurface withParallelShift(final Double shift) {
-    if (shift == null) {
-      throw new IllegalArgumentException("Shift was null");
-    }
+  public VolatilitySurface withParallelShift(final double shift) {
     final Map<Pair<Double, Double>, Double> data = getData();
     final Map<Pair<Double, Double>, Double> shifted = new HashMap<Pair<Double, Double>, Double>();
     for (final Map.Entry<Pair<Double, Double>, Double> entry : data.entrySet()) {
@@ -151,19 +136,10 @@ public class InterpolatedVolatilitySurface extends VolatilitySurface {
   }
 
   @Override
-  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
-    if (xy == null) {
-      throw new IllegalArgumentException("xy pair was null");
-    }
-    if (xy.getFirst() == null) {
-      throw new IllegalArgumentException("x-value was null");
-    }
-    if (xy.getSecond() == null) {
-      throw new IllegalArgumentException("y-value was null");
-    }
-    if (shift == null) {
-      throw new IllegalArgumentException("Shift was null");
-    }
+  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final double shift) {
+    Validate.notNull(xy, "xy");
+    Validate.notNull(xy.getFirst(), "x value");
+    Validate.notNull(xy.getSecond(), "y value");
     final Map<Pair<Double, Double>, Double> data = getData();
     final Map<Pair<Double, Double>, Double> map = new HashMap<Pair<Double, Double>, Double>(data);
     if (map.containsKey(xy)) {

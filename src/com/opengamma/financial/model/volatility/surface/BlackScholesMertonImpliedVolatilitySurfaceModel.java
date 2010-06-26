@@ -7,6 +7,7 @@ package com.opengamma.financial.model.volatility.surface;
 
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,22 +18,23 @@ import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
+import com.opengamma.util.ArgumentChecker;
 
+/**
+ * 
+ */
 public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
-  private static final Logger s_Log = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceModel.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceModel.class);
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
   private SingleRootFinder<StandardOptionDataBundle, Double, Double, Double> _rootFinder;
 
   @Override
   public VolatilitySurface getSurface(final Map<OptionDefinition, Double> optionPrices, final StandardOptionDataBundle optionDataBundle) {
-    if (optionPrices == null)
-      throw new IllegalArgumentException("Option price map was null");
-    if (optionPrices.isEmpty())
-      throw new IllegalArgumentException("Option price map was empty");
-    if (optionDataBundle == null)
-      throw new IllegalArgumentException("Data bundle was null");
+    Validate.notNull(optionPrices);
+    ArgumentChecker.notEmpty(optionPrices, "option prices");
+    Validate.notNull(optionDataBundle);
     if (optionPrices.size() > 1) {
-      s_Log.info("Option price map had more than one entry: using the first pair to imply volatility");
+      s_logger.info("Option price map had more than one entry: using the first pair to imply volatility");
     }
     final Map.Entry<OptionDefinition, Double> entry = optionPrices.entrySet().iterator().next();
     final Double price = entry.getValue();
@@ -45,7 +47,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
   private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double, Double, Double> {
     private final StandardOptionDataBundle _data;
     private final double _price;
-    private static final double _accuracy = 1e-12;
+    private static final double ACCURACY = 1e-12;
     private static final double ZERO = 1e-16;
     private static final int MAX_ATTEMPTS = 10000;
 
@@ -56,16 +58,19 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
 
     @Override
     public Double getRoot(final Function1D<StandardOptionDataBundle, Double> function, final Double lowVol, final Double highVol) {
-     StandardOptionDataBundle lowVolData = _data.withVolatilitySurface(new ConstantVolatilitySurface(lowVol));
+      StandardOptionDataBundle lowVolData = _data.withVolatilitySurface(new ConstantVolatilitySurface(lowVol));
       final Double lowPrice = function.evaluate(lowVolData) - _price;
-      if (Math.abs(lowPrice) < _accuracy)
+      if (Math.abs(lowPrice) < ACCURACY) {
         return lowVol;
+      }
       StandardOptionDataBundle highVolData = _data.withVolatilitySurface(new ConstantVolatilitySurface(lowVol));
       Double highPrice = function.evaluate(highVolData) - _price;
-      if (Math.abs(highPrice) < _accuracy)
+      if (Math.abs(highPrice) < ACCURACY) {
         return highVol;
-      if (Math.abs(highPrice) < _accuracy)
+      }
+      if (Math.abs(highPrice) < ACCURACY) {
         return highVol;
+      }
       double dVol, midVol, rootVol;
       if (lowPrice < 0) {
         dVol = highVol - lowVol;
@@ -83,8 +88,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
         if (highPrice <= 0) {
           rootVol = midVol;
         }
-        if (Math.abs(dVol) < _accuracy || Math.abs(highVol) < ZERO)
+        if (Math.abs(dVol) < ACCURACY || Math.abs(highVol) < ZERO) {
           return rootVol;
+        }
       }
       throw new OptionPricingException("Could not find volatility in " + MAX_ATTEMPTS + " attempts");
     }

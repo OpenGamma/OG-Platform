@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,77 +20,58 @@ import com.opengamma.util.tuple.Pair;
  * 
  * A VolatilitySurface that has a constant volatility for all values of x and y
  * 
- * @author emcleod
  */
 public class ConstantVolatilitySurface extends VolatilitySurface implements Serializable {
-  private static final Logger s_Log = LoggerFactory.getLogger(ConstantVolatilitySurface.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ConstantVolatilitySurface.class);
   private final double _sigma;
 
-  // REVIEW kirk 2010-04-07 -- Should this not just take a non-object double as
-  // the constructor?
-
-  public ConstantVolatilitySurface(final Double sigma) {
-    if (sigma == null)
-      throw new IllegalArgumentException("Volatility was null");
-    if (sigma < 0)
+  public ConstantVolatilitySurface(final double sigma) {
+    if (sigma < 0) {
       throw new IllegalArgumentException("Cannot have a negative volatility");
+    }
     _sigma = sigma;
   }
 
   @Override
   public Double getVolatility(final Pair<Double, Double> xy) {
-    if (xy == null)
-      throw new IllegalArgumentException("xy pair was null");
-    if (xy.getFirst() == null)
-      throw new IllegalArgumentException("x-value was null");
-    if (xy.getSecond() == null)
-      throw new IllegalArgumentException("y-value was null");
+    Validate.notNull(xy, "xy");
+    Validate.notNull(xy.getFirst(), "x value");
+    Validate.notNull(xy.getSecond(), "y value");
     return _sigma;
   }
 
   @Override
   public Set<Pair<Double, Double>> getXYData() {
-    return Collections.<Pair<Double, Double>> emptySet();
+    return Collections.<Pair<Double, Double>>emptySet();
   }
 
   @Override
-  public VolatilitySurface withParallelShift(final Double shift) {
-    if (shift == null)
-      throw new IllegalArgumentException("Shift was null");
+  public VolatilitySurface withParallelShift(final double shift) {
     return new ConstantVolatilitySurface(_sigma + shift);
   }
 
   @Override
-  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final Double shift) {
-    if (xy == null)
-      throw new IllegalArgumentException("x-y pair was null");
-    if (xy.getFirst() == null)
-      throw new IllegalArgumentException("x was null");
-    if (xy.getSecond() == null)
-      throw new IllegalArgumentException("y was null");
-    if (shift == null)
-      throw new IllegalArgumentException("Shift was null");
+  public VolatilitySurface withSingleShift(final Pair<Double, Double> xy, final double shift) {
+    Validate.notNull(xy, "xy");
+    Validate.notNull(xy.getFirst(), "x value");
+    Validate.notNull(xy.getSecond(), "y value");
     return new ConstantVolatilitySurface(_sigma + shift);
   }
 
   @Override
   public VolatilitySurface withMultipleShifts(final Map<Pair<Double, Double>, Double> shifts) {
-    if (shifts == null)
-      throw new IllegalArgumentException("Shifts map was null");
+    Validate.notNull(shifts, "shifts map");
     if (shifts.isEmpty()) {
-      s_Log.info("Shift map was empty; returning unchanged surface");
+      s_logger.info("Shift map was empty; returning unchanged surface");
       return new ConstantVolatilitySurface(_sigma);
     }
     if (shifts.size() != 1) {
-      s_Log.warn("Shift map contained more than one element - only using first");
+      s_logger.warn("Shift map contained more than one element - only using first");
     }
     final Map.Entry<Pair<Double, Double>, Double> firstEntry = shifts.entrySet().iterator().next();
-    if (firstEntry.getKey().getFirst() == null)
-      throw new IllegalArgumentException("x-value for shift was null");
-    if (firstEntry.getKey().getSecond() == null)
-      throw new IllegalArgumentException("y-value for shift was null");
-    if (firstEntry.getValue() == null)
-      throw new IllegalArgumentException("Shift was null");
+    Validate.notNull(firstEntry.getKey().getFirst(), "x value for shift");
+    Validate.notNull(firstEntry.getKey().getSecond(), "y value for shift");
+    Validate.notNull(firstEntry.getValue(), "shift");
     return new ConstantVolatilitySurface(_sigma + firstEntry.getValue());
   }
 
@@ -105,15 +87,19 @@ public class ConstantVolatilitySurface extends VolatilitySurface implements Seri
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final ConstantVolatilitySurface other = (ConstantVolatilitySurface) obj;
-    if (Double.doubleToLongBits(_sigma) != Double.doubleToLongBits(other._sigma))
+    if (Double.doubleToLongBits(_sigma) != Double.doubleToLongBits(other._sigma)) {
       return false;
+    }
     return true;
   }
 

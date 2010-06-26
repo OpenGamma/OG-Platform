@@ -10,7 +10,6 @@ import java.util.Set;
 
 /**
  * 
- * @author emcleod
  */
 public class ConstantVolatilityCurve extends VolatilityCurve {
   private final double _sigma;

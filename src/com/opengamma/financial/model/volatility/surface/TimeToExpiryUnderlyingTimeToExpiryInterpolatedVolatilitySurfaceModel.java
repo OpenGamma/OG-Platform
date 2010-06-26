@@ -14,29 +14,30 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator2D;
 
 /**
- * 
- * @author emcleod
+ * @param <T>
  */
 public class TimeToExpiryUnderlyingTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition> extends
     InterpolatedVolatilitySurfaceModel<T, StandardFixedIncomeUnderlyingOptionDataBundle> {
-  private final Function1D<Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle>, Double> _xAxisFunction = new Function1D<Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle>, Double>() {
+  private final Function1D<Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle>, Double> _xAxisFunction =
+      new Function1D<Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle>, Double>() {
 
-    @Override
-    public Double evaluate(final Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle> x) {
-      final T definition = x.getKey();
-      final StandardFixedIncomeUnderlyingOptionDataBundle dataBundle = x.getValue();
-      return definition.getTimeToExpiry(dataBundle.getDate());
-    }
+        @Override
+        public Double evaluate(final Map.Entry<T, StandardFixedIncomeUnderlyingOptionDataBundle> x) {
+          final T definition = x.getKey();
+          final StandardFixedIncomeUnderlyingOptionDataBundle dataBundle = x.getValue();
+          return definition.getTimeToExpiry(dataBundle.getDate());
+        }
 
-  };
-  private final Function1D<StandardFixedIncomeUnderlyingOptionDataBundle, Double> _yAxisFunction = new Function1D<StandardFixedIncomeUnderlyingOptionDataBundle, Double>() {
+      };
+  private final Function1D<StandardFixedIncomeUnderlyingOptionDataBundle, Double> _yAxisFunction =
+      new Function1D<StandardFixedIncomeUnderlyingOptionDataBundle, Double>() {
 
-    @Override
-    public Double evaluate(final StandardFixedIncomeUnderlyingOptionDataBundle x) {
-      return x.getUnderlyingInstrument().getTenor(x.getDate());
-    }
+        @Override
+        public Double evaluate(final StandardFixedIncomeUnderlyingOptionDataBundle x) {
+          return x.getUnderlyingInstrument().getTenor(x.getDate());
+        }
 
-  };
+      };
 
   public TimeToExpiryUnderlyingTimeToExpiryInterpolatedVolatilitySurfaceModel(final Interpolator2D interpolator) {
     super(interpolator);
@@ -44,7 +45,7 @@ public class TimeToExpiryUnderlyingTimeToExpiryInterpolatedVolatilitySurfaceMode
 
   @Override
   protected Double getXAxisFunctionValue(final T t, final StandardFixedIncomeUnderlyingOptionDataBundle u) {
-    final Map<T, StandardFixedIncomeUnderlyingOptionDataBundle> map = Collections.<T, StandardFixedIncomeUnderlyingOptionDataBundle> singletonMap(t, u);
+    final Map<T, StandardFixedIncomeUnderlyingOptionDataBundle> map = Collections.<T, StandardFixedIncomeUnderlyingOptionDataBundle>singletonMap(t, u);
     return _xAxisFunction.evaluate(map.entrySet().iterator().next());
   }
 

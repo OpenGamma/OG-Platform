@@ -14,10 +14,11 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator2D;
 
 /**
- * 
- * @author emcleod
+ * @param <T>
+ * @param <U>
  */
-public class StrikeTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition, U extends StandardOptionDataBundle> extends InterpolatedVolatilitySurfaceModel<T, U> {
+public class StrikeTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends OptionDefinition, U extends StandardOptionDataBundle> extends
+    InterpolatedVolatilitySurfaceModel<T, U> {
   private final Function1D<Map.Entry<T, U>, Double> _xAxisFunction = new Function1D<Map.Entry<T, U>, Double>() {
 
     @Override
@@ -48,7 +49,7 @@ public class StrikeTimeToExpiryInterpolatedVolatilitySurfaceModel<T extends Opti
 
   @Override
   protected Double getXAxisFunctionValue(final T t, final U u) {
-    final Map<T, U> map = Collections.<T, U> singletonMap(t, u);
+    final Map<T, U> map = Collections.<T, U>singletonMap(t, u);
     return _xAxisFunction.evaluate(map.entrySet().iterator().next());
   }
 

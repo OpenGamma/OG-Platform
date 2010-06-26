@@ -21,9 +21,9 @@ public abstract class VolatilitySurface implements VolatilityModel<Pair<Double, 
 
   public abstract Set<Pair<Double, Double>> getXYData();
 
-  public abstract VolatilitySurface withParallelShift(Double shift);
+  public abstract VolatilitySurface withParallelShift(double shift);
 
-  public abstract VolatilitySurface withSingleShift(Pair<Double, Double> xy, Double shift);
+  public abstract VolatilitySurface withSingleShift(Pair<Double, Double> xy, double shift);
 
   public abstract VolatilitySurface withMultipleShifts(Map<Pair<Double, Double>, Double> shifts);
 }

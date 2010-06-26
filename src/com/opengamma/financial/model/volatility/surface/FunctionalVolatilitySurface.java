@@ -8,8 +8,8 @@ package com.opengamma.financial.model.volatility.surface;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- * @author emcleod
+ * @param <T>
+ * @param <U>
  */
 public abstract class FunctionalVolatilitySurface<T, U> extends VolatilitySurface {
 

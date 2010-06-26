@@ -12,7 +12,6 @@ import com.opengamma.financial.model.volatility.VolatilityModel;
 
 /**
  * 
- * @author emcleod
  */
 public abstract class VolatilityCurve implements VolatilityModel<Double> {
 

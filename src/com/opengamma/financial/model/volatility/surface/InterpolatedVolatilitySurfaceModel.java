@@ -12,8 +12,8 @@ import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
- * @author emcleod
+ * @param <T>
+ * @param <U>
  */
 public abstract class InterpolatedVolatilitySurfaceModel<T, U> implements VolatilitySurfaceModel<T, U> {
   private final Interpolator2D _interpolator;

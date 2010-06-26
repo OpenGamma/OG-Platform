@@ -80,11 +80,6 @@ public class InterpolatedVolatilitySurfaceTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void testGetParallelShift() {
-    SURFACE.withParallelShift(null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void testGetSingleShiftWithNullPair() {
     SURFACE.withSingleShift(null, 3.);
   }
@@ -97,11 +92,6 @@ public class InterpolatedVolatilitySurfaceTest {
   @Test(expected = IllegalArgumentException.class)
   public void testGetSingleShiftWithNullY() {
     SURFACE.withSingleShift(Pair.of(2., (Double) null), 3.);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testGetSingleShiftWithNullShift() {
-    SURFACE.withSingleShift(Pair.of(2., 2.), null);
   }
 
   @Test(expected = IllegalArgumentException.class)
