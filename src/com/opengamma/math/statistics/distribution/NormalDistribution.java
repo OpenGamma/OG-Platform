@@ -18,9 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
- * @author emcleod
  */
-
 public class NormalDistribution implements ProbabilityDistribution<Double> {
   // TODO need a better seed
   private final RandomEngine _randomEngine = new MersenneTwister64(new Date());

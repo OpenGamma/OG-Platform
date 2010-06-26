@@ -5,10 +5,8 @@
  */
 package com.opengamma.math.random;
 
-
 /**
  * 
- * @author emcleod
  */
 public interface QuasiRandomNumberGenerator extends RandomNumberGenerator {
 

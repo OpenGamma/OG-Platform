@@ -5,6 +5,9 @@
  */
 package com.opengamma.math.regression;
 
+/**
+ * 
+ */
 public class RegressionException extends RuntimeException {
   public RegressionException() {
     super();

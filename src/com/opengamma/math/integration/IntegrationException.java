@@ -7,7 +7,6 @@ package com.opengamma.math.integration;
 
 /**
  * 
- * @author emcleod
  */
 public class IntegrationException extends RuntimeException {
   public IntegrationException() {

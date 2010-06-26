@@ -9,7 +9,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class BisectionSingleRootFinderTest extends RealSingleRootFinderTestCase {
   private static final RealSingleRootFinder FINDER = new BisectionSingleRootFinder();

@@ -9,10 +9,8 @@ package com.opengamma.financial.model.option.definition;
 
 /**
  * 
- * @author emcleod
  */
-public class BoyleTrinomialOptionModelDefinition extends
-    TrinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> {
+public class BoyleTrinomialOptionModelDefinition extends TrinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> {
 
   @Override
   public double getDX(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
@@ -23,8 +21,7 @@ public class BoyleTrinomialOptionModelDefinition extends
   }
 
   @Override
-  public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n,
-      final int j) {
+  public double getDownFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     final double t = option.getTimeToExpiry(data.getDate());
     final double sigma = data.getVolatility(t, option.getStrike());
     final double r = data.getInterestRate(t);
@@ -36,8 +33,7 @@ public class BoyleTrinomialOptionModelDefinition extends
   }
 
   @Override
-  public double getMidFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n,
-      final int j) {
+  public double getMidFactor(final OptionDefinition option, final StandardOptionDataBundle data, final int n, final int j) {
     return 1 - getDownFactor(option, data, n, j) - getUpFactor(option, data, n, j);
   }
 

@@ -12,7 +12,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class RankTestIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis RANK_TEST = new RankTestIIDHypothesis(0.05);

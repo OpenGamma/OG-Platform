@@ -16,15 +16,17 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
+/**
+ * 
+ */
 public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
-  private static final Logger s_Log = LoggerFactory.getLogger(OrdinaryLeastSquaresRegression.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(OrdinaryLeastSquaresRegression.class);
   private final Algebra _algebra = new Algebra();
 
   @Override
-  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y,
-      final boolean useIntercept) {
+  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y, final boolean useIntercept) {
     if (weights != null) {
-      s_Log.info("Weights were provided for OLS regression: they will be ignored");
+      s_logger.info("Weights were provided for OLS regression: they will be ignored");
     }
     return regress(x, y, useIntercept);
   }
@@ -39,16 +41,14 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix2D matrix = DoubleFactory2D.dense.make(dep);
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
     final DoubleMatrix2D transpose = _algebra.transpose(matrix);
-    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, matrix)),
-        transpose), vector);
+    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, matrix)), transpose), vector);
     final double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final double[] betas = convertArray(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, transpose, matrix, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y,
-      final double[] betas, final double[] yModel, final DoubleMatrix2D transpose, final DoubleMatrix2D matrix,
-      final boolean useIntercept) {
+  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y, final double[] betas, final double[] yModel,
+      final DoubleMatrix2D transpose, final DoubleMatrix2D matrix, final boolean useIntercept) {
     double yMean = 0.;
     for (final double y1 : y) {
       yMean += y1;
@@ -84,7 +84,6 @@ public class OrdinaryLeastSquaresRegression extends LeastSquaresRegression {
         throw new com.opengamma.math.MathException(e);
       }
     }
-    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, stdErrorBetas, rSquared,
-        adjustedRSquared, tStats, pValues, useIntercept);
+    return new LeastSquaresRegressionResult(betas, residuals, meanSquareError, stdErrorBetas, rSquared, adjustedRSquared, tStats, pValues, useIntercept);
   }
 }

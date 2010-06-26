@@ -9,7 +9,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
 
 /**
@@ -19,8 +18,9 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
 
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private DoubleMatrix2D _inverseJacobianEstimate;
-  private final Decomposition<?> _decomp;
+
+  //private DoubleMatrix2D _inverseJacobianEstimate;
+  //private final Decomposition<?> _decomp;
 
   public ShermanMorrisonVectorRootFinder() {
     this(DEF_TOL, DEF_TOL, MAX_STEPS);
@@ -32,18 +32,17 @@ public class ShermanMorrisonVectorRootFinder extends NewtonRootFinderImpl {
    * @param maxSteps Maximum number of steps to be used
    */
   public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
-    super(absoluteTol, relativeTol, maxSteps, new InverseJacobianDirectionFunction(new OGMatrixAlgebra()), new InverseJacobianEstimateInitializationFunction(new LUDecompositionCommons(),
-        new FiniteDifferenceJacobianCalculator()), new ShermanMorrisonMatrixUpdateFunction(new OGMatrixAlgebra()));
-    _decomp = new LUDecompositionCommons();
+    super(absoluteTol, relativeTol, maxSteps, new InverseJacobianDirectionFunction(new OGMatrixAlgebra()), new InverseJacobianEstimateInitializationFunction(
+        new LUDecompositionCommons(), new FiniteDifferenceJacobianCalculator()), new ShermanMorrisonMatrixUpdateFunction(new OGMatrixAlgebra()));
+    //_decomp = new LUDecompositionCommons();
   }
 
   public ShermanMorrisonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps, new InverseJacobianDirectionFunction(new OGMatrixAlgebra()), new InverseJacobianEstimateInitializationFunction(decomp,
-        new FiniteDifferenceJacobianCalculator()), new ShermanMorrisonMatrixUpdateFunction(new OGMatrixAlgebra()));
+    super(absoluteTol, relativeTol, maxSteps, new InverseJacobianDirectionFunction(new OGMatrixAlgebra()), new InverseJacobianEstimateInitializationFunction(
+        decomp, new FiniteDifferenceJacobianCalculator()), new ShermanMorrisonMatrixUpdateFunction(new OGMatrixAlgebra()));
     Validate.notNull(decomp);
-    _decomp = decomp;
+    // _decomp = decomp;
   }
-
   /*  @Override
     protected DoubleMatrix1D getDirection(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
       return (DoubleMatrix1D) OG_ALGEBRA.multiply(_inverseJacobianEstimate, _y);

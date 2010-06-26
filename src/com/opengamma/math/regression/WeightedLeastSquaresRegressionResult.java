@@ -5,29 +5,34 @@
  */
 package com.opengamma.math.regression;
 
+/**
+ * 
+ */
 public class WeightedLeastSquaresRegressionResult extends LeastSquaresRegressionResult {
 
   public WeightedLeastSquaresRegressionResult(final LeastSquaresRegressionResult result) {
     super(result);
   }
 
-  public WeightedLeastSquaresRegressionResult(final double[] betas, final double[] residuals,
-      final double meanSquareError, final double[] standardErrorOfBeta, final double rSquared,
-      final double rSquaredAdjusted, final double[] tStats, final double[] pValues, final boolean hasIntercept) {
-    super(betas, residuals, meanSquareError, standardErrorOfBeta, rSquared, rSquaredAdjusted, tStats, pValues,
-        hasIntercept);
+  public WeightedLeastSquaresRegressionResult(final double[] betas, final double[] residuals, final double meanSquareError, final double[] standardErrorOfBeta,
+      final double rSquared, final double rSquaredAdjusted, final double[] tStats, final double[] pValues, final boolean hasIntercept) {
+    super(betas, residuals, meanSquareError, standardErrorOfBeta, rSquared, rSquaredAdjusted, tStats, pValues, hasIntercept);
   }
 
   public double getWeightedPredictedValue(final double[] x, final double[] w) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("Variable array was null");
-    if (w == null)
+    }
+    if (w == null) {
       throw new IllegalArgumentException("Weight array was null");
+    }
     final double[] betas = getBetas();
-    if (hasIntercept() && x.length != betas.length - 1 || x.length != betas.length)
+    if (hasIntercept() && x.length != betas.length - 1 || x.length != betas.length) {
       throw new IllegalArgumentException("Number of variables did not match number used in regression");
-    if (x.length != w.length)
+    }
+    if (x.length != w.length) {
       throw new IllegalArgumentException("Number of weights did not match number of variables");
+    }
     double sum = 0;
     for (int i = 0; i < (hasIntercept() ? x.length + 1 : x.length); i++) {
       if (hasIntercept()) {

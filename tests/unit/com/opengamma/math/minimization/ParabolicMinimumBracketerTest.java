@@ -15,7 +15,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
   private static final MinimumBracketer BRACKETER = new ParabolicMinimumBracketer();

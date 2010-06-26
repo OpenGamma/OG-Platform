@@ -12,7 +12,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class TurningPointIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis TURNING_POINT = new TurningPointIIDHypothesis(0.05);

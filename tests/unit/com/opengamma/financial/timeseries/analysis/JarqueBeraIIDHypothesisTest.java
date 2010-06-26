@@ -12,7 +12,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class JarqueBeraIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis JARQUE_BERA = new JarqueBeraIIDHypothesis(0.05);

@@ -2,10 +2,7 @@ package com.opengamma.math;
 
 /**
  * 
- * @author emcleod
- * 
  */
-
 public class ConvergenceException extends RuntimeException {
 
   public ConvergenceException() {

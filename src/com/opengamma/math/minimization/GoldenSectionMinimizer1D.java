@@ -10,10 +10,7 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
- * 
  */
-
 public class GoldenSectionMinimizer1D extends Minimizer1D {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
@@ -55,11 +52,13 @@ public class GoldenSectionMinimizer1D extends Minimizer1D {
         f1 = f.evaluate(temp);
       }
       i++;
-      if (i > MAX_ITER)
+      if (i > MAX_ITER) {
         throw new ConvergenceException("Could not find minimum: this should not happen because minimum should have been successfully bracketted");
+      }
     }
-    if (f1 < f2)
-      return new Double[] { x1 };
-    return new Double[] { x2 };
+    if (f1 < f2) {
+      return new Double[] {x1};
+    }
+    return new Double[] {x2};
   }
 }

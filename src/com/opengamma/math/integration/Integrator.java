@@ -9,11 +9,11 @@ import com.opengamma.math.function.Function;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <T>
+ * @param <U>
+ * @param <V>
  */
-
 public interface Integrator<T, U extends Function<?, ?>, V> {
 
-  public T integrate(U f, V[] lower, V[] upper);
+  T integrate(U f, V[] lower, V[] upper);
 }

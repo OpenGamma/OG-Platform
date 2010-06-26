@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 /**
  * 
- * @author emcleod
  */
 public class OrthogonalPolynomialGeneratingFunctionTestCase {
   private static final double EPS = 1e-3;

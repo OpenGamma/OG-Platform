@@ -15,13 +15,12 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class GaussJacobiOrthogonalPolynomialGeneratingFunctionTest extends OrthogonalPolynomialGeneratingFunctionTestCase {
   private static final OrthogonalPolynomialGeneratingFunction GAUSS_LEGENDRE = new GaussLegendreOrthogonalPolynomialGeneratingFunction();
   private static final OrthogonalPolynomialGeneratingFunction GAUSS_JACOBI_GL_EQUIV = new GaussJacobiOrthogonalPolynomialGeneratingFunction(0, 0);
   private static final OrthogonalPolynomialGeneratingFunction GAUSS_JACOBI_CHEBYSHEV_EQUIV = new GaussJacobiOrthogonalPolynomialGeneratingFunction(-0.5, -0.5);
-  private static final Double[] PARAMS = new Double[] { -1., 1. };
+  private static final Double[] PARAMS = new Double[] {-1., 1.};
   private static final double EPS = 1e-9;
 
   @Test

@@ -13,32 +13,35 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author emcleod
  */
 public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
-  private static final Logger s_Log = LoggerFactory.getLogger(VanDerCorputQuasiRandomNumberGenerator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(VanDerCorputQuasiRandomNumberGenerator.class);
   private int _base;
 
   public VanDerCorputQuasiRandomNumberGenerator(final int base) {
-    if (base < 2)
+    if (base < 2) {
       throw new IllegalArgumentException("Base must be greater than or equal to two");
+    }
     _base = base;
   }
 
   public void setBase(final int base) {
-    if (base < 2)
+    if (base < 2) {
       throw new IllegalArgumentException("Base must be greater than or equal to two");
+    }
     _base = base;
   }
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
-    if (dimension < 0)
+    if (dimension < 0) {
       throw new IllegalArgumentException("Dimension must be greater than zero");
-    if (n < 0)
+    }
+    if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
+    }
     if (dimension != 1) {
-      s_Log.info("Van der Corput sequences are one-dimensional only: ignoring other " + (dimension - 1) + " dimension(s)");
+      s_logger.info("Van der Corput sequences are one-dimensional only: ignoring other " + (dimension - 1) + " dimension(s)");
     }
     final List<Double[]> result = new ArrayList<Double[]>();
     Double x;
@@ -60,7 +63,7 @@ public class VanDerCorputQuasiRandomNumberGenerator implements QuasiRandomNumber
       for (int j = m; j >= 0; j--) {
         x += a[j] / power[j + 1];
       }
-      result.add(new Double[] { x });
+      result.add(new Double[] {x});
     }
     return result;
   }

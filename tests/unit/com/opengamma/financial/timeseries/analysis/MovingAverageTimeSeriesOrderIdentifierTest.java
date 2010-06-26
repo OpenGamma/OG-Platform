@@ -20,11 +20,11 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class MovingAverageTimeSeriesOrderIdentifierTest {
   private static final MovingAverageTimeSeriesOrderIdentifier MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier(10, 0.05);
-  private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
+  private static final MovingAverageTimeSeriesModel MA_MODEL =
+      new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
   private static final DoubleTimeSeries<Long> RANDOM;
   private static final DoubleTimeSeries<Long> MA3;
 
@@ -74,7 +74,7 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    MA_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new long[] { 1, 2 }, new double[] { 0.1, 0.2 }));
+    MA_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new long[] {1, 2}, new double[] {0.1, 0.2}));
   }
 
   @Test(expected = IllegalArgumentException.class)

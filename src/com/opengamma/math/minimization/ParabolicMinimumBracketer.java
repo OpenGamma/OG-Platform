@@ -10,14 +10,12 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
-
 public class ParabolicMinimumBracketer extends MinimumBracketer {
-  private final double ZERO = 1e-20;
-  private final int MAX_ITER = 100;
-  private final int MAX_MAGNIFICATION = 100;
-  private final double MAGNIFICATION = 1 + GOLDEN;
+  private static final double ZERO = 1e-20;
+  private static final int MAX_ITER = 100;
+  private static final int MAX_MAGNIFICATION = 100;
+  private static final double MAGNIFICATION = 1 + GOLDEN;
 
   @Override
   public Double[] getBracketedPoints(final Function1D<Double, Double> f, final Double xLower, final Double xUpper) {
@@ -37,8 +35,9 @@ public class ParabolicMinimumBracketer extends MinimumBracketer {
     }
     double x3 = x2 + MAGNIFICATION * (x2 - x1);
     double f3 = f.evaluate(x3);
-    if (x1 < x2 && x2 < x3 && f2 < f1 && f2 < f3 || x1 > x2 && x2 > x3 && f2 < f1 && f2 < f3)
-      return new Double[] { x1, x2, x3 };
+    if (x1 < x2 && x2 < x3 && f2 < f1 && f2 < f3 || x1 > x2 && x2 > x3 && f2 < f1 && f2 < f3) {
+      return new Double[] {x1, x2, x3};
+    }
     double r, q, u, uLim, fu;
     int count = 0;
     while (f2 > f3 && count < MAX_ITER) {
@@ -54,11 +53,11 @@ public class ParabolicMinimumBracketer extends MinimumBracketer {
           x2 = u;
           f1 = f2;
           f2 = fu;
-          return new Double[] { x1, x2, x3 };
+          return new Double[] {x1, x2, x3};
         } else if (fu > f2) {
           x3 = u;
           f3 = fu;
-          return new Double[] { x1, x2, x3 };
+          return new Double[] {x1, x2, x3};
         }
         u = x3 + MAGNIFICATION * (x3 - x2);
         fu = f.evaluate(u);

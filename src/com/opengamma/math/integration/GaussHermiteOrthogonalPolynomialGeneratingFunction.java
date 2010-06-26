@@ -12,11 +12,9 @@ import com.opengamma.math.ConvergenceException;
 
 /**
  * 
- * @author emcleod
  */
-
 public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
-  private static final Logger s_Log = LoggerFactory.getLogger(GaussHermiteOrthogonalPolynomialGeneratingFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(GaussHermiteOrthogonalPolynomialGeneratingFunction.class);
   private static final double EPS = 1e-12;
   private static final double POWER_OF_PI = Math.pow(Math.PI, -0.25);
 
@@ -31,14 +29,15 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends Orthogon
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
     if (params != null) {
-      s_Log.info("Limits for this integration method are +/-infinity; ignoring bounds");
+      s_logger.info("Limits for this integration method are +/-infinity; ignoring bounds");
     }
     return generate(n);
   }
 
   public GaussianQuadratureFunction generate(final int n) {
-    if (n <= 0)
+    if (n <= 0) {
       throw new IllegalArgumentException("Must have n > 0");
+    }
     final Double[] x = new Double[n];
     final Double[] w = new Double[n];
     int m, j = 0;
@@ -72,8 +71,9 @@ public class GaussHermiteOrthogonalPolynomialGeneratingFunction extends Orthogon
           break;
         }
       }
-      if (j == max)
+      if (j == max) {
         throw new ConvergenceException("Could not converge in " + max + " iterations");
+      }
       x[i] = -z;
       x[n - 1 - i] = z;
       w[i] = 2. / (pp * pp);

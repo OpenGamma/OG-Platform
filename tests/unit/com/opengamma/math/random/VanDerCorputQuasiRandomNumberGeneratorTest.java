@@ -14,7 +14,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class VanDerCorputQuasiRandomNumberGeneratorTest {
   private static final VanDerCorputQuasiRandomNumberGenerator GENERATOR = new VanDerCorputQuasiRandomNumberGenerator(10);
@@ -42,10 +41,10 @@ public class VanDerCorputQuasiRandomNumberGeneratorTest {
 
   @Test
   public void test() {
-    final double[] values = new double[] { .1, .2, .3, .4, .5, .6, .7, .8, .9, .01, .11, .21, .31, .41, .51, .61, .71, .81, .91, .02, .12, .22, .32 };
+    final double[] values = new double[] {.1, .2, .3, .4, .5, .6, .7, .8, .9, .01, .11, .21, .31, .41, .51, .61, .71, .81, .91, .02, .12, .22, .32};
     final List<Double[]> data = new ArrayList<Double[]>();
     for (final double value : values) {
-      data.add(new Double[] { value });
+      data.add(new Double[] {value});
     }
     test(GENERATOR.getVectors(1, values.length), data);
   }

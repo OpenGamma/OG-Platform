@@ -20,12 +20,11 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class AutoregressiveTimeSeriesOrderIdentifierTest {
   private static final AutoregressiveTimeSeriesPACFOrderIdentifier PACF_IDENTIFIER = new AutoregressiveTimeSeriesPACFOrderIdentifier(10, 0.05);
-  private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(new NormalDistribution(0, 1,
-      new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
+  private static final AutoregressiveTimeSeriesModel AR_MODEL =
+      new AutoregressiveTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
   private static final DoubleTimeSeries<Long> RANDOM;
   private static final DoubleTimeSeries<Long> AR3;
   private static final DoubleTimeSeries<Long> AR5;
@@ -46,7 +45,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
       coeffs[i] = 1. / (i + 5);
     }
     AR3 = AR_MODEL.getSeries(coeffs, order, dates);
-    AR5 = AR_MODEL.getSeries(new double[] { coeffs[0], coeffs[1], coeffs[2], 0., 0., 0.1 }, 5, dates);
+    AR5 = AR_MODEL.getSeries(new double[] {coeffs[0], coeffs[1], coeffs[2], 0., 0., 0.1}, 5, dates);
     RANDOM = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, random);
   }
 
@@ -77,7 +76,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientData() {
-    PACF_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_NANOS, new long[] { 1, 2 }, new double[] { 0.1, 0.2 }));
+    PACF_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_NANOS, new long[] {1, 2}, new double[] {0.1, 0.2}));
   }
 
   @Test(expected = IllegalArgumentException.class)

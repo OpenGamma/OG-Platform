@@ -11,14 +11,17 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
+/**
+ * 
+ */
 public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
   private final Algebra _algebra = new Algebra();
 
   @Override
-  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y,
-      final boolean useIntercept) {
-    if (weights == null)
+  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y, final boolean useIntercept) {
+    if (weights == null) {
       throw new IllegalArgumentException("Cannot perform GLS regression without an array of weights");
+    }
     checkData(x, weights, y);
     final double[][] dep = addInterceptVariable(x, useIntercept);
     final double[] indep = new double[y.length];
@@ -33,15 +36,15 @@ public class GeneralizedLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
     final DoubleMatrix2D w = DoubleFactory2D.dense.make(wArray);
     final DoubleMatrix2D transpose = _algebra.transpose(matrix);
-    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(
-        transpose, _algebra.mult(w, matrix))), transpose), w), vector);
+    final DoubleMatrix1D betasVector =
+        _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(w, matrix))), transpose), w), vector);
     final double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final double[] betas = convertArray(betasVector.toArray());
     return getResultWithStatistics(x, y, betas, yModel, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y,
-      final double[] betas, final double[] yModel, final boolean useIntercept) {
+  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[] y, final double[] betas, final double[] yModel,
+      final boolean useIntercept) {
     double yMean = 0.;
     for (final double y1 : y) {
       yMean += y1;

@@ -12,17 +12,18 @@ import com.opengamma.math.PrimeNumbers;
 
 /**
  * 
- * @author emcleod
  */
 public class HaltonQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
   private final VanDerCorputQuasiRandomNumberGenerator _vanDerCorput = new VanDerCorputQuasiRandomNumberGenerator(2);
 
   @Override
   public List<Double[]> getVectors(final int dimension, final int n) {
-    if (dimension < 2)
+    if (dimension < 2) {
       throw new IllegalArgumentException("Dimension must be greater than one");
-    if (n < 0)
+    }
+    if (n < 0) {
       throw new IllegalArgumentException("Number of values must be greater than zero");
+    }
     final Double[][] sequence = new Double[n][dimension];
     final List<Double[]> result = new ArrayList<Double[]>(n);
     List<Double[]> s;

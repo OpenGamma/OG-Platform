@@ -11,7 +11,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class MinimumBracketerTestCase {
   private static final Function1D<Double, Double> F = new Function1D<Double, Double>() {

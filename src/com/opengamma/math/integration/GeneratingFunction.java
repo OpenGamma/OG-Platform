@@ -7,11 +7,10 @@ package com.opengamma.math.integration;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <S>
+ * @param <T>
  */
-
 public interface GeneratingFunction<S, T> {
 
-  public T generate(int n, S... params);
+  T generate(int n, S... params);
 }

@@ -15,7 +15,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class PortmanteauIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis TEST = new PortmanteauIIDHypothesis(0.05, 20);

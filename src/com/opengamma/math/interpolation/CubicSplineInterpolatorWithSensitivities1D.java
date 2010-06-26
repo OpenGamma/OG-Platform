@@ -17,18 +17,12 @@ public class CubicSplineInterpolatorWithSensitivities1D extends Interpolator1DWi
   /**
    * @param interpolator
    */
+  @SuppressWarnings("unchecked")
   public CubicSplineInterpolatorWithSensitivities1D() {
     super((Interpolator1D) new NaturalCubicSplineInterpolator1D());
     // TODO Auto-generated constructor stub
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * com.opengamma.math.interpolation.Interpolator1DWithSensitivities#interpolate
-   * (com.opengamma.math.interpolation.Interpolator1DModel, java.lang.Double)
-   */
   @Override
   public InterpolationResultWithSensitivities interpolate(Interpolator1DCubicSplineWthSensitivitiesModel model, Double value) {
     Validate.notNull(value, "Value to be interpolated must not be null");

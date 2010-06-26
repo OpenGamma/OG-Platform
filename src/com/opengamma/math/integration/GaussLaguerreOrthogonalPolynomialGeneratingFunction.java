@@ -14,13 +14,11 @@ import com.opengamma.math.function.special.NaturalLogGammaFunction;
 
 /**
  * 
- * @author emcleod
  */
-
 public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
-  private static final Logger s_Log = LoggerFactory.getLogger(GaussLaguerreOrthogonalPolynomialGeneratingFunction.class);
-  private final double EPS = 1e-6;
-  private final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
+  private static final Logger s_logger = LoggerFactory.getLogger(GaussLaguerreOrthogonalPolynomialGeneratingFunction.class);
+  private static final double EPS = 1e-6;
+  private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
 
   public GaussLaguerreOrthogonalPolynomialGeneratingFunction() {
@@ -40,14 +38,15 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
     if (params != null) {
-      s_Log.info("Limits for this integration method are 0 and +infinity; ignoring bounds");
+      s_logger.info("Limits for this integration method are 0 and +infinity; ignoring bounds");
     }
     return generate(n);
   }
 
   public GaussianQuadratureFunction generate(final int n) {
-    if (n <= 0)
+    if (n <= 0) {
       throw new IllegalArgumentException("Number of divisions cannot be less than one");
+    }
     double z = 0, z1 = 0, p1 = 0, p2 = 0, p3 = 0, pp = 0;
     int ai, j;
     final int max = getMaxIterations();
@@ -77,8 +76,9 @@ public class GaussLaguerreOrthogonalPolynomialGeneratingFunction extends Orthogo
           break;
         }
       }
-      if (j == max)
+      if (j == max) {
         throw new ConvergenceException("Could not converge in " + max + " iterations");
+      }
       x[i] = z;
       w[i] = -Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) - LOG_GAMMA_FUNCTION.evaluate(Double.valueOf(n))) / (pp * n * p2);
     }

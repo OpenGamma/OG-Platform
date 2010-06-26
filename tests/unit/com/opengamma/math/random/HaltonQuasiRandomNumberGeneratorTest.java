@@ -14,7 +14,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class HaltonQuasiRandomNumberGeneratorTest {
   private static final HaltonQuasiRandomNumberGenerator GENERATOR = new HaltonQuasiRandomNumberGenerator();
@@ -32,11 +31,11 @@ public class HaltonQuasiRandomNumberGeneratorTest {
 
   @Test
   public void test() {
-    final double[] x1 = new double[] { 1. / 2, 1. / 4, 3. / 4, 1. / 8, 5. / 8, 3. / 8, 7. / 8, 1. / 16, 9. / 16 };
-    final double[] x2 = new double[] { 1. / 3, 2. / 3, 1. / 9, 4. / 9, 7. / 9, 2. / 9, 5. / 9, 8. / 9, 1. / 27 };
+    final double[] x1 = new double[] {1. / 2, 1. / 4, 3. / 4, 1. / 8, 5. / 8, 3. / 8, 7. / 8, 1. / 16, 9. / 16};
+    final double[] x2 = new double[] {1. / 3, 2. / 3, 1. / 9, 4. / 9, 7. / 9, 2. / 9, 5. / 9, 8. / 9, 1. / 27};
     final List<Double[]> data = new ArrayList<Double[]>();
     for (int i = 0; i < x1.length; i++) {
-      data.add(new Double[] { x1[i], x2[i] });
+      data.add(new Double[] {x1[i], x2[i]});
     }
     test(GENERATOR.getVectors(2, x1.length), data);
   }

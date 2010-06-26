@@ -16,7 +16,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class IIDHypothesisTestCase {
   protected static final DoubleTimeSeries<Long> RANDOM;

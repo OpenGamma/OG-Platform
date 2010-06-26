@@ -13,7 +13,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class NormalRandomNumberGeneratorTest {
   private static final NormalRandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);

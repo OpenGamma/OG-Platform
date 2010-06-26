@@ -1,5 +1,4 @@
 /**
- * Copyright (C) 2009 - 2009 by OpenGamma Inc.
  *
  * Please see distribution for license.
  */
@@ -9,9 +8,8 @@ import java.util.List;
 
 /**
  * 
- * @author emcleod
  */
 public interface RandomNumberGenerator {
 
-  public List<Double[]> getVectors(final int dimension, final int n);
+  List<Double[]> getVectors(final int dimension, final int n);
 }

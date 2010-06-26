@@ -7,7 +7,6 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  *  Uses Broyden's Jacobian update formula
@@ -16,7 +15,8 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
 
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private DoubleMatrix2D _jacobianEstimate; //TODO change to Matrix<?>
+
+  // private DoubleMatrix2D _jacobianEstimate; //TODO change to Matrix<?>
 
   //private Decomposition<?> _decomp;
 
@@ -25,14 +25,14 @@ public class BroydenVectorRootFinder extends NewtonRootFinderImpl {
   }
 
   public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(new LUDecompositionCommons()), new JacobianEstimateInitializationFunction(new FiniteDifferenceJacobianCalculator()),
-        new BroydenMatrixUpdateFunction());
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(new LUDecompositionCommons()), new JacobianEstimateInitializationFunction(
+        new FiniteDifferenceJacobianCalculator()), new BroydenMatrixUpdateFunction());
     // _decomp = new LUDecompositionCommons();
   }
 
   public BroydenVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(new FiniteDifferenceJacobianCalculator()),
-        new BroydenMatrixUpdateFunction());
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(
+        new FiniteDifferenceJacobianCalculator()), new BroydenMatrixUpdateFunction());
     //Validate.notNull(decomp);
     //_decomp = decomp;
   }

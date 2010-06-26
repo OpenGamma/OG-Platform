@@ -9,9 +9,7 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * 
- * 
  */
-
 public class ComplexNumber extends Number {
   private final double _real;
   private final double _imaginary;

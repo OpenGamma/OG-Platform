@@ -7,8 +7,6 @@ package com.opengamma.math.integration;
 
 /**
  * 
- * @author emcleod
- * 
  */
 public class GaussLegendreOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
   private static final double EPS = 1e-12;
@@ -23,12 +21,15 @@ public class GaussLegendreOrthogonalPolynomialGeneratingFunction extends Orthogo
 
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
-    if (n <= 0)
+    if (n <= 0) {
       throw new IllegalArgumentException("Must have n > 0");
-    if (params == null)
+    }
+    if (params == null) {
       throw new IllegalArgumentException("Parameter array cannot be null");
-    if (params.length == 0)
+    }
+    if (params.length == 0) {
       throw new IllegalArgumentException("Parameter array is empty");
+    }
     final double lower = params[0];
     final double upper = params[1];
     final int m = (n + 1) / 2;

@@ -7,7 +7,6 @@ package com.opengamma.math.rootfinding;
 
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.LUDecompositionCommons;
-import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * Attempts to find the multi-dimensional root of a series of N equations with N variables, i.e. a square problem. 
@@ -16,19 +15,21 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public class NewtonVectorRootFinder extends NewtonRootFinderImpl {
   private static final double DEF_TOL = 1e-7;
   private static final int MAX_STEPS = 100;
-  private DoubleMatrix2D _jacobianEstimate;
+
+  // private DoubleMatrix2D _jacobianEstimate;
 
   //private Decomposition<?> _decomp;
 
   public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps, final Decomposition<?> decomp) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(new FiniteDifferenceJacobianCalculator()), new DefaultUpdateFunction());
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(decomp), new JacobianEstimateInitializationFunction(
+        new FiniteDifferenceJacobianCalculator()), new DefaultUpdateFunction());
     //Validate.notNull(decomp);
     //_decomp = decomp;
   }
 
   public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps) {
-    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(new LUDecompositionCommons()), new JacobianEstimateInitializationFunction(new FiniteDifferenceJacobianCalculator()),
-        new DefaultUpdateFunction());
+    super(absoluteTol, relativeTol, maxSteps, new JacobianDirectionFunction(new LUDecompositionCommons()), new JacobianEstimateInitializationFunction(
+        new FiniteDifferenceJacobianCalculator()), new DefaultUpdateFunction());
     //_decomp = new LUDecompositionCommons();
   }
 

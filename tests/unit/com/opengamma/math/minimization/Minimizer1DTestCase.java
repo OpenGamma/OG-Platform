@@ -12,7 +12,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class Minimizer1DTestCase {
   private static final double EPS = 1e-5;
@@ -35,7 +34,7 @@ public class Minimizer1DTestCase {
 
   public void testInputs(final Minimizer1D minimizer) {
     try {
-      minimizer.minimize(null, new Double[] { 2., 3. });
+      minimizer.minimize(null, new Double[] {2., 3.});
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -47,7 +46,7 @@ public class Minimizer1DTestCase {
       // Expected
     }
     try {
-      minimizer.minimize(QUADRATIC, new Double[] { 1. });
+      minimizer.minimize(QUADRATIC, new Double[] {1.});
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -55,9 +54,9 @@ public class Minimizer1DTestCase {
   }
 
   public void test(final Minimizer1D minimizer) {
-    Double[] result = minimizer.minimize(QUADRATIC, new Double[] { -10., 10. });
+    Double[] result = minimizer.minimize(QUADRATIC, new Double[] {-10., 10.});
     assertEquals(result[0], -3.5, EPS);
-    result = minimizer.minimize(QUINTIC, new Double[] { 0.5, 2. });
+    result = minimizer.minimize(QUINTIC, new Double[] {0.5, 2.});
     assertEquals(result[0], 1.06154, EPS);
   }
 }

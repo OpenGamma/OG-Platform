@@ -13,7 +13,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class GaussianQuadratureIntegrator1DTest {
   private static final Function1D<Double, Double> DF1 = new Function1D<Double, Double>() {

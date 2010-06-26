@@ -14,11 +14,9 @@ import com.opengamma.math.function.special.NaturalLogGammaFunction;
 
 /**
  * 
- * @author emcleod
  */
-
 public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends OrthogonalPolynomialGeneratingFunction {
-  private static final Logger s_Log = LoggerFactory.getLogger(GaussJacobiOrthogonalPolynomialGeneratingFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(GaussJacobiOrthogonalPolynomialGeneratingFunction.class);
   private static final double EPS = 1e-12;
   private static final Function1D<Double, Double> LOG_GAMMA_FUNCTION = new NaturalLogGammaFunction();
   private final double _alpha;
@@ -39,14 +37,15 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
   @Override
   public GaussianQuadratureFunction generate(final int n, final Double... params) {
     if (params != null) {
-      s_Log.info("Limits for this integration method are -1 and 1; ignoring bounds");
+      s_logger.info("Limits for this integration method are -1 and 1; ignoring bounds");
     }
     return generate(n);
   }
 
   public GaussianQuadratureFunction generate(final int n) {
-    if (n <= 0)
+    if (n <= 0) {
       throw new IllegalArgumentException("Must have n > 0");
+    }
     final double alphaBeta = _alpha + _beta;
     double an, bn, r1, r2, r3;
     double a, b, c;
@@ -100,20 +99,21 @@ public class GaussJacobiOrthogonalPolynomialGeneratingFunction extends Orthogona
           c = 2 * (k - 1 + _alpha) * (k - 1 + _beta) * alphaBeta2;
           p1 = (b * p2 - c * p3) / a;
         }
-        pp = (n * (_alpha - _beta - alphaBeta2 * z) * p1 + 2 * (n + _alpha) * (n + _beta) * p2)
-            / (alphaBeta2 * (1 - z * z));
+        pp = (n * (_alpha - _beta - alphaBeta2 * z) * p1 + 2 * (n + _alpha) * (n + _beta) * p2) / (alphaBeta2 * (1 - z * z));
         z1 = z;
         z = z1 - p1 / pp;
         if (Math.abs(z - z1) <= EPS) {
           break;
         }
       }
-      if (j == max)
+      if (j == max) {
         throw new ConvergenceException("Could not converge in " + max + " iterations");
+      }
       x[i] = z;
-      w[i] = Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n)
-          - LOG_GAMMA_FUNCTION.evaluate(n + 1.) - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
-          * alphaBeta2 * Math.pow(2, alphaBeta) / (pp * p2);
+      w[i] =
+          Math.exp(LOG_GAMMA_FUNCTION.evaluate(_alpha + n) + LOG_GAMMA_FUNCTION.evaluate(_beta + n) - LOG_GAMMA_FUNCTION.evaluate(n + 1.)
+              - LOG_GAMMA_FUNCTION.evaluate(n + alphaBeta + 1))
+              * alphaBeta2 * Math.pow(2, alphaBeta) / (pp * p2);
     }
     return new GaussianQuadratureFunction(x, w);
   }

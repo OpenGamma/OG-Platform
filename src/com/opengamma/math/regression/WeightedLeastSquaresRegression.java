@@ -16,17 +16,20 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 
+/**
+ * 
+ */
 public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
-  private static final Logger s_Log = LoggerFactory.getLogger(WeightedLeastSquaresRegression.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(WeightedLeastSquaresRegression.class);
   private final Algebra _algebra = new Algebra();
 
   @Override
-  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y,
-      final boolean useIntercept) {
-    if (weights == null)
+  public LeastSquaresRegressionResult regress(final double[][] x, final double[][] weights, final double[] y, final boolean useIntercept) {
+    if (weights == null) {
       throw new IllegalArgumentException("Cannot perform WLS regression without an array of weights");
+    }
     checkData(x, weights, y);
-    s_Log
+    s_logger
         .info("Have a two-dimensional array for what should be a one-dimensional array of weights. The weights used in this regression will be the diagonal elements only");
     final double[] w = new double[weights.length];
     for (int i = 0; i < w.length; i++) {
@@ -35,10 +38,10 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     return regress(x, w, y, useIntercept);
   }
 
-  public LeastSquaresRegressionResult regress(final double[][] x, final double[] weights, final double[] y,
-      final boolean useIntercept) {
-    if (weights == null)
+  public LeastSquaresRegressionResult regress(final double[][] x, final double[] weights, final double[] y, final boolean useIntercept) {
+    if (weights == null) {
       throw new IllegalArgumentException("Cannot perform WLS regression without an array of weights");
+    }
     checkData(x, weights, y);
     final double[][] dep = addInterceptVariable(x, useIntercept);
     final double[] indep = new double[y.length];
@@ -51,16 +54,15 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
     final DoubleMatrix1D vector = DoubleFactory1D.dense.make(indep);
     final DoubleMatrix2D wDiag = DoubleFactory2D.sparse.diagonal(DoubleFactory1D.dense.make(w));
     final DoubleMatrix2D transpose = _algebra.transpose(matrix);
-    final DoubleMatrix1D betasVector = _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(
-        transpose, _algebra.mult(wDiag, matrix))), transpose), wDiag), vector);
+    final DoubleMatrix1D betasVector =
+        _algebra.mult(_algebra.mult(_algebra.mult(_algebra.inverse(_algebra.mult(transpose, _algebra.mult(wDiag, matrix))), transpose), wDiag), vector);
     final double[] yModel = convertArray(_algebra.mult(matrix, betasVector).toArray());
     final double[] betas = convertArray(betasVector.toArray());
     return getResultWithStatistics(x, convertArray(wDiag.toArray()), y, betas, yModel, transpose, matrix, useIntercept);
   }
 
-  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[][] w,
-      final double[] y, final double[] betas, final double[] yModel, final DoubleMatrix2D transpose,
-      final DoubleMatrix2D matrix, final boolean useIntercept) {
+  private LeastSquaresRegressionResult getResultWithStatistics(final double[][] x, final double[][] w, final double[] y, final double[] betas,
+      final double[] yModel, final DoubleMatrix2D transpose, final DoubleMatrix2D matrix, final boolean useIntercept) {
     double yMean = 0.;
     for (final double y1 : y) {
       yMean += y1;
@@ -94,7 +96,7 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
         throw new com.opengamma.math.MathException(e);
       }
     }
-    return new WeightedLeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorsOfBeta, rSquared,
-        adjustedRSquared, tStats, pValues, useIntercept);
+    return new WeightedLeastSquaresRegressionResult(betas, residuals, meanSquareError, standardErrorsOfBeta, rSquared, adjustedRSquared, tStats, pValues,
+        useIntercept);
   }
 }

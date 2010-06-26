@@ -8,9 +8,12 @@ package com.opengamma.math.minimization;
 import com.opengamma.math.ConvergenceException;
 import com.opengamma.math.function.FunctionND;
 
+/**
+ * 
+ */
 public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
   // TODO better delta
-  private final double DELTA = 0.35;
+  private static final double DELTA = 0.35;
   private static final double EPS = 1e-12;
   private static final double OFFSET = 1e-15;
   private static final int MAX_FUNCTION_EVAL = 5000;
@@ -90,8 +93,8 @@ public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
     return psum;
   }
 
-  private double getExtrapolatedValues(final Double[][] p, final Double[] y, final Double[] pSum, final int iHigh, final double scaleFactor, final FunctionND<Double, Double> f,
-      final int dim) {
+  private double getExtrapolatedValues(final Double[][] p, final Double[] y, final Double[] pSum, final int iHigh, final double scaleFactor,
+      final FunctionND<Double, Double> f, final int dim) {
     final Double[] newP = new Double[dim];
     final double scaleFactor1 = (1 - scaleFactor) / dim;
     final double scaleFactor2 = scaleFactor1 - scaleFactor;
@@ -138,6 +141,6 @@ public class DownhillSimplexMinimizer extends MultidimensionalMinimizer {
         iNextHigh = i;
       }
     }
-    return new int[] { iLow, iHigh };
+    return new int[] {iLow, iHigh};
   }
 }

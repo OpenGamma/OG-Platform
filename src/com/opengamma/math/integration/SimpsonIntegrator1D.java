@@ -15,23 +15,29 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
+/**
+ * 
+ */
 public class SimpsonIntegrator1D extends Integrator1D<Double, Function1D<Double, Double>, Double> {
-  private static final Logger s_Log = LoggerFactory.getLogger(SimpsonIntegrator1D.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SimpsonIntegrator1D.class);
   private final UnivariateRealIntegrator _integrator = new SimpsonIntegrator();
 
   @Override
   public Double integrate(final Function1D<Double, Double> f, final Double lower, final Double upper) {
-    if (f == null)
+    if (f == null) {
       throw new IllegalArgumentException("Function was null");
-    if (lower == null)
+    }
+    if (lower == null) {
       throw new IllegalArgumentException("Lower bound was null");
-    if (upper == null)
+    }
+    if (upper == null) {
       throw new IllegalArgumentException("Upper bound was null");
+    }
     try {
       if (lower < upper) {
         return _integrator.integrate(CommonsMathWrapper.wrap(f), lower, upper);
       }
-      s_Log.info("Upper bound was less than lower bound; swapping bounds and negating result");
+      s_logger.info("Upper bound was less than lower bound; swapping bounds and negating result");
       return -_integrator.integrate(CommonsMathWrapper.wrap(f), upper, lower);
     } catch (final FunctionEvaluationException e) {
       throw new MathException(e);

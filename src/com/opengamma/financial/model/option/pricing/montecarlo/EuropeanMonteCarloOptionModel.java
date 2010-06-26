@@ -18,7 +18,6 @@ import com.opengamma.math.random.RandomNumberGenerator;
 
 /**
  * 
- * @author emcleod
  */
 public class EuropeanMonteCarloOptionModel extends MonteCarloOptionModel<OptionDefinition, StandardOptionDataBundle> {
 

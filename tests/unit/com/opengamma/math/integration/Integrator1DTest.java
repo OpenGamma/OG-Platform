@@ -13,7 +13,6 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
  */
 public class Integrator1DTest {
   private static final Integrator1D<Double, Function1D<Double, Double>, Double> INTEGRATOR = new Integrator1D<Double, Function1D<Double, Double>, Double>() {
@@ -32,8 +31,8 @@ public class Integrator1DTest {
     }
 
   };
-  private static final Double[] L = new Double[] { 1.3 };
-  private static final Double[] U = new Double[] { 3.4 };
+  private static final Double[] L = new Double[] {1.3};
+  private static final Double[] U = new Double[] {3.4};
 
   @Test
   public void testInputs() {
@@ -56,7 +55,7 @@ public class Integrator1DTest {
       // Expected
     }
     try {
-      INTEGRATOR.integrate(F, new Double[] { null }, U);
+      INTEGRATOR.integrate(F, new Double[] {null}, U);
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected
@@ -74,7 +73,7 @@ public class Integrator1DTest {
       // Expected
     }
     try {
-      INTEGRATOR.integrate(F, L, new Double[] { null });
+      INTEGRATOR.integrate(F, L, new Double[] {null});
       fail();
     } catch (final IllegalArgumentException e) {
       // Expected

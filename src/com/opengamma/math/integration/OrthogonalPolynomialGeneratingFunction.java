@@ -7,7 +7,6 @@ package com.opengamma.math.integration;
 
 /**
  * 
- * @author emcleod
  */
 public abstract class OrthogonalPolynomialGeneratingFunction implements GeneratingFunction<Double, GaussianQuadratureFunction> {
   private final int _maxIter;

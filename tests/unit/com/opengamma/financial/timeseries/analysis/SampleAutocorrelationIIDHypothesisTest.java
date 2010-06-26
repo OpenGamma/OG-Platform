@@ -15,7 +15,6 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class SampleAutocorrelationIIDHypothesisTest extends IIDHypothesisTestCase {
   private static final IIDHypothesis SAMPLE_ACF = new SampleAutocorrelationIIDHypothesis(0.05, 100);

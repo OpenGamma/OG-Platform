@@ -11,7 +11,6 @@ import com.opengamma.math.PrimeNumbers;
 
 /**
  * 
- * @author emcleod
  */
 public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumberGenerator {
 
@@ -25,6 +24,7 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
     }
     final int base = PrimeNumbers.getNextPrime(dimension);
     final int[][] a = getFirstDimension(n, dimension, base);
+    @SuppressWarnings("unused")
     final int m = (int) Math.floor(Math.log(dimension) / Math.log(base));
     final double[][] coeff = getBinomialCoefficientMatrix(base + 1, base);
     int sum;
@@ -34,10 +34,6 @@ public class FaureSequenceQuasiRandomNumberGenerator implements QuasiRandomNumbe
         sum += a[j][0] * coeff[i][j];
       }
       a[i][1] = sum % base;
-    }
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < dimension; j++) {
-      }
     }
     return null;
   }

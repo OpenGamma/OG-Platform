@@ -5,22 +5,27 @@
  */
 package com.opengamma.math.regression;
 
+/**
+ * 
+ */
 public abstract class LeastSquaresRegression {
 
-  public abstract LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y,
-      boolean useIntercept);
+  public abstract LeastSquaresRegressionResult regress(double[][] x, double[][] weights, double[] y, boolean useIntercept);
 
   protected void checkData(final double[][] x, final double[][] weights, final double[] y) {
     checkData(x, y);
     if (weights != null) {
-      if (weights.length == 0)
+      if (weights.length == 0) {
         throw new IllegalArgumentException("No data in weights array");
-      if (weights.length != x.length)
+      }
+      if (weights.length != x.length) {
         throw new IllegalArgumentException("Independent variable and weight arrays are not the same length");
+      }
       final int n = weights[0].length;
       for (final double[] w : weights) {
-        if (w.length != n)
+        if (w.length != n) {
           throw new IllegalArgumentException("Need a rectangular array of weight");
+        }
       }
     }
   }
@@ -28,32 +33,40 @@ public abstract class LeastSquaresRegression {
   protected void checkData(final double[][] x, final double[] weights, final double[] y) {
     checkData(x, y);
     if (weights != null) {
-      if (weights.length == 0)
+      if (weights.length == 0) {
         throw new IllegalArgumentException("No data in weights array");
-      if (weights.length != x.length)
+      }
+      if (weights.length != x.length) {
         throw new IllegalArgumentException("Independent variable and weight arrays are not the same length");
+      }
     }
   }
 
   protected void checkData(final double[][] x, final double[] y) {
-    if (x == null)
+    if (x == null) {
       throw new IllegalArgumentException("Independent variable array was null");
-    if (y == null)
+    }
+    if (y == null) {
       throw new IllegalArgumentException("Dependent variable array was null");
-    if (x.length == 0)
+    }
+    if (x.length == 0) {
       throw new IllegalArgumentException("No data in independent variable array");
-    if (y.length == 0)
+    }
+    if (y.length == 0) {
       throw new IllegalArgumentException("No data in dependent variable array");
-    if (x.length != y.length)
+    }
+    if (x.length != y.length) {
       throw new IllegalArgumentException("Dependent and independent variable arrays are not the same length");
+    }
     final int n = x[0].length;
     for (final double[] x1 : x) {
-      if (x1.length != n)
+      if (x1.length != n) {
         throw new IllegalArgumentException("Need a rectangular array of independent variables");
+      }
     }
-    if (y.length <= x[0].length)
-      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only "
-          + x[0].length + " data points");
+    if (y.length <= x[0].length) {
+      throw new IllegalArgumentException("Insufficient data; there are " + y.length + " variables but only " + x[0].length + " data points");
+    }
   }
 
   protected double[][] addInterceptVariable(final double[][] x, final boolean useIntercept) {

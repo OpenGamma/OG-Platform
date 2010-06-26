@@ -15,20 +15,15 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  * 
  */
 public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator1DWithSecondDerivativeModel {
-
-  private final Interpolator1DModel _underlyingData;
   private final DoubleMatrix1D _secondDerivatives;
   private final DoubleMatrix2D _secondDevSensitivities;
-
-  private final double leftFirstDev = 0;
-  private final double rightFirstDev = 0;
-  private final Boolean leftNatural = true;
-  private final Boolean rightNatural = true;
+  private final double _leftFirstDev = 0;
+  private final double _rightFirstDev = 0;
+  private final boolean _leftNatural = true;
+  private final boolean _rightNatural = true;
 
   public Interpolator1DCubicSplineWthSensitivitiesModel(Interpolator1DWithSecondDerivativeModel underlyingData) {
     super(underlyingData);
-    _underlyingData = underlyingData;
-
     final double[] x = underlyingData.getKeys();
     final double[] y = underlyingData.getValues();
     final int n = x.length;
@@ -64,7 +59,7 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
     }
 
     //Boundary condition
-    if (leftNatural) {
+    if (_leftNatural) {
       a[0] = 1.0;
       b[0] = 0.0;
     } else {
@@ -72,7 +67,7 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
       b[0] = deltaX[0] / 6.0;
     }
 
-    if (rightNatural) {
+    if (_rightNatural) {
       a[n - 1] = 1.0;
       c[n - 2] = 0.0;
     } else {
@@ -92,12 +87,12 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
       res[i][i] = -oneOverDeltaX[i] - oneOverDeltaX[i - 1];
       res[i][i + 1] = oneOverDeltaX[i];
     }
-    if (!leftNatural) {
+    if (!_leftNatural) {
       res[0][0] = oneOverDeltaX[0];
       res[0][1] = -oneOverDeltaX[0];
     }
 
-    if (!rightNatural) {
+    if (!_rightNatural) {
       res[n - 1][n - 1] = -oneOverDeltaX[n - 2];
       res[n - 2][n - 2] = oneOverDeltaX[n - 2];
     }
@@ -111,12 +106,12 @@ public class Interpolator1DCubicSplineWthSensitivitiesModel extends Interpolator
     for (int i = 1; i < n - 1; i++) {
       res[i] = deltaYOverDeltaX[i] - deltaYOverDeltaX[i - 1];
     }
-    if (!leftNatural) {
-      res[0] = leftFirstDev - deltaYOverDeltaX[0];
+    if (!_leftNatural) {
+      res[0] = _leftFirstDev - deltaYOverDeltaX[0];
     }
 
-    if (!rightNatural) {
-      res[n - 1] = rightFirstDev - deltaYOverDeltaX[n - 2];
+    if (!_rightNatural) {
+      res[n - 1] = _rightFirstDev - deltaYOverDeltaX[n - 2];
     }
     return new DoubleMatrix1D(res);
   }

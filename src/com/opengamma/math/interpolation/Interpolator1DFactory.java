@@ -13,19 +13,57 @@ import java.util.Map;
  */
 @SuppressWarnings("unchecked")
 public final class Interpolator1DFactory {
+  /**
+   * 
+   */
   public static final String LINEAR = "Linear";
+  /**
+   * 
+   */
   public static final LinearInterpolator1D LINEAR_INSTANCE = new LinearInterpolator1D();
+  /**
+   * 
+   */
   public static final String EXPONENTIAL = "Exponential";
+  /**
+   * 
+   */
   public static final ExponentialInterpolator1D EXPONENTIAL_INSTANCE = new ExponentialInterpolator1D();
+  /**
+   * 
+   */
   public static final String LOG_LINEAR = "LogLinear";
+  /**
+   * 
+   */
   public static final LogLinearInterpolator1D LOG_LINEAR_INSTANCE = new LogLinearInterpolator1D();
+  /**
+   * 
+   */
   public static final String NATURAL_CUBIC_SPLINE = "NaturalCubicSpline";
+  /**
+   * 
+   */
   public static final NaturalCubicSplineInterpolator1D NATURAL_CUBIC_SPLINE_INSTANCE = new NaturalCubicSplineInterpolator1D();
+  /**
+   * 
+   */
   public static final String CUBIC_SPLINE_WITH_SENSITIVITIES = "CubicSplineWithSensitivities";
+  /**
+   * 
+   */
   public static final CubicSplineInterpolatorWithSensitivities1D CUBIC_SPLINE_WITH_SENSITIVITIES_INSTANCE = new CubicSplineInterpolatorWithSensitivities1D();
-
+  /**
+   * 
+   */
   public static final String BARYCENTRIC_RATIONAL_FUNCTION = "BarycentricRationalFunction";
+  /**
+   * 
+   */
   public static final String POLYNOMIAL = "Polynomial";
+  /**
+   * 
+   */
   public static final String RATIONAL_FUNCTION = "RationalFunction";
 
   private static final Map<String, Interpolator1D> s_staticInstances;

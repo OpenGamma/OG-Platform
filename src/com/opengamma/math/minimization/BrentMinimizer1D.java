@@ -10,10 +10,7 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
- * 
  */
-
 public class BrentMinimizer1D extends Minimizer1D {
   private static final double GOLDEN = 0.61803399;
   private static final double COMPLEMENT = 1 - GOLDEN;
@@ -36,15 +33,20 @@ public class BrentMinimizer1D extends Minimizer1D {
     cx = bracketted[2];
     a = ax < cx ? ax : cx;
     b = ax > cx ? ax : cx;
-    x = w = v = bx;
+    v = bx;
+    w = v;
+    x = w;
     d = 0;
-    fw = fv = fx = f.evaluate(x);
+    fx = f.evaluate(x);
+    fv = fx;
+    fw = fv;
     for (int i = 0; i < MAX_ITER; i++) {
       xm = 0.5 * (a + b);
       tol1 = EPS * Math.abs(x) + ZERO;
       tol2 = 2 * tol1;
-      if (Math.abs(x - xm) <= tol2 - 0.5 * (b - a))
-        return new Double[] { x };
+      if (Math.abs(x - xm) <= tol2 - 0.5 * (b - a)) {
+        return new Double[] {x};
+      }
       if (Math.abs(e) > tol1) {
         r = (x - w) * (fx - fv);
         q = (x - v) * (fx - fw);
