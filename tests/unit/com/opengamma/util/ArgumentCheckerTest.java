@@ -394,5 +394,16 @@ public class ArgumentCheckerTest {
       assertEquals(ex.getMessage().contains("'name'"), true);
       throw ex;
     }
+  } 
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testNotEmptyLongArray() {
+    double[] d = new double[0];
+    try {
+      ArgumentChecker.notEmpty(d, "name");
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().contains("'name'"), true);
+      throw ex;
+    }
   }
 }

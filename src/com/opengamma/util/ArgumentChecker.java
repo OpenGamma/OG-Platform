@@ -106,6 +106,20 @@ public final class ArgumentChecker {
   }
 
   /**
+   * Checks that the specified parameter array is non-null and not empty.
+   * @param parameter  the parameter to check, may be null
+   * @param name  the name of the parameter to use in the error message, not null
+   * @throws NullPointerException if the input is null
+   * @throws IllegalArgumentException if the input is empty
+   */
+  public static void notEmpty(long[] parameter, String name) throws IllegalArgumentException {
+    notNull(parameter, name);
+    if (parameter.length == 0) {
+      throw new IllegalArgumentException("Input parameter array '" + name + "' must not be zero length");
+    }
+  }
+  
+  /**
    * Checks that the specified parameter collection is non-null and not empty.
    * @param parameter  the parameter to check, may be null
    * @param name  the name of the parameter to use in the error message, not null
