@@ -20,8 +20,8 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends RelativeTimeSeriesReturnCalculator {
-  private static final Logger s_Log = LoggerFactory.getLogger(SimpleNetRelativeTimeSeriesReturnCalculator.class);
-  private final double ZERO = 1e-12;
+  private static final Logger s_logger = LoggerFactory.getLogger(SimpleNetRelativeTimeSeriesReturnCalculator.class);
+  private static final double ZERO = 1e-12;
 
   public ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
@@ -31,7 +31,7 @@ public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends Re
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
     testInputData(x);
     if (x.length > 2) {
-      s_Log.info("Have more than two time series in array; only using first two");
+      s_logger.info("Have more than two time series in array; only using first two");
     }
     final FastLongDoubleTimeSeries ts1 = x[0].toFastLongDoubleTimeSeries();
     final FastLongDoubleTimeSeries ts2 = x[1].toFastLongDoubleTimeSeries();

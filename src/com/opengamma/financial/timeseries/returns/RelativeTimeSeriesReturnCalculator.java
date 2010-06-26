@@ -7,6 +7,8 @@ package com.opengamma.financial.timeseries.returns;
 
 import java.util.List;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -22,26 +24,25 @@ public abstract class RelativeTimeSeriesReturnCalculator extends TimeSeriesRetur
   }
 
   protected void testInputData(final DoubleTimeSeries<?>... x) {
-    ArgumentChecker.notNull(x, "x");
-    if (x.length == 0)
-      throw new TimeSeriesException("Need at least one time series");
-    if (x[0] == null)
-      throw new TimeSeriesException("First time series was null");
-    if (x[1] == null)
-      throw new TimeSeriesException("Second time series was null");
+    Validate.notNull(x, "x");
+    ArgumentChecker.notEmpty(x, "x");
+    Validate.notNull(x[0], "first time series");
+    Validate.notNull(x[1], "second time series");
     if (getMode() == CalculationMode.STRICT) {
       final int size = x[0].size();
       for (int i = 1; i < x.length; i++) {
-        if (x[i].size() != size)
+        if (x[i].size() != size) {
           throw new TimeSeriesException("Time series were not all the same length");
+        }
       }
       final List<?> times1 = x[0].times();
       List<?> times2;
       for (int i = 1; i < x.length; i++) {
         times2 = x[1].times();
         for (final Object t : times1) {
-          if (!times2.contains(t))
+          if (!times2.contains(t)) {
             throw new TimeSeriesException("Time series did not contain all the same dates");
+          }
         }
       }
     }

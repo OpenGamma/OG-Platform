@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
@@ -34,7 +35,7 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends Time
    *          series (can be null but it must be the second element), the
    *          reference price series and the reference dividend series. Any
    *          further elements will be ignored.
-   * @throws NullPointerException
+   * @throws IllegalArgumentException
    *          If the array is null
    * @throws TimeSeriesException
    *           Throws an exception if: the array has less
@@ -44,11 +45,13 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends Time
    */
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-    ArgumentChecker.notNull(x, "x");
-    if (x.length < 4)
+    Validate.notNull(x, "x");
+    if (x.length < 4) {
       throw new TimeSeriesException("Time series array must contain at least four elements");
-    if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size())
+    }
+    if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size()) {
       throw new TimeSeriesException("Asset price series and reference price series were not the same size");
+    }
     final DoubleTimeSeries<?> assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(x[0], x[1]);
     final DoubleTimeSeries<?> referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(x[2], x[3]);
     return assetReturn.toFastLongDoubleTimeSeries().subtract(referenceReturn.toFastLongDoubleTimeSeries());

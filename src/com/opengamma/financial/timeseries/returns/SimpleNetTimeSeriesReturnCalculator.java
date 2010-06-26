@@ -8,6 +8,8 @@ package com.opengamma.financial.timeseries.returns;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -42,27 +44,29 @@ public class SimpleNetTimeSeriesReturnCalculator extends TimeSeriesReturnCalcula
    *          the dividend was zero), and the dividend data points do not have
    *          to correspond to any of the dates in the price series (in which
    *          case, the result is the simple net return).
+   * @throws IllegalArgumentException
+   *           If: the array is null; it has no elements;
    * @throws TimeSeriesException
-   *           Throws an exception if: the array is null; it has no elements;
-   *           the time series has less than two entries; if the calculation
+   *           Throws an exception if: 
+   *           the time series has less than two entries; the calculation
    *           mode is strict and there are zeroes in the price series.
    * @return A DoubleTimeSeries containing the return series. This will always
    *         be one element shorter than the original price series.
    */
   @Override
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
-    ArgumentChecker.notNull(x, "x");
-    if (x.length == 0)
-      throw new TimeSeriesException("Need at least one time series");
-    if (x[0] == null)
-      throw new TimeSeriesException("First time series was null");
+    Validate.notNull(x, "x");
+    ArgumentChecker.notEmpty(x, "x");
+    Validate.notNull(x[0], "first time series");
     final FastLongDoubleTimeSeries ts = x[0].toFastLongDoubleTimeSeries();
-    if (ts.size() < 2)
+    if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
+    }
     FastLongDoubleTimeSeries d = null;
     if (x.length > 1) {
-      if (x[1] != null)
+      if (x[1] != null) {
         d = x[1].toFastLongDoubleTimeSeries();
+      }
     }
     final int n = ts.size();
     final long[] times = new long[n];
