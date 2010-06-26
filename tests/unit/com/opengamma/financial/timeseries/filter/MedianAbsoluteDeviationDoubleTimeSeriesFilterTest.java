@@ -43,7 +43,7 @@ public class MedianAbsoluteDeviationDoubleTimeSeriesFilterTest {
     TS = new FastArrayLongDoubleTimeSeries(ENCODING, DATES, DATA);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }

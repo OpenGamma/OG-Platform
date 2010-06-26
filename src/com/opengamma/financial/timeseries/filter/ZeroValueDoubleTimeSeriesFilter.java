@@ -8,6 +8,7 @@ package com.opengamma.financial.timeseries.filter;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class ZeroValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
-  private static final Logger s_Log = LoggerFactory.getLogger(ZeroValueDoubleTimeSeriesFilter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ZeroValueDoubleTimeSeriesFilter.class);
   private double _zero;
 
   public ZeroValueDoubleTimeSeriesFilter() {
@@ -31,22 +32,20 @@ public class ZeroValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
   }
 
   public ZeroValueDoubleTimeSeriesFilter(final double zero) {
-    if (zero < 0)
-      throw new IllegalArgumentException("Must have a positive value of zero");
+    ArgumentChecker.notNegative(zero, "zero");
     _zero = zero;
   }
 
   public void setZero(final double zero) {
-    if (zero < 0)
-      throw new IllegalArgumentException("Must have a positive value of zero");
+    ArgumentChecker.notNegative(zero, "zero");
     _zero = zero;
   }
 
   @Override
   public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
-    ArgumentChecker.notNull(ts, "ts");
+    Validate.notNull(ts, "ts");
     if (ts.isEmpty()) {
-      s_Log.info("Time series was empty");
+      s_logger.info("Time series was empty");
       return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
@@ -69,7 +68,7 @@ public class ZeroValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
       }
     }
     final DateTimeNumericEncoding encoding = x.getEncoding();
-    return new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i)), new FastArrayLongDoubleTimeSeries(
-        encoding, Arrays.trimToCapacity(rejectedDates, j), Arrays.trimToCapacity(rejectedData, j)));
+    return new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i)),
+        new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(rejectedDates, j), Arrays.trimToCapacity(rejectedData, j)));
   }
 }

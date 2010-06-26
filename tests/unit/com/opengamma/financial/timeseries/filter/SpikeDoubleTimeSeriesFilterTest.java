@@ -39,7 +39,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
     }
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }

@@ -25,7 +25,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class MovingAverageTimeSeriesModelTest {
   private static final double MEAN = 0;
   private static final double STD = 0.25;
-  private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(MEAN, STD, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
+  private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(MEAN, STD,
+      new MersenneTwister64(MersenneTwister64.DEFAULT_SEED)));
   private static final int ORDER = 2;
   private static final DoubleTimeSeries<Long> MA;
   private static final double[] THETA;
@@ -46,39 +47,39 @@ public class MovingAverageTimeSeriesModelTest {
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testBadConstructor() {
     new MovingAverageTimeSeriesModel(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullThetas() {
-    MODEL.getSeries(null, 2, new long[] { 1 });
+    MODEL.getSeries(null, 2, new long[] {1});
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyThetas() {
-    MODEL.getSeries(new double[0], 2, new long[] { 1 });
+    MODEL.getSeries(new double[0], 2, new long[] {1});
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    MODEL.getSeries(new double[] { 0.2 }, -3, new long[] { 1 });
+    MODEL.getSeries(new double[] {0.2}, -3, new long[] {1});
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testInsufficientThetas() {
-    MODEL.getSeries(new double[] { 0.2 }, 4, new long[] { 1 });
+    MODEL.getSeries(new double[] {0.2}, 4, new long[] {1});
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullDates() {
-    MODEL.getSeries(new double[] { 0.3 }, 1, null);
+    MODEL.getSeries(new double[] {0.3}, 1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testEmptyDates() {
-    MODEL.getSeries(new double[] { 0.3 }, 1, new long[0]);
+    MODEL.getSeries(new double[] {0.3}, 1, new long[0]);
   }
 
   @Test

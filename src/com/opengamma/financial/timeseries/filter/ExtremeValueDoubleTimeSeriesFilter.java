@@ -8,6 +8,7 @@ package com.opengamma.financial.timeseries.filter;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,42 +20,45 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class ExtremeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
-  private static final Logger s_Log = LoggerFactory.getLogger(ExtremeValueDoubleTimeSeriesFilter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExtremeValueDoubleTimeSeriesFilter.class);
   private double _minValue;
   private double _maxValue;
 
   public ExtremeValueDoubleTimeSeriesFilter(final double minValue, final double maxValue) {
-    if (minValue >= maxValue)
+    if (minValue >= maxValue) {
       throw new IllegalArgumentException("Minumum value must be less than maximum value");
+    }
     _minValue = minValue;
     _maxValue = maxValue;
   }
 
   public void setMinimumValue(final double minValue) {
-    if (minValue >= _maxValue)
+    if (minValue >= _maxValue) {
       throw new IllegalArgumentException("Minimum value must be less than maximum value");
+    }
     _minValue = minValue;
   }
 
   public void setMaximumValue(final double maxValue) {
-    if (maxValue <= _minValue)
+    if (maxValue <= _minValue) {
       throw new IllegalArgumentException("Maximum value must be greater than mimumum value");
+    }
     _maxValue = maxValue;
   }
 
   public void setRange(final double minValue, final double maxValue) {
-    if (minValue >= maxValue)
+    if (minValue >= maxValue) {
       throw new IllegalArgumentException("Minumum value must be less than maximum value");
+    }
     _minValue = minValue;
     _maxValue = maxValue;
   }
 
   @Override
   public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
-    if (ts == null)
-      throw new IllegalArgumentException("Time series was null");
+    Validate.notNull(ts, "ts");
     if (ts.isEmpty()) {
-      s_Log.info("Time series was empty");
+      s_logger.info("Time series was empty");
       return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();

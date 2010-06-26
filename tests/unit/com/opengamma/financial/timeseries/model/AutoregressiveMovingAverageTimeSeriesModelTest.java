@@ -30,7 +30,7 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final long[] DATES;
   private static final int P = 3;
   private static final int Q = 6;
-  private static final DoubleTimeSeries<Long> ARMA;
+  // private static final DoubleTimeSeries<Long> ARMA;
   private static final DoubleTimeSeries<Long> ARMA11;
   private static final DoubleTimeSeries<Long> MA;
   private static final DoubleTimeSeries<Long> AR;
@@ -57,13 +57,13 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
       theta1[i + 1] = THETA[i];
     }
     ARMA11 = MODEL.getSeries(PHI, 1, THETA, 1, DATES);
-    ARMA = MODEL.getSeries(PHI, P, THETA, Q, DATES);
+    //ARMA = MODEL.getSeries(PHI, P, THETA, Q, DATES);
     MA = MA_MODEL.getSeries(theta1, Q, DATES);
     AR = AR_MODEL.getSeries(PHI, P, DATES);
     LIMIT /= Math.sqrt(n);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     new AutoregressiveMovingAverageTimeSeriesModel(null);
   }
@@ -98,7 +98,7 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
     MODEL.getSeries(PHI, P, THETA, 2 * Q, DATES);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullDates() {
     MODEL.getSeries(PHI, P, THETA, Q, null);
   }

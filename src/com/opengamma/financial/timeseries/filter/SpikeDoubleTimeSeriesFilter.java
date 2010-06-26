@@ -8,10 +8,10 @@ package com.opengamma.financial.timeseries.filter;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -20,28 +20,28 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class SpikeDoubleTimeSeriesFilter extends TimeSeriesFilter {
-  private static final Logger s_Log = LoggerFactory.getLogger(SpikeDoubleTimeSeriesFilter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SpikeDoubleTimeSeriesFilter.class);
   private double _maxPercentageMove;
 
   public SpikeDoubleTimeSeriesFilter(final double maxPercentageMove) {
     if (maxPercentageMove < 0) {
-      s_Log.info("Maximum percentage move must be positive; using absolute value");
+      s_logger.info("Maximum percentage move must be positive; using absolute value");
     }
     _maxPercentageMove = Math.abs(maxPercentageMove);
   }
 
   public void setMaxPercentageMove(final double maxPercentageMove) {
     if (maxPercentageMove < 0) {
-      s_Log.info("Maximum percentage move must be positive; using absolute value");
+      s_logger.info("Maximum percentage move must be positive; using absolute value");
     }
     _maxPercentageMove = Math.abs(maxPercentageMove);
   }
 
   @Override
   public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
-    ArgumentChecker.notNull(ts, "ts");
+    Validate.notNull(ts, "ts");
     if (ts.isEmpty()) {
-      s_Log.info("Time series was empty");
+      s_logger.info("Time series was empty");
       return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     }
     final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();

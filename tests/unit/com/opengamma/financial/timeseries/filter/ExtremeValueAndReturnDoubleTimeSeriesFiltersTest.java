@@ -40,7 +40,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     VALUE_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTS2() {
     RETURN_FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
@@ -50,7 +50,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     new ExtremeValueDoubleTimeSeriesFilter(MAX, MIN);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullCalculator() {
     new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, null);
   }
@@ -160,9 +160,10 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
       }
     }
     FilteredTimeSeries result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(ENCODING, rejectedDates, rejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(ENCODING, rejectedDates,
+        rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData), new FastListLongDoubleTimeSeries(ENCODING, returnRejectedDates,
-        returnRejectedData)));
+    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData), new FastListLongDoubleTimeSeries(ENCODING,
+        returnRejectedDates, returnRejectedData)));
   }
 }

@@ -8,10 +8,10 @@ package com.opengamma.financial.timeseries.filter;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -20,13 +20,13 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 public class NegativeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
-  private static final Logger s_Log = LoggerFactory.getLogger(NegativeValueDoubleTimeSeriesFilter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(NegativeValueDoubleTimeSeriesFilter.class);
 
   @Override
   public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
-    ArgumentChecker.notNull(ts, "ts");
+    Validate.notNull(ts, "ts");
     if (ts.isEmpty()) {
-      s_Log.info("Time series was empty");
+      s_logger.info("Time series was empty");
       return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
     }
     final int n = ts.size();

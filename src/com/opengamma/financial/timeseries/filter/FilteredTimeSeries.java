@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -16,8 +17,8 @@ public class FilteredTimeSeries {
   private final DoubleTimeSeries<?> _rejectedTS;
 
   public FilteredTimeSeries(final DoubleTimeSeries<?> filteredTS, final DoubleTimeSeries<?> rejectedTS) {
-    ArgumentChecker.notNull(filteredTS, "filteredTS");
-    ArgumentChecker.notNull(rejectedTS, "rejectedTS");
+    Validate.notNull(filteredTS, "filteredTS");
+    Validate.notNull(rejectedTS, "rejectedTS");
     _filteredTS = filteredTS;
     _rejectedTS = rejectedTS;
   }
@@ -41,23 +42,30 @@ public class FilteredTimeSeries {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final FilteredTimeSeries other = (FilteredTimeSeries) obj;
     if (_filteredTS == null) {
-      if (other._filteredTS != null)
+      if (other._filteredTS != null) {
         return false;
-    } else if (!_filteredTS.equals(other._filteredTS))
+      }
+    } else if (!_filteredTS.equals(other._filteredTS)) {
       return false;
+    }
     if (_rejectedTS == null) {
-      if (other._rejectedTS != null)
+      if (other._rejectedTS != null) {
         return false;
-    } else if (!_rejectedTS.equals(other._rejectedTS))
+      }
+    } else if (!_rejectedTS.equals(other._rejectedTS)) {
       return false;
+    }
     return true;
   }
 }

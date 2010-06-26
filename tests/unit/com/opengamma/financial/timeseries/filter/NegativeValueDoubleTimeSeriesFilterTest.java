@@ -26,7 +26,7 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
   private static final TimeSeriesFilter FILTER = new NegativeValueDoubleTimeSeriesFilter();
   private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
     FILTER.evaluate((DoubleTimeSeries<Long>) null);
   }
@@ -63,7 +63,7 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
       }
     }
     final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, dates, data));
-    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)), new FastArrayLongDoubleTimeSeries(
-        ENCODING, Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
+    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)),
+        new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
   }
 }
