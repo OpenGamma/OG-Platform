@@ -5,14 +5,18 @@
  */
 package com.opengamma.financial.sensitivity;
 
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.util.ArgumentChecker;
+import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.greeks.Greek;
+
+/**
+ * 
+ */
 public class ValueGreek {
   private final Greek _underlyingGreek;
 
   public ValueGreek(final Greek underlyingGreek) {
-    ArgumentChecker.notNull(underlyingGreek, "underlying greek");
+    Validate.notNull(underlyingGreek, "underlying greek");
     _underlyingGreek = underlyingGreek;
   }
 
@@ -30,18 +34,23 @@ public class ValueGreek {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     final ValueGreek other = (ValueGreek) obj;
     if (_underlyingGreek == null) {
-      if (other._underlyingGreek != null)
+      if (other._underlyingGreek != null) {
         return false;
-    } else if (!_underlyingGreek.equals(other._underlyingGreek))
+      }
+    } else if (!_underlyingGreek.equals(other._underlyingGreek)) {
       return false;
+    }
     return true;
   }
 

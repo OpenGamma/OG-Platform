@@ -19,7 +19,7 @@ import com.opengamma.financial.greeks.Greek;
 public class ValueGreekTest {
   private static final ValueGreek GREEK = new ValueGreek(Greek.GAMMA);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullGreek() {
     new ValueGreek(null);
   }

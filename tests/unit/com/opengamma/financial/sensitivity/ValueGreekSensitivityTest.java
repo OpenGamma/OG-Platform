@@ -23,12 +23,12 @@ public class ValueGreekSensitivityTest {
   private static final String NAME = "NAME";
   private static final Sensitivity<ValueGreek> SENSITIVITY = new ValueGreekSensitivity(VALUE_GREEK, NAME);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullValueGreek() {
     new ValueGreekSensitivity(null, NAME);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullIdentifier() {
     new ValueGreekSensitivity(VALUE_GREEK, null);
   }

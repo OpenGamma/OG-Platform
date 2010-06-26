@@ -19,7 +19,7 @@ import com.opengamma.financial.greeks.Greek;
 public class PositionGreekTest {
   private static final PositionGreek GREEK = new PositionGreek(Greek.VANNA);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullGreek() {
     new PositionGreek(null);
   }

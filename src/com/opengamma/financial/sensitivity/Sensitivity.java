@@ -10,15 +10,19 @@ import java.util.Set;
 import com.opengamma.financial.greeks.Underlying;
 import com.opengamma.financial.pnl.UnderlyingType;
 
+/**
+ * 
+ * @param <T> Type of sensitivity
+ */
 public interface Sensitivity<T> {
 
-  public T getSensitivity();
+  T getSensitivity();
 
-  public String getIdentifier();
+  String getIdentifier();
 
-  public int getOrder();
+  int getOrder();
 
-  public Set<UnderlyingType> getUnderlyingTypes();
+  Set<UnderlyingType> getUnderlyingTypes();
 
-  public Underlying getUnderlying();
+  Underlying getUnderlying();
 }
