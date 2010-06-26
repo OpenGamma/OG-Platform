@@ -18,6 +18,8 @@ import com.opengamma.math.random.RandomNumberGenerator;
 
 /**
  * 
+ * @param <T>
+ * @param <U>
  */
 public abstract class MonteCarloOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
   private final int _n;

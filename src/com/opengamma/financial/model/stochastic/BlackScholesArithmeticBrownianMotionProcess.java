@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.stochastic;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.option.definition.OptionDefinition;
 import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.math.function.Function1D;
@@ -12,18 +14,18 @@ import com.opengamma.math.function.Function2D;
 
 /**
  * 
- * @author emcleod
+ * @param <T>
+ * @param <U>
  */
 public class BlackScholesArithmeticBrownianMotionProcess<T extends OptionDefinition, U extends StandardOptionDataBundle> extends StochasticProcess<T, U> {
 
   @Override
   public Function1D<Double, Double> getPathGeneratingFunction(final T t, final U u, final int steps) {
-    if (t == null)
-      throw new IllegalArgumentException("Option definition was null");
-    if (u == null)
-      throw new IllegalArgumentException("Data bundle was null");
-    if (steps < 1)
+    Validate.notNull(t);
+    Validate.notNull(u);
+    if (steps < 1) {
       throw new IllegalArgumentException("Number of steps must be greater than zero");
+    }
     final double k = t.getStrike();
     final double m = t.getTimeToExpiry(u.getDate());
     final double sigma = u.getVolatility(m, k);

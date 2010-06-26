@@ -9,6 +9,8 @@ import com.opengamma.financial.model.tree.RecombiningBinomialTree;
 
 /**
  * 
+ * @param <T>
+ * @param <U>
  */
 public abstract class BinomialOptionModelDefinition<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 

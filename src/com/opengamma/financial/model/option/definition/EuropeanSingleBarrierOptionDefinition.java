@@ -19,6 +19,10 @@ public class EuropeanSingleBarrierOptionDefinition extends OptionDefinition {
     return _barrier;
   }
 
+  public EuropeanVanillaOptionDefinition getUnderlyingOption() {
+    return _underlyingOption;
+  }
+
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     // TODO Auto-generated method stub

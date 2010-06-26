@@ -26,11 +26,11 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class BlackScholesArithmeticBrownianMotionProcessTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
-  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
+  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS =
+      new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
   private static final ZonedDateTime DATE = DateUtil.getUTCDate(2009, 1, 1);
   private static final Expiry EXPIRY = new Expiry(DateUtil.getDateOffsetWithYearFraction(DATE, 1));
   private static final OptionDefinition CALL = new EuropeanVanillaOptionDefinition(100, EXPIRY, true);

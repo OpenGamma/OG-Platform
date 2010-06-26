@@ -11,7 +11,8 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
+ * @param <T>
+ * @param <U>
  */
 public class AntitheticVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 

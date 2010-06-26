@@ -7,7 +7,7 @@ package com.opengamma.financial.model.tree;
 
 /**
  * 
- * @author emcleod
+ * @param <T>
  */
 public class ConstantRecombiningBinomialTree<T> extends RecombiningBinomialTree<T> {
   private final T _value;

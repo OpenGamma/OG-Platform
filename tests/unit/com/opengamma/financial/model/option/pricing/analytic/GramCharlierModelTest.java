@@ -24,7 +24,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class GramCharlierModelTest {
   private static final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> GRAM_CHARLIER = new GramCharlierModel();

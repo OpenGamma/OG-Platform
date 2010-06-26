@@ -14,8 +14,8 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <T>
+ * @param <U>
  */
 public abstract class TreeOptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> implements OptionModel<T, U> {
 

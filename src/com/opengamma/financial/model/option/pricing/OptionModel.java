@@ -14,12 +14,11 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <T>
+ * @param <U>
  */
-
 public interface OptionModel<T extends OptionDefinition, U extends StandardOptionDataBundle> {
 
-  public GreekResultCollection getGreeks(T definition, U data, Set<Greek> requiredGreeks);
+  GreekResultCollection getGreeks(T definition, U data, Set<Greek> requiredGreeks);
 
 }

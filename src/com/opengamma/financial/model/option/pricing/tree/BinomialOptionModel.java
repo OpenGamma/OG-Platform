@@ -22,11 +22,12 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
+ * @param <T>
  */
 public class BinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
-  protected final int _n;
-  protected final int _j;
-  protected BinomialOptionModelDefinition<OptionDefinition, T> _model;
+  private final int _n;
+  private final int _j;
+  private final BinomialOptionModelDefinition<OptionDefinition, T> _model;
 
   public BinomialOptionModel(final BinomialOptionModelDefinition<OptionDefinition, T> model) {
     _model = model;
@@ -68,7 +69,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
   public Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>> getTreeGeneratingFunction(final OptionDefinition definition) {
     return new Function1D<T, RecombiningBinomialTree<Pair<Double, Double>>>() {
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "synthetic-access" })
       @Override
       public RecombiningBinomialTree<Pair<Double, Double>> evaluate(final T data) {
         final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][_j];
@@ -95,7 +96,8 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
             optionValue = df * ((1 - p) * spotAndOptionPrices[i + 1][j].getSecond() + p * spotAndOptionPrices[i + 1][j + 1].getSecond());
             spotValue = spotAndOptionPrices[i + 1][j].getFirst() / d;
             newData = (T) data.withSpot(spotValue);
-            spotAndOptionPrices[i][j] = Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
+            spotAndOptionPrices[i][j] =
+                Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
           }
         }
         return new RecombiningBinomialTree<Pair<Double, Double>>(spotAndOptionPrices);
@@ -103,12 +105,16 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
     };
   }
 
+  /**
+   * 
+   */
   protected class BinomialModelFiniteDifferenceGreekVisitor extends FiniteDifferenceGreekVisitor<T, OptionDefinition> {
     private final RecombiningBinomialTree<Pair<Double, Double>> _tree;
     private final double _dt;
 
-    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<Pair<Double, Double>> tree, final Function1D<T, Double> function, final T data,
-        final OptionDefinition definition) {
+    @SuppressWarnings("synthetic-access")
+    public BinomialModelFiniteDifferenceGreekVisitor(final RecombiningBinomialTree<Pair<Double, Double>> tree, final Function1D<T, Double> function,
+        final T data, final OptionDefinition definition) {
       super(function, data, definition);
       _tree = tree;
       _dt = definition.getTimeToExpiry(data.getDate()) / _n;
@@ -127,8 +133,9 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
       final Pair<Double, Double> node22 = _tree.getNode(2, 2);
       final Pair<Double, Double> node21 = _tree.getNode(2, 1);
       final Pair<Double, Double> node20 = _tree.getNode(2, 0);
-      double gamma = (node22.getSecond() - node21.getSecond()) / (node22.getFirst() - node21.getFirst()) - (node21.getSecond() - node20.getSecond())
-          / (node21.getFirst() - node20.getFirst());
+      double gamma =
+          (node22.getSecond() - node21.getSecond()) / (node22.getFirst() - node21.getFirst()) - (node21.getSecond() - node20.getSecond())
+              / (node21.getFirst() - node20.getFirst());
       gamma /= 0.5 * (node22.getFirst() - node20.getFirst());
       return gamma;
     }

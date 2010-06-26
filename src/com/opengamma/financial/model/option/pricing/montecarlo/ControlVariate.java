@@ -9,11 +9,12 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
+ * @param <T>
+ * @param <U>
  */
 public interface ControlVariate<T, U> {
 
-  public Function1D<Double, Double> getVariateFunction(T t, U u, int steps);
+  Function1D<Double, Double> getVariateFunction(T t, U u, int steps);
 
-  public Double getInitialValue(T t, U u);
+  Double getInitialValue(T t, U u);
 }

@@ -22,11 +22,12 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * 
+ * @param <T>
  */
 public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends TreeOptionModel<OptionDefinition, T> {
-  protected final int _n;
-  protected final int _j;
-  protected TrinomialOptionModelDefinition<OptionDefinition, T> _model;
+  private final int _n;
+  private final int _j;
+  private final TrinomialOptionModelDefinition<OptionDefinition, T> _model;
 
   public TrinomialOptionModel(final TrinomialOptionModelDefinition<OptionDefinition, T> model) {
     _model = model;
@@ -64,7 +65,7 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
   public Function1D<T, RecombiningTrinomialTree<Pair<Double, Double>>> getTreeGeneratingFunction(final OptionDefinition definition) {
     return new Function1D<T, RecombiningTrinomialTree<Pair<Double, Double>>>() {
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "synthetic-access" })
       @Override
       public RecombiningTrinomialTree<Pair<Double, Double>> evaluate(final T data) {
         final Pair<Double, Double>[][] spotAndOptionPrices = new Pair[_n + 1][_j];
@@ -87,12 +88,14 @@ public class TrinomialOptionModel<T extends StandardOptionDataBundle> extends Tr
         T newData;
         for (int i = _n - 1; i >= 0; i--) {
           for (int j = 1; j <= RecombiningTrinomialTree.NODES.evaluate(i); j++) {
-            optionValue = df
-                * (u * spotAndOptionPrices[i + 1][j + 1].getSecond() + m * spotAndOptionPrices[i + 1][j].getSecond() + d * spotAndOptionPrices[i + 1][j - 1].getSecond());
+            optionValue =
+                df
+                    * (u * spotAndOptionPrices[i + 1][j + 1].getSecond() + m * spotAndOptionPrices[i + 1][j].getSecond() + d
+                        * spotAndOptionPrices[i + 1][j - 1].getSecond());
             spotValue = df * spotAndOptionPrices[i + 1][j].getFirst();
             newData = (T) data.withSpot(spotValue);
-            spotAndOptionPrices[i][j - 1] = Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData,
-                optionValue) : optionValue);
+            spotAndOptionPrices[i][j - 1] =
+                Pair.of(spotValue, exerciseFunction.shouldExercise(newData, optionValue) ? payoffFunction.getPayoff(newData, optionValue) : optionValue);
           }
         }
         return new RecombiningTrinomialTree<Pair<Double, Double>>(spotAndOptionPrices);

@@ -9,11 +9,12 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <T>
  */
-
 public class RecombiningTrinomialTree<T> extends RecombiningTree<T> {
+  /**
+   * 
+   */
   public static final Function1D<Integer, Integer> NODES = new Function1D<Integer, Integer>() {
 
     @Override

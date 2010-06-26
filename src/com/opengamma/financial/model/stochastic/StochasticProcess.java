@@ -13,7 +13,8 @@ import com.opengamma.math.function.Function2D;
 
 /**
  * 
- * 
+ * @param <T>
+ * @param <U>
  */
 public abstract class StochasticProcess<T, U> {
 

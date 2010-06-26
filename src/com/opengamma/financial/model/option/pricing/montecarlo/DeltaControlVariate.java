@@ -16,11 +16,13 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * 
+ * @param <T>
+ * @param <U>
  */
 public class DeltaControlVariate<T extends OptionDefinition, U extends StandardOptionDataBundle> implements ControlVariate<T, U> {
-  protected final AnalyticOptionModel<T, U> _analyticModel;
-  protected final Set<Greek> _greek = Collections.singleton(Greek.DELTA);
-  protected final double _beta = -1;
+  private final AnalyticOptionModel<T, U> _analyticModel;
+  private final Set<Greek> _greek = Collections.singleton(Greek.DELTA);
+  private final double _beta = -1;
 
   public DeltaControlVariate(final AnalyticOptionModel<T, U> analyticModel) {
     _analyticModel = analyticModel;
@@ -35,6 +37,7 @@ public class DeltaControlVariate<T extends OptionDefinition, U extends StandardO
     final double s = data.getSpot();
     return new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double x) {
         final double delta = _analyticModel.getGreeks(definition, data, _greek).get(Greek.DELTA);

@@ -7,13 +7,11 @@ package com.opengamma.financial.model.tree;
 
 /**
  * 
- * @author emcleod
- * 
+ * @param <T>
  */
-
 public interface Lattice<T> {
 
-  public T[][] getTree();
+  T[][] getTree();
 
-  public T getNode(int step, int node);
+  T getNode(int step, int node);
 }

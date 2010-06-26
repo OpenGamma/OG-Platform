@@ -24,7 +24,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class MertonJumpDiffusionModelTest {
   private static final AnalyticOptionModel<OptionDefinition, MertonJumpDiffusionModelOptionDataBundle> MODEL = new MertonJumpDiffusionModel();

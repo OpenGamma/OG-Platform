@@ -25,7 +25,6 @@ import com.opengamma.util.time.Expiry;
 
 /**
  * 
- * @author emcleod
  */
 public class ModifiedCorradoSuSkewnessKurtosisModelTest {
   private static final AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> CORRADO_SU = new ModifiedCorradoSuSkewnessKurtosisModel();

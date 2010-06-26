@@ -9,7 +9,6 @@ import org.junit.Test;
 
 /**
  * 
- * @author emcleod
  */
 public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest {
 

@@ -29,6 +29,14 @@ public class CapFloorDefinition extends OptionDefinition {
     _resetTenor = resetTenor;
   }
 
+  public boolean isCap() {
+    return _isCap;
+  }
+
+  public Tenor getResetTenor() {
+    return _resetTenor;
+  }
+
   @Override
   public OptionExerciseFunction<StandardOptionDataBundle> getExerciseFunction() {
     return _exerciseFunction;
