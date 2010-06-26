@@ -85,7 +85,7 @@ public class MovingAverageTimeSeriesModelTest {
   @Test
   public void testACF() {
     final double eps = 1e-2;
-    final Double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
+    final double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
     assertEquals(rho[0], 1, 1e-16);
     final double denom = 1 + THETA[1] * THETA[1] + THETA[2] * THETA[2];
     assertEquals(rho[1], (THETA[1] * THETA[2] + THETA[1]) / denom, eps);

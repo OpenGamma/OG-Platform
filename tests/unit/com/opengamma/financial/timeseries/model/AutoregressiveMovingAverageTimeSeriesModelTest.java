@@ -112,17 +112,17 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
   public void test() {
     final AutocovarianceFunctionCalculator autocovariance = new AutocovarianceFunctionCalculator();
     final AutocorrelationFunctionCalculator autocorrelation = new AutocorrelationFunctionCalculator();
-    final Double[] rhoAR = autocorrelation.evaluate(AR);
-    final Double[] rhoMA = autocorrelation.evaluate(MA);
-    final Double[] rhoARMAP0 = autocorrelation.evaluate(MODEL.getSeries(PHI, P, null, 0, DATES));
-    final Double[] rhoARMA0Q = autocorrelation.evaluate(MODEL.getSeries(null, 0, THETA, Q, DATES));
+    final double[] rhoAR = autocorrelation.evaluate(AR);
+    final double[] rhoMA = autocorrelation.evaluate(MA);
+    final double[] rhoARMAP0 = autocorrelation.evaluate(MODEL.getSeries(PHI, P, null, 0, DATES));
+    final double[] rhoARMA0Q = autocorrelation.evaluate(MODEL.getSeries(null, 0, THETA, Q, DATES));
     final double eps = Math.sqrt(STD) + 0.01;
     for (int i = 0; i < 200; i++) {
       assertEquals(Math.abs(rhoARMAP0[i] - rhoAR[i]), 0., eps);
       assertEquals(Math.abs(rhoARMA0Q[i] - rhoMA[i]), 0., eps);
     }
-    final Double[] rhoARMA11 = autocorrelation.evaluate(ARMA11);
-    final Double[] gammaARMA11 = autocovariance.evaluate(ARMA11);
+    final double[] rhoARMA11 = autocorrelation.evaluate(ARMA11);
+    final double[] gammaARMA11 = autocovariance.evaluate(ARMA11);
     assertEquals(PHI[1] - THETA[1] * STD * STD / gammaARMA11[0], rhoARMA11[1], eps);
   }
 }

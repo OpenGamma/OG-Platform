@@ -24,10 +24,10 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
  */
 public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister64.DEFAULT_SEED);
-  private static final Function1D<DoubleTimeSeries<?>, Double[]> COVARIANCE = new AutocovarianceFunctionCalculator();
-  private static final Function1D<DoubleTimeSeries<?>, Double[]> CORRELATION = new AutocorrelationFunctionCalculator();
+  private static final Function1D<DoubleTimeSeries<?>, double[]> COVARIANCE = new AutocovarianceFunctionCalculator();
+  private static final Function1D<DoubleTimeSeries<?>, double[]> CORRELATION = new AutocorrelationFunctionCalculator();
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testCovarianceWithNull() {
     COVARIANCE.evaluate((DoubleTimeSeries<?>) null);
   }
@@ -37,7 +37,7 @@ public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
     COVARIANCE.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testCorrelationWithNull() {
     CORRELATION.evaluate((DoubleTimeSeries<?>) null);
   }
@@ -56,7 +56,7 @@ public class AutocovarianceAndAutoCorrelationFunctionCalculatorsTest {
       dates[i] = i;
       data[i] = RANDOM.nextDouble();
     }
-    final Double[] result = CORRELATION.evaluate(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data));
+    final double[] result = CORRELATION.evaluate(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data));
     assertEquals(result[0], 1, 1e-16);
     final double level = 0.05;
     final double criticalValue = new NormalDistribution(0, 1).getInverseCDF(1 - level / 2.) / Math.sqrt(n);

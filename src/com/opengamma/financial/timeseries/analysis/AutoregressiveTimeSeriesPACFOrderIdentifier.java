@@ -5,32 +5,40 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.regression.LeastSquaresRegression;
 import com.opengamma.math.regression.LeastSquaresRegressionResult;
 import com.opengamma.math.regression.OrdinaryLeastSquaresRegression;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
+/**
+ * 
+ */
 public class AutoregressiveTimeSeriesPACFOrderIdentifier {
   private final int _maxOrder;
   private final double _level;
   private final LeastSquaresRegression _regression = new OrdinaryLeastSquaresRegression();
 
   public AutoregressiveTimeSeriesPACFOrderIdentifier(final int maxOrder, final double level) {
-    if (maxOrder < 1)
+    if (maxOrder < 1) {
       throw new IllegalArgumentException("Maximum order must be greater than zero");
-    if (level <= 0 || level > 1)
+    }
+    if (level <= 0 || level > 1) {
       throw new IllegalArgumentException("Level must be between 0 and 1");
+    }
     _maxOrder = maxOrder;
     _level = level;
   }
 
   public int getOrder(final DoubleTimeSeries<?> ts) {
-    if (ts == null)
-      throw new IllegalArgumentException("Time series was null");
-    if (ts.isEmpty())
+    Validate.notNull(ts);
+    if (ts.isEmpty()) {
       throw new IllegalArgumentException("Time series was empty");
-    if (ts.size() <= _maxOrder)
+    }
+    if (ts.size() <= _maxOrder) {
       throw new IllegalArgumentException("Need at least " + (_maxOrder + 1) + " points in the time series");
+    }
     final int n = ts.size();
     Integer order = null;
     final Double[] data = ts.valuesArray();
@@ -48,8 +56,9 @@ public class AutoregressiveTimeSeriesPACFOrderIdentifier {
         order = i;
       }
     }
-    if (order == null)
+    if (order == null) {
       throw new IllegalArgumentException("Could not find order of series using PACF; no significant coefficients");
+    }
     return order;
   }
 }

@@ -5,32 +5,35 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
+import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
- * @author emcleod
  */
 public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
-  private static final Logger s_Log = LoggerFactory.getLogger(SampleAutocorrelationIIDHypothesis.class);
-  private final Function1D<DoubleTimeSeries<?>, Double[]> _calculator = new AutocorrelationFunctionCalculator();
+  private static final Logger s_logger = LoggerFactory.getLogger(SampleAutocorrelationIIDHypothesis.class);
+  private final Function1D<DoubleTimeSeries<?>, double[]> _calculator = new AutocorrelationFunctionCalculator();
   private final double _level;
   private final double _criticalValue;
   private final int _h;
 
   public SampleAutocorrelationIIDHypothesis(final double level, final int maxLag) {
-    if (level <= 0 || level > 1)
+    if (!ArgumentChecker.isInRangeExcludingLow(0, 1, level)) {
       throw new IllegalArgumentException("Level must be between 0 and 1");
-    if (maxLag == 0)
+    }
+    if (maxLag == 0) {
       throw new IllegalArgumentException("Lag cannot be zero");
+    }
     if (maxLag < 0) {
-      s_Log.warn("Maximum lag was less than zero; using absolute value");
+      s_logger.warn("Maximum lag was less than zero; using absolute value");
     }
     _level = level;
     final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1);
@@ -40,9 +43,11 @@ public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
 
   @Override
   public boolean testIID(final DoubleTimeSeries<?> x) {
-    if (x.size() < _h)
+    Validate.notNull(x, "x");
+    if (x.size() < _h) {
       throw new IllegalArgumentException("Time series must have at least " + _h + " points");
-    final Double[] autocorrelations = _calculator.evaluate(x.toFastLongDoubleTimeSeries());
+    }
+    final double[] autocorrelations = _calculator.evaluate(x.toFastLongDoubleTimeSeries());
     final double upper = _criticalValue / Math.sqrt(x.size());
     final double lower = -upper;
     double violations = 0;
@@ -53,8 +58,9 @@ public class SampleAutocorrelationIIDHypothesis extends IIDHypothesis {
         violations++;
       }
     }
-    if (violations / _h > _level)
+    if (violations / _h > _level) {
       return false;
+    }
     return true;
   }
 }

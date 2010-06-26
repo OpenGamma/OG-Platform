@@ -82,7 +82,7 @@ public class AutoregressiveTimeSeriesModelTest {
   @Test
   public void testACF() {
     final double eps = 1e-2;
-    final Double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
+    final double[] rho = new AutocorrelationFunctionCalculator().evaluate(MA);
     final double rho1 = PHI[1] / (1 - PHI[2]);
     assertEquals(rho[0], 1, 1e-16);
     assertEquals(rho[1], rho1, eps);

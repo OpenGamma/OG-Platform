@@ -24,12 +24,12 @@ public class DoubleTimeSeriesStatisticsCalculatorTest {
   private static final double X = 1.23;
   private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2, 3, 4, 5}, new double[] {X, X, X, X, X});
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructor() {
     new DoubleTimeSeriesStatisticsCalculator(null);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullTS() {
     CALC.evaluate((DoubleTimeSeries<?>) null);
   }

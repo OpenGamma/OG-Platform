@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.timeseries.analysis;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -16,13 +17,13 @@ public class DoubleTimeSeriesStatisticsCalculator extends Function1D<DoubleTimeS
   private final Function1D<double[], Double> _statistic;
 
   public DoubleTimeSeriesStatisticsCalculator(final Function1D<double[], Double> statistic) {
-    ArgumentChecker.notNull(statistic, "statistic");
+    Validate.notNull(statistic, "statistic");
     _statistic = statistic;
   }
 
   @Override
   public Double evaluate(final DoubleTimeSeries<?> x) {
-    ArgumentChecker.notNull(x, "x");
+    Validate.notNull(x, "x");
     if (x.isEmpty()) {
       throw new IllegalArgumentException("Time series was empty");
     }
