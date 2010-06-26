@@ -28,7 +28,6 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  *
  */
 public class FXFutureAsForwardModelTest {
@@ -45,24 +44,24 @@ public class FXFutureAsForwardModelTest {
   private static final FXFutureDataBundle DATA = new FXFutureDataBundle(new ConstantYieldCurve(R1), new ConstantYieldCurve(R2), SPOT, DATE);
   private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {
     MODEL.getGreeks(null, DATA, GREEKS);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
     MODEL.getGreeks(DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullGreekSet() {
     MODEL.getGreeks(DEFINITION, DATA, null);
   }
 
   @Test
   public void testRequiredGreeks() {
-    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Collections.<Greek> emptySet()));
+    assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Collections.<Greek>emptySet()));
     assertEquals(new GreekResultCollection(), MODEL.getGreeks(DEFINITION, DATA, Sets.newHashSet(Greek.DELTA)));
   }
 

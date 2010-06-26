@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
- * @author emcleod
  *
  */
 public class StandardFutureDataBundle extends FutureDataBundle {
@@ -61,11 +60,6 @@ public class StandardFutureDataBundle extends FutureDataBundle {
     return new StandardFutureDataBundle(getYield(), getDiscountCurve(), getSpot(), getDate(), newStorageCost);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -78,11 +72,6 @@ public class StandardFutureDataBundle extends FutureDataBundle {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

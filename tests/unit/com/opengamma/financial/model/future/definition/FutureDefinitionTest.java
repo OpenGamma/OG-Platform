@@ -14,10 +14,10 @@ import com.opengamma.util.time.DateUtil;
 import com.opengamma.util.time.Expiry;
 
 /**
- * @author emcleod
  *
  */
 public class FutureDefinitionTest {
+
   @Test(expected = IllegalArgumentException.class)
   public void testNull() {
     new FutureDefinition(null);

@@ -7,10 +7,12 @@ package com.opengamma.financial.model.future.definition;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * @author emcleod
  *
  */
 public abstract class FutureDataBundle {
@@ -19,15 +21,9 @@ public abstract class FutureDataBundle {
   private final ZonedDateTime _date;
 
   public FutureDataBundle(final YieldAndDiscountCurve discountCurve, final double spot, final ZonedDateTime date) {
-    if (discountCurve == null) {
-      throw new IllegalArgumentException("Discount curve was null");
-    }
-    if (spot < 0) {
-      throw new IllegalArgumentException("Spot was negative");
-    }
-    if (date == null) {
-      throw new IllegalArgumentException("Date was null");
-    }
+    Validate.notNull(discountCurve, "discount curve");
+    ArgumentChecker.notNegative(spot, "spot");
+    Validate.notNull(date, "date");
     _discountCurve = discountCurve;
     _spot = spot;
     _date = date;
@@ -51,11 +47,6 @@ public abstract class FutureDataBundle {
 
   public abstract FutureDataBundle withDiscountCurve(YieldAndDiscountCurve newCurve);
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -68,11 +59,6 @@ public abstract class FutureDataBundle {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

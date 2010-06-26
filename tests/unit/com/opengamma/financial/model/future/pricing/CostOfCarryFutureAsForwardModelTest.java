@@ -42,24 +42,24 @@ public class CostOfCarryFutureAsForwardModelTest {
   private static final StandardFutureDataBundle FUTURE_DATA = new StandardFutureDataBundle(D, new ConstantYieldCurve(R), SPOT, DATE, STORAGE);
   private static final Set<Greek> GREEKS = Sets.newHashSet(Greek.FAIR_PRICE, Greek.DELTA);
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullDefinition() {
     FUTURE_MODEL.getGreeks(null, FUTURE_DATA, GREEKS);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullData() {
     FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, null, GREEKS);
   }
 
-  @Test(expected = NullPointerException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testNullGreekSet() {
     FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, null);
   }
 
   @Test
   public void testRequiredGreeks() {
-    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections.<Greek> emptySet()));
+    assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Collections.<Greek>emptySet()));
     assertEquals(new GreekResultCollection(), FUTURE_MODEL.getGreeks(FUTURE_DEFINITION, FUTURE_DATA, Sets.newHashSet(Greek.DELTA)));
   }
 

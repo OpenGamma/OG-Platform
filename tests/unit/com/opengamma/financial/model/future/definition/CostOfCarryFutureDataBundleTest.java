@@ -17,7 +17,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.time.DateUtil;
 
 /**
- * @author emcleod
  *
  */
 public class CostOfCarryFutureDataBundleTest {

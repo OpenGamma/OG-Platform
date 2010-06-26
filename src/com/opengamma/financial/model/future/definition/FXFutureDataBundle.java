@@ -12,7 +12,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
- * @author emcleod
  *
  */
 public class FXFutureDataBundle extends FutureDataBundle {
@@ -51,11 +50,6 @@ public class FXFutureDataBundle extends FutureDataBundle {
     return new FXFutureDataBundle(getDiscountCurve(), getForeignCurve(), getSpot(), newDate);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#hashCode()
-   */
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -64,11 +58,6 @@ public class FXFutureDataBundle extends FutureDataBundle {
     return result;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {
