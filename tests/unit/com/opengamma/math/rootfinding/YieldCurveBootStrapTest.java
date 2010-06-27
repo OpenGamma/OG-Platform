@@ -36,6 +36,9 @@ import com.opengamma.math.interpolation.LinearInterpolator1D;
 import com.opengamma.math.interpolation.NaturalCubicSplineInterpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.NewtonDefaultVectorRootFinder;
+import com.opengamma.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
@@ -96,7 +99,7 @@ public class YieldCurveBootStrapTest {
 
   @Test
   public void testNewton() {
-    final VectorRootFinder rootFinder = new NewtonVectorRootFinder(EPS, EPS, STEPS);
+    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     doHotSpot(rootFinder);
   }
 
@@ -187,7 +190,7 @@ public class YieldCurveBootStrapTest {
   public void testTickingSwapRates() {
 
     final NormalDistribution normDist = new NormalDistribution(0, 1.0, RANDOM);
-    final VectorRootFinder rootFinder = new NewtonVectorRootFinder(EPS, EPS, STEPS);
+    final VectorRootFinder rootFinder = new NewtonDefaultVectorRootFinder(EPS, EPS, STEPS);
     final double[] swapRates = Arrays.copyOf(SWAP_VALUES, SWAP_VALUES.length);
     DoubleMatrix1D yieldCurveNodes = X0;
     YieldAndDiscountCurve curve;

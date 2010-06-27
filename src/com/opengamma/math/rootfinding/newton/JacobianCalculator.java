@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.math.rootfinding.newton;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.math.rootfinding.newton;
 
 import static org.junit.Assert.assertEquals;
 
@@ -12,6 +12,8 @@ import org.junit.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
 
 /**
  * 

@@ -177,6 +177,7 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
   }
 
   @Override
+  //TODO this does not work in the same way as OG matrix algebra
   public Matrix<?> multiply(final Matrix<?> m1, final Matrix<?> m2) {
     if (m1 instanceof DoubleMatrix1D) {
       throw new IllegalArgumentException("Cannot have 1D matrix as first argument");
@@ -191,7 +192,6 @@ public class CommonsMatrixAlgebra extends MatrixAlgebra {
       } else {
         throw new IllegalArgumentException("Can only have 1D or 2D matrix as second argument");
       }
-      t2 = CommonsMathWrapper.wrap((DoubleMatrix2D) m2);
       return CommonsMathWrapper.wrap(t1.multiply(t2));
     }
     throw new IllegalArgumentException("Can only multiply 2D and 1D matrices");

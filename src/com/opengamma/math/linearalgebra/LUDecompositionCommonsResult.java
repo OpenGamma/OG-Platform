@@ -25,6 +25,9 @@ public class LUDecompositionCommonsResult implements LUDecompositionResult {
   private final DoubleMatrix2D _u;
 
   public LUDecompositionCommonsResult(final LUDecomposition lu) {
+    if (lu.getL() == null) {
+      throw new IllegalArgumentException("Matrix is singular; could not perform LU decomposition");
+    }
     _determinant = lu.getDeterminant();
     _l = CommonsMathWrapper.wrap(lu.getL());
     _p = CommonsMathWrapper.wrap(lu.getP());

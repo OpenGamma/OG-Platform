@@ -3,19 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.math.rootfinding.newton;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
+import com.opengamma.math.rootfinding.RootNotFoundException;
+import com.opengamma.math.rootfinding.VectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Base implementation for for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
  */
-public class NewtonRootFinderImpl extends VectorRootFinder {
+public class NewtonVectorRootFinder extends VectorRootFinder {
   private static final double ALPHA = 1e-4;
   private static final double BETA = 1.5;
   private static final int FULL_JACOBIAN_RECAL_FREQ = 20;
@@ -26,8 +28,9 @@ public class NewtonRootFinderImpl extends VectorRootFinder {
   private final NewtonRootFinderMatrixUpdateFunction _updateFunction;
   private final MatrixAlgebra _algebra = new OGMatrixAlgebra();
 
-  public NewtonRootFinderImpl(final double absoluteTol, final double relativeTol, final int maxSteps, final NewtonRootFinderDirectionFunction directionFunction,
-      final NewtonRootFinderMatrixInitializationFunction initializationFunction, final NewtonRootFinderMatrixUpdateFunction updateFunction) {
+  public NewtonVectorRootFinder(final double absoluteTol, final double relativeTol, final int maxSteps,
+      final NewtonRootFinderDirectionFunction directionFunction, final NewtonRootFinderMatrixInitializationFunction initializationFunction,
+      final NewtonRootFinderMatrixUpdateFunction updateFunction) {
     ArgumentChecker.notNegative(absoluteTol, "absolute tolerance");
     ArgumentChecker.notNegative(relativeTol, "relative tolerance");
     ArgumentChecker.notNegative(maxSteps, "maxSteps");
@@ -40,7 +43,6 @@ public class NewtonRootFinderImpl extends VectorRootFinder {
   }
 
   /**
-   * Use this if you DO have access to an analytic Jacobian
    *@param function a vector function (i.e. vector to vector) 
   * @param startPosition where to start the root finder for. Note if multiple roots exist which one if found (if at all) will depend on startPosition 
   * @return the vector root of the collection of functions 

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.math.rootfinding.newton;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;

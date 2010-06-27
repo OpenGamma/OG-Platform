@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.math.rootfinding.newton;
 
 import static com.opengamma.math.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
 import static org.junit.Assert.assertEquals;
@@ -13,12 +13,14 @@ import org.junit.Test;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
+import com.opengamma.math.rootfinding.VectorRootFinder;
 
 /**
  * 
  */
 public class VectorRootFinderTest {
-  protected static final double EPS = 1e-8;
+  protected static final double EPS = 1e-6;
+  protected static final double TOLERANCE = 1e-8;
   protected static final int MAXSTEPS = 100;
   protected static final Function1D<DoubleMatrix1D, DoubleMatrix1D> LINEAR = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
@@ -201,11 +203,11 @@ public class VectorRootFinderTest {
    * Note: at the root (1,1) the Jacobian is singular which leads to very slow convergence and is why
    * we switch to using SVD rather than the default LU
    */
-  public void testFunction2D(final NewtonRootFinderImpl rootFinder, final double eps) {
-    /*final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {-0.0, 0.0});
+  public void testFunction2D(final NewtonVectorRootFinder rootFinder, final double eps) {
+    final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {-0.0, 0.0});
     final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION2D, x0);
     assertEquals(1.0, x1.getEntry(0), eps);
-    assertEquals(1.0, x1.getEntry(1), eps);*/
+    assertEquals(1.0, x1.getEntry(1), eps);
   }
 
   public void testFunction3D(final VectorRootFinder rootFinder, final double eps) {
@@ -214,14 +216,6 @@ public class VectorRootFinderTest {
     assertEquals(1.0, x1.getData()[0], eps);
     assertEquals(0.0, x1.getData()[1], eps);
     assertEquals(-1.0, x1.getData()[2], eps);
-  }
-
-  public void testJacobian3D(final NewtonRootFinderImpl rootFinder, final double eps) {
-    /*final DoubleMatrix1D x0 = new DoubleMatrix1D(new double[] {2.0, 0.2, -0.7});
-    final DoubleMatrix1D x1 = rootFinder.getRoot(FUNCTION3D, JACOBIAN3D_CALCULATOR, x0);
-    assertEquals(1.0, x1.getData()[0], eps);
-    assertEquals(0.0, x1.getData()[1], eps);
-    assertEquals(-1.0, x1.getData()[2], eps);*/
   }
 
   public void testYieldCurveBootstrap(final VectorRootFinder rootFinder, final double eps) {

@@ -3,29 +3,25 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.rootfinding;
+package com.opengamma.math.rootfinding.newton;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.linearalgebra.Decomposition;
-import com.opengamma.math.linearalgebra.SVDecompositionColt;
-import com.opengamma.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.DoubleMatrixUtils;
-import com.opengamma.math.matrix.MatrixAlgebra;
+import com.opengamma.math.rootfinding.newton.FiniteDifferenceJacobianCalculator;
+import com.opengamma.math.rootfinding.newton.JacobianCalculator;
+import com.opengamma.math.rootfinding.newton.JacobianEstimateInitializationFunction;
 
 /**
  * 
  */
-public class InverseJacobianEstimateInitializationFunctionTest {
-  private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
+public class JacobianEstimateInitializationFunctionTest {
   private static final JacobianCalculator CALCULATOR = new FiniteDifferenceJacobianCalculator();
-  private static final Decomposition<?> SV = new SVDecompositionColt();
-  private static final InverseJacobianEstimateInitializationFunction ESTIMATE = new InverseJacobianEstimateInitializationFunction(SV, CALCULATOR);
+  private static final JacobianEstimateInitializationFunction ESTIMATE = new JacobianEstimateInitializationFunction(CALCULATOR);
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> F = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
@@ -38,13 +34,8 @@ public class InverseJacobianEstimateInitializationFunctionTest {
   private static final DoubleMatrix1D X = new DoubleMatrix1D(new double[] {1, 2, 3, 4});
 
   @Test(expected = IllegalArgumentException.class)
-  public void testNullDecomposition() {
-    new InverseJacobianEstimateInitializationFunction(null, CALCULATOR);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testNullCalculator() {
-    new InverseJacobianEstimateInitializationFunction(SV, null);
+  public void testNullJacobianCalculator() {
+    new JacobianEstimateInitializationFunction(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -62,11 +53,9 @@ public class InverseJacobianEstimateInitializationFunctionTest {
   public void test() {
     DoubleMatrix2D m1 = ESTIMATE.getInitializedMatrix(F, X);
     DoubleMatrix2D m2 = CALCULATOR.evaluate(X, F);
-    DoubleMatrix2D m3 = (DoubleMatrix2D) (ALGEBRA.multiply(m1, m2));
-    DoubleMatrix2D identity = DoubleMatrixUtils.getIdentityMatrix2D(4);
     for (int i = 0; i < 4; i++) {
       for (int j = 0; j < 4; j++) {
-        assertEquals(m3.getEntry(i, j), identity.getEntry(i, j), 1e-6);
+        assertEquals(m1.getEntry(i, j), m2.getEntry(i, j), 1e-9);
       }
     }
   }
