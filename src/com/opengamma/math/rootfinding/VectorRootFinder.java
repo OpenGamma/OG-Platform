@@ -14,7 +14,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  * The most common type of multi-dimensional root finding where one has a vector function (i.e maps a DoubleMatrix1D to a DoubleMatrix1D)
  * and wishes to find the vector root
  */
-public abstract class VectorRootFinder implements MultiDRootFinder<DoubleMatrix1D, DoubleMatrix1D> {
+public abstract class VectorRootFinder implements MultiDimensionalRootFinder<DoubleMatrix1D, DoubleMatrix1D> {
 
   protected void checkInputs(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final DoubleMatrix1D x0) {
     Validate.notNull(function);

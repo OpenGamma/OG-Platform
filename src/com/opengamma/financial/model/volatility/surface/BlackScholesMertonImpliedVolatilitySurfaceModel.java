@@ -19,6 +19,7 @@ import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonM
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * 
@@ -26,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 public class BlackScholesMertonImpliedVolatilitySurfaceModel implements VolatilitySurfaceModel<OptionDefinition, StandardOptionDataBundle> {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackScholesMertonImpliedVolatilitySurfaceModel.class);
   private final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> _bsm = new BlackScholesMertonModel();
-  private SingleRootFinder<StandardOptionDataBundle, Double, Double, Double> _rootFinder;
+  private SingleRootFinder<StandardOptionDataBundle, Double> _rootFinder;
 
   @Override
   public VolatilitySurface getSurface(final Map<OptionDefinition, Double> optionPrices, final StandardOptionDataBundle optionDataBundle) {
@@ -40,13 +41,14 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     final Double price = entry.getValue();
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
-    final double sigma = _rootFinder.getRoot(pricingFunction, 0., 10.);
-    return new ConstantVolatilitySurface(sigma);
+    return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(0)),
+        optionDataBundle.withVolatilitySurface(new ConstantVolatilitySurface(10))).getVolatilitySurface();
   }
 
-  private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double, Double, Double> {
+  private class MyBisectionSingleRootFinder implements SingleRootFinder<StandardOptionDataBundle, Double> {
     private final StandardOptionDataBundle _data;
     private final double _price;
+    private final Pair<Double, Double> _origin = Pair.of(0., 0.);
     private static final double ACCURACY = 1e-12;
     private static final double ZERO = 1e-16;
     private static final int MAX_ATTEMPTS = 10000;
@@ -57,20 +59,18 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
 
     @Override
-    public Double getRoot(final Function1D<StandardOptionDataBundle, Double> function, final Double lowVol, final Double highVol) {
-      StandardOptionDataBundle lowVolData = _data.withVolatilitySurface(new ConstantVolatilitySurface(lowVol));
+    public StandardOptionDataBundle getRoot(final Function1D<StandardOptionDataBundle, Double> function, final StandardOptionDataBundle lowVolData,
+        final StandardOptionDataBundle highVolData) {
       final Double lowPrice = function.evaluate(lowVolData) - _price;
       if (Math.abs(lowPrice) < ACCURACY) {
-        return lowVol;
+        return lowVolData;
       }
-      StandardOptionDataBundle highVolData = _data.withVolatilitySurface(new ConstantVolatilitySurface(lowVol));
       Double highPrice = function.evaluate(highVolData) - _price;
       if (Math.abs(highPrice) < ACCURACY) {
-        return highVol;
+        return highVolData;
       }
-      if (Math.abs(highPrice) < ACCURACY) {
-        return highVol;
-      }
+      double highVol = highVolData.getVolatilitySurface().getVolatility(_origin);
+      double lowVol = lowVolData.getVolatilitySurface().getVolatility(_origin);
       double dVol, midVol, rootVol;
       if (lowPrice < 0) {
         dVol = highVol - lowVol;
@@ -89,7 +89,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
           rootVol = midVol;
         }
         if (Math.abs(dVol) < ACCURACY || Math.abs(highVol) < ZERO) {
-          return rootVol;
+          return _data.withVolatilitySurface(new ConstantVolatilitySurface(rootVol));
         }
       }
       throw new OptionPricingException("Could not find volatility in " + MAX_ATTEMPTS + " attempts");
